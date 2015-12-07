@@ -2473,7 +2473,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$token_types = array(
 			'_label' => 'context_url',
 			'at_mention_name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'dob' => Model_CustomField::TYPE_DATE,
+			'dob' => Model_CustomField::TYPE_SINGLE_LINE,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'gender' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -2484,8 +2484,8 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'last_activity_date' => Model_CustomField::TYPE_DATE,
 			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'location' => Model_CustomField::TYPE_SINGLE_LINE,
-			'mobile' => Model_CustomField::TYPE_SINGLE_LINE,
-			'phone' => Model_CustomField::TYPE_SINGLE_LINE,
+			'mobile' => 'phone',
+			'phone' => 'phone',
 			'time_format' => Model_CustomField::TYPE_SINGLE_LINE,
 			'timezone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -2665,38 +2665,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$worker->language = $active_worker->language;
 		}
 		
-		$tpl->assign('worker', $worker);
-		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-		
-		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER, false);
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $context_id);
-		if(isset($custom_field_values[$context_id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
-		
-		// Authenticators
-		$auth_extensions = Extension_LoginAuthenticator::getAll(false);
-		$tpl->assign('auth_extensions', $auth_extensions);
-		
-		// Calendars
-		$calendars = DAO_Calendar::getOwnedByWorker($worker);
-		$tpl->assign('calendars', $calendars);
-		
-		// Languages
-		$languages = DAO_Translation::getDefinedLangCodes();
-		$tpl->assign('languages', $languages);
-		
-		// Timezones
-		$timezones = $date->getTimezones();
-		$tpl->assign('timezones', $timezones);
-		
-		// Time Format
-		$tpl->assign('time_format', DevblocksPlatform::getDateTimeFormat());
-		
 		if(empty($context_id) || $edit) {
 			// ACL
 			if(!$active_worker->is_superuser) {
@@ -2704,9 +2672,42 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
 			}
 			
+			$tpl->assign('worker', $worker);
+			
+			$groups = DAO_Group::getAll();
+			$tpl->assign('groups', $groups);
+			
+			// Custom Fields
+			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER, false);
+			$tpl->assign('custom_fields', $custom_fields);
+			
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			// Authenticators
+			$auth_extensions = Extension_LoginAuthenticator::getAll(false);
+			$tpl->assign('auth_extensions', $auth_extensions);
+			
+			// Calendars
+			$calendars = DAO_Calendar::getOwnedByWorker($worker);
+			$tpl->assign('calendars', $calendars);
+			
+			// Languages
+			$languages = DAO_Translation::getDefinedLangCodes();
+			$tpl->assign('languages', $languages);
+			
+			// Timezones
+			$timezones = $date->getTimezones();
+			$tpl->assign('timezones', $timezones);
+			
+			// Time Format
+			$tpl->assign('time_format', DevblocksPlatform::getDateTimeFormat());
+			
 			$tpl->display('devblocks:cerberusweb.core::workers/peek_edit.tpl');
 			
 		} else {
+			// Counts
 			$activity_counts = array(
 				'groups' => DAO_Group::countByMemberId($context_id),
 				'tickets' => DAO_Ticket::countsByOwnerId($context_id),
@@ -2716,6 +2717,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
+			// Links
 			$links = array(
 				CerberusContexts::CONTEXT_WORKER => array(
 					$context_id => 
@@ -2727,6 +2729,27 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 				),
 			);
 			$tpl->assign('links', $links);
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			$tpl->assign('properties',
+				array(
+					'address__label',
+					'at_mention_name',
+					'is_disabled',
+					'is_superuser',
+					'language',
+					'location',
+					'phone',
+					'mobile',
+					'timezone',
+					'updated',
+				)
+			);
 			
 			$tpl->display('devblocks:cerberusweb.core::workers/peek.tpl');
 		}

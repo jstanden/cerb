@@ -193,6 +193,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 			echo json_encode(array(
 				'status' => true,
 				'id' => $id,
+				'label' => $name,
 				'view_id' => $view_id,
 			));
 			return;

@@ -219,7 +219,10 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 				}
 				
 			} else {
-				DAO_Address::update($id, $fields);
+				if(false != ($address = DAO_Address::get($id))) {
+					$email = $address->email;
+					DAO_Address::update($id, $fields);
+				}
 			}
 	
 			if($id) {
@@ -249,6 +252,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			echo json_encode(array(
 				'status' => true,
 				'id' => $id,
+				'label' => $email,
 				'view_id' => $view_id,
 			));
 			

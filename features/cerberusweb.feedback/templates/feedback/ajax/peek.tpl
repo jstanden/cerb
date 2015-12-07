@@ -18,7 +18,7 @@
 	
 	<ul class="bubbles chooser-container">
 		{if $address}
-			<li><input type="hidden" name="quote_address_id" value="{$address->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$address->id}">{$address->email}</a> <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+			<li><input type="hidden" name="quote_address_id" value="{$address->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$address->id}">{$address->email}</a></li>
 		{/if}
 	</ul>
 	<br>

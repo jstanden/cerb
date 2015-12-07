@@ -373,6 +373,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			echo json_encode(array(
 				'status' => true,
 				'id' => $id,
+				'label' => $subject, // [TODO] Mask?
 				'view_id' => $view_id,
 			));
 			return;
@@ -1415,23 +1416,18 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Owner
 		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['do_owner'],'string',null);
-		if(0 != strlen($owner_id)) {
+		if(!is_null($owner_id)) {
 			$do['owner'] = array(
-				'worker_id' => intval($owner_id),
+				'worker_id' => $owner_id,
 			);
 		}
 		
 		// Org
-		@$org_name = DevblocksPlatform::importGPC($_REQUEST['do_org'],'string', null);
-		if(0 != strlen($org_name)) {
-			$org_id = DAO_ContactOrg::lookup($org_name, true);
-
-			if(!empty($org_id)) {
-				$do['org'] = array(
-					'org_id' => $org_id,
-					'org_name' => $org_name,
-				);
-			}
+		@$org_id = DevblocksPlatform::importGPC($_REQUEST['do_org'],'string',null);
+		if(!is_null($org_id)) {
+			$do['org'] = array(
+				'org_id' => $org_id,
+			);
 		}
 		
 		// Set status

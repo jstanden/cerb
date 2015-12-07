@@ -278,6 +278,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 			echo json_encode(array(
 				'status' => true,
 				'id' => $id,
+				'label' => $first_name . ($first_name && $last_name ? ' ' : '') . $last_name,
 				'view_id' => $view_id,
 			));
 			return;

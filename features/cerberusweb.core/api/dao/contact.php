@@ -424,6 +424,33 @@ class DAO_Contact extends Cerb_ORMHelper {
 		}
 	}
 	
+	static function autocomplete($term) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$ids = array();
+		
+		$results = $db->GetArraySlave(sprintf("SELECT id ".
+			"FROM contact ".
+			"WHERE (".
+			"first_name LIKE %s ".
+			"OR last_name LIKE %s ".
+			"%s".
+			")",
+			$db->qstr($term.'%'),
+			$db->qstr($term.'%'),
+			(false != strpos($term,' ')
+				? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
+				: '')
+		));
+		
+		
+		if(is_array($results))
+		foreach($results as $row) {
+			$ids[] = $row['id'];
+		}
+		
+		return DAO_Contact::getIds($ids);
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -668,7 +695,7 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 		if(false == ($models = DAO_Worker::getIds($ids)))
 			return;
 		
-		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('address_'));
+		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('email_'));
 		
 		if(empty($dicts))
 			return;
@@ -701,7 +728,7 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 			);
 			$models = DAO_Contact::getWhere($where, array(DAO_Contact::UPDATED_AT, DAO_Contact::ID), array(true, true), 100);
 
-			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('address_'));
+			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('email_'));
 			
 			if(empty($dicts)) {
 				$done = true;
@@ -1400,6 +1427,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => $prefix.$translate->_('common.id'),
 			'first_name' => $prefix.$translate->_('common.name.first'),
 			'gender' => $prefix.$translate->_('common.gender'),
+			'last_login_at' => $prefix.$translate->_('common.last_login'),
 			'last_name' => $prefix.$translate->_('common.name.last'),
 			'location' => $prefix.$translate->_('common.location'),
 			'mobile' => $prefix.$translate->_('common.mobile'),
@@ -1407,6 +1435,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'phone' => $prefix.$translate->_('common.phone'),
 			'title' => $prefix.$translate->_('common.title'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
+			'username' => $prefix.$translate->_('common.username'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -1416,6 +1445,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'gender' => Model_CustomField::TYPE_SINGLE_LINE,
+			'last_login_at' => Model_CustomField::TYPE_DATE,
 			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'location' => Model_CustomField::TYPE_SINGLE_LINE,
 			'mobile' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1423,6 +1453,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'phone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
+			'username' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
@@ -1446,18 +1477,18 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['id'] = $contact->id;
 			$token_values['first_name'] = $contact->first_name;
 			$token_values['gender'] = $contact->gender;
+			$token_values['last_login_at'] = $contact->last_login_at;
 			$token_values['last_name'] = $contact->last_name;
 			$token_values['location'] = $contact->location;
 			$token_values['mobile'] = $contact->mobile;
 			$token_values['phone'] = $contact->phone;
 			$token_values['name'] = $contact->getName();
 			$token_values['title'] = $contact->title;
+			$token_values['username'] = $contact->username;
 			$token_values['updated_at'] = $contact->updated_at;
 			
-			$token_values['address__context'] = CerberusContexts::CONTEXT_ADDRESS;
-			$token_values['address_id'] = $contact->primary_email_id;
+			$token_values['email_id'] = $contact->primary_email_id;
 			
-			$token_values['org__context'] = CerberusContexts::CONTEXT_ORG;
 			$token_values['org_id'] = $contact->org_id;
 			
 			// Custom fields
@@ -1467,6 +1498,39 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=contact&id=%d-%s",$contact->id, DevblocksPlatform::strToPermalink($contact->getName())), true);
 		}
+		
+		$context_stack = CerberusContexts::getStack();
+		
+		// Address
+		// Only link address placeholders if the contact isn't nested under an address already
+		if(1 == count($context_stack) || !in_array(CerberusContexts::CONTEXT_ADDRESS, $context_stack)) {
+			$merge_token_labels = array();
+			$merge_token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
+			
+				CerberusContexts::merge(
+					'email_',
+					$prefix.'Email:',
+					$merge_token_labels,
+					$merge_token_values,
+					$token_labels,
+					$token_values
+				);
+		}
+		
+		// Org
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, null, $merge_token_labels, $merge_token_values, '', true);
+		
+			CerberusContexts::merge(
+				'org_',
+				$prefix.'Org:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
 		
 		return true;
 	}
@@ -1588,6 +1652,28 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		if(empty($context_id) || $edit) {
+			if(empty($context_id) && !empty($edit)) {
+				$tokens = explode(' ', trim($edit));
+				
+				$model = new Model_Contact();
+				
+				foreach($tokens as $token) {
+					@list($k,$v) = explode(':', $token);
+					
+					if($v)
+					switch($k) {
+						case 'email':
+							$model->primary_email_id = intval($v);
+							break;
+							
+						case 'org':
+							$model->org_id = intval($v);
+							break;
+					}
+				}
+				
+				$tpl->assign('model', $model);
+			}
 			$tpl->display('devblocks:cerberusweb.core::internal/contact/peek_edit.tpl');
 		} else {
 			$activity_counts = array(
@@ -1608,8 +1694,24 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 						),
 				),
 			);
-			
 			$tpl->assign('links', $links);
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT, $contact, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			$tpl->assign('properties',
+				array(
+					'email__label',
+					'org__label',
+					'location',
+					'phone',
+					'mobile',
+					'updated_at',
+				)
+			);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/contact/peek.tpl');
 		}

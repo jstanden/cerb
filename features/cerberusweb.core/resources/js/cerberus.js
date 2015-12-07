@@ -608,7 +608,7 @@ var cAjaxCalls = function() {
 						if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
 							var $li = $('<li/>').text($label);
 							var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
-							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>').appendTo($li);
+							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
 							$ul.append($li);
 						}
 					}
@@ -755,6 +755,26 @@ var ajax = new cAjaxCalls();
 
 (function ($) {
 	
+	// Abstract property grid
+	
+	$.fn.cerbPropertyGrid = function(options) {
+		return this.each(function() {
+			var $grid = $(this);
+			var $properties = $grid.find('> div');
+			
+			var column_width = parseInt($grid.attr('data-column-width'));
+			if(0 == column_width)
+				column_width = 100;
+			
+			$properties.each(function() {
+				var $div = $(this);
+				var width = $div.width();
+				// Round widths to even increments (e.g. auto-span)
+				$div.width(Math.ceil(width/column_width)*column_width);
+			});
+		});
+	}
+	
 	// Abstract peeks
 	
 	$.fn.cerbPeekTrigger = function(options) {
@@ -763,8 +783,8 @@ var ajax = new cAjaxCalls();
 			var context = $trigger.attr('data-context');
 			var context_id = $trigger.attr('data-context-id');
 			var layer = $trigger.attr('data-layer');
-			var edit_mode = $trigger.attr('data-edit');
 			var width = $trigger.attr('data-width');
+			var edit_mode = $trigger.attr('data-edit') ? true : false;
 			
 			// Context
 			if(!(typeof context == "string") || 0 == context.length)
@@ -773,7 +793,7 @@ var ajax = new cAjaxCalls();
 			// Layer
 			if(!(typeof layer == "string") || 0 == layer.length)
 				//layer = "peek" + Devblocks.uniqueId();
-				layer = $.md5(context + ':' + context_id + ':' + edit_mode);
+				layer = $.md5(context + ':' + context_id + ':' + (edit_mode ? 'true' : 'false'));
 			
 			$trigger.click(function() {
 				var peek_url = 'c=internal&a=showPeekPopup&context=' + encodeURIComponent(context) + '&context_id=' + encodeURIComponent(context_id);
@@ -783,8 +803,9 @@ var ajax = new cAjaxCalls();
 					peek_url += '&view_id=' + encodeURIComponent(options.view_id);
 				
 				// Edit mode
-				if(edit_mode == 'true')
-					peek_url += '&edit=1';
+				if(edit_mode) {
+					peek_url += '&edit=' + encodeURIComponent($trigger.attr('data-edit'));
+				}
 				
 				if(!width)
 					width = '50%';
@@ -795,11 +816,13 @@ var ajax = new cAjaxCalls();
 				$trigger.trigger('cerb-peek-opened');
 				
 				$peek.on('peek_saved', function(e) {
-					$trigger.trigger('cerb-peek-saved');
+					e.type = 'cerb-peek-saved';
+					$trigger.trigger(e);
 				});
 				
 				$peek.on('peek_deleted', function(e) {
-					$trigger.trigger('cerb-peek-deleted');
+					e.type = 'cerb-peek-deleted';
+					$trigger.trigger(e);
 				});
 				
 				$peek.on('dialogclose', function(e) {
@@ -876,15 +899,12 @@ var ajax = new cAjaxCalls();
 						if($trigger.attr('data-single'))
 							$ul.find('li').remove();
 						
-						// [TODO] Check for dupes
-						
+						// Check for dupes
 						for(i in event.labels) {
-							if(0 == $ul.find('input:hidden[value="'+event.values[i]+'"]').length) {
-								var $li = $('<li/>').text(event.labels[i]);
-								$li.append($('<input type="hidden">').attr('name',field_name).attr('value',event.values[i]));
-								$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
-								$ul.append($li);
-							}
+							var evt = jQuery.Event('bubble-create');
+							evt.label = event.labels[i];
+							evt.value = event.values[i];
+							$ul.trigger(evt);
 						}
 					}
 					
@@ -892,11 +912,115 @@ var ajax = new cAjaxCalls();
 				});
 			});
 			
+			// Add remove icons with events
+			$ul.find('li').each(function() {
+				var $li = $(this);
+				var $close = $('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
+			});
+			
+			// Abstractly create new bubbles
+			$ul.on('bubble-create', function(e) {
+				e.stopPropagation();
+				var $label = e.label;
+				var $value = e.value;
+				
+				if(undefined != $label && undefined != $value) {
+					if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
+						var $li = $('<li/>');
+						
+						var $a = $('<a/>')
+							.text($label)
+							.attr('href','javascript:;')
+							.attr('data-context',context)
+							.attr('data-context-id',$value)
+							.appendTo($li)
+							.cerbPeekTrigger()
+							;
+						
+						var alias = '';
+						
+						if(context == "cerberusweb.contexts.address") {
+							alias = 'address';
+						} else if(context == "cerberusweb.contexts.contact") {
+							alias = 'contact';
+						} else if(context == "cerberusweb.contexts.group") {
+							alias = 'group';
+						} else if(context == "cerberusweb.contexts.org") {
+							alias = 'org';
+						} else if(context == "cerberusweb.contexts.worker") {
+							alias = 'worker';
+						} else if(context == "cerberusweb.contexts.virtual_attendant") {
+							alias = 'va';
+						}
+						
+						if(alias.length > 0) {
+							var url = DevblocksAppPath + 'avatars/' + alias + '/' + $value + '?v=';
+							var $img = $('<img class="cerb-avatar">').attr('src',url).prependTo($li);
+						}
+						
+						var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
+						var $a = $('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
+						$ul.append($li);
+						
+						$trigger.trigger('cerb-chooser-saved');
+					}
+				}
+			});
+			
+			// Catch bubble remove events at the container
+			$ul.on('click','> li span.glyphicons-circle-remove', function(e) {
+				e.stopPropagation();
+				$(this).closest('li').remove();
+				$trigger.trigger('cerb-chooser-saved');
+			});
+			
+			// Create
+			if($trigger.attr('data-create')) {
+				var is_create_ifnull = $trigger.attr('data-create') == 'if-null';
+				
+				var $button = $('<button type="button"/>')
+					.addClass('chooser-create')
+					.attr('data-context', context)
+					.attr('data-context-id', '0')
+					.append($('<span class="glyphicons glyphicons-circle-plus"/>'))
+					.insertAfter($trigger)
+					;
+				
+				if($trigger.attr('data-create-defaults')) {
+					$button.attr('data-edit', $trigger.attr('data-create-defaults'));
+				}
+				
+				$button.cerbPeekTrigger();
+				
+				// When the record is saved, retrieve the id+label and make a chooser bubble
+				$button.on('cerb-peek-saved', function(e) {
+					var evt = jQuery.Event('bubble-create');
+					evt.label = e.context_label;
+					evt.value = e.context_id;
+					$ul.trigger(evt);
+				});
+				
+				if(is_create_ifnull) {
+					if($ul.find('>li').length > 0)
+						$button.hide();
+					
+					$trigger.on('cerb-chooser-saved', function() {
+						// If we have zero bubbles, show autocomplete
+						if($ul.find('>li').length == 0) {
+							$button.show();
+						} else { // otherwise, hide it.
+							$button.hide();
+						}
+					});
+				}
+			}
+			
 			// Autocomplete
-			// [TODO] Check this with a data- attr
 			if($trigger.attr('data-autocomplete')) {
-				var $autocomplete = $('<input type="text" size="45">').addClass('input_search');
-				$autocomplete.insertBefore($trigger);
+				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete') == 'if-null';
+				
+				var $autocomplete = $('<input type="search" size="32">');
+				$autocomplete.insertAfter($trigger);
 				
 				$autocomplete.autocomplete({
 					source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
@@ -907,27 +1031,59 @@ var ajax = new cAjaxCalls();
 					autoFocus:true,
 					select:function(event, ui) {
 						var $this = $(this);
-						var $label = ui.item.label;
-						var $value = ui.item.value;
 						
 						if($trigger.attr('data-single'))
 							$ul.find('li').remove();
 						
-						if(undefined != $label && undefined != $value) {
-							if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
-								var $li = $('<li/>').text($label);
-								var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
-								var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>').appendTo($li);
-								$ul.append($li);
-							}
-						}
+						var evt = jQuery.Event('bubble-create');
+						evt.label = ui.item.label;
+						evt.value = ui.item.value;
+						
+						if(ui.item.icon)
+							evt.icon = ui.item.icon;
+						
+						$ul.trigger(evt);
 						
 						$this.val('');
 						return false;
 					}
 				});
 				
+				$autocomplete.autocomplete("instance")._renderItem = function(ul, item) {
+					var $div = $("<div/>").text(item.label);
+					var $li = $("<li/>").append($div);
+					
+					if(item.icon) {
+						var $img = $('<img class="cerb-avatar" style="height:28px;width:28px;border-radius:28px;float:left;padding-right:5px;">').attr('src',item.icon).prependTo($div);
+						$li.css('min-height','32px');
+					}
+					
+					if(typeof item.meta == 'object') {
+						for(k in item.meta) {
+							var $div = $('<div/>').append($('<small/>').text(item.meta[k]));
+							$li.append($div);
+						}
+					}
+					
+					$li.appendTo(ul);
+					return $li;
+				};
+				
 				$autocomplete.autocomplete('widget').css('max-width', $autocomplete.closest('form').width());
+				
+				if(is_autocomplete_ifnull) {
+					if($ul.find('>li').length > 0)
+						$autocomplete.hide();
+					
+					$trigger.on('cerb-chooser-saved', function() {
+						// If we have zero bubbles, show autocomplete
+						if($ul.find('>li').length == 0) {
+							$autocomplete.show();
+						} else { // otherwise, hide it.
+							$autocomplete.hide();
+						}
+					});
+				}
 			}
 		});
 	}

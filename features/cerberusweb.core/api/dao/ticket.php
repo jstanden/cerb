@@ -4337,7 +4337,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$change_fields[DAO_Ticket::IMPORTANCE] = $v['importance'];
 					break;
 				case 'owner':
-					$change_fields[DAO_Ticket::OWNER_ID] = $v['worker_id'];
+					$change_fields[DAO_Ticket::OWNER_ID] = intval($v['worker_id']);
 					break;
 				case 'org':
 					$change_fields[DAO_Ticket::ORG_ID] = intval($v['org_id']);
@@ -4761,8 +4761,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'num_messages' => Model_CustomField::TYPE_NUMBER,
 			'reopen_date' => Model_CustomField::TYPE_DATE,
 			'spam_score' => 'percent',
-			'spam_training' => null,
-			'status' => '',
+			'spam_training' => Model_CustomField::TYPE_SINGLE_LINE,
+			'status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'subject' => Model_CustomField::TYPE_SINGLE_LINE, // [TODO] tag as _label
 			'updated' => Model_CustomField::TYPE_DATE,
 			'url' => Model_CustomField::TYPE_URL,
@@ -5283,7 +5283,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function _renderPeekTicketPopup($context_id, $view_id) {
 		@$msgid = DevblocksPlatform::importGPC($_REQUEST['msgid'],'integer',0);
-		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'integer',0);
+		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'string',null);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 
@@ -5342,12 +5342,24 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 		} else {
 			// Counts
-			
 			$activity_counts = array(
 				'participants' => DAO_Address::countByTicketId($context_id),
 				'messages' => DAO_Message::countByTicketId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				CerberusContexts::CONTEXT_TICKET => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_TICKET,
+							$context_id,
+							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
 			
 			// Timeline
 			
@@ -5357,6 +5369,24 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$timeline_keys = array_keys($timeline);
 			$timeline_idx = array_pop($timeline_keys);
 			$tpl->assign('timeline_idx', $timeline_idx);
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			$tpl->assign('properties',
+				array(
+					'status',
+					'group__label',
+					'bucket__label',
+					'owner__label',
+					'importance',
+					'updated',
+					'org__label',
+				)
+			);
 			
 			// Template
 			

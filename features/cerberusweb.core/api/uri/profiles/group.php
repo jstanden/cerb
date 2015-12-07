@@ -252,6 +252,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 			echo json_encode(array(
 				'status' => true,
 				'id' => $group_id,
+				'label' => $name,
 				'view_id' => $view_id,
 			));
 			return;

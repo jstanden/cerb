@@ -184,7 +184,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$edit = DevblocksPlatform::importGPC($_REQUEST['edit'], 'integer', 0);
+		@$edit = DevblocksPlatform::importGPC($_REQUEST['edit'], 'string', null);
 		
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -1064,6 +1064,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$term = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
 
 		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::getUrlService();
 		
 		$list = array();
 		
@@ -1102,12 +1103,29 @@ class ChInternalController extends DevblocksControllerExtension {
 				);
 				
 				$models = DAO_Address::getIds(array_keys($results));
+				
+				// Efficiently load all of the referenced orgs in one query
+				$orgs = DAO_ContactOrg::getIds(DevblocksPlatform::extractArrayValues($models, 'contact_org_id'));
 
 				if(is_array($models))
 				foreach($models as $model) {
 					$entry = new stdClass();
-					$entry->label = $model->getNameWithEmail();
+					$entry->label = $model->email;
 					$entry->value = $model->id;
+					$entry->icon = $url_writer->write('c=avatars&type=address&id=' . $model->id, true) . '?v=' . $model->updated;
+					
+					$meta = array();
+					
+					if(false != ($full_name = $model->getName()))
+						$meta['full_name'] = $full_name;
+					
+					if($model->contact_org_id && isset($orgs[$model->contact_org_id])) {
+						$org = $orgs[$model->contact_org_id]; /* @var $org Model_ContactOrg */
+						$meta['org'] = $org->name;
+					}
+
+					$entry->meta = $meta;
+					
 					$list[] = $entry;
 				}
 				
@@ -1161,7 +1179,49 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 				break;
 
+			case CerberusContexts::CONTEXT_CONTACT:
+				$results = DAO_Contact::autocomplete($term);
+				
+				if(stristr('none',$term) || stristr('empty',$term) || stristr('no contact',$term)) {
+					$empty = new stdClass();
+					$empty->label = '(no contact)';
+					$empty->value = '0';
+					$empty->meta = array('desc' => 'Clear the contact');
+					$list[] = $empty;
+				}
+				
+				// Efficiently load all of the referenced orgs in one query
+				$orgs = DAO_ContactOrg::getIds(DevblocksPlatform::extractArrayValues($results, 'org_id'));
+
+				if(is_array($results))
+				foreach($results as $contact_id => $contact){
+					$entry = new stdClass();
+					$entry->label = $contact->getName();
+					$entry->value = sprintf("%d", $contact_id);
+					$entry->icon = $url_writer->write('c=avatars&type=contact&id=' . $contact->id, true) . '?v=' . $contact->updated_at;
+					
+					$meta = array();
+					$meta['role'] = $contact->title;
+
+					if($contact->org_id && isset($orgs[$contact->org_id])) {
+						$org = $orgs[$contact->org_id];
+						$meta['role'] .= (!empty($meta['role']) ? ' at ' : '') . $org->name;
+					}
+					
+					$entry->meta = $meta;
+					$list[] = $entry;
+				}
+				break;
+				
 			case CerberusContexts::CONTEXT_ORG:
+				if(stristr('none',$term) || stristr('empty',$term) || stristr('no organization',$term)) {
+					$empty = new stdClass();
+					$empty->label = '(no organization)';
+					$empty->value = '0';
+					$empty->meta = array('desc' => 'Clear the organization');
+					$list[] = $empty;
+				}
+				
 				list($results, $null) = DAO_ContactOrg::search(
 					array(),
 					array(
@@ -1178,6 +1238,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					$entry = new stdClass();
 					$entry->label = $row[SearchFields_ContactOrg::NAME];
 					$entry->value = $row[SearchFields_ContactOrg::ID];
+					$entry->icon = $url_writer->write('c=avatars&type=org&id=' . $row[SearchFields_ContactOrg::ID], true) . '?v=' . $row[SearchFields_ContactOrg::UPDATED];
 					$list[] = $entry;
 				}
 				break;
@@ -1268,11 +1329,28 @@ class ChInternalController extends DevblocksControllerExtension {
 			case CerberusContexts::CONTEXT_WORKER:
 				$results = DAO_Worker::autocomplete($term);
 
+				if(stristr('unassigned',$term) || stristr('nobody',$term) || stristr('empty',$term) || stristr('no worker',$term)) {
+					$empty = new stdClass();
+					$empty->label = '(no worker)';
+					$empty->value = '0';
+					$empty->meta = array('desc' => 'Clear the worker');
+					$list[] = $empty;
+				}
+				
 				if(is_array($results))
 				foreach($results as $worker_id => $worker){
 					$entry = new stdClass();
 					$entry->label = $worker->getName();
 					$entry->value = sprintf("%d", $worker_id);
+					$entry->icon = $url_writer->write('c=avatars&type=worker&id=' . $worker->id, true) . '?v=' . $worker->updated;
+					
+					$meta = array();
+					
+					if($worker->title)
+						$meta['title'] = $worker->title;
+					
+					$entry->meta = $meta;
+					
 					$list[] = $entry;
 				}
 				break;

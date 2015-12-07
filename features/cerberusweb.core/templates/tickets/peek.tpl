@@ -1,36 +1,32 @@
 {$div_id = "peek{uniqid()}"}
 
-{$group = $ticket->getGroup()}
-{$bucket = $ticket->getBucket()}
-{$org = $ticket->getOrg()}
-{$owner = $ticket->getOwner()}
-
 <div id="{$div_id}">
 	<div style="float:left;margin-right:10px;">
-		<img src="{devblocks_url}c=avatars&context=org&context_id={$ticket->org_id}{/devblocks_url}?v={$org->updated}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
+		<img src="{devblocks_url}c=avatars&context=org&context_id={$dict->org_id}{/devblocks_url}?v={$dict->org_updated}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
 	</div>
 	
 	<div style="float:left;font-weight:bold;">
-		[<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a>] 
-		<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
-		
+		<div>
+			{$dict->mask}
+		</div>
+	
 		<h1 style="color:inherit;">
-			{$ticket->subject}
+			{$dict->subject}
 		</h1>
 		
 		<div style="margin-top:5px;">
-			{if !empty($ticket->id)}
-				{$object_recommendations = DAO_ContextRecommendation::getByContexts(CerberusContexts::CONTEXT_TICKET, array($ticket->id))}
-				{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true recommend_group_id=$ticket->group_id recommend_bucket_id=$ticket->bucket_id}
+			{if !empty($dict->id)}
+				{$object_recommendations = DAO_ContextRecommendation::getByContexts(CerberusContexts::CONTEXT_TICKET, array($dict->id))}
+				{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$dict->id full=true recommend_group_id=$dict->group_id recommend_bucket_id=$dict->bucket_id}
 			{/if}
 		
-			{if !empty($ticket->id)}
-				{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER)}
-				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true}
+			{if !empty($dict->id)}
+				{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$dict->id full=true}
 			{/if}
 			
-			<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$ticket->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
-			{if $ticket}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 			
 			{*
 			<button type="button" class="split-left" onclick="$(this).next('button').click();" title="{'common.virtual_attendants'|devblocks_translate|capitalize}"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button><!--  
@@ -38,6 +34,7 @@
 			*}
 			
 		</div>
+		
 	</div>
 </div>
 
@@ -46,64 +43,44 @@
 <fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
-	<div style="float:left;width:200px;margin:0px 5px 5px 0px;">
-		<b>{'common.status'|devblocks_translate|capitalize}:</b><br>
-		{if $ticket->is_deleted}
-			{'status.deleted'|devblocks_translate|lower}
-		{elseif $ticket->is_closed}
-			{'status.closed'|devblocks_translate|lower}
-		{elseif $ticket->is_waiting}
-			{'status.waiting'|devblocks_translate|lower}
-		{else}
-			{'status.open'|devblocks_translate|lower}
-		{/if}
-	</div>
-	
-	{if $ticket->updated_date}
-	<div style="float:left;width:200px;margin:0px 5px 5px 0px;">
-		<b>{'common.updated'|devblocks_translate|capitalize}:</b><br>
-		<abbr title="{$ticket->updated_date|devblocks_date}">{$ticket->updated_date|devblocks_prettytime}</abbr>
-	</div>
-	{/if}
-	
-	{if $org}
-	<div style="float:left;width:200px;margin:0px 5px 5px 0px;">
-		<b>{'common.organization'|devblocks_translate|capitalize}:</b><br>
-		<ul class="bubbles">
-			<li class="bubble-gray">
-				<img src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;">
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$ticket->org_id}">{$org->name}</a>
-			</li>
-		</ul>
-	</div>
-	{/if}
-	
-	{if $owner}
-	<div style="float:left;width:200px;margin:0px 5px 5px 0px;">
-		<b>{'common.owner'|devblocks_translate|capitalize}:</b><br>
-		<ul class="bubbles">
-			<li class="bubble-gray">
-				<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;">
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$ticket->owner_id}">{$owner->getName()}</a>
-			</li>
-		</ul>
-	</div>
-	{/if}
-	
-	{if $ticket->importance}
-	<div style="float:left;width:200px;margin:0px 5px 5px 0px;">
-		<b>{'common.importance'|devblocks_translate|capitalize}:</b><br>
-		<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
-			<div style="position:relative;margin-left:-5px;top:-1px;left:{$ticket->importance}%;width:10px;height:10px;border-radius:10px;background-color:{if $ticket->importance < 50}rgb(0,200,0);{elseif $ticket->importance > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
+	<div class="cerb-properties-grid" data-column-width="100">
+		
+		{$labels = $dict->_labels}
+		{$types = $dict->_types}
+		{foreach from=$properties item=k name=props}
+		{if $dict->$k}
+		<div>
+			{if $k == 'status'}
+				<label>{$labels.$k}</label>
+				{$dict->$k}
+				{if $dict->is_waiting || $dict->is_closed}
+					{if $dict->reopen_date} (<abbr title="{$dict->reopen_date|devblocks_date}">{$dict->reopen_date|devblocks_prettytime}</abbr>){/if}
+				{/if}
+			{elseif $k == 'importance'}
+				<label>{$labels.$k}</label>
+				<div style="display:inline-block;margin-top:5px;width:75px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
+					<div style="position:relative;top:-1px;margin-left:-5px;left:{$dict->importance}%;width:10px;height:10px;border-radius:10px;background-color:{if $dict->importance < 50}rgb(0,200,0);{elseif $dict->importance > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
+				</div>
+			{elseif $k == 'spam_training'}
+				<label>{$labels.$k}</label>
+				{if $dict->$k == 'N'}
+					{'common.notspam'|devblocks_translate|capitalize}
+				{elseif $dict->$k == 'S'}
+					{'common.spam'|devblocks_translate|capitalize}
+				{/if}
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+			{/if}
 		</div>
+		{/if}
+		{/foreach}
 	</div>
-	{/if}
 	
 	<div style="clear:both;"></div>
 	
 	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="ticket.id:{$ticket->id}"><div class="badge-count">{$activity_counts.participants|default:0}</div> {'common.participants'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-query="ticket.id:{$ticket->id}"><div class="badge-count">{$activity_counts.messages|default:0}</div> {'common.messages'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="ticket.id:{$dict->id}"><div class="badge-count">{$activity_counts.participants|default:0}</div> {'common.participants'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-query="ticket.id:{$dict->id}"><div class="badge-count">{$activity_counts.messages|default:0}</div> {'common.messages'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
 
@@ -132,8 +109,6 @@
 		<span class="cerb-ajax-spinner"></span>
 	</div>
 </fieldset>
-
-{* [TODO] Custom fields and fieldsets *}
 
 <script type="text/javascript">
 $(function() {
@@ -170,11 +145,14 @@ $(function() {
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', "{'common.ticket'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
+		// Properties grid
+		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
+		
 		// Edit button
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
-				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}&view_id={$view_id}','reuse',false,'50%');
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
 			})
 			.on('cerb-peek-deleted', function(e) {
 				genericAjaxPopupClose($layer);
@@ -194,17 +172,17 @@ $(function() {
 		// View profile
 		$popup.find('.cerb-peek-profile').click(function(e) {
 			if(e.metaKey) {
-				window.open('{devblocks_url}c=profiles&type=ticket&id={$ticket->id}-{$ticket->subject|devblocks_permalink}{/devblocks_url}', '_blank');
+				window.open('{devblocks_url}c=profiles&type=ticket&id={$dict->id}-{$dict->subject|devblocks_permalink}{/devblocks_url}', '_blank');
 				
 			} else {
-				document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->id}-{$ticket->subject|devblocks_permalink}{/devblocks_url}';
+				document.location='{devblocks_url}c=profiles&type=ticket&id={$dict->id}-{$dict->subject|devblocks_permalink}{/devblocks_url}';
 			}
 		});
 		
 		// Timeline
 		var $timeline_fieldset = $popup.find('fieldset.cerb-peek-timeline');
 		var $timeline_pager = $popup.find('div.cerb-peek-timeline-pager');
-		var $timeline_preview = $popup.find('div.cerb-peek-timeline-preview');
+		var $timeline_preview = $popup.find('div.cerb-peek-timeline-preview').width($timeline_fieldset.width());
 		
 		$timeline_fieldset.on('cerb-redraw', function() {
 			// Spinner
