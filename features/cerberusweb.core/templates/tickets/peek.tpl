@@ -182,7 +182,7 @@ $(function() {
 		// Timeline
 		var $timeline_fieldset = $popup.find('fieldset.cerb-peek-timeline');
 		var $timeline_pager = $popup.find('div.cerb-peek-timeline-pager');
-		var $timeline_preview = $popup.find('div.cerb-peek-timeline-preview');
+		var $timeline_preview = $popup.find('div.cerb-peek-timeline-preview').width($timeline_fieldset.width());
 		
 		$timeline_fieldset.on('cerb-redraw', function() {
 			// Spinner
