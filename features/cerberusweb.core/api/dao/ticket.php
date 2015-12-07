@@ -5348,6 +5348,19 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
+			// Links
+			$links = array(
+				CerberusContexts::CONTEXT_TICKET => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_TICKET,
+							$context_id,
+							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
 			// Timeline
 			
 			$timeline = $ticket->getTimeline();
