@@ -1177,28 +1177,21 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 */
 	static function getRequestersByTicket($ticket_id) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$addresses = array();
 		
-		$sql = sprintf("SELECT a.id , a.email, a.is_banned, a.is_defunct ".
+		$sql = sprintf("SELECT a.id ".
 			"FROM address a ".
 			"INNER JOIN requester r ON (r.ticket_id = %d AND a.id=r.address_id) ".
 			"ORDER BY a.email ASC ",
 			$ticket_id
 		);
-		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-		 
-		while($row = mysqli_fetch_assoc($rs)) {
-			$address = new Model_Address();
-			$address->id = intval($row['id']);
-			$address->email = $row['email'];
-			$address->is_banned = intval($row['is_banned']);
-			$address->is_defunct = intval($row['is_defunct']);
-			$addresses[$address->id] = $address;
+		$results = $db->GetArray($sql);
+
+		if(is_array($results))
+		foreach($results as $result) {
+			$ids[] = $result['id'];
 		}
 		
-		mysqli_free_result($rs);
-
-		return $addresses;
+		return DAO_Address::getIds($ids);;
 	}
 	
 	static function findMissingRequestersInHeaders($headers, $current_requesters=array()) {
