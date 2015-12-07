@@ -1481,10 +1481,8 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['title'] = $contact->title;
 			$token_values['updated_at'] = $contact->updated_at;
 			
-			$token_values['address__context'] = CerberusContexts::CONTEXT_ADDRESS;
-			$token_values['address_id'] = $contact->primary_email_id;
+			$token_values['email_id'] = $contact->primary_email_id;
 			
-			$token_values['org__context'] = CerberusContexts::CONTEXT_ORG;
 			$token_values['org_id'] = $contact->org_id;
 			
 			// Custom fields
@@ -1494,6 +1492,39 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=contact&id=%d-%s",$contact->id, DevblocksPlatform::strToPermalink($contact->getName())), true);
 		}
+		
+		$context_stack = CerberusContexts::getStack();
+		
+		// Address
+		// Only link address placeholders if the contact isn't nested under an address already
+		if(1 == count($context_stack) || !in_array(CerberusContexts::CONTEXT_ADDRESS, $context_stack)) {
+			$merge_token_labels = array();
+			$merge_token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
+			
+				CerberusContexts::merge(
+					'email_',
+					$prefix.'Email:',
+					$merge_token_labels,
+					$merge_token_values,
+					$token_labels,
+					$token_values
+				);
+		}
+		
+		// Org
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, null, $merge_token_labels, $merge_token_values, '', true);
+		
+			CerberusContexts::merge(
+				'org_',
+				$prefix.'Org:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
 		
 		return true;
 	}

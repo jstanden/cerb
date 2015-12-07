@@ -1743,35 +1743,41 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['org_id'] = $org_id;
 		}
 		
-		// Email Contact
+		$context_stack = CerberusContexts::getStack();
 		
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT, null, $merge_token_labels, $merge_token_values, null, true);
-
-		CerberusContexts::merge(
-			'contact_',
-			$prefix,
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);
+		// Email Contact
+		// Only link contact placeholders if the address isn't nested under a contact already
+		if(1 == count($context_stack) || !in_array(CerberusContexts::CONTEXT_CONTACT, $context_stack)) {
+			$merge_token_labels = array();
+			$merge_token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT, null, $merge_token_labels, $merge_token_values, null, true);
+	
+			CerberusContexts::merge(
+				'contact_',
+				$prefix,
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
+		}
 		
 		// Email Org
-		
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, null, $merge_token_labels, $merge_token_values, null, true);
-
-		CerberusContexts::merge(
-			'org_',
-			$prefix,
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);
+		// Only link org placeholders if the org isn't nested under a contact already
+		if(1 == count($context_stack) || !in_array(CerberusContexts::CONTEXT_CONTACT, $context_stack)) {
+			$merge_token_labels = array();
+			$merge_token_values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, null, $merge_token_labels, $merge_token_values, null, true);
+	
+			CerberusContexts::merge(
+				'org_',
+				$prefix,
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
+		}
 		
 		return true;
 	}
