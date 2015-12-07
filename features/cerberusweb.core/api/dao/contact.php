@@ -1427,6 +1427,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => $prefix.$translate->_('common.id'),
 			'first_name' => $prefix.$translate->_('common.name.first'),
 			'gender' => $prefix.$translate->_('common.gender'),
+			'last_login_at' => $prefix.$translate->_('common.last_login'),
 			'last_name' => $prefix.$translate->_('common.name.last'),
 			'location' => $prefix.$translate->_('common.location'),
 			'mobile' => $prefix.$translate->_('common.mobile'),
@@ -1434,6 +1435,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'phone' => $prefix.$translate->_('common.phone'),
 			'title' => $prefix.$translate->_('common.title'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
+			'username' => $prefix.$translate->_('common.username'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -1443,6 +1445,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'gender' => Model_CustomField::TYPE_SINGLE_LINE,
+			'last_login_at' => Model_CustomField::TYPE_DATE,
 			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'location' => Model_CustomField::TYPE_SINGLE_LINE,
 			'mobile' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1450,6 +1453,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'phone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
+			'username' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
@@ -1473,12 +1477,14 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['id'] = $contact->id;
 			$token_values['first_name'] = $contact->first_name;
 			$token_values['gender'] = $contact->gender;
+			$token_values['last_login_at'] = $contact->last_login_at;
 			$token_values['last_name'] = $contact->last_name;
 			$token_values['location'] = $contact->location;
 			$token_values['mobile'] = $contact->mobile;
 			$token_values['phone'] = $contact->phone;
 			$token_values['name'] = $contact->getName();
 			$token_values['title'] = $contact->title;
+			$token_values['username'] = $contact->username;
 			$token_values['updated_at'] = $contact->updated_at;
 			
 			$token_values['email_id'] = $contact->primary_email_id;
