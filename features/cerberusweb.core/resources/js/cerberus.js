@@ -755,6 +755,26 @@ var ajax = new cAjaxCalls();
 
 (function ($) {
 	
+	// Abstract property grid
+	
+	$.fn.cerbPropertyGrid = function(options) {
+		return this.each(function() {
+			var $grid = $(this);
+			var $properties = $grid.find('> div');
+			
+			var column_width = parseInt($grid.attr('data-column-width'));
+			if(0 == column_width)
+				column_width = 100;
+			
+			$properties.each(function() {
+				var $div = $(this);
+				var width = $div.width();
+				// Round widths to even increments (e.g. auto-span)
+				$div.width(Math.ceil(width/column_width)*column_width);
+			});
+		});
+	}
+	
 	// Abstract peeks
 	
 	$.fn.cerbPeekTrigger = function(options) {
