@@ -695,7 +695,7 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 		if(false == ($models = DAO_Worker::getIds($ids)))
 			return;
 		
-		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('address_'));
+		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('email_'));
 		
 		if(empty($dicts))
 			return;
@@ -728,7 +728,7 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 			);
 			$models = DAO_Contact::getWhere($where, array(DAO_Contact::UPDATED_AT, DAO_Contact::ID), array(true, true), 100);
 
-			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('address_'));
+			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT, array('email_'));
 			
 			if(empty($dicts)) {
 				$done = true;
