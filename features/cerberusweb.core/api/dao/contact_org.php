@@ -1645,25 +1645,28 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$contact = DAO_ContactOrg::get($context_id);
-		$tpl->assign('org', $contact);
-		
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG, false);
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $context_id);
-		if(isset($custom_field_values[$context_id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
 		
 		// View
 		$tpl->assign('view_id', $view_id);
 		
 		if(empty($context_id) || $edit) {
+			$tpl->assign('org', $contact);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG, false);
+			$tpl->assign('custom_fields', $custom_fields);
+			
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
 			$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek_edit.tpl');
+			
 		} else {
+			// Counts
 			$activity_counts = array(
 				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_ORG, $context_id),
 				'contacts' => DAO_Contact::countByOrgId($context_id),
@@ -1672,6 +1675,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
+			// Links
 			$links = array(
 				CerberusContexts::CONTEXT_ORG => array(
 					$context_id => 
@@ -1683,6 +1687,20 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 				),
 			);
 			$tpl->assign('links', $links);
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $contact, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			$tpl->assign('properties',
+				array(
+					'phone',
+					'website',
+					'updated',
+				)
+			);
 			
 			$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek.tpl');
 		}

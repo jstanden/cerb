@@ -5342,7 +5342,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 		} else {
 			// Counts
-			
 			$activity_counts = array(
 				'participants' => DAO_Address::countByTicketId($context_id),
 				'messages' => DAO_Message::countByTicketId($context_id),
@@ -5357,6 +5356,24 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$timeline_keys = array_keys($timeline);
 			$timeline_idx = array_pop($timeline_keys);
 			$tpl->assign('timeline_idx', $timeline_idx);
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			$tpl->assign('properties',
+				array(
+					'status',
+					'group__label',
+					'bucket__label',
+					'owner__label',
+					'importance',
+					'updated',
+					'org__label',
+				)
+			);
 			
 			// Template
 			

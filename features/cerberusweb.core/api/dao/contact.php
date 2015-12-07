@@ -1657,8 +1657,24 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 						),
 				),
 			);
-			
 			$tpl->assign('links', $links);
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT, $contact, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			$tpl->assign('properties',
+				array(
+					'email__label',
+					'org__label',
+					'location',
+					'phone',
+					'mobile',
+					'updated_at',
+				)
+			);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/contact/peek.tpl');
 		}

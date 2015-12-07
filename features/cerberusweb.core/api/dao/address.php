@@ -1928,12 +1928,14 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek_edit.tpl');
 			
 		} else {
+			// Counts
 			$activity_counts = array(
 				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_ADDRESS, $context_id),
 				'tickets' => DAO_Ticket::countsByAddressId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
+			// Links
 			$links = array(
 				CerberusContexts::CONTEXT_ADDRESS => array(
 					$context_id => 
@@ -1945,6 +1947,24 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				),
 			);
 			$tpl->assign('links', $links);
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			$tpl->assign('properties',
+				array(
+					'org__label',
+					'contact__label',
+					'is_banned',
+					'is_defunct',
+					'num_nonspam',
+					'num_spam',
+					'updated',
+				)
+			);
 			
 			$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek.tpl');
 		}

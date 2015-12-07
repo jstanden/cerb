@@ -3473,7 +3473,7 @@ For example: *receipt*</seg>
 		
 		<tu tuid="worker.at_mention_name">
 			<tuv xml:lang="en_US">
-				<seg>@Mention Name</seg>
+				<seg>@Mention</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.auth_extension_id">
