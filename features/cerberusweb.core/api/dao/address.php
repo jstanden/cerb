@@ -326,7 +326,12 @@ class DAO_Address extends Cerb_ORMHelper {
 		
 		// Make sure this a valid, normalized, and properly formatted email address
 		
-		if(false == (@$email_data = array_shift(CerberusMail::parseRfcAddresses($email))) || !is_array($email_data))
+		$results = CerberusMail::parseRfcAddresses($email);
+		
+		if(!is_array($results) || false == ($email_data = array_shift($results)) || !is_array($email_data))
+			return false;
+		
+		if(!isset($email_data['email']))
 			return false;
 		
 		if($address = DAO_Address::getByEmail($email_data['email'])) {
