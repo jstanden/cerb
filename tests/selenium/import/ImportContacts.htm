@@ -13,7 +13,7 @@
 </thead><tbody>
 <tr>
 	<td>click</td>
-	<td>link=Email Address</td>
+	<td>link=Contact</td>
 	<td></td>
 </tr>
 <tr>
@@ -23,7 +23,7 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>css=div.ui-dialog span.glyphicons.glyphicons-file-import</td>
+	<td>css=div.ui-dialog table.worklist span.glyphicons.glyphicons-file-import</td>
 	<td></td>
 </tr>
 <tr>
@@ -48,10 +48,14 @@
 </tr>
 <tr>
 	<td>select</td>
+	<td>xpath=(//select[@name='column[]'])[1]</td>
+	<td>label=now</td>
+</tr>
+<tr>
+	<td>select</td>
 	<td>xpath=(//select[@name='column[]'])[3]</td>
 	<td>label=Column 3: Email</td>
 </tr>
-<!--
 <tr>
 	<td>select</td>
 	<td>xpath=(//select[@name='column[]'])[4]</td>
@@ -59,14 +63,23 @@
 </tr>
 <tr>
 	<td>select</td>
+	<td>xpath=(//select[@name='column[]'])[5]</td>
+	<td>label=Column 7: Gender</td>
+</tr>
+<tr>
+	<td>select</td>
 	<td>xpath=(//select[@name='column[]'])[7]</td>
 	<td>label=Column 2: Last Name</td>
 </tr>
--->
 <tr>
 	<td>select</td>
-	<td>xpath=(//select[@name='column[]'])[6]</td>
+	<td>xpath=(//select[@name='column[]'])[10]</td>
 	<td>label=Column 4: Company</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>xpath=(//select[@name='column[]'])[12]</td>
+	<td>label=Column 5: Title</td>
 </tr>
 <tr>
 	<td>click</td>

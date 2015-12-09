@@ -1,57 +1,57 @@
-"First Name","Last Name","Email","Company","Title","# Nonspam"
-"Kina","Halpue","kina@cerb.example","Cerb","Customer Support",2
-"Milo","Dade","milo@cerb.example","Cerb","Software Architect",1
-"Karl","Kwota","karl@cerb.example","Cerb","Account Manager",
-"Mara","Kusako","mara@cerb.example","Cerb","QA Engineer",
-"Janey","Youve","janey@cerb.example","Cerb","UI/UX Designer",
-,,"support@cerb.example","Cerb",,
-"Claire","Bertin","c.bertin@baston.example","Baston Defence",,
-"Marie","Reynaud","m.reynaud@baston.example","Baston Defence","IT Engineer",1
-"Félix","Levy","f.levy@baston.example","Baston Defence",,
-"Inès","Lacroix","i.lacroix@baston.example","Baston Defence","Support Integration Officer",2
-"François","Moreno","f.moreno@baston.example","Baston Defence","Software Analyst",1
-"Sarah","Adams","s.adams@dobbus.example","Dobbus Airways","IT Specialist",1
-"Patricia","Thomas","p.thomas@dobbus.example","Dobbus Airways",,
-"Jennifer","Moore","j.moore@dobbus.example","Dobbus Airways",,
-"William","Moore","w.moore@dobbus.example","Dobbus Airways",,
-"James","Nelson","j.nelson@dobbus.example","Dobbus Airways","CTO",1
-"Zoë","De Vos","z.de.vos@donter.example","Donter Institute","Technology Advisor",1
-"Eva","Jacobs","e.jacobs@donter.example","Donter Institute",,
-"Lisa","Dubois","l.dubois@donter.example","Donter Institute","Intake Coordinator",1
-"Adrien","Stevens","a.stevens@donter.example","Donter Institute",,
-"Mathias","Dumont","m.dumont@donter.example","Donter Institute","Senior Fellow",1
-"Christian","Bruno","c.bruno@fiaflux.example","Fiaflux Software",,
-"Alessio","Costa","a.costa@fiaflux.example","Fiaflux Software","Software Developer",1
-"Davide","Moretti","d.moretti@fiaflux.example","Fiaflux Software",,
-"Sofia","Gallo","s.gallo@fiaflux.example","Fiaflux Software",,
-"Giada","Rossi","g.rossi@fiaflux.example","Fiaflux Software","Developer Liaison",2
-"Ethan","Anderson","e.anderson@franchir.example","Franchir Pharmaceuticals, Inc.",,
-"Hunter","Wilson","h.wilson@franchir.example","Franchir Pharmaceuticals, Inc.",,
-"Isabella","Taylor","i.taylor@franchir.example","Franchir Pharmaceuticals, Inc.",,
-"Grace","Chen","g.chen@franchir.example","Franchir Pharmaceuticals, Inc.","Technology Coordinator",1
-"Ryder","Brown","r.brown@franchir.example","Franchir Pharmaceuticals, Inc.","IT Engineer",1
-"Jeandré","Theron","j.theron@ghoux.example","Ghoux Games","Director of Engineering",1
-"Kayla","Engelbrecht","k.engelbrecht@ghoux.example","Ghoux Games","iOS Developer",1
-"Emershan","Khan","e.khan@ghoux.example","Ghoux Games","CTO",1
-"Yaseen","Joubert","y.joubert@ghoux.example","Ghoux Games",,
-"Jana","Kruger","j.kruger@ghoux.example","Ghoux Games",,
-"Teun","Vos","t.vos@helderster.example","Helderster Aerospace B.V.","IT Manager",1
-"Mila","Janssen","m.janssen@helderster.example","Helderster Aerospace B.V.",,
-"Kyan","Mulder","k.mulder@helderster.example","Helderster Aerospace B.V.",,
-"Esmee","de Graaf","e.de.graaf@helderster.example","Helderster Aerospace B.V.","Support Manager",1
-"Luuk","Brouwer","l.brouwer@helderster.example","Helderster Aerospace B.V.","DevOps",1
-"Dmitry","Volkov","d.volkov@nechist.example","Nechist Financial",,
-"Sergey","Polzin","s.polzin@nechist.example","Nechist Financial","CTO",1
-"Tatiana","Vetrov","t.vetrov@nechist.example","Nechist Financial",,
-"Karina","Yamikov","k.yamikov@nechist.example","Nechist Financial",,
-"Sveta","Krupin","s.krupin@nechist.example","Nechist Financial","Accounts Payable",1
-"Callum","Cooper","c.cooper@twinton.example","Twinton University",,
-"Jack","Allen","j.allen@twinton.example","Twinton University","Helpdesk Administrator",1
-"Bradley","Gibson","b.gibson@twinton.example","Twinton University",,
-"Charlotte","Bailey","c.bailey@twinton.example","Twinton University","Director, Department of Computer Science",1
-"Bethany","Gray","b.gray@twinton.example","Twinton University",,
-"Wei","Zhang","w.zhang@zhang.example","Zhang Logistics","Founder/CEO",1
-"Jun","Li","j.li@zhang.example","Zhang Logistics",,
-"Hui","Zhong","h.zhong@zhang.example","Zhang Logistics","IT Manager",1
-"Xui","Li","x.li@zhang.example","Zhang Logistics",,
-"Xu","Guan","x.guan@zhang.example","Zhang Logistics","Supply Chain Manager",1
+"First Name","Last Name","Email","Company","Title","# Nonspam","Gender"
+"Kina","Halpue","kina@cerb.example","Cerb","Customer Support",2,"F"
+"Milo","Dade","milo@cerb.example","Cerb","Software Architect",1,"M"
+"Karl","Kwota","karl@cerb.example","Cerb","Account Manager",,"M"
+"Mara","Kusako","mara@cerb.example","Cerb","QA Engineer",,"F"
+"Janey","Youve","janey@cerb.example","Cerb","UI/UX Designer",,"F"
+,,"support@cerb.example","Cerb",,,""
+"Claire","Bertin","c.bertin@baston.example","Baston Defence",,,"F"
+"Marie","Reynaud","m.reynaud@baston.example","Baston Defence","IT Engineer",1,"F"
+"Félix","Levy","f.levy@baston.example","Baston Defence",,,"M"
+"Inès","Lacroix","i.lacroix@baston.example","Baston Defence","Support Integration Officer",2,"F"
+"François","Moreno","f.moreno@baston.example","Baston Defence","Software Analyst",1,"M"
+"Sarah","Adams","s.adams@dobbus.example","Dobbus Airways","IT Specialist",1,"F"
+"Patricia","Thomas","p.thomas@dobbus.example","Dobbus Airways",,,"FEMALE"
+"Jennifer","Moore","j.moore@dobbus.example","Dobbus Airways",,,"female"
+"William","Moore","w.moore@dobbus.example","Dobbus Airways",,,"M"
+"James","Nelson","j.nelson@dobbus.example","Dobbus Airways","CTO",1,"M"
+"Zoë","De Vos","z.de.vos@donter.example","Donter Institute","Technology Advisor",1,"F"
+"Eva","Jacobs","e.jacobs@donter.example","Donter Institute",,,"Female"
+"Lisa","Dubois","l.dubois@donter.example","Donter Institute","Intake Coordinator",1,"F"
+"Adrien","Stevens","a.stevens@donter.example","Donter Institute",,,"M"
+"Mathias","Dumont","m.dumont@donter.example","Donter Institute","Senior Fellow",1,"Male"
+"Christian","Bruno","c.bruno@fiaflux.example","Fiaflux Software",,,"male"
+"Alessio","Costa","a.costa@fiaflux.example","Fiaflux Software","Software Developer",1,"MALE"
+"Davide","Moretti","d.moretti@fiaflux.example","Fiaflux Software",,,"M"
+"Sofia","Gallo","s.gallo@fiaflux.example","Fiaflux Software",,,"F"
+"Giada","Rossi","g.rossi@fiaflux.example","Fiaflux Software","Developer Liaison",2,"F"
+"Ethan","Anderson","e.anderson@franchir.example","Franchir Pharmaceuticals, Inc.",,,"M"
+"Hunter","Wilson","h.wilson@franchir.example","Franchir Pharmaceuticals, Inc.",,,"M"
+"Isabella","Taylor","i.taylor@franchir.example","Franchir Pharmaceuticals, Inc.",,,"F"
+"Grace","Chen","g.chen@franchir.example","Franchir Pharmaceuticals, Inc.","Technology Coordinator",1,"F"
+"Ryder","Brown","r.brown@franchir.example","Franchir Pharmaceuticals, Inc.","IT Engineer",1,"M"
+"Jeandré","Theron","j.theron@ghoux.example","Ghoux Games","Director of Engineering",1,"M"
+"Kayla","Engelbrecht","k.engelbrecht@ghoux.example","Ghoux Games","iOS Developer",1,"F"
+"Emershan","Khan","e.khan@ghoux.example","Ghoux Games","CTO",1,"M"
+"Yaseen","Joubert","y.joubert@ghoux.example","Ghoux Games",,,"F"
+"Jana","Kruger","j.kruger@ghoux.example","Ghoux Games",,,"F"
+"Teun","Vos","t.vos@helderster.example","Helderster Aerospace B.V.","IT Manager",1,"M"
+"Mila","Janssen","m.janssen@helderster.example","Helderster Aerospace B.V.",,,"F"
+"Kyan","Mulder","k.mulder@helderster.example","Helderster Aerospace B.V.",,,"M"
+"Esmee","de Graaf","e.de.graaf@helderster.example","Helderster Aerospace B.V.","Support Manager",1,"F"
+"Luuk","Brouwer","l.brouwer@helderster.example","Helderster Aerospace B.V.","DevOps",1,"M"
+"Dmitry","Volkov","d.volkov@nechist.example","Nechist Financial",,,"M"
+"Sergey","Polzin","s.polzin@nechist.example","Nechist Financial","CTO",1,"M"
+"Tatiana","Vetrov","t.vetrov@nechist.example","Nechist Financial",,,"F"
+"Karina","Yamikov","k.yamikov@nechist.example","Nechist Financial",,,"F"
+"Sveta","Krupin","s.krupin@nechist.example","Nechist Financial","Accounts Payable",1,"F"
+"Callum","Cooper","c.cooper@twinton.example","Twinton University",,,"M"
+"Jack","Allen","j.allen@twinton.example","Twinton University","Helpdesk Administrator",1,"M"
+"Bradley","Gibson","b.gibson@twinton.example","Twinton University",,,"M"
+"Charlotte","Bailey","c.bailey@twinton.example","Twinton University","Director, Department of Computer Science",1,"F"
+"Bethany","Gray","b.gray@twinton.example","Twinton University",,,"F"
+"Wei","Zhang","w.zhang@zhang.example","Zhang Logistics","Founder/CEO",1,""
+"Jun","Li","j.li@zhang.example","Zhang Logistics",,,"F"
+"Hui","Zhong","h.zhong@zhang.example","Zhang Logistics","IT Manager",1,""
+"Xui","Li","x.li@zhang.example","Zhang Logistics",,,""
+"Xu","Guan","x.guan@zhang.example","Zhang Logistics","Supply Chain Manager",1,"M"
