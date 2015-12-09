@@ -91,7 +91,6 @@ class CerbEval_UI_Setup extends PHPUnit_Extensions_SeleniumTestCase {
 	}
 	
 	public function testSetupGroups() {
-		$this->_runTestCase('setup/SetupGroups.htm');
 		$this->_runTestCase('setup/groups/CreateSupport.htm');
 		$this->_runTestCase('setup/groups/CreateSales.htm');
 		$this->_runTestCase('setup/groups/CreateDevelopment.htm');
@@ -122,6 +121,10 @@ class CerbEval_UI_Setup extends PHPUnit_Extensions_SeleniumTestCase {
 		$this->_runTestCase('calendars/SwitchToKinaCalendar.htm');
 		$this->_runTestCase('calendars/AddWorkSchedule.htm');
 		$this->_runTestCase('calendars/AddHolidays.htm');
+	}
+
+	public function testWorkspaces() {
+		$this->_runTestCase('workspaces/AddDashboardsPage.htm');
 	}
 	
 	public function testLogOut() {

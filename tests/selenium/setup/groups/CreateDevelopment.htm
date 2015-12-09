@@ -13,12 +13,23 @@
 </thead><tbody>
 <tr>
 	<td>click</td>
-	<td>css=a.minimal &gt; span.glyphicons.glyphicons-circle-plus</td>
+	<td>link=Group</td>
 	<td></td>
 </tr>
 <tr>
-	<td>pause</td>
-	<td>1000</td>
+	<td>waitForVisible</td>
+	<td>css=div.ui-dialog</td>
+	<td></td>
+</tr>
+<!--Add Development group-->
+<tr>
+	<td>click</td>
+	<td>css=div.ui-dialog table.worklist a.minimal &gt; span.glyphicons.glyphicons-circle-plus</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>css=form[id^=&quot;formGroupsPeek&quot;]</td>
 	<td></td>
 </tr>
 <tr>
@@ -28,32 +39,227 @@
 </tr>
 <tr>
 	<td>select</td>
-	<td>document.formGroupsPeek.elements['member_levels[]'][0]</td>
+	<td>css=div.ui-dialog select[name=&quot;member_levels[]&quot;]:nth(0)</td>
 	<td>label=Member</td>
 </tr>
 <tr>
 	<td>select</td>
-	<td>document.formGroupsPeek.elements['member_levels[]'][3]</td>
+	<td>css=div.ui-dialog select[name=&quot;member_levels[]&quot;]:nth(3)</td>
 	<td>label=Member</td>
 </tr>
 <tr>
 	<td>select</td>
-	<td>document.formGroupsPeek.elements['member_levels[]'][4]</td>
+	<td>css=div.ui-dialog select[name=&quot;member_levels[]&quot;]:nth(4)</td>
 	<td>label=Manager</td>
 </tr>
 <tr>
 	<td>select</td>
-	<td>document.formGroupsPeek.elements['member_levels[]'][5]</td>
+	<td>css=div.ui-dialog select[name=&quot;member_levels[]&quot;]:nth(5)</td>
 	<td>label=Member</td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>css=#formGroupsPeek button.submit</td>
+	<td>css=form[id^=&quot;formGroupsPeek&quot;] button.submit</td>
 	<td></td>
 </tr>
 <tr>
-	<td>waitForNotVisible</td>
-	<td>css=#formGroupsPeek</td>
+	<td>waitForElementNotPresent</td>
+	<td>css=form[id^=&quot;formGroupsPeek&quot;]</td>
+	<td></td>
+</tr>
+<!--Open Development profile page-->
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=div.ui-dialog table.worklistBody a.subject:nth(0)</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=div.ui-dialog table.worklistBody a.subject:nth(0)</td>
+	<td></td>
+</tr>
+<!--Switch to the Buckets tab-->
+<tr>
+	<td>waitForElementPresent</td>
+	<td>link=Buckets 1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Buckets 1</td>
+	<td></td>
+</tr>
+<!--Add Bug Reports bucket-->
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=div.ui-tabs-panel:nth(1) td.title-toolbar a:first</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=div.ui-tabs-panel:nth(1) td.title-toolbar a:first</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=form[id^=&quot;frmBucketPeek&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=name</td>
+	<td>Bug Reports</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>name=group_id</td>
+	<td>label=Development</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=form[id^=&quot;frmBucketPeek&quot;] div.buttons &gt; button:first</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementNotPresent</td>
+	<td>css=form[id^=&quot;frmBucketPeek&quot;]</td>
+	<td></td>
+</tr>
+<!--Add Feature Requests bucket-->
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=div.ui-tabs-panel:nth(1) td.title-toolbar a:first</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=div.ui-tabs-panel:nth(1) td.title-toolbar a:first</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=form[id^=&quot;frmBucketPeek&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=name</td>
+	<td>Feature Requests</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>name=group_id</td>
+	<td>label=Development</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=form[id^=&quot;frmBucketPeek&quot;] div.buttons &gt; button:first</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementNotPresent</td>
+	<td>css=form[id^=&quot;frmBucketPeek&quot;]</td>
+	<td></td>
+</tr>
+<!--Switch to Responsibilities tab-->
+<tr>
+	<td>waitForElementPresent</td>
+	<td>link=Responsibilities</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Responsibilities</td>
+	<td></td>
+</tr>
+<!--Open Responsibilities popup-->
+<tr>
+	<td>waitForVisible</td>
+	<td>css=div.ui-tabs-panel form button &gt; span.glyphicons-cogwheel</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=div.ui-tabs-panel form button &gt; span.glyphicons-cogwheel</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>id=group3Responsibilities</td>
+	<td></td>
+</tr>
+<!--Bucket: Inbox-->
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[7][5]</td>
+	<td>60</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[7][4]</td>
+	<td>80</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[7][2]</td>
+	<td>50</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[7][6]</td>
+	<td>10</td>
+</tr>
+<!--Bucket: Bug Reports-->
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[8][5]</td>
+	<td>60</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[8][4]</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[8][2]</td>
+	<td>80</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[8][6]</td>
+	<td>0</td>
+</tr>
+<!--Bucket: Feature Requests-->
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[9][5]</td>
+	<td>50</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[9][4]</td>
+	<td>60</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[9][2]</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=responsibilities[9][6]</td>
+	<td>0</td>
+</tr>
+<!--Close Responsibilities popup-->
+<tr>
+	<td>click</td>
+	<td>css=#group3Responsibilities button.submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementNotPresent</td>
+	<td>id=group3Responsibilities</td>
 	<td></td>
 </tr>
 </tbody></table>

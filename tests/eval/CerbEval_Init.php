@@ -101,6 +101,7 @@ class CerbEval_Init extends PHPUnit_Framework_TestCase {
 			DAO_Worker::TITLE => 'Support',
 			DAO_Worker::AUTH_EXTENSION_ID => 'login.password',
 			DAO_Worker::UPDATED => time(),
+			DAO_Worker::GENDER => 'F',
 		));
 		
 		$this->assertEquals(1, $worker_id);

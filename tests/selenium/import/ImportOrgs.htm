@@ -12,18 +12,23 @@
 <tr><td rowspan="1" colspan="3">Import Orgs</td></tr>
 </thead><tbody>
 <tr>
-	<td>clickAndWait</td>
+	<td>click</td>
 	<td>link=Organization</td>
 	<td></td>
 </tr>
 <tr>
+	<td>waitForElementPresent</td>
+	<td>css=div.ui-dialog</td>
+	<td></td>
+</tr>
+<tr>
 	<td>click</td>
-	<td>css=span.glyphicons.glyphicons-file-import</td>
+	<td>css=div.ui-dialog span.glyphicons.glyphicons-file-import</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForElementPresent</td>
-	<td>frmImportPopup</td>
+	<td>id=frmImportPopup</td>
 	<td></td>
 </tr>
 <tr>
@@ -33,12 +38,12 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>css=button[type=&quot;submit&quot;]</td>
+	<td>css=div.ui-dialog button[type=&quot;submit&quot;]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForElementPresent</td>
-	<td>frmImport</td>
+	<td>id=frmImport</td>
 	<td></td>
 </tr>
 <tr>
@@ -58,7 +63,22 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>css=button.submit</td>
+	<td>css=#frmImport button.submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementNotPresent</td>
+	<td>id=frmImport</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=div.ui-dialog button.ui-dialog-titlebar-close</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementNotPresent</td>
+	<td>id=frmImportPopup</td>
 	<td></td>
 </tr>
 </tbody></table>
