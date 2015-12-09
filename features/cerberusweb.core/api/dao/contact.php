@@ -1364,7 +1364,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Contact extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_Contact extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
 	function getRandom() {
 		return DAO_Contact::random();
 	}
@@ -1714,6 +1714,135 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/contact/peek.tpl');
+		}
+	}
+	
+	function importGetKeys() {
+		// [TODO] Translate
+	
+		$keys = array(
+			'created_at' => array(
+				'label' => 'Created',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Contact::CREATED_AT,
+			),
+			'dob' => array(
+				'label' => 'Date of Birth',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Contact::DOB,
+			),
+			'first_name' => array(
+				'label' => 'First Name',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Contact::FIRST_NAME,
+			),
+			'primary_email_id' => array(
+				'label' => 'Email',
+				'type' => 'ctx_' . CerberusContexts::CONTEXT_ADDRESS,
+				'param' => SearchFields_Contact::PRIMARY_EMAIL_ID,
+				//'force_match' => true,
+			),
+			'gender' => array(
+				'label' => 'Gender',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Contact::GENDER,
+			),
+			'last_login_at' => array(
+				'label' => 'Last Login Date',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Contact::LAST_LOGIN_AT,
+			),
+			'last_name' => array(
+				'label' => 'Last Name',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Contact::LAST_NAME,
+			),
+			'location' => array(
+				'label' => 'Location',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Contact::LOCATION,
+			),
+			'mobile' => array(
+				'label' => 'Mobile',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Contact::MOBILE,
+			),
+			'org_id' => array(
+				'label' => 'Org',
+				'type' => 'ctx_' . CerberusContexts::CONTEXT_ORG,
+				'param' => SearchFields_Contact::ORG_ID,
+			),
+			'phone' => array(
+				'label' => 'Phone',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Contact::PHONE,
+			),
+			'title' => array(
+				'label' => 'Title',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Contact::TITLE,
+			),
+			'updated_at' => array(
+				'label' => 'Updated',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Contact::UPDATED_AT,
+			),
+		);
+	
+		$fields = SearchFields_Address::getFields();
+		self::_getImportCustomFields($fields, $keys);
+		
+		DevblocksPlatform::sortObjects($keys, '[label]', true);
+	
+		return $keys;
+	}
+	
+	function importKeyValue($key, $value) {
+		switch($key) {
+			case 'gender':
+				if(0 == strcasecmp(substr($value,0,1),'M'))
+					$value = 'M';
+				elseif(0 == strcasecmp(substr($value,0,1),'F'))
+					$value = 'F';
+				else
+					$value = '';
+				break;
+		}
+	
+		return $value;
+	}
+	
+	function importSaveObject(array $fields, array $custom_fields, array $meta) {
+		// If new...
+		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
+			// Create
+			$meta['object_id'] = DAO_Contact::create($fields);
+	
+		} else {
+			// Update
+			DAO_Contact::update($meta['object_id'], $fields);
+		}
+
+		if(isset($fields['primary_email_id']) 
+				&& $fields['primary_email_id']
+				&& false != ($address = DAO_Address::get($fields['primary_email_id']))) {
+					$address_fields = array();
+					
+					// Address->Contact
+					if(!$address->contact_id && isset($meta['object_id']) && $meta['object_id'])
+						$address_fields[DAO_Address::CONTACT_ID] = intval($meta['object_id']);
+					
+					// Address->Org
+					if(!$address->contact_org_id && isset($fields['org_id']) && $fields['org_id'])
+						$address_fields[DAO_Address::CONTACT_ORG_ID] = intval($fields['org_id']);
+					
+					if(!empty($address_fields))
+						DAO_Address::update($fields['primary_email_id'], $address_fields);
+		}
+		
+		// Custom fields
+		if(!empty($custom_fields) && !empty($meta['object_id'])) {
+			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
 		}
 	}
 };
