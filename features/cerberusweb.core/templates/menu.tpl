@@ -30,7 +30,7 @@
 
 	<li class="tour-navmenu-search{if $page->id=='core.page.search'} selected{/if}" style="float:right;">
 		<a href="javascript:;" class="submenu"><span class="glyphicons glyphicons-search"></span> <span class="glyphicons glyphicons-chevron-down" style="{if $page->id=='core.page.search'}color:white;{else}{/if}"></span></a>
-		<ul class="cerb-popupmenu cerb-float">
+		<ul class="cerb-popupmenu cerb-float" style="margin-top:-2px;">
 			{foreach from=$contexts item=context key=context_id}
 			{if isset($context->params.options.0.workspace)}
 			<li><a href="javascript:;" data-context="{$context_id}">{$context->name}</a></li>
