@@ -80,53 +80,55 @@
 </form>
 
 <script type="text/javascript">
-var $popup = genericAjaxPopupFetch('peek');
-
-$popup.one('popup_open', function(event,ui) {
-	$(this).dialog('option','title',"{'Mail Transport'|escape:'javascript' nofilter}");
+$(function() {
+	var $popup = genericAjaxPopupFetch('peek');
 	
-	$popup.find('select[name=extension_id]').change(function() {
-		// Load the parameters for the given transport extension
-		genericAjaxPost(
-			$popup.find('form.peek-mail-transport'),
-			$popup.find('div.mail-transport-params'),
-			'c=config&a=handleSectionAction&section=mail_smtp&action=getTransportParams'
-		);
-	});
-	
-	$popup.find('button.delete').click(function() {
-		var $frm=$popup.find('form');
-		$frm.find('input:hidden[name=do_delete]').val('1');
-		$frm.find('button.submit').click();
-	});
-	
-	$popup.find('button.submit').click(function() {
-		// Test and verify the settings, then allow the popup to submit
-		genericAjaxPost(
-			$popup.find('form.peek-mail-transport'),
-			$popup.find('div.mail-transport-params'),
-			'c=config&a=handleSectionAction&section=mail_smtp&action=testTransportParams',
-			function(json) {
-				if(false == json || false == json.status) {
-					Devblocks.showError($popup.find('div.popup-status'),json.error);
-				} else {
-					$popup.find('div.popup-status').hide().html('');
-					
-					genericAjaxPost(
-						$popup.find('form.peek-mail-transport'),
-						$popup.find('div.mail-transport-params'),
-						'c=config&a=handleSectionAction&section=mail_smtp&action=saveTransportPeek',
-						function() {
-							genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
-							genericAjaxPopupClose('peek', 'mail_transport_save');
-						}
-					);
-					
+	$popup.one('popup_open', function(event,ui) {
+		$popup.dialog('option','title',"{'Mail Transport'|escape:'javascript' nofilter}");
+		
+		$popup.find('select[name=extension_id]').change(function() {
+			// Load the parameters for the given transport extension
+			genericAjaxPost(
+				$popup.find('form.peek-mail-transport'),
+				$popup.find('div.mail-transport-params'),
+				'c=config&a=handleSectionAction&section=mail_smtp&action=getTransportParams'
+			);
+		});
+		
+		$popup.find('button.delete').click(function() {
+			var $frm=$popup.find('form');
+			$frm.find('input:hidden[name=do_delete]').val('1');
+			$frm.find('button.submit').click();
+		});
+		
+		$popup.find('button.submit').click(function() {
+			// Test and verify the settings, then allow the popup to submit
+			genericAjaxPost(
+				$popup.find('form.peek-mail-transport'),
+				null,
+				'c=config&a=handleSectionAction&section=mail_smtp&action=testTransportParams',
+				function(json) {
+					if(false == json || false == json.status) {
+						Devblocks.showError($popup.find('div.popup-status'),json.error);
+					} else {
+						$popup.find('div.popup-status').hide().html('');
+						
+						genericAjaxPost(
+							$popup.find('form.peek-mail-transport'),
+							null,
+							'c=config&a=handleSectionAction&section=mail_smtp&action=saveTransportPeek',
+							function() {
+								genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+								genericAjaxPopupClose('peek', 'mail_transport_save');
+							}
+						);
+						
+					}
 				}
-			}
-		);
+			);
+		});
+		
+		$(this).find('input:text:first').focus();
 	});
-	
-	$(this).find('input:text:first').focus();
 });
 </script>
