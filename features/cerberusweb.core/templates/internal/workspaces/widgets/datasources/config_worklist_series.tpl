@@ -14,14 +14,14 @@
 
 <b>Load </b>
 
-<select class="context">
+<select name="params{$params_prefix}[context]" class="context">
 	<option value=""> - {'common.choose'|devblocks_translate|lower} - </option>
 	{foreach from=$context_mfts item=context_mft key=context_id}
 	<option value="{$context_id}" {if $series_ctx_id==$context_id}selected="selected"{/if}>{$context_mft->name}</option>
 	{/foreach}
 </select>
 
- data using  
+ data using 
 
 <div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
 

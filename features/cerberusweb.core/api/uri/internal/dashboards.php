@@ -534,8 +534,18 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 		// Convert the serialized model to proper JSON before saving
 		
 		if(isset($params['worklist_model_json'])) {
-			$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+			$worklist_model = json_decode($params['worklist_model_json'], true);
 			unset($params['worklist_model_json']);
+			
+			if(empty($worklist_model) && isset($params['context'])) {
+				if(false != ($context_ext = Extension_DevblocksContext::get($params['context']))) {
+					if(false != (@$worklist_model = json_decode(C4_AbstractViewLoader::serializeViewToAbstractJson($context_ext->getChooserView(), $context_ext->id), true))) {
+						$worklist_model['context'] = $context_ext->id;
+					}
+				}
+			}
+			
+			$params['worklist_model'] = $worklist_model;
 		}
 		
 		if(isset($params['threshold_values']))
@@ -1015,8 +1025,18 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 		// Convert the serialized model to proper JSON before saving
 		
 		if(isset($params['worklist_model_json'])) {
-			$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+			$worklist_model = json_decode($params['worklist_model_json'], true);
 			unset($params['worklist_model_json']);
+			
+			if(empty($worklist_model) && isset($params['context'])) {
+				if(false != ($context_ext = Extension_DevblocksContext::get($params['context']))) {
+					if(false != (@$worklist_model = json_decode(C4_AbstractViewLoader::serializeViewToAbstractJson($context_ext->getChooserView(), $context_ext->id), true))) {
+						$worklist_model['context'] = $context_ext->id;
+					}
+				}
+			}
+			
+			$params['worklist_model'] = $worklist_model;
 		}
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
@@ -1279,14 +1299,22 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
-		// [TODO] The extension should be able to filter the properties here
-		
 		foreach($params['series'] as $idx => $series) {
 			// Convert the serialized model to proper JSON before saving
 		
 			if(isset($series['worklist_model_json'])) {
-				$series['worklist_model'] = json_decode($series['worklist_model_json'], true);
+				$worklist_model = json_decode($series['worklist_model_json'], true);
 				unset($series['worklist_model_json']);
+				
+				if(empty($worklist_model) && isset($series['context'])) {
+					if(false != ($context_ext = Extension_DevblocksContext::get($series['context']))) {
+						if(false != (@$worklist_model = json_decode(C4_AbstractViewLoader::serializeViewToAbstractJson($context_ext->getChooserView(), $context_ext->id), true))) {
+							$worklist_model['context'] = $context_ext->id;
+						}
+					}
+				}
+				
+				$series['worklist_model'] = $worklist_model;
 				$params['series'][$idx] = $series;
 			}
 			
@@ -1557,8 +1585,18 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 		// Convert the serialized model to proper JSON before saving
 		
 		if(isset($params['worklist_model_json'])) {
-			$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+			$worklist_model = json_decode($params['worklist_model_json'], true);
 			unset($params['worklist_model_json']);
+			
+			if(empty($worklist_model) && isset($params['context'])) {
+				if(false != ($context_ext = Extension_DevblocksContext::get($params['context']))) {
+					if(false != (@$worklist_model = json_decode(C4_AbstractViewLoader::serializeViewToAbstractJson($context_ext->getChooserView(), $context_ext->id), true))) {
+						$worklist_model['context'] = $context_ext->id;
+					}
+				}
+			}
+			
+			$params['worklist_model'] = $worklist_model;
 		}
 		
 		// Save the widget
@@ -1735,8 +1773,18 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		// Convert the serialized model to proper JSON before saving
 		
 		if(isset($params['worklist_model_json'])) {
-			$params['worklist_model'] = json_decode($params['worklist_model_json'], true);
+			$worklist_model = json_decode($params['worklist_model_json'], true);
 			unset($params['worklist_model_json']);
+			
+			if(empty($worklist_model) && isset($params['context'])) {
+				if(false != ($context_ext = Extension_DevblocksContext::get($params['context']))) {
+					if(false != (@$worklist_model = json_decode(C4_AbstractViewLoader::serializeViewToAbstractJson($context_ext->getChooserView(), $context_ext->id), true))) {
+						$worklist_model['context'] = $context_ext->id;
+					}
+				}
+			}
+			
+			$params['worklist_model'] = $worklist_model;
 		}
 		
 		// Save
@@ -2223,8 +2271,18 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 			// Convert the serialized model to proper JSON before saving
 		
 			if(isset($series['worklist_model_json'])) {
-				$series['worklist_model'] = json_decode($series['worklist_model_json'], true);
+				$worklist_model = json_decode($series['worklist_model_json'], true);
 				unset($series['worklist_model_json']);
+				
+				if(empty($worklist_model) && isset($series['context'])) {
+					if(false != ($context_ext = Extension_DevblocksContext::get($series['context']))) {
+						if(false != (@$worklist_model = json_decode(C4_AbstractViewLoader::serializeViewToAbstractJson($context_ext->getChooserView(), $context_ext->id), true))) {
+							$worklist_model['context'] = $context_ext->id;
+						}
+					}
+				}
+				
+				$series['worklist_model'] = $worklist_model;
 				$params['series'][$idx] = $series;
 			}
 		}
