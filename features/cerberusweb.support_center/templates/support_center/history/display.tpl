@@ -75,7 +75,7 @@
 	<span class="header"><b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from}</span><br>
 	<span class="header"><b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to}</span><br>
 	{if !empty($headers.cc)}<span class="header"><b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc}</span><br>{/if}
-	{if !empty($headers.date)}<span class="header"><b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$headers.date}</span><br>{/if}
+	{if !empty($headers.date)}<span class="header"><b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$headers.date}</span> ({$message->created_date|devblocks_prettytime})<br>{/if}
 	<br>
 	
 	<div style="clear:both;">
