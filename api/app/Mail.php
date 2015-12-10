@@ -958,6 +958,10 @@ class CerberusMail {
 			
 			$last_error_message = $mail_service->getLastErrorMessage();
 			
+			if($e instanceof Swift_TransportException && !$last_error_message) {
+				$last_error_message = $e->getMessage();
+			}
+			
 			// If we have an error message, log it on the draft
 			if($draft_id && !empty($last_error_message)) {
 				$fields = array(
