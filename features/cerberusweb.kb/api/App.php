@@ -189,7 +189,7 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 		$root_id = intval($category_id);
 		$tpl->assign('root_id', $root_id);
 
-		$tree = DAO_KbCategory::getTreeMap($root_id);
+		$tree = DAO_KbCategory::getTreeMap(false);
 		$tpl->assign('tree', $tree);
 
 		$categories = DAO_KbCategory::getAll();
