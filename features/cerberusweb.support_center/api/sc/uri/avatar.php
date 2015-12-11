@@ -107,7 +107,7 @@ class UmScAvatarController extends Extension_UmScController {
 					break;
 				}
 				
-				$n = mt_rand(1, 4);
+				$n = mt_rand(1, 6);
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
@@ -124,10 +124,11 @@ class UmScAvatarController extends Extension_UmScController {
 						$n = $male_keys[array_rand($male_keys)];
 						break;
 					case 'F':
-						$n = 2;
+						$female_keys = array(2,5,6);
+						$n = $female_keys[array_rand($female_keys)];
 						break;
 					default:
-						$n = mt_rand(1, 4);
+						$n = mt_rand(1, 6);
 						break;
 				}
 				
@@ -152,10 +153,11 @@ class UmScAvatarController extends Extension_UmScController {
 						$n = $male_keys[array_rand($male_keys)];
 						break;
 					case 'F':
-						$n = 2;
+						$female_keys = array(2,5,6);
+						$n = $female_keys[array_rand($female_keys)];
 						break;
 					default:
-						$n = mt_rand(1, 4);
+						$n = mt_rand(1, 6);
 						break;
 				}
 				
