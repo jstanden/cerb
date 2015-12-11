@@ -142,13 +142,17 @@ class Controller_Avatars extends DevblocksControllerExtension {
 					
 					// Use org if an avatar exists
 					if($addy->contact_org_id && false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id))) {
-						$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_CONTACT);
+						$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_ORG);
 						return;
 					}
 					
 					// Use a default contact picture
 					if($addy->contact_id)
 						$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
+
+					// Use a default org picture
+					if($addy->contact_org_id)
+						$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id);
 					
 					$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT);
 					return;

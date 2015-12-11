@@ -4,7 +4,7 @@
 <ul class="bubbles" id="{$container_id}">
 	{foreach from=$requesters item=req_addy name=reqs}
 	<li class="bubble-gray">
-		<img src="{devblocks_url}c=avatars&context=contact&context_id={$req_addy->contact_id}{/devblocks_url}?v={$req_addy->updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+		<img src="{devblocks_url}c=avatars&context=address&context_id={$req_addy->id}{/devblocks_url}?v={$req_addy->updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
 		<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$req_addy->id}">{$req_addy->getNameWithEmail()}</a>
 		{if $req_addy->is_defunct} <span class="tag tag-blue">defunct</span>{/if}
 		{if $req_addy->is_banned} <span class="tag tag-red">banned</span>{/if}
