@@ -30,7 +30,11 @@
 		
 		<div class="container" style="clear:both;">
 			{foreach from=$modules item=module}
-			{assign var=module_id value=$module->manifest->id}
+			{$module_id = $module->manifest->id}
+			{if in_array($module_id, ['sc.controller.ajax','sc.controller.avatar'])}
+			<input type="hidden" name="idx_modules[]" value="{$module->manifest->id}">
+			<input type="hidden" name="visible_modules[]" value="0">
+			{else}
 			<div class="drag" style="margin:5px;">
 				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span>
 				<select name="visible_modules[]" onchange="toggleDiv('module{$module->manifest->id}','2'!=selectValue(this)?'block':'none');" style="margin-right:5px;min-width:150px;max-width:150px;">
@@ -45,6 +49,7 @@
 				<input type="hidden" name="idx_modules[]" value="{$module->manifest->id}">
 				{$module->manifest->name}
 			</div>
+			{/if}
 			{/foreach}
 		</div>
 	</div>
