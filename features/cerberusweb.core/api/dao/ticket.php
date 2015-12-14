@@ -284,11 +284,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(is_array($results))
 		foreach($results as $result) {
 			if($result['is_closed']) {
-				$counts['closed'] = $result['count'];
+				$counts['closed'] += $result['count'];
 			} else if($result['is_waiting']) {
-				$counts['waiting'] = $result['count'];
+				$counts['waiting'] += $result['count'];
 			} else {
-				$counts['open'] = $result['count'];
+				$counts['open'] += $result['count'];
 			}
 			
 			$counts['total'] += $result['count'];
@@ -318,11 +318,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(is_array($results))
 		foreach($results as $result) {
 			if($result['is_closed']) {
-				$counts['closed'] = $result['count'];
+				$counts['closed'] += $result['count'];
 			} else if($result['is_waiting']) {
-				$counts['waiting'] = $result['count'];
+				$counts['waiting'] += $result['count'];
 			} else {
-				$counts['open'] = $result['count'];
+				$counts['open'] += $result['count'];
 			}
 			
 			$counts['total'] += $result['count'];
@@ -352,11 +352,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(is_array($results))
 		foreach($results as $result) {
 			if($result['is_closed']) {
-				$counts['closed'] = $result['count'];
+				$counts['closed'] += $result['count'];
 			} else if($result['is_waiting']) {
-				$counts['waiting'] = $result['count'];
+				$counts['waiting'] += $result['count'];
 			} else {
-				$counts['open'] = $result['count'];
+				$counts['open'] += $result['count'];
 			}
 			
 			$counts['total'] += $result['count'];
@@ -386,11 +386,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(is_array($results))
 		foreach($results as $result) {
 			if($result['is_closed']) {
-				$counts['closed'] = $result['count'];
+				$counts['closed'] += $result['count'];
 			} else if($result['is_waiting']) {
-				$counts['waiting'] = $result['count'];
+				$counts['waiting'] += $result['count'];
 			} else {
-				$counts['open'] = $result['count'];
+				$counts['open'] += $result['count'];
 			}
 			
 			$counts['total'] += $result['count'];
@@ -421,11 +421,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(is_array($results))
 		foreach($results as $result) {
 			if($result['is_closed']) {
-				$counts['closed'] = $result['count'];
+				$counts['closed'] += $result['count'];
 			} else if($result['is_waiting']) {
-				$counts['waiting'] = $result['count'];
+				$counts['waiting'] += $result['count'];
 			} else {
-				$counts['open'] = $result['count'];
+				$counts['open'] += $result['count'];
 			}
 			
 			$counts['total'] += $result['count'];
@@ -455,11 +455,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(is_array($results))
 		foreach($results as $result) {
 			if($result['is_closed']) {
-				$counts['closed'] = $result['count'];
+				$counts['closed'] += $result['count'];
 			} else if($result['is_waiting']) {
-				$counts['waiting'] = $result['count'];
+				$counts['waiting'] += $result['count'];
 			} else {
-				$counts['open'] = $result['count'];
+				$counts['open'] += $result['count'];
 			}
 			
 			$counts['total'] += $result['count'];
