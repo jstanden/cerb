@@ -170,7 +170,10 @@ $(function() {
 				if(val.length > 0 && val.substr(-1) != " ")
 					insert_txt = " " + insert_txt;
 				
-				$input.insertAtCursor(insert_txt).scrollLeft(2000);
+				if(insert_txt.length > 0) {
+					$input.insertAtCursor(insert_txt).scrollLeft(2000);
+					$menu.hide();
+				}
 			}
 		})
 		.css('width', $input.width())
