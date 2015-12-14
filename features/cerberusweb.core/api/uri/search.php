@@ -128,7 +128,15 @@ class Page_Search extends CerberusPageExtension {
 			return;
 		}
 		
-		$view->addParamsWithQuickSearch($query);
+		$replace_params = true;
+		
+		// Allow parameters to be added incrementally with a leading '+' character
+		if('+' == substr($query,0,1)) {
+			$replace_params = false;
+			$query = ltrim($query, '+ ');
+		}
+		
+		$view->addParamsWithQuickSearch($query, $replace_params);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view', $view);
