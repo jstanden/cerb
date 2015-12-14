@@ -24,8 +24,34 @@
 				<li value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v.label}</li>
 				{/foreach}
 			</ul>
+		</li>
 		{/if}
-	
+
+		{capture name=sortable_fields}{*
+		*}{if !empty($search_fields)}{*
+		*}{foreach from=$search_fields key=field_key item=field}{*
+		*}{if $field.is_sortable}
+			<li field="">
+				{$field_key}
+				<ul style="width:200px;">
+					<li value="sort:{$field_key}">ascending</li>
+					<li value="sort:-{$field_key}">descending</li>
+				</ul>
+			</li>
+		{/if}{*
+		*}{/foreach}{*
+		*}{/if}{*
+		*}{/capture}
+		
+		{if $smarty.capture.sortable_fields}
+		<li field="">
+			(sort)
+			<ul style="width:200px;">
+				{$smarty.capture.sortable_fields nofilter}
+			</ul>
+		</li>
+		{/if}
+		
 		{if !empty($search_fields)}
 		{foreach from=$search_fields key=field_key item=field}
 		<li field="{$field_key}">

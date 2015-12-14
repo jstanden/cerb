@@ -90,8 +90,30 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 	}
 	
 	function getQuickSearchFields() {
-		return array(
+		$search_fields = SearchFields_DevblocksStorageProfile::getFields();
+		
+		$fields = array(
+			'_fulltext' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_DevblocksStorageProfile::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'name' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_DevblocksStorageProfile::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 		);
+		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+		
+		// Sort by keys
+		
+		ksort($fields);
+		
+		return $fields;
 	}	
 	
 	function getParamsFromQuickSearchFields($fields) {
@@ -115,9 +137,6 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 					break;
 			}
 		}
-		
-		$this->renderPage = 0;
-		$this->addParams($params, true);
 		
 		return $params;
 	}

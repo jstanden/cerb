@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_AddressOutgoing extends DevblocksORMHelper {
+class DAO_AddressOutgoing extends Cerb_ORMHelper {
 	const ADDRESS_ID = 'address_id';
 	const IS_DEFAULT = 'is_default';
 	const REPLY_PERSONAL = 'reply_personal';

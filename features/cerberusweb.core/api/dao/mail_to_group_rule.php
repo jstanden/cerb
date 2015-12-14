@@ -15,7 +15,7 @@
  |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
  ***********************************************************************/
 
-class DAO_MailToGroupRule extends DevblocksORMHelper {
+class DAO_MailToGroupRule extends Cerb_ORMHelper {
 	const _CACHE_ALL = 'cerb:dao:mail_to_group_rule:all';
 	
 	const ID = 'id';

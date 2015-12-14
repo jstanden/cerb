@@ -1,5 +1,5 @@
 <?php
-class DAO_SupportCenterAddressShare extends DevblocksORMHelper {
+class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 	const SHARE_ADDRESS_ID = 'share_address_id';
 	const WITH_ADDRESS_ID = 'with_address_id';
 	const IS_ENABLED = 'is_enabled';

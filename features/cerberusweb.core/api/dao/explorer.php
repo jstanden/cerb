@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ExplorerSet {
+class DAO_ExplorerSet extends Cerb_ORMHelper {
 	const HASH = 'hash';
 	const POS = 'pos';
 	const PARAMS_JSON = 'params_json';

@@ -152,10 +152,6 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_PluginLibrary::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -188,7 +184,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 	
 		$args = array(
 			'join_sql' => &$join_sql,
@@ -509,18 +505,18 @@ class SearchFields_PluginLibrary implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'plugin_library', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER),
-			self::PLUGIN_ID => new DevblocksSearchField(self::PLUGIN_ID, 'plugin_library', 'plugin_id', $translate->_('dao.plugin_library.plugin_id'), null),
-			self::NAME => new DevblocksSearchField(self::NAME, 'plugin_library', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::AUTHOR => new DevblocksSearchField(self::AUTHOR, 'plugin_library', 'author', $translate->_('dao.cerb_plugin.author'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'plugin_library', 'description', $translate->_('dao.cerb_plugin.description'), Model_CustomField::TYPE_MULTI_LINE),
-			self::LINK => new DevblocksSearchField(self::LINK, 'plugin_library', 'link', $translate->_('common.url'), Model_CustomField::TYPE_URL),
-			self::LATEST_VERSION => new DevblocksSearchField(self::LATEST_VERSION, 'plugin_library', 'latest_version', $translate->_('dao.cerb_plugin.version'), null),
-			self::ICON_URL => new DevblocksSearchField(self::ICON_URL, 'plugin_library', 'icon_url', $translate->_('dao.plugin_library.icon_url'), null),
-			self::REQUIREMENTS_JSON => new DevblocksSearchField(self::REQUIREMENTS_JSON, 'plugin_library', 'requirements_json', $translate->_('dao.plugin_library.requirements_json'), null),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'plugin_library', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
+			self::ID => new DevblocksSearchField(self::ID, 'plugin_library', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::PLUGIN_ID => new DevblocksSearchField(self::PLUGIN_ID, 'plugin_library', 'plugin_id', $translate->_('dao.plugin_library.plugin_id'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'plugin_library', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::AUTHOR => new DevblocksSearchField(self::AUTHOR, 'plugin_library', 'author', $translate->_('dao.cerb_plugin.author'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'plugin_library', 'description', $translate->_('dao.cerb_plugin.description'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::LINK => new DevblocksSearchField(self::LINK, 'plugin_library', 'link', $translate->_('common.url'), Model_CustomField::TYPE_URL, true),
+			self::LATEST_VERSION => new DevblocksSearchField(self::LATEST_VERSION, 'plugin_library', 'latest_version', $translate->_('dao.cerb_plugin.version'), null, true),
+			self::ICON_URL => new DevblocksSearchField(self::ICON_URL, 'plugin_library', 'icon_url', $translate->_('dao.plugin_library.icon_url'), null, true),
+			self::REQUIREMENTS_JSON => new DevblocksSearchField(self::REQUIREMENTS_JSON, 'plugin_library', 'requirements_json', $translate->_('dao.plugin_library.requirements_json'), null, false),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'plugin_library', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 				
-			self::FULLTEXT_PLUGIN_LIBRARY => new DevblocksSearchField(self::FULLTEXT_PLUGIN_LIBRARY, 'ft', 'plugin_library', $translate->_('common.search.fulltext'), 'FT'),
+			self::FULLTEXT_PLUGIN_LIBRARY => new DevblocksSearchField(self::FULLTEXT_PLUGIN_LIBRARY, 'ft', 'plugin_library', $translate->_('common.search.fulltext'), 'FT', false),
 		);
 		
 		// Fulltext indexes
@@ -808,6 +804,8 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 	}
 	
 	function getQuickSearchFields() {
+		$search_fields = SearchFields_PluginLibrary::getFields();
+		
 		$fields = array(
 			'_fulltext' => 
 				array(
@@ -868,6 +866,10 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		if(!empty($ft_examples))
 			$fields['_fulltext']['examples'] = $ft_examples;
 		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+		
 		// Sort by keys
 		
 		ksort($fields);
@@ -903,9 +905,6 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 					break;
 			}
 		}
-		
-		$this->renderPage = 0;
-		$this->addParams($params, true);
 		
 		return $params;
 	}

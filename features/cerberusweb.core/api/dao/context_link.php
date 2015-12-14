@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ContextLink {
+class DAO_ContextLink extends Cerb_ORMHelper {
 	const FROM_CONTEXT = 'from_context';
 	const FROM_CONTEXT_ID = 'from_context_id';
 	const TO_CONTEXT = 'to_context';

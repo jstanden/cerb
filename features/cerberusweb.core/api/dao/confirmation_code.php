@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ConfirmationCode extends DevblocksORMHelper {
+class DAO_ConfirmationCode extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAMESPACE_KEY = 'namespace_key';
 	const CONFIRMATION_CODE = 'confirmation_code';
@@ -159,10 +159,6 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ConfirmationCode::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -192,7 +188,7 @@ class DAO_ConfirmationCode extends DevblocksORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 	
 		return array(
 			'primary_table' => 'confirmation_code',
@@ -282,21 +278,12 @@ class SearchFields_ConfirmationCode implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'confirmation_code', 'id', $translate->_('common.iud')),
-			self::NAMESPACE_KEY => new DevblocksSearchField(self::NAMESPACE_KEY, 'confirmation_code', 'namespace_key', $translate->_('dao.confirmation_code.namespace_key')),
-			self::CREATED => new DevblocksSearchField(self::CREATED, 'confirmation_code', 'created', $translate->_('common.created')),
-			self::CONFIRMATION_CODE => new DevblocksSearchField(self::CONFIRMATION_CODE, 'confirmation_code', 'confirmation_code', $translate->_('dao.confirmation_code.confirmation_code')),
-			self::META_JSON => new DevblocksSearchField(self::META_JSON, 'confirmation_code', 'meta_json'),
+			self::ID => new DevblocksSearchField(self::ID, 'confirmation_code', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAMESPACE_KEY => new DevblocksSearchField(self::NAMESPACE_KEY, 'confirmation_code', 'namespace_key', $translate->_('dao.confirmation_code.namespace_key'), null, true),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'confirmation_code', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::CONFIRMATION_CODE => new DevblocksSearchField(self::CONFIRMATION_CODE, 'confirmation_code', 'confirmation_code', $translate->_('dao.confirmation_code.confirmation_code'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::META_JSON => new DevblocksSearchField(self::META_JSON, 'confirmation_code', 'meta_json', null, null, false),
 		);
-		
-		// Custom Fields
-		//$fields = DAO_CustomField::getByContext(CerberusContexts::XXX);
-
-		//if(is_array($fields))
-		//foreach($fields as $field_id => $field) {
-		//	$namespace_key = 'cf_'.$field_id;
-		//	$columns[$namespace_key] = new DevblocksSearchField($namespace_key,'field_value',$field->name);
-		//}
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');

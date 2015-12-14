@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ViewFiltersPreset extends DevblocksORMHelper {
+class DAO_ViewFiltersPreset extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const VIEW_CLASS = 'view_class';
@@ -136,10 +136,6 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ViewFiltersPreset::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -167,7 +163,7 @@ class DAO_ViewFiltersPreset extends DevblocksORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 		
 		$result = array(
 			'primary_table' => 'view_filters_preset',
@@ -270,10 +266,10 @@ class SearchFields_ViewFiltersPreset implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'view_filters_preset', 'id', $translate->_('dao.view_filters_preset.id')),
-			self::NAME => new DevblocksSearchField(self::NAME, 'view_filters_preset', 'name', $translate->_('dao.view_filters_preset.name')),
-			self::VIEW_CLASS => new DevblocksSearchField(self::VIEW_CLASS, 'view_filters_preset', 'view_class', $translate->_('dao.view_filters_preset.view_class')),
-			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'view_filters_preset', 'worker_id', $translate->_('dao.view_filters_preset.worker_id')),
+			self::ID => new DevblocksSearchField(self::ID, 'view_filters_preset', 'id', $translate->_('dao.view_filters_preset.id'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'view_filters_preset', 'name', $translate->_('dao.view_filters_preset.name'), null, true),
+			self::VIEW_CLASS => new DevblocksSearchField(self::VIEW_CLASS, 'view_filters_preset', 'view_class', $translate->_('dao.view_filters_preset.view_class'), null, true),
+			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'view_filters_preset', 'worker_id', $translate->_('dao.view_filters_preset.worker_id'), null, true),
 		);
 		
 		// Sort by label (translation-conscious)

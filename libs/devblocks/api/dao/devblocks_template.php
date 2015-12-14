@@ -80,13 +80,40 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 	}
 	
 	function getQuickSearchFields() {
-		return array(
-			'id',
-			'path',
-			'plugin',
-			'tag',
-			'updated',
+		$search_fields = SearchFields_DevblocksTemplate::getFields();
+		
+		$fields = array(
+			'_fulltext' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_DevblocksTemplate::PATH, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_DevblocksTemplate::ID),
+				),
+			'path' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_DevblocksTemplate::PATH, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'plugin' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_DevblocksTemplate::PLUGIN_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 		);
+		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+		
+		// Sort by keys
+		
+		ksort($fields);
+		
+		return $fields;
 	}	
 	
 	function getParamsFromQuickSearchFields($fields) {
@@ -142,9 +169,6 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 					break;
 			}
 		}
-		
-		$this->renderPage = 0;
-		$this->addParams($params, true);
 		
 		return $params;
 	}

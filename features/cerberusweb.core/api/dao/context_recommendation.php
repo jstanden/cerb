@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ContextRecommendation {
+class DAO_ContextRecommendation extends Cerb_ORMHelper {
 	static function add($context, $context_id, $worker_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		

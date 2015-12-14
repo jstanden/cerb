@@ -340,10 +340,6 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContextAvatar::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -385,7 +381,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 	
 		// Virtuals
 		
@@ -530,23 +526,23 @@ class SearchFields_ContextAvatar implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'context_avatar', 'id', $translate->_('dao.context_avatar.id')),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_avatar', 'context', $translate->_('dao.context_avatar.context')),
-			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_avatar', 'context_id', $translate->_('dao.context_avatar.context_id')),
-			self::CONTENT_TYPE => new DevblocksSearchField(self::CONTENT_TYPE, 'context_avatar', 'content_type', $translate->_('dao.context_avatar.content_type')),
-			self::IS_APPROVED => new DevblocksSearchField(self::IS_APPROVED, 'context_avatar', 'is_approved', $translate->_('dao.context_avatar.is_approved')),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'context_avatar', 'updated_at', $translate->_('dao.context_avatar.updated_at')),
-			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'context_avatar', 'storage_extension', $translate->_('dao.context_avatar.storage_extension')),
-			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'context_avatar', 'storage_key', $translate->_('dao.context_avatar.storage_key')),
-			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'context_avatar', 'storage_size', $translate->_('dao.context_avatar.storage_size')),
-			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'context_avatar', 'storage_profile_id', $translate->_('dao.context_avatar.storage_profile_id')),
+			self::ID => new DevblocksSearchField(self::ID, 'context_avatar', 'id', $translate->_('dao.context_avatar.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_avatar', 'context', $translate->_('dao.context_avatar.context'), null, true),
+			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_avatar', 'context_id', $translate->_('dao.context_avatar.context_id'), null, true),
+			self::CONTENT_TYPE => new DevblocksSearchField(self::CONTENT_TYPE, 'context_avatar', 'content_type', $translate->_('dao.context_avatar.content_type'), null, true),
+			self::IS_APPROVED => new DevblocksSearchField(self::IS_APPROVED, 'context_avatar', 'is_approved', $translate->_('dao.context_avatar.is_approved'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'context_avatar', 'updated_at', $translate->_('dao.context_avatar.updated_at'), Model_CustomField::TYPE_DATE, true),
+			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'context_avatar', 'storage_extension', $translate->_('dao.context_avatar.storage_extension'), null, true),
+			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'context_avatar', 'storage_key', $translate->_('dao.context_avatar.storage_key'), null, true),
+			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'context_avatar', 'storage_size', $translate->_('dao.context_avatar.storage_size'), Model_CustomField::TYPE_NUMBER, true),
+			self::STORAGE_PROFILE_ID => new DevblocksSearchField(self::STORAGE_PROFILE_ID, 'context_avatar', 'storage_profile_id', $translate->_('dao.context_avatar.storage_profile_id'), Model_CustomField::TYPE_NUMBER, true),
 
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
-			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 		);
 		
 		// Custom Fields

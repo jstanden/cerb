@@ -6,6 +6,41 @@ abstract class DevblocksORMHelper {
 	const OPT_UPDATE_NO_FLUSH_CACHE = 1;
 	const OPT_UPDATE_NO_EVENTS = 2;
 	
+	static protected function _buildSortClause($sortBy, $sortAsc, $fields) {
+		$sort_sql = null;
+		
+		if(is_string($sortBy)) {
+			// We can't sort on virtual fields, the field must exist, and must be flagged sortable
+			if('*'==substr($sortBy,0,1) 
+					|| !isset($fields[$sortBy]) 
+					|| !$fields[$sortBy]->is_sortable) {
+				$sortBy=null;
+			}
+			
+			$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+			
+		} elseif(is_array($sortBy) && is_array($sortAsc) && count($sortBy) == count($sortAsc)) {
+			$sorts = array();
+			
+			foreach($sortBy as $idx => $field) {
+				@$asc = $sortAsc[$idx];
+				
+				// [TODO] Do the same field validation here
+				
+				$sorts[] = sprintf("%s %s",
+					$field,
+					($asc || is_null($asc)) ? "ASC" : "DESC"
+				);
+			}
+			
+			if(!empty($sorts))
+				$sort_sql = sprintf('ORDER BY %s', implode(', ', $sorts));
+			
+		}
+		
+		return $sort_sql;
+	}
+	
 	static protected function _getWhereSQL($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
 		// Where
 		$where_sql = !empty($where) ? sprintf("WHERE %s ", $where) : '';
@@ -254,7 +289,7 @@ abstract class DevblocksORMHelper {
 	}
 };
 
-class DAO_Platform {
+class DAO_Platform extends DevblocksORMHelper {
 	static function cleanupPluginTables() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
@@ -678,10 +713,6 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksTemplate::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -713,7 +744,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 		
 		$result = array(
 			'primary_table' => 'devblocks_template',
@@ -852,11 +883,11 @@ class SearchFields_DevblocksTemplate implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'devblocks_template', 'id', $translate->_('common.id')),
-			self::PLUGIN_ID => new DevblocksSearchField(self::PLUGIN_ID, 'devblocks_template', 'plugin_id', $translate->_('Plugin')),
-			self::PATH => new DevblocksSearchField(self::PATH, 'devblocks_template', 'path', $translate->_('path')),
-			self::TAG => new DevblocksSearchField(self::TAG, 'devblocks_template', 'tag', $translate->_('tag')),
-			self::LAST_UPDATED => new DevblocksSearchField(self::LAST_UPDATED, 'devblocks_template', 'last_updated', $translate->_('common.updated')),
+			self::ID => new DevblocksSearchField(self::ID, 'devblocks_template', 'id', $translate->_('common.id'), null, true),
+			self::PLUGIN_ID => new DevblocksSearchField(self::PLUGIN_ID, 'devblocks_template', 'plugin_id', $translate->_('Plugin'), null, true),
+			self::PATH => new DevblocksSearchField(self::PATH, 'devblocks_template', 'path', $translate->_('path'), null, true),
+			self::TAG => new DevblocksSearchField(self::TAG, 'devblocks_template', 'tag', $translate->_('tag'), null, true),
+			self::LAST_UPDATED => new DevblocksSearchField(self::LAST_UPDATED, 'devblocks_template', 'last_updated', $translate->_('common.updated'), null, true),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -1123,10 +1154,6 @@ class DAO_Translation extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Translation::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -1154,7 +1181,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 
-		$sort_sql =	(!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 		
 		$result = array(
 			'primary_table' => 'translation',
@@ -1236,16 +1263,16 @@ class SearchFields_Translation implements IDevblocksSearchFields {
 	static function getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		return array(
-			self::ID => new DevblocksSearchField(self::ID, 'tl', 'id', $translate->_('translate.id')),
-			self::STRING_ID => new DevblocksSearchField(self::STRING_ID, 'tl', 'string_id', $translate->_('translate.string_id'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::LANG_CODE => new DevblocksSearchField(self::LANG_CODE, 'tl', 'lang_code', $translate->_('translate.lang_code'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::STRING_DEFAULT => new DevblocksSearchField(self::STRING_DEFAULT, 'tl', 'string_default', $translate->_('translate.string_default'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::STRING_OVERRIDE => new DevblocksSearchField(self::STRING_OVERRIDE, 'tl', 'string_override', $translate->_('translate.string_override'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::ID => new DevblocksSearchField(self::ID, 'tl', 'id', $translate->_('translate.id'), null, true),
+			self::STRING_ID => new DevblocksSearchField(self::STRING_ID, 'tl', 'string_id', $translate->_('translate.string_id'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::LANG_CODE => new DevblocksSearchField(self::LANG_CODE, 'tl', 'lang_code', $translate->_('translate.lang_code'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STRING_DEFAULT => new DevblocksSearchField(self::STRING_DEFAULT, 'tl', 'string_default', $translate->_('translate.string_default'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::STRING_OVERRIDE => new DevblocksSearchField(self::STRING_OVERRIDE, 'tl', 'string_override', $translate->_('translate.string_override'), Model_CustomField::TYPE_SINGLE_LINE, true),
 		);
 	}
 };
 
-class DAO_DevblocksStorageQueue {
+class DAO_DevblocksStorageQueue extends DevblocksORMHelper {
 	static function getPendingProfiles() {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -1431,10 +1458,6 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksStorageProfile::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -1462,7 +1485,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 		
 		$result = array(
 			'primary_table' => 'devblocks_storage_profile',
@@ -1555,10 +1578,10 @@ class SearchFields_DevblocksStorageProfile implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'devblocks_storage_profile', 'id', $translate->_('id'), null),
-			self::NAME => new DevblocksSearchField(self::NAME, 'devblocks_storage_profile', 'name', $translate->_('name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'devblocks_storage_profile', 'extension_id', $translate->_('extension_id'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'devblocks_storage_profile', 'params_json', $translate->_('params_json'), null),
+			self::ID => new DevblocksSearchField(self::ID, 'devblocks_storage_profile', 'id', $translate->_('id'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'devblocks_storage_profile', 'name', $translate->_('name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'devblocks_storage_profile', 'extension_id', $translate->_('extension_id'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'devblocks_storage_profile', 'params_json', $translate->_('params_json'), null, false),
 		);
 		
 		// Sort by label (translation-conscious)

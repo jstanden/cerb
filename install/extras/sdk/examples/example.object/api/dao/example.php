@@ -172,10 +172,6 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ExampleObject::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -205,7 +201,7 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 	
 		// Virtuals
 		foreach($params as $param) {
@@ -317,14 +313,14 @@ class SearchFields_ExampleObject implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'example_object', 'id', $translate->_('common.id')),
-			self::NAME => new DevblocksSearchField(self::NAME, 'example_object', 'name', $translate->_('common.name')),
-			self::CREATED => new DevblocksSearchField(self::CREATED, 'example_object', 'created', $translate->_('common.created')),
+			self::ID => new DevblocksSearchField(self::ID, 'example_object', 'id', $translate->_('common.id'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'example_object', 'name', $translate->_('common.name'), null, true),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'example_object', 'created', $translate->_('common.created'), null, true),
 			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 			
-			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers')),
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), null, false),
 		);
 		
 		// Custom fields with fieldsets
@@ -460,6 +456,8 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 	}
 	
 	function getQuickSearchFields() {
+		$search_fields = SearchFields_ExampleObject::getFields();
+		
 		$fields = array(
 			'_fulltext' => 
 				array(
@@ -487,6 +485,10 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 		
 		//$fields = self::_appendFieldsFromQuickSearchContext('cerberusweb.contexts.example_object', $fields, null);
 		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+		
 		// Sort by keys
 		
 		ksort($fields);
@@ -505,9 +507,6 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 				// ...
 			}
 		}
-		
-		$this->renderPage = 0;
-		$this->addParams($params, true);
 		
 		return $params;
 	}

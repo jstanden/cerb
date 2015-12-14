@@ -196,10 +196,6 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksSession::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -226,7 +222,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 	
 		// Virtuals
 		
@@ -355,13 +351,13 @@ class SearchFields_DevblocksSession implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::SESSION_KEY => new DevblocksSearchField(self::SESSION_KEY, 'devblocks_session', 'session_key', $translate->_('dao.devblocks_session.session_key'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::CREATED => new DevblocksSearchField(self::CREATED, 'devblocks_session', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
-			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'devblocks_session', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
-			self::SESSION_DATA => new DevblocksSearchField(self::SESSION_DATA, 'devblocks_session', 'session_data', $translate->_('dao.devblocks_session.session_data'), Model_CustomField::TYPE_MULTI_LINE),
-			self::USER_ID => new DevblocksSearchField(self::USER_ID, 'devblocks_session', 'user_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER),
-			self::USER_IP => new DevblocksSearchField(self::USER_IP, 'devblocks_session', 'user_ip', $translate->_('dao.devblocks_session.user_ip'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::USER_AGENT => new DevblocksSearchField(self::USER_AGENT, 'devblocks_session', 'user_agent', $translate->_('dao.devblocks_session.user_agent'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::SESSION_KEY => new DevblocksSearchField(self::SESSION_KEY, 'devblocks_session', 'session_key', $translate->_('dao.devblocks_session.session_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CREATED => new DevblocksSearchField(self::CREATED, 'devblocks_session', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'devblocks_session', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::SESSION_DATA => new DevblocksSearchField(self::SESSION_DATA, 'devblocks_session', 'session_data', $translate->_('dao.devblocks_session.session_data'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::USER_ID => new DevblocksSearchField(self::USER_ID, 'devblocks_session', 'user_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER, true),
+			self::USER_IP => new DevblocksSearchField(self::USER_IP, 'devblocks_session', 'user_ip', $translate->_('dao.devblocks_session.user_ip'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::USER_AGENT => new DevblocksSearchField(self::USER_AGENT, 'devblocks_session', 'user_agent', $translate->_('dao.devblocks_session.user_agent'), Model_CustomField::TYPE_SINGLE_LINE, true),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -472,6 +468,8 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 	}
 	
 	function getQuickSearchFields() {
+		$search_fields = SearchFields_DevblocksSession::getFields();
+		
 		$fields = array(
 			'_fulltext' => 
 				array(
@@ -504,6 +502,10 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 					'options' => array('param_key' => SearchFields_DevblocksSession::USER_ID),
 				),
 		);
+		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
 		
 		// Sort by keys
 		

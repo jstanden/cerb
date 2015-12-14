@@ -101,10 +101,6 @@ class DAO_CerbPlugin extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CerbPlugin::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 
 		$select_sql = sprintf("SELECT ".
@@ -133,7 +129,7 @@ class DAO_CerbPlugin extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 	
 		return array(
 			'primary_table' => 'cerb_plugin',
@@ -228,15 +224,15 @@ class SearchFields_CerbPlugin implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'cerb_plugin', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER),
-			self::ENABLED => new DevblocksSearchField(self::ENABLED, 'cerb_plugin', 'enabled', $translate->_('common.enabled'), Model_CustomField::TYPE_CHECKBOX),
-			self::NAME => new DevblocksSearchField(self::NAME, 'cerb_plugin', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'cerb_plugin', 'description', $translate->_('dao.cerb_plugin.description'), Model_CustomField::TYPE_MULTI_LINE),
-			self::AUTHOR => new DevblocksSearchField(self::AUTHOR, 'cerb_plugin', 'author', $translate->_('dao.cerb_plugin.author'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::VERSION => new DevblocksSearchField(self::VERSION, 'cerb_plugin', 'version', $translate->_('dao.cerb_plugin.version'), null),
-			self::DIR => new DevblocksSearchField(self::DIR, 'cerb_plugin', 'dir', null, null),
-			self::LINK => new DevblocksSearchField(self::LINK, 'cerb_plugin', 'link', $translate->_('common.url'), Model_CustomField::TYPE_URL),
-			self::MANIFEST_CACHE_JSON => new DevblocksSearchField(self::MANIFEST_CACHE_JSON, 'cerb_plugin', 'manifest_cache_json', null, null),
+			self::ID => new DevblocksSearchField(self::ID, 'cerb_plugin', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::ENABLED => new DevblocksSearchField(self::ENABLED, 'cerb_plugin', 'enabled', $translate->_('common.enabled'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'cerb_plugin', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'cerb_plugin', 'description', $translate->_('dao.cerb_plugin.description'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::AUTHOR => new DevblocksSearchField(self::AUTHOR, 'cerb_plugin', 'author', $translate->_('dao.cerb_plugin.author'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::VERSION => new DevblocksSearchField(self::VERSION, 'cerb_plugin', 'version', $translate->_('dao.cerb_plugin.version'), null, true),
+			self::DIR => new DevblocksSearchField(self::DIR, 'cerb_plugin', 'dir', null, null, true),
+			self::LINK => new DevblocksSearchField(self::LINK, 'cerb_plugin', 'link', $translate->_('common.url'), Model_CustomField::TYPE_URL, true),
+			self::MANIFEST_CACHE_JSON => new DevblocksSearchField(self::MANIFEST_CACHE_JSON, 'cerb_plugin', 'manifest_cache_json', null, null, false),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -352,6 +348,8 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 	
 	function getQuickSearchFields() {
+		$search_fields = SearchFields_CerbPlugin::getFields();
+		
 		$fields = array(
 			'_fulltext' => 
 				array(
@@ -399,6 +397,10 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 				),
 		);
 		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+		
 		// Sort by keys
 		
 		ksort($fields);
@@ -434,10 +436,7 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 					break;
 			}
 		}
-		
-		$this->renderPage = 0;
-		$this->addParams($params, true);
-		
+
 		return $params;
 	}
 

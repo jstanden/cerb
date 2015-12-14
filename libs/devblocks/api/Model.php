@@ -745,13 +745,15 @@ class DevblocksSearchField {
 	public $db_column;
 	public $db_label;
 	public $type;
+	public $is_sortable = false;
 	
-	function __construct($token, $db_table, $db_column, $label=null, $type=null) {
+	function __construct($token, $db_table, $db_column, $label=null, $type=null, $is_sortable=false) {
 		$this->token = $token;
 		$this->db_table = $db_table;
 		$this->db_column = $db_column;
 		$this->db_label = $label;
 		$this->type = $type;
+		$this->is_sortable = $is_sortable;
 	}
 	
 	static function getCustomSearchFieldsByContexts($contexts) {
@@ -778,7 +780,8 @@ class DevblocksSearchField {
 					$key, // table
 					'field_value', // column
 					$label, // label
-					$field->type // type
+					$field->type, // type
+					true // is sortable // [TODO] By type?
 				);
 			}
 		}

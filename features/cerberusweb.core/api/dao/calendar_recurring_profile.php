@@ -231,10 +231,6 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CalendarRecurringProfile::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -276,7 +272,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 	
 		// Virtuals
 		
@@ -422,23 +418,23 @@ class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'calendar_recurring_profile', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER),
-			self::EVENT_NAME => new DevblocksSearchField(self::EVENT_NAME, 'calendar_recurring_profile', 'event_name', $translate->_('dao.calendar_recurring_profile.event_name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::IS_AVAILABLE => new DevblocksSearchField(self::IS_AVAILABLE, 'calendar_recurring_profile', 'is_available', $translate->_('dao.calendar_recurring_profile.is_available'), Model_CustomField::TYPE_CHECKBOX),
-			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'calendar_recurring_profile', 'calendar_id', $translate->_('common.calendar')),
-			self::TZ => new DevblocksSearchField(self::TZ, 'calendar_recurring_profile', 'tz', $translate->_('dao.calendar_recurring_profile.tz'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::EVENT_START => new DevblocksSearchField(self::EVENT_START, 'calendar_recurring_profile', 'event_start', $translate->_('dao.calendar_recurring_profile.event_start'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::EVENT_END => new DevblocksSearchField(self::EVENT_END, 'calendar_recurring_profile', 'event_end', $translate->_('dao.calendar_recurring_profile.event_end'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::RECUR_START => new DevblocksSearchField(self::RECUR_START, 'calendar_recurring_profile', 'recur_start', $translate->_('dao.calendar_recurring_profile.recur_start'), Model_CustomField::TYPE_DATE),
-			self::RECUR_END => new DevblocksSearchField(self::RECUR_END, 'calendar_recurring_profile', 'recur_end', $translate->_('dao.calendar_recurring_profile.recur_end'), Model_CustomField::TYPE_DATE),
-			self::PATTERNS => new DevblocksSearchField(self::PATTERNS, 'calendar_recurring_profile', 'patterns', $translate->_('dao.calendar_recurring_profile.patterns'), Model_CustomField::TYPE_MULTI_LINE),
+			self::ID => new DevblocksSearchField(self::ID, 'calendar_recurring_profile', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::EVENT_NAME => new DevblocksSearchField(self::EVENT_NAME, 'calendar_recurring_profile', 'event_name', $translate->_('dao.calendar_recurring_profile.event_name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::IS_AVAILABLE => new DevblocksSearchField(self::IS_AVAILABLE, 'calendar_recurring_profile', 'is_available', $translate->_('dao.calendar_recurring_profile.is_available'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'calendar_recurring_profile', 'calendar_id', $translate->_('common.calendar'), null, true),
+			self::TZ => new DevblocksSearchField(self::TZ, 'calendar_recurring_profile', 'tz', $translate->_('dao.calendar_recurring_profile.tz'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EVENT_START => new DevblocksSearchField(self::EVENT_START, 'calendar_recurring_profile', 'event_start', $translate->_('dao.calendar_recurring_profile.event_start'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EVENT_END => new DevblocksSearchField(self::EVENT_END, 'calendar_recurring_profile', 'event_end', $translate->_('dao.calendar_recurring_profile.event_end'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::RECUR_START => new DevblocksSearchField(self::RECUR_START, 'calendar_recurring_profile', 'recur_start', $translate->_('dao.calendar_recurring_profile.recur_start'), Model_CustomField::TYPE_DATE, true),
+			self::RECUR_END => new DevblocksSearchField(self::RECUR_END, 'calendar_recurring_profile', 'recur_end', $translate->_('dao.calendar_recurring_profile.recur_end'), Model_CustomField::TYPE_DATE, true),
+			self::PATTERNS => new DevblocksSearchField(self::PATTERNS, 'calendar_recurring_profile', 'patterns', $translate->_('dao.calendar_recurring_profile.patterns'), Model_CustomField::TYPE_MULTI_LINE, true),
 
-			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
-			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null),
-			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null),
+			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
+			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 		);
 		
 		// Custom Fields
@@ -721,6 +717,8 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 	}
 	
 	function getQuickSearchFields() {
+		$search_fields = SearchFields_CalendarRecurringProfile::getFields();
+		
 		$fields = array(
 			'_fulltext' => 
 				array(
@@ -741,6 +739,11 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::ID),
+				),
+			'name' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::EVENT_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'on' =>
 				array(
@@ -786,6 +789,10 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $fields, null);
+		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
 		
 		// Sort by keys
 		
@@ -857,12 +864,9 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 							array_keys($values)
 						);
 					}
-					break;				
+					break;
 			}
 		}
-		
-		$this->renderPage = 0;
-		$this->addParams($params, true);
 		
 		return $params;
 	}

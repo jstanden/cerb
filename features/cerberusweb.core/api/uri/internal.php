@@ -601,7 +601,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 		
 		if(!empty($query))
-			$view->addParamsWithQuickSearch($query);
+			$view->addParamsWithQuickSearch($query, true);
 			
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('context', $context_extension);

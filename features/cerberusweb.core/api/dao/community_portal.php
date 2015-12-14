@@ -175,10 +175,6 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CommunityTool::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]) || !in_array($sortBy,$columns))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 					
 		$select_sql = sprintf("SELECT ".
@@ -207,7 +203,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 		
 		$result = array(
 			'primary_table' => 'ct',
@@ -299,10 +295,10 @@ class SearchFields_CommunityTool implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			SearchFields_CommunityTool::ID => new DevblocksSearchField(SearchFields_CommunityTool::ID, 'ct', 'id', $translate->_('common.id'), null),
-			SearchFields_CommunityTool::NAME => new DevblocksSearchField(SearchFields_CommunityTool::NAME, 'ct', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
-			SearchFields_CommunityTool::CODE => new DevblocksSearchField(SearchFields_CommunityTool::CODE, 'ct', 'code', $translate->_('community_portal.code'), Model_CustomField::TYPE_SINGLE_LINE),
-			SearchFields_CommunityTool::EXTENSION_ID => new DevblocksSearchField(SearchFields_CommunityTool::EXTENSION_ID, 'ct', 'extension_id', $translate->_('common.extension')),
+			SearchFields_CommunityTool::ID => new DevblocksSearchField(SearchFields_CommunityTool::ID, 'ct', 'id', $translate->_('common.id'), null, true),
+			SearchFields_CommunityTool::NAME => new DevblocksSearchField(SearchFields_CommunityTool::NAME, 'ct', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			SearchFields_CommunityTool::CODE => new DevblocksSearchField(SearchFields_CommunityTool::CODE, 'ct', 'code', $translate->_('community_portal.code'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			SearchFields_CommunityTool::EXTENSION_ID => new DevblocksSearchField(SearchFields_CommunityTool::EXTENSION_ID, 'ct', 'extension_id', $translate->_('common.extension'), null, true),
 		);
 		
 		// Custom fields with fieldsets
@@ -321,7 +317,7 @@ class SearchFields_CommunityTool implements IDevblocksSearchFields {
 	}
 };
 
-class DAO_CommunityToolProperty {
+class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 	const TOOL_CODE = 'tool_code';
 	const PROPERTY_KEY = 'property_key';
 	const PROPERTY_VALUE = 'property_value';
@@ -393,7 +389,7 @@ class DAO_CommunityToolProperty {
 	}
 };
 
-class DAO_CommunitySession {
+class DAO_CommunitySession extends Cerb_ORMHelper {
 	const SESSION_ID = 'session_id';
 	const CREATED = 'created';
 	const UPDATED = 'updated';
@@ -595,6 +591,8 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 	}
 	
 	function getQuickSearchFields() {
+		$search_fields = SearchFields_CommunityTool::getFields();
+		
 		$fields = array(
 			'_fulltext' => 
 				array(
@@ -612,6 +610,10 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 					'options' => array('param_key' => SearchFields_CommunityTool::CODE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 		);
+		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
 		
 		// Sort by keys
 		
@@ -631,9 +633,6 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 				// ...
 			}
 		}
-		
-		$this->renderPage = 0;
-		$this->addParams($params, true);
 		
 		return $params;
 	}

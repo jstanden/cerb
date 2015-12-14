@@ -228,10 +228,10 @@ class SearchFields_MailParseFail {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::NAME => new DevblocksSearchField(self::NAME, 'mf', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
-			self::SIZE => new DevblocksSearchField(self::SIZE, 'mf', 'size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER),
-			self::CTIME => new DevblocksSearchField(self::CTIME, 'mf', 'ctime', $translate->_('common.created'), Model_CustomField::TYPE_DATE),
-			self::MTIME => new DevblocksSearchField(self::MTIME, 'mf', 'mtime', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
+			self::NAME => new DevblocksSearchField(self::NAME, 'mf', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::SIZE => new DevblocksSearchField(self::SIZE, 'mf', 'size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
+			self::CTIME => new DevblocksSearchField(self::CTIME, 'mf', 'ctime', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::MTIME => new DevblocksSearchField(self::MTIME, 'mf', 'mtime', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -404,6 +404,8 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 	}
 	
 	function getQuickSearchFields() {
+		$search_fields = SearchFields_MailParseFail::getFields();
+		
 		$fields = array(
 			'_fulltext' => 
 				array(
@@ -432,6 +434,10 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 				),
 		);
 		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+		
 		// Sort by keys
 		
 		ksort($fields);
@@ -450,9 +456,6 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 				// ...
 			}
 		}
-		
-		$this->renderPage = 0;
-		$this->addParams($params, true);
 		
 		return $params;
 	}

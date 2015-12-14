@@ -15,7 +15,7 @@
  |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
  ***********************************************************************/
 
-class DAO_WorkerRole extends DevblocksORMHelper {
+class DAO_WorkerRole extends Cerb_ORMHelper {
 	const _CACHE_ROLES_ALL = 'ch_roles_all';
 	const _CACHE_WORKER_PRIVS_PREFIX = 'ch_privs_worker_';
 	const _CACHE_WORKER_ROLES_PREFIX = 'ch_roles_worker_';

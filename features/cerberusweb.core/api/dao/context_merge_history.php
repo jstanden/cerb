@@ -15,7 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-class DAO_ContextMergeHistory {
+class DAO_ContextMergeHistory extends Cerb_ORMHelper {
 	const CONTEXT = 'context';
 	const FROM_CONTEXT_ID = 'from_context_id';
 	const TO_CONTEXT_ID = 'to_context_id';

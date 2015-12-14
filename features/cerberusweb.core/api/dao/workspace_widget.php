@@ -187,10 +187,6 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WorkspaceWidget::getFields();
 		
-		// Sanitize
-		if('*'==substr($sortBy,0,1) || !isset($fields[$sortBy]))
-			$sortBy=null;
-
 		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
@@ -219,7 +215,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = (!empty($sortBy)) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ";
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 	
 		array_walk_recursive(
 			$params,
@@ -344,14 +340,14 @@ class SearchFields_WorkspaceWidget implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'workspace_widget', 'id', $translate->_('common.id')),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_widget', 'extension_id', $translate->_('common.extension')),
-			self::WORKSPACE_TAB_ID => new DevblocksSearchField(self::WORKSPACE_TAB_ID, 'workspace_widget', 'workspace_tab_id', null),
-			self::LABEL => new DevblocksSearchField(self::LABEL, 'workspace_widget', 'label', $translate->_('common.label')),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_widget', 'updated_at', $translate->_('common.updated')),
-			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'workspace_widget', 'params_json', $translate->_('common.params')),
-			self::POS => new DevblocksSearchField(self::POS, 'workspace_widget', 'pos', null),
-			self::CACHE_TTL => new DevblocksSearchField(self::CACHE_TL, 'workspace_widget', 'cache_ttl', null, Model_CustomField::TYPE_NUMBER),
+			self::ID => new DevblocksSearchField(self::ID, 'workspace_widget', 'id', $translate->_('common.id'), null, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_widget', 'extension_id', $translate->_('common.extension'), null, true),
+			self::WORKSPACE_TAB_ID => new DevblocksSearchField(self::WORKSPACE_TAB_ID, 'workspace_widget', 'workspace_tab_id', null, null, true),
+			self::LABEL => new DevblocksSearchField(self::LABEL, 'workspace_widget', 'label', $translate->_('common.label'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_widget', 'updated_at', $translate->_('common.updated'), null, true),
+			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'workspace_widget', 'params_json', $translate->_('common.params'), null, false),
+			self::POS => new DevblocksSearchField(self::POS, 'workspace_widget', 'pos', null, null, true),
+			self::CACHE_TTL => new DevblocksSearchField(self::CACHE_TL, 'workspace_widget', 'cache_ttl', null, Model_CustomField::TYPE_NUMBER, true),
 		);
 		
 		// Sort by label (translation-conscious)

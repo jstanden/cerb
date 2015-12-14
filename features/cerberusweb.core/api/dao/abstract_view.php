@@ -297,6 +297,9 @@ abstract class C4_AbstractView {
 	}
 	
 	function addParamsWithQuickSearch($query, $replace=true) {
+		if(!($this instanceof IAbstractView_QuickSearch))
+			return false;
+		
 		// Replace placeholders
 
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
@@ -306,15 +309,68 @@ abstract class C4_AbstractView {
 		// Get fields
 		
 		$fields = $this->_getFieldsFromQuickSearchQuery($query);
-
-		$params = array();
 		
-		if($this instanceof IAbstractView_QuickSearch) {
-			$params = $this->getParamsFromQuickSearchFields($fields);
+		// Quick search multi-sorting
+		
+		if(isset($fields['sort']) && $fields['sort']) {
+			if(false != ($sort_results = $this->_getSortFromQuickSearchQuery($fields['sort'])) && is_array($sort_results)) {
+				if(isset($sort_results['sort_by']) && !empty($sort_results['sort_by']))
+					$this->renderSortBy = $sort_results['sort_by'][0];
+				if(isset($sort_results['sort_asc']) && !empty($sort_results['sort_asc']))
+				$this->renderSortAsc = $sort_results['sort_asc'][0];
+			}
+			unset($fields['sort']);
 		}
+		
+		// Build params
+		
+		$params = $this->getParamsFromQuickSearchFields($fields);
 		
 		$this->addParams($params, $replace);
 		$this->renderPage = 0;
+	}
+	
+	function _getSortFromQuickSearchQuery($sort_query) {
+		$sort_results = array(
+			'sort_by' => array(),
+			'sort_asc' => array(),
+		);
+		
+		if(empty($sort_query) || !($this instanceof IAbstractView_QuickSearch))
+			return false;
+		
+		if(false == ($search_fields = $this->getQuickSearchFields()))
+			return false;
+		
+		// Tokenize the sort string with spaces
+		$sort_fields = explode(' ', $sort_query);
+		
+		if(!is_array($sort_fields) || empty($sort_fields))
+			return false;
+			
+		foreach($sort_fields as $sort_field) {
+			$sort_asc = true;
+			
+			if('-' == substr($sort_field,0,1))
+				$sort_asc = false;
+			
+			$sort_field = ltrim($sort_field, '+-');
+			
+			@$search_field = $search_fields[$sort_field];
+			
+			if(!is_array($search_field) || empty($search_field))
+				continue;
+			
+			@$param_key = $search_field['options']['param_key'];
+			
+			if(empty($param_key))
+				continue;
+			
+			$sort_results['sort_by'][] = $param_key;
+			$sort_results['sort_asc'][] = $sort_asc;
+		}
+		
+		return $sort_results;
 	}
 	
 	function removeParam($key) {
@@ -1116,10 +1172,11 @@ abstract class C4_AbstractView {
 		foreach($custom_fields as $cf_id => $cfield) {
 			$search_field_meta = array(
 				'type' => null,
+				'is_sortable' => true,
 				'options' => array(
+					'param_key' => sprintf("cf_%d", $cf_id),
 					'cf_ctx' => $cfield->context,
 					'cf_id' => $cf_id,
-					'param_key' => sprintf("cf_%d", $cf_id),
 				),
 			);
 			
@@ -1205,6 +1262,15 @@ abstract class C4_AbstractView {
 			}
 			
 			$fields[$field_key] = $search_field_meta;
+		}
+		
+		return $fields;
+	}
+	
+	protected function _setSortableQuickSearchFields($fields, $search_fields) {
+		foreach($fields as $k => &$field) {
+			@$param_key = $field['options']['param_key'];
+			$field['is_sortable'] = ($param_key && isset($search_fields[$param_key]) && $search_fields[$param_key]->is_sortable);
 		}
 		
 		return $fields;
@@ -2762,7 +2828,7 @@ class C4_AbstractViewLoader {
 	}
 };
 
-class DAO_WorkerViewModel {
+class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	/**
 	 *
 	 * @param string $where
