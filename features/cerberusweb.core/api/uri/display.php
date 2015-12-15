@@ -1675,7 +1675,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	function saveRequestersPanelAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
 		@$address_ids = DevblocksPlatform::importGPC($_POST['address_id'],'array',array());
-		@$lookup_str = DevblocksPlatform::importGPC($_POST['lookup'],'string','');
 
 		if(empty($ticket_id))
 			return;
@@ -1692,16 +1691,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		foreach($address_ids as $id) {
 			if(is_numeric($id) && !isset($requesters[$id])) {
 				if(null != ($address = DAO_Address::get($id)))
-					DAO_Ticket::createRequester($address->email, $ticket_id);
-			}
-		}
-		
-		// Perform lookups
-		if(!empty($lookup_str)) {
-			$lookups = CerberusMail::parseRfcAddresses($lookup_str);
-			foreach($lookups as $lookup => $lookup_data) {
-				// Create if a valid email and we haven't heard of them
-				if(null != ($address = DAO_Address::lookupAddress($lookup, true)))
 					DAO_Ticket::createRequester($address->email, $ticket_id);
 			}
 		}
