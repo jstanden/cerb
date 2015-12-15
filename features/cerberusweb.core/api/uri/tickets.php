@@ -282,9 +282,9 @@ class ChTicketsPage extends CerberusPageExtension {
 						sprintf("%s can't own this ticket because they are not a member of the %s group.", $owner->getName(), $group->name),
 						'owner_id'
 					);
-					
-				$fields[DAO_Ticket::OWNER_ID] = $owner_id;
 			}
+			
+			$fields[DAO_Ticket::OWNER_ID] = $owner_id;
 			
 			// Status
 			if(isset($closed)) {
