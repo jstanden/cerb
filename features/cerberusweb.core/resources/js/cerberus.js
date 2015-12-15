@@ -1015,6 +1015,35 @@ var ajax = new cAjaxCalls();
 				}
 			}
 			
+			// Show a 'me' shortcut on worker choosers
+			if(context == 'cerberusweb.contexts.worker') {
+				var $account = $('#lnkSignedIn');
+				
+				var $button = $('<button type="button"/>')
+					.addClass('.chooser-shortcut')
+					.text('me')
+					.click(function() {
+						var evt = jQuery.Event('bubble-create');
+						evt.label = $account.attr('data-worker-name');
+						evt.value = $account.attr('data-worker-id');
+						$ul.trigger(evt);
+					})
+					.insertAfter($trigger)
+					;
+				
+				if($ul.find('>li').length > 0)
+					$button.hide();
+				
+				$trigger.on('cerb-chooser-saved', function() {
+					// If we have zero bubbles, show autocomplete
+					if($ul.find('>li').length == 0) {
+						$button.show();
+					} else { // otherwise, hide it.
+						$button.hide();
+					}
+				});
+			}
+			
 			// Autocomplete
 			if($trigger.attr('data-autocomplete')) {
 				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete') == 'if-null';
