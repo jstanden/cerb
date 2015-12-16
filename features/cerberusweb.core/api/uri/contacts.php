@@ -912,7 +912,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 
-		@$org_name = trim(DevblocksPlatform::importGPC($_POST['contact_org'],'string',''));
+		@$org_id = DevblocksPlatform::importGPC($_POST['org_id'],'string',null);
 		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
 		@$is_banned = DevblocksPlatform::importGPC($_POST['is_banned'],'integer',0);
 		@$is_defunct = DevblocksPlatform::importGPC($_POST['is_defunct'],'integer',0);
@@ -925,9 +925,8 @@ class ChContactsPage extends CerberusPageExtension {
 		$do = array();
 		
 		// Do: Organization
-		if(!empty($org_name)) {
-			if(null != ($org_id = DAO_ContactOrg::lookup($org_name, true)))
-				$do['org_id'] = $org_id;
+		if(0 != strlen($org_id)) {
+			$do['org_id'] = $org_id;
 		}
 		
 		// Do: SLA

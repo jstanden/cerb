@@ -14,7 +14,6 @@
 	{else}
 		<label><input type="radio" name="filter" value="sample"> {'common.bulk_update.filter.random'|devblocks_translate} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
 	{/if}
-
 </fieldset>
 
 <fieldset class="peek">
@@ -22,9 +21,10 @@
 	
 	<table cellspacing="0" cellpadding="2" width="100%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.organization'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.organization'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<input type="text" name="contact_org" id="orginput" value="" style="width:98%;">
+				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="if-null" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="bubbles chooser-container"></ul>
 			</td>
 		</tr>
 		<tr>
@@ -139,9 +139,9 @@
 			genericAjaxPost('formBatchUpdate','view{$view_id}',null,function() {
 				genericAjaxPopupClose($panel);
 			});
-		})
+		});
 		
-		ajax.orgAutoComplete('#orginput');
+		$panel.find('button.chooser-abstract').cerbChooserTrigger();
 		
 		var $content = $this.find('textarea[name=broadcast_message]');
 		
