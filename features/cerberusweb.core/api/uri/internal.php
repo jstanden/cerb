@@ -893,8 +893,32 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case CerberusContexts::CONTEXT_CONTACT:
-				if(false != ($contact = DAO_Contact::get($context_id))) {
-					if(false != ($email = $contact->getEmailAsString())) {
+				if($context_id) {
+					// Suggest from all of the contact's alternate email addys
+					if(false != ($contact = DAO_Contact::get($context_id))) {
+						$addys = $contact->getEmails();
+						
+						if(is_array($addys))
+						foreach($addys as $addy) {
+							$suggested_photos[] = array(
+								'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100&d=404',
+								'title' => 'Gravatar: ' . $addy->email,
+							);
+						}
+					}
+				} else {
+					// Suggest from the address we're adding to the new contact
+					if(isset($defaults['email'])) {
+						if(false != ($addy = DAO_Address::get($defaults['email']))) {
+							$suggested_photos[] = array(
+								'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100&d=404',
+								'title' => 'Gravatar: ' . $addy->email,
+							);
+						}
+					}
+				}
+				break;
+				
 						$suggested_photos[] = array(
 							'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100&d=404',
 							'title' => 'Gravatar: ' . $addy->email,

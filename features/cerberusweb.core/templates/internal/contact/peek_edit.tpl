@@ -123,7 +123,7 @@
 					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:48px;width:48px;border-radius:5px;border:1px solid rgb(235,235,235);">
 				</div>
 				<div style="float:left;">
-					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
+					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$model->id}" data-create-defaults="{if $addy}email:{$addy->id}{/if} {if $org}org:{$org->id}{/if}">{'common.edit'|devblocks_translate|capitalize}</button>
 					<input type="hidden" name="avatar_image">
 				</div>
 			</td>
