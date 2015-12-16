@@ -885,6 +885,8 @@ class ChTicketsPage extends CerberusPageExtension {
 			if(!empty($doActions))
 				$view->doBulkUpdate($doType, $doTypeParam, $doData, $doActions, array());
 		}
+		
+		$view->render();
 	}
 
 	function viewMoveTicketsAction() {
