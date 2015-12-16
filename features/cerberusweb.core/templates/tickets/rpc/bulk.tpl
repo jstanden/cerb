@@ -33,7 +33,7 @@
 	<table cellspacing="0" cellpadding="2" width="100%">
 		{if $active_worker->hasPriv('core.ticket.actions.move')}
 		<tr>
-			<td width="0%" nowrap="nowrap">Move to:</td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">Move to:</td>
 			<td width="100%"><select name="do_move">
 				<option value=""></option>
 				{foreach from=$group_buckets item=buckets key=groupId}
@@ -49,7 +49,7 @@
 		{/if}
 		
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top">Status:</td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">Status:</td>
 			<td width="100%" valign="top">
 				<select name="do_status" onchange="$val=$(this).val();$waiting=$('#bulk{$view_id}_waiting');if($val==3 || $val==1){ $waiting.show(); } else { $waiting.hide(); }">
 					<option value=""></option>
@@ -82,7 +82,7 @@
 		
 		{if $active_worker->hasPriv('core.ticket.actions.spam')}
 		<tr>
-			<td width="0%" nowrap="nowrap">Spam:</td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">Spam:</td>
 			<td width="100%"><select name="do_spam">
 				<option value=""></option>
 				<option value="1">Report Spam</option>
@@ -96,7 +96,7 @@
 		
 		{if 1}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top">{'common.owner'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.owner'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<button type="button" class="chooser-abstract" data-field-name="do_owner" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
 				<ul class="bubbles chooser-container"></ul>
@@ -106,27 +106,34 @@
 		
 		{if 1}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top">{'common.organization'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.organization'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="do_org" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="do_org" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="if-null" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
 				<ul class="bubbles chooser-container"></ul>
 			</td>
 		</tr>
 		{/if}
 		
-		{if $active_worker->hasPriv('core.watchers.assign') || $active_worker->hasPriv('core.watchers.unassign')}
+		{if $active_worker->hasPriv('core.watchers.assign')}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top">{'common.watchers'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">Add watchers:</td>
 			<td width="100%">
-				{if $active_worker->hasPriv('core.watchers.assign')}
-				<button type="button" class="chooser-worker add"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container" style="display:block;"></ul>
-				{/if}
-
-				{if $active_worker->hasPriv('core.watchers.unassign')}
-				<button type="button" class="chooser-worker remove"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container" style="display:block;"></ul>
-				{/if}
+				<div>
+					<button type="button" class="chooser-abstract" data-field-name="do_watcher_add_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+					<ul class="bubbles chooser-container" style="display:block;"></ul>
+				</div>
+			</td>
+		</tr>
+		{/if}
+		
+		{if $active_worker->hasPriv('core.watchers.unassign')}
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">Remove watchers:</td>
+			<td width="100%">
+				<div>
+					<button type="button" class="chooser-abstract" data-field-name="do_watcher_remove_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+					<ul class="bubbles chooser-container" style="display:block;"></ul>
+				</div>
 			</td>
 		</tr>
 		{/if}
@@ -220,16 +227,6 @@ $(function() {
 			$content.insertAtCursor($val).focus();
 			
 			$select.val('');
-		});
-		
-		$frm.find('button.chooser-worker').each(function() {
-			var $button = $(this);
-			var context = 'cerberusweb.contexts.worker';
-			
-			if($button.hasClass('remove'))
-				ajax.chooser(this, context, 'do_watcher_remove_ids', { autocomplete: true, autocomplete_class:'input_remove' } );
-			else
-				ajax.chooser(this, context, 'do_watcher_add_ids', { autocomplete: true, autocomplete_class:'input_add'} );
 		});
 		
 		// Text editor
