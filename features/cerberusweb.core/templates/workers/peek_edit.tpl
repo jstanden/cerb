@@ -276,8 +276,7 @@ $(function() {
 					if($bubble.length > 0) {
 						var email_id = $bubble.val();
 						if(email_id.length > 0) {
-							$avatar_chooser.attr('data-context','{CerberusContexts::CONTEXT_ADDRESS}');
-							$avatar_chooser.attr('data-context-id',email_id);
+							$avatar_chooser.attr('data-create-defaults', 'email:' + email_id);
 						}
 					}
 				}
