@@ -264,6 +264,12 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$types['ticket_watcher_count'] = null;
 		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
+		
+		// Allow overrides
+		$conditions['ticket_spam_score']['type'] = null;
+		$conditions['ticket_spam_training']['type'] = null;
+		$conditions['ticket_status']['type'] = null;
+		
 		return $conditions;
 	}
 	
