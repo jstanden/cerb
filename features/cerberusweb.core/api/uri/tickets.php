@@ -1416,7 +1416,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Owner
 		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['do_owner'],'string',null);
-		if(!is_null($owner_id)) {
+		if(is_numeric($owner_id)) {
 			$do['owner'] = array(
 				'worker_id' => $owner_id,
 			);
@@ -1424,7 +1424,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Org
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['do_org'],'string',null);
-		if(!is_null($org_id)) {
+		if(is_numeric($org_id)) {
 			$do['org'] = array(
 				'org_id' => $org_id,
 			);
