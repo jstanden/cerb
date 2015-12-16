@@ -919,6 +919,13 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 				break;
 				
+			case CerberusContexts::CONTEXT_ORG:
+				if(false != ($org = DAO_ContactOrg::get($context_id))) {
+					// Suggest from all of the org's top email addys w/o contacts
+					$addys = $org->getEmailsWithoutContacts(10);
+					
+					if(is_array($addys))
+					foreach($addys as $addy) {
 						$suggested_photos[] = array(
 							'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100&d=404',
 							'title' => 'Gravatar: ' . $addy->email,

@@ -871,6 +871,19 @@ class Model_ContactOrg {
 		
 		return $out;
 	}
+	
+	function getEmailsWithoutContacts($limit=0) {
+		return DAO_Address::getWhere(
+			sprintf("%s = %d && %s = 0",
+				Cerb_ORMHelper::escape(DAO_Address::CONTACT_ORG_ID),
+				$this->id,
+				Cerb_ORMHelper::escape(DAO_Address::CONTACT_ID)
+			),
+			DAO_Address::NUM_NONSPAM,
+			false,
+			$limit
+		);
+	}
 };
 
 class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
