@@ -1178,6 +1178,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	static function getRequestersByTicket($ticket_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		$ids = array();
+		
 		$sql = sprintf("SELECT a.id ".
 			"FROM address a ".
 			"INNER JOIN requester r ON (r.ticket_id = %d AND a.id=r.address_id) ".
@@ -1191,7 +1193,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$ids[] = $result['id'];
 		}
 		
-		return DAO_Address::getIds($ids);;
+		return DAO_Address::getIds($ids);
 	}
 	
 	static function findMissingRequestersInHeaders($headers, $current_requesters=array()) {
