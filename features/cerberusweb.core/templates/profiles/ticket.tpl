@@ -211,7 +211,6 @@ $(function() {
 	
 	// Edit
 	
-	{if $active_worker->is_superuser}
 	$('#btnDisplayTicketEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {
@@ -227,7 +226,6 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
-	{/if}
 });
 
 // Page title
