@@ -723,7 +723,13 @@ var cAjaxCalls = function() {
 			var $editor_button = $(this);
 			var context = $editor_button.attr('data-context');
 			var context_id = $editor_button.attr('data-context-id');
-			var $editor_popup = genericAjaxPopup('avatar_editor', 'c=internal&a=chooserOpenAvatar&context=' + encodeURIComponent(context) + '&context_id=' + encodeURIComponent(context_id), null, false, '650');
+			
+			var popup_url = 'c=internal&a=chooserOpenAvatar&context=' + encodeURIComponent(context) + '&context_id=' + encodeURIComponent(context_id);
+			
+			if($editor_button.attr('data-create-defaults'))
+				popup_url += '&defaults=' + encodeURIComponent($editor_button.attr('data-create-defaults'));
+			
+			var $editor_popup = genericAjaxPopup('avatar_editor', popup_url, null, false, '650');
 			
 			// Set the default image/url in the chooser
 			var evt = new jQuery.Event('cerb-avatar-set-defaults');

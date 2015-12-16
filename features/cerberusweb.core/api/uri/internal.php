@@ -856,18 +856,31 @@ class ChInternalController extends DevblocksControllerExtension {
 	function chooserOpenAvatarAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$defaults_string = DevblocksPlatform::importGPC($_REQUEST['defaults'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
-		
+
 		if(false != ($avatar = DAO_ContextAvatar::getByContext($context, $context_id))) {
 			$contents = 'data:' . $avatar->content_type . ';base64,' . base64_encode(Storage_ContextAvatar::get($avatar));
 			$tpl->assign('imagedata', $contents);
 		}
-		
+
 		$suggested_photos = array();
+		
+		// Suggest more extended content
+		
+		$defaults = array();
+		
+		$tokens = explode(' ', trim($defaults_string));
+		foreach($tokens as $token) {
+			@list($k,$v) = explode(':', $token);
+			$defaults[trim($k)] = trim($v);
+		}
+		
+		// Per context suggestions
 		
 		switch($context) {
 			case CerberusContexts::CONTEXT_ADDRESS:
