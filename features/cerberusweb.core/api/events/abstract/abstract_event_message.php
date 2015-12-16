@@ -826,7 +826,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				);
 				break;
 				
-			case 'removerecipients':
+			case 'remove_recipients':
 				return DevblocksEventHelper::simulateActionRemoveRecipients($params, $dict, 'ticket_id');
 				break;
 				
