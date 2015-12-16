@@ -303,6 +303,14 @@ if(isset($tables['fnr_external_resource'])) {
 }
 
 // ===========================================================================
+// Clear invalid groups from worker_to_group
+
+if(isset($tables['worker_to_group'])) {
+	$sql = "DELETE FROM worker_to_group WHERE group_id NOT IN (SELECT id FROM worker_group)";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Fix 'NOT NULL' inconsistencies with MySQL strict mode
 
 if(!isset($tables['context_avatar'])) {
