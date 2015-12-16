@@ -886,8 +886,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			case CerberusContexts::CONTEXT_ADDRESS:
 				if(false != ($addy = DAO_Address::get($context_id))) {
 					$suggested_photos[] = array(
-						'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100',
-						'title' => 'Gravatar',
+						'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100&d=404',
+						'title' => 'Gravatar: ' . $addy->email,
 					);
 				}
 				break;
@@ -896,8 +896,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(false != ($contact = DAO_Contact::get($context_id))) {
 					if(false != ($email = $contact->getEmailAsString())) {
 						$suggested_photos[] = array(
-							'url' => 'https://gravatar.com/avatar/' . md5($email) . '?s=100',
-							'title' => 'Gravatar',
+							'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100&d=404',
+							'title' => 'Gravatar: ' . $addy->email,
 						);
 					}
 				}
@@ -907,8 +907,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(false != ($worker = DAO_Worker::get($context_id))) {
 					if(false != ($email = $worker->getEmailString())) {
 						$suggested_photos[] = array(
-							'url' => 'https://gravatar.com/avatar/' . md5($email) . '?s=100',
-							'title' => 'Gravatar',
+							'url' => 'https://gravatar.com/avatar/' . md5($email) . '?s=100&d=404',
+							'title' => 'Gravatar: ' . $email,
 						);
 					}
 				}

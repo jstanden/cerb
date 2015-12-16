@@ -16,11 +16,7 @@
 			  <button type="button" class="cerb-avatar-img-fetch">Fetch</button>
 			</div>
 			{if is_array($suggested_photos) && !empty($suggested_photos)}
-			<div class="cerb-avatar-suggested-photos">
-				{foreach from=$suggested_photos item=photo}
-				<img src="{$photo.url}" title="{$photo.title}" style="cursor:pointer;" width="48" height="48">
-				{/foreach}
-			</div>
+			<div class="cerb-avatar-suggested-photos"></div>
 			{/if}
 		</fieldset>
 	
@@ -108,11 +104,26 @@ $(function() {
 			context.restore();
 		});
 		
-		$suggested.find('img').click(function() {
-			$popup.find('input.cerb-avatar-img-url').val($(this).attr('src'));
-			$popup.find('button.cerb-avatar-img-fetch').click();
-		});
-	
+		{foreach from=$suggested_photos item=photo}
+		var $img = $('<img style="cursor:pointer;margin-right:5px;" width="48" height="48">')
+			.attr('title',"{$photo.title}")
+			.load(function(e) {
+				// When successful, add to suggestions
+				$(this)
+					.click(function() {
+						$popup.find('input.cerb-avatar-img-url').val($(this).attr('src'));
+						$popup.find('button.cerb-avatar-img-fetch').click();
+					})
+					.appendTo($suggested)
+					;
+			})
+			.error(function(e) {
+				// On a 404, ignore this suggestion
+			})
+			.attr('src',"{$photo.url nofilter}")
+			;
+		{/foreach}
+		
 		$export.click(function() {
 			var evt = new jQuery.Event('avatar-editor-save');
 			
