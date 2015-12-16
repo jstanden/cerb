@@ -70,7 +70,7 @@ class DevblocksEventHelper {
 		return $value;
 	}
 	
-	public function renderSimulatorTarget($context, $context_id, $trigger, $event_model) {
+	public static function renderSimulatorTarget($context, $context_id, $trigger, $event_model) {
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
@@ -83,7 +83,7 @@ class DevblocksEventHelper {
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 		$tpl->assign('context_ext', $context_ext);
-		$tpl->assign('values', $values);
+		$tpl->assign('dict', DevblocksDictionaryDelegate::instance($values));
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/simulator/target.tpl');
 	}
