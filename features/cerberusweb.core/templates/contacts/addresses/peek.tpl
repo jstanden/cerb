@@ -1,19 +1,9 @@
 {$div_id = "peek{uniqid()}"}
 
 <div id="{$div_id}">
-	{if $dict->contact_id}
 	<div style="float:left;margin-right:10px;">
-		<img src="{devblocks_url}c=avatars&context=contact&context_id={$dict->contact_id}{/devblocks_url}?v={$dict->contact_updated_at}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
+		<img src="{devblocks_url}c=avatars&context=address&context_id={$dict->id}{/devblocks_url}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
 	</div>
-	{elseif $dict->org_id}
-	<div style="float:left;margin-right:10px;">
-		<img src="{devblocks_url}c=avatars&context=org&context_id={$dict->org_id}{/devblocks_url}?v={$dict->org_updated}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
-	</div>
-	{else}
-	<div style="float:left;margin-right:10px;">
-		<img src="{devblocks_url}c=avatars&context=address&context_id=0{/devblocks_url}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
-	</div>
-	{/if}
 	
 	<div style="float:left;">
 		<h1 style="color:inherit;">{$dict->email}</h1>
