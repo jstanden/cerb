@@ -1,42 +1,109 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmWorkerSettings">
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveDefaults">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
 	<legend>{'preferences.account.settings'|devblocks_translate|capitalize}</legend>
-
-	<b>{'preferences.account.timezone'|devblocks_translate|capitalize}</b> {if !empty($server_timezone)}({'preferences.account.current'|devblocks_translate} {$server_timezone}){/if}<br>
-	<select name="timezone">
-		{foreach from=$timezones item=tz}
-			<option value="{$tz}" {if $tz==$server_timezone}selected{/if}>{$tz}</option>
-		{/foreach}
-	</select><br>
-	<br>
 	
-	<b>{'preferences.account.timeformat'|devblocks_translate|capitalize}</b><br>
-	<select name="time_format">
-		{$timeformats = ['D, d M Y h:i a', 'D, d M Y H:i']}
-		{foreach from=$timeformats item=timeformat}
-			<option value="{$timeformat}" {if $prefs.time_format==$timeformat}selected{/if}>{time()|devblocks_date:$timeformat}</option>
-		{/foreach}
-	</select><br>
-	<br>
+	<div style="margin-bottom:5px;">
+		<table cellspacing="0" cellpadding="0" border="0">
+			<tr>
+				<td style="padding-right:5px;">
+					<b>{'common.name.first'|devblocks_translate|capitalize}</b>:<br>
+					<input type="text" name="first_name" size="20" value="{$worker->first_name}" placeholder="Kina"><br>
+				</td>
+				<td>
+					<b>{'common.name.last'|devblocks_translate|capitalize}</b>:<br>
+					<input type="text" name="last_name" size="35" value="{$worker->last_name}" placeholder="Halpue"><br>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	<div style="margin-bottom:5px;">
+		<b>{'common.title'|devblocks_translate|capitalize}</b>:<br>
+		<input type="text" name="title" size="64" value="{$worker->title}" placeholder="e.g. Customer Service Manager"><br>
+	</div>
+	
+	<div style="margin-bottom:5px;">
+		<b>{'common.gender'|devblocks_translate|capitalize}</b>:<br>
+		<label><input type="radio" name="gender" value="M" {if $worker->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
+		 &nbsp; 
+		 &nbsp; 
+		<label><input type="radio" name="gender" value="F" {if $worker->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
+		 &nbsp; 
+		 &nbsp; 
+		<label><input type="radio" name="gender" value="" {if empty($worker->gender)}checked="checked"{/if}>  Not specified</label>
+	</div>
+	
+	<div style="margin-bottom:5px;">
+		<b>{'common.location'|devblocks_translate|capitalize}</b>:<br>
+		<input type="text" name="location" size="64" value="{$worker->location}" placeholder="e.g. Los Angeles, CA USA"><br>
+	</div>
+	
+	<div style="margin-bottom:5px;">
+		<b>{'common.phone'|devblocks_translate|capitalize}</b>:<br>
+		<input type="text" name="phone" size="64" value="{$worker->phone}" placeholder="">
+	</div>
+	
+	<div style="margin-bottom:5px;">
+		<b>{'common.mobile'|devblocks_translate|capitalize}</b>:<br>
+		<input type="text" name="mobile" size="64" value="{$worker->mobile}" placeholder="">
+	</div>
+	
+	<div style="margin-bottom:5px;">
+		<b>{'common.dob'|devblocks_translate|capitalize}</b>: <i>(YYYY-MM-DD)</i><br>
+		<input type="text" name="dob" value="{if $worker->dob}{$worker->dob}{/if}" size="32" autocomplete="off" spellcheck="false" placeholder="1970-01-15">
+	</div>
+	
+	<div style="margin-bottom:5px;">
+		<b>{'worker.at_mention_name'|devblocks_translate|capitalize}</b>:<br>
+		<input type="text" name="at_mention_name" value="{$worker->at_mention_name}" size="32" autocomplete="off" spellcheck="false" placeholder="UserName">
+	</div>
+	
+	<div style="margin-bottom:5px;">
+		<b>{'common.photo'|devblocks_translate|capitalize}</b>:<br>
+		<div style="float:left;margin-right:5px;">
+			<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:100px;width:100px;border-radius:5px;border:1px solid rgb(235,235,235);">
+		</div>
+		<div style="float:left;">
+			<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{'common.edit'|devblocks_translate|capitalize}</button>
+			<input type="hidden" name="avatar_image">
+		</div>
+	</div>
+</fieldset>
 
-	<b>{'preferences.account.language'|devblocks_translate|capitalize}</b> {if !empty($selected_language) && isset($langs.$selected_language)}({'preferences.account.current'|devblocks_translate} {$langs.$selected_language}){/if}<br>
-	<select name="lang_code">
-		{foreach from=$langs key=lang_code item=lang_name}
-			<option value="{$lang_code}" {if $lang_code==$selected_language}selected{/if}>{$lang_name}</option>
-		{/foreach}
-	</select><br>
-	<br>
+<fieldset class="peek">
+	<legend>{'common.localization'|devblocks_translate|capitalize}</legend>
 
-	<b>{'preferences.account.assist'|devblocks_translate|capitalize}</b><br>
-	<label><input type="checkbox" name="assist_mode" value="1" {if $prefs.assist_mode eq 1}checked{/if}> {'common.enabled'|devblocks_translate|capitalize}</label><br>
-	<br>
+	<div style="margin-bottom:5px;">
+		<b>{'preferences.account.timezone'|devblocks_translate|capitalize}</b> {if !empty($server_timezone)}({'preferences.account.current'|devblocks_translate} {$server_timezone}){/if}<br>
+		<select name="timezone">
+			{foreach from=$timezones item=tz}
+				<option value="{$tz}" {if $tz==$server_timezone}selected{/if}>{$tz}</option>
+			{/foreach}
+		</select>
+	</div>
+	
+	<div style="margin-bottom:5px;">
+		<b>{'preferences.account.timeformat'|devblocks_translate|capitalize}</b><br>
+		<select name="time_format">
+			{$timeformats = ['D, d M Y h:i a', 'D, d M Y H:i']}
+			{foreach from=$timeformats item=timeformat}
+				<option value="{$timeformat}" {if $prefs.time_format==$timeformat}selected{/if}>{time()|devblocks_date:$timeformat}</option>
+			{/foreach}
+		</select>
+	</div>
 
-	<b>{'preferences.account.keyboard.shortcuts'|devblocks_translate|capitalize}</b><br>
-	<label><input type="checkbox" name="keyboard_shortcuts" value="1" {if $prefs.keyboard_shortcuts eq 1}checked{/if}> {'common.enabled'|devblocks_translate|capitalize}</label><br>
+	<div style="margin-bottom:5px;">
+		<b>{'preferences.account.language'|devblocks_translate|capitalize}</b> {if !empty($selected_language) && isset($langs.$selected_language)}({'preferences.account.current'|devblocks_translate} {$langs.$selected_language}){/if}<br>
+		<select name="lang_code">
+			{foreach from=$langs key=lang_code item=lang_name}
+				<option value="{$lang_code}" {if $lang_code==$selected_language}selected{/if}>{$lang_name}</option>
+			{/foreach}
+		</select>
+	</div>
 </fieldset>
 
 <fieldset class="peek">
@@ -53,6 +120,20 @@
 			{/if}
 			{/foreach}
 		</select>
+	</div>
+</fieldset>
+
+<fieldset class="peek">
+	<legend>{'common.ui'|devblocks_translate|capitalize}</legend>
+
+	<div style="margin-bottom:5px;">
+		<b>{'preferences.account.assist'|devblocks_translate|capitalize}</b><br>
+		<label><input type="checkbox" name="assist_mode" value="1" {if $prefs.assist_mode eq 1}checked{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
+	</div>
+
+	<div style="margin-bottom:5px;">
+		<b>{'preferences.account.keyboard.shortcuts'|devblocks_translate|capitalize}</b><br>
+		<label><input type="checkbox" name="keyboard_shortcuts" value="1" {if $prefs.keyboard_shortcuts eq 1}checked{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
 	</div>
 </fieldset>
 
@@ -151,3 +232,14 @@
 <input type="hidden" name="email" value="">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 </form>
+
+<script type="text/javascript">
+$(function() {
+	var $form = $('#frmWorkerSettings');
+	
+	// Avatar chooser
+	var $avatar_chooser = $form.find('button.cerb-avatar-chooser');
+	var $avatar_image = $avatar_chooser.parent().parent().find('img.cerb-avatar');
+	ajax.chooserAvatar($avatar_chooser, $avatar_image);
+});
+</script>

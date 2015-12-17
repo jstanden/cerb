@@ -2662,11 +2662,16 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$worker->language = $active_worker->language;
 		}
 		
+		// If a worker is trying to edit and they aren't a superuser, show the card instead
+		if($context_id && $edit && !$active_worker->is_superuser)
+			$edit = false;
+		
 		if(empty($context_id) || $edit) {
 			// ACL
 			if(!$active_worker->is_superuser) {
 				$tpl->assign('error_message', "Only administrators can edit worker records.");
 				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+				return;
 			}
 			
 			$tpl->assign('worker', $worker);

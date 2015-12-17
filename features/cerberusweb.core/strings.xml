@@ -1358,6 +1358,11 @@
 				<seg>Type</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.ui">
+			<tuv xml:lang="en_US">
+				<seg>User Interface</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.unassign">
 			<tuv xml:lang="en_US">
 				<seg>Unassign</seg>
