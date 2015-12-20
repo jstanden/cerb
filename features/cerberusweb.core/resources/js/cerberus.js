@@ -886,7 +886,10 @@ var ajax = new cAjaxCalls();
 			
 			$trigger.click(function() {
 				var query = $trigger.attr('data-query');
-				var chooser_url = 'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&single=1';
+				var chooser_url = 'c=internal&a=chooserOpen&context=' + encodeURIComponent(context);
+				
+				if($trigger.attr('data-single'))
+					chooser_url += '&single=1';
 				
 				if(typeof query == 'string' && query.length > 0) {
 					chooser_url += '&q=' + encodeURIComponent(query);
