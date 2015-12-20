@@ -1037,6 +1037,7 @@ UL.bubbles LI.bubble-blue A {
   color: #3174a5;
 }
 UL.bubbles.chooser-container LI {
+  margin: 3px;
   background-color: white;
   background: -webkit-gradient(linear, left top, left bottom, from(white), to(gainsboro));
   background: -moz-linear-gradient(270deg, white, gainsboro);

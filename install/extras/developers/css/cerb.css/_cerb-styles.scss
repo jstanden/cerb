@@ -989,6 +989,7 @@ UL.bubbles {
 	
 	&.chooser-container {
 		LI {
+			margin: 3px;
 			@include linear-gradient($white, rgb(220,220,220));
 			
 			color:rgb(0,0,0);
