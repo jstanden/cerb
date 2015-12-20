@@ -1324,7 +1324,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
 		$actions = array(
-			'_create_calendar_event' => array('label' => '(Create a calendar event)'),
+			'_create_calendar_event' => array('label' => 'Create calendar event'),
 			'_get_links' => array('label' => '(Get links)'),
 			'_run_behavior' => array('label' => '(Run behavior)'),
 			'_schedule_behavior' => array('label' => '(Schedule behavior)'),

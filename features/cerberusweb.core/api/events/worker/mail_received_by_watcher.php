@@ -432,10 +432,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			'send_email' => array('label' => 'Send email'),
 			'relay_email' => array('label' => 'Relay to external email'),
 			'send_email_recipients' => array('label' => 'Reply to recipients'),
-			'create_comment' => array('label' =>'Create a comment'),
-			'create_notification' => array('label' =>'Create a notification'),
-			'create_task' => array('label' =>'Create a task'),
-			'create_ticket' => array('label' =>'Create a ticket'),
+			'create_comment' => array('label' =>'Create comment'),
+			'create_notification' => array('label' =>'Create notification'),
+			'create_task' => array('label' =>'Create task'),
+			'create_ticket' => array('label' =>'Create ticket'),
 		);
 		
 		// [TODO] Add set custom fields

@@ -366,7 +366,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$actions =
 			array(
 				'append_to_content' => array('label' =>'Append text to message content'),
-				'create_notification' => array('label' =>'Create a notification'),
+				'create_notification' => array('label' =>'Create notification'),
 				'prepend_to_content' => array('label' =>'Prepend text to message content'),
 				'replace_content' => array('label' =>'Replace text in message content'),
 				'reject' => array('label' =>'Reject delivery of message'),

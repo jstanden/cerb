@@ -2387,7 +2387,7 @@
 				<name>VaAction_CreateAttachment</name>
 			</class>
 			<params>
-				<param key="label" value="Create an attachment" />
+				<param key="label" value="Create attachment" />
 				<param key="events">
 					<value>
 						<data key="*" />

@@ -141,10 +141,10 @@ abstract class AbstractEvent_CalendarEvent extends Extension_DevblocksEvent {
 		$actions =
 			array(
 // 				'add_watchers' => array('label' =>'Add watchers'),
-				'create_comment' => array('label' =>'Create a comment'),
-				'create_notification' => array('label' =>'Create a notification'),
-				'create_task' => array('label' =>'Create a task'),
-				'create_ticket' => array('label' =>'Create a ticket'),
+				'create_comment' => array('label' =>'Create comment'),
+				'create_notification' => array('label' =>'Create notification'),
+				'create_task' => array('label' =>'Create task'),
+				'create_ticket' => array('label' =>'Create ticket'),
 				'send_email' => array('label' => 'Send email'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
