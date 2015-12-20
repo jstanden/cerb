@@ -68,7 +68,7 @@
 		<tr class="{$tableRowClass}">
 			<td colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
-				<a href="{devblocks_url}c=profiles&a=calendar_event&id={$result.c_name|devblocks_permalink}-{$result.c_id}{/devblocks_url}" class="subject">{if !empty($result.c_name)}{$result.c_name}{else}New Event{/if}</a> 
+				<a href="{devblocks_url}c=profiles&a=calendar_event&id={$result.c_id}-{$result.c_name|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.c_name)}{$result.c_name}{else}New Event{/if}</a> 
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR_EVENT}&context_id={$result.c_id}&view_id={$view->id}',null,false,'600');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 		</tr>
