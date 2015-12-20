@@ -255,7 +255,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"Edit: {'common.worker'|devblocks_translate|capitalize}");
+		$popup.dialog('option','title',"{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.worker'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		// Buttons
 		

@@ -142,7 +142,7 @@ $(function() {
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
 		
 		// Title
-		$popup.dialog('option','title', "Edit: {'common.organization'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.dialog('option','title', "{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.organization'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		// @mentions
 		

@@ -3224,6 +3224,11 @@ For example: *receipt*</seg>
 				<seg>Deleted</seg>
 			</tuv>
 		</tu>
+		<tu tuid="status.resolved">
+			<tuv xml:lang="en_US">
+				<seg>Resolved</seg>
+			</tuv>
+		</tu>
 		<tu tuid="status.waiting">
 			<tuv xml:lang="en_US">
 				<seg>Waiting for Reply</seg>

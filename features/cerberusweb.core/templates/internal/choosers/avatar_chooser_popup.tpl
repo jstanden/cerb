@@ -45,7 +45,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind($('#frmAvatarEditor'));
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"Avatar Editor");
+		$(this).dialog('option','title',"Profile Picture Editor");
 		
 		var $canvas = $popup.find('canvas.canvas-avatar');
 		var canvas = $canvas.get(0);

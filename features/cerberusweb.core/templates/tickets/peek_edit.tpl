@@ -176,7 +176,7 @@ $(function() {
 		//$popup.find('button.cerb-search-trigger').cerbSearchTrigger();
 		
 		// Popup
-		$popup.dialog('option','title',"Edit: {'common.ticket'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.dialog('option','title',"{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.ticket'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		// Comments
 		
