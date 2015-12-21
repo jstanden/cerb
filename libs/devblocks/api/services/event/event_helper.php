@@ -2162,6 +2162,8 @@ class DevblocksEventHelper {
 		@$until = $tpl_builder->build($params['until'], $dict);
 		@$is_available = $tpl_builder->build($params['is_available'], $dict);
 		
+		@$run_in_simulator = !empty($params['run_in_simulator']);
+		
 		if(!is_numeric($when))
 			$when = intval(@strtotime($when));
 		
@@ -2227,6 +2229,12 @@ class DevblocksEventHelper {
 			}
 		}
 		
+		// Run in simulator
+		
+		if($run_in_simulator) {
+			self::runActionCreateCalendarEvent($params, $dict);
+		}
+		
 		return $out;
 	}
 	
@@ -2274,6 +2282,7 @@ class DevblocksEventHelper {
 		@$when = $tpl_builder->build($params['when'], $dict);
 		@$until = $tpl_builder->build($params['until'], $dict);
 		@$is_available = $tpl_builder->build($params['is_available'], $dict);
+		@$run_in_simulator = !empty($params['run_in_simulator']);
 		
 		if(!is_numeric($when))
 			$when = intval(@strtotime($when));
@@ -2293,7 +2302,7 @@ class DevblocksEventHelper {
 				DAO_CalendarEvent::DATE_START => $when,
 				DAO_CalendarEvent::DATE_END => $until,
 				DAO_CalendarEvent::CALENDAR_ID => $calendar_id,
-				DAO_CalendarEvent::IS_AVAILABLE => !empty($is_available),
+				DAO_CalendarEvent::IS_AVAILABLE => !empty($is_available) ? 1 : 0,
 			);
 			
 			if(false == ($calendar_event_id = DAO_CalendarEvent::create($fields)))
