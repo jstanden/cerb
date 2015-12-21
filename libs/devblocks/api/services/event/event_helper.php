@@ -2162,6 +2162,7 @@ class DevblocksEventHelper {
 		@$until = $tpl_builder->build($params['until'], $dict);
 		@$is_available = $tpl_builder->build($params['is_available'], $dict);
 		
+		@$object_var = $params['object_var'];
 		@$run_in_simulator = !empty($params['run_in_simulator']);
 		
 		if(!is_numeric($when))
@@ -2229,6 +2230,14 @@ class DevblocksEventHelper {
 			}
 		}
 		
+		// Set object variable
+		
+		if(!empty($object_var) && isset($trigger->variables[$object_var])) {
+			$out .= sprintf(">>> Adding new object to variable: {{%s}}\n",
+				$object_var
+			);
+		}
+		
 		// Run in simulator
 		
 		if($run_in_simulator) {
@@ -2282,6 +2291,7 @@ class DevblocksEventHelper {
 		@$when = $tpl_builder->build($params['when'], $dict);
 		@$until = $tpl_builder->build($params['until'], $dict);
 		@$is_available = $tpl_builder->build($params['is_available'], $dict);
+		@$object_var = $params['object_var'];
 		@$run_in_simulator = !empty($params['run_in_simulator']);
 		
 		if(!is_numeric($when))
@@ -2327,6 +2337,19 @@ class DevblocksEventHelper {
 					DAO_Comment::CREATED => time(),
 				);
 				DAO_Comment::create($fields, $notify_worker_ids);
+			}
+			
+			// Set object variable
+			
+			if(!empty($object_var) && isset($trigger->variables[$object_var])) {
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR_EVENT, $calendar_event_id, $labels, $values, null, true, true);
+				
+				if(!isset($dict->$object_var))
+					$dict->$object_var = array();
+				
+				$ptr =& $dict->$object_var;
+				
+				$ptr[$calendar_event_id] = new DevblocksDictionaryDelegate($values);
 			}
 		}
 			
