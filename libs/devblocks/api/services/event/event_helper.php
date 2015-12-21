@@ -593,6 +593,106 @@ class DevblocksEventHelper {
 		}
 	}
 	
+	static function simulateActionCreateRecordSetCustomFields($params, $dict) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		$workers = DAO_Worker::getAll();
+		$custom_fields = DAO_CustomField::getAll();
+		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
+		
+		$out = '';
+		
+		if(is_array($custom_field_values))
+		foreach($custom_field_values as $cf_id => $val) {
+			if(!isset($custom_fields[$cf_id]))
+				continue;
+			
+			if(is_null($val))
+				continue;
+			
+			if(is_array($val))
+				$val = implode('; ', $val);
+			
+			switch($custom_fields[$cf_id]->type) {
+				case Model_CustomField::TYPE_WORKER:
+					if(!empty($val) && !is_numeric($val)) {
+						if(isset($dict->$val)) {
+							$val = $dict->$val;
+							
+							// If it's an array, pick a random key
+							if(is_array($val)) {
+								$key = array_rand($val, 1);
+								
+								if(is_numeric($key)) {
+									$val = $key;
+									
+								} else {
+									$val = array_shift($val);
+									
+									if($val instanceof DevblocksDictionaryDelegate) {
+										@$val = intval($val->id);
+									}
+								}
+							}
+							
+						}
+					}
+					
+					if(isset($workers[$val])) {
+						$set_worker = $workers[$val];
+						$val = $set_worker->getName();
+					}
+					break;
+					
+				default:
+					$val = $tpl_builder->build($val, $dict);
+					break;
+			}
+			
+			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
+		}
+		
+		return $out;
+	}
+	
+	static function runActionCreateRecordSetCustomFields($context, $context_id, $params, $dict) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		if(empty($context) || empty($context_id))
+			return false;
+		
+		$workers = DAO_Worker::getAll();
+		$custom_fields = DAO_CustomField::getAll();
+		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
+		
+		$vals = array();
+		
+		if(is_array($custom_field_values))
+		foreach($custom_field_values as $cf_id => $val) {
+			switch($custom_fields[$cf_id]->type) {
+				case Model_CustomField::TYPE_WORKER:
+					if(!empty($val) && !is_numeric($val)) {
+						if(isset($dict->$val)) {
+							$val = $dict->$val;
+						}
+					}
+					break;
+						
+				default:
+					if(is_string($val))
+						$val = $tpl_builder->build($val, $dict);
+					break;
+			}
+		
+			$vals[$cf_id] = $val;
+		}
+		
+		if(!empty($vals))
+			DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, $vals);
+	}
+	
+	// Dates
+	
 	static function runActionSetDate($token, $params, DevblocksDictionaryDelegate $dict) {
 		@$mode = $params['mode'];
 				
@@ -2083,42 +2183,9 @@ class DevblocksEventHelper {
 			$params['until'],
 			(!empty($params['is_available']) ? 'Available' : 'Busy')
 		);
-
-		$workers = DAO_Worker::getAll();
-		$custom_fields = DAO_CustomField::getAll();
-		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
-		foreach($custom_field_values as $cf_id => $val) {
-			if(!isset($custom_fields[$cf_id]))
-				continue;
-			
-			if(is_null($val))
-				continue;
-			
-			if(is_array($val))
-				$val = implode('; ', $val);
-			
-			switch($custom_fields[$cf_id]->type) {
-				case Model_CustomField::TYPE_WORKER:
-					if(!empty($val) && !is_numeric($val)) {
-						if(isset($dict->$val)) {
-							$val = $dict->$val;
-						}
-					}
-			
-					if(isset($workers[$val])) {
-						$set_worker = $workers[$val];
-						$val = $set_worker->getName();
-					}
-					break;
-						
-				default:
-					$val = $tpl_builder->build($val, $dict);
-					break;
-			}
-				
-			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
-		}
+		// Custom fields
+		$out .= DevblocksEventHelper::simulateActionCreateRecordSetCustomFields($params, $dict);
 		
 		$out .= "\n";
 
@@ -2228,32 +2295,12 @@ class DevblocksEventHelper {
 				DAO_CalendarEvent::CALENDAR_ID => $calendar_id,
 				DAO_CalendarEvent::IS_AVAILABLE => !empty($is_available),
 			);
-			$calendar_event_id = DAO_CalendarEvent::create($fields);
-				
+			
+			if(false == ($calendar_event_id = DAO_CalendarEvent::create($fields)))
+				return false;
+			
 			// Custom fields
-			$workers = DAO_Worker::getAll();
-			$custom_fields = DAO_CustomField::getAll();
-			$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
-				
-			if(is_array($custom_field_values))
-				foreach($custom_field_values as $cf_id => $val) {
-					switch($custom_fields[$cf_id]->type) {
-						case Model_CustomField::TYPE_WORKER:
-							if(!empty($val) && !is_numeric($val)) {
-								if(isset($dict->$val)) {
-									$val = $dict->$val;
-								}
-							}
-							break;
-								
-						default:
-							if(is_string($val))
-								$val = $tpl_builder->build($val, $dict);
-								break;
-					}
-						
-					DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_CALENDAR_EVENT, $calendar_event_id, array($cf_id => $val));
-				}
+			DevblocksEventHelper::runActionCreateRecordSetCustomFields(CerberusContexts::CONTEXT_CALENDAR_EVENT, $calendar_event_id, $params, $dict);
 				
 			// Watchers
 			if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
@@ -3321,58 +3368,8 @@ class DevblocksEventHelper {
 			$params['due_date']
 		);
 
-		$workers = DAO_Worker::getAll();
-		$custom_fields = DAO_CustomField::getAll();
-		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
-		
-		foreach($custom_field_values as $cf_id => $val) {
-			if(!isset($custom_fields[$cf_id]))
-				continue;
-			
-			if(is_null($val))
-				continue;
-			
-			if(is_array($val))
-				$val = implode('; ', $val);
-			
-			switch($custom_fields[$cf_id]->type) {
-				case Model_CustomField::TYPE_WORKER:
-					if(!empty($val) && !is_numeric($val)) {
-						if(isset($dict->$val)) {
-							$val = $dict->$val;
-							
-							// If it's an array, pick a random key
-							if(is_array($val)) {
-								$key = array_rand($val, 1);
-								
-								if(is_numeric($key)) {
-									$val = $key;
-									
-								} else {
-									$val = array_shift($val);
-									
-									if($val instanceof DevblocksDictionaryDelegate) {
-										@$val = intval($val->id);
-									}
-								}
-							}
-							
-						}
-					}
-					
-					if(isset($workers[$val])) {
-						$set_worker = $workers[$val];
-						$val = $set_worker->getName();
-					}
-					break;
-					
-				default:
-					$val = $tpl_builder->build($val, $dict);
-					break;
-			}
-			
-			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
-		}
+		// Custom fields
+		$out .= DevblocksEventHelper::simulateActionCreateRecordSetCustomFields($params, $dict);
 		
 		$out .= "\n";
 		
@@ -3477,32 +3474,12 @@ class DevblocksEventHelper {
 						DAO_Task::UPDATED_DATE => time(),
 						DAO_Task::DUE_DATE => $due_date,
 					);
-					$task_id = DAO_Task::create($fields);
+					
+					if(false == ($task_id = DAO_Task::create($fields)))
+						return false;
 					
 					// Custom fields
-					$workers = DAO_Worker::getAll();
-					$custom_fields = DAO_CustomField::getAll();
-					$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
-					
-					if(is_array($custom_field_values))
-					foreach($custom_field_values as $cf_id => $val) {
-						switch($custom_fields[$cf_id]->type) {
-							case Model_CustomField::TYPE_WORKER:
-								if(!empty($val) && !is_numeric($val)) {
-									if(isset($dict->$val)) {
-										$val = $dict->$val;
-									}
-								}
-								break;
-									
-							default:
-								if(is_string($val))
-									$val = $tpl_builder->build($val, $dict);
-								break;
-						}
-					
-						DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TASK, $task_id, array($cf_id => $val));
-					}
+					DevblocksEventHelper::runActionCreateRecordSetCustomFields(CerberusContexts::CONTEXT_TASK, $task_id, $params, $dict);
 					
 					// Watchers
 					if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
@@ -3608,41 +3585,7 @@ class DevblocksEventHelper {
 			$out .= sprintf("Reopen at: %s\n", $reopen_at);
 
 		// Custom fields
-		
-		$custom_fields = DAO_CustomField::getAll();
-		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
-		
-		foreach($custom_field_values as $cf_id => $val) {
-			if(!isset($custom_fields[$cf_id]))
-				continue;
-			
-			if(is_null($val))
-				continue;
-			
-			if(is_array($val))
-				$val = implode('; ', $val);
-			
-			switch($custom_fields[$cf_id]->type) {
-				case Model_CustomField::TYPE_WORKER:
-					if(!empty($val) && !is_numeric($val)) {
-						if(isset($dict->$val)) {
-							$val = $dict->$val;
-						}
-					}
-			
-					if(isset($workers[$val])) {
-						$set_worker = $workers[$val];
-						$val = $set_worker->getName();
-					}
-					break;
-						
-				default:
-					$val = $tpl_builder->build($val, $dict);
-					break;
-			}
-				
-			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
-		}
+		$out .= DevblocksEventHelper::simulateActionCreateRecordSetCustomFields($params, $dict);
 		
 		// Content
 		$out .= sprintf(
@@ -3762,29 +3705,7 @@ class DevblocksEventHelper {
 		}
 
 		// Custom fields
-		
-		$custom_fields = DAO_CustomField::getAll();
-		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
-		
-		if(is_array($custom_field_values))
-		foreach($custom_field_values as $cf_id => $val) {
-			switch($custom_fields[$cf_id]->type) {
-				case Model_CustomField::TYPE_WORKER:
-					if(!empty($val) && !is_numeric($val)) {
-						if(isset($dict->$val)) {
-							$val = $dict->$val;
-						}
-					}
-					break;
-						
-				default:
-					if(is_string($val))
-						$val = $tpl_builder->build($val, $dict);
-						break;
-			}
-			
-			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, array($cf_id => $val));
-		}
+		DevblocksEventHelper::runActionCreateRecordSetCustomFields(CerberusContexts::CONTEXT_TICKET, $ticket_id, $params, $dict);
 		
 		// Connection
 		
