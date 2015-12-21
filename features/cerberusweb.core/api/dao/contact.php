@@ -1363,7 +1363,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Contact extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+class Context_Contact extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
 	function getRandom() {
 		return DAO_Contact::random();
 	}
@@ -1400,6 +1400,45 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		return array(
 			'updated_at',
 		);
+	}
+	
+	function autocomplete($term) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		$list = array();
+		
+		$models = DAO_Contact::autocomplete($term);
+		
+		if(stristr('none',$term) || stristr('empty',$term) || stristr('no contact',$term)) {
+			$empty = new stdClass();
+			$empty->label = '(no contact)';
+			$empty->value = '0';
+			$empty->meta = array('desc' => 'Clear the contact');
+			$list[] = $empty;
+		}
+		
+		// Efficiently load all of the referenced orgs in one query
+		$orgs = DAO_ContactOrg::getIds(DevblocksPlatform::extractArrayValues($models, 'org_id'));
+
+		if(is_array($models))
+		foreach($models as $contact_id => $contact){
+			$entry = new stdClass();
+			$entry->label = $contact->getName();
+			$entry->value = sprintf("%d", $contact_id);
+			$entry->icon = $url_writer->write('c=avatars&type=contact&id=' . $contact->id, true) . '?v=' . $contact->updated_at;
+			
+			$meta = array();
+			$meta['role'] = $contact->title;
+
+			if($contact->org_id && isset($orgs[$contact->org_id])) {
+				$org = $orgs[$contact->org_id];
+				$meta['role'] .= (!empty($meta['role']) ? ' at ' : '') . $org->name;
+			}
+			
+			$entry->meta = $meta;
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($contact, &$token_labels, &$token_values, $prefix=null) {

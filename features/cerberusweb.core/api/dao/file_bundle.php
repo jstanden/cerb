@@ -389,6 +389,23 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 		}
 	}
 
+	static function autocomplete($term, $as_worker=null) {
+		$bundles = DAO_FileBundle::getAll();
+		
+		return array_filter($bundles, function($bundle) use ($as_worker, $term) { /* @var $bundle Model_FileBundle */
+			// Check if the term exists
+			if(false === stristr($bundle->name . ' ' . $bundle->tag, $term))
+				return false;
+			
+			// Check if the record is readable by the actor
+			if($as_worker) 
+				if(!CerberusContexts::isReadableByActor($bundle->owner_context, $bundle->owner_context_id, $as_worker))
+					return false;
+			
+			return true;
+		});
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -1008,7 +1025,7 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 };
 
-class Context_FileBundle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_FileBundle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	function getRandom() {
 		return DAO_FileBundle::random();
 	}
@@ -1045,6 +1062,24 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		return array(
 			'updated_at',
 		);
+	}
+	
+	function autocomplete($term) {
+		$list = array();
+		
+		$models = DAO_FileBundle::autocomplete($term, CerberusApplication::getActiveWorker());
+		
+		// [TODO] Rank results?
+		// [TODO] Show count of files, or summarize file names?
+		
+		foreach($models as $bundle) { /* @var $bundle Model_FileBundle */
+			$entry = new stdClass();
+			$entry->label = $bundle->name;
+			$entry->value = intval($bundle->id);
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($file_bundle, &$token_labels, &$token_values, $prefix=null) {

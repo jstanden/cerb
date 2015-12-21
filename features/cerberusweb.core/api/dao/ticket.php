@@ -4590,7 +4590,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 };
 
-class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextImport {
+class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextImport, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.ticket';
 	
 	function authorize($context_id, Model_Worker $worker) {
@@ -4700,6 +4700,23 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'updated',
 			'num_messages',
 		);
+	}
+	
+	function autocomplete($term) {
+		$results = DAO_Ticket::autocomplete($term);
+		$list = array();
+
+		// [TODO] Include more meta? (group/bucket/sender/org)
+		
+		if(is_array($results))
+		foreach($results as $ticket_id => $ticket) {
+			$entry = new stdClass();
+			$entry->label = sprintf("[#%s] %s", $ticket->mask, $ticket->subject);
+			$entry->value = sprintf("%d", $ticket_id);
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($ticket, &$token_labels, &$token_values, $prefix=null) {

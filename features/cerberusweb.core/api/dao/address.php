@@ -548,6 +548,41 @@ class DAO_Address extends Cerb_ORMHelper {
 		}
 	}
 	
+	static function autocomplete($term) {
+		// If we have a special email character then switch to literal email matching
+		if(preg_match('/[\.\@\_]/', $term)) {
+			// If a leading '@', then prefix/trailing wildcard
+			if(substr($term,0,1) == '@') {
+				$query = '*' . $term . '*';
+			// Otherwise, only suffix wildcard
+			} else {
+				$query = $term . '*';
+			}
+			
+			$params = array(
+				SearchFields_Address::EMAIL => new DevblocksSearchCriteria(SearchFields_Address::EMAIL, DevblocksSearchCriteria::OPER_LIKE, $query),
+			);
+			
+		// Otherwise, use fulltext
+		} else {
+			$params = array(
+				SearchFields_Address::FULLTEXT_ADDRESS => new DevblocksSearchCriteria(SearchFields_Address::FULLTEXT_ADDRESS, DevblocksSearchCriteria::OPER_FULLTEXT, $term.'*'),
+			);
+		}
+		
+		list($results, $null) = DAO_Address::search(
+			array(),
+			$params,
+			25,
+			0,
+			SearchFields_Address::NUM_NONSPAM,
+			false,
+			false
+		);
+		
+		return DAO_Address::getIds(array_keys($results));
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -1560,7 +1595,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
 	static function searchInboundLinks($from_context, $from_context_id) {
 		list($results, $null) = DAO_Address::search(
 			array(
@@ -1648,6 +1683,48 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'num_spam',
 			'updated',
 		);
+	}
+	
+	function autocomplete($term) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$models = DAO_Address::autocomplete($term);
+		$list = array();
+		
+		if(stristr('none', $term) || stristr('empty', $term) || stristr('null', $term)) {
+			$empty = new stdClass();
+			$empty->label = '(no email address)';
+			$empty->value = '0';
+			$empty->meta = array('desc' => 'Clear the email address');
+			$list[] = $empty;
+		}
+	
+		// Efficiently load all of the referenced orgs in one query
+		$orgs = DAO_ContactOrg::getIds(DevblocksPlatform::extractArrayValues($models, 'contact_org_id'));
+
+		if(is_array($models))
+		foreach($models as $model) {
+			$entry = new stdClass();
+			$entry->label = $model->email;
+			$entry->value = $model->id;
+			$entry->icon = $url_writer->write('c=avatars&type=address&id=' . $model->id, true) . '?v=' . $model->updated;
+			
+			$meta = array();
+			
+			if(false != ($full_name = $model->getName()))
+				$meta['full_name'] = $full_name;
+			
+			if($model->contact_org_id && isset($orgs[$model->contact_org_id])) {
+				$org = $orgs[$model->contact_org_id]; /* @var $org Model_ContactOrg */
+				$meta['org'] = $org->name;
+			}
+
+			$entry->meta = $meta;
+			
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($address, &$token_labels, &$token_values, $prefix=null) {

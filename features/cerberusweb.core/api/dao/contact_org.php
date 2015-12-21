@@ -1402,7 +1402,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 };
 
-class Context_Org extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+class Context_Org extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.org';
 	
 	function profileGetUrl($context_id) {
@@ -1468,6 +1468,41 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			'phone',
 			'website',
 		);
+	}
+	
+	function autocomplete($term) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		$list = array();
+		
+		if(stristr('none',$term) || stristr('empty',$term) || stristr('no organization',$term)) {
+			$empty = new stdClass();
+			$empty->label = '(no organization)';
+			$empty->value = '0';
+			$empty->meta = array('desc' => 'Clear the organization');
+			$list[] = $empty;
+		}
+		
+		list($results, $null) = DAO_ContactOrg::search(
+			array(),
+			array(
+				new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
+			),
+			25,
+			0,
+			SearchFields_ContactOrg::NAME,
+			true,
+			false
+		);
+
+		foreach($results AS $row){
+			$entry = new stdClass();
+			$entry->label = $row[SearchFields_ContactOrg::NAME];
+			$entry->value = $row[SearchFields_ContactOrg::ID];
+			$entry->icon = $url_writer->write('c=avatars&type=org&id=' . $row[SearchFields_ContactOrg::ID], true) . '?v=' . $row[SearchFields_ContactOrg::UPDATED];
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($org, &$token_labels, &$token_values, $prefix=null) {

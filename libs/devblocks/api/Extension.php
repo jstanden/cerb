@@ -88,6 +88,10 @@ interface IDevblocksContextProfile {
 	function profileGetUrl($context_id);
 }
 
+interface IDevblocksContextAutocomplete {
+	function autocomplete($term);
+}
+
 abstract class Extension_DevblocksContext extends DevblocksExtension {
 	static $_changed_contexts = array();
 

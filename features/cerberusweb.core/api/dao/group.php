@@ -1393,7 +1393,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 };
 
-class Context_Group extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_Group extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.group';
 	
 	function authorize($context_id, Model_Worker $worker) {
@@ -1471,6 +1471,33 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	function getDefaultProperties() {
 		return array(
 		);
+	}
+	
+	function autocomplete($term)	{
+		$url_writer = DevblocksPlatform::getUrlService();
+		$list = array();
+		
+		list($results, $null) = DAO_Group::search(
+			array(),
+			array(
+				new DevblocksSearchCriteria(SearchFields_Group::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
+			),
+			25,
+			0,
+			DAO_Group::NAME,
+			true,
+			false
+		);
+
+		foreach($results AS $row){
+			$entry = new stdClass();
+			$entry->label = $row[SearchFields_Group::NAME];
+			$entry->value = $row[SearchFields_Group::ID];
+			$entry->icon = $url_writer->write('c=avatars&type=group&id=' . $row[SearchFields_Group::ID], true) . '?v=' . $row[SearchFields_Group::UPDATED];
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($group, &$token_labels, &$token_values, $prefix=null) {

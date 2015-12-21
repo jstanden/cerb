@@ -2332,7 +2332,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 	}
 };
 
-class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	function authorize($context_id, Model_Worker $worker) {
 		// Security
 		try {
@@ -2422,6 +2422,39 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'last_activity_date',
 			'updated',
 		);
+	}
+	
+	function autocomplete($term) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		$results = DAO_Worker::autocomplete($term);
+		$list = array();
+
+		if(stristr('unassigned',$term) || stristr('nobody',$term) || stristr('empty',$term) || stristr('no worker',$term)) {
+			$empty = new stdClass();
+			$empty->label = '(no worker)';
+			$empty->value = '0';
+			$empty->meta = array('desc' => 'Clear the worker');
+			$list[] = $empty;
+		}
+		
+		if(is_array($results))
+		foreach($results as $worker_id => $worker){
+			$entry = new stdClass();
+			$entry->label = $worker->getName();
+			$entry->value = sprintf("%d", $worker_id);
+			$entry->icon = $url_writer->write('c=avatars&type=worker&id=' . $worker->id, true) . '?v=' . $worker->updated;
+			
+			$meta = array();
+			
+			if($worker->title)
+				$meta['title'] = $worker->title;
+			
+			$entry->meta = $meta;
+			
+			$list[] = $entry;
+		}
+
+		return $list;
 	}
 	
 	function getContext($worker, &$token_labels, &$token_values, $prefix=null) {

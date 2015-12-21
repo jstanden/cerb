@@ -1279,7 +1279,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Snippet extends Extension_DevblocksContext {
+class Context_Snippet extends Extension_DevblocksContext implements IDevblocksContextAutocomplete {
 	function getRandom() {
 		return DAO_Snippet::random();
 	}
@@ -1326,6 +1326,84 @@ class Context_Snippet extends Extension_DevblocksContext {
 			'total_uses',
 			'updated_at',
 		);
+	}
+	
+	function autocomplete($term) {
+		$as_worker = CerberusApplication::getActiveWorker();
+		
+		$list = array();
+		
+		$contexts = DevblocksPlatform::getExtensions('devblocks.context', false);
+		
+		$worker_groups = $as_worker->getMemberships();
+		$worker_roles = $as_worker->getRoles();
+		
+		// Restrict owners
+		$param_ownership = array(
+			DevblocksSearchCriteria::GROUP_OR,
+			SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_APPLICATION),
+			array(
+				DevblocksSearchCriteria::GROUP_AND,
+				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
+				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ,$as_worker->id),
+			),
+			array(
+				DevblocksSearchCriteria::GROUP_AND,
+				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
+				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,array_keys($worker_groups)),
+			),
+			array(
+				DevblocksSearchCriteria::GROUP_AND,
+				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
+				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,array_keys($worker_roles)),
+			),
+		);
+		
+		$params = array(
+			new DevblocksSearchCriteria(SearchFields_Snippet::TITLE,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
+			$param_ownership,
+		);
+		
+		// [TODO] This needs to be abstracted properly
+		@$context_list = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
+		if(is_array($context_list))
+		foreach($context_list as $k => $v) {
+			if(!isset($contexts[$v]))
+				unset($context_list[$k]);
+		}
+
+		$context_list[] = ''; // plaintext
+		
+		// Filter contexts
+		$params[SearchFields_Snippet::CONTEXT] =
+			new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT,DevblocksSearchCriteria::OPER_IN,$context_list)
+			;
+		
+		list($results, $null) = DAO_Snippet::search(
+			array(
+				SearchFields_Snippet::TITLE,
+				SearchFields_Snippet::USE_HISTORY_MINE,
+			),
+			$params,
+			25,
+			0,
+			SearchFields_Snippet::USE_HISTORY_MINE,
+			false,
+			false
+		);
+
+		foreach($results AS $row){
+			$entry = new stdClass();
+			$entry->label = sprintf("%s -- used %s",
+				$row[SearchFields_Snippet::TITLE],
+				((1 != $row[SearchFields_Snippet::USE_HISTORY_MINE]) ? (intval($row[SearchFields_Snippet::USE_HISTORY_MINE]) . ' times') : 'once')
+			);
+			$entry->value = $row[SearchFields_Snippet::ID];
+			$entry->context = $row[SearchFields_Snippet::CONTEXT];
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($snippet, &$token_labels, &$token_values, $prefix=null) {
