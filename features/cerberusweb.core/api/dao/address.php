@@ -561,12 +561,16 @@ class DAO_Address extends Cerb_ORMHelper {
 			
 			$params = array(
 				SearchFields_Address::EMAIL => new DevblocksSearchCriteria(SearchFields_Address::EMAIL, DevblocksSearchCriteria::OPER_LIKE, $query),
+				SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED, DevblocksSearchCriteria::OPER_EQ, 0),
+				SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT, DevblocksSearchCriteria::OPER_EQ, 0),
 			);
 			
 		// Otherwise, use fulltext
 		} else {
 			$params = array(
 				SearchFields_Address::FULLTEXT_ADDRESS => new DevblocksSearchCriteria(SearchFields_Address::FULLTEXT_ADDRESS, DevblocksSearchCriteria::OPER_FULLTEXT, $term.'*'),
+				SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED, DevblocksSearchCriteria::OPER_EQ, 0),
+				SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT, DevblocksSearchCriteria::OPER_EQ, 0),
 			);
 		}
 		
