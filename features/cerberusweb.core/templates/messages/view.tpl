@@ -65,7 +65,7 @@
 				<input type="checkbox" name="row_id[]" value="{$result.m_id}" style="display:none;">
 				{if $result.t_is_deleted}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_closed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_waiting}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
 				<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}&focus=message&focusid={$result.m_id}{/devblocks_url}" class="subject">{if !empty($result.t_subject)}{$result.t_subject}{else}(no subject){/if}</a>
-				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$result.m_ticket_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button> 
+				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$result.m_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button> 
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

@@ -180,7 +180,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/messages/peek.tpl');
 	}
 	
-	function saveMessagePeekPopupAction() {
+	function saveMessagePeekJsonAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
@@ -188,21 +188,59 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_MESSAGE);
+		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
 		
-		// ACL
-		if(!$context_ext->authorize($id, $active_worker))
-			return;
+		try {
 		
-		if(!empty($id) && !empty($do_delete)) { // Delete
-			if($active_worker->hasPriv('core.display.message.actions.delete'))
+			$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_MESSAGE);
+			
+			// ACL
+			if(!$context_ext->authorize($id, $active_worker))
+				throw new Exception_DevblocksAjaxValidationError("You are not authorized to modify this record.");
+			
+			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv('core.display.message.actions.delete'))
+					throw new Exception_DevblocksAjaxValidationError("You are not authorized to delete this record.");
+				
 				DAO_Message::delete($id);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
+				
+			} else {
+				
+				// Custom fields
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MESSAGE, $id, $field_ids);
+			}
+		
+			echo json_encode(array(
+				'status' => true,
+				'id' => $id,
+				'label' => '',
+				'view_id' => $view_id,
+			));
+			return;
 			
-		} else {
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
 			
-			// Custom fields
-			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MESSAGE, $id, $field_ids);
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			return;
+			
 		}
 	}
 

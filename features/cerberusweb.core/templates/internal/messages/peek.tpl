@@ -1,86 +1,98 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmMessagePeek">
-<input type="hidden" name="c" value="display">
-<input type="hidden" name="a" value="saveMessagePeekPopup">
-<input type="hidden" name="view_id" value="{$view_id}">
-{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
-<input type="hidden" name="do_delete" value="0">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+{$div_id = "peek{uniqid()}"}
 
-{$ticket = $model->getTicket()}
-{$headers = $model->getHeaders()}
+<div id="{$div_id}">
+	<div style="float:left;">
+		<div>
+			<h1 style="color:inherit;">{$dict->ticket_subject}</h1>
+		</div>
 
-{if $headers.from}
-	<b>{'message.header.from'|devblocks_translate|capitalize}:</b> 
-	{$headers.from}
-	<br>
-{/if}
-
-{if $headers.to}
-	<b>{'message.header.to'|devblocks_translate|capitalize}:</b> 
-	{$headers.to}
-	<br>
-{/if}
-
-{if $headers.subject}
-	<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> 
-	{$headers.subject}
-	<br>
-{/if}
-
-<b>{'message.header.date'|devblocks_translate|capitalize}:</b> 
-{$model->created_date|devblocks_date} ({$model->created_date|devblocks_prettytime})
-<br>
-
-<br>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_MESSAGE context_id=$model->id}
-
-{if !empty($model->id) && $active_worker->hasPriv('core.display.message.actions.delete')}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to delete this message?
+		<div style="margin:5px 0px 10px 0px;">
+			{if $dict->ticket_group_is_private && (!$active_worker->isGroupMember($dict->ticket_group_id) && !$active_worker->is_superuser)}
+			{else}
+				{if $active_worker->hasPriv('core.display.actions.reply')}
+				<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+				{/if}
+			{/if}
+			
+			{if $dict->ticket_mask}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-link"></span> {'common.permalink'|devblocks_translate|capitalize}</button>{/if}
+		</div>
 	</div>
+</div>
+
+<div style="clear:both;padding-top:10px;"></div>
+
+<fieldset class="peek">
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
-	<button type="button" class="delete"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<div class="cerb-properties-grid" data-column-width="100">
+		{$labels = $dict->_labels}
+		{$types = $dict->_types}
+		{foreach from=$properties item=k name=props}
+			{if $dict->$k}
+			<div>
+			{if $k == ''}
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+			{/if}
+			</div>
+			{/if}
+		{/foreach}
+	</div>
 </fieldset>
-{/if}
 
-<div class="buttons">
-	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmMessagePeek','{$view_id}', false, 'message_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv('core.display.message.actions.delete')}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
-</div>
+{include file="devblocks:cerberusweb.core::internal/peek/peek_links.tpl" links=$links}
 
-{if !empty($model->id) && !empty($ticket)}
-<div style="float:right;">
-	<a href="{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}&perma=message&msgid={$model->id}{/devblocks_url}">view full record</a>
-</div>
-<br clear="all">
-{/if}
-</form>
+<fieldset class="peek cerb-peek-timeline" style="margin:5px 0px 0px 0px;">
+	<div class="cerb-peek-timeline-preview" style="margin:0px 5px;">
+		<span class="cerb-ajax-spinner"></span>
+	</div>
+</fieldset>
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek_message');
+	var $div = $('#{$div_id}');
+	var $popup = genericAjaxPopupFind($div);
+	var $layer = $popup.attr('data-layer');
 	
-	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{'common.message'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+	$popup.one('popup_open',function(event,ui) {
+		// Title
+		$popup.dialog('option','title', '{'common.message'|devblocks_translate|escape:'javascript' nofilter}');
 		
-		// Delete button
-		$popup.find('button.delete').click(function() {
-			var $frm = $(this).closest('form');
-			$frm.find('input:hidden[name=do_delete]').val('1');
-			
-			genericAjaxPopupPostCloseReloadView(null, 'frmMessagePeek', null, false, 'message_delete');
+		// Properties grid
+		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
+		
+		// Edit button
+		$popup.find('button.cerb-peek-edit')
+			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
+			.on('cerb-peek-saved', function(e) {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_MESSAGE}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			.on('cerb-peek-deleted', function(e) {
+				genericAjaxPopupClose($layer);
+			})
+			;
+		
+		// Preview
+		var $timeline_fieldset = $popup.find('fieldset.cerb-peek-timeline');
+		var $timeline_preview = $popup.find('div.cerb-peek-timeline-preview').width($timeline_fieldset.width());
+		genericAjaxGet($timeline_preview, 'c=profiles&a=handleSectionAction&section=ticket&action=getPeekPreview&context={CerberusContexts::CONTEXT_MESSAGE}&context_id={$dict->id}');
+		
+		// Searches
+		$popup.find('button.cerb-search-trigger')
+			.cerbSearchTrigger()
+			;
+		
+		// Peek triggers
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+		
+		// View profile
+		$popup.find('.cerb-peek-profile').click(function(e) {
+			if(e.metaKey) {
+				window.open('{devblocks_url}c=profiles&type=ticket&id={$dict->ticket_mask}&what=message&msgid={$dict->id}{/devblocks_url}', '_blank');
+				
+			} else {
+				document.location='{devblocks_url}c=profiles&type=ticket&id={$dict->ticket_mask}&what=message&msgid={$dict->id}{/devblocks_url}';
+			}
 		});
 	});
 });

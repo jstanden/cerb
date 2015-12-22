@@ -2640,7 +2640,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Message extends Extension_DevblocksContext {
+class Context_Message extends Extension_DevblocksContext implements IDevblocksContextPeek {
 	function authorize($context_id, Model_Worker $worker) {
 		// Security
 		try {
@@ -2966,4 +2966,62 @@ class Context_Message extends Extension_DevblocksContext {
 		return $view;
 	}
 	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+		
+		if(!empty($context_id) && null != ($message = DAO_Message::get($context_id))) {
+			$tpl->assign('model', $message);
+		}
+		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MESSAGE, false);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		if(!empty($context_id)) {
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+		}
+		
+		if(empty($context_id) || $edit) {
+			$tpl->display('devblocks:cerberusweb.core::internal/messages/peek_edit.tpl');
+			
+		} else {
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_CONTACT, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			$links = array(
+				CerberusContexts::CONTEXT_MESSAGE => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_MESSAGE,
+							$context_id,
+							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $message, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			$tpl->assign('properties',
+				array(
+					'ticket_status',
+					'ticket__label',
+					'ticket_group__label',
+					'ticket_bucket__label',
+					'ticket_org__label',
+					'ticket_updated',
+				)
+			);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/messages/peek.tpl');
+		}
+	}
 };
