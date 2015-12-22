@@ -60,6 +60,13 @@
 	{* Attachments *}
 	{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id}
 	
+	{* Custom Fields *}
+	{$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id))|default:[]}
+	{$message_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_MESSAGE, $message->id, $values)}
+	<div style="margin-top:10px;">
+		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$message_custom_fieldsets}
+	</div>
+	
 {elseif $comment && $comment instanceof Model_Comment}
 	{$owner_meta = $comment->getOwnerMeta()}
 	
