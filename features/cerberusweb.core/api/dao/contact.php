@@ -1826,7 +1826,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			),
 		);
 	
-		$fields = SearchFields_Address::getFields();
+		$fields = SearchFields_Contact::getFields();
 		self::_getImportCustomFields($fields, $keys);
 		
 		DevblocksPlatform::sortObjects($keys, '[label]', true);
