@@ -1110,7 +1110,6 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$activity_counts = array(
 				'tickets' => DAO_Ticket::countsByBucketId($context_id),
 				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_BUCKET, $context_id),
-				'links' => DAO_ContextLink::count(CerberusContexts::CONTEXT_BUCKET, $context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			

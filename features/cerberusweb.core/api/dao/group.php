@@ -1857,7 +1857,6 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				'buckets' => DAO_Bucket::countByGroupId($context_id),
 				'tickets' => DAO_Ticket::countsByGroupId($context_id),
 				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_GROUP, $context_id),
-				'links' => DAO_ContextLink::count(CerberusContexts::CONTEXT_GROUP, $context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			

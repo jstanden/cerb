@@ -27,7 +27,7 @@
 	<ul class="bubbles">
 	{foreach from=$trigger->variables item=var_data key=var_key}
 		{if $var_data.type == "ctx_{CerberusContexts::CONTEXT_ADDRESS}"}
-			<li><label><input type="checkbox" name="{$namePrefix}[to_var][]" value="{$var_key}" {if in_array($var_key, $params.to_var)}checked="checked"{/if}> (variable) {$var_data.label}</label></li>
+			<li><label><input type="checkbox" name="{$namePrefix}[to_var][]" value="{$var_key}" {if is_array($params.to_var) && in_array($var_key, $params.to_var)}checked="checked"{/if}> (variable) {$var_data.label}</label></li>
 		{/if}
 	{/foreach}
 	</ul>
@@ -66,7 +66,7 @@
 {foreach from=$trigger->variables item=var key=var_key}
 {if $var.type == "ctx_{CerberusContexts::CONTEXT_ATTACHMENT}"}
 <div>
-	<label><input type="checkbox" name="{$namePrefix}[attachment_vars][]" value="{$var_key}" {if in_array($var_key, $params.attachment_vars)}checked="checked"{/if}>{$var.label}</label>
+	<label><input type="checkbox" name="{$namePrefix}[attachment_vars][]" value="{$var_key}" {if is_array($params.attachment_vars) && in_array($var_key, $params.attachment_vars)}checked="checked"{/if}>{$var.label}</label>
 </div>
 {/if}
 {/foreach}

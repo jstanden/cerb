@@ -274,7 +274,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 			new Model_DevblocksEvent(
 				'context.delete',
 				array(
-					'context' => 'cerberusweb.contexts.contact',
+					'context' => CerberusContexts::CONTEXT_CONTACT,
 					'context_ids' => $ids
 				)
 			)
@@ -328,7 +328,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		$join_sql = "FROM contact ".
 			(isset($tables['address']) ? "INNER JOIN address ON (address.id=contact.primary_email_id) " : '').
 			(isset($tables['contact_org']) ? sprintf("INNER JOIN contact_org ON (contact_org.id = contact.org_id) ") : " ").
-			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = contact.id) ", Cerb_ORMHelper::qstr('cerberusweb.contexts.contact')) : " ").
+			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = contact.id) ", Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CONTACT)) : " ").
 			'';
 		
 		// Custom field joins
@@ -374,7 +374,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 			
-		$from_context = 'cerberusweb.contexts.contact';
+		$from_context = CerberusContexts::CONTEXT_CONTACT;
 		$from_index = 'contact.id';
 		
 		$param_key = $param->field;
@@ -588,7 +588,7 @@ class SearchFields_Contact implements IDevblocksSearchFields {
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			'cerberusweb.contexts.contact',
+			CerberusContexts::CONTEXT_CONTACT,
 		));
 		
 		if(!empty($custom_columns))
@@ -958,11 +958,11 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 
 			case SearchFields_Contact::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Contact', 'cerberusweb.contexts.contact', $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Contact', CerberusContexts::CONTEXT_CONTACT, $column);
 				break;
 
 			case SearchFields_Contact::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Contact', 'cerberusweb.contexts.contact', $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Contact', CerberusContexts::CONTEXT_CONTACT, $column);
 				break;
 				
 			case SearchFields_Contact::VIRTUAL_WATCHERS:
@@ -1034,7 +1034,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		// Add searchable custom fields
 		
-		$fields = self::_appendFieldsFromQuickSearchContext('cerberusweb.contexts.contact', $fields, null);
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_CONTACT, $fields, null);
 		
 		// Engine/schema examples: Fulltext
 		
@@ -1082,7 +1082,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.contact');
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/contact/view.tpl');
@@ -1137,7 +1137,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Contact::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, 'cerberusweb.contexts.contact');
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_CONTACT);
 				break;
 				
 			case SearchFields_Contact::VIRTUAL_WATCHERS:
@@ -1354,7 +1354,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			}
 
 			// Custom Fields
-			self::_doBulkSetCustomFields('cerberusweb.contexts.contact', $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_CONTACT, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}
@@ -1446,7 +1446,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$prefix = 'Contact:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.contact');
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT);
 
 		// Polymorph
 		if(is_numeric($contact)) {
@@ -1506,7 +1506,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = 'cerberusweb.contexts.contact';
+		$token_values['_context'] = CerberusContexts::CONTEXT_CONTACT;
 		$token_values['_types'] = $token_types;
 		
 		if($contact) {
@@ -1577,7 +1577,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		if(!isset($dictionary['id']))
 			return;
 		
-		$context = 'cerberusweb.contexts.contact';
+		$context = CerberusContexts::CONTEXT_CONTACT;
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
@@ -1680,11 +1680,11 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$tpl->assign('model', $contact);
 		}
 		
-		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.contact', false);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		if(!empty($context_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.contact', $context_id);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CONTACT, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		}
@@ -1717,7 +1717,6 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$activity_counts = array(
 				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_CONTACT, $context_id),
 				'emails' => DAO_Address::countByContactId($context_id),
-				'links' => DAO_ContextLink::count(CerberusContexts::CONTEXT_CONTACT, $context_id),
 				'tickets' => DAO_Ticket::countsByContactId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);

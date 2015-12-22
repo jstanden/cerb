@@ -15,13 +15,13 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.email_address'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.title'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<input type="text" name="email" id="emailinput" value="{$address->email}" class="required email" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.name'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.email'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
 				<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->name}" class="required" autocomplete="off">
 			</td>

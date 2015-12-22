@@ -8,7 +8,7 @@
 {if $object_addy}
 <li>
 	<label>
-	<input type="checkbox" name="{$namePrefix}[to][]" value="{$address_key}" {if in_array($address_key,$params.to)}checked="checked"{/if}>
+	<input type="checkbox" name="{$namePrefix}[to][]" value="{$address_key}" {if is_array($params.to) && in_array($address_key,$params.to)}checked="checked"{/if}>
 	<b>{$object_addy->email}</b> ({$workers.{$address->worker_id}->getName()})
 	</label>
 </li>

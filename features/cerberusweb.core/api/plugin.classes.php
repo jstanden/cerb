@@ -410,8 +410,6 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 		@$content = $tpl_builder->build($params['content'], $dict);
 		@$content_encoding = $params['content_encoding'];
 		@$object_placeholder = $params['object_placeholder'] ?: '_attachment_meta';
-		@$object_var = $params['object_var'];
-		@$run_in_simulator = !empty($params['run_in_simulator']);
 		
 		if(empty($file_name))
 			return "[ERROR] File name is required.";
@@ -434,21 +432,17 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 				" * {{%1\$s.name}}\n".
 				" * {{%1\$s.type}}\n".
 				" * {{%1\$s.size}}\n".
-				" * {{%1\$s.hash}}\n",
+				" * {{%1\$s.hash}}\n".
+				"\n",
 				$object_placeholder
 			);
 		}
 		
 		// Set object variable
-		
-		if(!empty($object_var) && isset($trigger->variables[$object_var])) {
-			$out .= sprintf("\n>>> Adding object to variable: {{%s}}\n",
-				$object_var
-			);
-		}
+		$out .= DevblocksEventHelper::simulateActionCreateRecordSetVariable($params, $dict);
 		
 		// Run in simulator
-		
+		@$run_in_simulator = !empty($params['run_in_simulator']);
 		if($run_in_simulator) {
 			$this->run($token, $trigger, $params, $dict);
 		}
@@ -464,8 +458,6 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 		@$content = $tpl_builder->build($params['content'], $dict);
 		@$content_encoding = $params['content_encoding'];
 		@$object_placeholder = $params['object_placeholder'] ?: '_attachment_meta';
-		@$object_var = $params['object_var'];
-		@$run_in_simulator = !empty($params['run_in_simulator']);
 		
 		// MIME Type
 		
@@ -515,11 +507,7 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 		}
 		
 		// Set object variable
-		
-		if(!empty($object_var) && isset($trigger->variables[$object_var])) {
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_ATTACHMENT, $file_id, $labels, $values, null, true, true);
-			$dict->$object_var = array($file_id => new DevblocksDictionaryDelegate($values));
-		}
+		DevblocksEventHelper::runActionCreateRecordSetVariable(CerberusContexts::CONTEXT_ATTACHMENT, $file_id, $params, $dict);
 	}
 	
 };

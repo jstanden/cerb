@@ -1898,16 +1898,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opp.tab.properties">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opp.tab.tasks">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="crm.opportunity.amount">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1923,16 +1913,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opportunity.email_address">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.id">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="crm.opportunity.is_closed">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -1943,27 +1923,12 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opportunity.name">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="crm.opportunity.org_id">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opportunity.org_name">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="crm.opportunity.primary_email_id">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.worker_id">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
@@ -2418,16 +2383,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license.order_company">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.wgm_cerb5_license.order_email">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="dao.wgm_cerb5_license.seats">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -2439,11 +2394,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="dao.wgm_cerb5_license.total_paid">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.wgm_cerb5_license.updated">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
@@ -2469,11 +2419,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="dao.wgm_cerb5_license_log.license_id">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.wgm_cerb5_license_log.updated">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

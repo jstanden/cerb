@@ -1898,16 +1898,6 @@
 				<seg>Open</seg>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opp.tab.properties">
-			<tuv xml:lang="nl_NL">
-				<seg>Eigenschappen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opp.tab.tasks">
-			<tuv xml:lang="nl_NL">
-				<seg>Taken</seg>
-			</tuv>
-		</tu>
 		<tu tuid="crm.opportunity.amount">
 			<tuv xml:lang="nl_NL">
 				<seg>Hoeveelheid</seg>
@@ -1923,16 +1913,6 @@
 				<seg>Telefoon</seg>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opportunity.email_address">
-			<tuv xml:lang="nl_NL">
-				<seg>E-mailadres</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.id">
-			<tuv xml:lang="nl_NL">
-				<seg>ID</seg>
-			</tuv>
-		</tu>
 		<tu tuid="crm.opportunity.is_closed">
 			<tuv xml:lang="nl_NL">
 				<seg>Gesloten</seg>
@@ -1943,29 +1923,14 @@
 				<seg>Gewonnen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opportunity.name">
-			<tuv xml:lang="nl_NL">
-				<seg>Titel</seg>
-			</tuv>
-		</tu>
 		<tu tuid="crm.opportunity.org_id">
 			<tuv xml:lang="nl_NL">
 				<seg>Organisatie ID</seg>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opportunity.org_name">
-			<tuv xml:lang="nl_NL">
-				<seg>Organisatie</seg>
-			</tuv>
-		</tu>
 		<tu tuid="crm.opportunity.primary_email_id">
 			<tuv xml:lang="nl_NL">
 				<seg>E-mail ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.worker_id">
-			<tuv xml:lang="nl_NL">
-				<seg>Werknemer</seg>
 			</tuv>
 		</tu>
 		<tu tuid="crm.tab.title">
@@ -2418,16 +2383,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license.order_company">
-			<tuv xml:lang="nl_NL">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.wgm_cerb5_license.order_email">
-			<tuv xml:lang="nl_NL">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="dao.wgm_cerb5_license.seats">
 			<tuv xml:lang="nl_NL">
 				<seg/>
@@ -2439,11 +2394,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="dao.wgm_cerb5_license.total_paid">
-			<tuv xml:lang="nl_NL">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.wgm_cerb5_license.updated">
 			<tuv xml:lang="nl_NL">
 				<seg/>
 			</tuv>
@@ -2469,11 +2419,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="dao.wgm_cerb5_license_log.license_id">
-			<tuv xml:lang="nl_NL">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.wgm_cerb5_license_log.updated">
 			<tuv xml:lang="nl_NL">
 				<seg/>
 			</tuv>

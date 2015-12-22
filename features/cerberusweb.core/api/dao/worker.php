@@ -2748,7 +2748,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 				'tickets' => DAO_Ticket::countsByOwnerId($context_id),
 				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_WORKER, $context_id),
 				//'emails' => DAO_Address::countByContactId($context_id),
-				'links' => DAO_ContextLink::count(CerberusContexts::CONTEXT_WORKER, $context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			

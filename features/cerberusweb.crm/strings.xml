@@ -57,13 +57,6 @@
 			<tuv xml:lang="en_US"><seg>Open</seg></tuv>
 		</tu>
 
-		<tu tuid='crm.opp.tab.properties'>
-			<tuv xml:lang="en_US"><seg>Properties</seg></tuv>
-		</tu>
-		<tu tuid='crm.opp.tab.tasks'>
-			<tuv xml:lang="en_US"><seg>Tasks</seg></tuv>
-		</tu>
-		
 		<!-- Opportunity -->
 
 		<tu tuid='crm.opportunity.amount'>
@@ -75,32 +68,17 @@
 		<tu tuid='crm.opportunity.contact_phone'>
 			<tuv xml:lang="en_US"><seg>Phone</seg></tuv>
 		</tu>
-		<tu tuid='crm.opportunity.email_address'>
-			<tuv xml:lang="en_US"><seg>Email</seg></tuv>
-		</tu>
 		<tu tuid='crm.opportunity.is_closed'>
 			<tuv xml:lang="en_US"><seg>Closed</seg></tuv>
 		</tu>
 		<tu tuid='crm.opportunity.is_won'>
 			<tuv xml:lang="en_US"><seg>Won</seg></tuv>
 		</tu>
-		<tu tuid='crm.opportunity.id'>
-			<tuv xml:lang="en_US"><seg>ID</seg></tuv>
-		</tu>
-		<tu tuid='crm.opportunity.name'>
-			<tuv xml:lang="en_US"><seg>Title</seg></tuv>
-		</tu>
 		<tu tuid='crm.opportunity.org_id'>
 			<tuv xml:lang="en_US"><seg>Org ID</seg></tuv>
 		</tu>
-		<tu tuid='crm.opportunity.org_name'>
-			<tuv xml:lang="en_US"><seg>Organization</seg></tuv>
-		</tu>
 		<tu tuid='crm.opportunity.primary_email_id'>
 			<tuv xml:lang="en_US"><seg>Email ID</seg></tuv>
-		</tu>
-		<tu tuid='crm.opportunity.worker_id'>
-			<tuv xml:lang="en_US"><seg>Worker</seg></tuv>
 		</tu>
 		
 	</body>

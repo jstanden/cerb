@@ -1,8 +1,8 @@
-{$view_context = 'cerberusweb.contexts.contact'}
+{$view_context = CerberusContexts::CONTEXT_CONTACT}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
