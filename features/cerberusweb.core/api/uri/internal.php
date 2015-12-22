@@ -401,13 +401,17 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 				switch($type) {
 					case 'ctx_' . CerberusContexts::CONTEXT_ADDRESS:
-						if(null != ($addy = DAO_Address::lookupAddress($val, true))) {
-							$value = $addy->id;
+						if($is_preview) {
+							$value = $val;
+						} elseif(null != ($addy = DAO_Address::lookupAddress($val, true))) {
+								$value = $addy->id;
 						}
 						break;
 						
 					case 'ctx_' . CerberusContexts::CONTEXT_ORG:
-						if(null != ($org_id = DAO_ContactOrg::lookup($val, true))) {
+						if($is_preview) {
+							$value = $val;
+						} elseif(null != ($org_id = DAO_ContactOrg::lookup($val, true))) {
 							$value = $org_id;
 						}
 						break;
