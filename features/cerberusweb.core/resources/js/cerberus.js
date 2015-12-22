@@ -455,7 +455,7 @@ var cAjaxCalls = function() {
 		if(null == options) options = { };
 
 		if(null == options.minLength)
-			options.minLength = 2;
+			options.minLength = 1;
 		
 		if(null == options.autoFocus)
 			options.autoFocus = true;
@@ -500,7 +500,27 @@ var cAjaxCalls = function() {
 			}
 			
 		} else {
-			options.source = url;
+			options.source = function (request, response) {
+				var ajax_options = {
+					url: url,
+					dataType: "json",
+					data: request,
+					success: function(data) {
+						response(data);
+					}
+				};
+				
+				$.ajax(ajax_options);
+			}
+			options.select = function(event, ui) {
+				$(this).val(ui.item.label);
+				return false;
+			}
+			
+			options.focus = function(event, ui) {
+				// Don't replace the textbox value
+				return false;
+			};
 		}
 		
 		var $sel = $(sel);
