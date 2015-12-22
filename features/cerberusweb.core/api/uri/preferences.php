@@ -48,21 +48,21 @@ class ChPreferencesPage extends CerberusPageExtension {
 					DAO_AddressToWorker::WORKER_ID,
 					$active_worker->id
 				));
-
-				@$worker_address = array_shift($worker_addresses);
-
+				
+				@$worker_address = array_shift($worker_addresses); /* @var $worker_address Model_AddressToWorker */
+				
 				if(!empty($code)
-					&& null != $worker_address
+					&& $worker_address instanceof Model_AddressToWorker
 					&& $worker_address->code == $code
 					&& $worker_address->code_expire > time()) {
 
-						DAO_AddressToWorker::update($worker_address->id, array(
+						DAO_AddressToWorker::update($worker_address->address_id, array(
 							DAO_AddressToWorker::CODE => '',
 							DAO_AddressToWorker::IS_CONFIRMED => 1,
 							DAO_AddressToWorker::CODE_EXPIRE => 0
 						));
-
-						$output = array(vsprintf($translate->_('prefs.address.confirm.tip'), $worker_address->address));
+						
+						$output = array(sprintf($translate->_('prefs.address.confirm.tip'), $worker_address->getEmailAsString()));
 						$tpl->assign('pref_success', $output);
 
 				} else {
