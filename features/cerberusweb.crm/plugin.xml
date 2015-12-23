@@ -166,6 +166,25 @@
 			</params>
 		</extension>
 		
+		<!-- VA Actions -->
+		
+		<extension point="devblocks.event.action">
+			<id>va.action.create_opportunity</id>
+			<name>Create Opportunity</name>
+			<class>
+				<file>api/App.php</file>
+				<name>VaAction_CreateOpportunity</name>
+			</class>
+			<params>
+				<param key="label" value="Create opportunity" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<!-- Pages -->
 		
 		<extension point="cerberusweb.page">
