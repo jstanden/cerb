@@ -43,6 +43,13 @@
 	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_picker.tpl" param_name="worker_id" values_to_contexts=$values_to_contexts}
 </div>
 
+{if !empty($values_to_contexts)}
+<b>Link to:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_picker.tpl" param_name="link_to" values_to_contexts=$values_to_contexts}
+</div>
+{/if}
+
 <b>Also create records in simulator mode:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="1" {if $params.run_in_simulator}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>

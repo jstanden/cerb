@@ -3456,14 +3456,9 @@ class DevblocksEventHelper {
 			}
 		}
 		
-		// Connection
-		if(!empty($context) && !empty($context_id)) {
-			if(null != ($ctx = Extension_DevblocksContext::get($context, true))) {
-				$meta = $ctx->getMeta($context_id);
-				$out .= ">>> Linking new task to:\n";
-				$out .= ' * (' . $ctx->manifest->name . ') ' . $meta['name'] . "\n";
-				$out .= "\n";
-			}
+		// Links
+		$out .= DevblocksEventHelper::simulateActionCreateRecordSetLinks($params, $dict);
+		
 		// Set object variable
 		$out .= DevblocksEventHelper::simulateActionCreateRecordSetVariable($params, $dict);
 		
@@ -3538,11 +3533,13 @@ class DevblocksEventHelper {
 						DAO_Comment::create($fields, $notify_worker_ids);
 					}
 					
-					// Connection
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $task_id, $on_object->_context, $on_object->id);
 				}
 			}
 		}
+		
+		// Connection
+		DevblocksEventHelper::runActionCreateRecordSetLinks(CerberusContexts::CONTEXT_TASK, $task_id, $params, $dict);
+		
 		// Set object variable
 		DevblocksEventHelper::runActionCreateRecordSetVariable(CerberusContexts::CONTEXT_TASK, $task_id, $params, $dict);
 
