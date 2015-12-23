@@ -3654,6 +3654,9 @@ class DevblocksEventHelper {
 		// Connection
 		$out .= DevblocksEventHelper::simulateActionCreateRecordSetLinks($params, $dict);
 		
+		// Set object variable
+		$out .= DevblocksEventHelper::simulateActionCreateRecordSetVariable($params, $dict);
+		
 		// Run in simulator
 		@$run_in_simulator = !empty($params['run_in_simulator']);
 		if($run_in_simulator) {
@@ -3741,6 +3744,8 @@ class DevblocksEventHelper {
 		// Connection
 		DevblocksEventHelper::runActionCreateRecordSetLinks(CerberusContexts::CONTEXT_TICKET, $ticket_id, $params, $dict);
 
+		// Set object variable
+		DevblocksEventHelper::runActionCreateRecordSetVariable(CerberusContexts::CONTEXT_TICKET, $ticket_id, $params, $dict);
 		
 		// Create the ticket
 		CerberusMail::sendTicketMessage($properties);
