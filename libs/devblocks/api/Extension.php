@@ -607,6 +607,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	private $_labels = array();
 	private $_types = array();
 	private $_values = array();
+	
+	private $_conditions_cache = array();
+	private $_conditions_extensions_cache = array();
 
 	public static function getAll($as_instances=false) {
 		$events = DevblocksPlatform::getExtensions('devblocks.event', $as_instances);
@@ -814,6 +817,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	function renderEventParams(Model_TriggerEvent $trigger=null) {}
 
 	function getConditions($trigger) {
+		if(isset($this->_conditions_cache[$trigger->id])) {
+			return $this->_conditions_cache[$trigger->id];
+		}
+		
 		$conditions = array(
 			'_calendar_availability' => array('label' => '(Calendar availability)', 'type' => ''),
 			'_custom_script' => array('label' => '(Custom script)', 'type' => ''),
@@ -847,6 +854,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 		DevblocksPlatform::sortObjects($conditions, '[label]');
 
+		$this->_conditions_cache[$trigger->id] = $conditions;
 		return $conditions;
 	}
 
@@ -950,7 +958,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	function runCondition($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$logger = DevblocksPlatform::getConsoleLog('Attendant');
 		$conditions = $this->getConditions($trigger);
-		$extensions = $this->getConditionExtensions($trigger);
+		
+		// Cache the extensions
+		if(!isset($this->_conditions_extensions_cache[$trigger->id])) {
+			$this->_conditions_extensions_cache[$trigger->id] = $this->getConditionExtensions($trigger);
+		}
+		
+		$extensions = @$this->_conditions_extensions_cache[$trigger->id] ?: array();
+		
 		$not = false;
 		$pass = true;
 
