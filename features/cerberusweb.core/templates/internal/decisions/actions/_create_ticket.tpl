@@ -49,10 +49,10 @@
 </div>
 
 {if !empty($custom_fields)}
-<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
-<div style="margin-left:10px;margin-bottom:0.5em;">
+<fieldset class="peek">
+	<legend>{'common.custom_fields'|devblocks_translate|capitalize}:</legend>
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false field_wrapper="{$namePrefix}"}
-</div>
+</fieldset>
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_add_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET field_wrapper="{$namePrefix}"}
