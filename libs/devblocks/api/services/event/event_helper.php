@@ -3464,6 +3464,9 @@ class DevblocksEventHelper {
 				$out .= ' * (' . $ctx->manifest->name . ') ' . $meta['name'] . "\n";
 				$out .= "\n";
 			}
+		// Set object variable
+		$out .= DevblocksEventHelper::simulateActionCreateRecordSetVariable($params, $dict);
+		
 		// Run in simulator
 		@$run_in_simulator = !empty($params['run_in_simulator']);
 		if($run_in_simulator) {
@@ -3540,6 +3543,8 @@ class DevblocksEventHelper {
 				}
 			}
 		}
+		// Set object variable
+		DevblocksEventHelper::runActionCreateRecordSetVariable(CerberusContexts::CONTEXT_TASK, $task_id, $params, $dict);
 
 		return $task_id;
 	}

@@ -49,6 +49,25 @@
 	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="0" {if !$params.run_in_simulator}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
 </div>
 
+{* Check for object variables *}
+{capture name="object_vars"}
+{foreach from=$trigger->variables item=var key=var_key}
+{if $var.type == "ctx_{CerberusContexts::CONTEXT_TASK}"}
+<option value="{$var_key}" {if $params.object_var==$var_key}selected="selected"{/if}>{$var.label}</option>
+{/if}
+{/foreach}
+{/capture}
+
+{if $smarty.capture.object_vars}
+<b>Add object to list variable:</b><br>
+<div style="margin-left:10px;margin-bottom:10px;">
+	<select name="{$namePrefix}[object_var]">
+		<option value=""></option>
+		{$smarty.capture.object_vars nofilter}
+	</select>
+</div>
+{/if}
+
 <script type="text/javascript">
 $(function() {
 	var $action = $('fieldset#{$namePrefix}');
