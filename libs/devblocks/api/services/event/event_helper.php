@@ -3464,6 +3464,10 @@ class DevblocksEventHelper {
 				$out .= ' * (' . $ctx->manifest->name . ') ' . $meta['name'] . "\n";
 				$out .= "\n";
 			}
+		// Run in simulator
+		@$run_in_simulator = !empty($params['run_in_simulator']);
+		if($run_in_simulator) {
+			$this->run($token, $trigger, $params, $dict);
 		}
 
 		return $out;
