@@ -59,7 +59,7 @@
 </div>
 
 <div style="margin-top:15px;">
-	<button type="button" onclick="genericAjaxPost('frmBehaviorSimulator{$trigger->id}','divBehaviorSimulatorResults{$trigger->id}','');"><span class="glyphicons glyphicons-cogwheel"></span> Simulate</button>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-cogwheel"></span> Simulate</button>
 </div>
 
 <div id="divBehaviorSimulatorResults{$trigger->id}" style="padding:5px;"></div>
@@ -71,9 +71,16 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('simulate_behavior');
 	
 	$popup.one('popup_open', function(event,ui) {
-		var $this = $(this);
+		$popup.dialog('option','title',"Simulate: {$trigger->title|escape:'javascript' nofilter}");
 		
-		$this.dialog('option','title',"Simulate: {$trigger->title|escape:'javascript' nofilter}");
+		$popup.find('button.submit').click(function() {
+			var $button = $(this).hide();
+			var $output = $('#divBehaviorSimulatorResults{$trigger->id}').html('<span class="cerb-ajax-spinner"></span>');
+			
+			genericAjaxPost('frmBehaviorSimulator{$trigger->id}',$output,'', function() {
+				$button.show();
+			});
+		});
 		
 		$('#simulatorTabs').tabs();
 	});
