@@ -1567,7 +1567,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['is_private'] = $group->is_private;
 			$token_values['name'] = $group->name;
 			$token_values['updated'] = $group->updated;
-			$token_values['reply_address_id'] = $group->getReplyFrom();
+			
+			if(false != ($replyto = $group->getReplyTo()))
+				$token_values['replyto_id'] = $replyto->address_id;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($group, $token_values);
@@ -1576,6 +1578,29 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=group&id=%d-%s", $group->id, DevblocksPlatform::strToPermalink($group->name)), true);
 		}
+		
+		// Reply-To Address
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::scrubTokensWithRegexp(
+			$merge_token_labels,
+			$merge_token_values,
+			array(
+				'#^contact_(.*)$#',
+				'#^org_(.*)$#',
+			)
+		);
+		
+		CerberusContexts::merge(
+			'replyto_',
+			$prefix.'Reply To:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
 		
 		return true;
 	}
