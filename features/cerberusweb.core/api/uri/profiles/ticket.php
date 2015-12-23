@@ -65,8 +65,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			$tpl->assign('expand_all', true);
 		
 		if(!empty($section)) {
-			$tpl->assign('tab', $section);
-		
 			switch($section) {
 				case 'conversation':
 					@$tab_option = array_shift($stack);
@@ -78,6 +76,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					
 				case 'comment':
 					@$focus_id = intval(array_shift($stack));
+					$section = 'conversation';
 					
 					if(!empty($focus_id)) {
 						$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_COMMENT);
@@ -88,6 +87,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					
 				case 'message':
 					@$focus_id = intval(array_shift($stack));
+					$section = 'conversation';
 					
 					if(!empty($focus_id)) {
 						$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_MESSAGE);
@@ -96,6 +96,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					
 					break;
 			}
+			
+			$tpl->assign('tab', $section);
 		}
 		
 		// Properties
