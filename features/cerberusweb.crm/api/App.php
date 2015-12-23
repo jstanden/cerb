@@ -15,6 +15,7 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
+// [TODO] Move to profile
 class CrmPage extends CerberusPageExtension {
 	function render() {
 	}
@@ -25,9 +26,8 @@ class CrmPage extends CerberusPageExtension {
 		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
-		@$amount_dollars = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0');
-		@$amount_cents = DevblocksPlatform::importGPC($_REQUEST['amount_cents'],'integer',0);
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		@$amount = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0.00');
+		@$email_id = DevblocksPlatform::importGPC($_REQUEST['email_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 		@$created_date_str = DevblocksPlatform::importGPC($_REQUEST['created_date'],'string','');
 		@$closed_date_str = DevblocksPlatform::importGPC($_REQUEST['closed_date'],'string','');
@@ -37,8 +37,8 @@ class CrmPage extends CerberusPageExtension {
 		$is_closed = (0==$status) ? 0 : 1;
 		$is_won = (1==$status) ? 1 : 0;
 		
-		// Strip commas and decimals and put together the "dollars+cents"
-		$amount = intval(str_replace(array(',','.'),'',$amount_dollars)).'.'.number_format($amount_cents,0,'','');
+		// Strip currency formatting symbols
+		$amount = floatval(str_replace(array(',','$','¢','£','€'),'',$amount));
 		
 		// Dates
 		if(false === ($created_date = strtotime($created_date_str)))
@@ -66,7 +66,7 @@ class CrmPage extends CerberusPageExtension {
 				return;
 			
 			// One opportunity per provided e-mail address
-			if(null == ($address = DAO_Address::lookupAddress($email, true)))
+			if(null == ($address = DAO_Address::get($email_id)))
 				return;
 				
 			$fields = array(
@@ -106,7 +106,7 @@ class CrmPage extends CerberusPageExtension {
 			if(!$active_worker->hasPriv('crm.opp.actions.update_all'))
 				return;
 			
-			if(null == ($address = DAO_Address::lookupAddress($email, true)))
+			if(null == ($address = DAO_Address::get($email_id)))
 				return;
 
 			$fields = array(

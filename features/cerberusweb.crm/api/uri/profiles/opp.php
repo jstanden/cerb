@@ -51,16 +51,22 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 			if(null != ($address = DAO_Address::get($opp->primary_email_id))) {
 				$properties['lead'] = array(
 					'label' => ucfirst($translate->_('common.email')),
-					'type' => null,
-					'address' => $address,
+					'type' => Model_CustomField::TYPE_LINK,
+					'value' => $address->id,
+					'params' => array(
+						'context' => CerberusContexts::CONTEXT_ADDRESS,
+					),
 				);
 			}
 				
 			if(!empty($address->contact_org_id) && null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
 				$properties['org'] = array(
 					'label' => ucfirst($translate->_('common.organization')),
-					'type' => null,
-					'org' => $org,
+					'type' => Model_CustomField::TYPE_LINK,
+					'value' => $org->id,
+					'params' => array(
+						'context' => CerberusContexts::CONTEXT_ORG,
+					),
 				);
 			}
 		}
@@ -77,7 +83,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 			$properties['amount'] = array(
 				'label' => ucfirst($translate->_('crm.opportunity.amount')),
 				'type' => Model_CustomField::TYPE_NUMBER,
-				'value' => $opp->amount,
+				'value' => number_format(floatval($opp->amount),2),
 			);
 			
 		$properties['created_date'] = array(

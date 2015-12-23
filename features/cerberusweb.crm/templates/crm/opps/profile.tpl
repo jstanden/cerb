@@ -61,14 +61,6 @@
 				{else}
 					{'crm.opp.status.open'|devblocks_translate}
 				{/if}
-			{elseif $k == 'lead'}
-				<b>{$v.label|capitalize}:</b>
-				{$v.address->getName()}
-				&lt;<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$v.address->id}">{$v.address->email}</a>&gt;
-				<button id="btnOppAddyPeek" type="button" onclick="genericAjaxPopup('peek2','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$v.address->email|escape:'url'}&view_id=',null,false,'600');" style="visibility:false;display:none;"></button>
-			{elseif $k == 'org'}
-				<b>{$v.label|capitalize}:</b>
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$v.org->id}">{$v.org->name}</a>
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 			{/if}

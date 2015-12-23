@@ -17,13 +17,19 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.title'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="email" id="emailinput" value="{$address->email}" class="required email" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;">
+				<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->name}" class="required" autocomplete="off">
 			</td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.email'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->name}" class="required" autocomplete="off">
+				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-autocomplete="if-null" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				
+				<ul class="bubbles chooser-container">
+					{if $address}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}"><input type="hidden" name="email_id" value="{$address->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$address->id}">{$address->getNameWithEmail()}</a></li>
+					{/if}
+				</ul>
 			</td>
 		</tr>
 		<tr>
@@ -37,9 +43,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.amount'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
-				<input type="text" name="amount" size="10" maxlength="12" style="border:1px solid rgb(180,180,180);padding:2px;" value="{if empty($opp->amount)}0{else}{math equation="floor(x)" x=$opp->amount}{/if}" autocomplete="off">
-				 . 
-				<input type="text" name="amount_cents" size="3" maxlength="2" style="border:1px solid rgb(180,180,180);padding:2px;" value="{if empty($opp->amount)}00{else}{math equation="(x-floor(x))*100" x=$opp->amount}{/if}" autocomplete="off">
+				<input type="text" name="amount" size="32" style="border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->amount|number_format:2}" placeholder="1,500.00" autocomplete="off">
 			</td>
 		</tr>
 		
@@ -123,7 +127,13 @@
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
 		
-		ajax.emailAutoComplete('#emailinput');
+		// Abstract peeks
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+		
+		// Abstract choosers
+		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+		
+		// Validation
 		
 		$("#formOppPeek").validate();
 		
