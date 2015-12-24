@@ -196,7 +196,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM mail_transport WHERE id IN (%s)", $ids_list));
 		
 		// Clear the usage of this transport from reply-to addresses
-		$db->ExecuteMaster(sprintf("UPDATE address_outgoing SET mail_reply_transport_id = 0 WHERE mail_reply_transport_id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("UPDATE address_outgoing SET reply_mail_transport_id = 0 WHERE reply_mail_transport_id IN (%s)", $ids_list));
 		
 		self::clearCache();
 		DAO_AddressOutgoing::clearCache();
