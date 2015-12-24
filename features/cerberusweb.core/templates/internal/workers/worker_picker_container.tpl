@@ -20,6 +20,8 @@
 			<b>{'common.responsibility'|devblocks_translate|capitalize}</b>
 		</td>
 		{/if}
+		<td>
+		</td>
 	</tr>
 	</thead>
 		
@@ -55,6 +57,8 @@
 				<b>{'common.responsibility'|devblocks_translate|capitalize}</b>
 			</td>
 			{/if}
+			<td>
+			</td>
 		</tr>
 		</thead>
 		
