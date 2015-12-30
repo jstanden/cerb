@@ -1087,7 +1087,7 @@ var ajax = new cAjaxCalls();
 					focus:function(event, ui) {
 						return false;
 					},
-					autoFocus:true,
+					autoFocus:false,
 					select:function(event, ui) {
 						var $this = $(this);
 						
