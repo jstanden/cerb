@@ -32,7 +32,7 @@
 		
 		{if isset($owner_meta.context_ext->manifest->params.alias)}
 		<div style="float:left;margin:0px 5px 5px 0px;">
-			<img src="{devblocks_url}c=avatars&context={$owner_meta.context_ext->manifest->params.alias}&context_id={$owner_meta.id}{/devblocks_url}?v=" style="height:64px;width:64px;border-radius:64px;">
+			<img src="{devblocks_url}c=avatars&context={$owner_meta.context_ext->manifest->params.alias}&context_id={$owner_meta.id}{/devblocks_url}?v={$owner_meta.updated}" style="height:64px;width:64px;border-radius:64px;">
 		</div>
 		{/if}
 		

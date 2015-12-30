@@ -17,7 +17,7 @@
 		</h3> &nbsp;
 		
 		<div style="float:left;margin:0px 5px 5px 0px;">
-			<img src="{devblocks_url}c=avatars&context=worker&context_id={$draft->worker_id}{/devblocks_url}?v=" style="height:64px;width:64px;border-radius:64px;">
+			<img src="{devblocks_url}c=avatars&context=worker&context_id={$draft_worker->id}{/devblocks_url}?v={$draft_worker->updated}" style="height:64px;width:64px;border-radius:64px;">
 		</div>
 		
 		<br>

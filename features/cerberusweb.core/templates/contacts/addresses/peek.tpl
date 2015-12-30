@@ -2,7 +2,7 @@
 
 <div id="{$div_id}">
 	<div style="float:left;margin-right:10px;">
-		<img src="{devblocks_url}c=avatars&context=address&context_id={$dict->id}{/devblocks_url}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
+		<img src="{devblocks_url}c=avatars&context=address&context_id={$dict->id}{/devblocks_url}?v={$dict->updated}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
 	</div>
 	
 	<div style="float:left;">

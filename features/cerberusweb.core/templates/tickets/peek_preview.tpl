@@ -34,7 +34,7 @@
 			{if $message_contact}
 			<img src="{devblocks_url}c=avatars&context=contact&context_id={$message_contact->id}{/devblocks_url}?v={$message_contact->updated_at}" style="height:64px;width:64px;border-radius:64px;">
 			{else}
-			<img src="{devblocks_url}c=avatars&context=address&context_id={$message_sender->id}{/devblocks_url}?v={$smarty.const.APP_BUILD}" style="height:64px;width:64px;border-radius:64px;">
+			<img src="{devblocks_url}c=avatars&context=address&context_id={$message_sender->id}{/devblocks_url}?v={$message_sender->updated}" style="height:64px;width:64px;border-radius:64px;">
 			{/if}
 		{/if}
 	</div>
@@ -90,7 +90,7 @@
 	
 	{if isset($owner_meta.context_ext->manifest->params.alias)}
 	<div style="float:left;margin:0px 5px 5px 0px;">
-		<img src="{devblocks_url}c=avatars&context={$owner_meta.context_ext->manifest->params.alias}&context_id={$owner_meta.id}{/devblocks_url}?v=" style="height:32px;width:32px;border-radius:32px;">
+		<img src="{devblocks_url}c=avatars&context={$owner_meta.context_ext->manifest->params.alias}&context_id={$owner_meta.id}{/devblocks_url}?v={$owner_meta.updated}" style="height:32px;width:32px;border-radius:32px;">
 	</div>
 	{/if}
 	
