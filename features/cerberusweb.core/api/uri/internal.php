@@ -887,15 +887,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Per context suggestions
 		
 		switch($context) {
-			case CerberusContexts::CONTEXT_ADDRESS:
-				if(false != ($addy = DAO_Address::get($context_id))) {
-					$suggested_photos[] = array(
-						'url' => 'https://gravatar.com/avatar/' . md5($addy->email) . '?s=100&d=404',
-						'title' => 'Gravatar: ' . $addy->email,
-					);
-				}
-				break;
-				
 			case CerberusContexts::CONTEXT_CONTACT:
 				// Suggest from the address we're adding to the new contact
 				if(empty($context_id) && isset($defaults['email'])) {

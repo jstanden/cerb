@@ -276,7 +276,7 @@ class UmScApp extends Extension_UsermeetTool {
 				if(3 != count($color))
 					$color = array(40,40,40);
 				if(3 != count($bgcolor))
-					$color = array(240,240,240);
+					$bgcolor = array(240,240,240);
 				
 				header('Cache-control: max-age=0', true); // 1 wk // , must-revalidate
 				header('Expires: ' . gmdate('D, d M Y H:i:s',time()-604800) . ' GMT'); // 1 wk

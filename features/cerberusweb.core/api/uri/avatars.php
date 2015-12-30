@@ -79,8 +79,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		header('Expires: ' . gmdate('D, d M Y H:i:s',time()+7200) . ' GMT'); // 2 hours
 		header('Accept-Ranges: bytes');
 
-		header("Content-Type: " . $avatar->content_type);
-		header("Content-Length: " . $avatar->storage_size);
+		header('Content-Type: ' . $avatar->content_type);
+		header('Content-Length: ' . $avatar->storage_size);
 		
 		echo $contents;
 		exit;
@@ -231,8 +231,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		header('Expires: ' . gmdate('D, d M Y H:i:s',time()+7200) . ' GMT'); // 2 hours
 		header('Accept-Ranges: bytes');
 		
-		header("Content-Type: " . 'image/png');
-		header("Content-Length: " . strlen($contents));
+		header('Content-Type: image/png');
+		header('Content-Length: ' . strlen($contents));
 		
 		echo $contents;
 		exit;
@@ -314,8 +314,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			header('Expires: ' . gmdate('D, d M Y H:i:s',time()+7200) . ' GMT'); // 2 hours
 			header('Accept-Ranges: bytes');
 			
-			header("Content-Type: " . $info['content_type']);
-			header("Content-Length: " . strlen($imagedata));
+			header('Content-Type: ' . $info['content_type']);
+			header('Content-Length: ' . strlen($imagedata));
 			
 			echo $imagedata;
 			exit;

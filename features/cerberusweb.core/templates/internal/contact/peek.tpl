@@ -42,7 +42,6 @@
 		{$labels = $dict->_labels}
 		{$types = $dict->_types}
 		{foreach from=$properties item=k name=props}
-		{$k}{$dict->$k}
 		{if $dict->$k}
 		<div>
 			{if $k == ''}
