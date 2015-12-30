@@ -35,7 +35,7 @@
 		<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.image'|devblocks_translate|capitalize}:</td>
 		<td width="99%" valign="top">
 			<div style="float:left;margin-right:5px;">
-				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}" style="height:48px;width:48px;border-radius:5px;border:1px solid rgb(235,235,235);">
+				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}" style="height:50px;width:50px;">
 			</div>
 			<div style="float:left;">
 				<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{'common.edit'|devblocks_translate|capitalize}</button>

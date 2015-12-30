@@ -65,7 +65,7 @@
 	<div style="margin-bottom:5px;">
 		<b>{'common.photo'|devblocks_translate|capitalize}</b>:<br>
 		<div style="float:left;margin-right:5px;">
-			<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:100px;width:100px;border-radius:5px;border:1px solid rgb(235,235,235);">
+			<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:100px;width:100px;">
 		</div>
 		<div style="float:left;">
 			<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{'common.edit'|devblocks_translate|capitalize}</button>

@@ -120,7 +120,7 @@
 			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.photo'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%" valign="top">
 				<div style="float:left;margin-right:5px;">
-					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:48px;width:48px;border-radius:5px;border:1px solid rgb(235,235,235);">
+					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
 				</div>
 				<div style="float:left;">
 					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$model->id}" data-create-defaults="{if $addy}email:{$addy->id}{/if} {if $org}org:{$org->id}{/if}">{'common.edit'|devblocks_translate|capitalize}</button>
