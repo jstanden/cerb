@@ -289,8 +289,8 @@ class UmScApp extends Extension_UsermeetTool {
 				$im = @imagecreate(150, 70) or die("Cannot Initialize new GD image stream");
 				$background_color = imagecolorallocate($im, $bgcolor[0], $bgcolor[1], $bgcolor[2]);
 				$text_color = imagecolorallocate($im, $color[0], $color[1], $color[2]);
-				$font = DEVBLOCKS_PATH . 'resources/font/ryanlerch_-_Tuffy_Bold(2).ttf';
-				imagettftext($im, 24, mt_rand(0,20), 5, 60+6, $text_color, $font, $phrase);
+				$font = DEVBLOCKS_PATH . 'resources/font/Oswald-Bold.ttf';
+				imagettftext($im, 28, mt_rand(0,20), 25, 60, $text_color, $font, $phrase);
 				imagejpeg($im,null,85);
 				imagedestroy($im);
 				exit;
