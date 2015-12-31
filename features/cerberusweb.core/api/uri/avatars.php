@@ -87,6 +87,9 @@ class Controller_Avatars extends DevblocksControllerExtension {
 	}
 	
 	private function _fetchImageFromUrl($url) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		$base_url = $url_writer->write('', true);
+		
 		$response = array('status'=>true, 'imageData'=>null);
 		
 		try {
@@ -96,6 +99,17 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			$ch = curl_init($url);
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			
+			// If same origin, add cookie and CSRF header
+			if(parse_url($base_url, PHP_URL_HOST) == parse_url($url, PHP_URL_HOST)) {
+				curl_setopt($ch, CURLOPT_COOKIE, 'Devblocks=' . session_id());
+				
+				$headers = array(
+					'X-CSRF-Token: ' . $_SESSION['csrf_token'],
+				);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+			}
+			
 			$output = curl_exec($ch);
 			$info = curl_getinfo($ch);
 			curl_close($ch);
