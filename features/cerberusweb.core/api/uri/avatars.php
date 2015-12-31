@@ -43,6 +43,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			case '_fetch':
 				@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', '');
 				$this->_fetchImageFromUrl($url);
+				return;
 				break;
 		}
 		
@@ -75,8 +76,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		
 		// Set headers
 		header('Pragma: cache');
-		header('Cache-control: max-age=7200', true); // 2 hours // , must-revalidate
-		header('Expires: ' . gmdate('D, d M Y H:i:s',time()+7200) . ' GMT'); // 2 hours
+		header('Cache-control: max-age=86400', true); // 24 hours // , must-revalidate
+		header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 2 hours
 		header('Accept-Ranges: bytes');
 
 		header('Content-Type: ' . $avatar->content_type);
@@ -141,7 +142,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 	private function _renderDefaultAvatar($context=null, $context_id=null) {
 		switch($context) {
 			case CerberusContexts::CONTEXT_APPLICATION:
-				$contents = file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/app.png');
+				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/app.png');
 				break;
 				
 			// Check if the addy's org has an avatar
@@ -161,8 +162,10 @@ class Controller_Avatars extends DevblocksControllerExtension {
 					}
 					
 					// Use a default contact picture
-					if($addy->contact_id)
+					if($addy->contact_id) {
 						$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
+						return;
+					}
 
 					// Use a default org picture
 					if($addy->contact_org_id)
@@ -170,11 +173,10 @@ class Controller_Avatars extends DevblocksControllerExtension {
 					
 					$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT);
 					return;
-					break;
 				}
 				
 				$n = mt_rand(1, 6);
-				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
+				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
 			case CerberusContexts::CONTEXT_CONTACT:
@@ -198,12 +200,12 @@ class Controller_Avatars extends DevblocksControllerExtension {
 						break;
 				}
 				
-				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
+				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
 			case CerberusContexts::CONTEXT_ORG:
 				$n = mt_rand(1,3);
-				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/building%d.png', $n));
+				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/building%d.png', $n));
 				break;
 				
 			case CerberusContexts::CONTEXT_WORKER:
@@ -227,22 +229,26 @@ class Controller_Avatars extends DevblocksControllerExtension {
 						break;
 				}
 				
-				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
+				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
 			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
-				$contents = file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
+				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
 				break;
 				
 			default:
-				$contents = file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/convo.png');
+				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/convo.png');
 				break;
 		}
+	}
+	
+	private function _renderFilePng($file) {
+		$contents = file_get_contents($file);
 		
 		// Set headers
 		header('Pragma: cache');
-		header('Cache-control: max-age=7200', true); // 2 hours // , must-revalidate
-		header('Expires: ' . gmdate('D, d M Y H:i:s',time()+7200) . ' GMT'); // 2 hours
+		header('Cache-control: max-age=86400', true); // 24 hours // , must-revalidate
+		header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 2 hours
 		header('Accept-Ranges: bytes');
 		
 		header('Content-Type: image/png');
@@ -324,8 +330,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		if(DAO_ContextAvatar::upsertWithImage($context, $context_id, $imagedata, $info['content_type'])) {
 			// Set headers
 			header('Pragma: cache');
-			header('Cache-control: max-age=7200', true); // 2 hours // , must-revalidate
-			header('Expires: ' . gmdate('D, d M Y H:i:s',time()+7200) . ' GMT'); // 2 hours
+			header('Cache-control: max-age=86400', true); // 24 hours // , must-revalidate
+			header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 2 hours
 			header('Accept-Ranges: bytes');
 			
 			header('Content-Type: ' . $info['content_type']);
