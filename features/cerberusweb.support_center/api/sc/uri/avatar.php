@@ -93,8 +93,10 @@ class UmScAvatarController extends Extension_UmScController {
 					if($addy->contact_id) {
 						if(false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id))) {
 							$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_CONTACT);
+							return;
 						} else {
 							$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT, $addy->contact_id);
+							return;
 						}
 					}
 					
@@ -107,58 +109,55 @@ class UmScAvatarController extends Extension_UmScController {
 					break;
 				}
 				
-				$n = mt_rand(1, 6);
+				// Unknown ID
+				$all_keys = array(1,2,3,4,5,6);
+				$n = $all_keys[$context_id % 6];
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
 			case CerberusContexts::CONTEXT_CONTACT:
-				$gender = '';
+				$all_keys = array(1,2,3,4,5,6);
+				$n = $all_keys[$context_id % 6];
 				
 				if($context_id && false != ($contact = DAO_Contact::get($context_id))) {
-					$gender = $contact->gender;
-				}
-				
-				switch($gender) {
-					case 'M':
-						$male_keys = array(1,3,4);
-						$n = $male_keys[array_rand($male_keys)];
-						break;
-					case 'F':
-						$female_keys = array(2,5,6);
-						$n = $female_keys[array_rand($female_keys)];
-						break;
-					default:
-						$n = mt_rand(1, 6);
-						break;
+					switch($contact->gender) {
+						case 'M':
+							$male_keys = array(1,3,4);
+							$n = $male_keys[$context_id % 3];
+							break;
+							
+						case 'F':
+							$female_keys = array(2,5,6);
+							$n = $female_keys[$context_id % 3];
+							break;
+					}
 				}
 				
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
 			case CerberusContexts::CONTEXT_ORG:
-				$n = mt_rand(1,3);
+				$all_keys = array(1,2,3);
+				$n = $all_keys[$context_id % 3];
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/building%d.png', $n));
 				break;
 				
 			case CerberusContexts::CONTEXT_WORKER:
-				$gender = '';
+				$all_keys = array(1,2,3,4,5,6);
+				$n = $all_keys[$context_id % 6];
 				
 				if($context_id && false != ($worker = DAO_Worker::get($context_id))) {
-					$gender = $worker->gender;
-				}
-				
-				switch($gender) {
-					case 'M':
-						$male_keys = array(1,3,4);
-						$n = $male_keys[array_rand($male_keys)];
-						break;
-					case 'F':
-						$female_keys = array(2,5,6);
-						$n = $female_keys[array_rand($female_keys)];
-						break;
-					default:
-						$n = mt_rand(1, 6);
-						break;
+					switch($worker->gender) {
+						case 'M':
+							$male_keys = array(1,3,4);
+							$n = $male_keys[$context_id % 3];
+							break;
+							
+						case 'F':
+							$female_keys = array(2,5,6);
+							$n = $female_keys[$context_id % 3];
+							break;
+					}
 				}
 				
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
