@@ -1388,6 +1388,10 @@ class Model_Worker {
 		
 		return $model->email;
 	}
+	
+	function getInitials() {
+		return mb_convert_case(DevblocksPlatform::strToInitials($this->getName()), MB_CASE_UPPER);
+	}
 
 	/**
 	 * 

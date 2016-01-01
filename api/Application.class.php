@@ -2267,6 +2267,8 @@ class CerberusSettings {
 	const RELAY_SPOOF_FROM = 'relay_spoof_from';
 	const SESSION_LIFESPAN = 'session_lifespan';
 	const TIME_FORMAT = 'time_format';
+	const AVATAR_DEFAULT_STYLE_CONTACT = 'avatar_default_style_contact';
+	const AVATAR_DEFAULT_STYLE_WORKER = 'avatar_default_style_worker';
 };
 
 class CerberusSettingsDefaults {
@@ -2282,6 +2284,8 @@ class CerberusSettingsDefaults {
 	const RELAY_SPOOF_FROM = 0;
 	const SESSION_LIFESPAN = 0;
 	const TIME_FORMAT = 'D, d M Y h:i a';
+	const AVATAR_DEFAULT_STYLE_CONTACT = 'monograms';
+	const AVATAR_DEFAULT_STYLE_WORKER = 'monograms';
 };
 
 // [TODO] Implement our own session handler w/o PHP 'session'

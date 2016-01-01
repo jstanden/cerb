@@ -806,6 +806,10 @@ class Model_Contact {
 		return $name;
 	}
 	
+	function getInitials() {
+		return mb_convert_case(DevblocksPlatform::strToInitials($this->getName()), MB_CASE_UPPER);
+	}
+	
 	function getOrg() {
 		if(empty($this->org_id))
 			return null;

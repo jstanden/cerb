@@ -1138,6 +1138,20 @@ class DevblocksPlatform extends DevblocksEngine {
 		return htmlentities($string, ENT_QUOTES, LANG_CHARSET_CODE);
 	}
 
+	static function strToInitials($string) {
+		$strings = explode(' ', $string);
+		
+		// Two parts max
+		if(count($strings) > 2)
+			$strings = array(reset($strings), end($strings));
+		
+		array_walk($strings, function(&$string) {
+			$string = substr($string,0,1);
+		});
+		
+		return implode('', $strings);
+	}
+	
 	/**
 	 * Returns a string as alphanumerics delimited by underscores.
 	 * For example: "Devs: 1000 Ways to Improve Sales" becomes

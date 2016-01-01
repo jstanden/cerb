@@ -140,6 +140,9 @@ class Controller_Avatars extends DevblocksControllerExtension {
 	}
 	
 	private function _renderDefaultAvatar($context=null, $context_id=null) {
+		$avatar_default_style_contact = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AVATAR_DEFAULT_STYLE_CONTACT, CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_CONTACT);
+		$avatar_default_style_worker = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AVATAR_DEFAULT_STYLE_WORKER, CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_WORKER);
+		
 		switch($context) {
 			case CerberusContexts::CONTEXT_APPLICATION:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/app.png');
@@ -155,9 +158,15 @@ class Controller_Avatars extends DevblocksControllerExtension {
 						return;
 					}
 					
-					// Use org if an avatar exists
-					if($addy->contact_org_id && false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id))) {
+					// Use org if an avatar exists (and no contact does)
+					if(!$addy->contact_id && $addy->contact_org_id && false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id))) {
 						$this->_renderAvatar($avatar, CerberusContexts::CONTEXT_ORG);
+						return;
+					}
+					
+					// Use a default org picture (if no contact)
+					if(!$addy->contact_id && $addy->contact_org_id) {
+						$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id);
 						return;
 					}
 					
@@ -167,11 +176,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 						return;
 					}
 
-					// Use a default org picture
-					if($addy->contact_org_id)
-						$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_ORG, $addy->contact_org_id);
-					
-					$this->_renderDefaultAvatar(CerberusContexts::CONTEXT_CONTACT);
+					// Display monograms by default
+					$this->_renderMonogram(substr($addy->email,0,1), $context_id);
 					return;
 				}
 				
@@ -186,18 +192,21 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$n = $all_keys[$context_id % 6];
 				
 				if($context_id && false != ($contact = DAO_Contact::get($context_id))) {
-					$gender = $contact->gender;
-					
-					switch($contact->gender) {
-						case 'M':
-							$male_keys = array(1,3,4);
-							$n = $male_keys[$context_id % 3];
-							break;
-							
-						case 'F':
-							$female_keys = array(2,5,6);
-							$n = $female_keys[$context_id % 3];
-							break;
+					if($contact->gender && $avatar_default_style_contact == 'silhouettes') {
+						switch($contact->gender) {
+							case 'M':
+								$male_keys = array(1,3,4);
+								$n = $male_keys[$context_id % 3];
+								break;
+								
+							case 'F':
+								$female_keys = array(2,5,6);
+								$n = $female_keys[$context_id % 3];
+								break;
+						}
+					} else {
+						$this->_renderMonogram($contact->getInitials(), $context_id);
+						return;
 					}
 				}
 				
@@ -215,16 +224,21 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$n = $all_keys[$context_id % 6];
 				
 				if($context_id && false != ($worker = DAO_Worker::get($context_id))) {
-					switch($worker->gender) {
-						case 'M':
-							$male_keys = array(1,3,4);
-							$n = $male_keys[$context_id % 3];
-							break;
-							
-						case 'F':
-							$female_keys = array(2,5,6);
-							$n = $female_keys[$context_id % 3];
-							break;
+					if($worker->gender && $avatar_default_style_worker == 'silhouettes') {
+						switch($worker->gender) {
+							case 'M':
+								$male_keys = array(1,3,4);
+								$n = $male_keys[$context_id % 3];
+								break;
+								
+							case 'F':
+								$female_keys = array(2,5,6);
+								$n = $female_keys[$context_id % 3];
+								break;
+						}
+					} else {
+						$this->_renderMonogram($worker->getInitials(), $context_id);
+						return;
 					}
 				}
 				
@@ -255,6 +269,47 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		
 		echo $contents;
 		exit;
+	}
+	
+	private function _renderMonogram($text, $hash=null) {
+		$text = mb_substr(mb_convert_case($text, MB_CASE_UPPER), 0, 3);
+		$font = DEVBLOCKS_PATH . 'resources/font/Oswald-Bold.ttf';
+		
+		$font_size = 75;
+
+		// Find the optimal font size for the given text
+		do {
+			$font_size -= 5;
+			$box = imagettfbbox($font_size, 0, $font, $text);
+			$ascent = abs($box[7]);
+			$descent = abs($box[1]);
+			$box_width = abs($box[0]) + abs($box[2]);
+			$box_height = $ascent + $descent;
+		} while($box_width > 80 || $box_height > 70);
+		
+		$x = floor(50 - ($box_width/2));
+		$y = floor(50 - ($box_height/2)) + $ascent;
+		
+		// Predictably generate random numbers given the same input (consistent hashing)
+		mt_srand(crc32($hash ?: $text));
+		$r_rand = mt_rand(25,180);
+		$g_rand = mt_rand(25,180);
+		$b_rand = mt_rand(25,180);
+		
+		header('Pragma: cache');
+		header('Cache-control: max-age=86400', true); // 24 hours // , must-revalidate
+		header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 2 hours
+		header('Accept-Ranges: bytes');
+		header('Content-Type: image/png');
+		
+		$im = @imagecreate(100, 100); // or die("Cannot Initialize new GD image stream");
+		$background_color = imagecolorallocate($im, $r_rand, $g_rand, $b_rand);
+		$text_color = imagecolorallocate($im, 255, 255, 255);
+		//imagerectangle($im, $x, $y, $x+$box_width, $y-$box_height, $text_color);
+		imagettftext($im, $font_size, 0, $x, $y, $text_color, $font, $text);
+		imagepng($im, null, 1);
+		imagedestroy($im);
+		return;
 	}
 	
 	private function _getEmailFromContext($context, $context_id) {

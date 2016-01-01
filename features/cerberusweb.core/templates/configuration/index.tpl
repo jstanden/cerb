@@ -12,6 +12,7 @@
 					<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>
 					<li><a href="{devblocks_url}c=config&a=cache{/devblocks_url}">Cache</a></li>
 					<li><a href="{devblocks_url}c=config&a=search{/devblocks_url}">Search</a></li>
+					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
 					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">Snippets</a></li>
 					<li><a href="{devblocks_url}c=config&a=sessions{/devblocks_url}">Sessions</a></li>
 					<li><a href="{devblocks_url}c=config&a=portals{/devblocks_url}">Community Portals</a></li>
