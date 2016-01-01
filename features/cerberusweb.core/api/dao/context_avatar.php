@@ -124,6 +124,10 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 					DAO_Address::updateWhere(array(DAO_Address::UPDATED=>time()), sprintf("%s = %d", DAO_Address::CONTACT_ID, $context_id));
 					break;
 					
+				case CerberusContexts::CONTEXT_ORG:
+					// Clear the cache on non-contact address avatars when their org avatar changes
+					DAO_Address::updateWhere(array(DAO_Address::UPDATED=>time()), sprintf("%s = 0 AND %s = %d", DAO_Address::CONTACT_ID, DAO_Address::CONTACT_ORG_ID, $context_id));
+					break;
 			}
 		}
 		
