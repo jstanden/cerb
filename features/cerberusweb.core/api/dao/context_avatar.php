@@ -113,9 +113,20 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 			DAO_ContextAvatar::update($avatar_id, $fields);
 		}
 		
-		if($avatar_id)
+		if($avatar_id) {
+			// Save the image data
 			Storage_ContextAvatar::put($avatar_id, $imagedata);
 			
+			// Context-specific cascading cache invalidation
+			switch($context) {
+				case CerberusContexts::CONTEXT_CONTACT:
+					// Clear the cache on address avatars when their contact avatar changes
+					DAO_Address::updateWhere(array(DAO_Address::UPDATED=>time()), sprintf("%s = %d", DAO_Address::CONTACT_ID, $context_id));
+					break;
+					
+			}
+		}
+		
 		return true;
 	}
 	
