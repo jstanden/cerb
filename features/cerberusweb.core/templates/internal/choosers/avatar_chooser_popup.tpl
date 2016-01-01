@@ -27,6 +27,14 @@
 			<legend>Upload an image:</legend>
 	  	<input type="file" class="cerb-avatar-img-upload" />
   	</fieldset>
+  	
+		<fieldset class="peek cerb-avatar-monogram">
+			<legend>Create an image:</legend>
+			{'common.label'|devblocks_translate|capitalize}: <input type="text" name="initials" size="5" placeholder="RS" autocomplete="off" spellcheck="false">
+			(<a href="https://en.wikipedia.org/wiki/Emoji#Unicode_Blocks" target="_blank">emoji</a>)
+			 &nbsp; 
+			<button type="button">Generate</button>
+  	</fieldset>
 	</div>
 	
 	<div style="clear:both;"></div>
@@ -59,6 +67,7 @@ $(function() {
 		var $spinner = $popup.find('div.cerb-ajax-spinner');
 		var $suggested = $popup.find('div.cerb-avatar-suggested-photos');
 		var $bgcolor_well = $popup.find('input.color-picker');
+		var $monogram = $popup.find('fieldset.cerb-avatar-monogram');
 		
 		$bgcolor_well.miniColors({
 			color_favorites: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#CF25F5','#ADADAD','#34434E'],
@@ -67,6 +76,37 @@ $(function() {
 			}
 		});
 		
+		$monogram.find('button').click(function() {
+			var bgcolor = $bgcolor_well.val();
+			var txt = $monogram.find('input:text').val(); //.substring(0,3);
+			
+			var scale = 1.0;
+			x = 0;
+			y = 0;
+			
+			var $new_canvas = $('<canvas height="100" width="100"/>');
+			var new_canvas = $new_canvas.get(0);
+			var new_context = new_canvas.getContext('2d');
+			new_context.clearRect(0, 0, new_canvas.width, new_canvas.height);
+			
+			var height = 70;
+			var bounds = { width: 100 };
+			while(bounds.width > 95) {
+				var height = height - 5;
+				new_context.font = "Bold " + height + "pt Arial";
+				bounds = new_context.measureText(txt);
+			}
+			
+			new_context.fillStyle = '#FFFFFF';
+			new_context.fillText(txt,(new_canvas.width-bounds.width)/2,height+(new_canvas.height-height)/2);
+			
+			$(img).one('load', function() {
+				$new_canvas.remove();
+				$canvas.trigger('avatar-redraw');
+			});
+			
+			$(img).attr('src', new_canvas.toDataURL());
+		});
 		
 		var isMouseDown = false;
 		var x = 0, lastX = 0;
