@@ -367,6 +367,11 @@
 				<seg>close</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.color">
+			<tuv xml:lang="en_US">
+				<seg>color</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.comment">
 			<tuv xml:lang="en_US">
 				<seg>comment</seg>

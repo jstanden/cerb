@@ -5,14 +5,17 @@
 		<div style="margin:0;padding:0;border:1px solid rgb(230,230,230);display:inline-block;">
 			<canvas class="canvas-avatar" width="100" height="100" style="width:100px;height:100px;cursor:move;"></canvas>
 		</div>
+		<div style="margin-top:5px;">
+			<input type="hidden" name="bgcolor" value="#{sprintf('%02x%02x%02x',mt_rand(0,180),mt_rand(0,180),mt_rand(0,180))}" style="width:100%;" class="color-picker">
+		</div>
 		<input type="hidden" name="imagedata" class="canvas-avatar-imagedata">
 	</div>
 	
 	<div style="float:left;">
 		<fieldset class="peek">
-			<legend>Get image from URL:</legend>
+			<legend>Get image from a URL:</legend>
 			<div>
-			  <input type="text" class="cerb-avatar-img-url" size="64" />
+			  <input type="text" class="cerb-avatar-img-url" size="64" placeholder="http://example.com/image.png" />
 			  <button type="button" class="cerb-avatar-img-fetch">Fetch</button>
 			</div>
 			{if is_array($suggested_photos) && !empty($suggested_photos)}
@@ -21,7 +24,7 @@
 		</fieldset>
 	
 		<fieldset class="peek">
-			<legend>-or- Upload image:</legend>
+			<legend>Upload an image:</legend>
 	  	<input type="file" class="cerb-avatar-img-upload" />
   	</fieldset>
 	</div>
@@ -45,7 +48,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind($('#frmAvatarEditor'));
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"Profile Picture Editor");
+		$popup.dialog('option','title',"Profile Picture Editor");
 		
 		var $canvas = $popup.find('canvas.canvas-avatar');
 		var canvas = $canvas.get(0);
@@ -55,6 +58,15 @@ $(function() {
 		var $error = $popup.find('div.cerb-avatar-error');
 		var $spinner = $popup.find('div.cerb-ajax-spinner');
 		var $suggested = $popup.find('div.cerb-avatar-suggested-photos');
+		var $bgcolor_well = $popup.find('input.color-picker');
+		
+		$bgcolor_well.miniColors({
+			color_favorites: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#CF25F5','#ADADAD','#34434E'],
+			change: function() {
+				$canvas.trigger('avatar-redraw');
+			}
+		});
+		
 		
 		var isMouseDown = false;
 		var x = 0, lastX = 0;
@@ -96,11 +108,19 @@ $(function() {
 		});
 		
 		$canvas.on('avatar-redraw', function() {
+			var bgcolor = $bgcolor_well.val();
+			
 			context.save();
-			context.clearRect(0, 0, canvas.width, canvas.height);
+			
 			context.scale(scale, scale);
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			
+			context.fillStyle = bgcolor;
+			context.fillRect(0, 0, canvas.width, canvas.height);
+			
 			var aspect = img.height/img.width;
 			context.drawImage(img, x, y, canvas.width, canvas.width*aspect);
+			
 			context.restore();
 		});
 		
@@ -152,6 +172,7 @@ $(function() {
 			scale = 1.0;
 			x = 0;
 			y = 0;
+			$bgcolor_well.miniColors('value', '#FFFFFF');
 			$(img).attr('src', '');
 			$canvas.trigger('avatar-redraw');
 		});
