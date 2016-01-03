@@ -135,7 +135,7 @@
 					  	{if $active_worker->hasPriv('core.display.actions.note')}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="glyphicons glyphicons-edit"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>{/if}
 					  	
 					  	{if $active_worker->hasPriv('core.display.actions.reply')}
-					  	<button type="button" class="edit"><span class="glyphicons glyphicons-cogwheel"></span></button>
+					  	<button type="button" class="edit" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 					  	{/if}
 					  	
 				  		<button type="button" onclick="$('#{$message->id}options').toggle();"><span class="glyphicons glyphicons-more"></span></button>
@@ -200,6 +200,25 @@ var $actions = $('#{$message->id}act');
 
 $msg.find('.cerb-peek-trigger').cerbPeekTrigger();
 
+// Edit
+
+$msg.find('button.edit')
+	.cerbPeekTrigger()
+	.on('cerb-peek-opened', function(e) {
+	})
+	.on('cerb-peek-saved', function(e) {
+		e.stopPropagation();
+		$('#btnMsgMax{$message->id}').click();
+	})
+	.on('cerb-peek-deleted', function(e) {
+		e.stopPropagation();
+		$('#{$message->id}t').remove();
+		
+	})
+	.on('cerb-peek-closed', function(e) {
+	})
+	;
+
 $actions
 	.find('ul.cerb-popupmenu')
 	.hover(
@@ -217,23 +236,6 @@ $actions
 		$(this).find('a').trigger('click');
 	})
 ;
-
-$actions
-	.find('button.edit')
-	.click(function() {
-		var $popup = genericAjaxPopup('peek_message','c=display&a=showMessagePeekPopup&id={$message->id}', null, false, '50%');
-		
-		// Reload when done
-		$popup.one('message_save', function() {
-			$('#btnMsgMax{$message->id}').click();
-		});
-		
-		// Clear if deleted
-		$popup.one('message_delete', function() {
-			$('#{$message->id}t').remove();
-		});
-	})
-	;
 
 $actions
 	.find('li a.relay')
