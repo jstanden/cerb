@@ -372,6 +372,33 @@ foreach($results as $result) {
 }
 
 // ===========================================================================
+// Migrate 'create_call' actions to new format
+
+$sql = "SELECT id, params_json FROM decision_node WHERE node_type = 'action' AND params_json LIKE '%calls.event.action.post%'";
+$results = $db->GetArrayMaster($sql);
+
+if(is_array($results))
+foreach($results as $result) {
+	$params = json_decode($result['params_json'], true);
+	
+	if(isset($params['actions']) && is_array($params['actions']))
+	foreach($params['actions'] as &$action) {
+		if(!isset($action['action']) || $action['action'] != 'calls.event.action.post')
+			continue;
+		
+		if(isset($action['on'])) {
+			$action['link_to'] = array($action['on']);
+			unset($action['on']);
+			
+			$db->ExecuteMaster(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+				$db->qstr(json_encode($params)),
+				$result['id']
+			));
+		}
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
