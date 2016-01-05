@@ -198,7 +198,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false}
 
-<fieldset class="peek">
+<fieldset class="peek compose-attachments">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
 	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
 	<ul class="bubbles chooser-container">
@@ -245,6 +245,11 @@
 		$frm.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
+		
+		// Drag/drop attachments
+		
+		var $attachments = $frm.find('fieldset.compose-attachments');
+		$attachments.cerbAttachmentsDropZone();
 		
 		// Text editor
 		
