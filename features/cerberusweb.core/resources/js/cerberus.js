@@ -1126,6 +1126,7 @@ var ajax = new cAjaxCalls();
 			// Autocomplete
 			if($trigger.attr('data-autocomplete')) {
 				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete') == 'if-null';
+				var autocomplete_placeholders = $trigger.attr('data-autocomplete-placeholders');
 				
 				var $autocomplete = $('<input type="search" size="32">');
 				$autocomplete.insertAfter($trigger);
@@ -1135,6 +1136,20 @@ var ajax = new cAjaxCalls();
 					minLength: 1,
 					focus:function(event, ui) {
 						return false;
+					},
+					response: function(event, ui) {
+						if(!(typeof autocomplete_placeholders == 'string') || 0 == autocomplete_placeholders.length)
+							return;
+						
+						var placeholders = autocomplete_placeholders.split(',');
+						
+						if(0 == placeholders.length)
+							return;
+						
+						for(var i = 0; i < placeholders.length; i++) {
+							var placeholder = $.trim(placeholders[i]);
+							ui.content.push({ "label": '(variable) ' + placeholder, "value": placeholder });
+						}
 					},
 					autoFocus:false,
 					select:function(event, ui) {
