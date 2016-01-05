@@ -391,6 +391,11 @@
 			$('#reply{$message->id}_suggested').appendTo($(this).closest('td'));
 		});
 		
+		// Drag/drop attachments
+		
+		var $attachments = $frm2.find('fieldset.reply-attachments');
+		$attachments.cerbAttachmentsDropZone();
+		
 		// Group and bucket
 		
 		$frm2.find('select[name=group_id]').on('change', function(e) {

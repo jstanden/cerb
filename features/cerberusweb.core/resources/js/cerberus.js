@@ -892,6 +892,84 @@ var ajax = new cAjaxCalls();
 		});
 	}
 	
+	// File drag/drop zones
+	
+	$.fn.cerbAttachmentsDropZone = function() {
+		return this.each(function() {
+			var $attachments = $(this);
+			
+			$attachments.on('dragover', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			});
+			
+			$attachments.on('dragenter', function(e) {
+				$attachments.css('border', '2px dashed rgb(0,120,0)');
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			});
+			
+			$attachments.on('dragleave', function(e) {
+				$attachments.css('border', '');
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			});
+			
+			$attachments.on('drop', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				
+				var $spinner = $('<span class="cerb-ajax-spinner"/>').appendTo($attachments);
+				
+				$attachments.css('border', '');
+				
+				var files = e.originalEvent.dataTransfer.files;
+				var formdata = new FormData();
+				
+				formdata.append('_csrf_token', $('meta[name="_csrf_token"]').attr('content'));
+				
+				for(var i = 0; i < files.length; i++) {
+					formdata.append('file_data[]', files[i]);
+				}
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=chooserOpenFileUpload');
+				xhr.onload = function(e) {
+					var $ul = $attachments.find('ul.chooser-container');
+					
+					$attachments.find('span.cerb-ajax-spinner').first().remove();
+					
+					if(200 == this.status) {
+						var json = JSON.parse(this.responseText);
+						
+						for(var i = 0; i < json.length; i++) {
+							// Only add unique files
+							if(0 == $ul.find('input:hidden[value="' + json[i].id + '"]').length) {
+								var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(json[i].id);
+								var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
+								var $li = $('<li/>').text(json[i].name + ' (' + json[i].size + ' bytes)').append($hidden).append($remove);
+								$ul.append($li);
+							}
+						}
+					}
+				};
+				
+				xhr.upload.onprogress = function(event) {
+					if(!event.lengthComputable)
+						return;
+					
+					var complete = (event.loaded / event.total * 100 | 0);
+				};
+				
+				xhr.send(formdata);
+			});
+		});
+	}
+	
 	// Abstract choosers
 	
 	$.fn.cerbChooserTrigger = function() {
