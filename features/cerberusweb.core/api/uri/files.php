@@ -121,6 +121,12 @@ class ChFilesController extends DevblocksControllerExtension {
 							'wrap' => 0,
 						);
 						
+						// If we're not stripping Microsoft Office formatting
+						if(DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::HTML_NO_STRIP_MICROSOFT, CerberusSettingsDefaults::HTML_NO_STRIP_MICROSOFT)) {
+							unset($config['bare']);
+							unset($config['drop-proprietary-attributes']);
+						}
+						
 						if(null != ($fp_filename = DevblocksPlatform::getTempFileInfo($fp))) {
 							file_put_contents($fp_filename, $tidy->repairFile($fp_filename, $config, DB_CHARSET_CODE));
 							fseek($fp, 0);

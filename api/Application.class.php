@@ -2269,6 +2269,7 @@ class CerberusSettings {
 	const TIME_FORMAT = 'time_format';
 	const AVATAR_DEFAULT_STYLE_CONTACT = 'avatar_default_style_contact';
 	const AVATAR_DEFAULT_STYLE_WORKER = 'avatar_default_style_worker';
+	const HTML_NO_STRIP_MICROSOFT = 'html_no_strip_microsoft';
 };
 
 class CerberusSettingsDefaults {
@@ -2286,6 +2287,7 @@ class CerberusSettingsDefaults {
 	const TIME_FORMAT = 'D, d M Y h:i a';
 	const AVATAR_DEFAULT_STYLE_CONTACT = 'monograms';
 	const AVATAR_DEFAULT_STYLE_WORKER = 'monograms';
+	const HTML_NO_STRIP_MICROSOFT = 0;
 };
 
 // [TODO] Implement our own session handler w/o PHP 'session'

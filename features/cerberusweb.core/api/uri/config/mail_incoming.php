@@ -39,6 +39,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			@$attachments_enabled = DevblocksPlatform::importGPC($_POST['attachments_enabled'],'integer',0);
 			@$attachments_max_size = DevblocksPlatform::importGPC($_POST['attachments_max_size'],'integer',10);
 			@$ticket_mask_format = DevblocksPlatform::importGPC($_POST['ticket_mask_format'],'string','');
+			@$html_no_strip_microsoft = DevblocksPlatform::importGPC($_POST['html_no_strip_microsoft'],'integer',0);
 			
 			if(empty($ticket_mask_format))
 				$ticket_mask_format = 'LLL-NNNNN-NNN';
@@ -59,6 +60,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			$settings->set('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED, $attachments_enabled);
 			$settings->set('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE, $attachments_max_size);
 			$settings->set('cerberusweb.core',CerberusSettings::TICKET_MASK_FORMAT, $ticket_mask_format);
+			$settings->set('cerberusweb.core',CerberusSettings::HTML_NO_STRIP_MICROSOFT, $html_no_strip_microsoft);
 			
 			echo json_encode(array('status'=>true));
 			return;
