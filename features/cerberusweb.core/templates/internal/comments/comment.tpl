@@ -22,11 +22,11 @@
 		
 		<div class="toolbar" style="display:none;float:right;margin-right:20px;">
 			{if $comment->context == CerberusContexts::CONTEXT_TICKET}
-				<button type="button" onclick="document.location='{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$comment->id}{/devblocks_url}';"><span class="glyphicons glyphicons-link" title="{'common.permalink'|devblocks_translate|lower}"></span></button>
+				<button type="button"><a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$comment->id}{/devblocks_url}"><span class="glyphicons glyphicons-link" title="{'common.permalink'|devblocks_translate|lower}"></span></a></button>
 			{/if}
 			
 			{if !$readonly && ($active_worker->is_superuser || ($comment->owner_context == CerberusContexts::CONTEXT_WORKER && $comment->owner_context_id == $active_worker->id))}
-				 <button type="button" onclick="if(confirm('Are you sure you want to permanently delete this comment?')) { genericAjaxGet('', 'c=internal&a=commentDelete&id={$comment->id}', function(o) { $('#comment{$comment->id}').remove(); } ); } "><span class="glyphicons glyphicons-circle-remove" title="{'common.delete'|devblocks_translate|lower}"></span></button>
+				<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this comment?')) { genericAjaxGet('', 'c=internal&a=commentDelete&id={$comment->id}', function(o) { $('#comment{$comment->id}').remove(); } ); } "><span class="glyphicons glyphicons-circle-remove" title="{'common.delete'|devblocks_translate|lower}"></span></button>
 			{/if}
 		</div>
 		
@@ -49,12 +49,16 @@
 </div>
 
 <script type="text/javascript">
-$('#comment{$comment->id}').hover(
-	function() {
-		$(this).find('div.toolbar').show();
-	},
-	function() {
-		$(this).find('div.toolbar').hide();
-	}
-);
+$(function() {
+	var $comment = $('#comment{$comment->id}');
+	
+	$comment.hover(
+		function() {
+			$(this).find('div.toolbar').show();
+		},
+		function() {
+			$(this).find('div.toolbar').hide();
+		}
+	);
+});
 </script>
