@@ -3426,6 +3426,8 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateTask($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		@$trigger = $dict->_trigger;
+		
 		$due_date = $params['due_date'];
 
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
@@ -3504,6 +3506,8 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateTask($params, DevblocksDictionaryDelegate $dict, $default_on) {
+		@$trigger = $dict->_trigger;
+
 		$due_date = $params['due_date'];
 
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
@@ -3582,6 +3586,8 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateTicket($params, DevblocksDictionaryDelegate $dict) {
+		$trigger = $dict->_trigger;
+		
 		@$group_id = $params['group_id'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
