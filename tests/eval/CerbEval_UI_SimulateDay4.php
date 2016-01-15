@@ -18,7 +18,7 @@ class CerbEval_UI_SimulateDay4 extends PHPUnit_Extensions_SeleniumTestCase {
 		$db->ExecuteMaster("UPDATE comment set created=created-@secs");
 		$db->ExecuteMaster("UPDATE context_activity_log set created=created-@secs");
 		$db->ExecuteMaster("UPDATE notification set created_date=created_date-@secs");
-		$db->ExecuteMaster("UPDATE worker set last_activity_date=last_activity_date=@secs");
+		$db->ExecuteMaster("UPDATE worker set last_activity_date=last_activity_date-@secs WHERE last_activity_date > 0");
 	}
 	
 	private function _runTestCase($path) {
