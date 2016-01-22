@@ -239,7 +239,7 @@
 		});
 		
 		$frm.find('button.chooser_watcher').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
+			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids[]', { autocomplete:true });
 		});
 		
 		$frm.find('button.chooser_file').each(function() {
