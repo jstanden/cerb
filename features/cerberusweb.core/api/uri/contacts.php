@@ -213,51 +213,6 @@ class ChContactsPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-	// [TODO] This should show members (contacts) and email addresses
-	function showTabPeopleAction() {
-		@$org = DevblocksPlatform::importGPC($_REQUEST['org']);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-				
-		$contact = DAO_ContactOrg::get($org);
-		$tpl->assign('contact', $contact);
-		
-		$defaults = C4_AbstractViewModel::loadFromClass('View_Address');
-		$defaults->id = 'org_contacts';
-		$defaults->view_columns = array(
-			SearchFields_Address::CONTACT_ID,
-			SearchFields_Address::NUM_NONSPAM,
-		);
-		
-		$view = C4_AbstractViewLoader::getView('org_contacts', $defaults);
-		$view->name = 'Contacts: ' . (!empty($contact) ? $contact->name : '');
-		$view->addParamsRequired(array(
-			new DevblocksSearchCriteria(SearchFields_Address::CONTACT_ORG_ID,'=',$org)
-		), true);
-		$tpl->assign('view', $view);
-		
-		$tpl->assign('org_id', $org);
-		$tpl->assign('search_columns', SearchFields_Address::getFields());
-		
-		$tpl->display('devblocks:cerberusweb.core::profiles/organization/tab_people.tpl');
-		exit;
-	}
-	
-	function saveOrgAddPeoplePopupAction() {
-		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'], 'integer');
-		@$address_ids = DevblocksPlatform::importGPC($_REQUEST['address_ids'], 'array:integer');
-		
-		if(empty($org_id) || empty($address_ids))
-			return;
-		
-		if(false == ($org = DAO_ContactOrg::get($org_id)))
-			return;
-		
-		DAO_Address::update($address_ids, array(
-			DAO_Address::CONTACT_ORG_ID => $org_id,
-		));
-	}
-	
 	function showTabMailHistoryAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 	

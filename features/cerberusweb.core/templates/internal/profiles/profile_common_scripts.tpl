@@ -2,7 +2,8 @@
 $(function() {
 	var $props = $('fieldset.properties');
 	
-	$props.find('a.cerb-peek-trigger').cerbPeekTrigger();
+	$props.find('.cerb-peek-trigger').cerbPeekTrigger();
+	$props.find('.cerb-search-trigger').cerbSearchTrigger();
 });
 </script>
 
