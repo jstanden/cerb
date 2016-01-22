@@ -126,6 +126,14 @@ function DevblocksClass() {
 			var $activeTab = $tabs.find('li[data-alias="' + activeTab + '"]');
 			
 			if($activeTab.length > 0) {
+				var selectedTabs = {};
+				
+				if(undefined != localStorage.selectedTabs)
+					selectedTabs = JSON.parse(localStorage.selectedTabs);
+				
+				selectedTabs[tabsId] = $activeTab.index(); //$tabs.index($activeTab);
+				localStorage.selectedTabs = JSON.stringify(selectedTabs);
+				
 				return $activeTab.index();
 			}
 		}
