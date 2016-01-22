@@ -81,10 +81,11 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			if(is_array($results))
 			foreach($results as $ticket_id => $row) {
+				// Set the first record to the conversation tab, but not subsequent (they persist)
 				if($ticket_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%s", $row[SearchFields_Ticket::TICKET_MASK]), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%s" . ($orig_pos == $pos ? '&tab=conversation' : ''), $row[SearchFields_Ticket::TICKET_MASK]), true);
 
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
