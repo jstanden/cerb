@@ -12,6 +12,15 @@
 	{/foreach}
 </ul>
 
+{if $is_refresh}
+<script type="text/javascript">
+$(function() {
+	var $container = $('#{$container_id} .cerb-peek-trigger');
+	$container.cerbPeekTrigger();
+});
+</script>
+{/if}
+
 {else}
 
 <div class="ui-widget" style="display:inline-block;white-space:nowrap;">

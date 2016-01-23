@@ -1759,6 +1759,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				
 		$tpl->assign('ticket_id', $ticket_id);
 		$tpl->assign('requesters', $requesters);
+		$tpl->assign('is_refresh', true);
 		
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/requester_list.tpl');
 	}

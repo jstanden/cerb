@@ -33,13 +33,10 @@ $(function() {
 		// Save button
 		$('#btnSaveRequestersPanel').bind('click', function() {
 			var $div = $('#displayTicketRequesterBubbles');
-			$div.fadeTo('fast', 0.5);
 			
 			genericAjaxPost('formDisplayReq','','',
 				function(html) {
-					genericAjaxGet('', 'c=display&a=requestersRefresh&ticket_id={$ticket_id}', function(html) {
-						$div.html(html).find('.cerb-peek-trigger').cerbPeekTrigger();
-						$div.fadeTo('fast', 1.0);
+					genericAjaxGet($div, 'c=display&a=requestersRefresh&ticket_id={$ticket_id}', function(html) {
 						genericAjaxPopupClose($popup);
 					});
 				}
