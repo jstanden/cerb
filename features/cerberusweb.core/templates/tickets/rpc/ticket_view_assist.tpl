@@ -25,7 +25,7 @@ Sort biggest piles by:
 </tr>
 {foreach from=$biggest item=stats key=hash}
 <tr>
-	<td width="1%" nowrap="nowrap">
+	<td width="1%" nowrap="nowrap" valign="middle" style="padding-right:5px;">
 		<select name="piles_moveto[]" id="select{$hash}">
 			<option value=""></option>
 			<optgroup label="Move to..." style="color:rgb(0,150,0);font-weight:bold;">
@@ -59,11 +59,11 @@ Sort biggest piles by:
 			</optgroup>
 			{/if}
 		</select>
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='ac';"><span class="glyphicons glyphicons-ok" style="color:rgb(0,180,0);"></span></a>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='as';"><span class="glyphicons glyphicons-ban" style="color:rgb(200,0,0);"></span></a>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.delete')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$hash}.value='ad';"><span class="glyphicons glyphicons-remove"></span></a>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" onclick="$('#select{$hash}').val('ac');"><span class="glyphicons glyphicons-circle-ok" style="font-size:12px;color:rgb(0,150,0);"></span></button>{/if}<!--
+		-->{if $active_worker->hasPriv('core.ticket.actions.spam')}<button type="button" onclick="$('#select{$hash}').val('as');"><span class="glyphicons glyphicons-ban" style="font-size:12px;"></span></button>{/if}<!--
+		-->{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" onclick="$('#select{$hash}').val('ad');"><span class="glyphicons glyphicons-circle-remove" style="font-size:12px;color:rgb(150,0,0);"></span></button>{/if}
 	</td>
-	<td width="98%" align="top">
+	<td width="98%" valign="middle">
 		<input type="hidden" name="piles_hash[]" value="{$hash}">
 		<input type="hidden" name="piles_type[]" value="{$stats[0]}">
 		<input type="hidden" name="piles_type_param[]" value="{$stats[4]}">
@@ -74,7 +74,7 @@ Sort biggest piles by:
 {if !empty($stats[3]) && is_array($stats[3])} {*$stats[0] == 'domain' && *}
 	{foreach from=$stats[3] item=sender key=sender_hash}
 	<tr>
-		<td width="1%" nowrap="nowrap">
+		<td width="1%" nowrap="nowrap" valign="middle" style="padding-right:5px;">
 			<select name="piles_moveto[]" id="select{$sender_hash}">
 				<option value=""></option>
 				<optgroup label="Move to..." style="color:rgb(0,150,0);font-weight:bold;">
@@ -108,17 +108,17 @@ Sort biggest piles by:
 				</optgroup>
 				{/if}
 			</select>
-			{if $active_worker->hasPriv('core.ticket.actions.close')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='ac';"><span class="glyphicons glyphicons-ok" style="color:rgb(0,180,0);"></span></a>{/if}
-			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='as';"><span class="glyphicons glyphicons-ban" style="color:rgb(200,0,0);"></span></a>{/if}
-			{if $active_worker->hasPriv('core.ticket.actions.delete')}<a href="javascript:;" onclick="document.getElementById('viewAssist{$view_id}').select{$sender_hash}.value='ad';"><span class="glyphicons glyphicons-remove"></span></a>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" onclick="$('#select{$sender_hash}').val('ac');"><span class="glyphicons glyphicons-circle-ok" style="font-size:12px;color:rgb(0,150,0);"></span></button>{/if}<!--
+			-->{if $active_worker->hasPriv('core.ticket.actions.spam')}<button type="button" onclick="$('#select{$sender_hash}').val('as');"><span class="glyphicons glyphicons-ban" style="font-size:12px;"></span></button>{/if}<!--
+			-->{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" onclick="$('#select{$sender_hash}').val('ad');"><span class="glyphicons glyphicons-circle-remove" style="font-size:12px;color:rgb(150,0,0);"></span></button>{/if}
 		</td>
-		<td width="98%">
-			<blockquote style="margin-bottom:0px;">
+		<td width="98%" valign="middle">
+			<div style="margin:0px 0px 0px 20px;">
 				<input type="hidden" name="piles_hash[]" value="{$sender_hash}">
 				<input type="hidden" name="piles_type[]" value="{$sender[0]}">
 				<input type="hidden" name="piles_value[]" value="{$sender[1]}">
 				<label>{$sender[0]} <span style="color:rgb(0,120,0);" title="{$sender[1]}">{$sender[1]|truncate:76:'...':true}</span> {if !empty($sender[2])}({$sender[2]} hits){/if}</label><br>
-			</blockquote>
+			</div>
 		</td>
 	</tr>	
 	{/foreach}	
