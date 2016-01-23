@@ -3204,7 +3204,7 @@ class DevblocksEventHelper {
 		
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-				
+		
 		// Only notify an individual worker once
 		$notify_worker_ids = array_unique($notify_worker_ids);
 		
@@ -3217,50 +3217,76 @@ class DevblocksEventHelper {
 		$content = $tpl_builder->build($params['content'], $dict);
 		@$url = DevblocksPlatform::importVar($params['url'],'string','');
 		
-		$notify_contexts = array();
-		
 		// On: Are we notifying about something else?
 		
 		@$on = DevblocksPlatform::importVar($params['on'],'string',$default_on);
-
-		if(!empty($on)) {
-			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
+		
+		if(empty($on) && !empty($url)) {
+			$entry = array(
+				//{{message}}
+				'message' => 'activities.custom.other',
+				'variables' => array(
+					'message' => $content,
+					),
+				'urls' => array(
+					'message' => $url,
+					)
+			);
 			
-			@$on_objects = $on_result['objects'];
-
-			if(is_array($on_objects))
-			foreach($on_objects as $on_object) {
-					$notify_contexts[] = array($on_object->_context, $on_object->id, $on_object->_label);
-			}
-		}
-		
-		// Send notifications
-		
-		if(!empty($notify_contexts)) {
-			if(is_array($notify_contexts))
-			foreach($notify_contexts as $notify_context_data) {
-				$entry = array(
-					//{{message}}
-					'message' => 'activities.custom.other',
-					'variables' => array(
-						'message' => $content,
-						),
-					'urls' => array(
-						'message' => sprintf("ctx://%s:%d", $notify_context_data[0], $notify_context_data[1]),
-						)
+			if(is_array($notify_worker_ids))
+			foreach($notify_worker_ids as $notify_worker_id) {
+				$fields = array(
+					DAO_Notification::CONTEXT => '',
+					DAO_Notification::CONTEXT_ID => 0,
+					DAO_Notification::WORKER_ID => $notify_worker_id,
+					DAO_Notification::CREATED_DATE => time(),
+					DAO_Notification::ACTIVITY_POINT => 'custom.other',
+					DAO_Notification::ENTRY_JSON => json_encode($entry),
 				);
+				$notification_id = DAO_Notification::create($fields);
+			}
+			
+		} elseif (!empty($on)) {
+			$notify_contexts = array();
+			
+			if(!empty($on)) {
+				$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
 				
-				if(is_array($notify_worker_ids))
-				foreach($notify_worker_ids as $notify_worker_id) {
-					$fields = array(
-						DAO_Notification::CONTEXT => $notify_context_data[0],
-						DAO_Notification::CONTEXT_ID => $notify_context_data[1],
-						DAO_Notification::WORKER_ID => $notify_worker_id,
-						DAO_Notification::CREATED_DATE => time(),
-						DAO_Notification::ACTIVITY_POINT => 'custom.other',
-						DAO_Notification::ENTRY_JSON => json_encode($entry),
+				@$on_objects = $on_result['objects'];
+	
+				if(is_array($on_objects))
+				foreach($on_objects as $on_object) {
+						$notify_contexts[] = array($on_object->_context, $on_object->id, $on_object->_label);
+				}
+			}
+			
+			// Send notifications
+			if(!empty($notify_contexts)) {
+				if(is_array($notify_contexts))
+				foreach($notify_contexts as $notify_context_data) {
+					$entry = array(
+						//{{message}}
+						'message' => 'activities.custom.other',
+						'variables' => array(
+							'message' => $content,
+							),
+						'urls' => array(
+							'message' => sprintf("ctx://%s:%d", $notify_context_data[0], $notify_context_data[1]),
+							)
 					);
-					$notification_id = DAO_Notification::create($fields);
+					
+					if(is_array($notify_worker_ids))
+					foreach($notify_worker_ids as $notify_worker_id) {
+						$fields = array(
+							DAO_Notification::CONTEXT => $notify_context_data[0],
+							DAO_Notification::CONTEXT_ID => $notify_context_data[1],
+							DAO_Notification::WORKER_ID => $notify_worker_id,
+							DAO_Notification::CREATED_DATE => time(),
+							DAO_Notification::ACTIVITY_POINT => 'custom.other',
+							DAO_Notification::ENTRY_JSON => json_encode($entry),
+						);
+						$notification_id = DAO_Notification::create($fields);
+					}
 				}
 			}
 		}
