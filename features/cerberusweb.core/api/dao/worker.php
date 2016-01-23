@@ -1596,7 +1596,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 		$this->view_columns = array(
 			SearchFields_Worker::TITLE,
-			SearchFields_Worker::EMAIL_ID,
+			SearchFields_Worker::EMAIL_ADDRESS,
 			SearchFields_Worker::IS_SUPERUSER,
 			SearchFields_Worker::AT_MENTION_NAME,
 			SearchFields_Worker::LANGUAGE,
@@ -1605,6 +1605,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		);
 		
 		$this->addColumnsHidden(array(
+			SearchFields_Worker::EMAIL_ID,
 			SearchFields_Worker::LAST_ACTIVITY,
 			SearchFields_Worker::CONTEXT_LINK,
 			SearchFields_Worker::CONTEXT_LINK_ID,
@@ -1616,6 +1617,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$this->addParamsHidden(array(
 			SearchFields_Worker::CALENDAR_ID,
+			SearchFields_Worker::EMAIL_ID,
 			SearchFields_Worker::ID,
 			SearchFields_Worker::LAST_ACTIVITY,
 			SearchFields_Worker::CONTEXT_LINK,
@@ -2033,6 +2035,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 		switch($field) {
 			case SearchFields_Worker::AT_MENTION_NAME:
+			case SearchFields_Worker::EMAIL_ADDRESS:
 			case SearchFields_Worker::FIRST_NAME:
 			case SearchFields_Worker::GENDER:
 			case SearchFields_Worker::LANGUAGE:
@@ -2118,6 +2121,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 		switch($field) {
 			case SearchFields_Worker::AT_MENTION_NAME:
+			case SearchFields_Worker::EMAIL_ADDRESS:
 			case SearchFields_Worker::FIRST_NAME:
 			case SearchFields_Worker::GENDER:
 			case SearchFields_Worker::LANGUAGE:

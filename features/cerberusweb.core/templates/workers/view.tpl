@@ -61,6 +61,13 @@
 	</tr>
 	</thead>
 
+	{* Bulk lazy load addresses for this page *}
+	{$object_addys = []}
+	{if in_array(SearchFields_Worker::EMAIL_ADDRESS, $view->view_columns)}
+		{$addy_ids = DevblocksPlatform::extractArrayValues($results, 'w_email_id')}
+		{$object_addys = DAO_Address::getIds($addy_ids)}
+	{/if}
+	
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
@@ -92,8 +99,8 @@
 				<td>{if $result.w_is_disabled}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
 			{elseif $column=="w_is_superuser"}
 				<td>{if $result.w_is_superuser}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
-			{elseif $column=="w_email"}
-				{$addy = DAO_Address::get($result.w_email_id)}
+			{elseif $column=="a_address_email"}
+				{$addy = $object_addys.{$result.w_email_id}}
 				<td><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}" title="{$addy->email}">{$addy->email|truncate:64:'...':true:true}</a></td>
 			{elseif $column == SearchFields_Worker::GENDER}
 			<td>
