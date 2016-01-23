@@ -31,71 +31,73 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$point = 'cerberusweb.profiles.org';
 		$tpl->assign('point', $point);
 		
-		$contact = DAO_ContactOrg::get($id);
-		$tpl->assign('contact', $contact);
+		if(false == ($org = DAO_ContactOrg::get($id)))
+			return;
+		
+		$tpl->assign('contact', $org);
 		
 		// Properties
 		
 		$properties = array();
 		
-		if(!empty($contact->street))
+		if(!empty($org->street))
 			$properties['street'] = array(
 				'label' => ucfirst($translate->_('contact_org.street')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $contact->street,
+				'value' => $org->street,
 			);
 		
-		if(!empty($contact->city))
+		if(!empty($org->city))
 			$properties['city'] = array(
 				'label' => ucfirst($translate->_('contact_org.city')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $contact->city,
+				'value' => $org->city,
 			);
 		
-		if(!empty($contact->province))
+		if(!empty($org->province))
 			$properties['province'] = array(
 				'label' => ucfirst($translate->_('contact_org.province')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $contact->province,
+				'value' => $org->province,
 			);
 		
-		if(!empty($contact->postal))
+		if(!empty($org->postal))
 			$properties['postal'] = array(
 				'label' => ucfirst($translate->_('contact_org.postal')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $contact->postal,
+				'value' => $org->postal,
 			);
 		
-		if(!empty($contact->country))
+		if(!empty($org->country))
 			$properties['country'] = array(
 				'label' => ucfirst($translate->_('contact_org.country')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $contact->country,
+				'value' => $org->country,
 			);
 		
-		if(!empty($contact->phone))
+		if(!empty($org->phone))
 			$properties['phone'] = array(
 				'label' => ucfirst($translate->_('common.phone')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $contact->phone,
+				'value' => $org->phone,
 			);
 		
-		if(!empty($contact->website))
+		if(!empty($org->website))
 			$properties['website'] = array(
 				'label' => ucfirst($translate->_('common.website')),
 				'type' => Model_CustomField::TYPE_URL,
-				'value' => $contact->website,
+				'value' => $org->website,
 			);
 		
 		$properties['created'] = array(
 			'label' => ucfirst($translate->_('common.created')),
 			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $contact->created,
+			'value' => $org->created,
 		);
 		
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $contact->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_ORG, $values);
@@ -105,17 +107,17 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_ORG, $contact->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_ORG, $org->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
-		if(isset($contact->id)) {
+		if(isset($org->id)) {
 			$properties_links[CerberusContexts::CONTEXT_ORG] = array(
-				$contact->id => 
+				$org->id => 
 					DAO_ContextLink::getContextLinkCounts(
 						CerberusContexts::CONTEXT_ORG,
-						$contact->id,
+						$org->id,
 						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			);
@@ -129,10 +131,10 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		// Counts
 		$activity_counts = array(
-			//'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_ORG, $contact->id),
-			'contacts' => DAO_Contact::countByOrgId($contact->id),
-			'emails' => DAO_Address::countByOrgId($contact->id),
-			//'tickets' => DAO_Ticket::countsByOrgId($contact->id),
+			//'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_ORG, $org->id),
+			'contacts' => DAO_Contact::countByOrgId($org->id),
+			'emails' => DAO_Address::countByOrgId($org->id),
+			//'tickets' => DAO_Ticket::countsByOrgId($org->id),
 		);
 		$tpl->assign('activity_counts', $activity_counts);
 
