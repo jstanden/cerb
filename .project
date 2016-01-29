@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>Cerb6</name>
+	<name>Cerb</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -21,7 +21,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1409901665057</id>
+			<id>0</id>
 			<name>storage/tmp</name>
 			<type>30</type>
 			<matcher>
@@ -30,7 +30,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1409901665059</id>
+			<id>0</id>
 			<name>storage/tmp</name>
 			<type>30</type>
 			<matcher>
@@ -39,7 +39,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1409901665060</id>
+			<id>0</id>
 			<name>storage/tmp</name>
 			<type>30</type>
 			<matcher>
