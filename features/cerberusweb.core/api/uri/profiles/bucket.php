@@ -50,20 +50,20 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 		$properties = array();
 			
 		$properties['group'] = array(
-			'label' => ucfirst($translate->_('common.group')),
+			'label' => mb_ucfirst($translate->_('common.group')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'params' => array('context' => CerberusContexts::CONTEXT_GROUP),
 			'value' => $bucket->group_id,
 		);
 			
 		$properties['updated'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $bucket->updated_at,
 		);
 		
 		$properties['is_default'] = array(
-			'label' => ucfirst($translate->_('common.default')),
+			'label' => mb_ucfirst($translate->_('common.default')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $bucket->is_default,
 		);

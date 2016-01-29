@@ -41,7 +41,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$properties = array();
 		
 		$properties['status'] = array(
-			'label' => ucfirst($translate->_('common.status')),
+			'label' => mb_ucfirst($translate->_('common.status')),
 			'type' => null,
 			'is_closed' => $opp->is_closed,
 			'is_won' => $opp->is_won,
@@ -50,7 +50,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		if(!empty($opp->primary_email_id)) {
 			if(null != ($address = DAO_Address::get($opp->primary_email_id))) {
 				$properties['lead'] = array(
-					'label' => ucfirst($translate->_('common.email')),
+					'label' => mb_ucfirst($translate->_('common.email')),
 					'type' => Model_CustomField::TYPE_LINK,
 					'value' => $address->id,
 					'params' => array(
@@ -61,7 +61,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				
 			if(!empty($address->contact_org_id) && null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
 				$properties['org'] = array(
-					'label' => ucfirst($translate->_('common.organization')),
+					'label' => mb_ucfirst($translate->_('common.organization')),
 					'type' => Model_CustomField::TYPE_LINK,
 					'value' => $org->id,
 					'params' => array(
@@ -74,26 +74,26 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		if(!empty($opp->is_closed))
 			if(!empty($opp->closed_date))
 			$properties['closed_date'] = array(
-				'label' => ucfirst($translate->_('crm.opportunity.closed_date')),
+				'label' => mb_ucfirst($translate->_('crm.opportunity.closed_date')),
 				'type' => Model_CustomField::TYPE_DATE,
 				'value' => $opp->closed_date,
 			);
 			
 		if(!empty($opp->amount))
 			$properties['amount'] = array(
-				'label' => ucfirst($translate->_('crm.opportunity.amount')),
+				'label' => mb_ucfirst($translate->_('crm.opportunity.amount')),
 				'type' => Model_CustomField::TYPE_NUMBER,
 				'value' => number_format(floatval($opp->amount),2),
 			);
 			
 		$properties['created_date'] = array(
-			'label' => ucfirst($translate->_('common.created')),
+			'label' => mb_ucfirst($translate->_('common.created')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $opp->created_date,
 		);
 		
 		$properties['updated_date'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $opp->updated_date,
 		);

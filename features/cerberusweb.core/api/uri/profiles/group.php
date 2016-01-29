@@ -49,19 +49,19 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$reply_to = $group->getReplyTo();
 		
 		$properties['reply_to'] = array(
-			'label' => ucfirst($translate->_('common.email')),
+			'label' => mb_ucfirst($translate->_('common.email')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $reply_to->email,
 		);
 		
 		$properties['is_default'] = array(
-			'label' => ucfirst($translate->_('common.default')),
+			'label' => mb_ucfirst($translate->_('common.default')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $group->is_default,
 		);
 		
 		$properties['is_private'] = array(
-			'label' => ucfirst($translate->_('common.private')),
+			'label' => mb_ucfirst($translate->_('common.private')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $group->is_private,
 		);

@@ -1647,13 +1647,13 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		$properties = array();
 			
 		$properties['name'] = array(
-			'label' => ucfirst($translate->_('common.name')),
+			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $<?php echo $table_name; ?>->name,
 		);
 			
 		$properties['updated'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $<?php echo $table_name; ?>->updated_at,
 		);

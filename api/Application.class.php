@@ -1082,7 +1082,9 @@ class CerberusContexts {
 		} else {
 			if(is_array($labels)) {
 				foreach($labels as $idx => $label) {
-					$labels[$idx] = trim(ucfirst(strtolower(strtr($label,':',' '))));
+					$label = mb_ucfirst(trim($label));
+					$label = strtr($label,':',' ');
+					$labels[$idx] = $label;
 				}
 
 				asort($labels);

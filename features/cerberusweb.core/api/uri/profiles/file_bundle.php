@@ -50,19 +50,19 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 		$properties = array();
 			
 		$properties['name'] = array(
-			'label' => ucfirst($translate->_('common.name')),
+			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $file_bundle->name,
 		);
 			
 		$properties['tag'] = array(
-			'label' => ucfirst($translate->_('common.tag')),
+			'label' => mb_ucfirst($translate->_('common.tag')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $file_bundle->tag,
 		);
 			
 		$properties['updated'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $file_bundle->updated_at,
 		);

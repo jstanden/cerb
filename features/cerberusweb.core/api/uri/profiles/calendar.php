@@ -50,20 +50,20 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 		$properties = array();
 			
 		$properties['name'] = array(
-			'label' => ucfirst($translate->_('common.name')),
+			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $calendar->name,
 		);
 		
 		$properties['owner'] = array(
-			'label' => ucfirst($translate->_('common.owner')),
+			'label' => mb_ucfirst($translate->_('common.owner')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'params' => array('context' => $calendar->owner_context),
 			'value' => $calendar->owner_context_id,
 		);
 		
 		$properties['updated'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $calendar->updated_at,
 		);

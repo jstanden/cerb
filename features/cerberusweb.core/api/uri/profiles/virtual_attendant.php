@@ -51,25 +51,25 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		$properties = array();
 		
 		$properties['_owner'] = array(
-			'label' => ucfirst($translate->_('common.owner')),
+			'label' => mb_ucfirst($translate->_('common.owner')),
 			'type' => null,
 			'value' => null,
 		);
 		
 		$properties['is_disabled'] = array(
-			'label' => ucfirst($translate->_('common.disabled')),
+			'label' => mb_ucfirst($translate->_('common.disabled')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $virtual_attendant->is_disabled,
 		);
 		
 		$properties['created'] = array(
-			'label' => ucfirst($translate->_('common.created')),
+			'label' => mb_ucfirst($translate->_('common.created')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $virtual_attendant->created_at,
 		);
 		
 		$properties['updated'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $virtual_attendant->updated_at,
 		);

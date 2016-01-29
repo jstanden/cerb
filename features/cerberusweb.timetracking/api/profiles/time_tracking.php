@@ -42,19 +42,19 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		$properties = array();
 		
 		$properties['status'] = array(
-			'label' => ucfirst($translate->_('common.status')),
+			'label' => mb_ucfirst($translate->_('common.status')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => ($time_entry->is_closed) ? $translate->_('status.closed') : $translate->_('status.open'),
 		);
 		
 		$properties['log_date'] = array(
-			'label' => ucfirst($translate->_('timetracking_entry.log_date')),
+			'label' => mb_ucfirst($translate->_('timetracking_entry.log_date')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $time_entry->log_date,
 		);
 		
 		$properties['worker_id'] = array(
-			'label' => ucfirst($translate->_('common.worker')),
+			'label' => mb_ucfirst($translate->_('common.worker')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'params' => array('context' => CerberusContexts::CONTEXT_WORKER),
 			'value' => $time_entry->worker_id,

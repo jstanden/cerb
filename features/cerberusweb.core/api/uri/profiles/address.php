@@ -40,7 +40,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		if(!empty($address->contact_id)) {
 			if(null != ($contact = $address->getContact())) {
 				$properties['contact'] = array(
-					'label' => ucfirst($translate->_('common.contact')),
+					'label' => mb_ucfirst($translate->_('common.contact')),
 					'type' => Model_CustomField::TYPE_LINK,
 					'value' => $address->contact_id,
 					'params' => array(
@@ -53,7 +53,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		if(!empty($address->contact_org_id)) {
 			if(null != ($org = $address->getOrg())) {
 				$properties['org'] = array(
-					'label' => ucfirst($translate->_('common.organization')),
+					'label' => mb_ucfirst($translate->_('common.organization')),
 					'type' => Model_CustomField::TYPE_LINK,
 					'value' => $address->contact_org_id,
 					'params' => array(
@@ -64,25 +64,25 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		}
 		
 		$properties['num_spam'] = array(
-			'label' => ucfirst($translate->_('address.num_spam')),
+			'label' => mb_ucfirst($translate->_('address.num_spam')),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $address->num_spam,
 		);
 		
 		$properties['num_nonspam'] = array(
-			'label' => ucfirst($translate->_('address.num_nonspam')),
+			'label' => mb_ucfirst($translate->_('address.num_nonspam')),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $address->num_nonspam,
 		);
 		
 		$properties['is_banned'] = array(
-			'label' => ucfirst($translate->_('address.is_banned')),
+			'label' => mb_ucfirst($translate->_('address.is_banned')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $address->is_banned,
 		);
 		
 		$properties['is_defunct'] = array(
-			'label' => ucfirst($translate->_('address.is_defunct')),
+			'label' => mb_ucfirst($translate->_('address.is_defunct')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $address->is_defunct,
 		);

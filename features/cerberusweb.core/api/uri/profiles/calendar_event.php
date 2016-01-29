@@ -44,26 +44,26 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		$properties = array();
 
 		$properties['calendar_id'] = array(
-			'label' => ucfirst($translate->_('common.calendar')),
+			'label' => mb_ucfirst($translate->_('common.calendar')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
 			'value' => $event->calendar_id,
 		);
 		
 		$properties['date_start'] = array(
-			'label' => ucfirst($translate->_('dao.calendar_event.date_start')),
+			'label' => mb_ucfirst($translate->_('dao.calendar_event.date_start')),
 			'type' => null,
 			'value' => $event->date_start,
 		);
 		
 		$properties['date_end'] = array(
-			'label' => ucfirst($translate->_('dao.calendar_event.date_end')),
+			'label' => mb_ucfirst($translate->_('dao.calendar_event.date_end')),
 			'type' => null,
 			'value' => $event->date_end,
 		);
 		
 		$properties['is_available'] = array(
-			'label' => ucfirst($translate->_('dao.calendar_event.is_available')),
+			'label' => mb_ucfirst($translate->_('dao.calendar_event.is_available')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $event->is_available,
 		);

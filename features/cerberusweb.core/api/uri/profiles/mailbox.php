@@ -53,44 +53,44 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		$properties = array();
 			
 		$properties['enabled'] = array(
-			'label' => ucfirst($translate->_('common.enabled')),
+			'label' => mb_ucfirst($translate->_('common.enabled')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $mailbox->enabled,
 		);
 		
 		$properties['protocol'] = array(
-			'label' => ucfirst($translate->_('dao.mailbox.protocol')),
+			'label' => mb_ucfirst($translate->_('dao.mailbox.protocol')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $mailbox->protocol,
 		);
 			
 		$properties['host'] = array(
-			'label' => ucfirst($translate->_('common.host')),
+			'label' => mb_ucfirst($translate->_('common.host')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $mailbox->host,
 		);
 			
 		$properties['username'] = array(
-			'label' => ucfirst($translate->_('common.user')),
+			'label' => mb_ucfirst($translate->_('common.user')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $mailbox->username,
 		);
 		
 		$properties['port'] = array(
-			'label' => ucfirst($translate->_('dao.mailbox.port')),
+			'label' => mb_ucfirst($translate->_('dao.mailbox.port')),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $mailbox->port,
 		);
 			
 		$properties['num_fails'] = array(
-			'label' => ucfirst($translate->_('dao.mailbox.num_fails')),
+			'label' => mb_ucfirst($translate->_('dao.mailbox.num_fails')),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $mailbox->num_fails,
 		);
 		
 		if($mailbox->delay_until) {
 			$properties['delay_until'] = array(
-				'label' => ucfirst($translate->_('dao.mailbox.delay_until')),
+				'label' => mb_ucfirst($translate->_('dao.mailbox.delay_until')),
 				'type' => Model_CustomField::TYPE_DATE,
 				'value' => $mailbox->delay_until,
 			);
@@ -109,13 +109,13 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		);
 		
 		$properties['ssl_ignore_validation'] = array(
-			'label' => ucfirst($translate->_('dao.mailbox.ssl_ignore_validation')),
+			'label' => mb_ucfirst($translate->_('dao.mailbox.ssl_ignore_validation')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $mailbox->ssl_ignore_validation,
 		);
 		
 		$properties['updated'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $mailbox->updated_at,
 		);

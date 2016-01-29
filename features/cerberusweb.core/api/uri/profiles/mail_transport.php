@@ -50,25 +50,25 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 		$properties = array();
 			
 		$properties['name'] = array(
-			'label' => ucfirst($translate->_('common.name')),
+			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $mail_transport->name,
 		);
 			
 		$properties['extension'] = array(
-			'label' => ucfirst($translate->_('common.extension')),
+			'label' => mb_ucfirst($translate->_('common.extension')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $mail_transport->extension_id,
 		);
 		
 		$properties['created'] = array(
-			'label' => ucfirst($translate->_('common.created')),
+			'label' => mb_ucfirst($translate->_('common.created')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $mail_transport->created_at,
 		);
 		
 		$properties['updated'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $mail_transport->updated_at,
 		);

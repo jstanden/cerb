@@ -447,7 +447,7 @@ if(isset($tables['preparse_rule'])) {
 			$label = 'Perform actions';
 			
 			if(!empty($action_labels))
-				$label = ucfirst(implode(', ', $action_labels));
+				$label = mb_ucfirst(implode(', ', $action_labels));
 			
 			// Actions: Perform these actions
 			$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".

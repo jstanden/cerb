@@ -50,19 +50,19 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$properties = array();
 			
 		$properties['updated'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $article->updated,
 		);
 			
 		$properties['views'] = array(
-			'label' => ucfirst($translate->_('kb_article.views')),
+			'label' => mb_ucfirst($translate->_('kb_article.views')),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $article->views,
 		);
 			
 		$properties['id'] = array(
-			'label' => ucfirst($translate->_('common.id')),
+			'label' => mb_ucfirst($translate->_('common.id')),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $article->id,
 		);

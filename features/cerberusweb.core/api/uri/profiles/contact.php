@@ -50,39 +50,39 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		$properties = array();
 			
 		$properties['email'] = array(
-			'label' => ucfirst($translate->_('common.email')),
+			'label' => mb_ucfirst($translate->_('common.email')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $contact->primary_email_id,
 			'params' => array('context' => CerberusContexts::CONTEXT_ADDRESS),
 		);
 		
 		$properties['org'] = array(
-			'label' => ucfirst($translate->_('common.organization')),
+			'label' => mb_ucfirst($translate->_('common.organization')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $contact->org_id,
 			'params' => array('context' => CerberusContexts::CONTEXT_ORG),
 		);
 		
 		$properties['title'] = array(
-			'label' => ucfirst($translate->_('common.title')),
+			'label' => mb_ucfirst($translate->_('common.title')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $contact->title,
 		);
 		
 		$properties['created'] = array(
-			'label' => ucfirst($translate->_('common.created')),
+			'label' => mb_ucfirst($translate->_('common.created')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $contact->created_at,
 		);
 		
 		$properties['updated'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $contact->updated_at,
 		);
 		
 		$properties['last_login'] = array(
-			'label' => ucfirst($translate->_('common.last_login')),
+			'label' => mb_ucfirst($translate->_('common.last_login')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $contact->last_login_at,
 		);

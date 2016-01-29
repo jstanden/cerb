@@ -50,13 +50,13 @@ class PageSection_ProfilesSkill extends Extension_PageSection {
 		$properties = array();
 			
 		$properties['name'] = array(
-			'label' => ucfirst($translate->_('common.name')),
+			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $skill->name,
 		);
 			
 		$properties['updated'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $skill->updated_at,
 		);

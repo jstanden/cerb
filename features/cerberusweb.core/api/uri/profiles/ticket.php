@@ -105,7 +105,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$properties = array(
 			'status' => null,
 			'owner' => array(
-				'label' => ucfirst($translate->_('common.owner')),
+				'label' => mb_ucfirst($translate->_('common.owner')),
 				'type' => Model_CustomField::TYPE_LINK,
 				'value' => $ticket->owner_id,
 				'params' => array(
@@ -115,7 +115,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			'mask' => null,
 			'bucket' => null,
 			'org' => array(
-				'label' => ucfirst($translate->_('common.organization')),
+				'label' => mb_ucfirst($translate->_('common.organization')),
 				'type' => Model_CustomField::TYPE_LINK,
 				'value' => $ticket->org_id,
 				'params' => array(
@@ -124,12 +124,12 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			),
 			'importance' => null,
 			'created' => array(
-				'label' => ucfirst($translate->_('common.created')),
+				'label' => mb_ucfirst($translate->_('common.created')),
 				'type' => Model_CustomField::TYPE_DATE,
 				'value' => $ticket->created_date,
 			),
 			'updated' => array(
-				'label' => ucfirst($translate->_('common.updated')),
+				'label' => mb_ucfirst($translate->_('common.updated')),
 				'type' => Model_CustomField::TYPE_DATE,
 				'value' => $ticket->updated_date,
 			),
@@ -137,7 +137,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		if(!empty($ticket->closed_at)) {
 			$properties['closed'] = array(
-				'label' => ucfirst($translate->_('ticket.closed_at')),
+				'label' => mb_ucfirst($translate->_('ticket.closed_at')),
 				'type' => Model_CustomField::TYPE_DATE,
 				'value' => $ticket->closed_at,
 			);
@@ -145,7 +145,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		if(!empty($ticket->elapsed_response_first)) {
 			$properties['elapsed_response_first'] = array(
-				'label' => ucfirst($translate->_('ticket.elapsed_response_first')),
+				'label' => mb_ucfirst($translate->_('ticket.elapsed_response_first')),
 				'type' => null,
 				'value' => DevblocksPlatform::strSecsToString($ticket->elapsed_response_first, 2),
 			);
@@ -153,14 +153,14 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		if(!empty($ticket->elapsed_resolution_first)) {
 			$properties['elapsed_resolution_first'] = array(
-				'label' => ucfirst($translate->_('ticket.elapsed_resolution_first')),
+				'label' => mb_ucfirst($translate->_('ticket.elapsed_resolution_first')),
 				'type' => null,
 				'value' => DevblocksPlatform::strSecsToString($ticket->elapsed_resolution_first, 2),
 			);
 		}
 		
 		$properties['spam_score'] = array(
-			'label' => ucfirst($translate->_('ticket.spam_score')),
+			'label' => mb_ucfirst($translate->_('ticket.spam_score')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => (100*$ticket->spam_score) . '%',
 		);

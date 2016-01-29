@@ -42,55 +42,55 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		if(!empty($org->street))
 			$properties['street'] = array(
-				'label' => ucfirst($translate->_('contact_org.street')),
+				'label' => mb_ucfirst($translate->_('contact_org.street')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $org->street,
 			);
 		
 		if(!empty($org->city))
 			$properties['city'] = array(
-				'label' => ucfirst($translate->_('contact_org.city')),
+				'label' => mb_ucfirst($translate->_('contact_org.city')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $org->city,
 			);
 		
 		if(!empty($org->province))
 			$properties['province'] = array(
-				'label' => ucfirst($translate->_('contact_org.province')),
+				'label' => mb_ucfirst($translate->_('contact_org.province')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $org->province,
 			);
 		
 		if(!empty($org->postal))
 			$properties['postal'] = array(
-				'label' => ucfirst($translate->_('contact_org.postal')),
+				'label' => mb_ucfirst($translate->_('contact_org.postal')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $org->postal,
 			);
 		
 		if(!empty($org->country))
 			$properties['country'] = array(
-				'label' => ucfirst($translate->_('contact_org.country')),
+				'label' => mb_ucfirst($translate->_('contact_org.country')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $org->country,
 			);
 		
 		if(!empty($org->phone))
 			$properties['phone'] = array(
-				'label' => ucfirst($translate->_('common.phone')),
+				'label' => mb_ucfirst($translate->_('common.phone')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $org->phone,
 			);
 		
 		if(!empty($org->website))
 			$properties['website'] = array(
-				'label' => ucfirst($translate->_('common.website')),
+				'label' => mb_ucfirst($translate->_('common.website')),
 				'type' => Model_CustomField::TYPE_URL,
 				'value' => $org->website,
 			);
 		
 		$properties['created'] = array(
-			'label' => ucfirst($translate->_('common.created')),
+			'label' => mb_ucfirst($translate->_('common.created')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $org->created,
 		);

@@ -71,7 +71,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$properties = array();
 		
 		$properties['email'] = array(
-			'label' => ucfirst($translate->_('common.email')),
+			'label' => mb_ucfirst($translate->_('common.email')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'params' => array('context' => CerberusContexts::CONTEXT_ADDRESS),
 			'value' => $worker->email_id,
@@ -79,21 +79,21 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		if(!empty($worker->location)) {
 			$properties['location'] = array(
-				'label' => ucfirst($translate->_('common.location')),
+				'label' => mb_ucfirst($translate->_('common.location')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $worker->location,
 			);
 		}
 		
 		$properties['is_superuser'] = array(
-			'label' => ucfirst($translate->_('worker.is_superuser')),
+			'label' => mb_ucfirst($translate->_('worker.is_superuser')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $worker->is_superuser,
 		);
 		
 		if(!empty($worker->mobile)) {
 			$properties['mobile'] = array(
-				'label' => ucfirst($translate->_('common.mobile')),
+				'label' => mb_ucfirst($translate->_('common.mobile')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $worker->mobile,
 			);
@@ -101,27 +101,27 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		if(!empty($worker->phone)) {
 			$properties['phone'] = array(
-				'label' => ucfirst($translate->_('common.phone')),
+				'label' => mb_ucfirst($translate->_('common.phone')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $worker->phone,
 			);
 		}
 		
 		$properties['language'] = array(
-			'label' => ucfirst($translate->_('worker.language')),
+			'label' => mb_ucfirst($translate->_('worker.language')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $worker->language,
 		);
 		
 		$properties['timezone'] = array(
-			'label' => ucfirst($translate->_('worker.timezone')),
+			'label' => mb_ucfirst($translate->_('worker.timezone')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $worker->timezone,
 		);
 		
 		if(!empty($worker->calendar_id)) {
 			$properties['calendar_id'] = array(
-				'label' => ucfirst($translate->_('common.calendar')),
+				'label' => mb_ucfirst($translate->_('common.calendar')),
 				'type' => Model_CustomField::TYPE_LINK,
 				'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
 				'value' => $worker->calendar_id,

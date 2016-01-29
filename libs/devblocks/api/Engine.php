@@ -7,6 +7,17 @@ interface DevblocksExtensionDelegate {
 	static function shouldLoadExtension(DevblocksExtensionManifest $extension_manifest);
 };
 
+if(!function_exists('mb_ucfirst')) {
+	function mb_ucfirst($string) {
+		if(!is_string($string))
+			return null;
+		
+		$string = mb_convert_case($string, MB_CASE_LOWER);
+		$string = mb_convert_case(mb_substr($string, 0, 1), MB_CASE_UPPER) . mb_substr($string, 1);
+		return $string;
+	}
+}
+
 abstract class DevblocksEngine {
 	const CACHE_ACL = 'devblocks_acl';
 	const CACHE_ACTIVITY_POINTS = 'devblocks_activity_points';

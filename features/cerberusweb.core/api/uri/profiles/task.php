@@ -39,34 +39,34 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		$properties = array();
 		
 		$properties['status'] = array(
-			'label' => ucfirst($translate->_('common.status')),
+			'label' => mb_ucfirst($translate->_('common.status')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => null,
 		);
 		
 		if(!$task->is_completed) {
 			$properties['due_date'] = array(
-				'label' => ucfirst($translate->_('task.due_date')),
+				'label' => mb_ucfirst($translate->_('task.due_date')),
 				'type' => Model_CustomField::TYPE_DATE,
 				'value' => $task->due_date,
 			);
 			
 		} else {
 			$properties['completed_date'] = array(
-				'label' => ucfirst($translate->_('task.completed_date')),
+				'label' => mb_ucfirst($translate->_('task.completed_date')),
 				'type' => Model_CustomField::TYPE_DATE,
 				'value' => $task->completed_date,
 			);
 		}
 		
 		$properties['created_at'] = array(
-			'label' => ucfirst($translate->_('common.created')),
+			'label' => mb_ucfirst($translate->_('common.created')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $task->created_at,
 		);
 		
 		$properties['updated_date'] = array(
-			'label' => ucfirst($translate->_('common.updated')),
+			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $task->updated_date,
 		);

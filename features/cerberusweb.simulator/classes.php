@@ -417,7 +417,7 @@ class PageSection_SetupSimulator extends Extension_PageSection {
 					$params
 				);
 				
-				$org_name = ucfirst($org_name);
+				$org_name = mb_ucfirst($org_name);
 				
 				$website = $tpl_builder->build(
 					$website_tpl,
