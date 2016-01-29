@@ -573,7 +573,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			$fields = array(
 				DAO_Contact::PRIMARY_EMAIL_ID => $address->id,
 				DAO_Contact::FIRST_NAME => $first_name,
-				DAO_Contact::LAST_NAME_NAME => $last_name,
+				DAO_Contact::LAST_NAME => $last_name,
 				DAO_Contact::LAST_LOGIN_AT => time(),
 				DAO_Contact::CREATED_AT => time(),
 				DAO_Contact::AUTH_SALT => $salt,
