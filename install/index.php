@@ -67,8 +67,8 @@ if(empty($step)) $step = STEP_ENVIRONMENT;
 // [TODO] Could convert to CerberusApplication::checkRequirements()
 
 @chmod(APP_TEMP_PATH, 0774);
-@mkdir(APP_TEMP_PATH . '/templates_c/');
-@chmod(APP_TEMP_PATH . '/templates_c/', 0774);
+@mkdir(APP_SMARTY_COMPILE_PATH);
+@chmod(APP_SMARTY_COMPILE_PATH, 0774);
 @mkdir(APP_TEMP_PATH . '/cache/');
 @chmod(APP_TEMP_PATH . '/cache/', 0774);
 
@@ -77,8 +77,8 @@ if(!is_writeable(APP_TEMP_PATH)) {
 	die(APP_TEMP_PATH ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
-if(!is_writeable(APP_TEMP_PATH . "/templates_c/")) {
-	die(APP_TEMP_PATH . "/templates_c/" . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
+if(!is_writeable(APP_SMARTY_COMPILE_PATH)) {
+	die(APP_SMARTY_COMPILE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
 }
 
 if(!is_writeable(APP_TEMP_PATH . "/cache/")) {

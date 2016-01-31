@@ -26,7 +26,7 @@ class _DevblocksTemplateManager {
 			$instance = new Smarty();
 			
 			$instance->template_dir = APP_PATH . '/templates';
-			$instance->compile_dir = APP_TEMP_PATH . '/templates_c';
+			$instance->compile_dir = APP_SMARTY_COMPILE_PATH;
 			$instance->cache_dir = APP_TEMP_PATH . '/cache';
 
 			$instance->use_sub_dirs = false;

@@ -47,6 +47,9 @@ if(!defined('APP_STORAGE_PATH'))
 if(!defined('APP_TEMP_PATH'))
 	define('APP_TEMP_PATH',APP_STORAGE_PATH . '/tmp');
 
+if(!defined('APP_SMARTY_COMPILE_PATH'))
+	define('APP_SMARTY_COMPILE_PATH',APP_TEMP_PATH . '/templates_c');
+
 if(!defined('DEVBLOCKS_PATH'))
 	define('DEVBLOCKS_PATH',APP_PATH . '/libs/devblocks/');
 

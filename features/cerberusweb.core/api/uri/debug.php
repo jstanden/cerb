@@ -106,9 +106,9 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[Privs] storage/attachments: %s\n".
 					"[Privs] storage/mail/new: %s\n".
 					"[Privs] storage/mail/fail: %s\n".
-					"[Privs] storage/tmp: %s\n".
-					"[Privs] storage/tmp/templates_c: %s\n".
-					"[Privs] storage/tmp/cache: %s\n".
+					"[Privs] tmp: %s\n".
+					"[Privs] tmp/templates_c: %s\n".
+					"[Privs] tmp/cache: %s\n".
 					"\n".
 					"[PHP] Version: %s\n".
 					"[PHP] OS: %s\n".
@@ -151,7 +151,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					substr(sprintf('%o', fileperms(APP_STORAGE_PATH.'/mail/new')), -4),
 					substr(sprintf('%o', fileperms(APP_STORAGE_PATH.'/mail/fail')), -4),
 					substr(sprintf('%o', fileperms(APP_TEMP_PATH)), -4),
-					substr(sprintf('%o', fileperms(APP_TEMP_PATH.'/templates_c')), -4),
+					substr(sprintf('%o', fileperms(APP_SMARTY_COMPILE_PATH)), -4),
 					substr(sprintf('%o', fileperms(APP_TEMP_PATH.'/cache')), -4),
 					PHP_VERSION,
 					PHP_OS . ' (' . php_uname() . ')',

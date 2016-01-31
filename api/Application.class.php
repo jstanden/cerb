@@ -255,12 +255,12 @@ class CerberusApplication extends DevblocksApplication {
 			$errors[] = APP_TEMP_PATH ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 
-		if(!file_exists(APP_TEMP_PATH . "/templates_c")) {
-			@mkdir(APP_TEMP_PATH . "/templates_c");
+		if(!file_exists(APP_SMARTY_COMPILE_PATH)) {
+			@mkdir(APP_SMARTY_COMPILE_PATH);
 		}
 
-		if(!is_writeable(APP_TEMP_PATH . "/templates_c/")) {
-			$errors[] = APP_TEMP_PATH . "/templates_c/" . " is not writeable by the webserver.  Please adjust permissions and reload this page.";
+		if(!is_writeable(APP_SMARTY_COMPILE_PATH)) {
+			$errors[] = APP_SMARTY_COMPILE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 
 		if(!file_exists(APP_TEMP_PATH . "/cache")) {
