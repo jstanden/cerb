@@ -1213,9 +1213,10 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				%s
 				PRIMARY KEY (id),
 				FULLTEXT content (content)
-			) ENGINE=MyISAM CHARACTER SET=utf8;", // MUST stay ENGINE=MyISAM
+			) ENGINE=%s CHARACTER SET=utf8;",
 			$this->escapeNamespace($namespace),
-			(!empty($attributes_sql) ? implode(",\n", $attributes_sql) : '')
+			(!empty($attributes_sql) ? implode(",\n", $attributes_sql) : ''),
+			APP_DB_ENGINE_FULLTEXT
 		);
 		
 		$result = $db->ExecuteMaster($sql);

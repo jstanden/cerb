@@ -8,6 +8,9 @@ if(!defined('APP_DB_PREFIX'))
 if(!defined('APP_DB_ENGINE'))
 	define('APP_DB_ENGINE','MyISAM');
 
+if(!defined('APP_DB_ENGINE_FULLTEXT'))
+	define('APP_DB_ENGINE_FULLTEXT','MyISAM');
+
 if(!defined('APP_DB_DATABASE'))
 	define('APP_DB_DATABASE','');
 
