@@ -42,8 +42,10 @@ class _DevblocksDatabaseManager {
 		
 		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
 		
-			DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the master database. Please check MySQL and the framework.config.php settings.", 500);
 		if(false == ($db = $this->_connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent, APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS))) {
+			error_log(sprintf("[Cerb] Error connecting to the master database (%s). Please check MySQL and the framework.config.php settings.", APP_DB_HOST), E_USER_ERROR);
+			DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the master database.", 500);
+		}
 		
 		$this->_connections['master'] = $db;
 		
@@ -64,8 +66,10 @@ class _DevblocksDatabaseManager {
 		$user = (defined('APP_DB_SLAVE_USER') && APP_DB_SLAVE_USER) ? APP_DB_SLAVE_USER : APP_DB_USER;
 		$pass = (defined('APP_DB_SLAVE_PASS') && APP_DB_SLAVE_PASS) ? APP_DB_SLAVE_PASS : APP_DB_PASS;
 		
-			DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the slave database. Please check MySQL and the framework.config.php settings.", 500);
 		if(false == ($db = $this->_connect(APP_DB_SLAVE_HOST, $user, $pass, APP_DB_DATABASE, $persistent, APP_DB_OPT_SLAVE_CONNECT_TIMEOUT_SECS))) {
+			error_log(sprintf("[Cerb] Error connecting to the slave database (%s).", APP_DB_SLAVE_HOST), E_USER_ERROR);
+			return $this->_connectMaster();
+		}
 		
 		$this->_connections['slave'] = $db;
 		
