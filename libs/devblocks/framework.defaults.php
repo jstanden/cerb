@@ -32,6 +32,12 @@ if(!defined('APP_DB_SLAVE_USER'))
 if(!defined('APP_DB_SLAVE_PASS'))
 	define('APP_DB_SLAVE_PASS','');
 
+if(!defined('APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS'))
+	define('APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS', 5);
+
+if(!defined('APP_DB_OPT_SLAVE_CONNECT_TIMEOUT_SECS'))
+	define('APP_DB_OPT_SLAVE_CONNECT_TIMEOUT_SECS', 1);
+
 if(!defined('DEVBLOCKS_LANGUAGE'))
 	define('DEVBLOCKS_LANGUAGE','en');
 

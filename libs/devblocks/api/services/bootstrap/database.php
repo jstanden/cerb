@@ -42,8 +42,8 @@ class _DevblocksDatabaseManager {
 		
 		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
 		
-		if(false == ($db = $this->_connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent)))
 			DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the master database. Please check MySQL and the framework.config.php settings.", 500);
+		if(false == ($db = $this->_connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent, APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS))) {
 		
 		$this->_connections['master'] = $db;
 		
@@ -64,21 +64,25 @@ class _DevblocksDatabaseManager {
 		$user = (defined('APP_DB_SLAVE_USER') && APP_DB_SLAVE_USER) ? APP_DB_SLAVE_USER : APP_DB_USER;
 		$pass = (defined('APP_DB_SLAVE_PASS') && APP_DB_SLAVE_PASS) ? APP_DB_SLAVE_PASS : APP_DB_PASS;
 		
-		if(false == ($db = $this->_connect(APP_DB_SLAVE_HOST, $user, $pass, APP_DB_DATABASE, $persistent)))
 			DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the slave database. Please check MySQL and the framework.config.php settings.", 500);
+		if(false == ($db = $this->_connect(APP_DB_SLAVE_HOST, $user, $pass, APP_DB_DATABASE, $persistent, APP_DB_OPT_SLAVE_CONNECT_TIMEOUT_SECS))) {
 		
 		$this->_connections['slave'] = $db;
 		
 		return $db;
 	}
 	
-	private function _connect($host, $user, $pass, $database, $persistent=false) {
+	private function _connect($host, $user, $pass, $database, $persistent=false, $timeout_secs=5) {
+		$db = mysqli_init();
+		
+		mysqli_options($db, MYSQLI_OPT_CONNECT_TIMEOUT, $timeout_secs);
+		
 		if($persistent)
 			$host = 'p:' . $host;
 		
-		if(false === ($db = @mysqli_connect($host, $user, $pass, $database)))
+		if(!@mysqli_real_connect($db, $host, $user, $pass, $database))
 			return false;
-
+		
 		// Set the character encoding for this connection
 		mysqli_set_charset($db, DB_CHARSET_CODE);
 		
