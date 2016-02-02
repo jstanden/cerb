@@ -37,7 +37,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		
 		// Security
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
-			die($translate->_('common.access_denied'));
+			DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
 
 		switch($alias) {
 			case '_fetch':
@@ -302,7 +302,9 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		header('Accept-Ranges: bytes');
 		header('Content-Type: image/png');
 		
-		$im = @imagecreate(100, 100); // or die("Cannot Initialize new GD image stream");
+		if(false == ($im = @imagecreate(100, 100)))
+			DevblocksPlatform::dieWithHttpError(null, 500);
+			
 		$background_color = imagecolorallocate($im, $r_rand, $g_rand, $b_rand);
 		$text_color = imagecolorallocate($im, 255, 255, 255);
 		//imagerectangle($im, $x, $y, $x+$box_width, $y-$box_height, $text_color);

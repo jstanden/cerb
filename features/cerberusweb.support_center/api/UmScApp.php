@@ -193,12 +193,11 @@ class UmScApp extends Extension_UsermeetTool {
 			
 				// ...and the CSRF token is invalid for this session, freak out
 				if(!$umsession->csrf_token || $umsession->csrf_token != $request->csrf_token) {
-					header("Status: 403");
 					@$referer = $_SERVER['HTTP_REFERER'];
 					@$remote_addr = $_SERVER['REMOTE_ADDR'];
 					
 					error_log(sprintf("[Cerb/Security] Possible CSRF attack from IP %s using referrer %s", $remote_addr, $referer), E_USER_WARNING);
-					die("Access denied");
+					DevblocksPlatform::dieWithHttpError("Access denied", 403);
 				}
 			}
 		}
@@ -255,7 +254,7 @@ class UmScApp extends Extension_UsermeetTool {
 		
 		// Usermeet Session
 		if(null == ($fingerprint = ChPortalHelper::getFingerprint())) {
-			die("A problem occurred.");
+			DevblocksPlatform::dieWithHttpError("A problem occurred.", 500);
 		}
 		$tpl->assign('fingerprint', $fingerprint);
 
@@ -286,7 +285,9 @@ class UmScApp extends Extension_UsermeetTool {
 				$phrase = CerberusApplication::generatePassword(4);
 				$umsession->setProperty(UmScApp::SESSION_CAPTCHA, $phrase);
 				
-				$im = @imagecreate(150, 70) or die("Cannot Initialize new GD image stream");
+				if(false == ($im = imagecreate(150, 70)))
+					DevblocksPlatform::dieWithHttpError(null, 500);
+				
 				$background_color = imagecolorallocate($im, $bgcolor[0], $bgcolor[1], $bgcolor[2]);
 				$text_color = imagecolorallocate($im, $color[0], $color[1], $color[2]);
 				$font = DEVBLOCKS_PATH . 'resources/font/Oswald-Bold.ttf';

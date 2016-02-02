@@ -50,8 +50,7 @@ class ChPageController extends DevblocksControllerExtension {
 		if(empty($page)) {
 			switch($controller) {
 				case "portal":
-					header("Status: 404");
-					die(); // 404
+					DevblocksPlatform::dieWithHttpError(null, 404);
 					break;
 					
 				default:
@@ -76,7 +75,7 @@ class ChPageController extends DevblocksControllerExtension {
 					}
 				} else {
 					// if Ajax [TODO] percolate isAjax from platform to handleRequest
-					// die("Access denied.  Session expired?");
+					// DevblocksPlatform::dieWithHttpError("Access denied.  Session expired?", 403);
 				}
 
 				break;
@@ -137,14 +136,13 @@ class ChPageController extends DevblocksControllerExtension {
 		}
 		
 		if(empty($page)) {
-			//header("HTTP/1.1 404 Not Found");
-			//header("Status: 404 Not Found");
-			//DevblocksPlatform::redirect(new DevblocksHttpResponse(''));
 			$tpl->assign('settings', $settings);
 			$tpl->assign('session', $_SESSION);
 			$tpl->assign('translate', $translate);
 			$tpl->assign('visit', $visit);
-			$tpl->display('devblocks:cerberusweb.core::404.tpl');
+			$message = $tpl->fetch('devblocks:cerberusweb.core::404.tpl');
+			
+			DevblocksPlatform::dieWithHttpError($message, 404);
 			return;
 		}
 		

@@ -15,11 +15,15 @@
 |	http://www.cerbweb.com	    http://www.webgroupmedia.com/
 ***********************************************************************/
 
-if(version_compare(PHP_VERSION, "5.3", "<"))
+if(version_compare(PHP_VERSION, "5.3", "<")) {
+	header('Status: 500');
 	die("Cerb requires PHP 5.3 or later.");
+}
 
-if(!extension_loaded('mysqli'))
+if(!extension_loaded('mysqli')) {
+	header('Status: 500');
 	die("Cerb requires the 'mysqli' PHP extension.  Please enable it.");
+}
 
 @set_time_limit(3600); // 1hr
 require('../framework.config.php');
@@ -74,15 +78,15 @@ if(empty($step)) $step = STEP_ENVIRONMENT;
 
 // Make sure the temporary directories of Devblocks are writeable.
 if(!is_writeable(APP_TEMP_PATH)) {
-	die(APP_TEMP_PATH ." is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	DevblocksPlatform::dieWithHttpError(APP_TEMP_PATH ." is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }
 
 if(!is_writeable(APP_SMARTY_COMPILE_PATH)) {
-	die(APP_SMARTY_COMPILE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	DevblocksPlatform::dieWithHttpError(APP_SMARTY_COMPILE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }
 
 if(!is_writeable(APP_TEMP_PATH . "/cache/")) {
-	die(APP_TEMP_PATH . "/cache/" . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	DevblocksPlatform::dieWithHttpError(APP_TEMP_PATH . "/cache/" . " is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }
 
 @chmod(APP_STORAGE_PATH, 0774);
@@ -90,23 +94,23 @@ if(!is_writeable(APP_TEMP_PATH . "/cache/")) {
 @chmod(APP_STORAGE_PATH . '/mail/fail/', 0774);
 
 if(!is_writeable(APP_STORAGE_PATH)) {
-	die(APP_STORAGE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }
 
 if(!is_writeable(APP_STORAGE_PATH . "/import/fail/")) {
-	die(APP_STORAGE_PATH . "/import/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . "/import/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }
 
 if(!is_writeable(APP_STORAGE_PATH . "/import/new/")) {
-	die(APP_STORAGE_PATH . "/import/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . "/import/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }
 
 if(!is_writeable(APP_STORAGE_PATH . "/mail/new/")) {
-	die(APP_STORAGE_PATH . "/mail/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . "/mail/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }
 
 if(!is_writeable(APP_STORAGE_PATH . "/mail/fail/")) {
-	die(APP_STORAGE_PATH . "/mail/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.");
+	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . "/mail/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }
 
 // [TODO] Move this to the framework init (installer blocks this at the moment)

@@ -11,7 +11,7 @@ class UmScAvatarController extends Extension_UmScController {
 
 		// Usermeet Session
 		if(null == ($fingerprint = ChPortalHelper::getFingerprint())) {
-			die("A problem occurred.");
+			DevblocksPlatform::dieWithHttpError("A problem occurred.", 500);
 		}
 		$tpl->assign('fingerprint', $fingerprint);
 	}
@@ -231,7 +231,9 @@ class UmScAvatarController extends Extension_UmScController {
 		header('Accept-Ranges: bytes');
 		header('Content-Type: image/png');
 		
-		$im = @imagecreate(100, 100); // or die("Cannot Initialize new GD image stream");
+		if(false == ($im = @imagecreate(100, 100)))
+			DevblocksPlatform::dieWithHttpError(null, 500);
+		
 		$background_color = imagecolorallocate($im, $r_rand, $g_rand, $b_rand);
 		$text_color = imagecolorallocate($im, 255, 255, 255);
 		//imagerectangle($im, $x, $y, $x+$box_width, $y-$box_height, $text_color);

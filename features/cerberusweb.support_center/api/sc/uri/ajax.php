@@ -11,7 +11,7 @@ class UmScAjaxController extends Extension_UmScController {
 
 		// Usermeet Session
 		if(null == ($fingerprint = ChPortalHelper::getFingerprint())) {
-			die("A problem occurred.");
+			DevblocksPlatform::dieWithHttpError("A problem occurred.", 500);
 		}
 		$tpl->assign('fingerprint', $fingerprint);
 	}

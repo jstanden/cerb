@@ -43,7 +43,7 @@ class _DevblocksDatabaseManager {
 		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
 		
 		if(false == ($db = $this->_connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent)))
-			die("[Cerb] Error connecting to the master database. Please check MySQL and the framework.config.php settings.");
+			DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the master database. Please check MySQL and the framework.config.php settings.", 500);
 		
 		$this->_connections['master'] = $db;
 		
@@ -65,7 +65,7 @@ class _DevblocksDatabaseManager {
 		$pass = (defined('APP_DB_SLAVE_PASS') && APP_DB_SLAVE_PASS) ? APP_DB_SLAVE_PASS : APP_DB_PASS;
 		
 		if(false == ($db = $this->_connect(APP_DB_SLAVE_HOST, $user, $pass, APP_DB_DATABASE, $persistent)))
-			die("[Cerb] Error connecting to the slave database. Please check MySQL and the framework.config.php settings.");
+			DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the slave database. Please check MySQL and the framework.config.php settings.", 500);
 		
 		$this->_connections['slave'] = $db;
 		

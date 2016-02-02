@@ -22,7 +22,7 @@ class DevblocksProxy {
 	}
 
 	function _get($remote_host, $remote_uri) {
-		die("Subclass abstract " . __CLASS__ . "...");
+		DevblocksPlatform::dieWithHttpError("Subclass abstract " . __CLASS__ . "...", 501);
 	}
 
 };

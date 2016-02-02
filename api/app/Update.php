@@ -192,7 +192,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 					
 			} catch(Exception $e) {
 				unlink($file);
-				die($e->getMessage());
+				DevblocksPlatform::dieWithError($e->getMessage());
 			}
 		}
 		

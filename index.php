@@ -47,11 +47,15 @@
  *	 Webgroup Media LLC - Developers of Cerb
  */
 
-if(version_compare(PHP_VERSION, "5.3", "<"))
+if(version_compare(PHP_VERSION, "5.3", "<")) {
+	header('Status: 500');
 	die("Cerb requires PHP 5.3 or later.");
+}
 
-if(!extension_loaded('mysqli'))
+if(!extension_loaded('mysqli')) {
+	header('Status: 500');
 	die("Cerb requires the 'mysqli' PHP extension.  Please enable it.");
+}
 
 require(getcwd() . '/framework.config.php');
 require(DEVBLOCKS_PATH . 'Devblocks.class.php');

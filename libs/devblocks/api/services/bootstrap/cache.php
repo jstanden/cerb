@@ -59,7 +59,7 @@ class _DevblocksCacheManager {
 		
 		if(false == ($ext = new $class_name($manifest))
 			|| false === ($ext->setConfig(array())))
-				die("[ERROR] Can't initialize the Devblocks cache.");
+				DevblocksPlatform::dieWithHttpError("[ERROR] Can't initialize the Devblocks cache.", 500);
 			
 		// Always keep the disk cacher around, since we'll need it for the bootstrap caches
 		self::$_bootstrap_cacher = $ext;

@@ -54,7 +54,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 				return $tool->handleRequest($delegate_request);
 			}
 		} else {
-			die("Tool not found.");
+			DevblocksPlatform::dieWithHttpError("Tool not found.", 404);
 		}
 	}
 	
@@ -80,7 +80,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 				$tool->writeResponse(new DevblocksHttpResponse($stack));
 			}
 		} else {
-			die("Tool not found.");
+			DevblocksPlatform::dieWithHttpError("Tool not found.", 404);
 		}
 	}
 };

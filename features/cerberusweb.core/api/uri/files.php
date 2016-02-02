@@ -36,15 +36,15 @@ class ChFilesController extends DevblocksControllerExtension {
 		
 		// Security
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
-			die($translate->_('common.access_denied'));
+			DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
 		
 		if(empty($file_guid) || empty($file_name))
-			die($translate->_('files.not_found'));
+			DevblocksPlatform::dieWithHttpError($translate->_('files.not_found'), 404);
 		
 		// Are we being asked for the direct SHA1 hash of a file?
 		if(strlen($file_guid) == 40) {
 			if(null == ($file_id = DAO_Attachment::getBySha1Hash($file_guid)))
-				die($translate->_('common.access_denied'));
+				DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
 			
 			$file = DAO_Attachment::get($file_id);
 			
@@ -53,24 +53,24 @@ class ChFilesController extends DevblocksControllerExtension {
 			$link = DAO_AttachmentLink::getByGUID($file_guid);
 			
 			if(empty($link))
-				die($translate->_('files.error_link_read'));
+				DevblocksPlatform::dieWithHttpError($translate->_('files.error_link_read'), 500);
 			
 			if(null == ($context = $link->getContext()))
-				die($translate->_('common.access_denied'));
+				DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
 			
 			// Security
 			if(!$context->authorize($link->context_id, $active_worker))
-				die($translate->_('common.access_denied'));
+				DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
 			
 			$file = $link->getAttachment();
 		}
 		
 		if(empty($file))
-			die($translate->_('files.not_found'));
+			DevblocksPlatform::dieWithHttpError($translate->_('files.not_found'), 404);
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
-			die($translate->_('files.error_temp_open'));
+			DevblocksPlatform::dieWithHttpError($translate->_('files.error_temp_open'), 500);
 		if(false === $file->getFileContents($fp))
-			die($translate->_('files.error_resource_read'));
+			DevblocksPlatform::dieWithHttpError($translate->_('files.error_resource_read'), 500);
 			
 		$file_stats = fstat($fp);
 		

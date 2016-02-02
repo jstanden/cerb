@@ -528,11 +528,11 @@ abstract class DevblocksEngine {
 
 				$file = implode(DIRECTORY_SEPARATOR, $path); // combine path
 				$dir = $plugin->getStoragePath() . '/' . 'resources';
-				if(!is_dir($dir)) die(""); // basedir Security
+				if(!is_dir($dir)) DevblocksPlatform::dieWithHttpError(null, 403); // basedir security
 				$resource = $dir . '/' . $file;
-				if(0 != strstr($dir,$resource)) die("");
+				if(0 != strstr($dir,$resource)) DevblocksPlatform::dieWithHttpError(null, 403);
 				$ext = @array_pop(explode('.', $resource));
-				if(!is_file($resource) || 'php' == $ext) die(""); // extension security
+				if(!is_file($resource) || 'php' == $ext) DevblocksPlatform::dieWithHttpError(null, 403); // extension security
 
 				// Caching
 				switch($ext) {
@@ -627,12 +627,11 @@ abstract class DevblocksEngine {
 			
 				// ...and the CSRF token is invalid for this session, freak out
 				if(!isset($_SESSION['csrf_token']) || $_SESSION['csrf_token'] != $request->csrf_token) {
-					header("Status: 403");
 					@$referer = $_SERVER['HTTP_REFERER'];
 					@$remote_addr = $_SERVER['REMOTE_ADDR'];
 					
 					error_log(sprintf("[Cerb/Security] Possible CSRF attack from IP %s using referrer %s", $remote_addr, $referer), E_USER_WARNING);
-					die("Access denied");
+					DevblocksPlatform::dieWithHttpError("Access denied", 403);
 				}
 			}
 		}
@@ -653,7 +652,7 @@ abstract class DevblocksEngine {
 				}
 
 				if(empty($controllers))
-					die("No controllers are available!");
+					DevblocksPlatform::dieWithHttpError("No controllers are available!", 500);
 
 				// Set our controller based on the results
 				$controller_mft = (isset($routing[$controller_uri]))
@@ -680,8 +679,7 @@ abstract class DevblocksEngine {
 					}
 
 				} else {
-					header("Status: 404");
-					die();
+					DevblocksPlatform::dieWithHttpError(null, 404);
 				}
 
 				break;

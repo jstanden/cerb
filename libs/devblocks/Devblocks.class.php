@@ -2684,6 +2684,36 @@ class DevblocksPlatform extends DevblocksEngine {
 		exit;
 	}
 	
+	static function dieWithHttpError($message, $status_code=500) {
+		switch($status_code) {
+			case 403:
+				header('Status: 403 Forbidden');
+				break;
+				
+			case 404:
+				header('Status: 404 Not Found');
+				break;
+				
+			case 500:
+				header('Status: 500 Internal Server Error');
+				break;
+				
+			case 501:
+				header('Status: 501 Not Implemented');
+				break;
+				
+			case 503:
+				header('Status: 503 Service Unavailable');
+				break;
+				
+			default:
+				header('Status: ' . intval($status_code));
+				break;
+		}
+		
+		die($message);
+	}
+	
 	static function markContextChanged($context, $context_ids) {
 		if(empty($context_ids))
 			return;
