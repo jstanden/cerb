@@ -1527,7 +1527,7 @@ class DevblocksEventHelper {
 						$dict->$var = $data;
 					
 					if(!empty($behavior_var)) {
-						if(!isset($dict->$behavior_var))
+						if(!isset($dict->$behavior_var) || !is_array($dict->$behavior_var))
 							$dict->$behavior_var = array();
 						
 						$ptr =& $dict->$behavior_var;
@@ -1630,10 +1630,10 @@ class DevblocksEventHelper {
 					continue;
 				
 				try {
-					$v = $behavior->formatVariable($behavior->variables[$k], $v);
-					
 					if(is_string($v))
 						$v = $tpl_builder->build($v, $dict);
+
+					$v = $behavior->formatVariable($behavior->variables[$k], $v);
 					
 					$vars[$k] = $v;
 					
@@ -1751,10 +1751,10 @@ class DevblocksEventHelper {
 					continue;
 				
 				try {
-					$v = $behavior->formatVariable($behavior->variables[$k], $v);
-					
 					if(is_string($v))
 						$v = $tpl_builder->build($v, $dict);
+
+					$v = $behavior->formatVariable($behavior->variables[$k], $v);
 					
 					$vars[$k] = $v;
 					
@@ -1898,10 +1898,10 @@ class DevblocksEventHelper {
 					continue;
 				
 				try {
-					$v = $behavior->formatVariable($behavior->variables[$k], $v);
-					
 					if(is_string($v))
 						$v = $tpl_builder->build($v, $dict);
+					
+					$v = $behavior->formatVariable($behavior->variables[$k], $v);
 					
 					$vars[$k] = $v;
 					
@@ -1982,6 +1982,8 @@ class DevblocksEventHelper {
 				try {
 					if(is_string($v))
 						$v = $tpl_builder->build($v, $dict);
+					
+					$v = $behavior->formatVariable($behavior->variables[$k], $v);
 					
 					$vars[$k] = $v;
 					
