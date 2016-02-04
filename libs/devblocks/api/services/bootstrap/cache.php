@@ -1,5 +1,5 @@
 <?php
-// [TODO] XCache and APC drivers
+// [TODO] opcache, XCache, and APC drivers
 class _DevblocksCacheManager {
 	private static $instance = null;
 	private static $_cacher = null;
@@ -27,6 +27,9 @@ class _DevblocksCacheManager {
 	public function setEngine($extension_id, $config) {
 		// If it's the same, ignore.
 		if(self::$_cacher->id == $extension_id)
+			return;
+		
+		if(defined('DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE') && DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE)
 			return;
 		
 		if(false !== ($ext = Extension_DevblocksCacheEngine::get($extension_id))) {

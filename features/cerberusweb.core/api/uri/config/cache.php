@@ -17,6 +17,9 @@
 
 class PageSection_SetupCache extends Extension_PageSection {
 	function render() {
+		if(DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$cache = DevblocksPlatform::getCacheService();
 		$visit = CerberusApplication::getVisit();
@@ -31,6 +34,9 @@ class PageSection_SetupCache extends Extension_PageSection {
 	}
 	
 	function showCachePeekAction() {
+		if(DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -48,6 +54,9 @@ class PageSection_SetupCache extends Extension_PageSection {
 	}
 	
 	function saveCachePeekAction() {
+		if(DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		@$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'],'string','');
 		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
 
