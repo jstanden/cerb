@@ -44,9 +44,15 @@ if(!defined('DEVBLOCKS_LANGUAGE'))
 if(!defined('DEVBLOCKS_REWRITE'))
 	define('DEVBLOCKS_REWRITE',false);
 
+if(!defined('DEVBLOCKS_CACHE_ENGINE'))
+	define('DEVBLOCKS_CACHE_ENGINE', 'devblocks.cache.engine.disk');
+
 if(!defined('DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE'))
 	define('DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE', false);
 	
+if(!defined('DEVBLOCKS_CACHE_ENGINE_OPTIONS'))
+	define('DEVBLOCKS_CACHE_ENGINE_OPTIONS', json_encode(array()));
+
 if(!defined('APP_DEFAULT_CONTROLLER'))
 	define('APP_DEFAULT_CONTROLLER',''); // 404?
 
