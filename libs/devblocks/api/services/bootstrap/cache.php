@@ -361,19 +361,17 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 			$wrapper['cache_until'] = time() + $ttl;
 		}
 		
-		if(false === ($fp = fopen($cache_file, 'a+')))
+		if(false === ($fp = fopen($cache_file, 'w')))
 			return false;
 		
 		// Lock for writing
 		flock($fp, LOCK_EX);
-		fseek($fp, 0);
-		ftruncate($fp, 0);
 		
 		if(false === fwrite($fp, serialize($wrapper)))
 			return false;
 		
 		// Set the permissions more securely
-		chmod($cache_file, 0640);
+		chmod($cache_file, 0660);
 		
 		fclose($fp);
 		
