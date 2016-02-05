@@ -340,13 +340,14 @@ class DevblocksEventHelper {
 		
 		$out = '';
 		
-		$out .= sprintf(">>> Setting %s to:\n",
-			$custom_field->name
-		);
-		
 		switch($custom_field->type) {
 			case Model_CustomField::TYPE_CHECKBOX:
 				@$value = $params['value'];
+				
+				$out .= sprintf(">>> Setting %s to:\n",
+					$custom_field->name
+				);
+				
 				$out .= sprintf("%s\n",
 					!empty($value) ? 'yes' : 'no'
 				);
@@ -361,13 +362,52 @@ class DevblocksEventHelper {
 				
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_MULTI_LINE:
-			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_URL:
 				@$value = $params['value'];
 				
 				$builder = DevblocksPlatform::getTemplateBuilder();
 				$value = $builder->build($value, $dict);
+
+				$out .= sprintf(">>> Setting %s to:\n",
+					$custom_field->name
+				);
+				
+				$out .= sprintf("%s\n",
+					$value
+				);
+				 
+				if(!empty($value_key)) {
+					$dict->$value_key.'_'.$field_id = $value;
+					
+					$array =& $dict->$value_key;
+					$array[$field_id] = $value;
+				}
+				break;
+				
+			case Model_CustomField::TYPE_DROPDOWN:
+				@$value = $params['value'];
+				
+				$builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $builder->build($value, $dict);
+				
+				if(!isset($custom_field->params['options']) || !is_array($custom_field->params['options'])) {
+					$out .= "[ERROR] The picklist custom field has no options. Ignoring.";
+					break;
+				}
+				
+				$possible_values = array_map('strtolower', $custom_field->params['options']);
+				
+				if(false !== ($value_idx = array_search(strtolower($value), $possible_values))) {
+					$value = $custom_field->params['options'][$value_idx];
+				} else {
+					$out .= sprintf("[ERROR] The given value (%s) doesn't exist in the picklist. Ignoring.", $value);
+					break;
+				}
+				
+				$out .= sprintf(">>> Setting %s to:\n",
+					$custom_field->name
+				);
 				
 				$out .= sprintf("%s\n",
 					$value
@@ -383,6 +423,10 @@ class DevblocksEventHelper {
 			
 			case Model_CustomField::TYPE_DATE:
 				@$mode = $params['mode'];
+				
+				$out .= sprintf(">>> Setting %s to:\n",
+					$custom_field->name
+				);
 				
 				switch($mode) {
 					case 'calendar':
@@ -424,6 +468,10 @@ class DevblocksEventHelper {
 				
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				@$opts = $params['values'];
+				
+				$out .= sprintf(">>> Setting %s to:\n",
+					$custom_field->name
+				);
 
 				$out .= sprintf("%s\n",
 					implode(', ', $opts)
@@ -440,6 +488,10 @@ class DevblocksEventHelper {
 				
 			case Model_CustomField::TYPE_WORKER:
 				@$worker_id = $params['worker_id'];
+				
+				$out .= sprintf(">>> Setting %s to:\n",
+					$custom_field->name
+				);
 				
 				// Variable?
 				if(substr($worker_id,0,4) == 'var_') {
@@ -503,7 +555,6 @@ class DevblocksEventHelper {
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_MULTI_LINE:
 			case Model_CustomField::TYPE_CHECKBOX:
-			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_URL:
 				@$value = $params['value'];
@@ -512,6 +563,25 @@ class DevblocksEventHelper {
 				$value = $builder->build($value, $dict);
 				
 				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value);
+
+				if(!empty($value_key)) {
+					$dict->$value_key.'_'.$field_id = $value;
+
+					$array =& $dict->$value_key;
+					$array[$field_id] = $value;
+				}
+				break;
+				
+			case Model_CustomField::TYPE_DROPDOWN:
+				@$value = $params['value'];
+				
+				$builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $builder->build($value, $dict);
+				
+				$possible_values = array_map('strtolower', $custom_field->params['options']);
+				
+				if(false === (DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value)))
+					break;
 
 				if(!empty($value_key)) {
 					$dict->$value_key.'_'.$field_id = $value;
