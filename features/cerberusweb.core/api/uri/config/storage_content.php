@@ -86,6 +86,9 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 	}
 	
 	function showStorageSchemaPeekAction() {
+		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -100,6 +103,9 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 	}
 	
 	function saveStorageSchemaPeekAction() {
+		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
 		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
