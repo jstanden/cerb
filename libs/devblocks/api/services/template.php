@@ -29,18 +29,19 @@ class _DevblocksTemplateManager {
 			$instance->compile_dir = APP_SMARTY_COMPILE_PATH;
 			$instance->cache_dir = APP_TEMP_PATH . '/cache';
 
-			$instance->use_sub_dirs = false;
+			$instance->use_sub_dirs = APP_SMARTY_COMPILE_USE_SUBDIRS;
 
 			$instance->caching = 0;
 			$instance->cache_lifetime = 0;
-			$instance->compile_check = DEVELOPMENT_MODE ? true : false;
 			
+			$instance->compile_check = DEVELOPMENT_MODE ? Smarty::COMPILECHECK_ON : Smarty::COMPILECHECK_OFF;
+			$instance->compile_id = APP_BUILD;
+
 			$instance->error_unassigned = false;
 			$instance->error_reporting = DEVELOPMENT_MODE ? (E_ALL & ~E_NOTICE) : (E_ERROR & ~E_NOTICE);
 			
 			// Auto-escape HTML output
 			$instance->loadFilter('variable','htmlspecialchars');
-			//$instance->register->variableFilter(array('_DevblocksTemplateManager','variable_filter_esc'));
 			
 			// Devblocks plugins
 			$instance->registerPlugin('block','devblocks_url', array('_DevblocksTemplateManager', 'block_devblocks_url'));
@@ -54,6 +55,7 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('modifier','devblocks_prettybytes', array('_DevblocksTemplateManager', 'modifier_devblocks_prettybytes'));
 			$instance->registerPlugin('modifier','devblocks_prettysecs', array('_DevblocksTemplateManager', 'modifier_devblocks_prettysecs'));
 			$instance->registerPlugin('modifier','devblocks_translate', array('_DevblocksTemplateManager', 'modifier_devblocks_translate'));
+			
 			$instance->registerResource('devblocks', new _DevblocksSmartyTemplateResource());
 		}
 		return $instance;
