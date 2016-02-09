@@ -31,7 +31,7 @@ class _DevblocksTemplateManager {
 
 			$instance->use_sub_dirs = APP_SMARTY_COMPILE_USE_SUBDIRS;
 
-			$instance->caching = 0;
+			$instance->caching = Smarty::CACHING_OFF;
 			$instance->cache_lifetime = 0;
 			
 			$instance->compile_check = DEVELOPMENT_MODE ? Smarty::COMPILECHECK_ON : Smarty::COMPILECHECK_OFF;
@@ -317,17 +317,36 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 		// If not in DB, check plugin's relative path on disk
 		$path = $plugin->getStoragePath() . '/templates/' . $tpl_path;
 		
-		if(!file_exists($path))
+		if(false == ($source = @file_get_contents($path)))
 			return false;
 		
-		$stat = stat($path);
+		// Check the modified timestamp
+		$mtime = filemtime($path);
 		
-		$source = file_get_contents($path);
-		$mtime = $stat['mtime'];
 		return true;
 	}
 	
 	protected function fetchTimestamp($name) {
-		return null;
+		list($plugin_id, $tag, $tpl_path) = explode(':',$name,3);
+		
+		if(empty($plugin_id) || empty($tpl_path))
+			return false;
+		
+		$plugins = DevblocksPlatform::getPluginRegistry();
+			
+		if(null == ($plugin = @$plugins[$plugin_id])) /* @var $plugin DevblocksPluginManifest */
+			return false;
+		
+		// If we can overload this template through the DB, don't return an mtime (faster to do one query)
+		if(true || isset($plugin->manifest_cache['templates']))
+			return null;
+		
+		// Otherwise, check the mtime via the plugin's relative path on disk
+		$path = $plugin->getStoragePath() . '/templates/' . $tpl_path;
+		
+		if(false == ($mtime = @filemtime($path)))
+			return false;
+		
+		return $mtime;
 	}
 };
