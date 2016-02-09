@@ -2,11 +2,15 @@
 
 <div id="pluginTabs">
 	<ul>
-		{$tabs = [installed,library]}
+		{$tabs = [installed]}
 		{$point = 'setup.plugins.tab'}
 		
 		<li data-alias="installed"><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=plugins&action=showTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">Installed Plugins</a></li>
-		<li data-alias="library"><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=plugin_library&action=showTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">Plugin Library</a></li>
+		
+		{if $smarty.const.CERB_FEATURES_PLUGIN_LIBRARY}
+			{$tabs[] = 'plugin'}
+			<li data-alias="library"><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=plugin_library&action=showTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">Plugin Library</a></li>
+		{/if}
 	</ul>
 </div> 
 <br>
@@ -19,4 +23,3 @@ $(function() {
 	var tabs = $("#pluginTabs").tabs(tabOptions);
 });
 </script>
-

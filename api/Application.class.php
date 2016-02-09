@@ -420,7 +420,7 @@ class CerberusApplication extends DevblocksApplication {
 
 		// Download updated plugins from repository
 		// [TODO] This causes problems on an intranet
-		if(class_exists('DAO_PluginLibrary'))
+		if(CERB_FEATURES_PLUGIN_LIBRARY && class_exists('DAO_PluginLibrary'))
 			DAO_PluginLibrary::downloadUpdatedPluginsFromRepository();
 
 		// Registry

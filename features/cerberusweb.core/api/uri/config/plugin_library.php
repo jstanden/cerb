@@ -19,11 +19,17 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 	const VIEW_PLUGIN_LIBRARY = 'plugin_library';
 	
 	function render() {
+		if(!CERB_FEATURES_PLUGIN_LIBRARY)
+			return;
+		
 		$visit = CerberusApplication::getVisit();
 		$visit->set(ChConfigurationPage::ID, 'plugin_library');
 	}
 	
 	function showTabAction() {
+		if(!CERB_FEATURES_PLUGIN_LIBRARY)
+			return;
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
@@ -46,6 +52,9 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 	}
 	
 	function syncAction() {
+		if(!CERB_FEATURES_PLUGIN_LIBRARY)
+			return;
+		
 		header('Content-Type: application/json');
 
 		if(!extension_loaded("curl") || false == ($results = DAO_PluginLibrary::downloadUpdatedPluginsFromRepository())) {
@@ -77,6 +86,9 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 	}
 	
 	function showDownloadPopupAction() {
+		if(!CERB_FEATURES_PLUGIN_LIBRARY)
+			return;
+		
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
@@ -98,6 +110,9 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 	}
 	
 	function saveDownloadPopupAction() {
+		if(!CERB_FEATURES_PLUGIN_LIBRARY)
+			return;
+		
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'integer',0);
 
 		try {

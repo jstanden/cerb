@@ -96,7 +96,7 @@
 				<a href="javascript:;" class="menu">Plugins <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=plugins&tab=installed{/devblocks_url}">Installed Plugins</a></li>
-					<li><a href="{devblocks_url}c=config&a=plugins&tab=library{/devblocks_url}">Plugin Library</a></li>
+					{if $smarty.const.CERB_FEATURES_PLUGIN_LIBRARY}<li><a href="{devblocks_url}c=config&a=plugins&tab=library{/devblocks_url}">Plugin Library</a></li>{/if}
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.plugins')}
 					{if !empty($exts)}<li><hr></li>{/if}
