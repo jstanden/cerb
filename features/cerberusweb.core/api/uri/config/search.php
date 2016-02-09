@@ -17,6 +17,9 @@
 
 class PageSection_SetupSearch extends Extension_PageSection {
 	function render() {
+		if(DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
@@ -31,6 +34,9 @@ class PageSection_SetupSearch extends Extension_PageSection {
 	}
 	
 	function showSearchSchemaPeekAction() {
+		if(DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -46,6 +52,9 @@ class PageSection_SetupSearch extends Extension_PageSection {
 	}
 	
 	function saveSearchSchemaPeekAction() {
+		if(DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		@$schema_extension_id = DevblocksPlatform::importGPC($_REQUEST['schema_extension_id'],'string','');
 		@$engine_extension_id = DevblocksPlatform::importGPC($_REQUEST['engine_extension_id'],'string','');
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',array());

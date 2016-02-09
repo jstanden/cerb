@@ -11,7 +11,7 @@
 					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
 					<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>
 					{if !$smarty.const.DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=cache{/devblocks_url}">Cache</a></li>{/if}
-					<li><a href="{devblocks_url}c=config&a=search{/devblocks_url}">Search</a></li>
+					{if !$smarty.const.DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=search{/devblocks_url}">Search</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
 					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">Snippets</a></li>
 					<li><a href="{devblocks_url}c=config&a=sessions{/devblocks_url}">Sessions</a></li>
