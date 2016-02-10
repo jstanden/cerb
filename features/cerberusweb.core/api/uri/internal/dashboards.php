@@ -1300,6 +1300,9 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 		
 		foreach($params['series'] as $idx => $series) {
+			// [TODO] The extension should be able to filter the properties here (on all widgets)
+			// [TODO] $datasource = $series['datasource'];
+			
 			// Convert the serialized model to proper JSON before saving
 		
 			if(isset($series['worklist_model_json'])) {

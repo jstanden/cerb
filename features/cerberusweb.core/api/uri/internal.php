@@ -1177,6 +1177,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$list = array();
 		
+		// [TODO] Abstractly handle '(no record)' blank functionality?
+		
 		if(false != ($context_ext = Extension_DevblocksContext::get($context))) {
 			if($context_ext instanceof IDevblocksContextAutocomplete)
 				$list = $context_ext->autocomplete($term);
