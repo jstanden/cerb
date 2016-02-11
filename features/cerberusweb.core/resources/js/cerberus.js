@@ -592,7 +592,7 @@ var cAjaxCalls = function() {
 				for(var idx in event.labels)
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
 						var $li = $('<li/>').text(event.labels[idx]);
-						var $hidden = $('<input type="hidden">').attr('name', field_name).attr('value',event.values[idx]).appendTo($li);
+						var $hidden = $('<input type="hidden">').attr('name', field_name + '[]').attr('value',event.values[idx]).appendTo($li);
 						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li); 
 						
 						if(null != options.style)
@@ -628,7 +628,7 @@ var cAjaxCalls = function() {
 					if(undefined != $label && undefined != $value) {
 						if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
 							var $li = $('<li/>').text($label);
-							var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
+							var $hidden = $('<input type="hidden">').attr('name', field_name + '[]').attr('title', $label).attr('value', $value).appendTo($li);
 							var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
 							$ul.append($li);
 						}

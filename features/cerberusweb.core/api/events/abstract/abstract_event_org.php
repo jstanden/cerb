@@ -325,8 +325,6 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'org_id');
 				break;
 				
-				
-				
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;

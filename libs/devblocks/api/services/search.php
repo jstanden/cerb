@@ -214,7 +214,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		$scope = null;
 
 		if(!is_array($param->value) && !is_string($param->value))
-			break;
+			return false;
 		
 		if(!is_array($param->value) && preg_match('#^\[.*\]$#', $param->value)) {
 			$values = json_decode($param->value, true);
@@ -593,7 +593,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		$scope = null;
 
 		if(!is_array($param->value) && !is_string($param->value))
-			break;
+			return false;
 		
 		if(!is_array($param->value) && preg_match('#^\[.*\]$#', $param->value)) {
 			$values = json_decode($param->value, true);
@@ -858,7 +858,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$scope = null;
 
 		if(!is_array($param->value) && !is_string($param->value))
-			break;
+			return false;
 		
 		if(!is_array($param->value) && preg_match('#^\[.*\]$#', $param->value)) {
 			$values = json_decode($param->value, true);

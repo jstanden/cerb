@@ -111,9 +111,8 @@ class CerberusInstaller {
 		$saved = FALSE;
 		
 		// [JAS]: First try to just write back to the config file directly
-		if(is_writeable(APP_PATH . "/framework.config.php")) {
-			@$fp_out = fopen(APP_PATH . "/framework.config.php","w");
-			if(empty($fp_out)) break;
+		if(is_writeable(APP_PATH . "/framework.config.php")
+			&& false !== (@$fp_out = fopen(APP_PATH . "/framework.config.php","w"))) {
 			
 			if(is_array($buffer)) {
 				$lines = count($buffer);

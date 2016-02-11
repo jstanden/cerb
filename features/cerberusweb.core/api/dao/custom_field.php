@@ -525,6 +525,14 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					$value = @strtotime($value);
 				break;
 			case Model_CustomField::TYPE_DROPDOWN:
+				$possible_values = array_map('strtolower', $field->params['options']);
+				
+				if(false !== ($value_idx = array_search(strtolower($value), $possible_values))) {
+					$value = $field->params['options'][$value_idx];
+				} else {
+					return FALSE;
+				}
+				break;
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_URL:
 				if(255 < strlen($value))

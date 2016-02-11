@@ -25,6 +25,8 @@ class UmScAvatarController extends Extension_UmScController {
 		@$alias = array_shift($stack); // contact
 		@$avatar_context_id = intval(array_shift($stack)); // 1
 		
+		// [TODO] Obscure IDs for contexts since this is displayed publicly (hash w/ uniqueness plus ID)
+		
 		// Only allow certain contexts
 		switch($alias) {
 			case 'address':

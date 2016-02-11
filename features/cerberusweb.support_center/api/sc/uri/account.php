@@ -212,6 +212,7 @@ class UmScAccountController extends Extension_UmScController {
 		}
 		
 		// Photo
+		// [TODO] Do this as Ajax with a save button?
 		if(isset($show_fields['contact_photo']) && $show_fields['contact_photo'] == 2) {
 			@$imagedata = DevblocksPlatform::importGPC($_POST['imagedata'],'string','');
 			DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_CONTACT, $active_contact->id, $imagedata);
