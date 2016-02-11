@@ -324,8 +324,6 @@ abstract class AbstractEvent_KbArticle extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'article_id');
 				break;
 				
-				
-				
 			case 'send_email':
 				DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;

@@ -248,7 +248,7 @@ class _DevblocksNaturalLanguageManager {
 			$fragment[] = $word;
 		}
 		
-		return implode(' ', $fragment);		
+		return implode(' ', $fragment);
 	}
 	
 	private function _makeRegexpFromPattern($pattern) {

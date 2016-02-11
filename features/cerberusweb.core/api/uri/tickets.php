@@ -1286,7 +1286,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$ticket_ids = DevblocksPlatform::parseCsvString($ids);
 			
 			if(empty($ticket_ids))
-				break;
+				return;
 			
 			$tickets = DAO_Ticket::getIds($ticket_ids);
 			if(is_array($tickets))

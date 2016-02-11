@@ -807,7 +807,7 @@ class CerberusParser {
 			if(!$handled) {
 				if (false === strpos(strtolower($info['content-type']),'multipart')) {
 					if(!$is_attachments_enabled) {
-						break; // skip attachment
+						continue; // skip attachment
 					}
 					$attach = new ParseFileBuffer($section, $info, $full_filename);
 					
@@ -815,7 +815,7 @@ class CerberusParser {
 					// Make sure our attachment is under the max preferred size
 					if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
 						@unlink($attach->tmpname);
-						break;
+						continue;
 					}
 					
 					if(empty($content_filename))

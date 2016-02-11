@@ -1143,74 +1143,78 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 
 		// Broadcast?
 		if(isset($do['broadcast'])) {
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-			
-			$params = $do['broadcast'];
-			if(
-				!isset($params['worker_id'])
-				|| empty($params['worker_id'])
-				|| !isset($params['subject'])
-				|| empty($params['subject'])
-				|| !isset($params['message'])
-				|| empty($params['message'])
-				)
-				break;
-
-			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false;
-			$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0;
-			
-			if(is_array($ids))
-			foreach($ids as $opp_id) {
-				try {
-					CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $tpl_labels, $tpl_tokens);
-					
-					$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
-
-					if($tpl_dict->email_is_defunct)
-						continue;
-					
-					$subject = $tpl_builder->build($params['subject'], $tpl_dict);
-					$body = $tpl_builder->build($params['message'], $tpl_dict);
-					
-					$json_params = array(
-						'to' => $tpl_dict->email_address,
-						'group_id' => $params['group_id'],
-						'next_is_closed' => $next_is_closed,
-						'is_broadcast' => 1,
-						'context_links' => array(
-							array(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id),
-						),
-					);
-					
-					if(isset($params['format']))
-						$json_params['format'] = $params['format'];
-					
-					if(isset($params['html_template_id']))
-						$json_params['html_template_id'] = intval($params['html_template_id']);
-					
-					if(isset($params['file_ids']))
-						$json_params['file_ids'] = $params['file_ids'];
-					
-					$fields = array(
-						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
-						DAO_MailQueue::TICKET_ID => 0,
-						DAO_MailQueue::WORKER_ID => $params['worker_id'],
-						DAO_MailQueue::UPDATED => time(),
-						DAO_MailQueue::HINT_TO => $tpl_dict->email_address,
-						DAO_MailQueue::SUBJECT => $subject,
-						DAO_MailQueue::BODY => $body,
-						DAO_MailQueue::PARAMS_JSON => json_encode($json_params),
-					);
-					
-					if($is_queued) {
-						$fields[DAO_MailQueue::IS_QUEUED] = 1;
+			try {
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
+				$params = $do['broadcast'];
+				if(
+					!isset($params['worker_id'])
+					|| empty($params['worker_id'])
+					|| !isset($params['subject'])
+					|| empty($params['subject'])
+					|| !isset($params['message'])
+					|| empty($params['message'])
+					)
+					throw new Exception("Missing parameters for broadcast.");
+	
+				$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false;
+				$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0;
+				
+				if(is_array($ids))
+				foreach($ids as $opp_id) {
+					try {
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $tpl_labels, $tpl_tokens);
+						
+						$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
+	
+						if($tpl_dict->email_is_defunct)
+							continue;
+						
+						$subject = $tpl_builder->build($params['subject'], $tpl_dict);
+						$body = $tpl_builder->build($params['message'], $tpl_dict);
+						
+						$json_params = array(
+							'to' => $tpl_dict->email_address,
+							'group_id' => $params['group_id'],
+							'next_is_closed' => $next_is_closed,
+							'is_broadcast' => 1,
+							'context_links' => array(
+								array(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id),
+							),
+						);
+						
+						if(isset($params['format']))
+							$json_params['format'] = $params['format'];
+						
+						if(isset($params['html_template_id']))
+							$json_params['html_template_id'] = intval($params['html_template_id']);
+						
+						if(isset($params['file_ids']))
+							$json_params['file_ids'] = $params['file_ids'];
+						
+						$fields = array(
+							DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
+							DAO_MailQueue::TICKET_ID => 0,
+							DAO_MailQueue::WORKER_ID => $params['worker_id'],
+							DAO_MailQueue::UPDATED => time(),
+							DAO_MailQueue::HINT_TO => $tpl_dict->email_address,
+							DAO_MailQueue::SUBJECT => $subject,
+							DAO_MailQueue::BODY => $body,
+							DAO_MailQueue::PARAMS_JSON => json_encode($json_params),
+						);
+						
+						if($is_queued) {
+							$fields[DAO_MailQueue::IS_QUEUED] = 1;
+						}
+						
+						$draft_id = DAO_MailQueue::create($fields);
+						
+					} catch (Exception $e) {
+						// [TODO] ...
 					}
-					
-					$draft_id = DAO_MailQueue::create($fields);
-					
-				} catch (Exception $e) {
-					// [TODO] ...
 				}
+			} catch (Exception $e) {
+				
 			}
 		}
 		

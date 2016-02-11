@@ -496,7 +496,7 @@ class DAO_Message extends Cerb_ORMHelper {
 						") "
 					);
 				}
-				break;				
+				break;
 			
 			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
 				$header_wheres = array();
