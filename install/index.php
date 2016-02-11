@@ -502,11 +502,12 @@ switch($step) {
 
 	// Initialize the database
 	case STEP_INIT_DB:
-		$db = DevblocksPlatform::getDatabaseService();
+		$tables = array();
+		
+		if(false !== ($db = DevblocksPlatform::getDatabaseService()))
+			$tables = $db->metaTables();
 		
 		// [TODO] Add current user to patcher/upgrade authorized IPs
-		
-		$tables = $db->metaTables();
 		
 		if(empty($tables)) { // install
 			try {
