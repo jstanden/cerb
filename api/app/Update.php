@@ -180,8 +180,8 @@ class ChUpdateController extends DevblocksControllerExtension {
 						// Reload plugin translations
 						DAO_Translation::reloadPluginStrings();
 
-						// Set the build
-						file_put_contents(APP_STORAGE_PATH . '/_version', APP_BUILD);
+						// Set the build in opcache
+						file_put_contents(APP_STORAGE_PATH . '/version.php', sprintf("<?php define('APP_BUILD_CACHED', %d); ?>", APP_BUILD));
 						
 						// Redirect
 						DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));

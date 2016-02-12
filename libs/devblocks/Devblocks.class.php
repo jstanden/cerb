@@ -1675,12 +1675,14 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return boolean
 	 */
 	static function versionConsistencyCheck() {
-		$cache = DevblocksPlatform::getCacheService(); /* @var _DevblocksCacheManager $cache */
+		if(!file_exists(APP_STORAGE_PATH . '/version.php'))
+			return false;
+			
+		require(APP_STORAGE_PATH . '/version.php');
 		
-		if(false !== ($build_version = @file_get_contents(APP_STORAGE_PATH . '/_version'))
-			&& $build_version == APP_BUILD)
-				return true;
-
+		if(defined('APP_BUILD_CACHED') && APP_BUILD_CACHED == APP_BUILD)
+			return true;
+		
 		// If build changed, clear cache regardless of patch status
 		$cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
 		$cache->clean();
