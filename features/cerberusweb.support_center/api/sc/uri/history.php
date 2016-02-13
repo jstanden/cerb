@@ -63,67 +63,63 @@ class UmScHistoryController extends Extension_UmScController {
 			$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/index.tpl");
 			
 		} else {
-			// Secure retrieval (address + mask)
-			list($tickets) = DAO_Ticket::search(
-				array(),
-				array(
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_MASK,'=',$mask),
-					new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$shared_address_ids),
-				),
-				1,
-				0,
-				null,
-				null,
-				false
-			);
-			$ticket = array_shift($tickets);
+			// If this is an invalid ticket mask, deny access
+			if(false == ($ticket = DAO_Ticket::getTicketByMask($mask)))
+				return;
 			
-			// Security check (mask compare)
-			if(0 == strcasecmp($ticket[SearchFields_Ticket::TICKET_MASK],$mask)) {
-				$messages = DAO_Message::getMessagesByTicket($ticket[SearchFields_Ticket::TICKET_ID]);
-				$messages = array_reverse($messages, true);
-				$attachments = array();
-				
-				// Attachments
-				if(is_array($messages) && !empty($messages)) {
-					// Populate attachments per message
-					foreach($messages as $message_id => $message) {
-						$map = $message->getLinksAndAttachments();
+			$participants = $ticket->getRequesters();
+			
+			// See if the current account is one of the participants on this ticket
+			$matching_participants = array_intersect(array_keys($participants), $shared_address_ids);
+			
+			// If none of the participants on the ticket match this account, deny access
+			if(!is_array($matching_participants) || empty($matching_participants))
+				return;
+			
+			$messages = DAO_Message::getMessagesByTicket($ticket->id);
+			$messages = array_reverse($messages, true);
+			$attachments = array();
+			
+			// Attachments
+			if(is_array($messages) && !empty($messages)) {
+				// Populate attachments per message
+				foreach($messages as $message_id => $message) {
+					$map = $message->getLinksAndAttachments();
+					
+					if(!isset($map['links']) || empty($map['links'])
+						|| !isset($map['attachments']) || empty($map['attachments']))
+						continue;
+					
+					foreach($map['links'] as $link_id => $link) {
+						$file = $map['attachments'][$link->attachment_id];
 						
-						if(!isset($map['links']) || empty($map['links'])
-							|| !isset($map['attachments']) || empty($map['attachments']))
+						if(empty($file)) {
+							unset($map['links'][$link_id]);
 							continue;
-						
-						foreach($map['links'] as $link_id => $link) {
-							$file = $map['attachments'][$link->attachment_id];
-							
-							if(empty($file)) {
-								unset($map['links'][$link_id]);
-								continue;
-							}
-								
-							if(0 == strcasecmp('original_message.html', $file->display_name)) {
-								unset($map['links'][$link_id]);
-								unset($map['files'][$link->attachment_id]);
-								continue;
-							}
 						}
-						
-						if(!empty($map)) {
-							if(!isset($attachments[$message_id]))
-								$attachments[$message_id] = array();
 							
-							$attachments[$message_id][$link->guid] = $map;
+						if(0 == strcasecmp('original_message.html', $file->display_name)) {
+							unset($map['links'][$link_id]);
+							unset($map['files'][$link->attachment_id]);
+							continue;
 						}
 					}
+					
+					if(!empty($map)) {
+						if(!isset($attachments[$message_id]))
+							$attachments[$message_id] = array();
+						
+						$attachments[$message_id][$link->guid] = $map;
+					}
 				}
-				
-				$tpl->assign('ticket', $ticket);
-				$tpl->assign('messages', $messages);
-				$tpl->assign('attachments', $attachments);
-				
-				$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/display.tpl");
 			}
+			
+			$tpl->assign('ticket', $ticket);
+			$tpl->assign('participants', $participants);
+			$tpl->assign('messages', $messages);
+			$tpl->assign('attachments', $attachments);
+			
+			$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/display.tpl");
 		}
 	}
 	
@@ -162,9 +158,12 @@ class UmScHistoryController extends Extension_UmScController {
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_WORKLIST_COLUMNS_JSON, $columns, true);
 	}
 	
+	// [TODO] JSON
 	function saveTicketPropertiesAction() {
 		@$mask = DevblocksPlatform::importGPC($_REQUEST['mask'],'string','');
-		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer','0');
+		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
+		@$participants = DevblocksPlatform::importGPC($_REQUEST['participants'],'string','');
+		@$is_closed = DevblocksPlatform::importGPC($_REQUEST['is_closed'],'integer','0');
 		
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
@@ -178,20 +177,49 @@ class UmScHistoryController extends Extension_UmScController {
 		if(false == ($ticket = DAO_Ticket::getTicketByMask($mask)))
 			return;
 		
+		$participants_old = $ticket->getRequesters();
+		
 		// Only allow access if mask has one of the valid requesters
-		$requesters = $ticket->getRequesters();
-		$allowed_requester_ids = array_intersect(array_keys($requesters), $shared_address_ids);
+		$allowed_requester_ids = array_intersect(array_keys($participants_old), $shared_address_ids);
 		
 		if(empty($allowed_requester_ids))
 			return;
 		
-		$fields = array(
-			DAO_Ticket::IS_CLOSED => ($closed) ? 1 : 0
-		);
-		DAO_Ticket::update($ticket->id, $fields);
+		$fields = array();
+		
+		if(!empty($subject))
+			$fields[DAO_Ticket::SUBJECT] = $subject;
+		
+		// Status: Ignore deleted/waiting
+		if($is_closed && (!$ticket->is_deleted && !$ticket->is_closed)) {
+			$fields[DAO_Ticket::IS_WAITING] = 0;
+			$fields[DAO_Ticket::IS_CLOSED] = 1;
+			$fields[DAO_Ticket::IS_DELETED] = 0;
+		} elseif (!$is_closed && ($ticket->is_closed)) {
+			$fields[DAO_Ticket::IS_WAITING] = 0;
+			$fields[DAO_Ticket::IS_CLOSED] = 0;
+			$fields[DAO_Ticket::IS_DELETED] = 0;
+		}
+		
+		if($fields)
+			DAO_Ticket::update($ticket->id, $fields);
 		
 		CerberusContexts::popActivityDefaultActor();
 		
+		// Participants
+		$participants_new = DAO_Address::lookupAddresses(DevblocksPlatform::parseCrlfString($participants), true);
+		$participants_removed = array_diff(array_keys($participants_old), array_keys($participants_new));
+		$participants_added = array_diff(array_keys($participants_new), array_keys($participants_old));
+		
+		if(!empty($participants_removed)) {
+			DAO_Ticket::removeRequesterIds($ticket->id, $participants_removed);
+		}
+		
+		if(!empty($participants_added)) {
+			DAO_Ticket::addRequesterIds($ticket->id, $participants_added);
+		}
+		
+		// Redirect
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'history', $ticket->mask)));
 	}
 	

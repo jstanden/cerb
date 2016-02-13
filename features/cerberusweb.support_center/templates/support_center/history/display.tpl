@@ -1,25 +1,102 @@
 <div id="history">
 	
-<div class="header"><h1>{$ticket.t_subject}</h1></div>
+<div class="header"><h1>{$ticket->subject}</h1></div>
 
-<form action="{devblocks_url}c=history{/devblocks_url}" method="post" name="">
-<input type="hidden" name="a" value="saveTicketProperties">
-<input type="hidden" name="mask" value="{$ticket.t_mask}">
-<input type="hidden" name="closed" value="{if $ticket.t_is_closed}1{else}0{/if}">
-<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
-	<b>{'portal.sc.public.history.reference'|devblocks_translate}</b> {$ticket.t_mask}
+{$org = $ticket->getOrg()}
+
+<div class="properties-view">
+
+	<b>{'portal.sc.public.history.reference'|devblocks_translate}</b> {$ticket->mask}
+	 &nbsp;
+	 
+	<b>{'common.status'|devblocks_translate}:</b> 
+	{if $ticket->is_deleted}
+	{'status.deleted'|devblocks_translate|capitalize}
+	{elseif $ticket->is_closed}
+	{'status.resolved'|devblocks_translate|capitalize}
+	{elseif $ticket->is_waiting}
+	{'status.waiting'|devblocks_translate|capitalize}
+	{else}
+	{'status.open'|devblocks_translate|capitalize}
+	{/if}
+	
+	 &nbsp;
+	  
+	<b>{'common.created'|devblocks_translate|capitalize}:</b> <abbr title="{$ticket->created_date|devblocks_date}">{$ticket->created_date|devblocks_prettytime}</abbr>
 	 &nbsp; 
-	<b>{'common.updated'|devblocks_translate|capitalize}:</b> <abbr title="{$ticket.t_updated_date|devblocks_date}">{$ticket.t_updated_date|devblocks_prettytime}</abbr>
+	 
+	<b>{'common.updated'|devblocks_translate|capitalize}:</b> <abbr title="{$ticket->updated_date|devblocks_date}">{$ticket->updated_date|devblocks_prettytime}</abbr>
+	 &nbsp;
+	 
+	{if $org}
+	<b>{'common.organization'|devblocks_translate|capitalize}:</b> {$org->name}
 	 &nbsp; 
+	{/if}
+	 
 	<br>
 	
-	<div style="padding:5px;">
-		{if $ticket.t_is_closed}
-		<button type="button" onclick="this.form.closed.value='0';this.form.submit();"><span class="glyphicons glyphicons-circle-ok"></span> {'common.reopen'|devblocks_translate|capitalize}</button>
-		{else}
-		<button type="button" onclick="this.form.closed.value='1';this.form.submit();"><span class="glyphicons glyphicons-circle-ok"></span> {'common.close'|devblocks_translate|capitalize}</button>
-		{/if}
+	{if !empty($participants)}
+	<div>
+		<b>{'common.participants'|devblocks_translate|capitalize}:</b>
+		{foreach from=$participants item=participant name=participants}
+			{$participant->email}{if !$smarty.foreach.participants.last}, {/if}
+		{/foreach}
 	</div>
+	{/if}
+
+	<div style="padding:5px;">
+		<button type="button" onclick="$('#history div.properties-view').hide();$('#history form.properties-edit').fadeIn();"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+	</div>
+</div>
+
+<form action="{devblocks_url}c=history{/devblocks_url}" method="post" class="properties-edit" style="display:none;">
+	<input type="hidden" name="a" value="saveTicketProperties">
+	<input type="hidden" name="mask" value="{$ticket->mask}">
+	<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
+	
+	<fieldset>
+		<table cellpadding="2" cellspacing="0" borde="0">
+		
+			<tr>
+				<td valign="middle" align="right">
+					<b>{'ticket.subject'|devblocks_translate|capitalize}:</b>
+				</td>
+				<td>
+					<input type="text" name="subject" value="{$ticket->subject}" size="64" autocomplete="off">
+				</td>
+			</tr>
+			
+			<tr>
+				<td valign="middle" align="right">
+					<b>{'status.resolved'|devblocks_translate|capitalize}:</b>
+				</td>
+				<td>
+					<label><input type="checkbox" name="is_closed" value="1" {if $ticket->is_closed}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+				</td>
+			</tr>
+			
+			<tr>
+				<td valign="top" align="right">
+					<b>{'common.participants'|devblocks_translate|capitalize}:</b>
+				</td>
+				<td>
+					<textarea name="participants" rows="5" cols="64">{*
+*}{foreach from=$participants item=participant}
+{$participant->email}
+{/foreach}</textarea>
+					<div>
+						<i>(one email address per line)</i>
+					</div>
+				</td>
+			</tr>
+			
+		</table>
+	
+		<div style="padding:5px;">
+			<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			<button type="button" onclick="$('#history form.properties-edit').hide();$('#history div.properties-view').fadeIn();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		</div>
+	</fieldset>
 </form>
 
 {* Message History *}
@@ -114,7 +191,7 @@
 		<div class="header"><h2>{'portal.sc.public.history.reply'|devblocks_translate}</h2></div>
 		<form action="{devblocks_url}c=history{/devblocks_url}" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="a" value="doReply">
-		<input type="hidden" name="mask" value="{$ticket.t_mask}">
+		<input type="hidden" name="mask" value="{$ticket->mask}">
 		<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 		
 		<b>{'message.header.from'|devblocks_translate|capitalize}:</b> 
@@ -142,3 +219,12 @@
 {/foreach}
 
 </div><!--#history-->
+
+<script type="text/javascript">
+$(function() {
+	$('#history-edit-recipients-add').click(function() {
+		var $new = $('<div><input type="text" name="participant[]" placeholder="contact@example.com" value="" size="64" spellcheck="false"><button type="button" onclick="$(this).closest(\'div\').remove();"><span class="glyphicons glyphicons-circle-remove"></span></button></div>');
+		$('#history-edit-recipients').append($new);
+	});
+});
+</script>
