@@ -351,6 +351,25 @@ class DAO_Address extends Cerb_ORMHelper {
 		return $address;
 	}
 	
+	/**
+	 * Enter description here...
+	 *
+	 * @param unknown_type $emails
+	 * @param unknown_type $create_if_null
+	 * @return Model_Address[]
+	 */
+	static function lookupAddresses($emails, $create_if_null=false) {
+		$addresses = array();
+		
+		foreach($emails as $email) {
+			if(false != ($address = DAO_Address::lookupAddress($email, $create_if_null))) {
+				$addresses[$address->id] = $address;
+			}
+		}
+		
+		return $addresses;
+	}
+	
 	static function addOneToSpamTotal($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE address SET num_spam = num_spam + 1 WHERE id = %d",$address_id);

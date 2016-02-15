@@ -1307,6 +1307,67 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
+	static function addRequesterIds($ticket_id, $address_ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		$replyto_addresses = DAO_AddressOutgoing::getAll();
+		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
+		$addresses = DAO_Address::getIds($address_ids);
+
+		// Filter out any excluded requesters
+		if(!empty($exclude_list)) {
+			@$excludes = DevblocksPlatform::parseCrlfString($exclude_list);
+			
+			$addresses = array_filter($addresses, function($address) use ($excludes) {
+				if(is_array($excludes) && !empty($excludes))
+				foreach($excludes as $excl_pattern) {
+					if(@preg_match(DevblocksPlatform::parseStringAsRegExp($excl_pattern), $address->email)) {
+						return false;
+					}
+				}
+			});
+		}
+		
+		// Don't add a requester if the sender is a helpdesk address
+		$requesters_add = array_diff(array_keys($addresses), array_keys($replyto_addresses));
+
+		$values = array();
+		
+		if(is_array($requesters_add))
+		foreach($requesters_add as $requester_id) {
+			$values[] = sprintf("(%d, %d)", $requester_id, $ticket_id);
+		}
+		
+		if(!empty($values)) {
+			$db->ExecuteMaster(sprintf("REPLACE INTO requester (address_id, ticket_id) ".
+				"VALUES %s",
+				implode(',', $values)
+			));
+		}
+		
+		return true;
+	}
+	
+	static function removeRequesterIds($ticket_id, $address_ids) {
+		if(empty($ticket_id) || !is_array($address_ids))
+			return false;
+			
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$address_ids = DevblocksPlatform::sanitizeArray($address_ids, 'int');
+		
+		if(empty($address_ids))
+			return false;
+
+		$sql = sprintf("DELETE FROM requester WHERE ticket_id = %d AND address_id IN (%s)",
+			$ticket_id,
+			implode(',', $address_ids)
+		);
+		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		return true;
+	}
+	
 	static function analyze($params, $limit=15, $mode="senders", $mode_param=null) { // or "subjects"
 		$db = DevblocksPlatform::getDatabaseService();
 		
