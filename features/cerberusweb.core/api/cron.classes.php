@@ -376,7 +376,7 @@ class ImportCron extends CerberusCronPageExtension {
 				$move_to_dir = $importFailDir . basename($subdir) . '/';
 
 				if(!file_exists($move_to_dir))
-					mkdir($move_to_dir,0744,true);
+					mkdir($move_to_dir,0770,true);
 
 				$dest_file = $move_to_dir . basename($file);
 				@rename($file, $dest_file);
