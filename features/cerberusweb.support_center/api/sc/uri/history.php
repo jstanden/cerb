@@ -212,11 +212,11 @@ class UmScHistoryController extends Extension_UmScController {
 		$participants_added = array_diff(array_keys($participants_new), array_keys($participants_old));
 		
 		if(!empty($participants_removed)) {
-			DAO_Ticket::removeRequesterIds($ticket->id, $participants_removed);
+			DAO_Ticket::removeParticipantIds($ticket->id, $participants_removed);
 		}
 		
 		if(!empty($participants_added)) {
-			DAO_Ticket::addRequesterIds($ticket->id, $participants_added);
+			DAO_Ticket::addParticipantIds($ticket->id, $participants_added);
 		}
 		
 		// Redirect

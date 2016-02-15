@@ -760,6 +760,16 @@
 			<param key="string_key" value="activities.ticket.unassigned" />
 			<param key="options" value="" />
 		</activity>
+		<activity point="ticket.participant.added">
+			<param key="label_key" value="Ticket Participant Added" />
+			<param key="string_key" value="activities.ticket.participant.added" />
+			<param key="options" value="" />
+		</activity>
+		<activity point="ticket.participant.removed">
+			<param key="label_key" value="Ticket Participant Removed" />
+			<param key="string_key" value="activities.ticket.participant.removed" />
+			<param key="options" value="" />
+		</activity>
 		<activity point="ticket.split">
 			<param key="label_key" value="Ticket Split" />
 			<param key="string_key" value="activities.ticket.split" />

@@ -1307,13 +1307,16 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 	}
 	
-	static function addRequesterIds($ticket_id, $address_ids) {
+	static function addParticipantIds($ticket_id, $address_ids) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
 		
 		$replyto_addresses = DAO_AddressOutgoing::getAll();
 		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
 		$addresses = DAO_Address::getIds($address_ids);
+		
+		if(false == ($ticket = DAO_Ticket::get($ticket_id)))
+			return false;
 
 		// Filter out any excluded requesters
 		if(!empty($exclude_list)) {
@@ -1337,6 +1340,23 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(is_array($requesters_add))
 		foreach($requesters_add as $requester_id) {
 			$values[] = sprintf("(%d, %d)", $requester_id, $ticket_id);
+			
+			/*
+			 * Log activity (ticket.participant.added)
+			 */
+			$entry = array(
+				//{{actor}} added {{participant}} to ticket {{target}}
+				'message' => 'activities.ticket.participant.added',
+				'variables' => array(
+					'participant' => sprintf("%s", $addresses[$requester_id]->email),
+					'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
+					),
+				'urls' => array(
+					'participant' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_ADDRESS, $requester_id),
+					'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
+					)
+			);
+			CerberusContexts::logActivity('ticket.participant.added', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry);
 		}
 		
 		if(!empty($values)) {
@@ -1345,26 +1365,53 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				implode(',', $values)
 			));
 		}
-		
+			
 		return true;
 	}
 	
-	static function removeRequesterIds($ticket_id, $address_ids) {
+	static function removeParticipantIds($ticket_id, $address_ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
 		if(empty($ticket_id) || !is_array($address_ids))
 			return false;
-			
-		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(false == ($ticket = DAO_Ticket::get($ticket_id)))
+			return false;
 		
 		$address_ids = DevblocksPlatform::sanitizeArray($address_ids, 'int');
 		
-		if(empty($address_ids))
+		// Keep only the participants we're removing
+		$participants = $ticket->getRequesters();
+		$participants = array_intersect_key($participants, array_flip($address_ids));
+		
+		if(empty($participants))
 			return false;
 
 		$sql = sprintf("DELETE FROM requester WHERE ticket_id = %d AND address_id IN (%s)",
 			$ticket_id,
-			implode(',', $address_ids)
+			implode(',', array_keys($participants))
 		);
 		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		foreach($participants as $participant) {
+			/*
+			 * Log activity (ticket.participant.added)
+			 */
+			$entry = array(
+				//{{actor}} removed {{participant}} from ticket {{target}}
+				'message' => 'activities.ticket.participant.removed',
+				'variables' => array(
+					'participant' => sprintf("%s", $participant->email),
+					'target' => sprintf("[%s] %s", $ticket->mask, $ticket->subject),
+					),
+				'urls' => array(
+					'participant' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_ADDRESS, $participant->id),
+					'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
+					)
+			);
+			CerberusContexts::logActivity('ticket.participant.removed', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry);
+		}
+		
 		return true;
 	}
 	
