@@ -172,7 +172,7 @@ class UmScHistoryController extends Extension_UmScController {
 		if(empty($shared_address_ids))
 			$shared_address_ids = array(-1);
 		
-		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_ADDRESS, $active_contact->primary_email_id);
+		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_CONTACT, $active_contact->id);
 		
 		if(false == ($ticket = DAO_Ticket::getTicketByMask($mask)))
 			return;
@@ -212,11 +212,11 @@ class UmScHistoryController extends Extension_UmScController {
 		$participants_added = array_diff(array_keys($participants_new), array_keys($participants_old));
 		
 		if(!empty($participants_removed)) {
-			DAO_Ticket::removeRequesterIds($ticket->id, $participants_removed);
+			DAO_Ticket::removeParticipantIds($ticket->id, $participants_removed);
 		}
 		
 		if(!empty($participants_added)) {
-			DAO_Ticket::addRequesterIds($ticket->id, $participants_added);
+			DAO_Ticket::addParticipantIds($ticket->id, $participants_added);
 		}
 		
 		// Redirect

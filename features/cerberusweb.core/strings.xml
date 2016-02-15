@@ -134,6 +134,16 @@
 				<seg>{{actor}} moved ticket {{target}} to {{group}}: {{bucket}}</seg>
 			</tuv>
 		</tu>
+		<tu tuid="activities.ticket.participant.added">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} added {{participant}} to ticket {{target}}</seg>
+			</tuv>
+		</tu>
+		<tu tuid="activities.ticket.participant.removed">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} removed {{participant}} from ticket {{target}}</seg>
+			</tuv>
+		</tu>
 		<tu tuid="activities.ticket.split">
 			<tuv xml:lang="en_US">
 				<seg>{{actor}} split from ticket {{target}} into ticket {{source}}</seg>

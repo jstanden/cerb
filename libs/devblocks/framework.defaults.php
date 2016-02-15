@@ -95,9 +95,6 @@ if(!defined('APP_SESSION_NAME'))
 if(!defined('DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE'))
 	define('DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE', false);
 
-if(!defined('ONDEMAND_MODE'))
-	define('ONDEMAND_MODE', false);
-
 if(!defined('DEVELOPMENT_MODE'))
 	define('DEVELOPMENT_MODE', false);
 

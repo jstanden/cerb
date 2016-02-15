@@ -70,11 +70,11 @@ if(empty($step)) $step = STEP_ENVIRONMENT;
 
 // [TODO] Could convert to CerberusApplication::checkRequirements()
 
-@chmod(APP_TEMP_PATH, 0774);
+@chmod(APP_TEMP_PATH, 0770);
 @mkdir(APP_SMARTY_COMPILE_PATH);
-@chmod(APP_SMARTY_COMPILE_PATH, 0774);
+@chmod(APP_SMARTY_COMPILE_PATH, 0770);
 @mkdir(APP_TEMP_PATH . '/cache/');
-@chmod(APP_TEMP_PATH . '/cache/', 0774);
+@chmod(APP_TEMP_PATH . '/cache/', 0770);
 
 // Make sure the temporary directories of Devblocks are writeable.
 if(!is_writeable(APP_TEMP_PATH)) {
@@ -89,9 +89,9 @@ if(!is_writeable(APP_TEMP_PATH . "/cache/")) {
 	DevblocksPlatform::dieWithHttpError(APP_TEMP_PATH . "/cache/" . " is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }
 
-@chmod(APP_STORAGE_PATH, 0774);
-@chmod(APP_STORAGE_PATH . '/mail/new/', 0774);
-@chmod(APP_STORAGE_PATH . '/mail/fail/', 0774);
+@chmod(APP_STORAGE_PATH, 0770);
+@chmod(APP_STORAGE_PATH . '/mail/new/', 0770);
+@chmod(APP_STORAGE_PATH . '/mail/fail/', 0770);
 
 if(!is_writeable(APP_STORAGE_PATH)) {
 	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
