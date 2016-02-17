@@ -99,48 +99,58 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$session = DevblocksPlatform::getSessionService();
 
 		$sessions = $session->getAll();
-		$session_workers = array();
-		$active_workers = array();
-		$workers_to_sessions = array();
+		$workers = DAO_Worker::getAll();
 		
-		// Track the active workers based on session data
-		if(is_array($sessions))
-		foreach($sessions as $session_id => $session_data) {
-			$key = $session_data['session_key'];
-			@$worker_id = $session_data['user_id'];
-			
-			if(empty($worker_id))
-				continue;
+		if(!is_array($sessions) || empty($sessions))
+			return array();
+		
+		$sessions = array_filter($sessions, function($object) {
+			// Only worker-based sessions (no anonymous)
+			if(empty($object['user_id']))
+				return false;
 
-			if(null == ($worker = DAO_Worker::get($worker_id)))
+			return true;
+		});
+		
+		if(empty($sessions))
+			return array();
+
+		// Least idle sessions first
+		DevblocksPlatform::sortObjects($sessions, '[updated]', false);
+
+		$workers_by_last_activity = array();
+		
+		foreach($sessions as $object) {
+			// If we've already seen this worker, their first session was the least idle
+			if(isset($workers_by_last_activity[$object['user_id']]))
 				continue;
 			
-			// All workers from the sessions
-			$session_workers[$worker->id] = $worker;
-
-			// Map workers to sessions
-			if(!isset($workers_to_sessions[$worker->id]))
-				$workers_to_sessions[$worker->id] = array();
-			
-			$workers_to_sessions[$worker->id][$key] = $session_data;
+			$workers_by_last_activity[$object['user_id']] = $object['updated'];
 		}
 		
-		// Sort workers by idle time (newest first)
-		DevblocksPlatform::sortObjects($session_workers, 'last_activity_date');
+		// Most idle workers first
+		arsort($workers_by_last_activity);
 		
-		// Find active workers from sessions (idle but not logged out)
-		if(is_array($session_workers))
-		foreach($session_workers as $worker_id => $worker) {
-			if($worker->last_activity_date > time() - $idle_limit) {
-				$active_workers[$worker->id] = $worker;
+		foreach($workers_by_last_activity as $worker_id => $last_activity) {
+			if(!isset($workers[$worker_id]))
+				continue;
+			
+			$worker = $workers[$worker_id];
+			
+			if(time() - $last_activity > $idle_limit) {
+				unset($workers_by_last_activity[$worker_id]);
 				
-			} else {
-				if($idle_kick_limit) {
-					// Kill all sessions for this worker
-					foreach($workers_to_sessions[$worker->id] as $session_key => $session_data) {
-						$session->clear($session_key);
+				// If we're still clearing seats
+				if($idle_kick_limit > 0) {
+					
+					// Clear all the sessions for this worker
+					foreach($sessions as $object) {
+						if($object['user_id'] == $worker_id) {
+							$session->clear($object['session_key']);
+						}
 					}
 					
+					// One more seat freed up
 					$idle_kick_limit--;
 					
 					// Add the session kick to the worker's activity log
@@ -159,8 +169,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 			}
 		}
 		
-		// Most recently active first
-		$active_workers = array_reverse($active_workers, true);
+		// Least idle workers first
+		arsort($workers_by_last_activity);
+		
+		$active_workers = array_intersect_key($workers, $workers_by_last_activity);
 		
 		return $active_workers;
 	}

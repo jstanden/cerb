@@ -127,7 +127,10 @@ class ChSignInPage extends CerberusPageExtension {
 					/* @var $ext Extension_LoginAuthenticator */
 					
 					if(false != ($worker = $ext->authenticate()) && $worker instanceof Model_Worker) {
+						$this->_checkSeats($worker);
+						
 						$_SESSION['login_authenticated_worker'] = $worker;
+						
 						DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','authenticated')), 1);
 						
 					} else {
@@ -270,33 +273,31 @@ class ChSignInPage extends CerberusPageExtension {
 		$honesty = CerberusLicense::getInstance();
 		$session = DevblocksPlatform::getSessionService();
 		
-		$online_workers = DAO_Worker::getAllOnline(86400, 100);
+		$online_workers = DAO_Worker::getAllOnline(PHP_INT_MAX, 0);
 		$max = intval(max($honesty->w, 1));
 		
-		if(!isset($online_workers[$worker->id]) && $max <= count($online_workers) && 100 > $max) {
-			$online_workers = DAO_Worker::getAllOnline(600, 1);
+		if($max <= count($online_workers) && $max < 100) {
+			// Try to free up (n) seats (n = seats used - seat limit + 1)
+			$online_workers = DAO_Worker::getAllOnline(600, count($online_workers) - $max + 1);
 
+			// If we failed to open up a seat
 			if($max <= count($online_workers)) {
-				$most_idle_worker = end($online_workers);
 				$session->clear();
-				$time = 600 - max(0,time()-$most_idle_worker->last_activity_date);
 				
 				$query = array(
 					'email' => $worker->getEmailString(),
-					'error' => sprintf("The maximum number of simultaneous workers are currently signed on.  The next seat will be free in %s.", ltrim(_DevblocksTemplateManager::modifier_devblocks_prettytime($time,true),'+')),
+					'error' => sprintf("The maximum number of simultaneous workers are currently active. Please try again later, or ask an administrator to increase the seat count in your license."),
 				);
 				
 				if(null == ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, false)))
 					return;
 				
-				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login',$ext->params['uri']), $query));
+				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login', $ext->params['uri']), $query), 1);
 			}
 		}
 	}
 	
 	private function _processAuthenticated($worker) { /* @var $worker Model_Worker */
-		$this->_checkSeats($worker);
-
 		$session = DevblocksPlatform::getSessionService();
 
 		$visit = new CerberusVisit();
