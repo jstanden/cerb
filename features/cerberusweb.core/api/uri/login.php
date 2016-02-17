@@ -112,7 +112,7 @@ class ChSignInPage extends CerberusPageExtension {
 
 			case 'authenticate':
 				// Always wait a little while
-				sleep(2);
+				sleep(1);
 				
 				if(empty($worker)) {
 					$query = array(
@@ -126,9 +126,9 @@ class ChSignInPage extends CerberusPageExtension {
 				if(null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
 					/* @var $ext Extension_LoginAuthenticator */
 					
-					if(false != ($worker = $ext->authenticate())) {
+					if(false != ($worker = $ext->authenticate()) && $worker instanceof Model_Worker) {
 						$_SESSION['login_authenticated_worker'] = $worker;
-						DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','authenticated')));
+						DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','authenticated')), 1);
 						
 					} else {
 						$query = array();
@@ -139,7 +139,7 @@ class ChSignInPage extends CerberusPageExtension {
 						$query['error'] = 'Authentication failed.';
 						
 						$devblocks_response = new DevblocksHttpResponse(array('login', $ext->manifest->params['uri']), $query);
-						DevblocksPlatform::redirect($devblocks_response);
+						DevblocksPlatform::redirect($devblocks_response, 1);
 					}
 					break;
 				}
@@ -150,7 +150,7 @@ class ChSignInPage extends CerberusPageExtension {
 				unset($_SESSION['login_authenticated_worker']);
 				
 				if(empty($worker))
-					DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login')));
+					DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login')), 1);
 					
 				$this->_processAuthenticated($worker);
 				break;
@@ -182,7 +182,7 @@ class ChSignInPage extends CerberusPageExtension {
 					);
 					
 					$devblocks_response = new DevblocksHttpResponse(array('login', $ext->params['uri']), $query);
-					DevblocksPlatform::redirect($devblocks_response);
+					DevblocksPlatform::redirect($devblocks_response, 1);
 				}
 				
 				$tpl = DevblocksPlatform::getTemplateService();
@@ -283,7 +283,7 @@ class ChSignInPage extends CerberusPageExtension {
 				
 				$query = array(
 					'email' => $worker->getEmailString(),
-					'error' => sprintf("The maximum number of simultaneous workers are currently signed on.  The next session expires in %s.", ltrim(_DevblocksTemplateManager::modifier_devblocks_prettytime($time,true),'+')),
+					'error' => sprintf("The maximum number of simultaneous workers are currently signed on.  The next seat will be free in %s.", ltrim(_DevblocksTemplateManager::modifier_devblocks_prettytime($time,true),'+')),
 				);
 				
 				if(null == ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, false)))
@@ -356,7 +356,7 @@ class ChSignInPage extends CerberusPageExtension {
 		);
 		CerberusContexts::logActivity('worker.logged_in', null, null, $entry);
 		
-		DevblocksPlatform::redirect($devblocks_response);
+		DevblocksPlatform::redirect($devblocks_response, 1);
 	}
 	
 	function signoutAction() {
@@ -397,6 +397,6 @@ class ChSignInPage extends CerberusPageExtension {
 				break;
 		}
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')), 1);
 	}
 };
