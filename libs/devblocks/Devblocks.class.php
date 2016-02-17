@@ -1678,7 +1678,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(!file_exists(APP_STORAGE_PATH . '/version.php'))
 			return false;
 			
-		require(APP_STORAGE_PATH . '/version.php');
+		require_once(APP_STORAGE_PATH . '/version.php');
 		
 		if(defined('APP_BUILD_CACHED') && APP_BUILD_CACHED == APP_BUILD)
 			return true;
