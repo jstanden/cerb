@@ -2668,21 +2668,29 @@ class DevblocksPlatform extends DevblocksEngine {
 		return self::$handlerSession;
 	}
 	
-	static function redirect(DevblocksHttpIO $httpIO) {
+	static function redirect(DevblocksHttpIO $httpIO, $wait_secs=0) {
 		$url_service = self::getUrlService();
 		session_write_close();
 		$url = $url_service->writeDevblocksHttpIO($httpIO, true);
 		header('Location: '.$url);
+		
+		if($wait_secs)
+			sleep($wait_secs);
+			
 		exit;
 	}
 	
-	static function redirectURL($url) {
+	static function redirectURL($url, $wait_secs=0) {
 		if(empty($url)) {
 			$url_service = self::getUrlService();
 			$url = $url_service->writeNoProxy('', true);
 		}
 		session_write_close();
 		header('Location: '.$url);
+		
+		if($wait_secs)
+			sleep($wait_secs);
+		
 		exit;
 	}
 	
