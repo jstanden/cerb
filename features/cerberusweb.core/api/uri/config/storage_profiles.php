@@ -17,6 +17,9 @@
 
 class PageSection_SetupStorageProfiles extends Extension_PageSection {
 	function render() {
+		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
@@ -32,6 +35,9 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 	}
 	
 	function showStorageProfilePeekAction() {
+		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
@@ -74,6 +80,9 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 	}
 	
 	function showStorageProfileConfigAction() {
+		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
@@ -118,6 +127,9 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 	}
 	
 	function saveStorageProfilePeekAction() {
+		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
+			return;
+		
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
