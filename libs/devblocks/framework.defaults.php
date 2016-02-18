@@ -95,6 +95,9 @@ if(!defined('DB_CHARSET_CODE'))
 if(!defined('APP_SESSION_NAME'))
 	define('APP_SESSION_NAME', 'Devblocks');
 
+if(!defined('AUTHORIZED_IPS_DEFAULTS'))
+	define('AUTHORIZED_IPS_DEFAULTS', '');
+
 if(!defined('DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE'))
 	define('DEVELOPMENT_ARCHIVE_PARSER_MSGSOURCE', false);
 

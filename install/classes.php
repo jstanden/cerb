@@ -65,6 +65,8 @@ class CerberusInstaller {
 		
 		if(!$fp_in) return FALSE;
 		
+		@$client_ip = (string) $_SERVER['REMOTE_ADDR'];
+		
 		while(!feof($fp_in)) {
 			$line = fgets($fp_in);
 			$token = null;
@@ -95,6 +97,9 @@ class CerberusInstaller {
 						break;
 					case "DB_CHARSET_CODE":
 						$value = (0==strcasecmp($encoding,'latin1')) ? 'latin1' : 'utf8';
+						break;
+					case "AUTHORIZED_IPS_DEFAULTS":
+						$value = $client_ip;
 						break;
 				}
 				
