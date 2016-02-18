@@ -17,7 +17,9 @@ class _DevblocksStorageManager {
 		
 		if(null !== ($engine = DevblocksPlatform::getExtension($extension_id, true, true))) {
 			/* @var $engine Extension_DevblocksStorageEngine */
-			$engine->setOptions($options);
+			if(!$engine->setOptions($options))
+				return false;
+			
 			self::$_connections[$hash] = $engine;
 			return self::$_connections[$hash];
 		}
@@ -35,6 +37,8 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 		// Default
 		if(!isset($this->_options['storage_path']))
 			$this->_options['storage_path'] = APP_STORAGE_PATH . '/';
+		
+		return true;
 	}
 	
 	function testConfig(Model_DevblocksStorageProfile $profile) {
@@ -495,6 +499,8 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 				return false;
 			}
 		}
+		
+		return true;
 	}
 	
 	function testConfig(Model_DevblocksStorageProfile $profile) {
