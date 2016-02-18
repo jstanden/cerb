@@ -58,13 +58,6 @@ abstract class Extension_AppPostBodyRenderer extends DevblocksExtension {
 abstract class CerberusPageExtension extends DevblocksExtension {
 	function isVisible() { return true; }
 	function render() { }
-	
-	/**
-	 * @return Model_Activity
-	 */
-	public function getActivity() {
-		return new Model_Activity('activity.default');
-	}
 };
 
 abstract class Extension_PluginSetup extends DevblocksExtension {

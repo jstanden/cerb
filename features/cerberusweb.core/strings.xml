@@ -942,6 +942,16 @@
 				<seg>Languages</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.last_activity">
+			<tuv xml:lang="en_US">
+				<seg>Last Activity</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.last_activity_date">
+			<tuv xml:lang="en_US">
+				<seg>Last Activity Date</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.last_login">
 			<tuv xml:lang="en_US">
 				<seg>Last Login</seg>
@@ -2266,54 +2276,6 @@ For example: http://www.cerbweb.com/support/</seg>
 			</tuv>
 		</tu>
 
-		<!-- Activities -->
-		
-		<tu tuid="activity.default">
-			<tuv xml:lang="en_US">
-				<seg>%s is browsing</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.activity">
-			<tuv xml:lang="en_US">
-				<seg>%s is browsing the activity logs</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.address_book">
-			<tuv xml:lang="en_US">
-				<seg>%s is browsing the address book</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.config">
-			<tuv xml:lang="en_US">
-				<seg>%s is configuring the application</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.display_ticket">
-			<tuv xml:lang="en_US">
-				<seg>%s is displaying ticket %s</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.mail.search">
-			<tuv xml:lang="en_US">
-				<seg>%s is searching tickets</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.mail.workspaces">
-			<tuv xml:lang="en_US">
-				<seg>%s is browsing %s in Workspaces</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.simulator">
-			<tuv xml:lang="en_US">
-				<seg>%s is generating simulated tickets</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.tickets">
-			<tuv xml:lang="en_US">
-				<seg>%s is browsing %s tickets</seg>
-			</tuv>
-		</tu>
-
 		<!-- Files -->
 		
 		<tu tuid="files.error_link_read">
@@ -3514,16 +3476,6 @@ For example: *receipt*</seg>
 		<tu tuid="worker.language">
 			<tuv xml:lang="en_US">
 				<seg>Language</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_activity">
-			<tuv xml:lang="en_US">
-				<seg>Last Activity</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_activity_date">
-			<tuv xml:lang="en_US">
-				<seg>Last Activity Date</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.time_format">

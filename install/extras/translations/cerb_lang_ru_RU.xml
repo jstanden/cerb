@@ -483,56 +483,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="activity.activity">
-			<tuv xml:lang="ru_RU">
-				<seg>%s просматривает логи активности</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.address_book">
-			<tuv xml:lang="ru_RU">
-				<seg>%s просматривает адресную книгу</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.config">
-			<tuv xml:lang="ru_RU">
-				<seg>%s конфигурирует хелпдеск</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.default">
-			<tuv xml:lang="ru_RU">
-				<seg>%s просматривает хелпдеск</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.display_ticket">
-			<tuv xml:lang="ru_RU">
-				<seg>%s просматривает заявку %s</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.kb">
-			<tuv xml:lang="ru_RU">
-				<seg>%s просматривает базу знаний</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.mail.search">
-			<tuv xml:lang="ru_RU">
-				<seg>%s ищет заявки</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.mail.workspaces">
-			<tuv xml:lang="ru_RU">
-				<seg>%s просматривает %s в рабочей области</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.simulator">
-			<tuv xml:lang="ru_RU">
-				<seg>%s создает тестовые заявки</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.tickets">
-			<tuv xml:lang="ru_RU">
-				<seg>%s просматривает %s заявки</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.address">
 			<tuv xml:lang="ru_RU">
 				<seg>Адрес</seg>
@@ -1221,6 +1171,16 @@
 		<tu tuid="common.languages">
 			<tuv xml:lang="ru_RU">
 				<seg>Языки</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.last_activity">
+			<tuv xml:lang="ru_RU">
+				<seg>Последняя активность</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.last_activity_date">
+			<tuv xml:lang="ru_RU">
+				<seg>Последняя дата активности</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.last_login">
@@ -5250,16 +5210,6 @@ login &lt;ftp&#13;
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="ru_RU">
 				<seg>Администратор</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_activity">
-			<tuv xml:lang="ru_RU">
-				<seg>Последняя активность</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_activity_date">
-			<tuv xml:lang="ru_RU">
-				<seg>Последняя дата активности</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">

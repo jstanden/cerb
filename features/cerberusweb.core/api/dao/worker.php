@@ -31,9 +31,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const IS_DISABLED = 'is_disabled';
 	const IS_SUPERUSER = 'is_superuser';
 	const LANGUAGE = 'language';
-	const LAST_ACTIVITY = 'last_activity';
-	const LAST_ACTIVITY_DATE = 'last_activity_date';
-	const LAST_ACTIVITY_IP = 'last_activity_ip';
 	const LAST_NAME = 'last_name';
 	const LOCATION = 'location';
 	const MOBILE = 'mobile';
@@ -216,7 +213,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, first_name, last_name, email_id, title, is_superuser, is_disabled, last_activity_date, last_activity, last_activity_ip, auth_extension_id, at_mention_name, timezone, time_format, language, calendar_id, gender, dob, location, phone, mobile, updated ".
+		$sql = "SELECT id, first_name, last_name, email_id, title, is_superuser, is_disabled, auth_extension_id, at_mention_name, timezone, time_format, language, calendar_id, gender, dob, location, phone, mobile, updated ".
 			"FROM worker ".
 			$where_sql.
 			$sort_sql.
@@ -284,7 +281,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->is_superuser = intval($row['is_superuser']);
 			$object->language = $row['language'];
 			$object->last_name = $row['last_name'];
-			$object->last_activity_date = intval($row['last_activity_date']);
 			$object->location = $row['location'];
 			$object->mobile = $row['mobile'];
 			$object->phone = $row['phone'];
@@ -292,13 +288,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->timezone = $row['timezone'];
 			$object->title = $row['title'];
 			$object->updated = intval($row['updated']);
-			
-			if(!empty($row['last_activity']))
-				$object->last_activity = unserialize($row['last_activity']);
-			
-			if(!empty($row['last_activity_ip']))
-				$object->last_activity_ip = long2ip($row['last_activity_ip']);
-				
 			$objects[$object->id] = $object;
 		}
 		
@@ -730,36 +719,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return $memberships;
 	}
 	
-	/**
-	 * Store the workers last activity (provided by the page extension).
-	 *
-	 * @param integer $worker_id
-	 * @param Model_Activity $activity
-	 */
-	static function logActivity(Model_Activity $activity, $ignore_wait=false) {
-		if(null === ($worker = CerberusApplication::getActiveWorker()))
-			return;
-
-		$ip = $_SERVER['REMOTE_ADDR'];
-		if('::1' == $ip)
-			$ip = '127.0.0.1';
-
-		// Update activity once per minute
-		if($ignore_wait || $worker->last_activity_date < (time()-60)) {
-			$worker->last_activity_date = time();
-			
-			DAO_Worker::update(
-				$worker->id,
-				array(
-					DAO_Worker::LAST_ACTIVITY_DATE => time(),
-					DAO_Worker::LAST_ACTIVITY => serialize($activity),
-					DAO_Worker::LAST_ACTIVITY_IP => sprintf("%u",ip2long($ip)),
-				),
-				DevblocksORMHelper::OPT_UPDATE_NO_EVENTS
-			);
-		}
-	}
-
 	public static function random() {
 		$db = DevblocksPlatform::getDatabaseService();
 		return $db->GetOneSlave("SELECT id FROM worker WHERE is_disabled=0 ORDER BY rand() LIMIT 1");
@@ -777,7 +736,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			"w.title as %s, ".
 			"w.email_id as %s, ".
 			"w.is_superuser as %s, ".
-			"w.last_activity_date as %s, ".
 			"w.auth_extension_id as %s, ".
 			"w.at_mention_name as %s, ".
 			"w.timezone as %s, ".
@@ -797,7 +755,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 				SearchFields_Worker::TITLE,
 				SearchFields_Worker::EMAIL_ID,
 				SearchFields_Worker::IS_SUPERUSER,
-				SearchFields_Worker::LAST_ACTIVITY_DATE,
 				SearchFields_Worker::AUTH_EXTENSION_ID,
 				SearchFields_Worker::AT_MENTION_NAME,
 				SearchFields_Worker::TIMEZONE,
@@ -1089,8 +1046,6 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const IS_DISABLED = 'w_is_disabled';
 	const IS_SUPERUSER = 'w_is_superuser';
 	const LANGUAGE = 'w_language';
-	const LAST_ACTIVITY = 'w_last_activity';
-	const LAST_ACTIVITY_DATE = 'w_last_activity_date';
 	const LAST_NAME = 'w_last_name';
 	const LOCATION = 'w_location';
 	const MOBILE = 'w_mobile';
@@ -1130,8 +1085,6 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', $translate->_('worker.is_superuser'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'w', 'language', $translate->_('worker.language'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::LAST_ACTIVITY => new DevblocksSearchField(self::LAST_ACTIVITY, 'w', 'last_activity', $translate->_('worker.last_activity'), null, true),
-			self::LAST_ACTIVITY_DATE => new DevblocksSearchField(self::LAST_ACTIVITY_DATE, 'w', 'last_activity_date', $translate->_('worker.last_activity_date'), Model_CustomField::TYPE_DATE, true),
 			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'w', 'last_name', $translate->_('common.name.last'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::LOCATION => new DevblocksSearchField(self::LOCATION, 'w', 'location', $translate->_('common.location'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::MOBILE => new DevblocksSearchField(self::MOBILE, 'w', 'mobile', $translate->_('common.mobile'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -1343,9 +1296,6 @@ class Model_Worker {
 	public $is_superuser = 0;
 	public $is_disabled = 0;
 	public $language;
-	public $last_activity;
-	public $last_activity_date;
-	public $last_activity_ip;
 	public $last_name;
 	public $location;
 	public $mobile;
@@ -1403,6 +1353,14 @@ class Model_Worker {
 	
 	function getInitials() {
 		return mb_convert_case(DevblocksPlatform::strToInitials($this->getName()), MB_CASE_UPPER);
+	}
+	
+	function getLatestActivity() {
+		return DAO_ContextActivityLog::getLatestEntriesByActor(CerberusContexts::CONTEXT_WORKER, $this->id, 1);
+	}
+	
+	function getLatestSession() {
+		return DAO_DevblocksSession::getLatestByUserId($this->id);
 	}
 
 	/**
@@ -1613,12 +1571,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::AT_MENTION_NAME,
 			SearchFields_Worker::LANGUAGE,
 			SearchFields_Worker::TIMEZONE,
-			SearchFields_Worker::LAST_ACTIVITY_DATE,
 		);
 		
 		$this->addColumnsHidden(array(
 			SearchFields_Worker::EMAIL_ID,
-			SearchFields_Worker::LAST_ACTIVITY,
 			SearchFields_Worker::CONTEXT_LINK,
 			SearchFields_Worker::CONTEXT_LINK_ID,
 			SearchFields_Worker::VIRTUAL_CONTEXT_LINK,
@@ -1631,7 +1587,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::CALENDAR_ID,
 			SearchFields_Worker::EMAIL_ID,
 			SearchFields_Worker::ID,
-			SearchFields_Worker::LAST_ACTIVITY,
 			SearchFields_Worker::CONTEXT_LINK,
 			SearchFields_Worker::CONTEXT_LINK_ID,
 		));
@@ -1813,11 +1768,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Worker::LANGUAGE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
-				),
-			'lastActivity' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_DATE,
-					'options' => array('param_key' => SearchFields_Worker::LAST_ACTIVITY_DATE),
 				),
 			'lastName' => 
 				array(
@@ -2071,7 +2021,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Worker::DOB:
-			case SearchFields_Worker::LAST_ACTIVITY_DATE:
 			case SearchFields_Worker::UPDATED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
@@ -2148,7 +2097,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Worker::DOB:
-			case SearchFields_Worker::LAST_ACTIVITY_DATE:
 			case SearchFields_Worker::UPDATED:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
@@ -2439,7 +2387,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'is_superuser',
 			'timezone',
 			'language',
-			'last_activity_date',
 			'updated',
 		);
 	}
@@ -2508,7 +2455,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'is_superuser' => $prefix.$translate->_('worker.is_superuser'),
 			'language' => $prefix.$translate->_('worker.language'),
 			'last_name' => $prefix.$translate->_('common.name.last'),
-			'last_activity_date' => $prefix.$translate->_('worker.last_activity_date'),
 			'location' => $prefix.$translate->_('common.location'),
 			'mobile' => $prefix.$translate->_('common.mobile'),
 			'phone' => $prefix.$translate->_('common.phone'),
@@ -2531,7 +2477,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
 			'is_superuser' => Model_CustomField::TYPE_CHECKBOX,
 			'language' => Model_CustomField::TYPE_SINGLE_LINE,
-			'last_activity_date' => Model_CustomField::TYPE_DATE,
 			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'location' => Model_CustomField::TYPE_SINGLE_LINE,
 			'mobile' => 'phone',
@@ -2572,7 +2517,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['is_disabled'] = $worker->is_disabled;
 			$token_values['is_superuser'] = $worker->is_superuser;
 			$token_values['language'] = $worker->language;
-			$token_values['last_activity_date'] = $worker->last_activity_date;
 			$token_values['last_name'] = $worker->last_name;
 			$token_values['location'] = $worker->location;
 			$token_values['mobile'] = $worker->mobile;
@@ -2783,6 +2727,10 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 				),
 			);
 			$tpl->assign('links', $links);
+			
+			// Latest activity
+			$tpl->assign('latest_activity', $worker->getLatestActivity());
+			$tpl->assign('latest_session', $worker->getLatestSession());
 			
 			// Dictionary
 			$labels = array();

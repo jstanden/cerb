@@ -86,6 +86,47 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * 
+	 * @param string $actor_context
+	 * @param integer $actor_context_id
+	 * @return Model_ContextActivityLog|NULL
+	 */
+	static function getLatestEntriesByActor($actor_context, $actor_context_id, $limit = 1, $only_activities = array()) {
+		// Filter to only this worker
+		$sql = sprintf("%s = %s AND %s = %d",
+			self::escape(DAO_ContextActivityLog::ACTOR_CONTEXT),
+			self::qstr($actor_context),
+			self::escape(DAO_ContextActivityLog::ACTOR_CONTEXT_ID),
+			$actor_context_id
+		);
+		
+		// Are we're limiting our search to only some activities?
+		if(is_array($only_activities) && !empty($only_activities)) {
+			array_walk($only_activities, function($k, &$v) {
+				$v = self::qstr($v);
+			});
+			
+			$sql .= sprintf(" AND %s IN (%s)",
+				self::escape(DAO_ContextActivityLog::ACTIVITY_POINT),
+				implode(',', $only_activities)
+			);
+		}
+		
+		// Grab the entries
+		$results = self::getWhere(
+			$sql,
+			DAO_ContextActivityLog::CREATED,
+			false,
+			max(1, intval($limit))
+		);
+		
+		if(is_array($results) && !empty($results))
+			return array_shift($results);
+		
+		return NULL;
+	}
+	
+	/**
 	 * @param resource $rs
 	 * @return Model_ContextActivityLog[]
 	 */

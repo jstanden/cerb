@@ -63,8 +63,16 @@
 <fieldset class="peek">
 	<legend>{'common.activity'|devblocks_translate|capitalize}</legend>
 	
+	{if $latest_session}
+		{$latest_activity_date = $latest_session->updated}
+	{elseif $latest_activity}
+		{$latest_activity_date = $latest_activity->created}
+	{else}
+		{$latest_activity_date = 0}
+	{/if}
+	
 	<div style="margin-bottom:5px;">
-		<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:{if $dict->last_activity_date > time() - 900}rgb(0,180,0){else}rgb(230,230,230){/if};margin-right:5px;line-height:10px;"></div><b>{$dict->full_name}</b> {if $dict->last_activity_date}was last active <abbr title="{$dict->last_activity_date|devblocks_date}">{$dict->last_activity_date|devblocks_prettytime}</abbr>{else}has never logged in{/if}
+		<div style="display:inline-block;border-radius:10px;width:10px;height:10px;background-color:{if $latest_session && $latest_session->updated > time() - 900}rgb(0,180,0){else}rgb(230,230,230){/if};margin-right:5px;line-height:10px;"></div><b>{$dict->full_name}</b> {if $latest_activity_date}{if $latest_activity_date > time() - 900}is currently active{else}was last active <abbr title="{$latest_activity_date|devblocks_date}">{$latest_activity_date|devblocks_prettytime}</abbr>{/if} {if $latest_session}from {$latest_session->user_ip}{/if}{else}has never logged in{/if}
 	</div>
 </fieldset>
 

@@ -483,56 +483,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="activity.activity">
-			<tuv xml:lang="nl_NL">
-				<seg>%s bekijkt het activiteiten logboek</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.address_book">
-			<tuv xml:lang="nl_NL">
-				<seg>%s bekijkt het adresboek</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.config">
-			<tuv xml:lang="nl_NL">
-				<seg>%s configureert de helpdesk</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.default">
-			<tuv xml:lang="nl_NL">
-				<seg>%s bekijkt de helpdesk</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.display_ticket">
-			<tuv xml:lang="nl_NL">
-				<seg>%s bekijkt ticket %s</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.kb">
-			<tuv xml:lang="nl_NL">
-				<seg>%s bekijkt de kennisdatabase</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.mail.search">
-			<tuv xml:lang="nl_NL">
-				<seg>%s zoekt naar tickets</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.mail.workspaces">
-			<tuv xml:lang="nl_NL">
-				<seg>%s bekijkt %s in werkbladen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.simulator">
-			<tuv xml:lang="nl_NL">
-				<seg>%s genereert gesimuleerde tickets</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.tickets">
-			<tuv xml:lang="nl_NL">
-				<seg>%s bekijkt %s tickets</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.address">
 			<tuv xml:lang="nl_NL">
 				<seg/>
@@ -1221,6 +1171,16 @@
 		<tu tuid="common.languages">
 			<tuv xml:lang="nl_NL">
 				<seg>Talen</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.last_activity">
+			<tuv xml:lang="nl_NL">
+				<seg>Laatste activiteit</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.last_activity_date">
+			<tuv xml:lang="nl_NL">
+				<seg>Datum laatste activiteit</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.last_login">
@@ -5222,16 +5182,6 @@
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="nl_NL">
 				<seg>Administrator</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_activity">
-			<tuv xml:lang="nl_NL">
-				<seg>Laatste activiteit</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_activity_date">
-			<tuv xml:lang="nl_NL">
-				<seg>Datum laatste activiteit</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">

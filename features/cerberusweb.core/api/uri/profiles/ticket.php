@@ -251,19 +251,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
 		
-		// Log Activity
-		DAO_Worker::logActivity(
-			new Model_Activity('activity.display_ticket',array(
-				sprintf("<a href='%s' title='[%s] %s'>#%s</a>",
-					$url->write("c=profiles&type=ticket&id=".$ticket->mask),
-					htmlspecialchars(@$groups[$ticket->group_id]->name, ENT_QUOTES, LANG_CHARSET_CODE),
-					htmlspecialchars($ticket->subject, ENT_QUOTES, LANG_CHARSET_CODE),
-					$ticket->mask
-				)
-			)),
-			true
-		);
-		
 		// If deleted, check for a new merge parent URL
 		if($ticket->is_deleted) {
 			if(false !== ($new_mask = DAO_Ticket::getMergeParentByMask($ticket->mask))) {

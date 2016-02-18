@@ -129,6 +129,27 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 		return null;
 	}
 	
+	static function getByUserId($user_id) {
+		return self::getWhere(
+			sprintf("%s = %d",
+				self::escape(DAO_DevblocksSession::USER_ID),
+				$user_id
+			),
+			DAO_DevblocksSession::UPDATED,
+			false,
+			null
+		);
+	}
+	
+	static function getLatestByUserId($user_id) {
+		$sessions = self::getByUserId($user_id);
+		
+		if(is_array($sessions) && !empty($sessions))
+			return array_shift($sessions);
+		
+		return NULL;
+	}
+	
 	/**
 	 * @param resource $rs
 	 * @return Model_DevblocksSession[]

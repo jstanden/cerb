@@ -16,10 +16,6 @@
 ***********************************************************************/
 
 class ChContactsPage extends CerberusPageExtension {
-	function getActivity() {
-		return new Model_Activity('activity.address_book');
-	}
-	
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
 		if(null == ($worker = CerberusApplication::getActiveWorker()))

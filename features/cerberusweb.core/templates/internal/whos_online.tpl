@@ -1,4 +1,4 @@
-{$whos_online = DAO_Worker::getAllOnline()}
+{$whos_online = DAO_Worker::getAllOnline(900)}
 {if $whos_online}
 <h1 style="border-bottom:1px solid rgb(220,220,220);">{'whos_online.currently_active'|devblocks_translate}</h1>
 

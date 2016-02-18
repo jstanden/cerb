@@ -24,12 +24,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		return true;
 	}
 	
-	function getActivity() {
-		return new Model_Activity('activity.tickets',array(
-			""
-		));
-	}
-	
 	function render() {
 	}
 	

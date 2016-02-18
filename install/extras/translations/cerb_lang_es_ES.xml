@@ -483,56 +483,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="activity.activity">
-			<tuv xml:lang="es_ES">
-				<seg>%s está viendo los logs de actividad</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.address_book">
-			<tuv xml:lang="es_ES">
-				<seg>%s está viendo los contactos</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.config">
-			<tuv xml:lang="es_ES">
-				<seg>%s está configurando el helpdesk</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.default">
-			<tuv xml:lang="es_ES">
-				<seg>%s está viendo el helpdesk</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.display_ticket">
-			<tuv xml:lang="es_ES">
-				<seg>%s está viendo el ticket %s</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.kb">
-			<tuv xml:lang="es_ES">
-				<seg>%s está viendo la base de conocimientos</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.mail.search">
-			<tuv xml:lang="es_ES">
-				<seg>%s esta buscanco tickets</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.mail.workspaces">
-			<tuv xml:lang="es_ES">
-				<seg>%s está viendo %s en Área de trabajo</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.simulator">
-			<tuv xml:lang="es_ES">
-				<seg>%s está generando tickets simulados</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activity.tickets">
-			<tuv xml:lang="es_ES">
-				<seg>%s está viendo %s tickets</seg>
-			</tuv>
-		</tu>
 		<tu tuid="address.address">
 			<tuv xml:lang="es_ES">
 				<seg/>
@@ -1221,6 +1171,16 @@
 		<tu tuid="common.languages">
 			<tuv xml:lang="es_ES">
 				<seg>Idiomas</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.last_activity">
+			<tuv xml:lang="es_ES">
+				<seg>Última Actividad</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.last_activity_date">
+			<tuv xml:lang="es_ES">
+				<seg>Fecha Última Actividad</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.last_login">
@@ -5251,16 +5211,6 @@ Por ejemplo: *recibo*</seg>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="es_ES">
 				<seg>Administrador</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_activity">
-			<tuv xml:lang="es_ES">
-				<seg>Última Actividad</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.last_activity_date">
-			<tuv xml:lang="es_ES">
-				<seg>Fecha Última Actividad</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">

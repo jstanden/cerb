@@ -385,8 +385,6 @@ class ChSignInPage extends CerberusPageExtension {
 		
 		$session = DevblocksPlatform::getSessionService();
 		
-		DAO_Worker::logActivity(new Model_Activity(null));
-		
 		switch($option) {
 			case 'all':
 				if(null != ($active_worker = CerberusApplication::getActiveWorker()))

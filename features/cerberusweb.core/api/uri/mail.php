@@ -24,13 +24,6 @@ class Page_Mail extends CerberusPageExtension {
 		return true;
 	}
 	
-	function getActivity() {
-		// [TODO] Rename to activity.mail
-		return new Model_Activity('activity.tickets',array(
-			""
-		));
-	}
-	
 	function handleSectionActionAction() {
 		// GET has precedence over POST
 		@$section_uri = DevblocksPlatform::importGPC(isset($_GET['section']) ? $_GET['section'] : $_REQUEST['section'],'string','');

@@ -27,10 +27,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		return !empty($worker->is_superuser);
 	}
 	
-	function getActivity() {
-		return new Model_Activity('activity.config');
-	}
-	
 	function render() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl = DevblocksPlatform::getTemplateService();

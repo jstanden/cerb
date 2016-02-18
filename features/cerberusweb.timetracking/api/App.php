@@ -116,13 +116,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 	function render() {
 	}
 	
-	/**
-	 * @return Model_Activity
-	 */
-	public function getActivity() {
-		return new Model_Activity('activity.default');
-	}
-	
 	private function _startTimer() {
 		if(!isset($_SESSION['timetracking_started'])) {
 			$_SESSION['timetracking_started'] = time();
