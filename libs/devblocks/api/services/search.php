@@ -1206,6 +1206,13 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(isset($tables['fulltext_'.$namespace]))
 			return true;
 		
+		// Prior to MySQL 5.6 we can only do fulltext in MyISAM tables
+		if(mysqli_get_server_version($db->getMasterConnection()) < 50600) {
+			$db_engine_fulltext = 'MyISAM';
+		} else {
+			$db_engine_fulltext = APP_DB_ENGINE_FULLTEXT;
+		}
+		
 		$sql = sprintf(
 			"CREATE TABLE IF NOT EXISTS fulltext_%s (
 				id INT UNSIGNED NOT NULL DEFAULT 0,
@@ -1216,7 +1223,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			) ENGINE=%s CHARACTER SET=utf8;",
 			$this->escapeNamespace($namespace),
 			(!empty($attributes_sql) ? implode(",\n", $attributes_sql) : ''),
-			APP_DB_ENGINE_FULLTEXT
+			$db_engine_fulltext
 		);
 		
 		$result = $db->ExecuteMaster($sql);
