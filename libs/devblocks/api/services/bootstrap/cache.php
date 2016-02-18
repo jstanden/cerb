@@ -415,6 +415,10 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 	private $_driver = null;
 	private $_iteration = null;
 
+	public function getDriver() {
+		return $this->_driver;
+	}
+	
 	private function _getIteration($new=false) {
 		// First, check the class for our iteration
 		if(!$new && !is_null($this->_iteration))
@@ -539,6 +543,10 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 	
 	private $_driver = null;
 	private $_iteration = null;
+	
+	public function getDriver() {
+		return $this->_driver;
+	}
 
 	private function _getIteration($new=false) {
 		// First, check the class for our iteration
