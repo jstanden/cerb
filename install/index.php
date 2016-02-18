@@ -331,8 +331,8 @@ switch($step) {
 		// [JAS]: Possible storage engines
 		
 		$engines = array(
-			'myisam' => 'MyISAM (Default)',
-			'innodb' => 'InnoDB (Advanced)',
+			'myisam' => 'MyISAM (Legacy)',
+			'innodb' => 'InnoDB (Recommended)',
 		);
 		
 		$tpl->assign('engines', $engines);
@@ -362,11 +362,11 @@ switch($step) {
 					$db_passed = false;
 					$errors[] = sprintf("The '%s' storage engine is not enabled.", $db_engine);
 				}
-
+				
 				// We need this for fulltext indexing
-				if(!in_array('myisam', $discovered_engines)) {
+				if(!in_array('myisam', $discovered_engines) && mysqli_get_server_version($_db) < 50600) {
 					$db_passed = false;
-					$errors[] = "The 'MyISAM' storage engine is not enabled and is required for fulltext search.";
+					$errors[] = "The 'MyISAM' storage engine is not enabled and is required for fulltext search in MySQL < 5.6.";
 				}
 
 				// Check user privileges
