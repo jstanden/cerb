@@ -3001,7 +3001,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			"VALUES (%s)",
 			implode(',', array_keys($fields)),
 			implode(',', $fields)
-		));
+		), _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 	}
 	
 	static public function deleteView($worker_id, $view_id) {

@@ -224,7 +224,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			;
 			
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
-			$rs = $db->ExecuteMaster($sql);
+			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
 			$rs = $db->ExecuteSlave($sql);
 		}
@@ -474,7 +474,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			}
 			
 			// Make changes
-			parent::_update($batch_ids, 'worker', $fields);
+			parent::_update($batch_ids, 'worker', $fields, 'id', $option_bits);
 			
 			// Send events
 			if(!($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS) && $check_deltas) {

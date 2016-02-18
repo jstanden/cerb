@@ -140,7 +140,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 		;
 		
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
-			$rs = $db->ExecuteMaster($sql);
+			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
 			$rs = $db->ExecuteSlave($sql);
 		}

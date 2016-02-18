@@ -113,7 +113,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 				"FROM custom_field ".
 				"ORDER BY custom_fieldset_id ASC, pos ASC "
 			;
-			$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
 			$objects = self::_createObjectsFromResultSet($rs);
 			

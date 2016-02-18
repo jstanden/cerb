@@ -612,7 +612,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 			
 			DAO_WorkspaceWidget::update($widget->id, array(
 				DAO_WorkspaceWidget::UPDATED_AT => time(),
-			));
+			), DevblocksORMHelper::OPT_UPDATE_NO_READ_AFTER_WRITE);
 			
 			$cache->save($data, $cache_key, array(), $cache_mins*60);
 		}

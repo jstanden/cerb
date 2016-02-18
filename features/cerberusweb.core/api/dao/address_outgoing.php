@@ -67,7 +67,7 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 				"INNER JOIN address AS a ON (a.id=ao.address_id) ".
 				"ORDER BY a.email ASC "
 				;
-			$rs = $db->ExecuteMaster($sql);
+			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 			
 			$froms = self::_getObjectsFromResultSet($rs);
 			

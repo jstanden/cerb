@@ -5,6 +5,7 @@ abstract class DevblocksORMHelper {
 	
 	const OPT_UPDATE_NO_FLUSH_CACHE = 1;
 	const OPT_UPDATE_NO_EVENTS = 2;
+	const OPT_UPDATE_NO_READ_AFTER_WRITE = 4;
 	
 	static protected function _buildSortClause($sortBy, $sortAsc, $fields) {
 		$sort_sql = null;
@@ -105,7 +106,7 @@ abstract class DevblocksORMHelper {
 	 * @param integer $id
 	 * @param array $fields
 	 */
-	static protected function _update($ids=array(), $table, $fields, $idcol='id') {
+	static protected function _update($ids=array(), $table, $fields, $idcol='id', $option_bits = 0) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -127,13 +128,15 @@ abstract class DevblocksORMHelper {
 			);
 		}
 			
+		$db_option_bits = ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_READ_AFTER_WRITE) ? _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE : 0;
+		
 		$sql = sprintf("UPDATE %s SET %s WHERE %s IN (%s)",
 			$table,
 			implode(', ', $sets),
 			$idcol,
 			implode(',', $ids)
 		);
-		$db->ExecuteMaster($sql);
+		$db->ExecuteMaster($sql, $db_option_bits);
 	}
 	
 	static protected function _updateWhere($table, $fields, $where) {

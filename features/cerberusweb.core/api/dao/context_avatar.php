@@ -177,7 +177,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 		;
 		
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
-			$rs = $db->ExecuteMaster($sql);
+			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
 			$rs = $db->ExecuteSlave($sql);
 		}
@@ -193,8 +193,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 	static function getAll($nocache=false) {
 		//$cache = DevblocksPlatform::getCacheService();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
-			$objects = self::getWhere(null, DAO_ContextAvatar
-::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			$objects = self::getWhere(null, DAO_ContextAvatar::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			//$cache->save($buckets, self::_CACHE_ALL);
 		//}
 		

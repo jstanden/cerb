@@ -2338,7 +2338,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 				$db->ExecuteMaster(sprintf("UPDATE devblocks_session SET refreshed_at=%d WHERE session_key = %s",
 					time(),
 					$db->qstr($id)
-				));
+				), _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 			}
 
 			self::$_data = $session['session_data'];
@@ -2355,6 +2355,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		}
 
 		$active_worker = CerberusApplication::getActiveWorker();
+		$user_id = !is_null($active_worker) ? $active_worker->id : 0;
 		$user_ip = $_SERVER['REMOTE_ADDR'];
 		$user_agent = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
 
@@ -2372,7 +2373,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			$db->qstr($user_agent),
 			$db->qstr($id)
 		);
-		$result = $db->ExecuteMaster($sql);
+		$result = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 
 		if(0==$db->Affected_Rows()) {
 			// Insert
@@ -2387,7 +2388,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 				$db->qstr($user_agent),
 				$db->qstr($session_data)
 			);
-			$db->ExecuteMaster($sql);
+			$db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		}
 
 		return true;

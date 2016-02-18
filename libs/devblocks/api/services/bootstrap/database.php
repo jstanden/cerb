@@ -4,6 +4,9 @@ class _DevblocksDatabaseManager {
 	
 	private $_connections = array();
 	private $_last_used_db = null;
+	private $_has_written = false;
+	
+	const OPT_NO_READ_AFTER_WRITE = 1;
 	
 	private function __construct() {
 		// We lazy load the connections
@@ -202,19 +205,51 @@ class _DevblocksDatabaseManager {
 		return $this->ExecuteMaster($sql);
 	}
 	
-	function ExecuteMaster($sql) {
+	function ExecuteMaster($sql, $option_bits = 0) {
 		if(DEVELOPMENT_MODE_QUERIES)
 			$console = DevblocksPlatform::getConsoleLog('MASTER');
+		
+		if(APP_DB_OPT_READ_MASTER_AFTER_WRITE) {
+			// If we're ignoring master read-after-write, do nothing
+			if($option_bits & _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE) {
+				//error_log(sprintf("Ignoring master read-after-write: %s", $sql));
+				
+			// Otherwise, if we've written to master then start redirecting reads to master
+			} else if(!$this->_has_written) {
+				$cache = DevblocksPlatform::getCacheService();
+				$cache_key = 'session:db:last_write:' . session_id();
+				//error_log(sprintf("Write to master (%s): %s", $cache_key, $sql));
+				$cache->save(time(), $cache_key, array(), APP_DB_OPT_READ_MASTER_AFTER_WRITE, $cache->isVolatile());
+				$this->_has_written = true;
+			}
+		}
+		
 		return $this->_Execute($sql, $this->_master_db);
 	}
 	
 	function ExecuteSlave($sql) {
+		$cache = DevblocksPlatform::getCacheService();
+		$db = $this->_slave_db;
+		
+		// Check if we're redirecting read-after-write to master
+		if(APP_DB_OPT_READ_MASTER_AFTER_WRITE) {
+			$cache_key = 'session:db:last_write:' . session_id();
+			
+			// If we've already executed DML this request, or another request has recently, redirect reads to master
+			if($this->_has_written || (false != ($last_write = $cache->load($cache_key)) && time() - $last_write <= 2)) {
+				//error_log(sprintf("Redirecting read-after-write to master (%s): %s", $cache_key, $sql));
+				$db = $this->_master_db;
+				$this->_has_written = true;
+			}
+		}
+		
 		if(DEVELOPMENT_MODE_QUERIES)
 			$console = DevblocksPlatform::getConsoleLog('SLAVE');
-		return $this->_Execute($sql, $this->_slave_db);
+		
+		return $this->_Execute($sql, $db);
 	}
 	
-	private function _Execute($sql, $db) {
+	private function _Execute($sql, $db, $option_bits = 0) {
 		if(DEVELOPMENT_MODE_QUERIES) {
 			if($console = DevblocksPlatform::getConsoleLog(null))
 				$console->debug($sql);
@@ -274,19 +309,25 @@ class _DevblocksDatabaseManager {
 	function GetArrayMaster($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
 			$console = DevblocksPlatform::getConsoleLog('MASTER');
-		return $this->_GetArray($sql, $this->_master_db);
+		
+		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
+		
+		return $this->_GetArray($rs);
 	}
 	
 	function GetArraySlave($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
 			$console = DevblocksPlatform::getConsoleLog('SLAVE');
-		return $this->_GetArray($sql, $this->_slave_db);
+		
+		$rs = $this->ExecuteSlave($sql);
+		
+		return $this->_GetArray($rs);
 	}
 	
-	private function _GetArray($sql, $db) {
+	private function _GetArray($rs) {
 		$results = array();
 		
-		if(false !== ($rs = $this->_Execute($sql, $db))) {
+		if($rs instanceof mysqli_result) {
 			while($row = mysqli_fetch_assoc($rs)) {
 				$results[] = $row;
 			}
@@ -310,17 +351,21 @@ class _DevblocksDatabaseManager {
 	public function GetRowMaster($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
 			$console = DevblocksPlatform::getConsoleLog('MASTER');
-		return $this->_GetRow($sql, $this->_master_db);
+		
+		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
+		return $this->_GetRow($rs);
 	}
 	
 	public function GetRowSlave($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
 			$console = DevblocksPlatform::getConsoleLog('SLAVE');
-		return $this->_GetRow($sql, $this->_slave_db);
+		
+		$rs = $this->ExecuteSlave($sql);
+		return $this->_GetRow($rs);
 	}
 	
-	private function _GetRow($sql, $db) {
-		if($rs = $this->_Execute($sql, $db)) {
+	private function _GetRow($rs) {
+		if($rs instanceof mysqli_result) {
 			$row = mysqli_fetch_assoc($rs);
 			mysqli_free_result($rs);
 			return $row;
@@ -342,17 +387,21 @@ class _DevblocksDatabaseManager {
 	function GetOneMaster($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
 			$console = DevblocksPlatform::getConsoleLog('MASTER');
-		return $this->_GetOne($sql, $this->_master_db);
+		
+		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
+		return $this->_GetOne($rs);
 	}
 	
 	function GetOneSlave($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
 			$console = DevblocksPlatform::getConsoleLog('SLAVE');
-		return $this->_GetOne($sql, $this->_slave_db);
+		
+		$rs = $this->ExecuteSlave($sql);
+		return $this->_GetOne($rs);
 	}
 
-	private function _GetOne($sql, $db) {
-		if(false !== ($rs = $this->_Execute($sql, $db))) {
+	private function _GetOne($rs) {
+		if($rs instanceof mysqli_result) {
 			$row = mysqli_fetch_row($rs);
 			mysqli_free_result($rs);
 			return $row[0];

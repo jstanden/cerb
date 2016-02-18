@@ -88,7 +88,7 @@ class PageSection_InternalSkills extends Extension_PageSection {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$db->Execute(sprintf("DELETE FROM context_to_skill WHERE context = %s AND context_id = %d",
+		$db->ExecuteMaster(sprintf("DELETE FROM context_to_skill WHERE context = %s AND context_id = %d",
 				$db->qstr($context),
 				$context_id
 		));
@@ -109,7 +109,7 @@ class PageSection_InternalSkills extends Extension_PageSection {
 		}
 		
 		if(!empty($values)) {
-			$db->Execute(sprintf("INSERT INTO context_to_skill (context, context_id, skill_id, skill_level) VALUES %s",
+			$db->ExecuteMaster(sprintf("INSERT INTO context_to_skill (context, context_id, skill_id, skill_level) VALUES %s",
 					implode(', ', $values)
 			));
 		}

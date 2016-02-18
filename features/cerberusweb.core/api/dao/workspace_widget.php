@@ -37,7 +37,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $option_bits = 0) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -49,7 +49,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 				continue;
 			
 			// Make changes
-			parent::_update($batch_ids, 'workspace_widget', $fields);
+			parent::_update($batch_ids, 'workspace_widget', $fields, 'id', $option_bits);
 		}
 	}
 	
