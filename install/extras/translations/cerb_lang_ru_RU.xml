@@ -5237,11 +5237,6 @@ login &lt;ftp&#13;
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="whos_online.heading">
-			<tuv xml:lang="ru_RU">
-				<seg>%s Исполнителей авторизовано:</seg>
-			</tuv>
-		</tu>
 		<tu tuid="worker.at_mention_name">
 			<tuv xml:lang="ru_RU">
 				<seg/>

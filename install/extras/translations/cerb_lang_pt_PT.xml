@@ -5242,11 +5242,6 @@ Por exemplo: *recipiente*</seg>
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="whos_online.heading">
-			<tuv xml:lang="pt_PT">
-				<seg>%s Colaborador(es) em sessão:</seg>
-			</tuv>
-		</tu>
 		<tu tuid="worker.at_mention_name">
 			<tuv xml:lang="pt_PT">
 				<seg/>

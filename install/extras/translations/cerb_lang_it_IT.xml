@@ -5208,11 +5208,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="whos_online.heading">
-			<tuv xml:lang="it_IT">
-				<seg>%s Utenti Loggati:</seg>
-			</tuv>
-		</tu>
 		<tu tuid="worker.at_mention_name">
 			<tuv xml:lang="it_IT">
 				<seg/>
