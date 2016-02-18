@@ -184,6 +184,11 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 			@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 	
+			// Check limits
+			if(!$id && CERB_LIMITS_MAILBOX_COUNT != -1 && false !== ($count = DAO_Mailbox::count()) && $count >= CERB_LIMITS_MAILBOX_COUNT) {
+				throw new Exception(sprintf("You have reached your mailbox account limit (%d).", CERB_LIMITS_MAILBOX_COUNT));
+			}
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				DAO_Mailbox::delete($id);
 				
