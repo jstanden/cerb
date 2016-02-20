@@ -338,8 +338,8 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 			return false;
 		
 		// If we can overload this template through the DB, don't return an mtime (faster to do one query)
-		if(true || isset($plugin->manifest_cache['templates']))
-			return null;
+		if(isset($plugin->manifest_cache['templates']))
+			return time();
 		
 		// Otherwise, check the mtime via the plugin's relative path on disk
 		$path = $plugin->getStoragePath() . '/templates/' . $tpl_path;
