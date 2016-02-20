@@ -658,6 +658,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	
 	public function batchDelete($namespace, $keys) {
 		@$bucket = $this->_options['bucket'];
+		$errors = array();
 		
 		$ns = $this->escapeNamespace($namespace);
 		$path_prefix = $this->_options['path_prefix'];
@@ -666,21 +667,16 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 			return $path_prefix . $ns . '/'. $e;
 		}, $keys);
 		
-		
-		if(false === ($xml = $this->_s3->deleteObjects($bucket, $paths)))
-			return false;
-
 		// Handle the case where some objects fail to delete (e.g. AccessDenied)
 		
-		$errors = array();
-		
-		if(isset($xml->Error))
-		foreach($xml->Error as $error) {
-			$errors[] = str_replace($path_prefix . $ns . '/', '', $error->Key);
+		foreach($paths as $path) {
+			if(false === ($xml = $this->_s3->deleteObject($bucket, $path))) {
+				$errors[] = str_replace($path_prefix . $ns . '/', '', $path);
+			}
 		}
 		
 		// Return the keys that were actually deleted, ignoring any errors
-		if(is_array($errors))
+		if(!empty($errors))
 			return array_diff($keys, $errors);
 		
 		return $keys;
