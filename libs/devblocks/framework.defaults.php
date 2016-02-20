@@ -68,6 +68,9 @@ if(!defined('CERB_FEATURES_PLUGIN_LIBRARY'))
 if(!defined('CERB_LIMITS_MAILBOX_COUNT'))
 	define('CERB_LIMITS_MAILBOX_COUNT', -1);
 
+if(!defined('CERB_LIMITS_PORTAL_COUNT'))
+	define('CERB_LIMITS_PORTAL_COUNT', -1);
+
 if(!defined('APP_DEFAULT_CONTROLLER'))
 	define('APP_DEFAULT_CONTROLLER',''); // 404?
 

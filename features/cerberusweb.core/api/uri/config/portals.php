@@ -36,6 +36,13 @@ class PageSection_SetupPortals extends Extension_PageSection {
 	function showAddPortalPeekAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
+		// Check if we're limiting community portal creation
+		if(-1 != CERB_LIMITS_PORTAL_COUNT && false !== ($count = DAO_CommunityTool::count()) && $count >= CERB_LIMITS_PORTAL_COUNT) {
+			$tpl->assign('error_message', sprintf("You have reached your community portal limit (%d).", $count));
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+			return;
+		}
+		
 		$tool_manifests = DevblocksPlatform::getExtensions('usermeet.tool', false);
 		$tpl->assign('tool_manifests', $tool_manifests);
 		
@@ -45,6 +52,9 @@ class PageSection_SetupPortals extends Extension_PageSection {
 	function saveAddPortalPeekAction() {
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string', '');
+		
+		if(-1 != CERB_LIMITS_PORTAL_COUNT && false !== ($count = DAO_CommunityTool::count()) && $count >= CERB_LIMITS_PORTAL_COUNT)
+			return false;
 		
 		$portal_code = DAO_CommunityTool::generateUniqueCode();
 		

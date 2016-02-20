@@ -146,6 +146,11 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	public static function count() {
+		$portals = self::getAll();
+		return count($portals);
+	}
+	
 	public static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
