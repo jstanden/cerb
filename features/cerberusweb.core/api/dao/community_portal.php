@@ -16,6 +16,8 @@
 ***********************************************************************/
 
 class DAO_CommunityTool extends Cerb_ORMHelper {
+	const _CACHE_ALL = 'dao_communitytool_all';
+	
 	const ID = 'id';
 	const NAME = 'name';
 	const CODE = 'code';
@@ -66,12 +68,23 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		if(empty($id))
 			return null;
 		
-		$items = self::getList(array($id));
+		$portals = self::getAll();
 		
-		if(isset($items[$id]))
-			return $items[$id];
-			
+		if(isset($portals[$id]))
+			return $portals[$id];
+		
 		return NULL;
+	}
+	
+	public static function getAll($nocache=false) {
+		$cache = DevblocksPlatform::getCacheService();
+		
+		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+			$objects = self::getWhere(null, DAO_CommunityTool::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			$cache->save($objects, self::_CACHE_ALL);
+		}
+		
+		return $objects;
 	}
 	
 	/**
@@ -81,16 +94,14 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	 * @return Model_CommunityTool
 	 */
 	public static function getByCode($code) {
-		if(empty($code)) return NULL;
-		$db = DevblocksPlatform::getDatabaseService();
+		if(empty($code))
+			return NULL;
 		
-		$sql = sprintf("SELECT id FROM community_tool WHERE code = %s",
-			$db->qstr($code)
-		);
-		$id = $db->GetOneSlave($sql);
+		$portals = DAO_CommunityTool::getAll();
 		
-		if(!empty($id)) {
-			return self::get($id);
+		foreach($portals as $portal) {
+			if($portal->code == $code)
+				return $portal;
 		}
 		
 		return NULL;
@@ -102,29 +113,40 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_CommunityTool[]
 	 */
-	public static function getList($ids=array()) {
-		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+	public static function getIds($ids=array()) {
+		if(!is_array($ids))
+			$ids = array($ids);
 		
-		$sql = "SELECT id,name,code,extension_id ".
-			"FROM community_tool ".
-			(!empty($ids) ? sprintf("WHERE id IN (%s) ", implode(',', $ids)) : " ").
-			"ORDER BY name"
-		;
-		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
-
-		return self::_createObjectsFromResultSet($rs);
+		$portals = self::getAll();
+		$ids = array_flip($ids);
+		
+		$portals = array_filter($portals, function($portal) use ($ids) {
+			if(isset($ids[$portal->id]))
+				return true;
+			
+			return false;
+		});
+		
+		return $portals;
 	}
 	
-	static function getWhere($where=null) {
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,name,code,extension_id ".
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		$sql = "SELECT id, name, code, extension_id ".
 			"FROM community_tool ".
-			(!empty($where)?sprintf("WHERE %s ",$where):" ").
-			"ORDER BY name "
-			;
-		$rs = $db->ExecuteSlave($sql);
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
+		
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
 		
 		return self::_createObjectsFromResultSet($rs);
 	}
