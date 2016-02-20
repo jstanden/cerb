@@ -1570,8 +1570,10 @@ class DevblocksPlatform extends DevblocksEngine {
 			$cache->remove(_DevblocksClassLoadManager::CACHE_CLASS_MAP);
 			
 			// Flush template cache
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->clearCompiledTemplate();
+			if(!APP_SMARTY_COMPILE_PATH_MULTI_TENANT) {
+				$tpl = DevblocksPlatform::getTemplateService();
+				$tpl->clearCompiledTemplate();
+			}
 			
 			// Clear all locale caches
 			$langs = DAO_Translation::getDefinedLangCodes();

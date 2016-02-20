@@ -173,9 +173,11 @@ class ChUpdateController extends DevblocksControllerExtension {
 						DevblocksPlatform::getClassLoaderService()->destroy();
 						
 						// Clear compiled templates
-						$tpl = DevblocksPlatform::getTemplateService();
-						$tpl->clearCompiledTemplate();
-						$tpl->clearAllCache();
+						if(!APP_SMARTY_COMPILE_PATH_MULTI_TENANT) {
+							$tpl = DevblocksPlatform::getTemplateService();
+							$tpl->clearCompiledTemplate();
+							$tpl->clearAllCache();
+						}
 
 						// Reload plugin translations
 						DAO_Translation::reloadPluginStrings();

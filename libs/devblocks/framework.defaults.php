@@ -86,6 +86,9 @@ if(!defined('APP_SMARTY_COMPILE_PATH'))
 if(!defined('APP_SMARTY_COMPILE_USE_SUBDIRS'))
 	define('APP_SMARTY_COMPILE_USE_SUBDIRS', false);
 
+if(!defined('APP_SMARTY_COMPILE_PATH_MULTI_TENANT'))
+	define('APP_SMARTY_COMPILE_PATH_MULTI_TENANT', false);
+
 if(!defined('DEVBLOCKS_PATH'))
 	define('DEVBLOCKS_PATH',APP_PATH . '/libs/devblocks/');
 
