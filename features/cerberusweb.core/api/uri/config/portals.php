@@ -44,6 +44,13 @@ class PageSection_SetupPortals extends Extension_PageSection {
 		}
 		
 		$tool_manifests = DevblocksPlatform::getExtensions('usermeet.tool', false);
+		
+		if(empty($tool_manifests)) {
+			$tpl->assign('error_message', sprintf("There are no community portals available. Please enable a plugin like the Support Center and try again."));
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+			return;
+		}
+		
 		$tpl->assign('tool_manifests', $tool_manifests);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/portals/add.tpl');
