@@ -679,6 +679,27 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	}
 	
 	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_DevblocksTemplate
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			return false;
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids))
+			return array();
+		
+		$objects = self::getWhere(sprintf("id IN (%s)",
+			implode(',', $ids)
+		));
+		
+		return $objects;
+	}
+	
+	/**
 	 * @param resource $rs
 	 * @return Model_DevblocksTemplate[]
 	 */
@@ -700,15 +721,26 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
+		$tpl = DevblocksPlatform::getTemplateService();
 		
 		if(empty($ids))
 			return;
+		
+		// Load the template models before deleting them
+		$templates = DAO_DevblocksTemplate::getIds($ids);
 
+		// Delete from database
 		$ids_list = implode(',', $ids);
-
 		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_template WHERE id IN (%s)", $ids_list));
+		
+		// Clear templates_c compile cache with the models
+		foreach($templates as $template) { /* @var $template Model_DevblocksTemplate */
+			$tpl->clearCompiledTemplate(sprintf("devblocks:%s:%s:%s", $template->plugin_id, $template->tag, $template->path));
+		}
 		
 		return true;
 	}
@@ -824,7 +856,8 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	
 	static function importXmlFile($filename, $tag) {
 		$db = DevblocksPlatform::getDatabaseService();
-		
+		$tpl = DevblocksPlatform::getTemplateService();
+
 		if(!file_exists($filename) && empty($tag))
 			return;
 		
@@ -864,8 +897,10 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 				self::update($template->id, $fields);
 				
 			}
-		}
 			
+			$tpl->clearCompiledTemplate(sprintf("devblocks:%s:%s:%s", $plugin_id, $tag, $path));
+		}
+		
 		unset($xml);
 	}
 

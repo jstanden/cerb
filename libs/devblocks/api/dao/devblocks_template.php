@@ -311,13 +311,6 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 			unset($batch_ids);
 		}
 		
-		if($deleted) {
-			// Clear compiled templates
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->clearCompiledTemplate();
-			$tpl->clearAllCache();
-		}
-
 		unset($ids);
 	}
 };

@@ -209,6 +209,9 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
+		if(false == ($template = DAO_DevblocksTemplate::get($id)))
+			return false;;
+		
 		if(!empty($do_delete)) {
 			DAO_DevblocksTemplate::delete($id);
 			
@@ -218,11 +221,10 @@ class PageSection_SetupPortal extends Extension_PageSection {
 				DAO_DevblocksTemplate::LAST_UPDATED => time(),
 			));
 		}
-
-		// Clear compiled templates
+		
+		// Clear compiled template
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->clearCompiledTemplate();
-		$tpl->clearAllCache();
+		$tpl->clearCompiledTemplate(sprintf("devblocks:%s:%s:%s", $template->plugin_id, $template->tag, $template->path), APP_BUILD);
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id)))
 			$view->render();
@@ -320,11 +322,6 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		@$import_file = $_FILES['import_file'];
 
 		DAO_DevblocksTemplate::importXmlFile($import_file['tmp_name'], 'portal_'.$portal);
-		
-		// Clear compiled templates
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->clearCompiledTemplate();
-		$tpl->clearAllCache();
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','portal',$portal,'templates')));
 	}
