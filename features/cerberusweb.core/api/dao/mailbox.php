@@ -128,6 +128,10 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 		//$cache = DevblocksPlatform::getCacheService();
 		//if($nocache || null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_Mailbox::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			
+			// if(!is_array($objects))
+			//	return false;
+			
 			//$cache->save($buckets, self::CACHE_ALL);
 		//}
 		

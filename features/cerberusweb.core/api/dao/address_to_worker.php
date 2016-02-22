@@ -181,21 +181,19 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if($nocache || null === ($results = $cache->load(self::_CACHE_ALL))) {
-			$addresses = self::getWhere(
+			$results = self::getWhere(
 				null,
 				null,
 				null,
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
-			$results = array();
 			
-			if(is_array($addresses))
-			foreach($addresses as $address) {
-				$results[$address->address_id] = $address;
-			}
+			if(!is_array($results))
+				return false;
 			
-			$cache->save($results, self::_CACHE_ALL);
+			if(!empty($results))
+				$cache->save($results, self::_CACHE_ALL);
 		}
 		
 		if(!$with_disabled) {

@@ -694,6 +694,10 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($categories))
+				return false;
+			
 			$cache->save($categories, self::CACHE_ALL);
 		}
 		

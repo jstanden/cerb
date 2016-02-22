@@ -87,6 +87,10 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($credentials))
+				return false;
+			
 			$cache->save($credentials, self::_CACHE_ALL);
 		}
 		

@@ -124,6 +124,10 @@ class DAO_Calendar extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($calendars))
+				return false;
+			
 			$cache->save($calendars, self::CACHE_ALL);
 		}
 		

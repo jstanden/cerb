@@ -112,6 +112,10 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($mail_transports))
+				return false;
+			
 			$cache->save($mail_transports, self::_CACHE_ALL);
 		}
 		

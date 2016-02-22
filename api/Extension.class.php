@@ -549,9 +549,9 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 				if($autoload) {
 					$tpl = DevblocksPlatform::getTemplateService();
 					$tpl->assign('widget', $widget);
-					$widget_contents = $tpl->fetch('devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl');
 					
-					$cache->save($widget_contents, $cache_key, null, $widget->cache_ttl);
+					if(false !== ($widget_contents = $tpl->fetch('devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl')))
+						$cache->save($widget_contents, $cache_key, null, $widget->cache_ttl);
 				}
 				
 			} else {

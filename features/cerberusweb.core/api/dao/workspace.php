@@ -58,6 +58,9 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
 			
+			if(!is_array($pages))
+				return false;
+			
 			$cache->save($pages, self::_CACHE_ALL);
 		}
 		
@@ -434,6 +437,10 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($tabs))
+				return false;
+			
 			$cache->save($tabs, self::_CACHE_ALL);
 		}
 		

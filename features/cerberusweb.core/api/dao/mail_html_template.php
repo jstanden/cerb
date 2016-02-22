@@ -121,6 +121,10 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($html_templates))
+				return false;
+			
 			$cache->save($html_templates, self::_CACHE_ALL);
 		}
 		

@@ -110,6 +110,10 @@ class DAO_Skill extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($objects))
+				return false;
+			
 			$cache->save($objects, self::CACHE_ALL);
 		}
 		

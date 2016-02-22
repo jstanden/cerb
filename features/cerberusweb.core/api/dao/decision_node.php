@@ -75,6 +75,10 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($nodes))
+				return false;
+			
 			$cache->save($nodes, self::CACHE_ALL);
 		}
 		

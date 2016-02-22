@@ -191,7 +191,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
-			$cache->save($workers, self::CACHE_ALL);
+			
+			if(!is_array($workers))
+				return false;
+
+			if(!empty($workers))
+				$cache->save($workers, self::CACHE_ALL);
 		}
 		
 		/*
@@ -199,10 +204,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 		 * but don't bother caching two different versions (always cache all)
 		 */
 		if(!$with_disabled) {
-			foreach($workers as $worker_id => $worker) { /* @var $worker Model_Worker */
-				if($worker->is_disabled)
-					unset($workers[$worker_id]);
-			}
+			$workers = array_filter($workers, function($worker) {
+				return !$worker->is_disabled;
+			});
 		}
 		
 		return $workers;
@@ -266,6 +270,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 */
 	static private function _createObjectsFromResultSet($rs=null) {
 		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Worker();
@@ -2283,7 +2290,9 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 		if(null === ($objects = $cache->load(self::CACHE_PREFIX.$worker_id))) {
 			$db = DevblocksPlatform::getDatabaseService();
 			$sql = sprintf("SELECT setting, value FROM worker_pref WHERE worker_id = %d", $worker_id);
-			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			
+			if(false === ($rs = $db->ExecuteSlave($sql)))
+				return false;
 			
 			$objects = array();
 			

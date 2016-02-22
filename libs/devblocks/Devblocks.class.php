@@ -1664,7 +1664,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			
 			$tables = $db->metaTables();
 			
-			if(!$nocache)
+			if(!$nocache && is_array($tables) && !empty($tables))
 				$cache->save($tables, self::CACHE_TABLES);
 		}
 		
@@ -1797,7 +1797,9 @@ class DevblocksPlatform extends DevblocksEngine {
 					$prefix,
 					($with_disabled ? '' : 'AND p.enabled = 1')
 				);
-			$results = $db->GetArrayMaster($sql);
+			
+			if(false == ($results = $db->GetArrayMaster($sql)))
+				return false;
 				
 			foreach($results as $row) {
 				$extension = new DevblocksExtensionManifest();
@@ -1884,7 +1886,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			$events = array_merge($events,$plugin->event_points);
 		}
 		
-		$cache->save($events, self::CACHE_EVENT_POINTS);
+		if(!empty($events))
+			$cache->save($events, self::CACHE_EVENT_POINTS);
+		
 		return $events;
 	}
 	
@@ -1912,7 +1916,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			$prefix,
 			$prefix
 		);
-		$results = $db->GetArrayMaster($sql);
+		
+		if(false == ($results = $db->GetArrayMaster($sql)))
+			return false;
 		
 		foreach($results as $row) {
 			$priv = new DevblocksAclPrivilege();
@@ -1952,7 +1958,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			}
 		}
 		
-		$cache->save($events, self::CACHE_EVENTS);
+		if(is_array($events) && !empty($events))
+			$cache->save($events, self::CACHE_EVENTS);
+		
 		return $events;
 	}
 	
@@ -2025,7 +2033,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		self::_sortPluginsByDependency($plugins);
 		
-		$cache->save($plugins, self::CACHE_PLUGINS);
+		if(is_array($plugins) && !empty($plugins))
+			$cache->save($plugins, self::CACHE_PLUGINS);
+		
 		return $plugins;
 	}
 	
@@ -2496,7 +2506,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(isset($languages[$locale])) {
 			return $languages[$locale];
 		}
-						
+
 		$cache = self::getCacheService();
 		
 		if(null === ($map = $cache->load(self::CACHE_TAG_TRANSLATIONS.'_'.$locale))) { /* @var $cache _DevblocksCacheManager */
@@ -2536,7 +2546,8 @@ class DevblocksPlatform extends DevblocksEngine {
 			unset($map_loc);
 			
 			// Cache with tag (tag allows easy clean for multiple langs at once)
-			$cache->save($map,self::CACHE_TAG_TRANSLATIONS.'_'.$locale);
+			if(is_array($map) && !empty($map))
+				$cache->save($map,self::CACHE_TAG_TRANSLATIONS.'_'.$locale);
 		}
 		
 		$translate = _DevblocksTranslationManager::getInstance();

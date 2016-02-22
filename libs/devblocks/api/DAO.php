@@ -547,7 +547,9 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 				"FROM %sproperty_store ",
 				$prefix
 			);
-			$results = $db->GetArrayMaster($sql);
+			
+			if(false == ($results = $db->GetArrayMaster($sql)))
+				return false;
 			
 			foreach($results as $row) {
 				$params[$row['extension_id']][$row['property']] = $row['value'];
@@ -578,7 +580,9 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 				$prefix,
 				$db->qstr($extension_id)
 			);
-			$results = $db->GetArrayMaster($sql);
+			
+			if(false == ($results = $db->GetArrayMaster($sql)))
+				return false;
 			
 			if(is_array($results))
 			foreach($results as $row)
@@ -1399,6 +1403,10 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 		
 		if(null === ($profiles = $cache->load(DevblocksPlatform::CACHE_STORAGE_PROFILES))) {
 			$profiles = self::getWhere();
+			
+			if(!is_array($profiles))
+				return false;
+			
 			$cache->save($profiles, DevblocksPlatform::CACHE_STORAGE_PROFILES);
 		}
 		

@@ -108,6 +108,9 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 					$roles[$role_id] = $role;
 				}
 			}
+			
+			if(!is_array($roles))
+				return false;
 
 			$cache->save($roles, self::_CACHE_WORKER_ROLES_PREFIX.$worker_id);
 		}
@@ -119,9 +122,15 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 
 		if($nocache || null === ($privs = $cache->load(self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id))) {
-			$worker = DAO_Worker::get($worker_id);
-			$memberships = $worker->getMemberships();
-			$roles = DAO_WorkerRole::getRolesByWorker($worker_id);
+			if(false === ($worker = DAO_Worker::get($worker_id)))
+				return false;
+			
+			if(false === ($memberships = $worker->getMemberships()))
+				return false;
+			
+			if(false === ($roles = DAO_WorkerRole::getRolesByWorker($worker_id)))
+				return false;
+			
 			$privs = array();
 			
 			foreach($roles as $role_id => $role) {
@@ -154,6 +163,10 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($roles))
+				return false;
+			
 			$cache->save($roles, self::_CACHE_ROLES_ALL);
 		}
 		

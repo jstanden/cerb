@@ -149,7 +149,11 @@ foreach($fields as $field_name => $field_type) {
 		//$cache = DevblocksPlatform::getCacheService();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_<?php echo $class_name,"\n"; ?>::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
-			//$cache->save($buckets, self::_CACHE_ALL);
+			
+			//if(!is_array($objects))
+			//	return false;
+				
+			//$cache->save($objects, self::_CACHE_ALL);
 		//}
 		
 		return $objects;

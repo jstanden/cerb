@@ -92,6 +92,10 @@ class DAO_Group extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($groups))
+				return false;
+			
 			$cache->save($groups, self::CACHE_ALL);
 		}
 		
@@ -553,7 +557,9 @@ class DAO_Group extends Cerb_ORMHelper {
 				"INNER JOIN worker w ON (w.id=wt.worker_id) ".
 				"ORDER BY g.name ASC, w.first_name ASC "
 			);
-			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
 			
 			$objects = array();
 			
@@ -978,7 +984,9 @@ class DAO_GroupSettings extends Cerb_ORMHelper {
 			$groups = array();
 			
 			$sql = "SELECT group_id, setting, value FROM group_setting";
-			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . ':' . $db->ErrorMsg());
+			
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
 			
 			while($row = mysqli_fetch_assoc($rs)) {
 				$gid = intval($row['group_id']);

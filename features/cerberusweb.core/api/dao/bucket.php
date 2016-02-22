@@ -85,6 +85,9 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		if($nocache || null === ($buckets = $cache->load(self::CACHE_ALL))) {
 			$buckets = self::getWhere(null, null, false, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
+			if(!is_array($buckets))
+				return false;
+			
 			uasort($buckets, function($a, $b) {
 				/* @var $a Model_Bucket */
 				/* @var $b Model_Bucket */

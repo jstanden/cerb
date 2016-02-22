@@ -59,6 +59,10 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($results))
+				return false;
+			
 			$cache->save($results, self::_CACHE_ALL, array(), 1200); // 20 mins
 		}
 		

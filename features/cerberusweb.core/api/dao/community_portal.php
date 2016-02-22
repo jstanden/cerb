@@ -81,6 +81,10 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		
 		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_CommunityTool::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			
+			if(!is_array($objects))
+				return false;
+			
 			$cache->save($objects, self::_CACHE_ALL);
 		}
 		
@@ -364,7 +368,9 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 				"WHERE tool_code = %s ",
 				$db->qstr($tool_code)
 			);
-			$rs = $db->ExecuteSlave($sql);
+			
+			if(false === ($rs = $db->ExecuteSlave($sql)))
+				return false;
 			
 			$props = array();
 			

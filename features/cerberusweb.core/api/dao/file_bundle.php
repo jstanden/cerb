@@ -98,6 +98,10 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($bundles))
+				return false;
+			
 			$cache->save($bundles, self::CACHE_ALL);
 		}
 		

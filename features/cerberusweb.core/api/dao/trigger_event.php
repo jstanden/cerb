@@ -65,6 +65,10 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
 			);
+			
+			if(!is_array($behaviors))
+				return false;
+			
 			$cache->save($behaviors, self::CACHE_ALL);
 		}
 		

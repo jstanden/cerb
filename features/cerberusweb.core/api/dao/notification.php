@@ -222,7 +222,9 @@ class DAO_Notification extends Cerb_ORMHelper {
 				$worker_id
 			);
 			
-			$count = intval($db->GetOneSlave($sql));
+			if(false === ($count = intval($db->GetOneSlave($sql))))
+				return false;
+			
 			$cache->save($count, self::CACHE_COUNT_PREFIX.$worker_id);
 		}
 		

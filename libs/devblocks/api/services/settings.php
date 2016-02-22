@@ -54,6 +54,10 @@ class _DevblocksPluginSettingsManager {
 		
 		if(null === ($settings = $cache->load($cache_key))) {
 			$settings = DAO_DevblocksSetting::getSettings($plugin_id);
+			
+			if(!is_array($settings))
+				return false;
+			
 			$cache->save($settings, $cache_key);
 		}
 		
