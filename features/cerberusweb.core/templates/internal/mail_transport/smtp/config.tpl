@@ -15,7 +15,7 @@ This mail transport delivers mail to an <a href="http://en.wikipedia.org/wiki/Si
 
 <b>Port:</b><br>
 <input type="text" name="params[{$extension->id}][port]" value="{$model->params.port|default:25}" size="5">
-<i>(Usually 587 for TLS/SSL; 25 for legacy environments)</i>
+<i>(Usually 465 or 587 for TLS/SSL; 25 for legacy environments)</i>
 <br>
 <br>
 
