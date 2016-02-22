@@ -118,6 +118,9 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_MailToGroupRule();
 			$object->id = $row['id'];

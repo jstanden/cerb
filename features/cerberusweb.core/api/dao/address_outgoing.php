@@ -37,7 +37,9 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 			"VALUES (%d)",
 			$id
 		);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		
 		self::update($id, $fields);
 		
@@ -154,6 +156,9 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 	
 	static private function _getObjectsFromResultSet($rs) {
 		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_AddressOutgoing();

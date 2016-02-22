@@ -32,7 +32,8 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$sql = sprintf("INSERT INTO custom_field () ".
 			"VALUES ()"
 		);
-		$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($rs = $db->ExecuteMaster($sql)))
+			return false;
 		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
@@ -126,9 +127,13 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	}
 	
 	private static function _createObjectsFromResultSet($rs) {
-		$db = DevblocksPlatform::getDatabaseService();
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_CustomField();
@@ -171,7 +176,8 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$id_string = implode(',', $ids);
 		
 		$sql = sprintf("DELETE FROM custom_field WHERE id IN (%s)",$id_string);
-		$db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteSlave($sql)))
+			return false;
 
 		if(is_array($ids))
 		foreach($ids as $id) {
@@ -868,7 +874,11 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		 */
 		
 		$sql = implode(' UNION ALL ', $sqls);
-		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($rs = $db->ExecuteSlave($sql)))
+			return false;
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$context_id = intval($row['context_id']);
@@ -919,7 +929,8 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				$db->qstr($context),
 				implode(',', $context_ids)
 			);
-			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($db->ExecuteMaster($sql)))
+				return false;
 		}
 	}
 	
@@ -933,7 +944,8 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				$table,
 				$field_id
 			);
-			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($db->ExecuteMaster($sql)))
+				return false;
 		}
 	}
 };

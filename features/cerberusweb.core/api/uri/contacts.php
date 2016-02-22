@@ -1168,9 +1168,14 @@ class ChContactsPage extends CerberusPageExtension {
 			"LIMIT 0,25",
 			$db->qstr($starts_with.'%')
 		);
-		$rs = $db->ExecuteSlave($sql);
+		
+		if(false == ($rs = $db->ExecuteSlave($sql)))
+			return false;
 		
 		$list = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$list[] = $row['country'];

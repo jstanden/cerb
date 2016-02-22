@@ -157,6 +157,9 @@ class ChReportTimeSpentWorker extends Extension_Report {
 		);
 		$rs = $db->ExecuteSlave($sql);
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		$data = array();
 		while($row = mysqli_fetch_assoc($rs)) {
 			$worker_id = intval($row['worker_id']);

@@ -180,7 +180,9 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			$context_id
 		));
 		
-		if($rs instanceof mysqli_result)
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$rows[] = $row['context'];
 		}
@@ -205,7 +207,9 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		
 		$objects = array();
 		
-		if($rs instanceof mysqli_result)
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			if(is_array($ignore_contexts) && in_array($row['context'], $ignore_contexts))
 				continue;
@@ -254,7 +258,9 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		
 		$objects = array();
 		
-		if($rs instanceof mysqli_result)
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$to_context = $row['to_context'];
 			$to_context_id = $row['to_context_id'];
@@ -293,7 +299,9 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		
 		$objects = array();
 		
-		if($rs instanceof mysqli_result)
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$from_context_id = $row['from_context_id'];
 			$to_context_id = $row['to_context_id'];

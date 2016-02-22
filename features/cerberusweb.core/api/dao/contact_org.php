@@ -57,10 +57,13 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("INSERT INTO contact_org (created) ".
-  			"VALUES (%d)",
+  		"VALUES (%d)",
 			time()
 		);
-		$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		if(false == ($rs = $db->ExecuteMaster($sql)))
+			return false;
+		
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -218,13 +221,15 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$sql = sprintf("DELETE FROM contact_org WHERE id IN (%s)",
 			$id_list
 		);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 
 		// Clear any associated addresses
 		$sql = sprintf("UPDATE address SET contact_org_id = 0 WHERE contact_org_id IN (%s)",
 			$id_list
 		);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		
 		// Clear search records
 		$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
@@ -296,6 +301,9 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	
 	static private function _getObjectsFromResultSet($rs) {
 		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_ContactOrg();
@@ -561,13 +569,18 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+				return false;
 		} else {
-			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
 			$total = mysqli_num_rows($rs);
 		}
 		
 		$results = array();
+
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object_id = intval($row[SearchFields_ContactOrg::ID]);

@@ -237,23 +237,24 @@ class DAO_Notification extends Cerb_ORMHelper {
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 
-		if($rs instanceof mysqli_result) {
-			while($row = mysqli_fetch_assoc($rs)) {
-				$object = new Model_Notification();
-				$object->id = intval($row['id']);
-				$object->context = $row['context'];
-				$object->context_id = intval($row['context_id']);
-				$object->created_date = intval($row['created_date']);
-				$object->worker_id = intval($row['worker_id']);
-				$object->is_read = intval($row['is_read']);
-				$object->activity_point = $row['activity_point'];
-				$object->entry_json = $row['entry_json'];
-				$objects[$object->id] = $object;
-			}
-			
-			mysqli_free_result($rs);
+		while($row = mysqli_fetch_assoc($rs)) {
+			$object = new Model_Notification();
+			$object->id = intval($row['id']);
+			$object->context = $row['context'];
+			$object->context_id = intval($row['context_id']);
+			$object->created_date = intval($row['created_date']);
+			$object->worker_id = intval($row['worker_id']);
+			$object->is_read = intval($row['is_read']);
+			$object->activity_point = $row['activity_point'];
+			$object->entry_json = $row['entry_json'];
+			$objects[$object->id] = $object;
 		}
+		
+		mysqli_free_result($rs);
 		
 		return $objects;
 	}
@@ -485,13 +486,18 @@ class DAO_Notification extends Cerb_ORMHelper {
 		
 		// [TODO] Could push the select logic down a level too
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+				return false;
 		} else {
-			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
 			$total = mysqli_num_rows($rs);
 		}
 		
 		$results = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object_id = intval($row[SearchFields_Notification::ID]);

@@ -77,6 +77,9 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	static private function _createObjectsFromResultSet($rs=null) {
 		$objects = array();
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_KbArticle();
 			$object->id = intval($row['id']);
@@ -193,6 +196,9 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			"WHERE kb_article_id = %d",
 			$article_id
 		));
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$cat_id = intval($row['kb_category_id']);
@@ -444,9 +450,13 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			($has_multiple_values ? 'GROUP BY kb.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+			return false;
 		
 		$results = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$id = intval($row[SearchFields_KbArticle::ID]);

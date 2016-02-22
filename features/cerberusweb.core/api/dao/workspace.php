@@ -187,6 +187,9 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_WorkspacePage();
@@ -315,13 +318,18 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			$sort_sql;
 
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
+			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+				return false;
 		} else {
-			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
 			$total = mysqli_num_rows($rs);
 		}
 
 		$results = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object_id = intval($row[SearchFields_WorkspacePage::ID]);
@@ -511,6 +519,9 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_WorkspaceTab();
 			$object->id = $row['id'];
@@ -645,13 +656,18 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			$sort_sql;
 			
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
+			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+				return false;
 		} else {
-			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg()); /* @var $rs mysqli_result */
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
 			$total = mysqli_num_rows($rs);
 		}
 		
 		$results = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object_id = intval($row[SearchFields_WorkspaceTab::ID]);
@@ -931,7 +947,8 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 		$sql = sprintf("INSERT INTO workspace_list () ".
 			"VALUES ()"
 		);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
@@ -973,9 +990,14 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 			"FROM workspace_list ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : " ").
 			"ORDER BY list_pos ASC";
-		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		if(false == ($rs = $db->ExecuteSlave($sql)))
+			return false;
 
 		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_WorkspaceList();
@@ -1026,7 +1048,8 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$ids_list = implode(',', $ids);
 		
-		$db->ExecuteMaster(sprintf("DELETE FROM workspace_list WHERE id IN (%s)", $ids_list)) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster(sprintf("DELETE FROM workspace_list WHERE id IN (%s)", $ids_list))))
+			return false;
 		
 		// Delete worker view prefs
 		foreach($ids as $id) {

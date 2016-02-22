@@ -85,7 +85,9 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 	private static function _createObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		if(false !== $rs)
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_ExplorerSet();
 			$object->hash = $row['hash'];
@@ -117,7 +119,9 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 		
 		$rs = $db->ExecuteMaster("SELECT hash, params_json FROM explorer_set WHERE pos = 0");
 		
-		if(false !== $rs)
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			if(false !== ($params = @json_decode($row['params_json'], true))) {
 				if(!isset($params['last_accessed']) || $params['last_accessed'] < time()-86400) { // idle for 24 hours

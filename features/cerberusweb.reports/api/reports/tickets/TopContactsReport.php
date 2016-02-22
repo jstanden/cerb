@@ -29,6 +29,9 @@ class ChReportTopTicketsByContact extends Extension_Report {
 		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->ExecuteSlave($sql);
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$years[] = intval($row['year']);
 		}
@@ -264,6 +267,9 @@ class ChReportTopTicketsByContact extends Extension_Report {
 			);
 		};
 		$rs = $db->ExecuteSlave($sql);
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		$data = array();
 		$labels = array();

@@ -239,6 +239,9 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	private static function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_AddressToWorker();
 			$object->worker_id = intval($row['worker_id']);

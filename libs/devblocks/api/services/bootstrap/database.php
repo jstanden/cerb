@@ -327,12 +327,13 @@ class _DevblocksDatabaseManager {
 	private function _GetArray($rs) {
 		$results = array();
 		
-		if($rs instanceof mysqli_result) {
-			while($row = mysqli_fetch_assoc($rs)) {
-				$results[] = $row;
-			}
-			mysqli_free_result($rs);
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
+		while($row = mysqli_fetch_assoc($rs)) {
+			$results[] = $row;
 		}
+		mysqli_free_result($rs);
 		
 		return $results;
 	}

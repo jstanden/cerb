@@ -26,6 +26,9 @@ class ChReportSpamDomains extends Extension_Report {
 		$sql = "SELECT count(*) AS hits, SUBSTRING(email,LOCATE('@',email)+1) AS domain, SUM(num_spam) AS num_spam, SUM(num_nonspam) AS num_nonspam FROM address WHERE num_spam+num_nonspam > 0 GROUP BY domain ORDER BY num_spam DESC LIMIT 0,100";
 		$rs = $db->ExecuteSlave($sql);
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$top_spam_domains[$row['domain']] = array($row['num_spam'], $row['num_nonspam'], $row['is_banned']);
 		}
@@ -35,6 +38,9 @@ class ChReportSpamDomains extends Extension_Report {
 		
 		$sql = "SELECT count(*) AS hits, SUBSTRING(email,LOCATE('@',email)+1) AS domain, SUM(num_spam) AS num_spam, SUM(num_nonspam) AS num_nonspam FROM address WHERE num_spam+num_nonspam > 0 GROUP BY domain ORDER BY num_nonspam DESC LIMIT 0,100";
 		$rs = $db->ExecuteSlave($sql);
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$top_nonspam_domains[$row['domain']] = array($row['num_spam'], $row['num_nonspam'], $row['is_banned']);

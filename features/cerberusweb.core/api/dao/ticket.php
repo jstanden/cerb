@@ -162,7 +162,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"WHERE mh.header_name = 'message-id' AND mh.header_value = %s",
 			$db->qstr($message_id)
 		);
-		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($rs = $db->ExecuteSlave($sql)))
+			return false;
 		
 		if($row = mysqli_fetch_assoc($rs)) {
 			$ticket_id = intval($row['ticket_id']);
@@ -483,7 +484,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			time(),
 			time()
 		);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields, false);
@@ -856,6 +858,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 */
 	static private function _createObjectsFromResultSet($rs=null) {
 		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Ticket();
@@ -1304,7 +1309,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$id,
 			$address_id
 		);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 	}
 	
 	static function addParticipantIds($ticket_id, $address_ids) {
@@ -1391,7 +1397,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$ticket_id,
 			implode(',', array_keys($participants))
 		);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		
 		foreach($participants as $participant) {
 			/*
@@ -1440,7 +1447,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$where_sql.
 				"GROUP BY domain HAVING count(*) > 1 ".
 				"ORDER BY hits DESC ";
-			$rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			
+			if(false == ($rs = $db->SelectLimit($sql, $limit, 0)))
+				return false;
+			
+			if(!($rs instanceof mysqli_result))
+				return false;
 			
 			$domains = array(); // [TODO] Temporary
 			while($row = mysqli_fetch_assoc($rs)) {
@@ -1460,7 +1472,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					).
 				"GROUP BY a1.email HAVING count(*) > 1 ".
 				"ORDER BY hits DESC ";
-			$rs = $db->SelectLimit($sql, $limit*2, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			
+			if(false == ($rs = $db->SelectLimit($sql, $limit*2, 0)))
+				return false;
+			
+			if(!($rs instanceof mysqli_result))
+				return false;
 			
 			while($row = mysqli_fetch_assoc($rs)) {
 				$hash = md5('sender'.$row['email']);
@@ -1500,9 +1517,14 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$where_sql.
 				"GROUP BY SUBSTRING(t.subject FROM 1 FOR 8) HAVING hits > 1 ".
 				"ORDER BY hits DESC ";
-			$rs = $db->SelectLimit($sql, $limit, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
 			
-			$prefixes = array(); // [TODO] Temporary
+			if(false == ($rs = $db->SelectLimit($sql, $limit, 0)))
+				return false;
+			
+			$prefixes = array();
+			
+			if(!($rs instanceof mysqli_result))
+				return false;
 
 			while($row = mysqli_fetch_assoc($rs)) {
 				$prefixes[] = $row['prefix'];
@@ -1521,8 +1543,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					"GROUP BY t.subject HAVING hits > 1 ".
 					"ORDER BY hits DESC ";
 				
-				$rs = $db->SelectLimit($sql, 15, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+				if(false == ($rs = $db->SelectLimit($sql, 15, 0)))
+					return false;
+				
 				$num_rows = mysqli_num_rows($rs);
+				
+				if(!($rs instanceof mysqli_result))
+					return false;
 
 				$lines = array();
 				while($row = mysqli_fetch_assoc($rs)) {
@@ -1571,7 +1598,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				"GROUP BY mh.header_value HAVING mh.header_value != '' ".
 				"ORDER BY hits DESC ";
 			
-			$rs = $db->SelectLimit($sql, 25, 0) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($rs = $db->SelectLimit($sql, 25, 0)))
+				return false;
+			
+			if(!($rs instanceof mysqli_result))
+				return false;
 
 			while($row = mysqli_fetch_assoc($rs)) {
 				$hash = md5('header'.$row['header_value']);
@@ -2280,9 +2311,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			($has_multiple_values ? 'GROUP BY t.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+			return false;
 		
 		$results = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$id = intval($row[SearchFields_Ticket::TICKET_ID]);

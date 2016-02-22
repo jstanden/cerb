@@ -351,6 +351,12 @@ switch($step) {
 				
 				// Check if the engine we want exists, otherwise default
 				$rs = mysqli_query($_db, "SHOW ENGINES");
+				
+				if(!($rs instanceof mysqli_result)) {
+					$db_passed = false;
+					$errors[] = "Can't run SHOW ENGINES query against the database.";
+				}
+				
 				$discovered_engines = array();
 				while($row = mysqli_fetch_assoc($rs)) {
 					$discovered_engines[] = strtolower($row['Engine']);

@@ -30,7 +30,8 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "INSERT INTO attachment () VALUES ()";
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
@@ -83,6 +84,9 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	
 	private static function _getObjectsFromResult($rs) {
 		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Attachment();
@@ -263,7 +267,9 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY a.id ' : '').
 			$sort_sql;
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+			return false;
 		
 		$results = array();
 		
@@ -465,7 +471,9 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM attachment WHERE id IN (%s)", implode(',',$ids));
-		$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		if(false == ($rs = $db->ExecuteSlave($sql)))
+			return false;
 		
 		// Delete the physical files
 		
@@ -512,6 +520,9 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		);
 		$rs = $db->ExecuteSlave($sql);
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			self::_migrate($dst_profile, $row);
 
@@ -543,6 +554,9 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 				$dst_profile->id
 		);
 		$rs = $db->ExecuteSlave($sql);
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			self::_migrate($dst_profile, $row, true);
@@ -1330,6 +1344,9 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	private static function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_AttachmentLink();
 			$object->guid = $row['guid'];
@@ -1428,7 +1445,9 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY al.attachment_id ' : '').
 			$sort_sql;
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		
+		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+			return false;
 
 		$results = array();
 		

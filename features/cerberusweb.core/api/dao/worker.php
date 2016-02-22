@@ -49,7 +49,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$sql = sprintf("INSERT INTO worker () ".
 			"VALUES ()"
 		);
-		$rs = $db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($rs = $db->ExecuteMaster($sql)))
+			return false;
 		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
@@ -610,21 +611,26 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("DELETE FROM worker WHERE id = %d", $id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		
 		$sql = sprintf("DELETE FROM worker_auth_hash WHERE worker_id = %d", $id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		
 		DAO_AddressToWorker::unassignAll($id);
 		
 		$sql = sprintf("DELETE FROM worker_to_group WHERE worker_id = %d", $id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 
 		$sql = sprintf("DELETE FROM worker_to_bucket WHERE worker_id = %d", $id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 
 		$sql = sprintf("DELETE FROM snippet_use_history WHERE worker_id = %d", $id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		
 		// Sessions
 		DAO_DevblocksSession::deleteByUserIds($id);
@@ -1003,13 +1009,18 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$sort_sql;
 
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+				return false;
 		} else {
-			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
 			$total = mysqli_num_rows($rs);
 		}
 		
 		$results = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object_id = intval($row[SearchFields_Worker::ID]);
@@ -2295,6 +2306,9 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 				return false;
 			
 			$objects = array();
+			
+			if(!($rs instanceof mysqli_result))
+				return false;
 			
 			while($row = mysqli_fetch_assoc($rs)) {
 				$objects[$row['setting']] = $row['value'];

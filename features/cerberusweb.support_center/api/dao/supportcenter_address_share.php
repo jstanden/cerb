@@ -97,7 +97,9 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 	private static function getObjectsFromResultSet($rs) {
 		$objects = array();
 		
-		if($rs instanceof mysqli_result)
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_SupportCenterAddressShare();
 			$object->share_address_id = $row['share_address_id'];

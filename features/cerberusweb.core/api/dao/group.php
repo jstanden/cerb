@@ -170,6 +170,9 @@ class DAO_Group extends Cerb_ORMHelper {
 	static private function _getObjectsFromResultSet($rs) {
 		$objects = array();
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Group();
 			$object->id = intval($row['id']);
@@ -221,7 +224,8 @@ class DAO_Group extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = "INSERT INTO worker_group () VALUES ()";
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		$id = $db->LastInsertId();
 		
 		if(!isset($fields[self::CREATED]))
@@ -343,13 +347,16 @@ class DAO_Group extends Cerb_ORMHelper {
 		}
 		
 		$sql = sprintf("DELETE FROM worker_group WHERE id = %d", $deleted_group->id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 
 		$sql = sprintf("DELETE FROM group_setting WHERE group_id = %d", $deleted_group->id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		
 		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d", $deleted_group->id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 
 		// Delete associated buckets
 		
@@ -563,6 +570,9 @@ class DAO_Group extends Cerb_ORMHelper {
 			
 			$objects = array();
 			
+			if(!($rs instanceof mysqli_result))
+				return false;
+			
 			while($row = mysqli_fetch_assoc($rs)) {
 				$worker_id = intval($row['worker_id']);
 				$group_id = intval($row['group_id']);
@@ -731,13 +741,18 @@ class DAO_Group extends Cerb_ORMHelper {
 			$sort_sql;
 		
 		if($limit > 0) {
-			$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+				return false;
 		} else {
-			$rs = $db->ExecuteSlave($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
 			$total = mysqli_num_rows($rs);
 		}
 		
 		$results = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object_id = intval($row[SearchFields_Group::ID]);
@@ -986,6 +1001,9 @@ class DAO_GroupSettings extends Cerb_ORMHelper {
 			$sql = "SELECT group_id, setting, value FROM group_setting";
 			
 			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
+			
+			if(!($rs instanceof mysqli_result))
 				return false;
 			
 			while($row = mysqli_fetch_assoc($rs)) {

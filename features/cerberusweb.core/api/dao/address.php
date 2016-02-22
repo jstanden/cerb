@@ -80,7 +80,8 @@ class DAO_Address extends Cerb_ORMHelper {
 				"VALUES (%s,0,0,0,0,0,0,0)",
 				$db->qstr($full_address)
 			);
-			$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+			if(false == ($db->ExecuteMaster($sql)))
+				return false;
 			$id = $db->LastInsertId();
 
 		} else { // update
@@ -180,7 +181,8 @@ class DAO_Address extends Cerb_ORMHelper {
 		
 		// Addresses
 		$sql = sprintf("DELETE FROM address WHERE id IN (%s)", $address_ids);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 	
 		// Clear search records
 		$search = Extension_DevblocksSearchSchema::get(Search_Address::ID);
@@ -224,6 +226,9 @@ class DAO_Address extends Cerb_ORMHelper {
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Address();
@@ -373,13 +378,15 @@ class DAO_Address extends Cerb_ORMHelper {
 	static function addOneToSpamTotal($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE address SET num_spam = num_spam + 1 WHERE id = %d",$address_id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 	}
 	
 	static function addOneToNonSpamTotal($address_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$sql = sprintf("UPDATE address SET num_nonspam = num_nonspam + 1 WHERE id = %d",$address_id);
-		$db->ExecuteMaster($sql) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 	}
 	
 	public static function random() {
@@ -636,7 +643,8 @@ class DAO_Address extends Cerb_ORMHelper {
 			($has_multiple_values ? 'GROUP BY a.id ' : '').
 			$sort_sql;
 			
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+			return false;
 		
 		$results = array();
 		

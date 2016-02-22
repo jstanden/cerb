@@ -36,6 +36,9 @@ class ChReportSpamWords extends Extension_Report {
 		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY spam desc LIMIT 0,100";
 		$rs = $db->ExecuteSlave($sql);
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$top_spam_words[$row['word']] = array($row['spam'], $row['nonspam']);
 		}
@@ -45,6 +48,9 @@ class ChReportSpamWords extends Extension_Report {
 		
 		$sql = "SELECT word,spam,nonspam FROM bayes_words ORDER BY nonspam desc LIMIT 0,100";
 		$rs = $db->ExecuteSlave($sql);
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$top_nonspam_words[$row['word']] = array($row['spam'], $row['nonspam']);

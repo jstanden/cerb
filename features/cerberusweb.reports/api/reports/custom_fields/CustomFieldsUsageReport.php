@@ -81,6 +81,9 @@ class ChReportCustomFieldUsage extends Extension_Report {
 	
 		$value_counts = array();
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$value = $row['field_value'];
 			$hits = intval($row['hits']);

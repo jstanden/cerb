@@ -653,6 +653,9 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		$sql = "SELECT count(*) AS hits, kb_category_id FROM kb_article_to_category GROUP BY kb_category_id";
 		$rs = $db->ExecuteSlave($sql);
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$count_cat = intval($row['kb_category_id']);
 			$count_hits = intval($row['hits']);
@@ -815,6 +818,9 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_KbCategory();
 			$object->id = $row['id'];
@@ -915,9 +921,13 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			($has_multiple_values ? 'GROUP BY kbc.id ' : '').
 			$sort_sql;
 		
-		$rs = $db->SelectLimit($sql,$limit,$page*$limit) or die(__CLASS__ . '('.__LINE__.')'. ':' . $db->ErrorMsg());
+		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+			return false;
 		
 		$results = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$id = intval($row[SearchFields_KbCategory::ID]);

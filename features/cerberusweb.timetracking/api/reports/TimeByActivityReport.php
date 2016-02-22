@@ -155,6 +155,9 @@ class ChReportTimeSpentActivity extends Extension_Report {
 		);
 		$rs = $db->ExecuteSlave($sql);
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		$data = array();
 		$activities = array();
 		

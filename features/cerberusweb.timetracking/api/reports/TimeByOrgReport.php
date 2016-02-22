@@ -136,6 +136,9 @@ class ChReportTimeSpentOrg extends Extension_Report {
 		);
 		$rs = $db->ExecuteSlave($sql);
 		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
 		$data = array();
 		
 		while($row = mysqli_fetch_assoc($rs)) {
