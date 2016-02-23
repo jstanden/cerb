@@ -38,7 +38,7 @@ class _DevblocksDatabaseManager {
 		return self::$instance;
 	}
 	
-	private function _connectMaster() {
+	private function _connectMaster($retries=0, $retries_interval_ms=500) {
 		// Reuse an existing connection for this request
 		if(isset($this->_connections['master']))
 			return $this->_connections['master'];
@@ -46,9 +46,17 @@ class _DevblocksDatabaseManager {
 		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
 		
 		// [TODO] Fail to read-only mode?
-		if(false == ($db = $this->_connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent, APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS))) {
-			error_log(sprintf("[Cerb] Error connecting to the master database (%s). Please check MySQL and the framework.config.php settings.", APP_DB_HOST), E_USER_ERROR);
-			DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the master database.", 500);
+		while(false === ($db = $this->_connect(APP_DB_HOST, APP_DB_USER, APP_DB_PASS, APP_DB_DATABASE, $persistent, APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS))) {
+			// Are we out of retries?
+			if(--$retries < 0) {
+				error_log(sprintf("[Cerb] Error connecting to the master database (%s). Please check MySQL and the framework.config.php settings.", APP_DB_HOST), E_USER_ERROR);
+				DevblocksPlatform::dieWithHttpError("[Cerb] Error connecting to the master database.", 500);
+			}
+			
+			error_log('Master connection failed, retrying...');
+			
+			// Wait between retries
+			usleep($retries_interval_ms * 1000);
 		}
 		
 		$this->_connections['master'] = $db;
@@ -264,21 +272,46 @@ class _DevblocksDatabaseManager {
 		}
 		
 		$this->_last_used_db = $db;
-		
+		$fail_count = 0;
+
 		if(false === ($rs = mysqli_query($db, $sql))) {
-			$error_msg = sprintf("[%d] %s ::SQL:: %s",
-				mysqli_errno($db),
-				mysqli_error($db),
-				$sql
-			);
-			
-			if(DEVELOPMENT_MODE) {
-				trigger_error($error_msg, E_USER_WARNING);
+			// If the DB is down, try to reconnect
+			if(!mysqli_ping($db)) {
+				error_log("The MySQL connection closed prematurely.");
+
+				// Reconnect
+				if(spl_object_hash($db) == spl_object_hash($this->_connections['master'])) {
+					error_log("Attempting to reconnect to master database...");
+					unset($this->_connections['master']);
+					$master_db = $this->_connectMaster(APP_DB_OPT_CONNECTION_RECONNECTS, APP_DB_OPT_CONNECTION_RECONNECTS_WAIT_MS);
+					$db = $master_db;
+					
+				} else {
+					error_log("Attempting to reconnect to slave database...");
+					unset($this->_connections['slave']);
+					$slave_db = $this->_connectSlave();
+					$db = $slave_db;
+				}
+				
+				// Try again after the reconnection
+				if(false === ($rs = mysqli_query($db, $sql)))
+					return false;
+				
 			} else {
-				error_log($error_msg);
+				$error_msg = sprintf("[%d] %s ::SQL:: %s",
+					mysqli_errno($db),
+					mysqli_error($db),
+					$sql
+				);
+				
+				if(DEVELOPMENT_MODE) {
+					trigger_error($error_msg, E_USER_WARNING);
+				} else {
+					error_log($error_msg);
+				}
+				
+				return false;
 			}
-			
-			return false;
 		}
 		
 		return $rs;
