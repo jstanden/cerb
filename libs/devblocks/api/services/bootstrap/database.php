@@ -62,8 +62,9 @@ class _DevblocksDatabaseManager {
 			return $this->_connections['slave'];
 		
 		// Use the master if we don't have a slave defined
-		if(!defined('APP_DB_SLAVE_HOST') || !APP_DB_SLAVE_HOST)
-			return $this->_connectMaster();
+		if(!defined('APP_DB_SLAVE_HOST') || !APP_DB_SLAVE_HOST) {
+			return $this->_redirectSlaveToMaster();
+		}
 		
 		// Inherit the user/pass from the master if not specified
 		$persistent = (defined('APP_DB_PCONNECT') && APP_DB_PCONNECT) ? true : false;
@@ -73,12 +74,19 @@ class _DevblocksDatabaseManager {
 		if(false == ($db = $this->_connect(APP_DB_SLAVE_HOST, $user, $pass, APP_DB_DATABASE, $persistent, APP_DB_OPT_SLAVE_CONNECT_TIMEOUT_SECS))) {
 			// [TODO] Cache slave failure for (n) seconds to retry, preventing spam hell on retry connections
 			error_log(sprintf("[Cerb] Error connecting to the slave database (%s).", APP_DB_SLAVE_HOST), E_USER_ERROR);
-			return $this->_connectMaster();
+			return $this->_redirectSlaveToMaster();
 		}
 		
 		$this->_connections['slave'] = $db;
 		
 		return $db;
+	}
+	
+	private function _redirectSlaveToMaster() {
+		if($master = $this->_connectMaster())
+			$this->_connections['slave'] = $master;
+		
+		return $master;
 	}
 	
 	private function _connect($host, $user, $pass, $database, $persistent=false, $timeout_secs=5) {
