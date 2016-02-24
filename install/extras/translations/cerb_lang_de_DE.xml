@@ -3603,21 +3603,6 @@
 				<seg>URL des RSS-Feeds:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.fnr.choose_resources">
-			<tuv xml:lang="de_DE">
-				<seg>Wählen Sie die Ressourcen zur Anzeige in diesem Portal:</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.info">
-			<tuv xml:lang="de_DE">
-				<seg>Dieses Support-Center ermöglicht der Community Ihre externen Wissensquellen durch Cerb Fetch &amp; Retrieve abzurufen und direkte Links zu Inhalten wie Hilfedatenbank-Artikel, Wikipedia-Artikel, Forum- &amp; Dokumentations-Seiten, Blog-Einträge, Wunschlisten &amp; Bug-Reports, e.t.c. anzuzeigen.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.not_configured">
-			<tuv xml:lang="de_DE">
-				<seg>Suchen &amp; Abfragen ist noch nicht konfiguriert.</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.followup_questions_hint">
 			<tuv xml:lang="de_DE">
 				<seg>(z.B. "Welche Produkte sind für Sie interessant?") - optionales Speichern in benutzerdefinierten Feldern</seg>
@@ -3626,11 +3611,6 @@
 		<tu tuid="portal.sc.cfg.login_registration">
 			<tuv xml:lang="de_DE">
 				<seg>Anmelden/Registrieren</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.allow_custom_subjects">
-			<tuv xml:lang="de_DE">
-				<seg>Besuchern das Ausfüllen von Zusatzfeldern erlauben.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments">

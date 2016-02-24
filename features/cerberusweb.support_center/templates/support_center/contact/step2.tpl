@@ -17,18 +17,23 @@
 			<b>{'portal.public.what_email_reply'|devblocks_translate}</b><br>
 			<input type="hidden" name="nature" value="{$sNature}">
 			
-			{if !empty($active_contact)}
-				<select name="from">
-					{$contact_addresses = $active_contact->getEmails()}
-					{foreach from=$contact_addresses item=address}
-					<option value="{$address->email}" {if 0==strcasecmp($address->id,$active_contact->primary_email_id)}selected="selected"{/if}>{$address->email}</option>
-					{/foreach}
-				</select>
-				<br>
-			{else}
-				<input type="text" name="from" value="{if !empty($last_from)}{$last_from}{/if}" autocomplete="off" style="width:100%;" class="required email"><br>
+			{if empty($last_from) && !empty($active_contact)}
+				{$primary_email = $active_contact->getEmail()}
+				{$last_from = $primary_email->email}
 			{/if}
+			
+			<input type="text" name="from" value="{if !empty($last_from)}{$last_from}{/if}" autocomplete="off" style="width:100%;" class="required email"><br>
 			<br>
+			
+			{if $allow_cc}
+			<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> ({'common.help.comma_separated'|devblocks_translate|lower})<br>
+			<input type="text" name="cc" value="{if !empty($last_cc)}{$last_cc}{/if}" autocomplete="off" style="width:100%;"><br>
+			<br>
+			{/if}
+			
+			{if empty($last_subject) && !empty($situation)}
+				{$last_subject = $situation}
+			{/if}
 	
 			<b>{'ticket.subject'|devblocks_translate|capitalize}:</b><br>
 			{if $allow_subjects}

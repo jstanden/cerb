@@ -662,6 +662,21 @@
 				<seg>GUID</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.help">
+			<tuv xml:lang="en_US">
+				<seg>help</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.help.comma_separated">
+			<tuv xml:lang="en_US">
+				<seg>comma-separated</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.help.one_per_line">
+			<tuv xml:lang="en_US">
+				<seg>one per line</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.history">
 			<tuv xml:lang="en_US">
 				<seg>history</seg>

@@ -3598,21 +3598,6 @@
 				<seg>URL de la Fuente:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.fnr.choose_resources">
-			<tuv xml:lang="es_ES">
-				<seg>Elegir que recursos exponer a este portal:</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.info">
-			<tuv xml:lang="es_ES">
-				<seg>Este centro de soporte permitirá a su comunidad buscar recursos externos a través del sistema Buscar y Recuperar de Cerb, devolviendo enlaces directos a contenidos como artículos de la base de conocimientos, artículos wiki, temas de foros, páginas de documentación, entradas en blogs, informes de fallos/listas de deseos, etc.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.not_configured">
-			<tuv xml:lang="es_ES">
-				<seg>Buscar y Recuperar no ha sido configurado.</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.followup_questions_hint">
 			<tuv xml:lang="es_ES">
 				<seg>(empezar con * para obligatorio; e.g. "*¿Qué producto está considerando?")</seg>
@@ -3621,11 +3606,6 @@
 		<tu tuid="portal.sc.cfg.login_registration">
 			<tuv xml:lang="es_ES">
 				<seg>Identificación/Registro</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.allow_custom_subjects">
-			<tuv xml:lang="es_ES">
-				<seg>Permitir a los usuarios proporcionar sus propios asuntos en los tickets.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments">
