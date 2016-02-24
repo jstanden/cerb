@@ -308,7 +308,7 @@ class UmScContactController extends Extension_UmScController {
 		}
 		
 		// Sender and CAPTCHA required
-		if(empty($sFrom) || ($captcha_enabled && 0 != strcasecmp($sCaptcha, $captcha_session))) {
+		if(empty($sFrom) || ($captcha_enabled && !empty($captcha_session) && 0 != strcasecmp($sCaptcha, $captcha_session))) {
 			
 			if(empty($sFrom)) {
 				$umsession->setProperty('support.write.last_error','Invalid e-mail address.');
@@ -501,6 +501,9 @@ class UmScContactController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_nature_string',null);
 		$umsession->setProperty('support.write.last_content',null);
 		$umsession->setProperty('support.write.last_error',null);
+		
+		// Clear the CAPTCHA (no resubmissions)
+		$umsession->setProperty(UmScApp::SESSION_CAPTCHA,null);
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','confirm')));
 	}
