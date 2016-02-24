@@ -1,3 +1,5 @@
+{$divid_notes = "notes_{uniqid()}"}
+<div id="{$divid_notes}" style="background-color:rgb(255,255,255);">
 {if isset($message_notes.$message_id) && is_array($message_notes.$message_id)}
 	{foreach from=$message_notes.$message_id item=note name=notes key=note_id}
 		{$owner_meta = $note->getOwnerMeta()}
@@ -45,14 +47,15 @@
 		</div>
 	{/foreach}
 {/if}
+</div>
 
 <script type="text/javascript">
 $(function() {
-	var $note = $('#comment{$note->id}');
+	var $notes = $('#{$divid_notes}');
 	
-	$note.find('.cerb-peek-trigger').cerbPeekTrigger();
+	$notes.find('.cerb-peek-trigger').cerbPeekTrigger();
 	
-	$note.hover(
+	$notes.find('div.message_note').hover(
 		function() {
 			$(this).find('div.toolbar').show();
 		},

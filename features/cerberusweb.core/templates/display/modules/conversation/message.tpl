@@ -177,7 +177,7 @@
 </table>
 </div>
 <div id="{$message->id}b"></div>
-<div id="{$message->id}notes" style="background-color:rgb(255,255,255);">
+<div id="{$message->id}notes">
 	{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl"}
 </div>
 <div id="reply{$message->id}"></div>
