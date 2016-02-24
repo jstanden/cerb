@@ -1,4 +1,6 @@
-<label><input type="checkbox" name="allow_subjects" value="1" {if $allow_subjects}checked="checked"{/if}> {'portal.sc.cfg.open_ticket.allow_custom_subjects'|devblocks_translate}</label><br>
+<b>{'portal.sc.cfg.open_ticket.allow_headers'|devblocks_translate}</b><br>
+<label><input type="checkbox" name="allow_cc" value="1" {if $allow_cc}checked="checked"{/if}> {'message.header.cc'|devblocks_translate|capitalize}</label><br>
+<label><input type="checkbox" name="allow_subjects" value="1" {if $allow_subjects}checked="checked"{/if}> {'message.header.subject'|devblocks_translate|capitalize}</label><br>
 <br>
 
 <b>{'portal.sc.cfg.open_ticket.attachments'|devblocks_translate}</b><br>
@@ -25,6 +27,7 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
 	$('DIV#situations')
 	.sortable(
 		{ items: 'FIELDSET.drag', placeholder:'ui-state-highlight' }
@@ -40,4 +43,5 @@
 		});
 	})
 	;
+});
 </script>

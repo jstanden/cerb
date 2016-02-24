@@ -3558,21 +3558,6 @@
 				<seg>Feed URL:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.fnr.choose_resources">
-			<tuv xml:lang="ru_RU">
-				<seg>Choose which resources to expose to this portal:</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.info">
-			<tuv xml:lang="ru_RU">
-				<seg>This Support Center will allow your community to search your external knowledge resources through Cerb's Fetch &amp; Retrieve system, returning direct links to content like knowledgebase articles, wiki articles, forum posts, documentation pages, blog entries, wishlist/bug reports, etc.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.not_configured">
-			<tuv xml:lang="ru_RU">
-				<seg>Fetch &amp; Retrieve has not been configured.</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.followup_questions_hint">
 			<tuv xml:lang="ru_RU">
 				<seg>(start with * to require; e.g. "*Which product are you considering?")</seg>
@@ -3581,11 +3566,6 @@
 		<tu tuid="portal.sc.cfg.login_registration">
 			<tuv xml:lang="ru_RU">
 				<seg>Логин/Регистрация</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.allow_custom_subjects">
-			<tuv xml:lang="ru_RU">
-				<seg>Разрешать пользователям использовать собственные темы заявок.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments">

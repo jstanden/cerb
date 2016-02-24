@@ -3558,21 +3558,6 @@
 				<seg>URL da Feed:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.fnr.choose_resources">
-			<tuv xml:lang="pt_PT">
-				<seg>Seleccione os recursos que deseja expor neste portal:</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.info">
-			<tuv xml:lang="pt_PT">
-				<seg>Este portal de suporte permite à sua comunidade pesquisar conteúdos de knowledgebase externas atravs do sistema de busca &amp; importação do Cerb,  obtendo links drectos para conteúdo como artigos, artigos de wikis, posts em forums, documentação, posts em blogs, report de erros, etc.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.not_configured">
-			<tuv xml:lang="pt_PT">
-				<seg>A função de busca &amp; importação no foi configurada.</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.followup_questions_hint">
 			<tuv xml:lang="pt_PT">
 				<seg>(começar com * para pedir; e.x. "*Que produto esta a considerar?")</seg>
@@ -3581,11 +3566,6 @@
 		<tu tuid="portal.sc.cfg.login_registration">
 			<tuv xml:lang="pt_PT">
 				<seg>Login/Registo</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.allow_custom_subjects">
-			<tuv xml:lang="pt_PT">
-				<seg>Permitir aos visitantes introduzir assuntos personalizados.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments">

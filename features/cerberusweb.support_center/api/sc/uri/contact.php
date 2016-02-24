@@ -1,6 +1,7 @@
 <?php
 class UmScContactController extends Extension_UmScController {
 	const PARAM_CAPTCHA_ENABLED = 'contact.captcha_enabled';
+	const PARAM_ALLOW_CC = 'contact.allow_cc';
 	const PARAM_ALLOW_SUBJECTS = 'contact.allow_subjects';
 	const PARAM_ATTACHMENTS_MODE = 'contact.attachments_mode';
 	const PARAM_SITUATIONS = 'contact.situations';
@@ -21,6 +22,9 @@ class UmScContactController extends Extension_UmScController {
 		$captcha_enabled = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
 
+		$allow_cc = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ALLOW_CC, 0);
+		$tpl->assign('allow_cc', $allow_cc);
+		
 		$allow_subjects = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ALLOW_SUBJECTS, 0);
 		$tpl->assign('allow_subjects', $allow_subjects);
 
@@ -38,6 +42,7 @@ class UmScContactController extends Extension_UmScController {
 				$umsession->setProperty('support.write.last_error', null);
 				
 			case 'step2':
+				$sCc = $umsession->getProperty('support.write.last_cc','');
 				$sFrom = $umsession->getProperty('support.write.last_from','');
 				$sSubject = $umsession->getProperty('support.write.last_subject','');
 				$sNature = $umsession->getProperty('support.write.last_nature','');
@@ -45,6 +50,7 @@ class UmScContactController extends Extension_UmScController {
 				$aLastFollowupA = $umsession->getProperty('support.write.last_followup_a','');
 				$sError = $umsession->getProperty('support.write.last_error','');
 				
+				$tpl->assign('last_cc', $sCc);
 				$tpl->assign('last_from', $sFrom);
 				$tpl->assign('last_subject', $sSubject);
 				$tpl->assign('last_nature', $sNature);
@@ -105,6 +111,9 @@ class UmScContactController extends Extension_UmScController {
 		$captcha_enabled = DAO_CommunityToolProperty::get($instance->code, self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
 
+		$allow_cc = DAO_CommunityToolProperty::get($instance->code, self::PARAM_ALLOW_CC, 0);
+		$tpl->assign('allow_cc', $allow_cc);
+
 		$allow_subjects = DAO_CommunityToolProperty::get($instance->code, self::PARAM_ALLOW_SUBJECTS, 0);
 		$tpl->assign('allow_subjects', $allow_subjects);
 
@@ -137,6 +146,9 @@ class UmScContactController extends Extension_UmScController {
 		@$iCaptcha = DevblocksPlatform::importGPC($_POST['captcha_enabled'],'integer',1);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_CAPTCHA_ENABLED, $iCaptcha);
 
+		@$iAllowCc = DevblocksPlatform::importGPC($_POST['allow_cc'],'integer',0);
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_ALLOW_CC, $iAllowCc);
+		
 		@$iAllowSubjects = DevblocksPlatform::importGPC($_POST['allow_subjects'],'integer',0);
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_ALLOW_SUBJECTS, $iAllowSubjects);
 
@@ -223,6 +235,7 @@ class UmScContactController extends Extension_UmScController {
 	
 	function doContactSendAction() {
 		@$sFrom = DevblocksPlatform::importGPC($_POST['from'],'string','');
+		@$sCc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
 		@$sSubject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
 		@$sContent = DevblocksPlatform::importGPC($_POST['content'],'string','');
 		@$sCaptcha = DevblocksPlatform::importGPC($_POST['captcha'],'string','');
@@ -275,6 +288,7 @@ class UmScContactController extends Extension_UmScController {
 		$active_contact = $umsession->getProperty('sc_login', null);
 		$fingerprint = ChPortalHelper::getFingerprint();
 
+		$umsession->setProperty('support.write.last_cc',$sCc);
 		$umsession->setProperty('support.write.last_from',$sFrom);
 		$umsession->setProperty('support.write.last_subject',$sSubject);
 		$umsession->setProperty('support.write.last_content',$sContent);
@@ -285,7 +299,7 @@ class UmScContactController extends Extension_UmScController {
 		$captcha_enabled = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_CAPTCHA_ENABLED, 1);
 		$captcha_session = $umsession->getProperty(UmScApp::SESSION_CAPTCHA,'***');
 		
-		// Subject is required if the field  is on the form
+		// Subject is required if the field is on the form
 		if(isset($_POST['subject']) && empty($sSubject)) {
 			$umsession->setProperty('support.write.last_error','A subject is required.');
 			
@@ -346,12 +360,16 @@ class UmScContactController extends Extension_UmScController {
 		
 		$community_portal = DAO_CommunityTool::getByCode(ChPortalHelper::getCode());
 		
-		$message = new CerberusParserMessage();
-		$message->headers['date'] = date('r');
-		$message->headers['to'] = $to;
-		$message->headers['subject'] = $subject;
-		$message->headers['message-id'] = CerberusApplication::generateMessageId();
-		$message->headers['x-cerberus-portal'] = !empty($community_portal->name) ? $community_portal->name : $community_portal->code;
+		$message_headers = array(
+			'date' => date('r'),
+			'to' => $to,
+			'subject' => $subject,
+			'message-id' => CerberusApplication::generateMessageId(),
+			'x-cerberus-portal' => !empty($community_portal->name) ? $community_portal->name : $community_portal->code,
+		);
+		
+		if(!empty($sCc))
+			$message_headers['cc'] = $sCc;
 		
 		// Sender
 		$fromList = imap_rfc822_parse_adrlist($sFrom,'');
@@ -359,8 +377,14 @@ class UmScContactController extends Extension_UmScController {
 			return; // abort with message
 		}
 		$from = array_shift($fromList);
-		$message->headers['from'] = $from->mailbox . '@' . $from->host;
+		$message_headers['from'] = $from->mailbox . '@' . $from->host;
 
+		$message = new CerberusParserMessage();
+		
+		foreach($message_headers as $h => $v) {
+			$message->headers[$h] = $v;
+		}
+		
 		$message->body = 'IP: ' . $fingerprint['ip'] . "\r\n\r\n" . $sContent . $fieldContent;
 
 		// Attachments
@@ -388,7 +412,7 @@ class UmScContactController extends Extension_UmScController {
 		if(!empty($aFieldIds))
 		foreach($aFieldIds as $iIdx => $iFieldId) {
 			if(!empty($iFieldId)) {
-				$field =& $fields[$iFieldId]; /* @var $field Model_CustomField */
+				$field = $fields[$iFieldId]; /* @var $field Model_CustomField */
 				$value = "";
 				
 				switch($field->type) {
@@ -460,6 +484,16 @@ class UmScContactController extends Extension_UmScController {
 			$umsession->setProperty('support.write.last_opened',$ticket->mask);
 		} else {
 			$umsession->setProperty('support.write.last_opened',null);
+		}
+		
+		// Include Cc: recipients as participants
+		if(!empty($sCc)) {
+			if($ccs = DevblocksPlatform::parseCsvString($sCc)) {
+				$participants = DAO_Address::lookupAddresses($ccs, true);
+				
+				if(is_array($ccs) && !empty($ccs))
+					DAO_Ticket::addParticipantIds($ticket_id, array_keys($participants));
+			}
 		}
 		
 		// Clear any errors

@@ -3559,21 +3559,6 @@
 				<seg>Feed URL:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.fnr.choose_resources">
-			<tuv xml:lang="nl_NL">
-				<seg>Kies welke kennisbank onderwerpen te zien zijn</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.info">
-			<tuv xml:lang="nl_NL">
-				<seg>Dit Support Center stelt anderen in staat om uw externe Kennisbank te doorzoeken met Ceberus Helpdesk Fetch &amp;amp; Retrieve Systeem voor directe linken naar kennisbank artikelen, wiki artikelen, forum postings, blogs enzovoorts.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.not_configured">
-			<tuv xml:lang="nl_NL">
-				<seg>Fetch &amp;amp; Retrieve is nog niet geconfigureerd.</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.followup_questions_hint">
 			<tuv xml:lang="nl_NL">
 				<seg>(begin met een * om vereist te maken; bv. "*Welk product overweegt u?")</seg>
@@ -3582,11 +3567,6 @@
 		<tu tuid="portal.sc.cfg.login_registration">
 			<tuv xml:lang="nl_NL">
 				<seg>Login/Registreer</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.allow_custom_subjects">
-			<tuv xml:lang="nl_NL">
-				<seg>Sta gebruikers toe hun eigen onderwerp te schrijven</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments">

@@ -3558,32 +3558,12 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.fnr.choose_resources">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.info">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.fnr.not_configured">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.followup_questions_hint">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.login_registration">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.allow_custom_subjects">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
