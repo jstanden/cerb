@@ -66,7 +66,7 @@
 			<div>
 				<fieldset style="display:inline-block;margin-bottom:0;">
 					<legend>Actions</legend>
-					{assign var=headers value=$message->getHeaders()}
+					{$headers = $message->getHeaders()}
 					<button name="saveDraft" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
 					
 					{* Virtual Attendants *}

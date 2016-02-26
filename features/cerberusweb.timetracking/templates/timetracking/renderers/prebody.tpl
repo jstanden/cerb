@@ -39,7 +39,7 @@
 </style>
 <div id="divTimeTrackingBox" style="display:{if isset($session.timetracking)}block{else}none{/if};">
 	<div style="float:right;">
-		<button id="btnTimeTrackingPlay" type="button" onclick="timeTrackingTimer.play();" style="display:none;"><span class="glyphicons glyphicons-play" style="color:rgb(0,180,0);"></span></a></button>
+		<button id="btnTimeTrackingPlay" type="button" onclick="timeTrackingTimer.play();" style="display:none;"><span class="glyphicons glyphicons-play" style="color:rgb(0,180,0);"></span></button>
 		<button id="btnTimeTrackingPause" type="button" onclick="timeTrackingTimer.pause();" style="display:none;"><span class="glyphicons glyphicons-pause"></span></button>
 		<button id="btnTimeTrackingStop" type="button" onclick="timeTrackingTimer.stop();" style="display:none;"><span class="glyphicons glyphicons-stop" style="color:rgb(200,0,0);"></span></button>
 	</div>
