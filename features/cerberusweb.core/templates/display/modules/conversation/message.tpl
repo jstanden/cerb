@@ -76,8 +76,8 @@
 	  </div>
 
 	  {if $expanded}
-	  	 | <a href="#{$message->id}act">{'display.convo.skip_to_bottom'|devblocks_translate|lower}</a>
-	  	 | <a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&jump=message&jump_id={$message->id}{/devblocks_url}">{'common.permalink'|devblocks_translate|lower}</a>
+	  <div style="margin:2px;margin-left:10px;" id="{$message->id}skip">
+	  	 <button type="button" onclick="document.location='#{$message->id}act';">{'display.convo.skip_to_bottom'|devblocks_translate|lower}</button>
 	  </div>
 	  {/if}
 	  
