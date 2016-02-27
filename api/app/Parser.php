@@ -1589,6 +1589,17 @@ class CerberusParser {
 		return $text;
 	}
 	
+	static function fixQuotePrintableArray($input, $encoding=null) {
+		array_walk_recursive($input, function(&$v, $k) {
+			if(!is_string($v))
+				return;
+			
+			$v = self::fixQuotePrintableString($v);
+		});
+		
+		return $input;
+	}
+	
 	static function fixQuotePrintableString($input, $encoding=null) {
 		$out = '';
 		
