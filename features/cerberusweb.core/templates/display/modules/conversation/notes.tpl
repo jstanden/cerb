@@ -32,7 +32,8 @@
 			
 			<div class="toolbar" style="display:none;float:right;margin-right:20px;">
 				{if $note->context == CerberusContexts::CONTEXT_MESSAGE}
-					<button type="button" onclick="document.location='{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$note->id}{/devblocks_url}';"><span class="glyphicons glyphicons-link" title="{'common.permalink'|devblocks_translate|lower}"></span></button>
+					{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$note->id}{/devblocks_url}"}
+					<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 				{/if}
 				
 				{if !$readonly}

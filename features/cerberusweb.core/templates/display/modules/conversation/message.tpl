@@ -15,6 +15,8 @@
 			{$is_not_sent = $message->is_not_sent}
 
 			<div class="toolbar-minmax" style="display:none;float:right;">
+				{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}&jump=message&jump_id={$message->id}{/devblocks_url}"}
+				<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 				
 				{if !$expanded}
 					<button id="btnMsgMax{$message->id}" type="button" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');" title="{'common.maximize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-full"></span></button>

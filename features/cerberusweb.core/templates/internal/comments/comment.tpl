@@ -22,7 +22,8 @@
 		
 		<div class="toolbar" style="display:none;float:right;margin-right:20px;">
 			{if $comment->context == CerberusContexts::CONTEXT_TICKET}
-				<button type="button"><a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$comment->id}{/devblocks_url}"><span class="glyphicons glyphicons-link" title="{'common.permalink'|devblocks_translate|lower}"></span></a></button>
+				{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$comment->id}{/devblocks_url}"}
+				<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 			{/if}
 			
 			{if !$readonly && ($active_worker->is_superuser || ($comment->owner_context == CerberusContexts::CONTEXT_WORKER && $comment->owner_context_id == $active_worker->id))}

@@ -207,6 +207,21 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 
 	/*
+	 * Permalinks
+	 */
+	
+	function showPermalinkPopupAction() {
+		@$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string','');
+		
+		if(empty($url))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('url', $url);
+		$tpl->display('devblocks:cerberusweb.core::internal/peek/popup_peek_permalink.tpl');
+	}
+	
+	/*
 	 * Import
 	 */
 	
