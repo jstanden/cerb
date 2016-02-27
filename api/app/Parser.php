@@ -761,8 +761,12 @@ class CerberusParser {
 			}
 
 			// whether or not it has a content-name, we need to add it as an attachment (if not already handled)
-					// [TODO] This could be more efficient by not even saving in the first place above:
 			if(!$handled && $is_attachments_enabled) {
+				// Pre-check: If the part is larger than our max allowed attachments, skip before writing
+				if(isset($section->data['disposition-size']) && $section->data['disposition-size'] > ($attachments_max_size * 1024000)) {
+					continue;
+				}
+				
 				$attach = new ParseFileBuffer($section);
 				
 				// Make sure our attachment is under the max preferred size
