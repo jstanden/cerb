@@ -153,31 +153,25 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 * @param string $message_id
 	 * @return array
 	 */
-	static function getTicketByMessageIdHeader($message_id) {
+	static function getTicketByMessageIdHeader($raw_message_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("SELECT m.ticket_id AS ticket_id, mh.message_id AS message_id ".
-			"FROM message_header mh ".
-			"INNER JOIN message m ON (m.id=mh.message_id) ".
-			"WHERE mh.header_name = 'message-id' AND mh.header_value = %s",
-			$db->qstr($message_id)
+		$sql = sprintf("SELECT ticket_id, id as message_id ".
+			"FROM message ".
+			"WHERE hash_header_message_id = %s",
+			$db->qstr(sha1($raw_message_id))
 		);
-		if(false == ($rs = $db->ExecuteSlave($sql)))
+		
+		if(false == ($row = $db->GetRowSlave($sql)) || empty($row))
 			return false;
 		
-		if($row = mysqli_fetch_assoc($rs)) {
-			$ticket_id = intval($row['ticket_id']);
-			$message_id = intval($row['message_id']);
+		$ticket_id = intval($row['ticket_id']);
+		$message_id = intval($row['message_id']);
 			
-			mysqli_free_result($rs);
-			
-			return array(
-				'ticket_id' => $ticket_id,
-				'message_id' => $message_id
-			);
-		}
-		
-		return null;
+		return array(
+			'ticket_id' => $ticket_id,
+			'message_id' => $message_id
+		);
 	}
 	
 	static function getViewCountForRequesterHistory($view_id, $ticket, $scope=null) {

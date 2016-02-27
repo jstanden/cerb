@@ -41,6 +41,16 @@ if(!isset($tables['message'])) {
 
 list($columns, $indexes) = $db->metaTable('message');
 
+$changes = array();
+
+if(!isset($columns['hash_header_message_id']))
+	$changes[] = 'add column hash_header_message_id varchar(40)';
+
+if(!empty($changes)) {
+	$sql = sprintf("ALTER TABLE message %s", implode(', ', $changes));
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+}
+
 if(!isset($tables['message_headers'])) {
 	$sql = sprintf("
 		CREATE TABLE `message_headers` (
@@ -68,6 +78,12 @@ if(isset($tables['message_header'])) {
 	while($id_from < $id_max) {
 		$id_to = $id_from + 9999;
 		
+		// Move message-id header hashes to the message table
+		$sql = sprintf("UPDATE message SET hash_header_message_id = (SELECT sha1(message_header.header_value) FROM message_header WHERE message_header.message_id=message.id AND message_header.header_name = 'message-id') WHERE message.id BETWEEN %d and %d", $id_from, $id_to);
+	  if(false === ($db->ExecuteMaster($sql))) {
+	  	die("[MySQL Error] " . $db->ErrorMsgMaster());
+	  }
+		
 	  // Move all the headers for a single message_id into a single blob
 	  $sql = sprintf("INSERT IGNORE INTO message_headers (message_id, headers) SELECT message_id, GROUP_CONCAT(header_name, ': ', REPLACE(header_value, '\r\n', '\r\n\t') separator '\r\n') AS headers FROM message_header WHERE message_id BETWEEN %d and %d GROUP BY message_id", $id_from, $id_to);
 		if(false === ($db->ExecuteMaster($sql))) {
@@ -84,6 +100,9 @@ if(isset($tables['message_header'])) {
 	
 	list($columns, $indexes) = $db->metaTable('message');
 	
+	if(!isset($indexes['hash_header_message_id']))
+		$db->ExecuteMaster("ALTER TABLE message ADD INDEX hash_header_message_id (hash_header_message_id(4))") or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
 	if(isset($tables['message_header'])) {
 		$db->ExecuteMaster("DROP TABLE message_header") or die("[MySQL Error] " . $db->ErrorMsgMaster());
 		unset($tables['message_header']);

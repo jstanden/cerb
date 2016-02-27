@@ -514,6 +514,7 @@ class CerberusMail {
 			DAO_Message::WORKER_ID => intval($worker_id),
 			DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 			DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
+			DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($email->getHeaders()->get('message-id')->getFieldBody()),
 		);
 		$message_id = DAO_Message::create($fields);
 		
@@ -998,6 +999,7 @@ class CerberusMail {
 				DAO_Message::RESPONSE_TIME => $response_time,
 				DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 				DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
+				DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($mail->getHeaders()->get('message-id')->getFieldBody())
 			);
 			$message_id = DAO_Message::create($fields);
 			

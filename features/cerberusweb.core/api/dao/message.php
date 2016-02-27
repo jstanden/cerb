@@ -30,6 +30,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	const STORAGE_PROFILE_ID = 'storage_profile_id';
 	const STORAGE_SIZE = 'storage_size';
 	const RESPONSE_TIME = 'response_time';
+	const HASH_HEADER_MESSAGE_ID = 'hash_header_message_id';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -62,7 +63,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, html_attachment_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size, response_time, is_broadcast, is_not_sent ".
+		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, html_attachment_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size, response_time, is_broadcast, is_not_sent, hash_header_message_id ".
 			"FROM message ".
 			$where_sql.
 			$sort_sql.
@@ -118,6 +119,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			$object->response_time = intval($row['response_time']);
 			$object->is_broadcast = intval($row['is_broadcast']);
 			$object->is_not_sent = intval($row['is_not_sent']);
+			$object->hash_header_message_id = $row['hash_header_message_id'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -739,6 +741,7 @@ class Model_Message {
 	public $response_time;
 	public $is_broadcast;
 	public $is_not_sent;
+	public $hash_header_message_id;
 	
 	private $_sender_object = null;
 
@@ -2495,6 +2498,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['storage_size'] = $message->storage_size;
 			$token_values['ticket_id'] = $message->ticket_id;
 			$token_values['worker_id'] = $message->worker_id;
+			$token_values['hash_header_message_id'] = $message->hash_header_message_id;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($message, $token_values);
