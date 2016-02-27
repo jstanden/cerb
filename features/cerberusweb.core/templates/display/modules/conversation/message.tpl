@@ -15,13 +15,12 @@
 			{$is_not_sent = $message->is_not_sent}
 
 			<div class="toolbar-minmax" style="display:none;float:right;">
-				<button id="btnMsgMax{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');"></button>
-				<button id="btnMsgMin{$message->id}" style="display:none;visibility:hidden;" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1');"></button>
-			{if !$expanded}
-				<button type="button" onclick="$('#btnMsgMax{$message->id}').click();" title="{'common.maximize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-full"></span></button>
-			{else}
-				<button type="button" onclick="$('#btnMsgMin{$message->id}').click();" title="{'common.minimize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-small"></span></button>
-			{/if}
+				
+				{if !$expanded}
+					<button id="btnMsgMax{$message->id}" type="button" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}');" title="{'common.maximize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-full"></span></button>
+				{else}
+					<button id="btnMsgMin{$message->id}" type="button" onclick="genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=1');" title="{'common.minimize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-small"></span></button>
+				{/if}
 			</div>
 		
 			<span class="tag" style="color:white;margin-right:5px;{if !$is_outgoing}background-color:rgb(185,50,40);{else}background-color:rgb(100,140,25);{/if}">{if $is_outgoing}{if $is_not_sent}{'mail.saved'|devblocks_translate|lower}{else}{'mail.sent'|devblocks_translate|lower}{/if}{else}{'mail.received'|devblocks_translate|lower}{/if}</span>
@@ -62,31 +61,19 @@
 	  
 	  <div id="{$message->id}sh" style="display:block;margin-top:2px;">
 	  {if isset($headers.from)}<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from|escape|nl2br nofilter}<br>{/if}
-	  {if isset($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to|truncate:255|escape|nl2br nofilter}<br>{/if}
-	  {if isset($headers.cc)}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc|truncate:255|escape|nl2br nofilter}<br>{/if}
-	  {if isset($headers.bcc)}<b>{'message.header.bcc'|devblocks_translate|capitalize}:</b> {$headers.bcc|truncate|escape|nl2br nofilter}<br>{/if}
-	  {if isset($headers.subject)}<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> {$headers.subject|truncate:255|escape nofilter}<br>{/if}
-
+	  {if isset($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to|escape|nl2br nofilter}<br>{/if}
+	  {if isset($headers.cc)}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc|escape|nl2br nofilter}<br>{/if}
+	  {if isset($headers.bcc)}<b>{'message.header.bcc'|devblocks_translate|capitalize}:</b> {$headers.bcc|escape|nl2br nofilter}<br>{/if}
+	  {if isset($headers.subject)}<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> {$headers.subject}<br>{/if}
   	<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$message->created_date|devblocks_date} (<abbr title="{$headers.date}">{$message->created_date|devblocks_prettytime}</abbr>)
-	  	
+
 		{if !empty($message->response_time)}
 			<span style="margin-left:10px;color:rgb(100,140,25);">Replied in {$message->response_time|devblocks_prettysecs:2}</span>
 		{/if}
   	<br>
 	  </div>
 
-	  <div id="{$message->id}h" style="display:none;">
-	  	{if is_array($headers)}
-	  	{foreach from=$headers item=headerValue key=headerKey}
-	  		<b>{$headerKey|capitalize}:</b>
-   			{$headerValue|escape|nl2br nofilter}<br>
-	  	{/foreach}
-	  	{/if}
-	  </div>
-	  
 	  {if $expanded}
-	  <div style="margin:2px;margin-left:10px;">
-	  	 <a href="javascript:;" class="brief" onclick="if($(this).hasClass('brief')) { $('#{$message->id}sh').hide();$('#{$message->id}h').show();$(this).text('{'display.convo.brief_headers'|devblocks_translate|lower}').removeClass('brief'); } else { $('#{$message->id}sh').show();$('#{$message->id}h').hide();$(this).text('{'display.convo.full_headers'|devblocks_translate|lower}').addClass('brief'); } ">{'display.convo.full_headers'|devblocks_translate|lower}</a>
 	  	 | <a href="#{$message->id}act">{'display.convo.skip_to_bottom'|devblocks_translate|lower}</a>
 	  	 | <a href="{devblocks_url}c=profiles&type=ticket&mask={$ticket->mask}&jump=message&jump_id={$message->id}{/devblocks_url}">{'common.permalink'|devblocks_translate|lower}</a>
 	  </div>
@@ -156,6 +143,8 @@
 		  		<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doSplitMessage');$frm.submit();" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
 		  		{/if}
 		  		
+		  		<button type="button" onclick="genericAjaxPopup('message_headers','c=profiles&a=handleSectionAction&section=ticket&action=showMessageFullHeadersPopup&id={$message->id}');"><span class="glyphicons glyphicons-envelope"></span> {'display.convo.full_headers'|devblocks_translate|capitalize}</button>
+		  		
 					{* Plugin Toolbar *}
 					{if !empty($message_toolbaritems)}
 						{foreach from=$message_toolbaritems item=renderer}
@@ -183,14 +172,20 @@
 <div id="reply{$message->id}"></div>
 
 <script type="text/javascript">
-$('#{$message->id}t').hover(
-	function() {
-		$(this).find('div.toolbar-minmax').show();
-	},
-	function() {
-		$(this).find('div.toolbar-minmax').hide();
+$(function() {
+	$('#{$message->id}t').hover(
+		function() {
+			$(this).find('div.toolbar-minmax').show();
+		},
+		function() {
+			$(this).find('div.toolbar-minmax').hide();
+		}
+	);
+	
+	if($('#{$message->id}act').visible()) {
+		$('#{$message->id}skip').hide();
 	}
-);
+});
 </script>
 
 {if $active_worker->hasPriv('core.display.actions.reply')}

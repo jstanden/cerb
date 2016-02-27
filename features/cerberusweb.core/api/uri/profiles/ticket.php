@@ -291,6 +291,20 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				$tpl->display('devblocks:cerberusweb.core::tickets/peek_preview.tpl');
 				break;
 		}
+	}
+	
+	function showMessageFullHeadersPopupAction() {
+		$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		
+		if(empty($id) || false == ($message = DAO_Message::get($id)))
+			return;
+		
+		$raw_headers = $message->getHeaders(true);
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('raw_headers', $raw_headers);
+		
+		$tpl->display('devblocks:cerberusweb.core::messages/popup_full_headers.tpl');
 	}
 };
