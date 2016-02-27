@@ -50,6 +50,7 @@
 class CerberusParserMessage {
 	public $encoding = '';
 	public $headers = array();
+	public $raw_headers = '';
 	public $body = '';
 	public $body_encoding = '';
 	public $htmlbody = '';
@@ -503,7 +504,7 @@ class ParserFile {
 		}
 	}
 
-	public function setTempFile($tmpname,$mimetype='application/octet-stream') {
+	public function setTempFile($tmpname, $mimetype='application/octet-stream') {
 		$this->mime_type = $mimetype;
 
 		if(!empty($tmpname) && file_exists($tmpname)) {
@@ -624,6 +625,8 @@ class CerberusParser {
 				$message->headers[$header_name] = self::fixQuotePrintableString($header_val, $message->body_encoding);
 			}
 		}
+		$message->raw_headers = $mm->extract_headers(MAILPARSE_EXTRACT_RETURN);
+		$message->headers = CerberusParser::fixQuotePrintableArray($mm->data['headers']);
 		
 		$settings = DevblocksPlatform::getPluginSettingsService();
 		$is_attachments_enabled = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED,CerberusSettingsDefaults::ATTACHMENTS_ENABLED);
@@ -1268,8 +1271,7 @@ class CerberusParser {
 		Storage_MessageContent::put($model->getMessageId(), $message->body);
 		
 		// Save headers
-		if(is_array($headers))
-			DAO_MessageHeader::creates($model->getMessageId(), $headers);
+		DAO_MessageHeaders::upsert($model->getMessageId(), $message->raw_headers);
 		
 		// [mdf] Loop through files to insert attachment records in the db, and move temporary files
 		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */

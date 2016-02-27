@@ -697,33 +697,28 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('mode', $mode);
 
-		if($mode == "headers" && empty($mode_param)) {
-			$tpl->display('devblocks:cerberusweb.core::tickets/rpc/ticket_view_assist_headers.tpl');
-			
-		} else {
-			$groups = DAO_Group::getAll();
-			$tpl->assign('groups', $groups);
-			
-			$group_buckets = DAO_Bucket::getGroups();
-			$tpl->assign('group_buckets', $group_buckets);
-			
-			$workers = DAO_Worker::getAllActive();
-			$tpl->assign('workers', $workers);
-			
-			// Enforce group memberships
-			$active_worker = CerberusApplication::getActiveWorker();
-			$memberships = $active_worker->getMemberships();
-			
-			$params = $view->getParams();
-			$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships));
-			
-			// [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
-			
-			$biggest = DAO_Ticket::analyze($params, 15, $mode, $mode_param);
-			$tpl->assign('biggest', $biggest);
-			
-			$tpl->display('devblocks:cerberusweb.core::tickets/rpc/ticket_view_assist.tpl');
-		}
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$group_buckets = DAO_Bucket::getGroups();
+		$tpl->assign('group_buckets', $group_buckets);
+		
+		$workers = DAO_Worker::getAllActive();
+		$tpl->assign('workers', $workers);
+		
+		// Enforce group memberships
+		$active_worker = CerberusApplication::getActiveWorker();
+		$memberships = $active_worker->getMemberships();
+		
+		$params = $view->getParams();
+		$params[] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_GROUP_ID, 'in', array_keys($memberships));
+		
+		// [JAS]: Calculate statistics about the current view (top unique senders/subjects/domains)
+		
+		$biggest = DAO_Ticket::analyze($params, 15, $mode, $mode_param);
+		$tpl->assign('biggest', $biggest);
+		
+		$tpl->display('devblocks:cerberusweb.core::tickets/rpc/ticket_view_assist.tpl');
 	}
 	
 	function viewAutoAssistAction() {
@@ -862,10 +857,6 @@ class ChTicketsPage extends CerberusPageExtension {
 					
 				case 'subject':
 					$doType = 'subject';
-					break;
-					
-				case 'header':
-					$doType = 'header';
 					break;
 			}
 

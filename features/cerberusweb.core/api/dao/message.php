@@ -166,7 +166,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		));
 
 		// Message Headers
-		DAO_MessageHeader::deleteById($ids);
+		DAO_MessageHeaders::delete($ids);
 		
 		// Message Content
 		Storage_MessageContent::delete($ids);
@@ -242,8 +242,8 @@ class DAO_Message extends Cerb_ORMHelper {
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message records.');
 		
 		// Headers
-		$db->ExecuteMaster("DELETE message_header FROM message_header INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message_header.message_id)");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_header records.');
+		$db->ExecuteMaster("DELETE message_headers FROM message_headers INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message_headers.message_id)");
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_headers records.');
 
 		// Attachments
 		$db->ExecuteMaster("DELETE attachment_link FROM attachment_link INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=attachment_link.context_id AND attachment_link.context = 'cerberusweb.contexts.message')");
@@ -327,8 +327,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		
 		$join_sql = "FROM message m ".
 			"INNER JOIN ticket t ON (m.ticket_id = t.id) ".
-			"INNER JOIN address a ON (m.address_id = a.id) ".
-			(isset($tables['mh']) ? "INNER JOIN message_header mh ON (mh.message_id=m.id)" : " ")
+			"INNER JOIN address a ON (m.address_id = a.id) "
 			;
 		
 		$where_sql = "".
@@ -504,73 +503,6 @@ class DAO_Message extends Cerb_ORMHelper {
 				}
 				break;
 			
-			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
-				$header_wheres = array();
-				
-				// Multiple tuples
-				foreach($param->value as $param_value) {
-				
-					// Sanitize
-					if(!is_array($param_value) || 3 != count($param_value))
-						break;
-					
-					@$header_name = strtolower($param_value[0]);
-					@$header_oper = $param_value[1];
-					@$header_value = $param_value[2];
-					
-					if(empty($header_name))
-						break;
-					
-					switch($header_oper) {
-						default:
-						case DevblocksSearchCriteria::OPER_EQ:
-							$header_wheres[] = sprintf("message_header.header_name = %s AND message_header.header_value = %s",
-								Cerb_ORMHelper::qstr($header_name),
-								Cerb_ORMHelper::qstr($header_value)
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_NEQ:
-							$header_wheres[] = sprintf("message_header.header_name = %s AND message_header.header_value != %s",
-								Cerb_ORMHelper::qstr($header_name),
-								Cerb_ORMHelper::qstr($header_value)
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_LIKE:
-							$header_wheres[] = sprintf("message_header.header_name = %s AND message_header.header_value like %s",
-								Cerb_ORMHelper::qstr($header_name),
-								Cerb_ORMHelper::qstr(str_replace('*','%',$header_value))
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_NOT_LIKE:
-							$header_wheres[] = sprintf("message_header.header_name = %s AND message_header.header_value not like %s",
-								Cerb_ORMHelper::qstr($header_name),
-								Cerb_ORMHelper::qstr(str_replace('*','%',$header_value))
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_IS_NULL:
-							$header_wheres[] = sprintf("message_header.header_name = %s AND message_header.header_value is null",
-								Cerb_ORMHelper::qstr($header_name)
-							);
-							break;
-					}
-				}
-				
-				if(!empty($header_wheres)) {
-					$args['join_sql'] .= sprintf("INNER JOIN (".
-						"SELECT DISTINCT message_header.message_id ".
-							"FROM message_header ".
-							"WHERE %s".
-						") virt_msg_header ON (virt_msg_header.message_id = m.id) ",
-						implode(' OR ', $header_wheres)
-					);
-				}
-				
-				break;
-				
 			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
 				if(null == ($member = DAO_Worker::get($param->value)))
 					break;
@@ -718,10 +650,6 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	const STORAGE_PROFILE_ID = 'm_storage_profile_id';
 	const STORAGE_SIZE = 'm_storage_size';
 	
-	// Headers
-	const MESSAGE_HEADER_NAME = 'mh_header_name';
-	const MESSAGE_HEADER_VALUE = 'mh_header_value';
-
 	// Fulltexts
 	const MESSAGE_CONTENT = 'ftmc_content';
 	const FULLTEXT_NOTE_CONTENT = 'ftnc_content';
@@ -740,7 +668,6 @@ class SearchFields_Message implements IDevblocksSearchFields {
 	// Virtuals
 	const VIRTUAL_ATTACHMENT_NAME = '*_attachment_name';
 	const VIRTUAL_HAS_ATTACHMENTS = '*_has_attachments';
-	const VIRTUAL_MESSAGE_HEADER = '*_message_header';
 	const VIRTUAL_TICKET_STATUS = '*_ticket_status';
 	const VIRTUAL_TICKET_IN_GROUPS_OF_WORKER = '*_in_groups_of_worker';
 
@@ -767,9 +694,6 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			SearchFields_Message::STORAGE_PROFILE_ID => new DevblocksSearchField(SearchFields_Message::STORAGE_PROFILE_ID, 'm', 'storage_profile_id', null, true),
 			SearchFields_Message::STORAGE_SIZE => new DevblocksSearchField(SearchFields_Message::STORAGE_SIZE, 'm', 'storage_size', null, true),
 			
-			SearchFields_Message::MESSAGE_HEADER_NAME => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_NAME, 'mh', 'header_name', null, false),
-			SearchFields_Message::MESSAGE_HEADER_VALUE => new DevblocksSearchField(SearchFields_Message::MESSAGE_HEADER_VALUE, 'mh', 'header_value', null, false),
-			
 			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
 			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 't', 'group_id', $translate->_('common.group'), null, true),
@@ -781,7 +705,6 @@ class SearchFields_Message implements IDevblocksSearchFields {
 			
 			SearchFields_Message::VIRTUAL_ATTACHMENT_NAME => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENT_NAME, '*', 'attachment_name', $translate->_('message.search.attachment_name'), null, false),
 			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX, false),
-			SearchFields_Message::VIRTUAL_MESSAGE_HEADER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_MESSAGE_HEADER, '*', 'message_header', $translate->_('message.header'), null, false),
 			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER, '*', 'in_groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
 			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('common.status'), null, false),
 				
@@ -873,12 +796,15 @@ class Model_Message {
 		return $dirty_html;
 	}
 
-	function getHeaders() {
-		$headers = DAO_MessageHeader::getAll($this->id);
-		ksort($headers);
-		return $headers;
+	function getHeaders($raw = false) {
+		static $raw_headers = null;
+		
+		if(is_null($raw_headers))
+			$raw_headers = DAO_MessageHeaders::getRaw($this->id);
+		
+		return $raw ? $raw_headers : DAO_MessageHeaders::parse($raw_headers);
 	}
-
+	
 	/**
 	 *
 	 * Enter description here ...
@@ -1403,147 +1329,6 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	}
 };
 
-class DAO_MessageHeader extends Cerb_ORMHelper {
-	const MESSAGE_ID = 'message_id';
-	const HEADER_NAME = 'header_name';
-	const HEADER_VALUE = 'header_value';
-
-	static function create($message_id, $header, $value) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		if(empty($header) || empty($value) || empty($message_id))
-			return;
-		
-		// Handle stacked headers
-		if(is_array($value)) {
-			$value = implode("\r\n",$value);
-		}
-
-		$db->ExecuteMaster(sprintf("INSERT INTO message_header (message_id, header_name, header_value) ".
-				"VALUES (%d, %s, %s)",
-				$message_id,
-				$db->qstr(strtolower($header)),
-				$db->qstr($value)
-		));
-	}
-	
-	/**
-	 * Insert multiple headers.
-	 *
-	 * @param integer $message_id
-	 * @param string $header
-	 * @param string $value
-	 */
-	static function creates($message_id, $headers) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		if(empty($message_id) || empty($headers) || !is_array($headers))
-			return;
-		
-		$values = array();
-		
-		foreach($headers as $k => $v) {
-			if(empty($k))
-				continue;
-			
-			if(is_string($v) && empty($v))
-				continue;
-			
-			if(is_array($v) && empty($v))
-				continue;
-			
-			$values[] = sprintf("(%d, %s, %s)",
-				$message_id,
-				$db->qstr(strtolower($k)),
-				$db->qstr(is_array($v) ? implode("\r\n", $v) : $v)
-			);
-		}
-		
-		unset($headers);
-		
-		$db->ExecuteMaster(sprintf("INSERT INTO message_header (message_id, header_name, header_value) VALUES %s",
-			implode(',', $values)
-		));
-	}
-
-	static function getAll($message_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$sql = sprintf("SELECT header_name, header_value ".
-			"FROM message_header ".
-			"WHERE message_id = %d",
-			$message_id
-		);
-
-		if(false == ($rs = $db->ExecuteSlave($sql)))
-			return false;
-
-		$headers = array();
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-
-		while($row = mysqli_fetch_assoc($rs)) {
-			$headers[$row['header_name']] = $row['header_value'];
-		}
-
-		mysqli_free_result($rs);
-
-		return $headers;
-	}
-
-	static function getOne($message_id, $header_name) {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$sql = sprintf("SELECT header_value ".
-			"FROM message_header ".
-			"WHERE message_id = %d ".
-			"AND header_name = %s ",
-			$message_id,
-			$db->qstr($header_name)
-		);
-		return $db->GetOneSlave($sql);
-	}
-
-	static function getUnique() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$headers = array();
-
-		$sql = "SELECT header_name FROM message_header GROUP BY header_name";
-		
-		if(false == ($rs = $db->ExecuteSlave($sql)))
-			return false;
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-
-		while($row = mysqli_fetch_assoc($rs)) {
-			$headers[] = $row['header_name'];
-		}
-
-		mysqli_free_result($rs);
-
-		sort($headers);
-
-		return $headers;
-	}
-
-	static function deleteById($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
-		if(empty($ids))
-			return;
-
-		$db = DevblocksPlatform::getDatabaseService();
-		 
-		$sql = sprintf("DELETE FROM message_header WHERE message_id IN (%s)",
-			implode(',', $ids)
-		);
-		$db->ExecuteMaster($sql);
-	}
-};
-
 class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'messages';
 
@@ -1566,8 +1351,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::HTML_ATTACHMENT_ID,
 			SearchFields_Message::ID,
 			SearchFields_Message::MESSAGE_CONTENT,
-			SearchFields_Message::MESSAGE_HEADER_NAME,
-			SearchFields_Message::MESSAGE_HEADER_VALUE,
 			SearchFields_Message::STORAGE_EXTENSION,
 			SearchFields_Message::STORAGE_KEY,
 			SearchFields_Message::STORAGE_PROFILE_ID,
@@ -1577,7 +1360,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::TICKET_IS_WAITING,
 			SearchFields_Message::VIRTUAL_ATTACHMENT_NAME,
 			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS,
-			SearchFields_Message::VIRTUAL_MESSAGE_HEADER,
 			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER,
 		));
 		
@@ -1838,16 +1620,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'options' => array('param_key' => SearchFields_Message::TICKET_GROUP_ID),
 					'examples' => array_slice($group_names, 0, 15),
 				),
-			'headers' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Message::VIRTUAL_MESSAGE_HEADER),
-					'examples' => array(
-						"(content-type like text/html*)",
-						"(message-id = <...>)",
-						"(x-mailer like cerb* OR x-mailer like salesforce*)",
-					),
-				),
 			'inGroupsOfWorker' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -2040,66 +1812,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					}
 					break;
 					
-				case 'headers':
-					$field_key = SearchFields_Message::VIRTUAL_MESSAGE_HEADER;
-					
-					$sets = explode(' OR ', $v);
-					$values = array();
-				
-					if(is_array($sets))
-					foreach($sets as $set) {
-						$tuple = explode(' ', $set, 3);
-						
-						@$header_name = $tuple[0];
-						@$header_oper = $tuple[1];
-						@$header_value = $tuple[2];
-						
-						if(empty($header_name) || empty($header_oper))
-							continue;
-						
-						switch($header_oper) {
-							case '=':
-							case 'is':
-								if(0 == strcasecmp('null', $header_value)) {
-									$values[] = array($header_name, DevblocksSearchCriteria::OPER_IS_NULL, null);
-								} else {
-									$values[] = array($header_name, DevblocksSearchCriteria::OPER_EQ, $header_value);
-								}
-								break;
-								
-							case '!=':
-							case 'not':
-								if(0 == strcasecmp('null', $header_value)) {
-									$values[] = array($header_name, DevblocksSearchCriteria::OPER_IS_NOT_NULL, null);
-								} else {
-									$values[] = array($header_name, DevblocksSearchCriteria::OPER_NEQ, $header_value);
-								}
-								break;
-								
-							case 'like':
-								$oper = DevblocksSearchCriteria::OPER_LIKE;
-								$values[] = array($header_name, $oper, $header_value);
-								break;
-								
-							case '!like':
-								$oper = DevblocksSearchCriteria::OPER_NOT_LIKE;
-								$values[] = array($header_name, $oper, $header_value);
-								break;
-								
-							case 'null':
-								$oper = DevblocksSearchCriteria::OPER_IS_NULL;
-								$values[] = array($header_name, $oper, null);
-								break;
-						}
-					}					
-					
-					$params[$field_key] = new DevblocksSearchCriteria(
-						$field_key,
-						null,
-						$values
-					);
-					break;
-
 				case 'inGroupsOfWorker':
 					$field_key = SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER;
 					
@@ -2310,54 +2022,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					echo "<b>Doesn't</b> have attachments";
 				break;
 			
-			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
-				$strings = array();
-				
-				if(is_array($param->value))
-				foreach($param->value as $param_value) {
-				
-					if(!is_array($param_value) && 3 != count($param_value))
-						break;
-						
-					@$header_name = strtolower($param_value[0]);
-					@$header_oper = $param_value[1];
-					@$header_value = $param_value[2];
-					
-					if(empty($header_name) || empty($header_oper))
-						break;
-					
-					switch($header_oper) {
-						case DevblocksSearchCriteria::OPER_EQ:
-						case DevblocksSearchCriteria::OPER_LIKE:
-							$oper = 'is';
-							break;
-						case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-							$oper = 'is blank or';
-							break;
-						case DevblocksSearchCriteria::OPER_NEQ:
-						case DevblocksSearchCriteria::OPER_NOT_LIKE:
-							$oper = 'is not';
-							break;
-						case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-							$oper = 'is blank or not';
-							break;
-						default:
-							$oper = $header_oper;
-							break;
-					}
-					
-					$strings[] = sprintf("(<b>%s</b> %s <b>%s</b>)",
-						DevblocksPlatform::strEscapeHtml($header_name),
-						DevblocksPlatform::strEscapeHtml($header_oper),
-						DevblocksPlatform::strEscapeHtml($header_value)
-					);
-				}
-				
-				echo sprintf("Header %s",
-					implode(' OR ', $strings) 
-				);
-				break;
-				
 			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
 				$worker_name = $param->value;
 				
@@ -2460,10 +2124,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::FULLTEXT_NOTE_CONTENT:
 			case SearchFields_Message::MESSAGE_CONTENT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
-				break;
-				
-			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
-				$tpl->display('devblocks:cerberusweb.core::messages/criteria_message_header.tpl');
 				break;
 				
 			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
@@ -2583,12 +2243,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
 				$criteria = new DevblocksSearchCriteria($field,$oper,explode(' OR ', $value));
-				break;
-				
-			case SearchFields_Message::VIRTUAL_MESSAGE_HEADER:
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-				@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'string','');
-				$criteria = new DevblocksSearchCriteria($field, $oper, array(array($name,$oper,$value)));
 				break;
 				
 			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
@@ -2933,7 +2587,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				break;
 				
 			case 'headers':
-				$headers = DAO_MessageHeader::getAll($context_id);
+				$headers = DAO_MessageHeaders::getAll($context_id);
 				$values['headers'] = $headers;
 				break;
 				

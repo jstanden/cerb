@@ -58,7 +58,7 @@
 		
 		<patch version="7.0.0" revision="1127" file="patches/7.x/7.0.0.php" />
 		<patch version="7.1.0" revision="1141" file="patches/7.x/7.1.0.php" />
-		<patch version="7.2.0" revision="1151" file="patches/7.x/7.2.0.php" />
+		<patch version="7.2.0" revision="1152" file="patches/7.x/7.2.0.php" />
 	</patches>
 
 	<!-- Controller Routing -->
@@ -324,12 +324,15 @@
 
 		<file path="api/dao/message.php">
 			<class name="DAO_Message" />
-			<class name="DAO_MessageHeader" />
 			<class name="Model_Message" />
 			<class name="Search_MessageContent" />
 			<class name="SearchFields_Message" />
 			<class name="Storage_MessageContent" />
 			<class name="View_Message" />
+		</file>
+		
+		<file path="api/dao/message_headers.php">
+			<class name="DAO_MessageHeaders" />
 		</file>
 		
 		<file path="api/dao/plugin_library.php">

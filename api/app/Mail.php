@@ -320,8 +320,6 @@ class CerberusMail {
 		// [JAS]: Replace any semi-colons with commas (people like using either)
 		$toList = CerberusMail::parseRfcAddresses($toStr);
 		
-		$mail_headers = array();
-		$mail_headers['X-CerberusCompose'] = '1';
 		
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
@@ -422,14 +420,6 @@ class CerberusMail {
 							}
 						}
 					}
-				}
-			}
-			
-			// Headers
-			foreach($email->getHeaders()->getAll() as $hdr) {
-				if(null != ($hdr_val = $hdr->getFieldBody())) {
-					if(!empty($hdr_val))
-						$mail_headers[$hdr->getFieldName()] = CerberusParser::fixQuotePrintableString($hdr_val, LANG_CHARSET_CODE);
 				}
 			}
 			
@@ -536,7 +526,8 @@ class CerberusMail {
 		}
 		
 		// Headers
-		DAO_MessageHeader::creates($message_id, $mail_headers);
+		$email->getHeaders()->addTextHeader('X-CerberusCompose', 1);
+		DAO_MessageHeaders::upsert($message_id, $email->getHeaders()->toString());
 		
 		// add files to ticket
 		if (is_array($files) && !empty($files)) {
@@ -702,7 +693,7 @@ class CerberusMail {
 			
 			@$is_autoreply = $properties['is_autoreply'];
 			
-			$message_headers = DAO_MessageHeader::getAll($reply_message_id);
+			$message_headers = DAO_MessageHeaders::getAll($reply_message_id);
 
 			$from_replyto = $group->getReplyTo($ticket->bucket_id);
 			$from_personal = $group->getReplyPersonal($ticket->bucket_id, $worker_id);
@@ -897,15 +888,6 @@ class CerberusMail {
 
 			// Send
 			$recipients = $mail->getTo();
-			$send_headers = array();
-			
-			// Save headers before sending
-			foreach($headers->getAll() as $hdr) {
-				if(null != ($hdr_val = $hdr->getFieldBody())) {
-					if(!empty($hdr_val))
-						$send_headers[$hdr->getFieldName()] = CerberusParser::fixQuotePrintableString($hdr_val, LANG_CHARSET_CODE);
-				}
-			}
 			
 			// If blank recipients or we're not supposed to send
 			if(empty($recipients) || (isset($properties['dont_send']) && $properties['dont_send'])) {
@@ -1032,7 +1014,7 @@ class CerberusMail {
 			Storage_MessageContent::put($message_id, $content);
 
 			// Save cached headers
-			DAO_MessageHeader::creates($message_id, $send_headers);
+			DAO_MessageHeaders::upsert($message_id, $mail->getHeaders()->toString());
 			
 			// Attachments
 			if (is_array($files) && !empty($files)) {
