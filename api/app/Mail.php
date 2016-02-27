@@ -145,12 +145,12 @@ class CerberusMail {
 			$mail->setTo(DevblocksPlatform::parseCsvString($to));
 
 			$custom_headers = self::_parseCustomHeaders($custom_headers);
-
+			
 			// If we have a custom from, override the sender info
 			if(isset($custom_headers['from'])) {
-				if(false != ($custom_froms = mailparse_rfc822_parse_addresses($custom_headers['from']))) {
-					$from_addy = $custom_froms[0]['address'];
-					$from_personal = ($custom_froms[0]['display'] != $custom_froms[0]['address']) ? $custom_froms[0]['display'] : null;
+				if(false !== ($custom_froms = imap_rfc822_parse_adrlist($custom_headers['from'], '')) && !empty($custom_froms)) {
+					$from_addy = $custom_froms[0]->mailbox . '@' . $custom_froms[0]->host;
+					$from_personal = ($custom_froms[0]->personal != $from_addy) ? $custom_froms[0]->personal : null;
 				}
 				
 				unset($custom_headers['from']);

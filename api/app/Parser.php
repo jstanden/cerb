@@ -523,28 +523,18 @@ class ParserFile {
 };
 
 class ParseFileBuffer extends ParserFile {
-	public $mime_filename = '';
 	public $section = null;
-	public $info = array();
-	private $fp = null;
+	public $info = null;
 
-	function __construct($section, $info, $mime_filename) {
-		$this->mime_filename = $mime_filename;
-		$this->section = $section;
-		$this->info = $info;
+	function __construct($section) {
+		$this->setTempFile(ParserFile::makeTempFilename(), @$section->data['content-type']);
+		$fp = fopen($this->getTempFile(),'wb');
 
-		$this->setTempFile(ParserFile::makeTempFilename(),@$info['content-type']);
-		$this->fp = fopen($this->getTempFile(),'wb');
-
-		if($this->fp && !empty($this->section) && !empty($this->mime_filename)) {
-			mailparse_msg_extract_part_file($this->section, $this->mime_filename, array($this, "writeCallback"));
+		if($fp && $section) {
+			$section->extract_body(MAILPARSE_EXTRACT_STREAM, $fp);
 		}
 
-		@fclose($this->fp);
-	}
-
-	function writeCallback($chunk) {
-		$this->file_size += fwrite($this->fp, $chunk);
+		@fclose($fp);
 	}
 };
 
@@ -556,27 +546,23 @@ class CerberusParser {
 			if(preg_match('/^file:\/\/(.*?)$/', $message_source, $matches)) {
 				$file = $matches[1];
 				
+				if(null == ($parser_msg = CerberusParser::parseMimeFile($file))) {
+					throw new Exception("The message mime could not be parsed (it's probably malformed).");
+				}
+				
 			} else {
 				$message_source .= PHP_EOL;
 				
-				if(null == ($file = CerberusParser::saveMimeToFile($message_source))) {
-					throw new Exception('The MIME file could not be saved.');
+				if(null == ($parser_msg = CerberusParser::parseMimeString($message_source))) {
+					throw new Exception("The message mime could not be parsed (it's probably malformed).");
 				}
-			}
-			
-			if(null == ($mime = mailparse_msg_parse_file($file))) {
-				throw new Exception("The message mime could not be decoded (it's probably malformed).");
-			}
-				
-			if(null == ($parser_msg = CerberusParser::parseMime($mime, $file))) {
-				throw new Exception("The message mime could not be parsed (it's probably malformed).");
 			}
 			
 			if(false === ($ticket_id = CerberusParser::parseMessage($parser_msg))) {
 				throw new Exception("The message was rejected by the parser.");
 			}
 			
-			if($delete_on_success)
+			if($file && $delete_on_success)
 				@unlink($file);
 			
 			if(is_numeric($ticket_id)) {
@@ -590,7 +576,7 @@ class CerberusParser {
 			}
 			
 		} catch (Exception $e) {
-			if($delete_on_failure)
+			if($file && $delete_on_failure)
 				@unlink($file);
 			throw $e;
 		}
@@ -598,33 +584,25 @@ class CerberusParser {
 		return false;
 	}
 	
+	static public function parseMimeFile($full_filename) {
+		$mm = new MimeMessage("file", $full_filename);
+		return self::_parseMime($mm);
+	}
+	
+	static public function parseMimeString($string) {
+		$mm = new MimeMessage("var", rtrim($string, PHP_EOL) . PHP_EOL);
+		return self::_parseMime($mm);
+	}
+	
 	/**
-	 * Enter description here...
-	 *
-	 * @param object $mime
+	 * @param MimeMessage $mm
 	 * @return CerberusParserMessage
 	 */
-	static public function parseMime($mime, $full_filename) {
-		$struct = mailparse_msg_get_structure($mime);
-		$msginfo = mailparse_msg_get_part_data($mime);
-		
+	static private function _parseMime($mm) {
 		$message = new CerberusParserMessage();
-		@$message->encoding = $msginfo['charset'];
+		@$message->encoding = $mm->data['charset'];
 		@$message->body_encoding = $message->encoding; // default
-
-		// Decode headers
-		@$message->headers = $msginfo['headers'];
 		
-		if(is_array($message->headers))
-		foreach($message->headers as $header_name => $header_val) {
-			if(is_array($header_val)) {
-				foreach($header_val as $idx => $val) {
-					$message->headers[$header_name][$idx] = self::fixQuotePrintableString($val, $message->body_encoding);
-				}
-			} else {
-				$message->headers[$header_name] = self::fixQuotePrintableString($header_val, $message->body_encoding);
-			}
-		}
 		$message->raw_headers = $mm->extract_headers(MAILPARSE_EXTRACT_RETURN);
 		$message->headers = CerberusParser::fixQuotePrintableArray($mm->data['headers']);
 		
@@ -632,26 +610,20 @@ class CerberusParser {
 		$is_attachments_enabled = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED,CerberusSettingsDefaults::ATTACHMENTS_ENABLED);
 		$attachments_max_size = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE,CerberusSettingsDefaults::ATTACHMENTS_MAX_SIZE);
 		
-		$ignore_mime_prefixes = array();
-		
 		$message_counter_attached = 0;
 		$message_counter_delivery_status = 0;
 		
-		foreach($struct as $st) {
-			// Are we ignoring specific nested mime parts?
-			$skip = false;
-			foreach($ignore_mime_prefixes as $ignore) {
-				if(0 == strcmp(substr($st, 0, strlen($ignore)), $ignore)) {
-					$skip = true;
-				}
-			}
-			
-			if($skip)
+		$sections = array($mm);
+		
+		for($n = 0; $n < $mm->get_child_count(); $n++)
+			$sections[] = $mm->get_child($n);
+		
+		foreach($sections as $n => $section) {
+			if(!isset($section->data))
 				continue;
 			
-			$section = mailparse_msg_get_part($mime, $st);
-			$info = mailparse_msg_get_part_data($section);
-
+			$info = $section->data;
+			
 			// Overrides
 			switch(strtolower($info['charset'])) {
 				case 'gb2312':
@@ -666,7 +638,7 @@ class CerberusParser {
 			if(empty($content_filename))
 				$content_filename = isset($info['content-name']) ? $info['content-name'] : '';
 			
-			$content_filename = self::fixQuotePrintableString($content_filename, $info['charset']);
+			$content_filename = CerberusParser::fixQuotePrintableString($content_filename, $info['charset']);
 			
 			// Content type
 			
@@ -681,60 +653,48 @@ class CerberusParser {
 						$content_filename = 'calendar.ics';
 						break;
 						
-					case 'text/plain':
-						$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
+					case 'multipart/mixed':
+						$handled = true;
+						break;
 						
-						if(isset($info['charset']) && !empty($info['charset'])) {
-							
-							// Extract inline bounces as attachments
-							
-							$bounce_token = '------ This is a copy of the message, including all the headers. ------';
-							
-							if(false !== ($bounce_pos = @mb_strpos($text, $bounce_token, 0, $info['charset']))) {
-								$bounce_text = mb_substr($text, $bounce_pos + strlen($bounce_token), strlen($text), $info['charset']);
-								$text = mb_substr($text, 0, $bounce_pos, $info['charset']);
-								
-								$bounce_text = self::convertEncoding($bounce_text);
-								
-								$tmpname = ParserFile::makeTempFilename();
-								$rfc_attach = new ParserFile();
-								$rfc_attach->setTempFile($tmpname,'message/rfc822');
-								@file_put_contents($tmpname, $bounce_text);
-								$rfc_attach->file_size = filesize($tmpname);
-								$rfc_attach->mime_type = 'text/plain';
-								$rfc_attach_filename = sprintf("attached_message_%03d.txt",
-									++$message_counter_attached
-								);
-								$message->files[$rfc_attach_filename] = $rfc_attach;
-								unset($rfc_attach);
-							}
-							
-							$message->body_encoding = $info['charset'];
-							$text = self::convertEncoding($text, $info['charset']);
+					case 'multipart/alternative':
+					case 'multipart/related':
+						if(0 == $n) {
+							$handled = true;
+							break;
 						}
 						
-						$message->body .= $text;
+						for($nn = 0; $nn <= $section->get_child_count(); $nn++) {
+							$child_part = $section->get_child($nn);
+							
+							switch(@$child_part->data['content-type']) {
+								case 'text/plain':
+									self::_handleMimepartTextPlain($child_part, $message);
+									break;
+								
+								case 'text/html':
+									self::_handleMimepartTextHtml($child_part, $message);
+									break;
+							}
+						}
 						
-						unset($text);
 						$handled = true;
+						break;
+						
+					case 'text/plain; (error)':
+						$handled = true;
+						break;
+						
+					case 'text/plain':
+						$handled = self::_handleMimepartTextPlain($section, $message);
 						break;
 					
 					case 'text/html':
-						@$text = mailparse_msg_extract_part_file($section, $full_filename, NULL);
-						
-						if(isset($info['charset']) && !empty($info['charset'])) {
-							$text = self::convertEncoding($text, $info['charset']);
-						}
-						
-						if(0 != strlen(trim($text)))
-							$message->htmlbody .= $text;
-						
-						unset($text);
-						$handled = true;
+						$handled = self::_handleMimepartTextHtml($section, $message);
 						break;
 						 
 					case 'message/delivery-status':
-						@$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
+						$message_content = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
 						$message_counter_delivery_status++;
 
 						$tmpname = ParserFile::makeTempFilename();
@@ -749,9 +709,6 @@ class CerberusParser {
 						$message->files[$bounce_attach_filename] = $bounce_attach;
 						unset($bounce_attach);
 						$handled = true;
-						
-						// Skip any nested parts in this message/rfc822 parent
-						$ignore_mime_prefixes[] = $st . '.';
 						break;
 
 					case 'message/feedback-report':
@@ -759,7 +716,7 @@ class CerberusParser {
 						break;
 						
 					case 'message/rfc822':
-						@$message_content = mailparse_msg_extract_part_file($section, $full_filename, NULL);
+						$message_content = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
 						$message_counter_attached++;
 
 						$tmpname = ParserFile::makeTempFilename();
@@ -774,9 +731,6 @@ class CerberusParser {
 						$message->files[$rfc_attach_filename] = $rfc_attach;
 						unset($rfc_attach);
 						$handled = true;
-						
-						// Skip any nested parts in this message/rfc822 parent
-						$ignore_mime_prefixes[] = $st . '.';
 						break;
 						
 					case 'image/gif':
@@ -807,34 +761,20 @@ class CerberusParser {
 			}
 
 			// whether or not it has a content-name, we need to add it as an attachment (if not already handled)
-			if(!$handled) {
-				if (false === strpos(strtolower($info['content-type']),'multipart')) {
-					if(!$is_attachments_enabled) {
-						continue; // skip attachment
-					}
-					$attach = new ParseFileBuffer($section, $info, $full_filename);
-					
 					// [TODO] This could be more efficient by not even saving in the first place above:
-					// Make sure our attachment is under the max preferred size
-					if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
-						@unlink($attach->tmpname);
-						continue;
-					}
-					
-					if(empty($content_filename))
-						$content_filename = 'unnamed_attachment';
-					
-					// content-name is not necessarily unique...
-					if(isset($message->files[$content_filename])) {
-						$j=1;
-						while (isset($message->files[$content_filename . '(' . $j . ')'])) {
-							$j++;
-						}
-						$content_filename = $content_filename . '(' . $j . ')';
-					}
-					
-					$message->files[$content_filename] = $attach;
+			if(!$handled && $is_attachments_enabled) {
+				$attach = new ParseFileBuffer($section);
+				
+				// Make sure our attachment is under the max preferred size
+				if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
+					@unlink($attach->tmpname);
+					continue;
 				}
+				
+				if(empty($content_filename))
+					$content_filename = 'unnamed_attachment_' . uniqid();
+				
+				$message->files[$content_filename] = $attach;
 			}
 		}
 		
@@ -846,36 +786,58 @@ class CerberusParser {
 		return $message;
 	}
 
-	/**
-	 * Enter description here...
-	 *
-	 * @param string $source
-	 * @return $filename
-	 */
-	static public function saveMimeToFile($source, $path=null) {
-		if(empty($path))
-			$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
-		else
-			$path = $path . DIRECTORY_SEPARATOR;
-		 
-		do {
-			$unique = sprintf("%s.%04d.msg",
-				time(),
-				mt_rand(0,9999)
-			);
-			$filename = $path . $unique;
-		} while(file_exists($filename));
-
-		$fp = fopen($filename,'w');
-
-		if($fp) {
-			fwrite($fp,$source,strlen($source));
-			@fclose($fp);
+	static private function _handleMimepartTextPlain($section, CerberusParserMessage $message) {
+		@$transfer_encoding = $section->data['transfer-encoding'];
+		$text = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
+		
+		if(isset($section->data['charset']) && !empty($section->data['charset'])) {
+			
+			// Extract inline bounces as attachments
+			
+			$bounce_token = '------ This is a copy of the message, including all the headers. ------';
+			
+			if(false !== ($bounce_pos = @mb_strpos($text, $bounce_token, 0, $section->data['charset']))) {
+				$bounce_text = mb_substr($text, $bounce_pos + strlen($bounce_token), strlen($text), $section->data['charset']);
+				$text = mb_substr($text, 0, $bounce_pos, $section->data['charset']);
+				
+				$bounce_text = self::convertEncoding($bounce_text);
+				
+				$tmpname = ParserFile::makeTempFilename();
+				$rfc_attach = new ParserFile();
+				$rfc_attach->setTempFile($tmpname,'message/rfc822');
+				@file_put_contents($tmpname, $bounce_text);
+				$rfc_attach->file_size = filesize($tmpname);
+				$rfc_attach->mime_type = 'text/plain';
+				$rfc_attach_filename = sprintf("attached_message_%03d.txt",
+					++$message_counter_attached
+				);
+				$message->files[$rfc_attach_filename] = $rfc_attach;
+				unset($rfc_attach);
+			}
+			
+			$message->body_encoding = $section->data['charset'];
+			$text = self::convertEncoding($text, $section->data['charset']);
 		}
-
-		return $filename;
+		
+		$message->body .= $text;
+		
+		return true;
 	}
-
+	
+	static private function _handleMimepartTextHtml($section, CerberusParserMessage $message) {
+		@$transfer_encoding = $section->data['transfer-encoding'];
+		$text = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
+		
+		if(isset($section->data['charset']) && !empty($section->data['charset'])) {
+			$text = self::convertEncoding($text, $section->data['charset']);
+		}
+		
+		if(0 != strlen(trim($text)))
+			$message->htmlbody .= $text;
+		
+		return true;
+	}
+	
 	/**
 	 * @param CerberusParserMessage $message
 	 * @return integer
@@ -888,27 +850,25 @@ class CerberusParser {
 		$logger = DevblocksPlatform::getConsoleLog();
 		$url_writer = DevblocksPlatform::getUrlService();
 		
-		$headers =& $message->headers;
-
-		/*
-		 * [mdf] Check attached files before creating the ticket because we may need to
-		 * overwrite the message-id also store any contents of rfc822 files so we can
-		 * include them after the body
-		 */
-		// [TODO] Refactor
+		// Thread a bounce to the message it references based on the message/rfc822 attachment
 		if(is_array($message->files))
 		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
 			switch($file->mime_type) {
 				case 'message/rfc822':
-					$full_filename = $file->tmpname;
-					$mail = mailparse_msg_parse_file($full_filename);
-					$struct = mailparse_msg_get_structure($mail);
-					$msginfo = mailparse_msg_get_part_data($mail);
+					if(false == ($mime = new MimeMessage('file',  $file->tmpname)))
+						break;
+						
+					if(!isset($message->headers['from']) || !isset($mime->data['headers']) || !isset($mime->data['headers']['message-id']))
+						break;
 					
-					$inline_headers = $msginfo['headers'];
-					if(isset($headers['from']) && (strtolower(substr($headers['from'], 0, 11))=='postmaster@' || strtolower(substr($headers['from'], 0, 14))=='mailer-daemon@')) {
-						$headers['in-reply-to'] = $inline_headers['message-id'];
+					if(false == ($bounce_froms = imap_rfc822_parse_adrlist($message->headers['from'], '')) || empty($bounce_froms))
+						break;
+					
+					// Change the inbound In-Reply-To: header to that of the bounce
+					if(in_array(strtolower($bounce_froms[0]->mailbox), array('postmaster', 'mailer-daemon'))) {
+						$message->headers['in-reply-to'] = $mime->data['headers']['message-id'];
 					}
+					
 				break;
 			}
 		}

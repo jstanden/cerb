@@ -130,8 +130,7 @@ class ParseCron extends CerberusCronPageExtension {
 
 		$time = microtime(true);
 
-		$mime = mailparse_msg_parse_file($full_filename);
-		$message = CerberusParser::parseMime($mime, $full_filename);
+		$message = CerberusParser::parseMimeFile($full_filename);
 
 		$time = microtime(true) - $time;
 		$logger->info("Decoded! (".sprintf("%d",($time*1000))." ms)");
@@ -153,8 +152,6 @@ class ParseCron extends CerberusCronPageExtension {
 			@unlink($full_filename);
 			$logger->info("The message source has been removed.");
 		}
-		
-		mailparse_msg_free($mime);
 	}
 
 	function configure($instance) {

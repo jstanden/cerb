@@ -35,19 +35,7 @@ class ChRest_Parser extends Extension_RestController { //implements IExtensionRe
 		if(empty($content))
 			$this->error(self::ERRNO_CUSTOM, 'The MIME content of your message cannot be blank.');
 		
-		$content .= PHP_EOL;
-			
-		if(null == ($file = CerberusParser::saveMimeToFile($content))) {
-			@unlink($file);
-			$this->error(self::ERRNO_CUSTOM, 'Your MIME file could not be saved.');
-		}
-		
-		if(null == ($mime = mailparse_msg_parse_file($file))) {
-			@unlink($file);
-			$this->error(self::ERRNO_CUSTOM, "Your message mime could not be decoded (it's probably malformed).");
-		}
-			
-		if(null == ($parser_msg = CerberusParser::parseMime($mime, $file))) {
+		if(null == ($parser_msg = CerberusParser::parseMimeString($content))) {
 			@unlink($file);
 			$this->error(self::ERRNO_CUSTOM, "Your message mime could not be parsed (it's probably malformed).");
 		}
