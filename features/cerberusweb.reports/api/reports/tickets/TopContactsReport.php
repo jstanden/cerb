@@ -106,7 +106,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				"FROM ticket t  ".
 				"INNER JOIN address a ON t.first_wrote_address_id = a.id  ".
 				"WHERE created_date > %d AND created_date <= %d  ".
-				"AND is_deleted = 0 ".
+				"AND status_id != 3 ".
 				"AND spam_score < 0.9000 ".
 				"AND spam_training != 'S'  ".
 				"AND t.group_id != 0 ".
@@ -122,7 +122,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				"INNER JOIN address a ON t.first_wrote_address_id = a.id ".
 				"INNER JOIN contact_org o ON a.contact_org_id = o.id ".
 				"WHERE created_date > %d AND created_date <= %d ".
-				"AND is_deleted = 0 ".
+				"AND status_id != 3 ".
 				"AND spam_score < 0.9000 ".
 				"AND spam_training != 'S' ".
 				"AND a.contact_org_id != 0 ".
@@ -181,7 +181,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				"FROM ticket t ".
 				"INNER JOIN address a ON t.first_wrote_address_id = a.id ".
 				"WHERE created_date > %d AND created_date <= %d ".
-				"AND is_deleted = 0 ".
+				"AND status_id != 3 ".
 				"AND spam_score < 0.9000 ".
 				"AND spam_training != 'S' ".
 				"AND t.group_id != 0 " .
@@ -208,7 +208,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				"INNER JOIN address a ON t.first_wrote_address_id = a.id ".
 				"WHERE created_date > %d AND created_date <= %d ".
 				"AND a.id IN (%s) ".
-				"AND is_deleted = 0 ".
+				"AND status_id != 3 ".
 				"AND spam_score < 0.9000 ".
 				"AND spam_training != 'S' ".
 				"AND t.group_id != 0 " .
@@ -225,7 +225,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				"INNER JOIN address a ON t.first_wrote_address_id = a.id ".
 				"INNER JOIN contact_org o ON a.contact_org_id = o.id ".
 				"WHERE created_date > %d AND created_date <= %d ".
-				"AND is_deleted = 0 ".
+				"AND status_id != 3 ".
 				"AND spam_score < 0.9000 ".
 				"AND spam_training != 'S' ".
 				"AND t.group_id != 0 " .
@@ -254,7 +254,7 @@ class ChReportTopTicketsByContact extends Extension_Report {
 				"INNER JOIN contact_org o ON a.contact_org_id = o.id ".
 				"WHERE created_date > %d AND created_date <= %d ".
 				"AND o.id IN (%s) ".
-				"AND is_deleted = 0 ".
+				"AND status_id != 3 ".
 				"AND spam_score < 0.9000 ".
 				"AND spam_training != 'S' ".
 				"AND t.group_id != 0 " .

@@ -1084,15 +1084,15 @@ class CerberusParser {
 							switch(strtolower($matches[1])) {
 								case 'o':
 								case 'open':
-									$properties['closed'] = 0;
+									$properties['status_id'] = Model_Ticket::STATUS_OPEN;
 									break;
 								case 'w':
 								case 'waiting':
-									$properties['closed'] = 2;
+									$properties['status_id'] = Model_Ticket::STATUS_WAITING;
 									break;
 								case 'c':
 								case 'closed':
-									$properties['closed'] = 1;
+									$properties['status_id'] = Model_Ticket::STATUS_CLOSED;
 									break;
 							}
 							
@@ -1408,7 +1408,7 @@ class CerberusParser {
 			$change_fields = array(
 				DAO_Ticket::MASK => CerberusApplication::generateTicketMask(),
 				DAO_Ticket::SUBJECT => $model->getSubject(),
-				DAO_Ticket::IS_CLOSED => 0,
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 				DAO_Ticket::FIRST_WROTE_ID => intval($model->getSenderAddressModel()->id),
 				DAO_Ticket::LAST_WROTE_ID => intval($model->getSenderAddressModel()->id),
 				DAO_Ticket::CREATED_DATE => time(),
@@ -1438,9 +1438,7 @@ class CerberusParser {
 			// Re-open and update our date on new replies
 			DAO_Ticket::update($model->getTicketId(),array(
 				DAO_Ticket::UPDATED_DATE => time(),
-				DAO_Ticket::IS_WAITING => 0,
-				DAO_Ticket::IS_CLOSED => 0,
-				DAO_Ticket::IS_DELETED => 0,
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::LAST_WROTE_ID => $model->getSenderAddressModel()->id,
 				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_CUSTOMER_REPLY,

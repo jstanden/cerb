@@ -3226,6 +3226,11 @@ For example: *receipt*</seg>
 				<seg>Waiting for Reply</seg>
 			</tuv>
 		</tu>
+		<tu tuid="status.waiting.abbr">
+			<tuv xml:lang="en_US">
+				<seg>Waiting</seg>
+			</tuv>
+		</tu>
 
 		<!-- Tasks -->
 		

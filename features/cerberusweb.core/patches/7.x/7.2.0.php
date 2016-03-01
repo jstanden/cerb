@@ -109,6 +109,103 @@ if(isset($tables['message_header'])) {
 	}
 }
 
+// ===========================================================================
+// Consolidate ticket status fields
+
+if(!isset($tables['ticket'])) {
+	$logger->error("The 'ticket' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('ticket');
+
+$changes = array();
+
+if(!isset($columns['status_id']))
+	$changes[] = 'add column status_id tinyint unsigned not null default 0';
+
+if(isset($indexes['mask']) && 3 != $indexes['mask']['columns']['mask']['subpart'])
+	$changes[] = 'drop index mask, add index mask (mask(3))';
+
+if(isset($indexes['team_id']))
+	$changes[] = 'drop index team_id';
+
+if(!isset($indexes['group_id']))
+	$changes[] = 'add index (group_id)';
+
+if(!empty($changes)) {
+	$sql = sprintf("ALTER TABLE ticket %s", implode(', ', $changes));
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+}
+
+if(isset($columns['is_waiting']) && isset($columns['is_closed']) && isset($columns['is_deleted'])) {
+	$db->ExecuteMaster("UPDATE ticket SET status_id = 3 WHERE is_deleted = 1 AND status_id = 0");
+	$db->ExecuteMaster("UPDATE ticket SET status_id = 2 WHERE is_closed = 1 AND  status_id = 0");
+	$db->ExecuteMaster("UPDATE ticket SET status_id = 1 WHERE is_waiting = 1 AND  status_id = 0");
+	$db->ExecuteMaster("ALTER TABLE ticket DROP COLUMN is_waiting, DROP COLUMN is_closed, DROP COLUMN is_deleted, ADD INDEX status_and_group (status_id, group_id)");
+}
+
+// ===========================================================================
+// Migrate mail_queue draft records to the new status bits
+
+$status_map = array(0,2,1,3);
+
+$rs = $db->ExecuteMaster("SELECT id, params_json FROM mail_queue WHERE params_json LIKE '%closed%'");
+
+if($rs instanceof mysqli_result) {
+	while($row = mysqli_fetch_assoc($rs)) {
+		if(false == ($json = json_decode($row['params_json'], true)))
+			continue;
+		
+		if(isset($json['closed'])) {
+			$json['status_id'] = (string) $status_map[intval($json['closed'])];
+			unset($json['closed']);
+			
+			$sql = sprintf("UPDATE mail_queue SET params_json = %s WHERE id = %d",
+				$db->qstr(json_encode($json)),
+				$row['id']
+			);
+			$db->ExecuteMaster($sql);
+		}
+	}
+	mysqli_free_result($rs);
+}
+
+// ===========================================================================
+// Migrate VAs to the new status bits
+
+$status_map = array(0,2,1,3);
+
+$rs = $db->ExecuteMaster("SELECT id, params_json FROM decision_node WHERE node_type = 'action' AND params_json LIKE '%%create_ticket%%'");
+
+if($rs instanceof mysqli_result) {
+	while($row = mysqli_fetch_assoc($rs)) {
+		if(false == ($json = json_decode($row['params_json'], true)))
+			continue;
+		
+		$is_changed = false;
+		
+		if(isset($json['actions']))
+		foreach($json['actions'] as &$action) {
+			if(isset($action['status'])) {
+				$action['status'] = (string) $status_map[intval($action['status'])];
+				$is_changed = true;
+			}
+		}
+		
+		if($is_changed) {
+			$sql = sprintf(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+				$db->qstr(json_encode($json)),
+				$row['id']
+			));
+			$db->ExecuteMaster($sql);
+		}
+	}
+	
+	mysqli_free_result($rs);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

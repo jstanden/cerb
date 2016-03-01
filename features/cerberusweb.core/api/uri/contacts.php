@@ -246,9 +246,8 @@ class ChContactsPage extends CerberusPageExtension {
 			$view->renderSortAsc = false;
 		}
 	
-
 		$params_required = array(
-			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ,0)
+			SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,DevblocksSearchCriteria::OPER_NEQ,Model_Ticket::STATUS_DELETED)
 		);
 		
 		if(empty($ids)) {
@@ -910,7 +909,7 @@ class ChContactsPage extends CerberusPageExtension {
 			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
 			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_html_template_id'],'integer',0);
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
-			@$broadcast_is_closed = DevblocksPlatform::importGPC($_REQUEST['broadcast_next_is_closed'],'integer',0);
+			@$broadcast_status_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_status_id'],'integer',0);
 			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
 			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_subject) && !empty($broadcast_message)) {
@@ -920,7 +919,7 @@ class ChContactsPage extends CerberusPageExtension {
 					'format' => $broadcast_format,
 					'html_template_id' => $broadcast_html_template_id,
 					'is_queued' => $broadcast_is_queued,
-					'next_is_closed' => $broadcast_is_closed,
+					'status_id' => $broadcast_status_id,
 					'group_id' => $broadcast_group_id,
 					'worker_id' => $active_worker->id,
 					'file_ids' => $broadcast_file_ids,

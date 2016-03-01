@@ -190,8 +190,9 @@ class MaintCron extends CerberusCronPageExtension {
 		$purge_waitsecs = time() - (intval($purge_waitdays) * 86400);
 
 		$sql = sprintf("DELETE FROM ticket ".
-			"WHERE is_deleted = 1 ".
+			"WHERE status_id = %d ".
 			"AND updated_date < %d ",
+			Model_Ticket::STATUS_DELETED,
 			$purge_waitsecs
 		);
 		$db->ExecuteMaster($sql);
@@ -703,12 +704,19 @@ class ImportCron extends CerberusCronPageExtension {
 			$logger->info("[Importer] The unique mask for '".$origMask."' is now '" . $sMask . "'");
 		}
 		
+		if($isClosed) {
+			$statusId = Model_Ticket::STATUS_CLOSED;
+		} elseif($isWaiting) {
+			$statusId = Model_Ticket::STATUS_WAITING;
+		} else {
+			$statusId = Model_Ticket::STATUS_OPEN;
+		}
+		
 		// Create ticket
 		$fields = array(
 			DAO_Ticket::MASK => $sMask,
 			DAO_Ticket::SUBJECT => $sSubject,
-			DAO_Ticket::IS_WAITING => $isWaiting,
-			DAO_Ticket::IS_CLOSED => $isClosed,
+			DAO_Ticket::STATUS_ID => $statusId,
 			DAO_Ticket::FIRST_WROTE_ID => intval($firstWroteInst->id),
 			DAO_Ticket::LAST_WROTE_ID => intval($lastWroteInst->id),
 			DAO_Ticket::ORG_ID => intval($firstWroteInst->contact_org_id),

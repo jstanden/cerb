@@ -131,7 +131,7 @@ class ChReportNewTickets extends Extension_Report {
 
 			$params = array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CREATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ, 0),
+				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,DevblocksSearchCriteria::OPER_NEQ, Model_Ticket::STATUS_DELETED),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_TRAINING,DevblocksSearchCriteria::OPER_NEQ, 'S'),
 			);
 			

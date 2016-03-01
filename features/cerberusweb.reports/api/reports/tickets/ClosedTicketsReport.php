@@ -35,7 +35,7 @@ class ChReportClosedTickets extends Extension_Report {
 		
 		// Year shortcuts
 		$years = array();
-		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 AND is_deleted = 0 AND is_closed = 1 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 AND status_id = 2 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
 		$rs = $db->ExecuteSlave($sql);
 		
 		if(!($rs instanceof mysqli_result))
@@ -141,8 +141,7 @@ class ChReportClosedTickets extends Extension_Report {
 
 			$params = array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_UPDATED_DATE,DevblocksSearchCriteria::OPER_BETWEEN, array($start_time, $end_time)),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,DevblocksSearchCriteria::OPER_EQ, 0),
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,DevblocksSearchCriteria::OPER_EQ, 1),
+				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,DevblocksSearchCriteria::OPER_EQ, Model_Ticket::STATUS_CLOSED),
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SPAM_TRAINING,DevblocksSearchCriteria::OPER_NEQ, 'S'),
 			);
 			

@@ -248,7 +248,7 @@ class CerberusMail {
 		 'html_template_id'
 		 'files'
 		 'forward_files'
-		 'closed'
+		 'status_id'
 		 'ticket_reopen'
 		 'dont_send'
 		 'draft_id'
@@ -295,7 +295,7 @@ class CerberusMail {
 		@$embedded_files = array();
 		@$forward_files = $properties['forward_files'];
 		
-		@$closed = $properties['closed'];
+		@$status_id = $properties['status_id'];
 		@$ticket_reopen = $properties['ticket_reopen'];
 		
 		$from_replyto = $group->getReplyTo($bucket->id);
@@ -581,11 +581,10 @@ class CerberusMail {
 			DAO_Ticket::FIRST_MESSAGE_ID => $message_id,
 			DAO_Ticket::LAST_MESSAGE_ID => $message_id,
 		);
-		
-		if(isset($closed) && 1==$closed)
-			$fields[DAO_Ticket::IS_CLOSED] = 1;
-		if(isset($closed) && 2==$closed)
-			$fields[DAO_Ticket::IS_WAITING] = 1;
+
+		// Status
+		if(in_array($status_id, array(Model_Ticket::STATUS_WAITING, Model_Ticket::STATUS_CLOSED)))
+			$fields[DAO_Ticket::STATUS_ID] = $status_id;
 		
 		// Move last, so the event triggers properly
 		$fields[DAO_Ticket::GROUP_ID] = $group->id;
@@ -642,7 +641,7 @@ class CerberusMail {
 		'files'
 		'forward_files'
 		'link_forward_files'
-		'closed'
+		'status_id'
 		'ticket_reopen'
 		'group_id'
 		'bucket_id'
@@ -1076,7 +1075,7 @@ class CerberusMail {
 		
 		// Post-Reply Change Properties
 
-		if(isset($properties['closed'])) {
+		if(isset($properties['status_id'])) {
 			$reopen_at = 0;
 			
 			// Handle reopen date
@@ -1086,25 +1085,19 @@ class CerberusMail {
 				}
 			}
 			
-			switch($properties['closed']) {
-				case 0: // open
-					$change_fields[DAO_Ticket::IS_WAITING] = 0;
-					$change_fields[DAO_Ticket::IS_CLOSED] = 0;
-					$change_fields[DAO_Ticket::IS_DELETED] = 0;
+			switch($properties['status_id']) {
+				case Model_Ticket::STATUS_OPEN:
+					$change_fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
 					$change_fields[DAO_Ticket::REOPEN_AT] = 0;
 					break;
-				case 1: // closed
-					$change_fields[DAO_Ticket::IS_WAITING] = 0;
-					$change_fields[DAO_Ticket::IS_CLOSED] = 1;
-					$change_fields[DAO_Ticket::IS_DELETED] = 0;
+				case Model_Ticket::STATUS_CLOSED:
+					$change_fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_CLOSED;
 					
 					if(isset($properties['ticket_reopen']))
 						$change_fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
 					break;
-				case 2: // waiting
-					$change_fields[DAO_Ticket::IS_WAITING] = 1;
-					$change_fields[DAO_Ticket::IS_CLOSED] = 0;
-					$change_fields[DAO_Ticket::IS_DELETED] = 0;
+				case Model_Ticket::STATUS_WAITING:
+					$change_fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_WAITING;
 					
 					if(isset($properties['ticket_reopen']))
 						$change_fields[DAO_Ticket::REOPEN_AT] = $reopen_at;

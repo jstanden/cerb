@@ -10,15 +10,7 @@
 	 &nbsp;
 	 
 	<b>{'common.status'|devblocks_translate}:</b> 
-	{if $ticket->is_deleted}
-	{'status.deleted'|devblocks_translate|capitalize}
-	{elseif $ticket->is_closed}
-	{'status.resolved'|devblocks_translate|capitalize}
-	{elseif $ticket->is_waiting}
-	{'status.waiting'|devblocks_translate|capitalize}
-	{else}
-	{'status.open'|devblocks_translate|capitalize}
-	{/if}
+	{$ticket->getStatusText()|lower}
 	
 	 &nbsp;
 	  
@@ -71,7 +63,7 @@
 					<b>{'status.resolved'|devblocks_translate|capitalize}:</b>
 				</td>
 				<td>
-					<label><input type="checkbox" name="is_closed" value="1" {if $ticket->is_closed}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+					<label><input type="checkbox" name="is_closed" value="1" {if $ticket->status_id == Model_Ticket::STATUS_CLOSED}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
 				</td>
 			</tr>
 			

@@ -178,8 +178,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(empty($id)) return;
 
 		$fields = array(
-			DAO_Ticket::IS_CLOSED => 1,
-			DAO_Ticket::IS_DELETED => 1,
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
 		);
 		
 		//====================================
@@ -190,8 +189,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$last_action->ticket_ids[$id] = array(
 			DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
 			DAO_Ticket::SPAM_SCORE => 0.5000,
-			DAO_Ticket::IS_CLOSED => 0,
-			DAO_Ticket::IS_DELETED => 0
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 		);
 
 		$last_action->action_params = $fields;
@@ -205,8 +203,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			return;
 		
 		$fields = array(
-			DAO_Ticket::IS_DELETED => 1,
-			DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
 		);
 		
 		// Only update fields that changed
@@ -242,7 +239,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		try {
 			@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 			@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
-			@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
+			@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
 			@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'],'integer',0);
 			@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
 			@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
@@ -282,38 +279,28 @@ class ChTicketsPage extends CerberusPageExtension {
 			$fields[DAO_Ticket::OWNER_ID] = $owner_id;
 			
 			// Status
-			if(isset($closed)) {
-				switch($closed) {
-					case 0: // open
-						$fields[DAO_Ticket::IS_WAITING] = 0;
-						$fields[DAO_Ticket::IS_CLOSED] = 0;
-						$fields[DAO_Ticket::IS_DELETED] = 0;
-						$fields[DAO_Ticket::REOPEN_AT] = 0;
-						break;
-					case 1: // closed
-						$fields[DAO_Ticket::IS_WAITING] = 0;
-						$fields[DAO_Ticket::IS_CLOSED] = 1;
-						$fields[DAO_Ticket::IS_DELETED] = 0;
-						break;
-					case 2: // waiting
-						$fields[DAO_Ticket::IS_WAITING] = 1;
-						$fields[DAO_Ticket::IS_CLOSED] = 0;
-						$fields[DAO_Ticket::IS_DELETED] = 0;
-						break;
-					case 3: // deleted
-						$fields[DAO_Ticket::IS_WAITING] = 0;
-						$fields[DAO_Ticket::IS_CLOSED] = 1;
-						$fields[DAO_Ticket::IS_DELETED] = 1;
-						$fields[DAO_Ticket::REOPEN_AT] = 0;
-						break;
-				}
+			switch($status_id) {
+				case Model_Ticket::STATUS_OPEN:
+					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
+					$fields[DAO_Ticket::REOPEN_AT] = 0;
+					break;
+				case Model_Ticket::STATUS_CLOSED:
+					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_CLOSED;
+					break;
+				case Model_Ticket::STATUS_WAITING:
+					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_WAITING;
+					break;
+				case Model_Ticket::STATUS_DELETED:
+					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_DELETED;
+					$fields[DAO_Ticket::REOPEN_AT] = 0;
+					break;
+			}
 				
-				if(1==$closed || 2==$closed) {
-					if(!empty($ticket_reopen) && false !== ($due = strtotime($ticket_reopen))) {
-						$fields[DAO_Ticket::REOPEN_AT] = $due;
-					} else {
-						$fields[DAO_Ticket::REOPEN_AT] = 0;
-					}
+			if(in_array($status_id, array(Model_Ticket::STATUS_WAITING, Model_Ticket::STATUS_CLOSED))) {
+				if(!empty($ticket_reopen) && false !== ($due = strtotime($ticket_reopen))) {
+					$fields[DAO_Ticket::REOPEN_AT] = $due;
+				} else {
+					$fields[DAO_Ticket::REOPEN_AT] = 0;
 				}
 			}
 			
@@ -428,7 +415,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		// Properties
 		
-		@$closed = DevblocksPlatform::importGPC($_POST['closed'],'integer',0);
+		@$status_id = DevblocksPlatform::importGPC($_POST['status_id'],'integer',0);
 		@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 		@$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'],'integer',0);
 		
@@ -470,7 +457,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'content_format' => $content_format,
 			'html_template_id' => $html_template_id,
 			'forward_files' => $file_ids,
-			'closed' => $closed,
+			'status_id' => $status_id,
 			'ticket_reopen' => $ticket_reopen,
 			'link_forward_files' => true,
 			'worker_id' => $active_worker->id,
@@ -777,16 +764,14 @@ class ChTicketsPage extends CerberusPageExtension {
 						case 'c': // close
 							$doActions = array(
 								'status' => array(
-									'is_closed' => 1,
-									'is_deleted' => 0,
+									'status_id' => Model_Ticket::STATUS_CLOSED,
 								)
 							);
 							break;
 						case 's': // spam
 							$doActions = array(
 								'status' => array(
-									'is_closed' => 1,
-									'is_deleted' => 1,
+									'status_id' => Model_Ticket::STATUS_DELETED,
 								),
 								'spam' => array(
 									'is_spam' => 1,
@@ -796,8 +781,7 @@ class ChTicketsPage extends CerberusPageExtension {
 						case 'd': // delete
 							$doActions = array(
 								'status' => array(
-									'is_closed' => 1,
-									'is_deleted' => 1,
+									'status_id' => Model_Ticket::STATUS_DELETED,
 								)
 							);
 							break;
@@ -963,7 +947,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 		
 		$fields = array(
-			DAO_Ticket::IS_CLOSED => CerberusTicketStatus::CLOSED,
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_CLOSED,
 		);
 		
 		//====================================
@@ -974,7 +958,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(is_array($ticket_ids))
 		foreach($ticket_ids as $ticket_id) {
 			$last_action->ticket_ids[$ticket_id] = array(
-				DAO_Ticket::IS_CLOSED => CerberusTicketStatus::OPEN
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN
 			);
 		}
 
@@ -1004,7 +988,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 
 		$fields = array(
-			DAO_Ticket::IS_WAITING => 1,
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_WAITING,
 		);
 		
 		//====================================
@@ -1015,7 +999,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(is_array($ticket_ids))
 		foreach($ticket_ids as $ticket_id) {
 			$last_action->ticket_ids[$ticket_id] = array(
-				DAO_Ticket::IS_WAITING => 0,
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 			);
 		}
 
@@ -1045,7 +1029,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 
 		$fields = array(
-			DAO_Ticket::IS_WAITING => 0,
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 		);
 		
 		//====================================
@@ -1056,7 +1040,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(is_array($ticket_ids))
 		foreach($ticket_ids as $ticket_id) {
 			$last_action->ticket_ids[$ticket_id] = array(
-				DAO_Ticket::IS_WAITING => 1,
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_WAITING,
 			);
 		}
 
@@ -1086,8 +1070,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 
 		$fields = array(
-			DAO_Ticket::IS_CLOSED => 0,
-			DAO_Ticket::IS_DELETED => 0,
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 		);
 		
 		//====================================
@@ -1100,8 +1083,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$last_action->ticket_ids[$ticket_id] = array(
 				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
 				DAO_Ticket::SPAM_SCORE => 0.0001, // [TODO] Fix
-				DAO_Ticket::IS_CLOSED => 0,
-				DAO_Ticket::IS_DELETED => 0
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 			);
 		}
 
@@ -1137,8 +1119,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 
 		$fields = array(
-			DAO_Ticket::IS_CLOSED => 1,
-			DAO_Ticket::IS_DELETED => 1,
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
 		);
 		
 		//====================================
@@ -1151,8 +1132,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			$last_action->ticket_ids[$ticket_id] = array(
 				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
 				DAO_Ticket::SPAM_SCORE => 0.5000, // [TODO] Fix
-				DAO_Ticket::IS_CLOSED => 0,
-				DAO_Ticket::IS_DELETED => 0
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 			);
 		}
 
@@ -1188,8 +1168,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
 
 		$fields = array(
-			DAO_Ticket::IS_CLOSED => 1,
-			DAO_Ticket::IS_DELETED => 1,
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
 		);
 		
 		//====================================
@@ -1200,8 +1179,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		if(is_array($ticket_ids))
 		foreach($ticket_ids as $ticket_id) {
 			$last_action->ticket_ids[$ticket_id] = array(
-				DAO_Ticket::IS_CLOSED => 0,
-				DAO_Ticket::IS_DELETED => 0
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 			);
 		}
 
@@ -1418,19 +1396,17 @@ class ChTicketsPage extends CerberusPageExtension {
 		}
 		
 		// Set status
-		@$status = DevblocksPlatform::importGPC($_REQUEST['do_status'],'string',null);
-		if(0 != strlen($status)) {
+		@$status_id = DevblocksPlatform::importGPC($_REQUEST['do_status'],'string',null);
+		if(is_numeric($status_id)) {
 			$do['status'] = array(
-				'is_waiting' => (3==$status?1:0), // explicit waiting
-				'is_closed' => ((0==$status||3==$status)?0:1), // not open or waiting
-				'is_deleted' => (2==$status?1:0), // explicit deleted
+				'status_id' => intval($status_id),
 			);
 			
 			// Waiting until
 			$reopen = '';
-			switch($status) {
-				case 1: // closed
-				case 3: // waiting
+			switch($status_id) {
+				case Model_Ticket::STATUS_WAITING:
+				case Model_Ticket::STATUS_CLOSED:
 					@$reopen = DevblocksPlatform::importGPC($_REQUEST['do_reopen'],'string',null);
 					break;
 			}

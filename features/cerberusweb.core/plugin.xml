@@ -389,7 +389,6 @@
 			<class name="View_Ticket" />
 			<class name="CerberusTicketActionCode" />
 			<class name="CerberusTicketSpamTraining" />
-			<class name="CerberusTicketStatus" />
 			<class name="Model_TicketViewLastAction" />
 		</file>
 		

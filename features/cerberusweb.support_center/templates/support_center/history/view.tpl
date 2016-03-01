@@ -42,14 +42,13 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{capture name=subject_block}
-		{if $result.t_is_closed == 0}{* Active *}
-			{if $result.t_is_waiting == 0}{* Open *}
-				<span class="glyphicons glyphicons-clock"></span>
-			{else}{* Waiting *}
-				<span class="glyphicons glyphicons-asterisk" style="color:rgb(200,0,0);"></span>
-			{/if}
-		{else}{* Closed *}
-			<span class="glyphicons glyphicons-circle-ok" style="color:rgb(120,120,120);"></span>
+		{if $result.t_status_id == Model_Ticket::STATUS_WAITING}
+		<span class="glyphicons glyphicons-asterisk" style="color:rgb(200,0,0);"></span>
+		{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}
+		<span class="glyphicons glyphicons-circle-ok" style="color:rgb(120,120,120);"></span>
+		{elseif $result.t_status_id == Model_Ticket::STATUS_DELETED}
+		{else}
+		<span class="glyphicons glyphicons-clock"></span>
 		{/if}
 		
 		{if !empty($result.t_subject)}
@@ -78,8 +77,18 @@
 			{elseif $column=="t_updated_date" || $column=="t_created_date" || $column=="t_closed_at" || $column=="t_reopen_at"}
 				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			
-			{elseif $column=="t_is_closed" || $column=="t_is_deleted" || $column=="t_is_waiting"}
-				<td>{if $result.$column}{'common.yes'|devblocks_translate}{else}{'common.no'|devblocks_translate}{/if}</td>
+			{elseif $column=="t_status_id"}
+				<td>
+					{if $result.$column == Model_Ticket::STATUS_WAITING}
+						{'status.waiting'|devblocks_translate|lower}
+					{elseif $result.$column == Model_Ticket::STATUS_CLOSED}
+						{'status.closed'|devblocks_translate|lower}
+					{elseif $result.$column == Model_Ticket::STATUS_DELETED}
+						{'status.deleted'|devblocks_translate|lower}
+					{else}
+						{'status.open'|devblocks_translate|lower}
+					{/if}
+				</td>
 			
 			{elseif $column=="t_mask"}
 				<td><a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}">{$result.$column}</a></td>

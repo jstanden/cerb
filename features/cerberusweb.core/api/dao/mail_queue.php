@@ -430,12 +430,12 @@ class Model_MailQueue {
 			$properties['html_template_id'] = intval($this->params['html_template_id']);
 			
 		// Next action
-		$properties['closed'] = isset($this->params['next_is_closed']) ? intval($this->params['next_is_closed']) : 0;
+		if(isset($this->params['status_id']))
+			$properties['status_id'] = intval($this->params['status_id']);
 
 		// Org
-		if(isset($this->params['org_id'])) {
+		if(isset($this->params['org_id']))
 			$properties['org_id'] = intval($this->params['org_id']);
-		}
 		
 		// Worker
 		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
@@ -524,10 +524,6 @@ class Model_MailQueue {
 			$properties['link_forward_files'] = true;
 		}
 		
-//		'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
-//		'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'string',''),
-//		'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
-
 		// [TODO] Custom fields
 		
 		// Context links

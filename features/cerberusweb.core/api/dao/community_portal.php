@@ -809,15 +809,6 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
-//				case 'status':
-//					if(1==intval($v)) { // completed
-//						$change_fields[DAO_Task::IS_COMPLETED] = 1;
-//						$change_fields[DAO_Task::COMPLETED_DATE] = time();
-//					} else { // active
-//						$change_fields[DAO_Task::IS_COMPLETED] = 0;
-//						$change_fields[DAO_Task::COMPLETED_DATE] = 0;
-//					}
-//					break;
 				default:
 					// Custom fields
 					if(substr($k,0,3)=="cf_") {

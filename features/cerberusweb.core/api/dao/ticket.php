@@ -19,9 +19,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const ID = 'id';
 	const MASK = 'mask';
 	const SUBJECT = 'subject';
-	const IS_WAITING = 'is_waiting';
-	const IS_CLOSED = 'is_closed';
-	const IS_DELETED = 'is_deleted';
+	const STATUS_ID = 'status_id';
 	const GROUP_ID = 'group_id';
 	const BUCKET_ID = 'bucket_id';
 	const ORG_ID = 'org_id';
@@ -53,9 +51,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			'id' => $translate->_('ticket.id'),
 			'mask' => $translate->_('ticket.mask'),
 			'subject' => $translate->_('ticket.subject'),
-			'is_waiting' => $translate->_('status.waiting'),
-			'is_closed' => $translate->_('status.closed'),
-			'is_deleted' => $translate->_('status.deleted'),
+			'status_id' => $translate->_('common.status'),
 			'group_id' => $translate->_('ticket.group'),
 			'bucket_id' => $translate->_('ticket.bucket'),
 			'owner_id' => $translate->_('common.owner'),
@@ -209,7 +205,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			case 'org':
 				$view->addParamsRequired(array(
 					SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ORG_ID,'=',$ticket->org_id),
-					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+					SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 				), true);
 				$view->name = ucwords($translate->_('common.organization'));
 				break;
@@ -217,7 +213,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			case 'domain':
 				$view->addParamsRequired(array(
 					SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'like','*@'.$email_parts[1]),
-					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+					SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 				), true);
 				$view->name = ucwords($translate->_('common.email')) . ": *@" . $email_parts[1];
 				break;
@@ -229,7 +225,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				
 				$view->addParamsRequired(array(
 					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
-					SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+					SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 				), true);
 				$view->name = sprintf("History: %d recipient(s)", count($requesters));
 				break;
@@ -266,21 +262,21 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			'closed' => 0,
 		);
 		
-		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.is_waiting, ticket.is_closed ".
+		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.status_id ".
 				"FROM ticket ".
 				"INNER JOIN requester ON (requester.ticket_id=ticket.id) ".
 				"INNER JOIN address ON (requester.address_id=address.id) ".
-				"WHERE address.contact_id = %d AND ticket.is_deleted = 0 ".
-				"GROUP BY ticket.is_waiting, ticket.is_closed",
+				"WHERE address.contact_id = %d AND ticket.status_id != 3 ".
+				"GROUP BY ticket.status_id",
 			$contact_id
 		);
 		$results = $db->GetArraySlave($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['is_closed']) {
+			if($result['status_id'] == Model_Ticket::STATUS_CLOSED) {
 				$counts['closed'] += $result['count'];
-			} else if($result['is_waiting']) {
+			} else if($result['status_id'] == Model_Ticket::STATUS_WAITING) {
 				$counts['waiting'] += $result['count'];
 			} else {
 				$counts['open'] += $result['count'];
@@ -302,19 +298,19 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			'closed' => 0,
 		);
 		
-		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.is_waiting, ticket.is_closed ".
+		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.status_id ".
 				"FROM ticket ".
-				"WHERE ticket.bucket_id = %d AND ticket.is_deleted = 0 ".
-				"GROUP BY ticket.is_waiting, ticket.is_closed",
+				"WHERE ticket.bucket_id = %d AND ticket.status_id != 3 ".
+				"GROUP BY ticket.status_id",
 			$bucket_id
 		);
 		$results = $db->GetArraySlave($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['is_closed']) {
+			if($result['status_id'] == Model_Ticket::STATUS_CLOSED) {
 				$counts['closed'] += $result['count'];
-			} else if($result['is_waiting']) {
+			} else if($result['status_id'] == Model_Ticket::STATUS_WAITING) {
 				$counts['waiting'] += $result['count'];
 			} else {
 				$counts['open'] += $result['count'];
@@ -336,19 +332,19 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			'closed' => 0,
 		);
 		
-		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.is_waiting, ticket.is_closed ".
+		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.status_id ".
 				"FROM ticket ".
-				"WHERE ticket.group_id = %d AND ticket.is_deleted = 0 " .
-				"GROUP BY ticket.is_waiting, ticket.is_closed",
+				"WHERE ticket.group_id = %d AND ticket.status_id != 3 " .
+				"GROUP BY ticket.status_id",
 			$group_id
 		);
 		$results = $db->GetArraySlave($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['is_closed']) {
+			if($result['status_id'] != Model_Ticket::STATUS_CLOSED) {
 				$counts['closed'] += $result['count'];
-			} else if($result['is_waiting']) {
+			} else if($result['status_id'] != Model_Ticket::STATUS_WAITING) {
 				$counts['waiting'] += $result['count'];
 			} else {
 				$counts['open'] += $result['count'];
@@ -370,19 +366,19 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			'closed' => 0,
 		);
 		
-		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.is_waiting, ticket.is_closed ".
+		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.status_id ".
 				"FROM ticket ".
-				"WHERE ticket.owner_id = %d AND ticket.is_deleted = 0 ".
-				"GROUP BY ticket.is_waiting, ticket.is_closed",
+				"WHERE ticket.owner_id = %d AND ticket.status_id != 3 ".
+				"GROUP BY ticket.status_id",
 			$worker_id
 		);
 		$results = $db->GetArraySlave($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['is_closed']) {
+			if($result['status_id'] == Model_Ticket::STATUS_CLOSED) {
 				$counts['closed'] += $result['count'];
-			} else if($result['is_waiting']) {
+			} else if($result['status_id'] == Model_Ticket::STATUS_WAITING) {
 				$counts['waiting'] += $result['count'];
 			} else {
 				$counts['open'] += $result['count'];
@@ -404,20 +400,20 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			'closed' => 0,
 		);
 		
-		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.is_waiting, ticket.is_closed ".
+		$sql = sprintf("SELECT COUNT(ticket.id) AS count, ticket.status_id ".
 				"FROM ticket ".
 				"INNER JOIN requester ON (requester.ticket_id=ticket.id) ".
-				"WHERE requester.address_id = %d AND ticket.is_deleted = 0 ".
-				"GROUP BY ticket.is_waiting, ticket.is_closed",
+				"WHERE requester.address_id = %d AND ticket.status_id != 3 ".
+				"GROUP BY ticket.status_id",
 			$address_id
 		);
 		$results = $db->GetArraySlave($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['is_closed']) {
+			if($result['status_id'] == Model_Ticket::STATUS_CLOSED) {
 				$counts['closed'] += $result['count'];
-			} else if($result['is_waiting']) {
+			} else if($result['status_id'] == Model_Ticket::STATUS_WAITING) {
 				$counts['waiting'] += $result['count'];
 			} else {
 				$counts['open'] += $result['count'];
@@ -439,19 +435,19 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			'closed' => 0,
 		);
 		
-		$sql = sprintf("SELECT COUNT(id) AS count, is_waiting, is_closed ".
+		$sql = sprintf("SELECT COUNT(id) AS count, status_id ".
 				"FROM ticket ".
-				"WHERE org_id = %d AND is_deleted = 0 ".
-				"GROUP BY is_waiting, is_closed",
+				"WHERE org_id = %d AND status_id != 3 ".
+				"GROUP BY status_id",
 			$org_id
 		);
 		$results = $db->GetArraySlave($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['is_closed']) {
+			if($result['status_id'] == Model_Ticket::STATUS_CLOSED) {
 				$counts['closed'] += $result['count'];
-			} else if($result['is_waiting']) {
+			} else if($result['status_id'] == Model_Ticket::STATUS_WAITING) {
 				$counts['waiting'] += $result['count'];
 			} else {
 				$counts['open'] += $result['count'];
@@ -522,7 +518,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 			
-		list($merged_tickets, $null) = self::search(
+		list($merged_tickets, $null) = DAO_Ticket::search(
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ids),
@@ -633,9 +629,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			
 			// Clear old ticket meta
 			$fields = array(
-				DAO_Ticket::IS_CLOSED => 1,
-				DAO_Ticket::IS_DELETED => 1,
-				DAO_Ticket::IS_WAITING => 0,
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
 				DAO_Ticket::REOPEN_AT => 0,
 				DAO_Ticket::NUM_MESSAGES => 0,
 				DAO_Ticket::FIRST_MESSAGE_ID => 0,
@@ -654,22 +648,14 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$most_recent_updated_ticket = end($tickets);
 
 			// Default our status bits to the most recently updated
-			$merge_dst_is_closed = $most_recent_updated_ticket[SearchFields_Ticket::TICKET_CLOSED];
-			$merge_dst_is_deleted = $most_recent_updated_ticket[SearchFields_Ticket::TICKET_DELETED];
-			$merge_dst_is_waiting = $most_recent_updated_ticket[SearchFields_Ticket::TICKET_WAITING];
+			$merge_dst_status_id = $most_recent_updated_ticket[SearchFields_Ticket::TICKET_STATUS_ID];
 			
 			reset($tickets);
 			
 			// If any ticket in the list is status open, our destination should be open
 			foreach($tickets as $merged_ticket) {
-				if(
-					empty($merged_ticket[SearchFields_Ticket::TICKET_CLOSED])
-					&& empty($merged_ticket[SearchFields_Ticket::TICKET_DELETED])
-					&& empty($merged_ticket[SearchFields_Ticket::TICKET_WAITING])
-				) {
-					$merge_dst_is_closed = 0;
-					$merge_dst_is_deleted = 0;
-					$merge_dst_is_waiting = 0;
+				if($merge_ticket[SearchFields_Ticket::TICKET_STATUS_ID] == Model_Ticket::STATUS_OPEN) {
+					$merge_dst_status_id = Model_Ticket::STATUS_OPEN;
 					break;
 				}
 			}
@@ -678,9 +664,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$fields = array(
 				DAO_Ticket::LAST_ACTION_CODE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE],
 				DAO_Ticket::UPDATED_DATE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_UPDATED_DATE],
-				DAO_Ticket::IS_CLOSED => $merge_dst_is_closed,
-				DAO_Ticket::IS_DELETED => $merge_dst_is_deleted,
-				DAO_Ticket::IS_WAITING => $merge_dst_is_waiting,
+				DAO_Ticket::STATUS_ID => $merge_dst_status_id,
 			);
 			DAO_Ticket::update($oldest_id, $fields, false);
 			
@@ -758,9 +742,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		// If no messages, delete the ticket
 		if(empty($first_message) && empty($last_message)) {
 			$fields = array(
-				DAO_Ticket::IS_WAITING => 0,
-				DAO_Ticket::IS_CLOSED => 1,
-				DAO_Ticket::IS_DELETED => 1,
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
 			);
 			DAO_Ticket::update($id, $fields, false);
 			
@@ -832,7 +814,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id , mask, subject, is_waiting, is_closed, is_deleted, group_id, bucket_id, org_id, owner_id, importance, first_message_id, first_outgoing_message_id, last_message_id, ".
+		$sql = "SELECT id , mask, subject, status_id, group_id, bucket_id, org_id, owner_id, importance, first_message_id, first_outgoing_message_id, last_message_id, ".
 			"first_wrote_address_id, last_wrote_address_id, created_date, updated_date, closed_at, reopen_at, spam_training, ".
 			"spam_score, interesting_words, num_messages, elapsed_response_first, elapsed_resolution_first ".
 			"FROM ticket ".
@@ -869,9 +851,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$object->org_id = intval($row['org_id']);
 			$object->owner_id = intval($row['owner_id']);
 			$object->importance = intval($row['importance']);
-			$object->is_waiting = intval($row['is_waiting']);
-			$object->is_closed = intval($row['is_closed']);
-			$object->is_deleted = intval($row['is_deleted']);
+			$object->status_id = intval($row['status_id']);
 			$object->last_wrote_address_id = intval($row['last_wrote_address_id']);
 			$object->first_wrote_address_id = intval($row['first_wrote_address_id']);
 			$object->created_date = intval($row['created_date']);
@@ -948,9 +928,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			DAO_Ticket::OWNER_ID,
 			DAO_Ticket::GROUP_ID,
 			DAO_Ticket::BUCKET_ID,
-			DAO_Ticket::IS_CLOSED,
-			DAO_Ticket::IS_DELETED,
-			DAO_Ticket::IS_WAITING,
+			DAO_Ticket::STATUS_ID,
 		);
 		
 		$used_fields = array_intersect($observed_fields, array_keys($change_fields));
@@ -1073,30 +1051,18 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			 * Ticket status change
 			 */
 
-			@$waiting = $change_fields[DAO_Ticket::IS_WAITING];
-			@$closed = $change_fields[DAO_Ticket::IS_CLOSED];
-			@$deleted = $change_fields[DAO_Ticket::IS_DELETED];
+			@$status_id = $change_fields[DAO_Ticket::STATUS_ID];
 			
-			if($waiting == $before_model->is_waiting)
-				unset($change_fields[DAO_Ticket::IS_WAITING]);
+			if($status_id == $before_model->status_id)
+				unset($change_fields[DAO_Ticket::STATUS_ID]);
 			
-			if($closed == $before_model->is_closed)
-				unset($change_fields[DAO_Ticket::IS_CLOSED]);
-			
-			if($deleted == $before_model->is_deleted)
-				unset($change_fields[DAO_Ticket::IS_DELETED]);
-			
-			if(
-				isset($change_fields[DAO_Ticket::IS_WAITING])
-				|| isset($change_fields[DAO_Ticket::IS_CLOSED])
-				|| isset($change_fields[DAO_Ticket::IS_DELETED])
-			) {
+			if(isset($change_fields[DAO_Ticket::STATUS_ID])) {
 
 				/*
 				 * If closing for the first time, record the date and elapsed time
 				 */
 
-				if(isset($change_fields[DAO_Ticket::IS_CLOSED]) && $closed) {
+				if(isset($change_fields[DAO_Ticket::STATUS_ID]) && $status_id == Model_Ticket::STATUS_CLOSED) {
 					if(empty($model->closed_at)) {
 						DAO_Ticket::update(
 							$model->id,
@@ -1116,17 +1082,17 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$status_to = null;
 				$activity_point = null;
 				
-				if($model->is_deleted) {
+				if($model->status_id == Model_Ticket::STATUS_DELETED) {
 					$status_to = 'deleted';
 					$activity_point = 'ticket.status.deleted';
 					
-				} else if($model->is_closed) {
+				} else if($model->status_id == Model_Ticket::STATUS_CLOSED) {
 					$status_to = 'closed';
 					$activity_point = 'ticket.status.closed';
 					
 					Event_MailClosedInGroup::trigger($model->id, $model->group_id);
 					
-				} else if($model->is_waiting) {
+				} else if($model->status_id == Model_Ticket::STATUS_WAITING) {
 					$status_to = 'waiting';
 					$activity_point = 'ticket.status.waiting';
 					
@@ -1679,9 +1645,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"t.id as %s, ".
 			"t.mask as %s, ".
 			"t.subject as %s, ".
-			"t.is_waiting as %s, ".
-			"t.is_closed as %s, ".
-			"t.is_deleted as %s, ".
+			"t.status_id as %s, ".
 			"t.first_wrote_address_id as %s, ".
 			"t.last_wrote_address_id as %s, ".
 			"t.first_message_id as %s, ".
@@ -1710,9 +1674,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				SearchFields_Ticket::TICKET_ID,
 				SearchFields_Ticket::TICKET_MASK,
 				SearchFields_Ticket::TICKET_SUBJECT,
-				SearchFields_Ticket::TICKET_WAITING,
-				SearchFields_Ticket::TICKET_CLOSED,
-				SearchFields_Ticket::TICKET_DELETED,
+				SearchFields_Ticket::TICKET_STATUS_ID,
 				SearchFields_Ticket::TICKET_FIRST_WROTE_ID,
 				SearchFields_Ticket::TICKET_LAST_WROTE_ID,
 				SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID,
@@ -2114,9 +2076,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					$values = array($values);
 					
 				$oper_sql = array();
-				$status_sql = array();
-				
-				$and_or = ' OR ';
+				$statuses = array();
 				
 				switch($param->operator) {
 					default:
@@ -2127,31 +2087,30 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					case DevblocksSearchCriteria::OPER_NIN:
 					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
 						$oper = 'NOT ';
-						$and_or = ' AND ';
 						break;
 				}
 				
 				foreach($values as $value) {
 					switch($value) {
 						case 'open':
-							$status_sql[] = sprintf('%s(t.is_waiting = 0 AND t.is_closed = 0 AND t.is_deleted = 0)', $oper);
+							$statuses[] = Model_Ticket::STATUS_OPEN;
 							break;
 						case 'waiting':
-							$status_sql[] = sprintf('%s(t.is_waiting = 1 AND t.is_closed = 0 AND t.is_deleted = 0)', $oper);
+							$statuses[] = Model_Ticket::STATUS_WAITING;
 							break;
 						case 'closed':
-							$status_sql[] = sprintf('%s(t.is_closed = 1 AND t.is_deleted = 0)', $oper);
+							$statuses[] = Model_Ticket::STATUS_CLOSED;
 							break;
 						case 'deleted':
-							$status_sql[] = sprintf('%s(t.is_deleted = 1)', $oper);
+							$statuses[] = Model_Ticket::STATUS_DELETED;
 							break;
 					}
 				}
 				
-				if(empty($status_sql))
+				if(empty($statuses))
 					break;
 				
-				$args['where_sql'] .= 'AND (' . implode($and_or, $status_sql) . ') ';
+				$args['where_sql'] .= sprintf('AND t.status_id %sIN (%s) ', $oper, implode(',', $statuses));
 				break;
 		}
 	}
@@ -2163,7 +2122,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		$results = $db->GetArraySlave(sprintf("SELECT id ".
 			"FROM ticket ".
-			"WHERE ticket.is_deleted = 0 ".
+			"WHERE ticket.status_id != 3 ".
 			"AND (".
 			"mask LIKE %s ".
 			"OR subject LIKE %s ".
@@ -2240,9 +2199,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	// Ticket
 	const TICKET_ID = 't_id';
 	const TICKET_MASK = 't_mask';
-	const TICKET_WAITING = 't_is_waiting';
-	const TICKET_CLOSED = 't_is_closed';
-	const TICKET_DELETED = 't_is_deleted';
+	const TICKET_STATUS_ID = 't_status_id';
 	const TICKET_SUBJECT = 't_subject';
 	const TICKET_FIRST_MESSAGE_ID = 't_first_message_id';
 	const TICKET_FIRST_OUTGOING_MESSAGE_ID = 't_first_outgoing_message_id';
@@ -2345,9 +2302,7 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 			SearchFields_Ticket::TICKET_CREATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_CREATED_DATE, 't', 'created_date',$translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			SearchFields_Ticket::TICKET_UPDATED_DATE => new DevblocksSearchField(SearchFields_Ticket::TICKET_UPDATED_DATE, 't', 'updated_date',$translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			SearchFields_Ticket::TICKET_CLOSED_AT => new DevblocksSearchField(SearchFields_Ticket::TICKET_CLOSED_AT, 't', 'closed_at',$translate->_('ticket.closed_at'), Model_CustomField::TYPE_DATE, true),
-			SearchFields_Ticket::TICKET_WAITING => new DevblocksSearchField(SearchFields_Ticket::TICKET_WAITING, 't', 'is_waiting',$translate->_('status.waiting'), Model_CustomField::TYPE_CHECKBOX, true),
-			SearchFields_Ticket::TICKET_CLOSED => new DevblocksSearchField(SearchFields_Ticket::TICKET_CLOSED, 't', 'is_closed',$translate->_('status.closed'), Model_CustomField::TYPE_CHECKBOX, true),
-			SearchFields_Ticket::TICKET_DELETED => new DevblocksSearchField(SearchFields_Ticket::TICKET_DELETED, 't', 'is_deleted',$translate->_('status.deleted'), Model_CustomField::TYPE_CHECKBOX, true),
+			SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_STATUS_ID, 't', 'status_id',$translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
 
 			SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',$translate->_('ticket.last_action'), null, true),
 			SearchFields_Ticket::TICKET_NUM_MESSAGES => new DevblocksSearchField(SearchFields_Ticket::TICKET_NUM_MESSAGES, 't', 'num_messages',$translate->_('ticket.num_messages'), Model_CustomField::TYPE_NUMBER, true),
@@ -2409,12 +2364,15 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 };
 
 class Model_Ticket {
+	const STATUS_OPEN = 0;
+	const STATUS_WAITING = 1;
+	const STATUS_CLOSED = 2;
+	const STATUS_DELETED = 3;
+	
 	public $id;
 	public $mask;
 	public $subject;
-	public $is_waiting = 0;
-	public $is_closed = 0;
-	public $is_deleted = 0;
+	public $status_id = 0;
 	public $group_id;
 	public $bucket_id;
 	public $org_id;
@@ -2443,6 +2401,26 @@ class Model_Ticket {
 	private $_bucket = null;
 
 	function Model_Ticket() {}
+	
+	function getStatusText() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($this->status_id) {
+			case Model_Ticket::STATUS_WAITING:
+				return $translate->_('status.waiting.abbr');
+				break;
+			case Model_Ticket::STATUS_CLOSED:
+				return $translate->_('status.closed');
+				break;
+			case Model_Ticket::STATUS_DELETED:
+				return $translate->_('status.deleted');
+				break;
+			default:
+			case Model_Ticket::STATUS_OPEN:
+				return $translate->_('status.open');
+				break;
+		}
+	}
 	
 	function isReadableByWorker(Model_Worker $worker) {
 		if(false == ($group = DAO_Group::get($this->group_id)))
@@ -2608,11 +2586,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::FULLTEXT_NOTE_CONTENT,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
 			SearchFields_Ticket::REQUESTER_ID,
-			SearchFields_Ticket::TICKET_CLOSED,
-			SearchFields_Ticket::TICKET_DELETED,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			SearchFields_Ticket::TICKET_ORG_ID,
-			SearchFields_Ticket::TICKET_WAITING,
 			SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME,
 			SearchFields_Ticket::VIRTUAL_CONTACT_ID,
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
@@ -2622,7 +2597,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
 			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS,
-			SearchFields_Ticket::VIRTUAL_STATUS,
+			SearchFields_Ticket::TICKET_STATUS_ID,
 			SearchFields_Ticket::VIRTUAL_WATCHERS,
 		));
 		
@@ -2630,10 +2605,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::REQUESTER_ID,
-			SearchFields_Ticket::TICKET_CLOSED,
-			SearchFields_Ticket::TICKET_DELETED,
 			SearchFields_Ticket::TICKET_ORG_ID,
-			SearchFields_Ticket::TICKET_WAITING,
+			SearchFields_Ticket::TICKET_STATUS_ID,
 			SearchFields_Ticket::VIRTUAL_CONTACT_ID,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
@@ -2963,13 +2936,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
 		
-		$sql = "SELECT COUNT(IF(t.is_closed=0 AND t.is_waiting=0 AND t.is_deleted=0,1,NULL)) AS open_hits, COUNT(IF(t.is_waiting=1 AND t.is_closed=0 AND t.is_deleted=0,1,NULL)) AS waiting_hits, COUNT(IF(t.is_closed=1 AND t.is_deleted=0,1,NULL)) AS closed_hits, COUNT(IF(t.is_deleted=1,1,NULL)) AS deleted_hits ".
+		$sql = "SELECT COUNT(t.id) AS hits, t.status_id ".
 			$join_sql.
-			$where_sql
+			$where_sql.
+			' GROUP BY t.status_id'
 		;
 		
 		$results = $db->GetArraySlave($sql);
-
+		
 		return $results;
 	}
 	
@@ -2980,27 +2954,27 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$counts = array();
 		$results = $this->_getSubtotalDataForStatus('DAO_Ticket', SearchFields_Ticket::VIRTUAL_STATUS);
 
-		$result = array_shift($results);
 		$oper = DevblocksSearchCriteria::OPER_IN;
 		
-		foreach($result as $key => $hits) {
-			if(empty($hits))
+		if(is_array($results))
+		foreach($results as $result) {
+			if(empty($result['hits']))
 				continue;
 			
-			switch($key) {
-				case 'open_hits':
+			switch($result['status_id']) {
+				case Model_Ticket::STATUS_OPEN:
 					$label = $translate->_('status.open');
 					$values = array('options[]' => 'open');
 					break;
-				case 'waiting_hits':
+				case Model_Ticket::STATUS_WAITING:
 					$label = $translate->_('status.waiting');
 					$values = array('options[]' => 'waiting');
 					break;
-				case 'closed_hits':
+				case Model_Ticket::STATUS_CLOSED:
 					$label = $translate->_('status.closed');
 					$values = array('options[]' => 'closed');
 					break;
-				case 'deleted_hits':
+				case Model_Ticket::STATUS_DELETED:
 					$label = $translate->_('status.deleted');
 					$values = array('options[]' => 'deleted');
 					break;
@@ -3011,7 +2985,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			
 			if(!isset($counts[$label]))
 				$counts[$label] = array(
-					'hits' => $hits,
+					'hits' => $result['hits'],
 					'label' => $label,
 					'filter' =>
 						array(
@@ -3667,9 +3641,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__time_elapsed.tpl');
 				break;
 					
-			case SearchFields_Ticket::TICKET_WAITING:
-			case SearchFields_Ticket::TICKET_DELETED:
-			case SearchFields_Ticket::TICKET_CLOSED:
 			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
@@ -3962,12 +3933,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_Ticket::TICKET_WAITING:
-			case SearchFields_Ticket::TICKET_DELETED:
-			case SearchFields_Ticket::TICKET_CLOSED:
-				$this->_renderCriteriaParamBoolean($param);
-				break;
-			
 			case SearchFields_Ticket::TICKET_OWNER_ID:
 				$this->_renderCriteriaParamWorker($param);
 				break;
@@ -4069,9 +4034,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 
-			case SearchFields_Ticket::TICKET_WAITING:
-			case SearchFields_Ticket::TICKET_DELETED:
-			case SearchFields_Ticket::TICKET_CLOSED:
 			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
@@ -4235,9 +4197,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$change_fields[DAO_Ticket::ORG_ID] = intval($v['org_id']);
 					break;
 				case 'status':
-					$change_fields[DAO_Ticket::IS_WAITING] = !empty($v['is_waiting']) ? 1 : 0;
-					$change_fields[DAO_Ticket::IS_CLOSED] = !empty($v['is_closed']) ? 1 : 0;
-					$change_fields[DAO_Ticket::IS_DELETED] = !empty($v['is_deleted']) ? 1 : 0;
+					$change_fields[DAO_Ticket::STATUS_ID] = intval($v['status_id']);
 					break;
 				case 'reopen':
 					@$date = strtotime($v['date']);
@@ -4703,21 +4663,26 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['reopen_date'] = $ticket->reopen_at;
 			$token_values['spam_score'] = $ticket->spam_score;
 			$token_values['spam_training'] = $ticket->spam_training;
+			$token_values['status_id'] = $ticket->status_id;
 			$token_values['subject'] = $ticket->subject;
 			$token_values['updated'] = $ticket->updated_date;
 			
 			// Status
-			@$is_closed = intval($ticket->is_closed);
-			@$is_waiting = intval($ticket->is_waiting);
-			@$is_deleted = intval($ticket->is_deleted);
-			if($is_deleted) {
-				$token_values['status'] = 'deleted';
-			} elseif($is_closed) {
-				$token_values['status'] = 'closed';
-			} elseif($is_waiting) {
-				$token_values['status'] = 'waiting';
-			} else {
-				$token_values['status'] = 'open';
+			
+			switch($ticket->status_id) {
+				case Model_Ticket::STATUS_WAITING:
+					$token_values['status'] = 'waiting';
+					break;
+				case Model_Ticket::STATUS_CLOSED:
+					$token_values['status'] = 'closed';
+					break;
+				case Model_Ticket::STATUS_DELETED:
+					$token_values['status'] = 'deleted';
+					break;
+				default:
+				case Model_Ticket::STATUS_OPEN:
+					$token_values['status'] = 'open';
+					break;
 			}
 			
 			// Custom fields
@@ -5327,7 +5292,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'_status' => array(
 				'label' => 'Status',
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'param' => null, // SearchFields_Task::IS_CLOSED,
+				'param' => null,
 			),
 			'reopen_at' => array(
 				'label' => 'Reopen At',
@@ -5384,27 +5349,19 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			if(isset($meta['virtual_fields']['_status'])) {
 				switch(strtolower($meta['virtual_fields']['_status'])) {
 					case 'open':
-						$fields[DAO_Ticket::IS_CLOSED] = 0;
-						$fields[DAO_Ticket::IS_WAITING] = 0;
-						$fields[DAO_Ticket::IS_DELETED] = 0;
+						$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
 						break;
 						
 					case 'waiting':
-						$fields[DAO_Ticket::IS_CLOSED] = 0;
-						$fields[DAO_Ticket::IS_WAITING] = 1;
-						$fields[DAO_Ticket::IS_DELETED] = 0;
+						$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_WAITING;
 						break;
 						
 					case 'closed':
-						$fields[DAO_Ticket::IS_CLOSED] = 1;
-						$fields[DAO_Ticket::IS_WAITING] = 0;
-						$fields[DAO_Ticket::IS_DELETED] = 0;
+						$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_CLOSED;
 						break;
 						
 					case 'deleted':
-						$fields[DAO_Ticket::IS_CLOSED] = 1;
-						$fields[DAO_Ticket::IS_WAITING] = 0;
-						$fields[DAO_Ticket::IS_DELETED] = 1;
+						$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_DELETED;
 						break;
 				}
 			}
@@ -5483,11 +5440,6 @@ class Model_TicketViewLastAction {
 	public $ticket_ids = array(); // key = ticket id, value=old value
 	public $action = ''; // spam/closed/move, etc.
 	public $action_params = array(); // DAO Actions Taken
-};
-
-class CerberusTicketStatus {
-	const OPEN = 0;
-	const CLOSED = 1;
 };
 
 class CerberusTicketSpamTraining { // [TODO] Append 'Enum' to class name?

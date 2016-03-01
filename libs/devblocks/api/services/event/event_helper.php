@@ -1239,7 +1239,7 @@ class DevblocksEventHelper {
 						
 						// Consult database
 						$db = DevblocksPlatform::getDatabaseService();
-						$sql = sprintf("SELECT COUNT(id) AS hits, owner_id FROM ticket WHERE is_closed = 0 AND is_deleted = 0 AND is_waiting = 0 AND owner_id != 0 AND owner_id IN (%s) GROUP BY owner_id",
+						$sql = sprintf("SELECT COUNT(id) AS hits, owner_id FROM ticket WHERE status_id = 0 AND owner_id != 0 AND owner_id IN (%s) GROUP BY owner_id",
 							implode(',', array_keys($possible_workers))
 						);
 						$results = $db->GetArraySlave($sql);
@@ -3704,7 +3704,7 @@ class DevblocksEventHelper {
 		$subject = $tpl_builder->build($params['subject'], $dict);
 		$content = $tpl_builder->build($params['content'], $dict);
 		
-		@$is_closed = $params['status'];
+		@$status_id = $params['status_id'];
 		@$reopen_at = $params['reopen_at'];
 		@$owner_id = $params['owner_id'];
 		
@@ -3720,7 +3720,7 @@ class DevblocksEventHelper {
 		);
 		
 		$out .= sprintf("Status: %s\n",
-			(1==$is_closed) ? $translate->_('status.closed') : ((2 == $is_closed) ? $translate->_('status.waiting') : $translate->_('status.open'))
+			(Model_Ticket::STATUS_CLOSED==$status_id) ? $translate->_('status.closed') : ((Model_Ticket::STATUS_WAITING == $status_id) ? $translate->_('status.waiting') : $translate->_('status.open'))
 		);
 		
 		if(!empty($owner_id) && isset($workers[$owner_id])) {
@@ -3729,7 +3729,7 @@ class DevblocksEventHelper {
 			);
 		}
 		
-		if(!empty($is_closed) && !empty($reopen_at))
+		if(!empty($status_id) && !empty($reopen_at))
 			$out .= sprintf("Reopen at: %s\n", $reopen_at);
 
 		// Custom fields
@@ -3772,7 +3772,7 @@ class DevblocksEventHelper {
 	
 	static function runActionCreateTicket($params, DevblocksDictionaryDelegate $dict) {
 		@$group_id = $params['group_id'];
-		@$is_closed = $params['status'];
+		@$status_id = $params['status_id'];
 		@$reopen_at = $params['reopen_at'];
 		@$owner_id = $params['owner_id'];
 		
@@ -3830,8 +3830,8 @@ class DevblocksEventHelper {
 			'ticket_id' => $ticket_id,
 			'subject' => $subject,
 			'content' => $content,
-			'worker_id' => 0, //$active_worker->id,
-			'closed' => $is_closed,
+			'worker_id' => 0,
+			'status_id' => $status_id,
 			'owner_id' => $owner_id,
 			'ticket_reopen' => $reopen_at,
 		);

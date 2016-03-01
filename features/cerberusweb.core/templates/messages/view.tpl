@@ -63,7 +63,7 @@
 		<tr class="{$tableRowClass}">
 			<td colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.m_id}" style="display:none;">
-				{if $result.t_is_deleted}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_closed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_waiting}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
+				{if $result.t_status_id == Model_Ticket::STATUS_DELETED}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_WAITING}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
 				<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}&focus=message&focusid={$result.m_id}{/devblocks_url}" class="subject">{if !empty($result.t_subject)}{$result.t_subject}{else}(no subject){/if}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$result.m_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button> 
 			</td>
@@ -104,11 +104,11 @@
 				<td>{if !empty($result.$column)}{$result.$column|devblocks_prettysecs:2}{/if}</td>
 			{elseif $column=="*_ticket_status"}
 				<td>
-					{if $result.t_is_deleted}
+					{if $result.status_id == Model_Ticket::STATUS_DELETED}
 						{'status.deleted'|devblocks_translate|lower}
-					{elseif $result.t_is_closed}
+					{elseif $result.status_id == Model_Ticket::STATUS_CLOSED}
 						{'status.closed'|devblocks_translate|lower}
-					{elseif $result.t_is_waiting}
+					{elseif $result.status_id == Model_Ticket::STATUS_WAITING}
 						{'status.waiting'|devblocks_translate|lower}
 					{else}
 						{'status.open'|devblocks_translate|lower}

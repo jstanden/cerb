@@ -34,7 +34,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			list($results) = DAO_Ticket::search(
 				array(),
 				array(
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'in',array(Model_Ticket::STATUS_OPEN, Model_Ticket::STATUS_WAITING)),
 				),
 				10,
 				0,
@@ -58,7 +58,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'bcc' => 'secret@example.com',
 			'subject' => 'This is the subject',
 			'ticket_reopen' => "+2 hours",
-			'closed' => 2,
+			'status_id' => Model_Ticket::STATUS_WAITING,
 			'content' => "This is the message body\r\nOn more than one line.\r\n",
 			'headers' => array(),
 			'worker_id' => $active_worker->id,
@@ -71,7 +71,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$values['bcc'] =& $properties['bcc'];
 		$values['subject'] =& $properties['subject'];
 		$values['waiting_until'] =& $properties['ticket_reopen'];
-		$values['closed'] =& $properties['closed'];
+		$values['status_id'] =& $properties['status_id'];
 		$values['worker_id'] =& $properties['worker_id'];
 		
 		return new Model_DevblocksEvent(
@@ -117,11 +117,9 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$labels['subject'] = $prefix.'subject';
 		$values['subject'] =& $properties['subject'];
 		
-		//$labels['waiting_until'] = $prefix.'waiting until';
 		$values['waiting_until'] =& $properties['ticket_reopen'];
 		
-		//$labels['closed'] = $prefix.'is closed';
-		$values['closed'] =& $properties['closed'];
+		$values['status_id'] =& $properties['status_id'];
 		
 		//$labels['worker_id'] = $prefix.'worker id';
 		$values['worker_id'] =& $properties['worker_id'];

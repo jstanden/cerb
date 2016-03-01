@@ -89,7 +89,7 @@
 	{capture name="ticket_subject_content"}
 		<input type="checkbox" name="ticket_id[]" value="{$result.t_id}" style="display:none;">
 		{if isset($ticket_drafts.{$result.t_id})}{$ticket_draft = $ticket_drafts.{$result.t_id}}<span class="glyphicons glyphicons-user" style="color:rgb(39,123,213);font-size:14px;" title="({$ticket_draft->updated|devblocks_prettytime}) {'mail.worklist.draft_in_progress'|devblocks_translate:{$workers.{$ticket_draft->worker_id}->getName()}}"></span>{/if}
-		{if $result.t_is_deleted}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_closed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_is_waiting}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
+		{if $result.t_status_id == Model_Ticket::STATUS_DELETED}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_WAITING}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
 		<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}&tab=conversation{/devblocks_url}" class="subject">{$result.t_subject|default:'(no subject)'}</a> 
 		<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.t_id}" data-width="55%"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 	{/capture}
@@ -144,12 +144,15 @@
 		<td title="{$result.t_subject}">
 			{$smarty.capture.ticket_subject_content nofilter}
 		</td>
-		{elseif $column=="t_is_waiting"}
-		<td>{if $result.t_is_waiting}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{else}{/if}</td>
-		{elseif $column=="t_is_closed"}
-		<td>{if $result.t_is_closed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span>{else}{/if}</td>
-		{elseif $column=="t_is_deleted"}
-		<td>{if $result.t_is_deleted}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span>{else}{/if}</td>
+		{elseif $column=="t_status_id"}
+			{if $result.t_status_id == Model_Ticket::STATUS_WAITING}
+			<td><span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span></td>
+			{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}
+			<td><span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span></td>
+			{elseif $result.t_status_id == Model_Ticket::STATUS_DELETED}
+			<td><span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span></td>
+			{else}
+			{/if}
 		{elseif $column=="t_last_wrote"}
 		<td><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
 		{elseif $column=="t_first_wrote"}
@@ -226,6 +229,18 @@
 			<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
 				<div style="position:relative;margin-left:-5px;top:-1px;left:{$result.$column}%;width:10px;height:10px;border-radius:10px;background-color:{if $result.$column < 50}rgb(230,70,70);{elseif $result.$column > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
 			</div>
+		</td>
+		{elseif $column=="*_status"}
+		<td>
+			{if $result.t_status_id == Model_Ticket::STATUS_WAITING}
+				{'status.waiting.abbr'|devblocks_translate|lower}
+			{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}
+				{'status.closed'|devblocks_translate|lower}
+			{elseif $result.t_status_id == Model_Ticket::STATUS_DELETED}
+				{'status.deleted'|devblocks_translate|lower}
+			{else}
+				{'status.open'|devblocks_translate|lower}
+			{/if}
 		</td>
 		{else}
 		<td>{if $result.$column}{$result.$column}{/if}</td>

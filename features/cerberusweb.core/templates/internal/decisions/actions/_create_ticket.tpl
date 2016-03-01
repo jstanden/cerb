@@ -24,12 +24,12 @@
 
 <b>{'common.status'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<label><input type="radio" name="{$namePrefix}[status]" value="0" {if empty($params.status)}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
-	<label><input type="radio" name="{$namePrefix}[status]" value="2" {if 2==$params.status}checked="checked"{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
-	<label><input type="radio" name="{$namePrefix}[status]" value="1" {if 1==$params.status}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[status_id]" value="{Model_Ticket::STATUS_OPEN}" {if empty($params.status_id)}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[status_id]" value="{Model_Ticket::STATUS_WAITING}" {if Model_Ticket::STATUS_WAITING==$params.status_id}checked="checked"{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[status_id]" value="Model_Ticket::STATUS_CLOSED" {if Model_Ticket::STATUS_CLOSED==$params.status_id}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>
 </div>
 
-<div class="peek-status-reopen" style="{if empty($params.status)}display:none;{/if}">
+<div class="peek-status-reopen" style="{if empty($params.status_id)}display:none;{/if}">
 <b>{'ticket.reopen_at'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<input type="text" name="{$namePrefix}[reopen_at]" value="{$params.reopen_at}" size="45" style="width:100%;" class="placeholders">

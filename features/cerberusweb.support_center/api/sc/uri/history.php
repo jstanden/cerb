@@ -54,7 +54,7 @@ class UmScHistoryController extends Extension_UmScController {
 			// Lock to current visitor
 			$history_view->addParamsRequired(array(
 				'_acl_reqs' => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',$shared_address_ids),
-				'_acl_status' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+				'_acl_status' => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 			), true);
 			
 			UmScAbstractViewLoader::setView($history_view->id, $history_view);
@@ -191,14 +191,10 @@ class UmScHistoryController extends Extension_UmScController {
 			$fields[DAO_Ticket::SUBJECT] = $subject;
 		
 		// Status: Ignore deleted/waiting
-		if($is_closed && (!$ticket->is_deleted && !$ticket->is_closed)) {
-			$fields[DAO_Ticket::IS_WAITING] = 0;
-			$fields[DAO_Ticket::IS_CLOSED] = 1;
-			$fields[DAO_Ticket::IS_DELETED] = 0;
-		} elseif (!$is_closed && ($ticket->is_closed)) {
-			$fields[DAO_Ticket::IS_WAITING] = 0;
-			$fields[DAO_Ticket::IS_CLOSED] = 0;
-			$fields[DAO_Ticket::IS_DELETED] = 0;
+		if($is_closed && !in_array($ticket->status_id, array(Model_Ticket::STATUS_CLOSED, Model_Ticket::STATUS_DELETED))) {
+			$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_CLOSED;
+		} elseif (!$is_closed && ($ticket->status_id == Model_Ticket::STATUS_CLOSED)) {
+			$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
 		}
 		
 		if($fields)

@@ -33,8 +33,7 @@
 		<input type="hidden" name="c" value="display">
 		<input type="hidden" name="a" value="updateProperties">
 		<input type="hidden" name="id" value="{$ticket->id}">
-		<input type="hidden" name="closed" value="{if $ticket->is_closed}1{else}0{/if}">
-		<input type="hidden" name="deleted" value="{if $ticket->is_deleted}1{else}0{/if}">
+		<input type="hidden" name="status_id" value="{$ticket->status_id}">
 		<input type="hidden" name="spam" value="0">
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
@@ -55,11 +54,11 @@
 		<!-- Edit -->		
 		<button type="button" id="btnDisplayTicketEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$ticket->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		
-		{if !$ticket->is_deleted}
-			{if $ticket->is_closed}
-				<button type="button" title="{'common.reopen'|devblocks_translate|capitalize}" onclick="this.form.closed.value='0';this.form.submit();"><span class="glyphicons glyphicons-upload"></span></button>
+		{if $ticket->status_id != Model_Ticket::STATUS_DELETED}
+			{if $ticket->status_id == Model_Ticket::STATUS_CLOSED}
+				<button type="button" title="{'common.reopen'|devblocks_translate|capitalize}" onclick="this.form.status_id.value='{Model_Ticket::STATUS_OPEN}';this.form.submit();"><span class="glyphicons glyphicons-upload"></span></button>
 			{else}
-				{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{'display.shortcut.close'|devblocks_translate|capitalize}" id="btnClose" type="button" onclick="this.form.closed.value=1;this.form.submit();"><span class="glyphicons glyphicons-circle-ok"></span></button>{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.close')}<button title="{'display.shortcut.close'|devblocks_translate|capitalize}" id="btnClose" type="button" onclick="this.form.status_id.value='{Model_Ticket::STATUS_CLOSED}';this.form.submit();"><span class="glyphicons glyphicons-circle-ok"></span></button>{/if}
 			{/if}
 			
 			{if empty($ticket->spam_training)}
@@ -67,10 +66,10 @@
 			{/if}
 		{/if}
 		
-		{if $ticket->is_deleted}
-			<button type="button" title="{'common.undelete'|devblocks_translate|capitalize}" onclick="this.form.deleted.value='0';this.form.closed.value=0;this.form.submit();"><span class="glyphicons glyphicons-upload"></span></button>
+		{if $ticket->status_id == Model_Ticket::STATUS_DELETED}
+			<button type="button" title="{'common.undelete'|devblocks_translate|capitalize}" onclick="this.form.status_id.value='{Model_Ticket::STATUS_OPEN}';this.form.submit();"><span class="glyphicons glyphicons-upload"></span></button>
 		{else}
-			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{'display.shortcut.delete'|devblocks_translate}" id="btnDelete" type="button" onclick="this.form.deleted.value=1;this.form.closed.value=1;this.form.submit();"><span class="glyphicons glyphicons-circle-remove"></span></button>{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{'display.shortcut.delete'|devblocks_translate}" id="btnDelete" type="button" onclick="this.form.status_id.value='{Model_Ticket::STATUS_DELETED}';this.form.submit();"><span class="glyphicons glyphicons-circle-remove"></span></button>{/if}
 		{/if}
 		
 		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('merge','c=display&a=showMergePanel&ticket_id={$ticket->id}',null,false,'50%');" title="{'mail.merge'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-git-merge"></span></button>{/if}
@@ -89,9 +88,9 @@
 		(<b>w</b>) {'common.watch'|devblocks_translate|lower}  
 		{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {'common.comment'|devblocks_translate} {/if}
 		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-		{if !$ticket->is_closed && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {'common.close'|devblocks_translate|lower} {/if}
+		{if $ticket->status_id != Model_Ticket::STATUS_CLOSED && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {'common.close'|devblocks_translate|lower} {/if}
 		{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {'common.spam'|devblocks_translate|lower} {/if}
-		{if !$ticket->is_deleted && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {'common.delete'|devblocks_translate|lower} {/if}
+		{if $ticket->status_id != Model_Ticket::STATUS_DELETED && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {'common.delete'|devblocks_translate|lower} {/if}
 		{if empty($ticket->owner_id)}(<b>t</b>) {'common.assign'|devblocks_translate|lower} {/if}
 		{if !empty($ticket->owner_id)}(<b>u</b>) {'common.unassign'|devblocks_translate|lower} {/if}
 		{if !$expand_all}(<b>a</b>) {'display.button.read_all'|devblocks_translate|lower} {/if} 
@@ -115,14 +114,14 @@
 				(#{$ticket->id})
 			{elseif $k == 'status'}
 				<b>{'common.status'|devblocks_translate|capitalize}:</b>
-				{if $ticket->is_deleted}
+				{if $ticket->status_id == Model_Ticket::STATUS_DELETED}
 					<span style="font-weight:bold;color:rgb(150,0,0);">{'status.deleted'|devblocks_translate}</span>
-				{elseif $ticket->is_closed}
+				{elseif $ticket->status_id == Model_Ticket::STATUS_CLOSED}
 					<span style="font-weight:bold;color:rgb(50,115,185);">{'status.closed'|devblocks_translate}</span>
 					{if !empty($ticket->reopen_at)}
 						(opens {if $ticket->reopen_at > time()}in {/if}<abbr title="{$ticket->reopen_at|devblocks_date}">{$ticket->reopen_at|devblocks_prettytime}</abbr>)
 					{/if}
-				{elseif $ticket->is_waiting}
+				{elseif $ticket->status_id == Model_Ticket::STATUS_WAITING}
 					<span style="font-weight:bold;color:rgb(50,115,185);">{'status.waiting'|devblocks_translate}</span>
 					{if !empty($ticket->reopen_at)}
 						(opens {if $ticket->reopen_at > time()}in {/if}<abbr title="{$ticket->reopen_at|devblocks_date}">{$ticket->reopen_at|devblocks_prettytime}</abbr>)

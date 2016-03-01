@@ -51,21 +51,21 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Status:</td>
 			<td width="100%" valign="top">
-				<select name="do_status" onchange="$val=$(this).val();$waiting=$('#bulk{$view_id}_waiting');if($val==3 || $val==1){ $waiting.show(); } else { $waiting.hide(); }">
+				<select name="do_status" onchange="$val=$(this).val();$waiting=$('#bulk{$view_id}_waiting');if($val=={Model_Ticket::STATUS_WAITING} || $val=={Model_Ticket::STATUS_CLOSED}){ $waiting.show(); } else { $waiting.hide(); }">
 					<option value=""></option>
-					<option value="0">Open</option>
-					<option value="3">Waiting</option>
+					<option value="{Model_Ticket::STATUS_OPEN}">Open</option>
+					<option value="{Model_Ticket::STATUS_WAITING}">Waiting</option>
 					{if $active_worker->hasPriv('core.ticket.actions.close')}
-					<option value="1">Closed</option>
+					<option value="{Model_Ticket::STATUS_CLOSED}">Closed</option>
 					{/if}
 					{if $active_worker->hasPriv('core.ticket.actions.delete')}
-					<option value="2">Deleted</option>
+					<option value="{Model_Ticket::STATUS_DELETED}">Deleted</option>
 					{/if}
 				</select>
-				<button type="button" onclick="$(this.form).find('select[name=do_status]').val('0').trigger('change');">open</button>
-				<button type="button" onclick="$(this.form).find('select[name=do_status]').val('3').trigger('change');">waiting</button>
-				{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" onclick="$(this.form).find('select[name=do_status]').val('1').trigger('change');">closed</button>{/if}
-				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" onclick="$(this.form).find('select[name=do_status]').val('2').trigger('change');">deleted</button>{/if}
+				<button type="button" onclick="$(this.form).find('select[name=do_status]').val('{Model_Ticket::STATUS_OPEN}').trigger('change');">open</button>
+				<button type="button" onclick="$(this.form).find('select[name=do_status]').val('{Model_Ticket::STATUS_WAITING}').trigger('change');">waiting</button>
+				{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" onclick="$(this.form).find('select[name=do_status]').val('{Model_Ticket::STATUS_CLOSED}').trigger('change');">closed</button>{/if}
+				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" onclick="$(this.form).find('select[name=do_status]').val('{Model_Ticket::STATUS_DELETED}').trigger('change');">deleted</button>{/if}
 				
 				<div id="bulk{$view_id}_waiting" style="display:none;">
 					<b>{'display.reply.next.resume'|devblocks_translate}</b>

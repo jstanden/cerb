@@ -107,9 +107,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // ticket id
-		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'integer',0);
+		@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
 		@$spam = DevblocksPlatform::importGPC($_REQUEST['spam'],'integer',0);
-		@$deleted = DevblocksPlatform::importGPC($_REQUEST['deleted'],'integer',0);
 		
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			return;
@@ -121,33 +120,27 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Anti-Spam
 		if(!empty($spam)) {
 			CerberusBayes::markTicketAsSpam($id);
-			// [mdf] if the spam button was clicked override the default params for deleted/closed
-			$closed=1;
-			$deleted=1;
+			$status_id = Model_Ticket::STATUS_DELETED;
 		}
 
 		// Properties
 		$properties = array(
-			DAO_Ticket::IS_CLOSED => intval($closed),
-			DAO_Ticket::IS_DELETED => intval($deleted),
+			DAO_Ticket::STATUS_ID => $status_id,
 		);
 		
-		if(!$closed) {
+		if($status_id == Model_Ticket::STATUS_DELETED) {
 			$properties[DAO_Ticket::REOPEN_AT] = 0;
 		}
 
 		// Undeleting?
-		if(empty($spam) && empty($closed) && empty($deleted)
-			&& $ticket->spam_training == CerberusTicketSpamTraining::SPAM && $ticket->is_closed) {
+		if(empty($spam) && $status_id == Model_Ticket::STATUS_OPEN && $ticket->status_id != Model_Ticket::STATUS_OPEN
+			&& $ticket->spam_training == CerberusTicketSpamTraining::SPAM) {
 				$score = CerberusBayes::calculateTicketSpamProbability($id);
 				$properties[DAO_Ticket::SPAM_SCORE] = $score['probability'];
 				$properties[DAO_Ticket::SPAM_TRAINING] = CerberusTicketSpamTraining::BLANK;
 				$properties[DAO_Ticket::INTERESTING_WORDS] = $score['interesting_words'];
+				$properties[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
 		}
-		
-		// Don't double set the closed property (auto-close replies)
-		if(isset($properties[DAO_Ticket::IS_CLOSED]) && $properties[DAO_Ticket::IS_CLOSED]==$ticket->is_closed)
-			unset($properties[DAO_Ticket::IS_CLOSED]);
 		
 		// Only update fields that changed
 		$properties = Cerb_ORMHelper::uniqueFields($properties, $ticket);
@@ -830,7 +823,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
 			'content_format' => DevblocksPlatform::importGPC(@$_REQUEST['format'],'string',''),
 			'html_template_id' => DevblocksPlatform::importGPC(@$_REQUEST['html_template_id'],'integer',0),
-			'closed' => DevblocksPlatform::importGPC(@$_REQUEST['closed'],'integer',0),
+			'status_id' => DevblocksPlatform::importGPC(@$_REQUEST['status_id'],'integer',0),
 			'group_id' => DevblocksPlatform::importGPC(@$_REQUEST['group_id'],'integer',0),
 			'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'integer',0),
 			'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),
@@ -1542,8 +1535,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::FIRST_WROTE_ID => $orig_message->address_id,
 			DAO_Ticket::LAST_WROTE_ID => $orig_message->address_id,
 			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
-			DAO_Ticket::IS_CLOSED => CerberusTicketStatus::OPEN,
-			DAO_Ticket::IS_DELETED => 0,
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 			DAO_Ticket::MASK => $new_ticket_mask,
 			DAO_Ticket::SUBJECT => (isset($orig_headers['subject']) ? $orig_headers['subject'] : $orig_ticket->subject),
 			DAO_Ticket::GROUP_ID => $orig_ticket->group_id,

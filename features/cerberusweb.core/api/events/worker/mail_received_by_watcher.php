@@ -49,7 +49,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			list($results) = DAO_Ticket::search(
 				array(),
 				array(
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',0),
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'in',array(Model_Ticket::STATUS_OPEN, Model_Ticket::STATUS_WAITING)),
 				),
 				10,
 				0,

@@ -1165,7 +1165,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 					throw new Exception("Missing parameters for broadcast.");
 	
 				$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false;
-				$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0;
+				$status_id = intval(@$params['status_id']);
 				
 				if(is_array($ids))
 				foreach($ids as $opp_id) {
@@ -1183,7 +1183,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 						$json_params = array(
 							'to' => $tpl_dict->email_address,
 							'group_id' => $params['group_id'],
-							'next_is_closed' => $next_is_closed,
+							'status_id' => $status_id,
 							'is_broadcast' => 1,
 							'context_links' => array(
 								array(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id),

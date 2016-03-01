@@ -30,7 +30,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			list($results) = DAO_Ticket::search(
 				array(),
 				array(
-					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_DELETED,'=',0),
+					new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 				),
 				10,
 				0,
@@ -1111,30 +1111,22 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				switch($to_status) {
 					case 'open':
 						$fields = array(
-							DAO_Ticket::IS_WAITING => 0,
-							DAO_Ticket::IS_CLOSED => 0,
-							DAO_Ticket::IS_DELETED => 0,
+							DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 						);
 						break;
 					case 'waiting':
 						$fields = array(
-							DAO_Ticket::IS_WAITING => 1,
-							DAO_Ticket::IS_CLOSED => 0,
-							DAO_Ticket::IS_DELETED => 0,
+							DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_WAITING,
 						);
 						break;
 					case 'closed':
 						$fields = array(
-							DAO_Ticket::IS_WAITING => 0,
-							DAO_Ticket::IS_CLOSED => 1,
-							DAO_Ticket::IS_DELETED => 0,
+							DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_CLOSED,
 						);
 						break;
 					case 'deleted':
 						$fields = array(
-							DAO_Ticket::IS_WAITING => 0,
-							DAO_Ticket::IS_CLOSED => 1,
-							DAO_Ticket::IS_DELETED => 1,
+							DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
 						);
 						break;
 					default:

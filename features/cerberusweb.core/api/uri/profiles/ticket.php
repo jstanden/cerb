@@ -252,7 +252,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl->assign('group_buckets', $group_buckets);
 		
 		// If deleted, check for a new merge parent URL
-		if($ticket->is_deleted) {
+		if($ticket->status_id == Model_Ticket::STATUS_DELETED) {
 			if(false !== ($new_mask = DAO_Ticket::getMergeParentByMask($ticket->mask))) {
 				if(false !== ($merge_parent = DAO_Ticket::getTicketByMask($new_mask)))
 					if(!empty($merge_parent->mask))

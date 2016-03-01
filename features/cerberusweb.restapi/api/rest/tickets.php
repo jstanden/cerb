@@ -131,9 +131,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'string', '');
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'string', '');
-		@$is_waiting = DevblocksPlatform::importGPC($_REQUEST['is_waiting'],'string','');
-		@$is_closed = DevblocksPlatform::importGPC($_REQUEST['is_closed'],'string','');
-		@$is_deleted = DevblocksPlatform::importGPC($_REQUEST['is_deleted'],'string','');
+		@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'string','');
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'string', '');
 		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'string', '');
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
@@ -155,9 +153,6 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(0 != strlen($subject))
 			$fields[DAO_Ticket::SUBJECT] = $subject;
 			
-		if(0 != strlen($is_waiting))
-			$fields[DAO_Ticket::IS_WAITING] = !empty($is_waiting) ? 1 : 0;
-		
 		// Group + Bucket
 		
 		if(0 != strlen($group_id) || 0 != strlen($bucket_id)) {
@@ -214,26 +209,37 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$fields[DAO_Ticket::ORG_ID] = $org_id;
 		}
 		
-		// Close
+		// Waiting
 		
-		if(0 != strlen($is_closed)) {
-			// ACL
-			if(!$worker->hasPriv('core.ticket.actions.close'))
-				$this->error(self::ERRNO_ACL, 'Access denied to close tickets.');
-			
-			$fields[DAO_Ticket::IS_CLOSED] = !empty($is_closed) ? 1 : 0;
+		if(0 != strlen($status_id)) {
+			switch($status_id) {
+				case Model_Ticket::STATUS_WAITING:
+					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_WAITING;
+					break;
+					
+				case Model_Ticket::STATUS_CLOSED:
+					// ACL
+					if(!$worker->hasPriv('core.ticket.actions.close'))
+						$this->error(self::ERRNO_ACL, 'Access denied to close tickets.');
+					
+					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_CLOSED;
+					break;
+					
+				case Model_Ticket::STATUS_DELETED:
+					// ACL
+					if(!$worker->hasPriv('core.ticket.actions.delete'))
+						$this->error(self::ERRNO_ACL, 'Access denied to delete tickets.');
+		
+					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_DELETED;
+					break;
+					
+				default:
+				case Model_Ticket::STATUS_OPEN:
+					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
+					break;
+			}
 		}
 		
-		// Delete
-		
-		if(0 != strlen($is_deleted)) {
-			// ACL
-			if(!$worker->hasPriv('core.ticket.actions.delete'))
-				$this->error(self::ERRNO_ACL, 'Access denied to delete tickets.');
-
-			$fields[DAO_Ticket::IS_DELETED] = !empty($is_deleted) ? 1 : 0;
-		}
-			
 		// Only update fields that changed
 		$fields = Cerb_ORMHelper::uniqueFields($fields, $ticket);
 		
@@ -285,9 +291,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$this->error(self::ERRNO_ACL, 'Access denied to delete tickets in this group.');
 
 		$fields = array(
-			DAO_Ticket::IS_CLOSED => 1,
-			DAO_Ticket::IS_DELETED => 1,
-			DAO_Ticket::IS_WAITING => 0,
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
 		);
 		
 		// Only update fields that changed
@@ -337,9 +341,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'bucket_id' => DAO_Ticket::BUCKET_ID,
 				'group_id' => DAO_Ticket::GROUP_ID,
 				'id' => DAO_Ticket::ID,
-				'is_closed' => DAO_Ticket::IS_CLOSED,
-				'is_deleted' => DAO_Ticket::IS_DELETED,
-				'is_waiting' => DAO_Ticket::IS_WAITING,
+				'status_id' => DAO_Ticket::STATUS_ID,
 				'mask' => DAO_Ticket::MASK,
 				'org_id' => DAO_Ticket::ORG_ID,
 				'owner_id' => DAO_Ticket::OWNER_ID,
@@ -377,9 +379,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				'group' => SearchFields_Ticket::TICKET_GROUP_ID,
 				'group_id' => SearchFields_Ticket::TICKET_GROUP_ID,
 				'id' => SearchFields_Ticket::TICKET_ID,
-				'is_closed' => SearchFields_Ticket::TICKET_CLOSED,
-				'is_deleted' => SearchFields_Ticket::TICKET_DELETED,
-				'is_waiting' => SearchFields_Ticket::TICKET_WAITING,
+				'status_id' => SearchFields_Ticket::TICKET_STATUS_ID,
 				'last_wrote' => SearchFields_Ticket::TICKET_LAST_WROTE,
 				'mask' => SearchFields_Ticket::TICKET_MASK,
 				'org_id' => SearchFields_Ticket::TICKET_ORG_ID,
@@ -562,8 +562,8 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!empty($bcc))
 			$properties['bcc'] = $bcc;
 		
-		if(!empty($status) && in_array($status, array(0,1,2)))
-			$properties['closed'] = $status;
+		if(!empty($status) && in_array($status, array(0,1,2,3)))
+			$properties['status_id'] = $status;
 		
 		if(!empty($reopen_at))
 			$properties['ticket_reopen'] = $reopen_at;
@@ -713,8 +713,8 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(isset($html_template))
 			$properties['html_template_id'] = $html_template->id;
 		
-		if(!empty($status) && in_array($status, array(0,1,2)))
-			$properties['closed'] = $status;
+		if(!empty($status) && in_array($status, array(0,1,2,3)))
+			$properties['status_id'] = $status;
 		
 		if(!empty($reopen_at))
 			$properties['ticket_reopen'] = $reopen_at;

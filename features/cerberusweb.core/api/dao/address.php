@@ -1540,7 +1540,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 					throw new Exception("Missing parameters for broadcast.");
 	
 				$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false;
-				$next_is_closed = (isset($params['next_is_closed'])) ? intval($params['next_is_closed']) : 0;
+				$status_id = intval(@$params['status_id']);
 				
 				if(is_array($ids))
 				foreach($ids as $addy_id) {
@@ -1558,7 +1558,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 						$json_params = array(
 							'to' => $tpl_dict->address,
 							'group_id' => $params['group_id'],
-							'next_is_closed' => $next_is_closed,
+							'status_id' => $status_id,
 							'is_broadcast' => 1,
 						);
 						

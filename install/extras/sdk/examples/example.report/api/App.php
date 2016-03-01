@@ -21,10 +21,10 @@ class ExReport extends Extension_Report {
 		// Count tickets by status
 		$sql = "SELECT ".
 			"count(id) as num_total, ".
-			"sum(IF(is_closed=1,1,0)) as num_closed, ".
-			"sum(IF(is_waiting=1 AND is_closed=0,1,0)) as num_waiting ".
+			"sum(IF(status_id=2,1,0)) as num_closed, ".
+			"sum(IF(status_id=1,1,0)) as num_waiting ".
 			"FROM ticket ".
-			"WHERE is_deleted=0 "
+			"WHERE status_id != 3 "
 			;
 			
 		if(!empty($group_id))

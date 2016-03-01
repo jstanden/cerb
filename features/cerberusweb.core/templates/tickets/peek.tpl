@@ -53,7 +53,7 @@
 			{if $k == 'status'}
 				<label>{$labels.$k}</label>
 				{$dict->$k}
-				{if $dict->is_waiting || $dict->is_closed}
+				{if in_array($dict->status_id,[Model_Ticket::STATUS_WAITING, Model_Ticket::STATUS_CLOSED])}
 					{if $dict->reopen_date} (<abbr title="{$dict->reopen_date|devblocks_date}">{$dict->reopen_date|devblocks_prettytime}</abbr>){/if}
 				{/if}
 			{elseif $k == 'importance'}
