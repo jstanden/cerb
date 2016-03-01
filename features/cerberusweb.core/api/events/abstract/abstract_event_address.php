@@ -29,9 +29,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			// Pull the latest record
 			list($results) = DAO_Address::search(
 				array(),
-				array(
-					//new DevblocksSearchCriteria(SearchFields_Task::IS_CLOSED,'=',0),
-				),
+				array(),
 				10,
 				0,
 				SearchFields_Address::ID,

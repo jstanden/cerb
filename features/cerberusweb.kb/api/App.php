@@ -1124,15 +1124,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-//		$view->name = 'Headlines';
-//		$view->view_columns = array(
-//			SearchFields_CallEntry::IS_OUTGOING,
-//			SearchFields_CallEntry::PHONE,
-//			SearchFields_CallEntry::UPDATED_DATE,
-//		);
-		$view->addParams(array(
-			//SearchFields_KbArticle::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_KbArticle::IS_CLOSED,'=',0),
-		), true);
+		$view->addParams(array(), true);
 		$view->renderSortBy = SearchFields_KbCategory::NAME;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;

@@ -235,7 +235,7 @@ class _DevblocksDatabaseManager {
 				$cache = DevblocksPlatform::getCacheService();
 				$cache_key = 'session:db:last_write:' . session_id();
 				//error_log(sprintf("Write to master (%s): %s", $cache_key, $sql));
-				$cache->save(time(), $cache_key, array(), APP_DB_OPT_READ_MASTER_AFTER_WRITE, $cache->isVolatile());
+				$cache->save(time(), $cache_key, array(), APP_DB_OPT_READ_MASTER_AFTER_WRITE, !$cache->isVolatile());
 				$this->_has_written = true;
 			}
 		}
@@ -252,7 +252,7 @@ class _DevblocksDatabaseManager {
 			$cache_key = 'session:db:last_write:' . session_id();
 			
 			// If we've already executed DML this request, or another request has recently, redirect reads to master
-			if($this->_has_written || (false != ($last_write = $cache->load($cache_key)) && time() - $last_write <= 2)) {
+			if($this->_has_written || (false != ($last_write = $cache->load($cache_key, false, !$cache->isVolatile())) && time() - $last_write <= 2)) {
 				//error_log(sprintf("Redirecting read-after-write to master (%s): %s", $cache_key, $sql));
 				$db = $this->_master_db;
 				$this->_has_written = true;

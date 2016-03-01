@@ -13,9 +13,7 @@ abstract class AbstractEvent_TimeTracking extends Extension_DevblocksEvent {
 			// Pull the latest record
 			list($results) = DAO_TimeTrackingEntry::search(
 				array(),
-				array(
-					//new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,'=',0),
-				),
+				array(),
 				10,
 				0,
 				SearchFields_TimeTrackingEntry::ID,

@@ -643,11 +643,6 @@
 				<seg>Лог звонка</seg>
 			</tuv>
 		</tu>
-		<tu tuid="call_entry.model.is_closed">
-			<tuv xml:lang="ru_RU">
-				<seg>Закрыто</seg>
-			</tuv>
-		</tu>
 		<tu tuid="call_entry.model.is_outgoing">
 			<tuv xml:lang="ru_RU">
 				<seg/>
@@ -4952,19 +4947,9 @@ login &lt;ftp&#13;
 				<seg>Действие</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking_entry.id">
-			<tuv xml:lang="ru_RU">
-				<seg>Идентификатор</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking_entry.is_closed">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="timetracking_entry.log_date">
 			<tuv xml:lang="ru_RU">
-				<seg>Число </seg>
+				<seg>Число</seg>
 			</tuv>
 		</tu>
 		<tu tuid="timetracking_entry.time_actual_mins">

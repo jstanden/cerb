@@ -29,9 +29,7 @@ abstract class AbstractEvent_Org extends Extension_DevblocksEvent {
 			// Pull the latest record
 			list($results) = DAO_ContactOrg::search(
 				array(),
-				array(
-					//new DevblocksSearchCriteria(SearchFields_ContactOrg::IS_CLOSED,'=',0),
-				),
+				array(),
 				10,
 				0,
 				SearchFields_ContactOrg::ID,

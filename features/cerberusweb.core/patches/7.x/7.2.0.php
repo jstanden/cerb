@@ -79,7 +79,7 @@ if(isset($tables['message_header'])) {
 		$id_to = $id_from + 9999;
 		
 		// Move message-id header hashes to the message table
-		$sql = sprintf("UPDATE message SET hash_header_message_id = (SELECT sha1(message_header.header_value) FROM message_header WHERE message_header.message_id=message.id AND message_header.header_name = 'message-id') WHERE message.id BETWEEN %d and %d", $id_from, $id_to);
+		$sql = sprintf("UPDATE message SET hash_header_message_id = (SELECT sha1(message_header.header_value) FROM message_header WHERE message_header.message_id=message.id AND message_header.header_name = 'message-id' LIMIT 1) WHERE message.id BETWEEN %d and %d", $id_from, $id_to);
 	  if(false === ($db->ExecuteMaster($sql))) {
 	  	die("[MySQL Error] " . $db->ErrorMsgMaster());
 	  }

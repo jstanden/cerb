@@ -643,11 +643,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="call_entry.model.is_closed">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="call_entry.model.is_outgoing">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -4921,16 +4916,6 @@
 		<tu tuid="timetracking_entry.activity_id">
 			<tuv xml:lang="it_IT">
 				<seg>Attività</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking_entry.id">
-			<tuv xml:lang="it_IT">
-				<seg>ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking_entry.is_closed">
-			<tuv xml:lang="it_IT">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="timetracking_entry.log_date">

@@ -643,11 +643,6 @@
 				<seg>Registo de Chamadas</seg>
 			</tuv>
 		</tu>
-		<tu tuid="call_entry.model.is_closed">
-			<tuv xml:lang="pt_PT">
-				<seg>Está Fechado</seg>
-			</tuv>
-		</tu>
 		<tu tuid="call_entry.model.is_outgoing">
 			<tuv xml:lang="pt_PT">
 				<seg>É de Envio</seg>
@@ -4950,16 +4945,6 @@ Por exemplo: *recipiente*</seg>
 		<tu tuid="timetracking_entry.activity_id">
 			<tuv xml:lang="pt_PT">
 				<seg>Actividade</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking_entry.id">
-			<tuv xml:lang="pt_PT">
-				<seg>ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking_entry.is_closed">
-			<tuv xml:lang="pt_PT">
-				<seg>Está Fechado</seg>
 			</tuv>
 		</tu>
 		<tu tuid="timetracking_entry.log_date">

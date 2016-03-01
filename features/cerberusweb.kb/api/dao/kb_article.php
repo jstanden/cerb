@@ -983,9 +983,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->addParams(array(
-			//SearchFields_KbArticle::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_KbArticle::IS_CLOSED,'=',0),
-		), true);
+		$view->addParams(array(), true);
 		$view->renderSortBy = SearchFields_KbArticle::UPDATED;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;

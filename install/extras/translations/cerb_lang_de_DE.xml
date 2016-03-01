@@ -643,11 +643,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="call_entry.model.is_closed">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="call_entry.model.is_outgoing">
 			<tuv xml:lang="de_DE">
 				<seg/>
@@ -4952,16 +4947,6 @@ login</seg>
 		<tu tuid="timetracking_entry.activity_id">
 			<tuv xml:lang="de_DE">
 				<seg>Tätigkeit</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking_entry.id">
-			<tuv xml:lang="de_DE">
-				<seg>ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking_entry.is_closed">
-			<tuv xml:lang="de_DE">
-				<seg>Geschlossen</seg>
 			</tuv>
 		</tu>
 		<tu tuid="timetracking_entry.log_date">

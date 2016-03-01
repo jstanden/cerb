@@ -266,32 +266,6 @@ class ChContactsPage extends CerberusPageExtension {
 		exit;
 	}
 
-	function findTicketsAction() {
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-		@$closed = DevblocksPlatform::importGPC($_REQUEST['closed'],'string','');
-		
-		if(null == ($address = DAO_Address::lookupAddress($email, false)))
-			return;
-		
-		if(null == ($ticket_context = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET)))
-			return;
-		
-		if(null == ($search_view = $ticket_context->getSearchView()))
-			return;
-		
-		$search_view->removeAllParams();
-		
-		if(!empty($address))
-			$search_view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'=',$address->email));
-
-		if(0 != strlen($closed))
-			$search_view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_CLOSED,'=',$closed));
-			
-		$search_view->renderPage = 0;
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('search','ticket')));
-	}
-	
 	function showAddressBatchPanelAction() {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
