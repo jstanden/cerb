@@ -46,6 +46,12 @@ $changes = array();
 if(!isset($columns['hash_header_message_id']))
 	$changes[] = 'add column hash_header_message_id varchar(40)';
 
+if(isset($indexes['storage_extension']))
+	$changes[] = 'drop index storage_extension';
+
+if(isset($indexes['storage_profile_id']))
+	$changes[] = 'drop index storage_profile_id';
+
 if(!empty($changes)) {
 	$sql = sprintf("ALTER TABLE message %s", implode(', ', $changes));
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
@@ -110,6 +116,125 @@ if(isset($tables['message_header'])) {
 }
 
 // ===========================================================================
+// Optimize address indexes
+
+if(!isset($tables['address'])) {
+	$logger->error("The 'address' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address');
+
+$changes = array();
+
+if(isset($indexes['num_spam']))
+	$changes[] = 'drop index num_spam';
+
+if(isset($indexes['num_nonspam']))
+	$changes[] = 'drop index num_nonspam';
+
+if(isset($indexes['is_banned']))
+	$changes[] = 'drop index is_banned';
+
+if(isset($indexes['is_defunct']))
+	$changes[] = 'drop index is_defunct';
+
+if(!isset($indexes['banned_and_defunct']))
+	$changes[] = 'add index banned_and_defunct (is_banned, is_defunct)';
+
+if(!empty($changes)) {
+	$sql = sprintf("ALTER TABLE address  %s", implode(', ', $changes));
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+}
+
+// ===========================================================================
+// Optimize attachment_link indexes
+
+if(!isset($tables['attachment_link'])) {
+	$logger->error("The 'attachment_link' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('attachment_link');
+
+$changes = array();
+
+if(isset($indexes['context']))
+	$changes[] = 'drop index context';
+
+if(isset($indexes['context_id']))
+	$changes[] = 'drop index context_id';
+
+if(!isset($indexes['context_and_id']))
+	$changes[] = 'add index context_and_id (context, context_id)';
+
+if(!empty($changes)) {
+	$sql = sprintf("ALTER TABLE attachment_link %s", implode(', ', $changes));
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+}
+
+// ===========================================================================
+// Optimize comment indexes
+
+if(!isset($tables['comment'])) {
+	$logger->error("The 'comment' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('comment');
+
+$changes = array();
+
+if(isset($indexes['context']))
+	$changes[] = 'drop index context';
+
+if(isset($indexes['context_id']))
+	$changes[] = 'drop index context_id';
+
+if(!isset($indexes['context_and_id']))
+	$changes[] = 'add index context_and_id (context, context_id)';
+
+if(!empty($changes)) {
+	$sql = sprintf("ALTER TABLE comment %s", implode(', ', $changes));
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+}
+
+// ===========================================================================
+// Optimize context_link indexes
+
+if(!isset($tables['context_link'])) {
+	$logger->error("The 'context_link' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('context_link');
+
+$changes = array();
+
+if(isset($indexes['from_context']))
+	$changes[] = 'drop index from_context';
+
+if(isset($indexes['from_context_id']))
+	$changes[] = 'drop index from_context_id';
+
+if(!isset($indexes['from_context_and_id']))
+	$changes[] = 'add index from_context_and_id (from_context, from_context_id)';
+
+if(isset($indexes['to_context']))
+	$changes[] = 'drop index to_context';
+
+if(isset($indexes['to_context_id']))
+	$changes[] = 'drop index to_context_id';
+
+if(!isset($indexes['to_context_and_id']))
+	$changes[] = 'add index to_context_and_id (to_context, to_context_id)';
+
+if(!empty($changes)) {
+	$sql = sprintf("ALTER TABLE context_link %s", implode(', ', $changes));
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+}
+
+// ===========================================================================
 // Consolidate ticket status fields
 
 if(!isset($tables['ticket'])) {
@@ -127,11 +252,38 @@ if(!isset($columns['status_id']))
 if(isset($indexes['mask']) && 3 != $indexes['mask']['columns']['mask']['subpart'])
 	$changes[] = 'drop index mask, add index mask (mask(3))';
 
+if(isset($indexes['first_wrote_address_id']))
+	$changes[] = 'drop index first_wrote_address_id';
+
+if(isset($indexes['last_wrote_address_id']))
+	$changes[] = 'drop index last_wrote_address_id';
+
+if(isset($indexes['first_message_id']))
+	$changes[] = 'drop index first_message_id';
+
+if(isset($indexes['last_message_id']))
+	$changes[] = 'drop index last_message_id';
+
+if(isset($indexes['last_action_code']))
+	$changes[] = 'drop index last_action_code';
+
+if(isset($indexes['spam_score']))
+	$changes[] = 'drop index spam_score';
+
+if(isset($indexes['importance']))
+	$changes[] = 'drop index importance';
+
 if(isset($indexes['team_id']))
 	$changes[] = 'drop index team_id';
 
-if(!isset($indexes['group_id']))
-	$changes[] = 'add index (group_id)';
+if(isset($indexes['category_id']))
+	$changes[] = 'drop index category_id';
+
+if(!isset($indexes['group_and_bucket']))
+	$changes[] = 'add index group_and_bucket (group_id, bucket_id)';
+
+if(!isset($indexes['bucket_id']))
+	$changes[] = 'add index (bucket_id)';
 
 if(!empty($changes)) {
 	$sql = sprintf("ALTER TABLE ticket %s", implode(', ', $changes));

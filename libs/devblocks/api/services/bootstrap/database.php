@@ -201,6 +201,7 @@ class _DevblocksDatabaseManager {
 				'column_name' => $column_name,
 				'cardinality' => $row['Cardinality'],
 				'index_type' => $row['Index_type'],
+				'subpart' => $row['Sub_part'],
 			);
 		}
 		
