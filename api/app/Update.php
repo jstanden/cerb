@@ -156,8 +156,8 @@ class ChUpdateController extends DevblocksControllerExtension {
 					// If authorized, lock and attempt update
 					if(!file_exists($file) || @filectime($file)+600 < time()) { // 10 min lock
 						// Log everybody out since we're touching the database
-						$session = DevblocksPlatform::getSessionService();
-						$session->clearAll();
+						//$session = DevblocksPlatform::getSessionService();
+						//$session->clearAll();
 
 						// Lock file
 						touch($file);
@@ -186,7 +186,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 						file_put_contents(APP_STORAGE_PATH . '/version.php', sprintf("<?php define('APP_BUILD_CACHED', %d); ?>", APP_BUILD));
 						
 						// Redirect
-						DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+						DevblocksPlatform::redirect(new DevblocksHttpResponse(array()));
 	
 					} else {
 						echo $translate->_('update.locked_another');

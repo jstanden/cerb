@@ -3,6 +3,10 @@ $db = DevblocksPlatform::getDatabaseService();
 $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
+// Log everybody out since this is a major upgrade
+$session = DevblocksPlatform::getSessionService();
+$session->clearAll();
+
 // ===========================================================================
 // Fix the `plugin_library` latest_version field
 
