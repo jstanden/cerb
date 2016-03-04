@@ -158,7 +158,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			implode(',', $from_ids)
 		));
 		// Remove any stragglers
-		$db->ExecuteMaster(sprintf("DELETE FROM context_avatar WHERE from_context = %s AND from_context_id IN (%s)",
+		$db->ExecuteMaster(sprintf("DELETE FROM context_avatar WHERE context = %s AND context_id IN (%s)",
 			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));

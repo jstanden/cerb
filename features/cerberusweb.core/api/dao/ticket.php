@@ -654,7 +654,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			
 			// If any ticket in the list is status open, our destination should be open
 			foreach($tickets as $merged_ticket) {
-				if($merge_ticket[SearchFields_Ticket::TICKET_STATUS_ID] == Model_Ticket::STATUS_OPEN) {
+				if($merged_ticket[SearchFields_Ticket::TICKET_STATUS_ID] == Model_Ticket::STATUS_OPEN) {
 					$merge_dst_status_id = Model_Ticket::STATUS_OPEN;
 					break;
 				}

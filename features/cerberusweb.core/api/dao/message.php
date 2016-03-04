@@ -737,6 +737,7 @@ class Model_Message {
 	public $hash_header_message_id;
 	
 	private $_sender_object = null;
+	private $_headers_raw = null;
 
 	function Model_Message() {}
 
@@ -793,12 +794,10 @@ class Model_Message {
 	}
 
 	function getHeaders($raw = false) {
-		static $raw_headers = null;
+		if(is_null($this->_headers_raw))
+			$this->_headers_raw = DAO_MessageHeaders::getRaw($this->id);
 		
-		if(is_null($raw_headers))
-			$raw_headers = DAO_MessageHeaders::getRaw($this->id);
-		
-		return $raw ? $raw_headers : DAO_MessageHeaders::parse($raw_headers);
+		return $raw ? $this->_headers_raw : DAO_MessageHeaders::parse($this->_headers_raw);
 	}
 	
 	/**
