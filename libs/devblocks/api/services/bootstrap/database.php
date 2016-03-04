@@ -226,7 +226,7 @@ class _DevblocksDatabaseManager {
 		if(DEVELOPMENT_MODE_QUERIES)
 			$console = DevblocksPlatform::getConsoleLog('MASTER');
 		
-		if(APP_DB_OPT_READ_MASTER_AFTER_WRITE) {
+		if(APP_DB_OPT_READ_MASTER_AFTER_WRITE && '' != APP_DB_SLAVE_HOST) {
 			// If we're ignoring master read-after-write, do nothing
 			if($option_bits & _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE) {
 				//error_log(sprintf("Ignoring master read-after-write: %s", $sql));
@@ -249,7 +249,7 @@ class _DevblocksDatabaseManager {
 		$db = $this->_slave_db;
 		
 		// Check if we're redirecting read-after-write to master
-		if(APP_DB_OPT_READ_MASTER_AFTER_WRITE) {
+		if(APP_DB_OPT_READ_MASTER_AFTER_WRITE && '' != APP_DB_SLAVE_HOST) {
 			$cache_key = 'session:db:last_write:' . session_id();
 			
 			// If we've already executed DML this request, or another request has recently, redirect reads to master
