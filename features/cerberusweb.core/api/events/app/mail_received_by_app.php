@@ -55,6 +55,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$parser_message->headers['bcc'] = 'secret@example.com';
 		$parser_message->headers['subject'] = 'This is the subject';
 		$parser_message->body = "This is the message body\r\nOn more than one line.\r\n";
+		$parser_message->build();
 		
 		if(empty($parser_model) || !($parser_model instanceof CerberusParserModel)) {
 			$parser_model = new CerberusParserModel($parser_message);

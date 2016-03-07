@@ -56,6 +56,43 @@ class CerberusParserMessage {
 	public $htmlbody = '';
 	public $files = array();
 	public $custom_fields = array();
+	
+	function build() {
+		$this->_buildHeaders();
+		$this->_buildThreadBounces();
+	}
+	
+	private function _buildHeaders() {
+		if(empty($this->raw_headers) && !empty($this->headers))
+		foreach($this->headers as $k => $v) {
+			$this->raw_headers .= sprintf("%s: %s\r\n", $k, $v);
+		}
+	}
+	
+	// Thread a bounce to the message it references based on the message/rfc822 attachment
+	private function _buildThreadBounces() {
+		if(is_array($this->files))
+		foreach ($this->files as $filename => $file) { /* @var $file ParserFile */
+			switch($file->mime_type) {
+				case 'message/rfc822':
+					if(false == ($mime = new MimeMessage('file',  $file->tmpname)))
+						break;
+						
+					if(!isset($this->headers['from']) || !isset($mime->data['headers']) || !isset($mime->data['headers']['message-id']))
+						break;
+					
+					if(false == ($bounce_froms = imap_rfc822_parse_adrlist($this->headers['from'], '')) || empty($bounce_froms))
+						break;
+					
+					// Change the inbound In-Reply-To: header to that of the bounce
+					if(in_array(strtolower($bounce_froms[0]->mailbox), array('postmaster', 'mailer-daemon'))) {
+						$this->headers['in-reply-to'] = $mime->data['headers']['message-id'];
+					}
+					
+				break;
+			}
+		}
+	}
 };
 
 class CerberusParserModel {
@@ -853,29 +890,9 @@ class CerberusParser {
 		 */
 		$logger = DevblocksPlatform::getConsoleLog();
 		$url_writer = DevblocksPlatform::getUrlService();
-		
-		// Thread a bounce to the message it references based on the message/rfc822 attachment
-		if(is_array($message->files))
-		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
-			switch($file->mime_type) {
-				case 'message/rfc822':
-					if(false == ($mime = new MimeMessage('file',  $file->tmpname)))
-						break;
-						
-					if(!isset($message->headers['from']) || !isset($mime->data['headers']) || !isset($mime->data['headers']['message-id']))
-						break;
-					
-					if(false == ($bounce_froms = imap_rfc822_parse_adrlist($message->headers['from'], '')) || empty($bounce_froms))
-						break;
-					
-					// Change the inbound In-Reply-To: header to that of the bounce
-					if(in_array(strtolower($bounce_froms[0]->mailbox), array('postmaster', 'mailer-daemon'))) {
-						$message->headers['in-reply-to'] = $mime->data['headers']['message-id'];
-					}
-					
-				break;
-			}
-		}
+
+		// Make sure the object is well-formatted and ready to send
+		$message->build();
 		
 		// Parse headers into $model
 		$model = new CerberusParserModel($message); /* @var $model CerberusParserModel */
@@ -1140,7 +1157,6 @@ class CerberusParser {
 					}
 					
 					$properties['content'] = ltrim($body);
-					
 					
 					CerberusMail::sendTicketMessage($properties);
 
