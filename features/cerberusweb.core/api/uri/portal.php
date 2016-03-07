@@ -40,7 +40,8 @@ class Controller_Portal extends DevblocksControllerExtension {
 		// Routing
 
 		if(null != (@$tool = DAO_CommunityTool::getByCode($code))) {
-			$manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
+			if(false == ($manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true)))
+				DevblocksPlatform::dieWithHttpError("Portal extension not found.", 404);
 			
 			if(DEVELOPMENT_MODE) {
 				$tool = $manifest->createInstance();
@@ -54,7 +55,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 				return $tool->handleRequest($delegate_request);
 			}
 		} else {
-			DevblocksPlatform::dieWithHttpError("Tool not found.", 404);
+			DevblocksPlatform::dieWithHttpError("Portal not found.", 404);
 		}
 	}
 	
