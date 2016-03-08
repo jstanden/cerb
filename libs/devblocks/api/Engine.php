@@ -238,15 +238,6 @@ abstract class DevblocksEngine {
 			}
 		}
 
-		// Routing
-		if(isset($plugin->uri_routing->uri)) {
-			foreach($plugin->uri_routing->uri as $eUri) {
-				@$sUriName = (string) $eUri['name'];
-				@$sController = (string) $eUri['controller'];
-				$manifest->uri_routing[$sUriName] = $sController;
-			}
-		}
-
 		// ACL
 		if(isset($plugin->acl->priv)) {
 			foreach($plugin->acl->priv as $ePriv) {
@@ -408,19 +399,6 @@ abstract class DevblocksEngine {
 				$db->qstr($class),
 				$db->qstr($manifest->id),
 				$db->qstr($file_path)
-			));
-		}
-
-		// URI routing cache
-		$db->ExecuteMaster(sprintf("DELETE FROM %suri_routing WHERE plugin_id = %s",$prefix,$db->qstr($plugin->id)));
-		if(is_array($manifest->uri_routing))
-		foreach($manifest->uri_routing as $uri => $controller_id) {
-			$db->ExecuteMaster(sprintf(
-				"REPLACE INTO ${prefix}uri_routing (uri,plugin_id,controller_id) ".
-				"VALUES (%s,%s,%s)",
-				$db->qstr($uri),
-				$db->qstr($manifest->id),
-				$db->qstr($controller_id)
 			));
 		}
 

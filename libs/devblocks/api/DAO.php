@@ -455,25 +455,6 @@ class DAO_Platform extends DevblocksORMHelper {
 		return $class_loader_map;
 	}
 	
-	static function getUriRoutingMap() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-		
-		$uri_routing_map = array();
-	
-		$sql = sprintf("SELECT uri, plugin_id, controller_id FROM %suri_routing ORDER BY plugin_id", $prefix);
-		$results = $db->GetArrayMaster($sql);
-
-		foreach($results as $row) {
-			@$uri = $row['uri'];
-			@$plugin_id = $row['plugin_id'];
-			@$controller_id = $row['controller_id'];
-			
-			$uri_routing_map[$uri] = $controller_id;
-		}
-	
-		return $uri_routing_map;
-	}
 };
 
 class DAO_DevblocksSetting extends DevblocksORMHelper {

@@ -835,7 +835,6 @@ class DevblocksPluginManifest {
 	var $event_points = array();
 	var $acl_privs = array();
 	var $class_loader = array();
-	var $uri_routing = array();
 	var $extensions = array();
 	
 	var $_requirements_errors = array();

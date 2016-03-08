@@ -29,14 +29,6 @@
 		-->
 	</patches>
 
-	<!-- Controller Routing -->
-
-	<!--
-	<uri_routing>
-		<uri name="dostuff" controller="example.controller" />
-	</uri_routing>
-	-->
-	
 	<!-- Classloader -->
 	
 	<class_loader>
