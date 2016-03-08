@@ -631,6 +631,50 @@ class CerberusParser {
 		return self::_parseMime($mm);
 	}
 	
+	static private function _recurseMimeParts($part, &$results) {
+		if(!is_array($results))
+			$results = array();
+		
+		// Normalize charsets
+		switch(strtolower($part->data['charset'])) {
+			case 'gb2312':
+				$part->data['charset'] = 'gbk';
+				break;
+		}
+		
+		$do_ignore = false;
+		$do_recurse = true;
+		
+		switch(strtolower($part->data['content-type'])) {
+			case 'multipart/alternative':
+			case 'multipart/mixed':
+			case 'multipart/related':
+			case 'multipart/report':
+			case 'text/plain; (error)':
+				$do_ignore = true;
+				break;
+				
+			case 'message/rfc822':
+				$do_recurse = false;
+		}
+		
+		if(!$do_ignore)
+			$results[spl_object_hash($part)] = $part;
+		
+		if($do_recurse)
+		for($n = 0; $n < $part->get_child_count(); $n++)
+			self::_recurseMimeParts($part->get_child($n), $results);
+	}
+	
+	static private function _getMimePartFilename($part) {
+		$content_filename = isset($part->data['disposition-filename']) ? $part->data['disposition-filename'] : '';
+		
+		if(empty($content_filename))
+			$content_filename = isset($part->data['content-name']) ? $part->data['content-name'] : '';
+		
+		return CerberusParser::fixQuotePrintableString($content_filename, $part->data['charset']);
+	}
+	
 	/**
 	 * @param MimeMessage $mm
 	 * @return CerberusParserMessage
@@ -643,118 +687,55 @@ class CerberusParser {
 		$message->raw_headers = $mm->extract_headers(MAILPARSE_EXTRACT_RETURN);
 		$message->headers = CerberusParser::fixQuotePrintableArray($mm->data['headers']);
 		
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		$is_attachments_enabled = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED,CerberusSettingsDefaults::ATTACHMENTS_ENABLED);
-		$attachments_max_size = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE,CerberusSettingsDefaults::ATTACHMENTS_MAX_SIZE);
+		$mime_parts = array();
+		self::_recurseMimeParts($mm, $mime_parts);
 		
-		$message_counter_attached = 0;
-		$message_counter_delivery_status = 0;
-		
-		$sections = array($mm);
-		
-		for($n = 0; $n < $mm->get_child_count(); $n++)
-			$sections[] = $mm->get_child($n);
-		
-		foreach($sections as $n => $section) {
-			if(!isset($section->data))
+		if(is_array($mime_parts))
+		foreach($mime_parts as $section_idx => $section) {
+			if(!isset($section->data)) {
+				unset($mime_parts[$section_idx]);
 				continue;
-			
-			$info = $section->data;
-			
-			// Overrides
-			switch(strtolower($info['charset'])) {
-				case 'gb2312':
-					$info['charset'] = 'gbk';
-					break;
 			}
-
-			// See if we have a content filename
 			
-			$content_filename = isset($info['disposition-filename']) ? $info['disposition-filename'] : '';
-			
-			if(empty($content_filename))
-				$content_filename = isset($info['content-name']) ? $info['content-name'] : '';
-			
-			$content_filename = CerberusParser::fixQuotePrintableString($content_filename, $info['charset']);
-			
-			// Content type
-			
-			$content_type = isset($info['content-type']) ? $info['content-type'] : '';
-			
-			// handle parts that shouldn't have a content-name, don't handle twice
-			$handled = false;
+			$content_type = strtolower(isset($section->data['content-type']) ? $section->data['content-type'] : '');
+			$content_filename = self::_getMimePartFilename($section);
 			
 			if(empty($content_filename)) {
-				switch(strtolower($content_type)) {
-					case 'text/calendar':
-						$content_filename = 'calendar.ics';
-						break;
-						
-					case 'multipart/mixed':
-						$handled = true;
-						break;
-						
-					case 'multipart/alternative':
-					case 'multipart/related':
-						if(0 == $n) {
-							$handled = true;
-							break;
-						}
-						
-						for($nn = 0; $nn <= $section->get_child_count(); $nn++) {
-							$child_part = $section->get_child($nn);
-							
-							switch(@$child_part->data['content-type']) {
-								case 'text/plain':
-									self::_handleMimepartTextPlain($child_part, $message);
-									break;
-								
-								case 'text/html':
-									self::_handleMimepartTextHtml($child_part, $message);
-									break;
-							}
-						}
-						
-						$handled = true;
-						break;
-						
-					case 'text/plain; (error)':
-						$handled = true;
-						break;
-						
+				$handled = false;
+				
+				switch($content_type) {
 					case 'text/plain':
 						$handled = self::_handleMimepartTextPlain($section, $message);
 						break;
-					
+						
 					case 'text/html':
 						$handled = self::_handleMimepartTextHtml($section, $message);
 						break;
-						 
+						
+					case 'text/calendar':
+						$content_filename = sprintf("calendar_%s.ics", uniqid());
+						break;
+						
 					case 'message/delivery-status':
 						$message_content = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
-						$message_counter_delivery_status++;
 
 						$tmpname = ParserFile::makeTempFilename();
 						$bounce_attach = new ParserFile();
-						$bounce_attach->setTempFile($tmpname,'message/delivery-status');
+						$bounce_attach->setTempFile($tmpname, 'message/delivery-status');
 						@file_put_contents($tmpname, $message_content);
 						$bounce_attach->file_size = filesize($tmpname);
 						$bounce_attach->mime_type = 'message/delivery-status';
-						$bounce_attach_filename = sprintf("delivery_status_%03d.txt",
-							$message_counter_delivery_status
-						);
+						$bounce_attach_filename = sprintf("delivery_status_%s.txt", uniqid());
 						$message->files[$bounce_attach_filename] = $bounce_attach;
-						unset($bounce_attach);
 						$handled = true;
 						break;
 
 					case 'message/feedback-report':
-						$content_filename = 'feedback_report.txt';
+						$content_filename = sprintf("feedback_report_%s.txt", uniqid());
 						break;
 						
 					case 'message/rfc822':
 						$message_content = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
-						$message_counter_attached++;
 
 						$tmpname = ParserFile::makeTempFilename();
 						$rfc_attach = new ParserFile();
@@ -762,11 +743,8 @@ class CerberusParser {
 						@file_put_contents($tmpname, $message_content);
 						$rfc_attach->file_size = filesize($tmpname);
 						$rfc_attach->mime_type = $content_type;
-						$rfc_attach_filename = sprintf("attached_message_%03d.txt",
-							$message_counter_attached
-						);
+						$rfc_attach_filename = sprintf("attached_message_%s.txt", uniqid());
 						$message->files[$rfc_attach_filename] = $rfc_attach;
-						unset($rfc_attach);
 						$handled = true;
 						break;
 						
@@ -774,10 +752,10 @@ class CerberusParser {
 					case 'image/jpg':
 					case 'image/jpeg':
 					case 'image/png':
-						if(isset($info['content-id'])) {
-							$content_filename = DevblocksPlatform::strToPermalink($info['content-id']);
+						if(isset($section->data['content-id']) && !empty($section->data['content-id'])) {
+							$content_filename = DevblocksPlatform::strToPermalink($section->data['content-id']);
 						} else {
-							$content_filename = 'untitled';
+							$content_filename = sprintf("image_%s", uniqid());
 						}
 						
 						switch(strtolower($content_type)) {
@@ -792,34 +770,43 @@ class CerberusParser {
 								$content_filename .= ".png";
 								break;
 						}
-						
 						break;
 				}
-			}
-
-			// whether or not it has a content-name, we need to add it as an attachment (if not already handled)
-			if(!$handled && $is_attachments_enabled) {
-				// Pre-check: If the part is larger than our max allowed attachments, skip before writing
-				if(isset($section->data['disposition-size']) && $section->data['disposition-size'] > ($attachments_max_size * 1024000)) {
-					continue;
-				}
 				
-				$attach = new ParseFileBuffer($section);
-				
-				// Make sure our attachment is under the max preferred size
-				if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
-					@unlink($attach->tmpname);
-					continue;
-				}
-				
-				if(empty($content_filename))
-					$content_filename = 'unnamed_attachment_' . uniqid();
-				
-				$message->files[$content_filename] = $attach;
+				if($handled)
+					unset($mime_parts[$section_idx]);
 			}
 		}
+
+		// Handle file attachments
 		
-		// generate the plaintext part (if necessary)
+		$settings = DevblocksPlatform::getPluginSettingsService();
+		$is_attachments_enabled = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED,CerberusSettingsDefaults::ATTACHMENTS_ENABLED);
+		$attachments_max_size = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE,CerberusSettingsDefaults::ATTACHMENTS_MAX_SIZE);
+		
+		if($is_attachments_enabled)
+		foreach($mime_parts as $section_idx => $section) {
+			// Pre-check: If the part is larger than our max allowed attachments, skip before writing
+			if(isset($section->data['disposition-size']) && $section->data['disposition-size'] > ($attachments_max_size * 1024000)) {
+				continue;
+			}
+			
+			$attach = new ParseFileBuffer($section);
+			
+			// Make sure our attachment is under the max preferred size
+			if(filesize($attach->tmpname) > ($attachments_max_size * 1024000)) {
+				@unlink($attach->tmpname);
+				continue;
+			}
+			
+			if(empty($content_filename))
+				$content_filename = sprintf("unnamed_attachment_%s", uniqid());
+			
+			$message->files[$content_filename] = $attach;
+		}
+		
+		// Generate the plaintext part (if necessary)
+		
 		if(empty($message->body) && !empty($message->htmlbody)) {
 			$message->body = DevblocksPlatform::stripHTML($message->htmlbody);
 		}
@@ -849,9 +836,7 @@ class CerberusParser {
 				@file_put_contents($tmpname, $bounce_text);
 				$rfc_attach->file_size = filesize($tmpname);
 				$rfc_attach->mime_type = 'text/plain';
-				$rfc_attach_filename = sprintf("attached_message_%03d.txt",
-					++$message_counter_attached
-				);
+				$rfc_attach_filename = sprintf("attached_message_%s.txt", uniqid());
 				$message->files[$rfc_attach_filename] = $rfc_attach;
 				unset($rfc_attach);
 			}
