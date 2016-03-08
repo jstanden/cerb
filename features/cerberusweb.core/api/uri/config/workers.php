@@ -127,6 +127,32 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				if($password_new && ($password_new != $password_verify))
 						throw new Exception_DevblocksAjaxValidationError("The given passwords do not match.", 'password_new');
 				
+				// Verify auth extension
+				if(false == ($auth_extension = Extension_LoginAuthenticator::get($auth_extension_id)))
+						throw new Exception_DevblocksAjaxValidationError("The login method is invalid.", 'auth_extension_id');
+				
+				// Verify @mention name
+				if(!empty($at_mention_name)) {
+					$at_mentions = DAO_Worker::getByAtMentions(array($at_mention_name));
+					
+					// Remove the current worker id
+					unset($at_mentions[$id]);
+					
+					if(!empty($at_mentions))
+						throw new Exception_DevblocksAjaxValidationError(sprintf("The @mention name (%s) is already in use by another worker.", $at_mention_name), 'at_mention_name');
+				}
+				
+				// Verify timezone is legit
+				$date = DevblocksPlatform::getDateService();
+				$timezones = $date->getTimezones();
+				if(false === array_search($timezone, $timezones))
+						throw new Exception_DevblocksAjaxValidationError("The given timezone is invalid.", 'timezone');
+				
+				// Verify language
+				$languages = DAO_Translation::getDefinedLangCodes();
+				if($language && !isset($languages[$language]))
+						throw new Exception_DevblocksAjaxValidationError("The given language is invalid.", 'language');
+				
 				if(empty($id)) {
 					if(empty($password_new)) {
 						// Creating new worker.  If password is empty, email it to them
@@ -229,7 +255,11 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 					$calendar_id = DAO_Calendar::create($fields);
 					
 				} else {
-					$calendar_id = intval($calendar_id);
+					if(false != ($calendar = DAO_Calendar::get($calendar_id))) {
+						$calendar_id = intval($calendar->id);
+					} else {
+						$calendar_id = 0;
+					}
 				}
 				
 				// Update

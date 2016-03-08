@@ -235,13 +235,20 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function getByAtMentions($at_mentions) {
+		if(!is_array($at_mentions) && is_string($at_mentions))
+			$at_mentions = array($at_mentions);
+		
 		$workers = DAO_Worker::getAllActive();
 		
-		if(is_array($workers))
-		foreach($workers as $worker_id => $worker) {
-			if(!in_array('@' . $worker->at_mention_name, $at_mentions))
-				unset($workers[$worker_id]);
-		}
+		$workers = array_filter($workers, function($worker) use ($at_mentions) {
+			foreach($at_mentions as $at_mention) {
+				if($worker->at_mention_name && 0 == strcasecmp($at_mention, $worker->at_mention_name)) {
+					return true;
+				}
+			}
+			
+			return false;
+		});
 		
 		return $workers;
 	}
