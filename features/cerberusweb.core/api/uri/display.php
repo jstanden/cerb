@@ -349,18 +349,22 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 	
 	// [TODO] Merge w/ the new comments functionality?
-	function addNoteAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
+	function showAddNotePopupAction() {
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['message_id']);
 
+		if(false == ($message = DAO_Message::get($message_id)))
+			return;
+		
+		if(false == ($ticket = DAO_Ticket::get($message->ticket_id)))
+			return;
+
+		if(false == ($worker = CerberusApplication::getActiveWorker()))
+			return;
+		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('id',$id);
 		
-		$message = DAO_Message::get($id);
-		$ticket = DAO_Ticket::get($message->ticket_id);
-		$tpl->assign('message',$message);
-		$tpl->assign('ticket',$ticket);
-		
-		$worker = CerberusApplication::getActiveWorker();
+		$tpl->assign('message', $message);
+		$tpl->assign('ticket', $ticket);
 		$tpl->assign('worker', $worker);
 		
 		$active_workers = DAO_Worker::getAllActive();
@@ -372,10 +376,13 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/add_note.tpl');
 	}
 	
-	function doAddNoteAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+	function saveAddNotePopupAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['message_id'],'integer',0);
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+
+		if(empty($ticket_id) || empty($message_id))
+			return;
 		
 		$worker = CerberusApplication::getActiveWorker();
 		
@@ -395,7 +402,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$fields = array(
 			DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
-			DAO_Comment::CONTEXT_ID => $id,
+			DAO_Comment::CONTEXT_ID => $message_id,
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 			DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
@@ -403,7 +410,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		);
 		$note_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 		
-		$this->_renderNotes($id);
+		$this->_renderNotes($message_id);
 	}
 	
 	private function _checkRecentTicketActivity($ticket_id, $since_timestamp) {

@@ -158,28 +158,4 @@
 			}
 		);
 	}
-	
-	var displayAddNote = function(msgid) {
-		var div = document.getElementById('reply' + msgid);
-		if(null == div) return;
-		
-		genericAjaxGet('','c=display&a=addNote&id=' + msgid,
-			function(html) {
-				$div = $('#reply' + msgid);
-				
-				if(0 == $div.length)
-					return;
-				
-				$div.html(html);
-				
-				var offset = $div.offset();
-				window.scrollTo(offset.left, offset.top);
-				
-				$frm = $('#reply' + msgid + '_form');
-				$textarea = $frm.find('textarea[name=content]');
-				
-				$textarea.focus();
-			}
-		);
-	}
 </script>
