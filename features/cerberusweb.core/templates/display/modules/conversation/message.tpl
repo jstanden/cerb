@@ -99,7 +99,7 @@
 		  	<br>
 		  	
 				{if $active_worker->hasPriv('core.display.actions.attachments.download')}
-				{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id}
+					{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id}
 				{/if}
 		  	
 		  	<table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -122,7 +122,7 @@
 					  		</ul>
 					  	{/if}
 					  	
-					  	{if $active_worker->hasPriv('core.display.actions.note')}<button type="button" onclick="displayAddNote('{$message->id}');"><span class="glyphicons glyphicons-edit"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>{/if}
+					  	{if $active_worker->hasPriv('core.display.actions.note')}<button type="button" onclick="genericAjaxPopup('note', 'c=display&a=showAddNotePopup&message_id={$message->id}');"><span class="glyphicons glyphicons-edit"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>{/if}
 					  	
 					  	{if $active_worker->hasPriv('core.display.actions.reply')}
 					  	<button type="button" class="edit" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
