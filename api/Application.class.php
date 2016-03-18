@@ -187,7 +187,7 @@ class CerberusApplication extends DevblocksApplication {
 
 			$list[] = array(
 				'id' => $file_bundle->id,
-				'name' => $file_bundle->name,
+				'name' => DevblocksPlatform::strEscapeHtml($file_bundle->name),
 				'tag' => $file_bundle->tag,
 			);
 		}
@@ -203,11 +203,11 @@ class CerberusApplication extends DevblocksApplication {
 		foreach($workers as $worker) {
 			$list[] = array(
 				'id' => $worker->id,
-				'name' => $worker->getName(),
-				'email' => $worker->getEmailString(),
-				'title' => $worker->title,
-				'at_mention' => $worker->at_mention_name,
-				'_index' => $worker->getName() . ' ' . $worker->at_mention_name,
+				'name' => DevblocksPlatform::strEscapeHtml($worker->getName()),
+				'email' => DevblocksPlatform::strEscapeHtml($worker->getEmailString()),
+				'title' => DevblocksPlatform::strEscapeHtml($worker->title),
+				'at_mention' => DevblocksPlatform::strEscapeHtml($worker->at_mention_name),
+				'_index' => DevblocksPlatform::strEscapeHtml($worker->getName() . ' ' . $worker->at_mention_name),
 			);
 		}
 
