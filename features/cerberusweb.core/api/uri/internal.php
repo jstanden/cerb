@@ -82,7 +82,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			/*
 			 * Log activity (worker.impersonated)
 			 */
-			$ip_address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'an unknown IP';
+			$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
 			
 			$entry = array(
 				//{{actor}} impersonated {{target}} from {{ip}}

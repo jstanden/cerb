@@ -99,11 +99,11 @@ class ChUpdateController extends DevblocksControllerExtension {
 				$pass = false;
 				foreach ($authorized_ips as $ip)
 				{
-					if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
+					if(substr($ip,0,strlen($ip)) == substr(DevblocksPlatform::getClientIp(),0,strlen($ip)))
 				 	{ $pass=true; break; }
 				}
 				if(!$pass) {
-					echo vsprintf($translate->_('update.ip_unauthorized'), $_SERVER['REMOTE_ADDR']);
+					echo vsprintf($translate->_('update.ip_unauthorized'), DevblocksPlatform::getClientIp());
 					return;
 				}
 				

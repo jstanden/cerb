@@ -337,7 +337,7 @@ class ChSignInPage extends CerberusPageExtension {
 		/*
 		 * Log activity (worker.logged_in)
 		 */
-		$ip_address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'an unknown IP';
+		$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
 		$user_agent = UserAgentParser::parse();
 		$user_agent_string = sprintf("%s%s%s",
 			$user_agent['browser'],
@@ -370,7 +370,7 @@ class ChSignInPage extends CerberusPageExtension {
 		/*
 		 * Log activity (worker.logged_out)
 		 */
-		$ip_address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'an unknown IP';
+		$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
 		
 		$entry = array(
 			//{{actor}} logged out from {{ip}}

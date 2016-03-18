@@ -194,7 +194,7 @@ class UmScApp extends Extension_UsermeetTool {
 				// ...and the CSRF token is invalid for this session, freak out
 				if(!$umsession->csrf_token || $umsession->csrf_token != $request->csrf_token) {
 					@$referer = $_SERVER['HTTP_REFERER'];
-					@$remote_addr = $_SERVER['REMOTE_ADDR'];
+					@$remote_addr = DevblocksPlatform::getClientIp();
 					
 					error_log(sprintf("[Cerb/Security] Possible CSRF attack from IP %s using referrer %s", $remote_addr, $referer), E_USER_WARNING);
 					DevblocksPlatform::dieWithHttpError("Access denied", 403);

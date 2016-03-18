@@ -35,7 +35,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 		// Is this IP authorized?
 		$pass = false;
 		foreach ($authorized_ips as $ip) {
-			if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip))) {
+			if(substr($ip,0,strlen($ip)) == substr(DevblocksPlatform::getClientIp(),0,strlen($ip))) {
 				$pass = true;
 				break;
 			}
@@ -43,7 +43,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 		
 		if(!$pass) {
 			echo sprintf('Your IP address (%s) is not authorized to debug this helpdesk.  Your administrator needs to authorize your IP in Helpdesk Setup or in the framework.config.php file under AUTHORIZED_IPS_DEFAULTS.',
-				DevblocksPlatform::strEscapeHtml($_SERVER['REMOTE_ADDR'])
+				DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getClientIp())
 			);
 			return;
 		}

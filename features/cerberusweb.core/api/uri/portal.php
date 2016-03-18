@@ -129,7 +129,7 @@ class ChPortalHelper {
 				// [TODO] We don't need to be storing this in the cookie
 				self::$_fingerprint = array(
 					'browser' => @$_SERVER['HTTP_USER_AGENT'],
-					'ip' => @$_SERVER['REMOTE_ADDR'],
+					'ip' => DevblocksPlatform::getClientIp(),
 					'local_sessid' => session_id(),
 					'started' => time(),
 				);

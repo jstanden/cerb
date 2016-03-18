@@ -431,6 +431,20 @@ abstract class DevblocksEngine {
 		return $manifest;
 	}
 
+	static function getClientIp() {
+		if(null == ($ip = @$_SERVER['REMOTE_ADDR']))
+			return null;
+		
+		/*
+		 * It's possible to have multiple REMOTE_ADDR listed when an upstream sets 
+		 * it based on X-Forwarded-For, etc.
+		 */
+		if($ips = DevblocksPlatform::parseCsvString($ip) && is_array($ips) && count($ips) > 1)
+			$ip = array_shift($ips);
+		
+		return $ip;
+	}
+	
 	static function getWebPath() {
 		$location = "";
 
@@ -606,7 +620,7 @@ abstract class DevblocksEngine {
 				// ...and the CSRF token is invalid for this session, freak out
 				if(!isset($_SESSION['csrf_token']) || $_SESSION['csrf_token'] != $request->csrf_token) {
 					@$referer = $_SERVER['HTTP_REFERER'];
-					@$remote_addr = $_SERVER['REMOTE_ADDR'];
+					@$remote_addr = DevblocksPlatform::getClientIp();
 					
 					error_log(sprintf("[Cerb/Security] Possible CSRF attack from IP %s using referrer %s", $remote_addr, $referer), E_USER_WARNING);
 					DevblocksPlatform::dieWithHttpError("Access denied", 403);

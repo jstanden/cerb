@@ -41,11 +41,11 @@ class ChCronController extends DevblocksControllerExtension {
 		
 		$pass = false;
 		foreach ($authorized_ips as $ip) {
-			if(substr($ip,0,strlen($ip)) == substr($_SERVER['REMOTE_ADDR'],0,strlen($ip)))
+			if(substr($ip,0,strlen($ip)) == substr(DevblocksPlatform::getClientIp(),0,strlen($ip)))
 		 	{ $pass=true; break; }
 		}
 		if(!$pass) {
-			echo vsprintf($translate->_('cron.ip_unauthorized'), DevblocksPlatform::strEscapeHtml($_SERVER['REMOTE_ADDR']));
+			echo vsprintf($translate->_('cron.ip_unauthorized'), DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getClientIp()));
 			return;
 		}
 		

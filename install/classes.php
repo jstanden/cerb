@@ -65,7 +65,7 @@ class CerberusInstaller {
 		
 		if(!$fp_in) return FALSE;
 		
-		@$client_ip = (string) $_SERVER['REMOTE_ADDR'];
+		@$client_ip = (string) DevblocksPlatform::getClientIp();
 		
 		while(!feof($fp_in)) {
 			$line = fgets($fp_in);

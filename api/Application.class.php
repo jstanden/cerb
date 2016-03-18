@@ -2360,7 +2360,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		$user_id = !is_null($active_worker) ? $active_worker->id : 0;
-		$user_ip = $_SERVER['REMOTE_ADDR'];
+		$user_ip = DevblocksPlatform::getClientIp();
 		$user_agent = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
 
 		$db = DevblocksPlatform::getDatabaseService();
