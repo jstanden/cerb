@@ -235,6 +235,70 @@ if(!empty($changes)) {
 }
 
 // ===========================================================================
+// Optimize storage_attachments indexes
+
+if(isset($tables['storage_attachments'])) {
+	list($columns, $indexes) = $db->metaTable('storage_attachments');
+	
+	$changes = array();
+	
+	if(isset($indexes['chunk']))
+		$changes[] = 'drop index chunk';
+	
+	if(!empty($changes)) {
+		$sql = sprintf("ALTER TABLE storage_attachments %s", implode(', ', $changes));
+		$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	}
+}
+
+// ===========================================================================
+// Optimize storage_message_content indexes
+
+if(isset($tables['storage_message_content'])) {
+	list($columns, $indexes) = $db->metaTable('storage_message_content');
+	
+	$changes = array();
+	
+	if(isset($indexes['chunk']))
+		$changes[] = 'drop index chunk';
+	
+	if(!empty($changes)) {
+		$sql = sprintf("ALTER TABLE storage_message_content %s", implode(', ', $changes));
+		$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	}
+}
+
+// ===========================================================================
+// Optimize custom field indexes
+
+$custom_field_tables = array('custom_field_stringvalue', 'custom_field_numbervalue', 'custom_field_clobvalue');
+
+foreach($custom_field_tables as $custom_field_table) {
+	if(!isset($tables[$custom_field_table])) {
+		$logger->error(sprintf("The '%s' table does not exist.", $custom_field_table));
+		return FALSE;
+	}
+	
+	list($columns, $indexes) = $db->metaTable($custom_field_table);
+	
+	$changes = array();
+	
+	if(isset($indexes['context']))
+		$changes[] = 'drop index context';
+	
+	if(isset($indexes['source_id']))
+		$changes[] = 'drop index source_id';
+	
+	if(!isset($indexes['context_and_id']))
+		$changes[] = 'add index context_and_id (context, context_id)';
+	
+	if(!empty($changes)) {
+		$sql = sprintf("ALTER TABLE %s %s", $custom_field_table, implode(', ', $changes));
+		$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	}
+}
+
+// ===========================================================================
 // Consolidate ticket status fields
 
 if(!isset($tables['ticket'])) {
