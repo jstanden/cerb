@@ -439,7 +439,7 @@ abstract class DevblocksEngine {
 		 * It's possible to have multiple REMOTE_ADDR listed when an upstream sets 
 		 * it based on X-Forwarded-For, etc.
 		 */
-		if($ips = DevblocksPlatform::parseCsvString($ip) && is_array($ips) && count($ips) > 1)
+		if(false != ($ips = DevblocksPlatform::parseCsvString($ip)) && is_array($ips) && count($ips) > 1)
 			$ip = array_shift($ips);
 		
 		return $ip;
