@@ -38,6 +38,7 @@ class ChCronController extends DevblocksControllerExtension {
 		$authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
 		
 		@$is_ignoring_wait = DevblocksPlatform::importGPC($_REQUEST['ignore_wait'],'integer',0);
+		@$is_ignoring_internal = DevblocksPlatform::importGPC($_REQUEST['ignore_internal'],'integer',0);
 		
 		$pass = false;
 		foreach ($authorized_ips as $ip) {
@@ -62,11 +63,12 @@ class ChCronController extends DevblocksControllerExtension {
 		$logger->info(sprintf("[Scheduler] Set Time Limit: %d seconds", $time_left));
 		
 		if($reload) {
-			$reload_url = sprintf("%s?reload=%d&loglevel=%d&ignore_wait=%d",
+			$reload_url = sprintf("%s?reload=%d&loglevel=%d&ignore_wait=%d&ignore_internal=%d",
 				$url->write('c=cron' . ($job_ids ? ("&a=".$job_ids) : "")),
 				intval($reload),
 				intval($loglevel),
-				intval($is_ignoring_wait)
+				intval($is_ignoring_wait),
+				intval($is_ignoring_internal)
 			);
 			echo "<HTML>".
 			"<HEAD>".
@@ -81,6 +83,26 @@ class ChCronController extends DevblocksControllerExtension {
 		$jobs = array();
 		
 		if(empty($job_ids)) { // do everything
+			if($is_ignoring_internal) {
+				$cron_manifests = array_filter($cron_manifests, function($instance) {
+					switch($instance->id) {
+						case 'cron.mailbox':
+						case 'cron.parser':
+						case 'cron.maint':
+						case 'cron.heartbeat':
+						case 'cron.import':
+						case 'cron.storage':
+						case 'cron.search':
+						case 'cron.mail_queue':
+						case 'cron.virtual_attendant.scheduled_behavior':
+							return false;
+							break;
+					}
+					
+					return true;
+				});
+			}
+			
 			if(is_array($cron_manifests))
 			foreach($cron_manifests as $idx => $instance) { /* @var $instance CerberusCronPageExtension */
 				if($instance->isReadyToRun($is_ignoring_wait)) {
