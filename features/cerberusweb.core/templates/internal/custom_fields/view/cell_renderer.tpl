@@ -16,7 +16,7 @@
 {elseif $col->type==Model_CustomField::TYPE_MULTI_CHECKBOX}
 	<td>
 		{$opts = DevblocksPlatform::parseCrlfString($result.$column)}
-		{DevblocksPlatform::sortObjects($opts)}
+		{$null = sort($opts)}
 		{foreach from=$opts item=opt name=opts}
 			<span>{$opt}</span>{if !$smarty.foreach.opts.last}, {/if}
 		{/foreach}
