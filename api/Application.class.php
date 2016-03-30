@@ -2723,9 +2723,10 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 
 			// If we have multiple values but we don't need to WHERE the JOIN, be efficient and don't GROUP BY
 			if(!Cerb_ORMHelper::paramExistsInSet('cf_'.$field_id, $params)) {
-				$select_sql .= sprintf(",(SELECT %s FROM %s WHERE %s=context_id AND field_id=%d ORDER BY field_value%s) AS %s ",
+				$select_sql .= sprintf(",(SELECT %s FROM %s WHERE context=%s AND %s=context_id AND field_id=%d ORDER BY field_value%s) AS %s ",
 					($has_multiple_values ? 'GROUP_CONCAT(field_value SEPARATOR "\n")' : 'field_value'),
 					$value_table,
+					Cerb_ORMHelper::qstr($custom_fields[$field_id]->context),
 					$field_key,
 					$field_id,
 					($has_multiple_values ? '' : ' LIMIT 1'),
@@ -2738,9 +2739,11 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 					$field_table
 				);
 
-				$join_sql .= sprintf("LEFT JOIN %s %s ON (%s=%s.context_id AND %s.field_id=%d) ",
+				$join_sql .= sprintf("LEFT JOIN %s %s ON (%s.context = %s AND %s=%s.context_id AND %s.field_id=%d) ",
 					$value_table,
 					$field_table,
+					$field_table,
+					Cerb_ORMHelper::qstr($custom_fields[$field_id]->context),
 					$field_key,
 					$field_table,
 					$field_table,
@@ -2752,7 +2755,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 					$return_multiple_values = true;
 			}
 		}
-
+		
 		return array($select_sql, $join_sql, $return_multiple_values);
 	}
 

@@ -2378,7 +2378,8 @@ abstract class C4_AbstractView {
 				
 				$sql =
 					sprintf(
-						"SELECT COUNT(*) AS hits, IFNULL((SELECT field_value FROM custom_field_numbervalue WHERE %s=context_id AND field_id=%d LIMIT 1),0) AS %s ", //SQL_CALC_FOUND_ROWS
+						"SELECT COUNT(*) AS hits, IFNULL((SELECT field_value FROM custom_field_numbervalue WHERE context=%s AND %s=context_id AND field_id=%d LIMIT 1),0) AS %s ", //SQL_CALC_FOUND_ROWS
+						$db->qstr($cfield->context),
 						$primary_key,
 						$field_id,
 						$field_key
