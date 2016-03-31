@@ -171,9 +171,6 @@ class CerberusMail {
 				$mail->setSubject($subject);
 			}
 			
-			// Generate a message-id
-			$mail->generateId();
-			
 			$headers = $mail->getHeaders();
 			
 			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
@@ -366,7 +363,6 @@ class CerberusMail {
 			}
 			
 			$email->setSubject($subject_mailed);
-			$email->generateId();
 			
 			$headers = $email->getHeaders();
 			
@@ -422,6 +418,9 @@ class CerberusMail {
 					}
 				}
 			}
+			
+			$outgoing_mail_headers = $email->getHeaders()->toString();
+			$outgoing_message_id = $email->getHeaders()->get('message-id')->getFieldBody();
 			
 			if(!empty($toList) && (!isset($properties['dont_send']) || empty($properties['dont_send']))) {
 				if(!$mail_service->send($email)) {
@@ -514,7 +513,7 @@ class CerberusMail {
 			DAO_Message::WORKER_ID => intval($worker_id),
 			DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 			DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
-			DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($email->getHeaders()->get('message-id')->getFieldBody()),
+			DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($outgoing_message_id),
 		);
 		$message_id = DAO_Message::create($fields);
 		
@@ -528,7 +527,7 @@ class CerberusMail {
 		
 		// Headers
 		$email->getHeaders()->addTextHeader('X-CerberusCompose', 1);
-		DAO_MessageHeaders::upsert($message_id, $email->getHeaders()->toString());
+		DAO_MessageHeaders::upsert($message_id, $outgoing_mail_headers);
 		
 		// add files to ticket
 		if (is_array($files) && !empty($files)) {
@@ -715,9 +714,7 @@ class CerberusMail {
 			} else {
 				$mail->setFrom($from_replyto->email);
 			}
-			
-			$mail->generateId();
-			
+
 			$headers = $mail->getHeaders();
 			
 			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
@@ -888,6 +885,8 @@ class CerberusMail {
 
 			// Send
 			$recipients = $mail->getTo();
+			$outgoing_mail_headers = $mail->getHeaders()->toString();
+			$outgoing_message_id = $mail->getHeaders()->get('message-id')->getFieldBody();
 			
 			// If blank recipients or we're not supposed to send
 			if(empty($recipients) || (isset($properties['dont_send']) && $properties['dont_send'])) {
@@ -998,7 +997,7 @@ class CerberusMail {
 				DAO_Message::RESPONSE_TIME => $response_time,
 				DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 				DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
-				DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($mail->getHeaders()->get('message-id')->getFieldBody())
+				DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($outgoing_message_id),
 			);
 			$message_id = DAO_Message::create($fields);
 			
@@ -1015,7 +1014,7 @@ class CerberusMail {
 			Storage_MessageContent::put($message_id, $content);
 
 			// Save cached headers
-			DAO_MessageHeaders::upsert($message_id, $mail->getHeaders()->toString());
+			DAO_MessageHeaders::upsert($message_id, $outgoing_mail_headers);
 			
 			// Attachments
 			if (is_array($files) && !empty($files)) {

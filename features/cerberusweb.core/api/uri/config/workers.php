@@ -174,7 +174,6 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 							}
 							
 							$mail->setSubject('Your new Cerb login information!');
-							$mail->generateId();
 							
 							$headers = $mail->getHeaders();
 							
