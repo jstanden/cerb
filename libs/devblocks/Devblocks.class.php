@@ -2708,6 +2708,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function dieWithHttpError($message, $status_code=500) {
+		
+		if(php_sapi_name() != 'cli')
 		switch($status_code) {
 			case 403:
 				header('Status: 403 Forbidden');

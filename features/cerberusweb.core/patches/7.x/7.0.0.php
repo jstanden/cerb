@@ -3,9 +3,15 @@ $db = DevblocksPlatform::getDatabaseService();
 $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
+// ===========================================================================
 // Log everybody out since this is a major upgrade
-$session = DevblocksPlatform::getSessionService();
-$session->clearAll();
+
+if(!isset($tables['devblocks_session'])) {
+	$logger->error("The 'devblocks_session' table does not exist.");
+	return FALSE;
+}
+
+$db->ExecuteMaster("DELETE FROM devblocks_session");
 
 // ===========================================================================
 // Fix the `plugin_library` latest_version field

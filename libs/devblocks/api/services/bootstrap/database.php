@@ -312,7 +312,7 @@ class _DevblocksDatabaseManager {
 					$sql
 				);
 				
-				if(DEVELOPMENT_MODE) {
+				if(DEVELOPMENT_MODE && php_sapi_name() != 'cli') {
 					trigger_error($error_msg, E_USER_WARNING);
 				} else {
 					error_log($error_msg);
