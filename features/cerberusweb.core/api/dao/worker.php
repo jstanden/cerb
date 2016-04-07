@@ -242,7 +242,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$workers = array_filter($workers, function($worker) use ($at_mentions) {
 			foreach($at_mentions as $at_mention) {
-				if($worker->at_mention_name && 0 == strcasecmp($at_mention, $worker->at_mention_name)) {
+				if($worker->at_mention_name && 0 == strcasecmp(ltrim($at_mention, '@'), $worker->at_mention_name)) {
 					return true;
 				}
 			}
