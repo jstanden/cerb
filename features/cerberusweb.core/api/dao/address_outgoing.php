@@ -74,7 +74,7 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 				return false;
 			
 			if(false == ($froms = self::_getObjectsFromResultSet($rs)) || !is_array($froms))
-				return false;
+				return array();
 			
 			$cache->save($froms, self::_CACHE_ALL);
 		}
