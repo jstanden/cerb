@@ -1,33 +1,11 @@
-<h2>Software License</h2>
+<h2>Software License Agreement</h2>
 
 <form action="index.php" method="POST">
 <input type="hidden" name="step" value="{$smarty.const.STEP_LICENSE}">
 <input type="hidden" name="form_submit" value="1">
 
-<h3>Plain English License</h3>
-
-<ul style="line-height:175%;margin:20px;">
-	<li>This software is the exclusive property and copyright of <b>Webgroup Media LLC ("WGM")</b>.</li>
-	<li>You may not resell, rebrand, or sub-license this software without written permission from the copyright holders.</li>
-	<li>You may not remove or alter any copyright notices found in the source code.</li>
-	<li>This software is provided to you "as is". You agree that under no condition shall you hold Webgroup Media LLC liable for more than the total amount paid by you directly to WGM for licensing, subscriptions, and services.</li>
-	<li>
-		You may create, adapt, sell, and distribute improvements to this software pursuant to the following conditions:
-		<ul>
-			<li>You retain the copyright to any plugins you create, and you may sell or distribute them under any license you choose.</li>
-			<li>By publicly sharing your code improvements and fixes ("patches") for inclusion into the core project (including, but not limited to, GitHub pull requests), you agree to disclaim all your copyright interests in such code.</li>
-			<li>Your source code may not be obfuscated, encoded, or otherwise unreadable by humans with a standard text editor.</li>
-			<li>You agree that WGM is not liable for the effects of any third-party plugins that you produce or install.</li>
-		</ul> 
-	</li>
-</ul>
-
-<h3>Legal</h3>
-
-<div style="width:90%;height:200px;border:1px solid rgb(160,160,160);overflow:auto;margin:5px;padding:5px;">
-	<p
-	>Cerb - Copyright &copy; 2002-2015 Webgroup Media LLC.</p
-	><h1 id="devblocks-public-license-1.0-dpl"
+<div style="width:90%;height:400px;border:1px solid rgb(160,160,160);overflow:auto;margin:5px;padding:5px;">
+	<h1 id="devblocks-public-license-1.0-dpl"
 	>Devblocks Public License 1.0 (DPL)</h1
 	><p
 	>The following are the terms and conditions by which Webgroup Media LLC (&quot;Licensor&quot;) grants you a License to use, modify, and redistribute this software, which is protected as the exclusive intellectual property of Licensor by U.S. copyright law.</p
@@ -85,9 +63,9 @@
 	    ><li
 	      >You must not alter or obliterate any copyright notices found in this software or its source code.</li
 	      ><li
-	      >Your website and documentation must provide a clear link to this software's official website. You must clearly state that your modifications are an unofficial version that is derived from this software.</li
+	      >Your website and documentation must provide a clearly visible link to this software's official website. You must clearly state that your modifications are an unofficial version that is derived from this software.</li
 	      ><li
-	      >You are not permitted to produce or disseminate any technology or modifications to this software or source code which circumvent its digital copyright protection or interfere with the enforcement of per-seat licensing.</li
+	      >You are not permitted to produce or disseminate any technology or modifications to this software or source code which circumvent its digital copyright protection or interfere with the enforcement of its licensing.</li
 	      ><li
 	      >This software must remain compatible with digital software licenses authorized and issued exclusively by Licensor.</li
 	      ><li
