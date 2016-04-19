@@ -37,13 +37,13 @@ received.<br>
 <br>
 
 <b>What email address should be the default sender for outgoing email?</b><br>
-<input type="text" name="default_reply_from" value="{$default_reply_from}" size="64">
-(e.g. support@yourcompany.com)
+<input type="text" name="default_reply_from" value="{$default_reply_from}" placeholder="support@example.com" size="64">
+(e.g. support@example.com)
 <br>
 <br>
 
 <b>Would you like to use a personalized sender name for outgoing email?</b> (optional)<br>
-<input type="text" name="default_reply_personal" value="{$default_reply_personal}" size="64">
+<input type="text" name="default_reply_personal" value="{$default_reply_personal}" placeholder="Example, Inc." size="64">
 (e.g. "Acme Widgets Helpdesk")
 <br>
 <br>

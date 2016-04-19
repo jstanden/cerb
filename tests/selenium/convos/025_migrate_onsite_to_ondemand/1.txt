@@ -1,10 +1,10 @@
 From: Charlotte Bailey <c.bailey@twinton.example>
 To: support@cerb.example
 Content-Type: text/plain; charset=utf-8
-Subject: Migration from On-Site to On-Demand
+Subject: Migration from standalone to Cerb Cloud
 Message-Id: <convo25.msg1@cerb.example>
 
-We currently host the Cerb system on our own network and are considering moving to your managed On-Demand service.
+We currently host the Cerb system on our own network and are considering moving to your managed Cerb Cloud service.
 
 Is it possible to import our existing data?
 

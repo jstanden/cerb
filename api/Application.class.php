@@ -2279,7 +2279,7 @@ class CerberusSettings {
 };
 
 class CerberusSettingsDefaults {
-	const HELPDESK_TITLE = 'Cerb - a fast and flexible web-based platform for enterprise collaboration, productivity, and automation.';
+	const HELPDESK_TITLE = 'Cerb - a fast, flexible toolkit for web-based collaboration and workflow automation';
 	const ATTACHMENTS_ENABLED = 1;
 	const ATTACHMENTS_MAX_SIZE = 10;
 	const PARSER_AUTO_REQ = 0;
