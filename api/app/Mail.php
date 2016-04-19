@@ -134,7 +134,7 @@ class CerberusMail {
 			
 			if(empty($from_addy) || empty($from_personal)) {
 				if(null == ($replyto_default = DAO_AddressOutgoing::getDefault()))
-					throw new Exception("There is no default reply-to.");
+					throw new Exception("There is no default sender address.");
 				
 				if(empty($from_addy))
 					$from_addy = $replyto_default->email;

@@ -417,8 +417,8 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 
 					case 'mail_from':
 						$tour = array(
-							'title' => 'Reply-To Addresses',
-							'body' => "Each group or bucket can specify a reply-to address.  This is where you configure all the available reply-to email addresses.  It is <b>very important</b> that these addresses deliver to one of the mailboxes that Cerb checks for new mail, otherwise you won't receive correspondence from your audience.",
+							'title' => 'Sender Addresses',
+							'body' => "Each group or bucket can specify a sender address.  This is where you configure all the available sender addresses.  It is <b>very important</b> that these addresses deliver to one of the mailboxes that Cerb checks for new mail, otherwise you won't receive correspondence from your audience.",
 						);
 						break;
 

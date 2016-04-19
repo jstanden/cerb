@@ -3930,7 +3930,7 @@ class DevblocksEventHelper {
 		$replyto_default = DAO_AddressOutgoing::getDefault();
 		
 		if(empty($replyto_default))
-			return "[ERROR] There is no default reply-to address.  Please configure one from Setup->Mail";
+			return "[ERROR] There is no default sender address.  Please configure one from Setup->Mail";
 		
 		@$from_address_id = $params['from_address_id'];
 		

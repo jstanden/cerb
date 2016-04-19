@@ -85,13 +85,13 @@
 	
 	<label>
 		<input type="checkbox" name="is_default" value="1" {if $address->is_default}checked="checked"{/if}> 
-		This will be used as the reply-to address for outgoing mail when no other preference exists.
+		This will be used as the sender address for outgoing mail when no other preference exists.
 	</label>
 </fieldset>
 
 <fieldset class="delete" style="display:none;">
-	<legend>Are you sure you want to delete this reply-to address?</legend>
-	<p>Any groups or buckets using this reply-to address will be reverted to defaults.</p>
+	<legend>Are you sure you want to delete this sender address?</legend>
+	<p>Any groups or buckets using this sender address will be reverted to defaults.</p>
 	<button name="form_action" type="submit" value="delete" class="green"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.yes'|devblocks_translate|capitalize}</button>
 	<button name="form_action" type="button" class="red" onclick="$(this).closest('fieldset').nextAll('.toolbar').show();$(this).closest('fieldset').hide();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
@@ -108,7 +108,7 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title', 'Reply-To Address');
+		$(this).dialog('option','title', 'Sender Address');
 		
 		$('#frmAddyOutgoingPeek select[name=sig_from_token]').change(function(e) {
 			var $select=$(this)

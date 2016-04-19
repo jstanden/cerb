@@ -1,4 +1,4 @@
-<h2>Reply-To Addresses</h2>
+<h2>Sender Addresses</h2>
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupMailFrom" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
