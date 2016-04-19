@@ -791,6 +791,9 @@ class CerberusParser {
 				continue;
 			}
 			
+			$content_type = strtolower(isset($section->data['content-type']) ? $section->data['content-type'] : '');
+			$content_filename = self::_getMimePartFilename($section);
+			
 			$attach = new ParseFileBuffer($section);
 			
 			// Make sure our attachment is under the max preferred size
