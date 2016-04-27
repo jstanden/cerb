@@ -3597,7 +3597,7 @@ class DevblocksEventHelper {
 		// Run in simulator
 		@$run_in_simulator = !empty($params['run_in_simulator']);
 		if($run_in_simulator) {
-			$this->run($token, $trigger, $params, $dict);
+			self::runActionCreateTask($params, $dict, $default_on);
 		}
 
 		return $out;
@@ -3764,7 +3764,7 @@ class DevblocksEventHelper {
 		// Run in simulator
 		@$run_in_simulator = !empty($params['run_in_simulator']);
 		if($run_in_simulator) {
-			$this->run($token, $trigger, $params, $dict);
+			self::runActionCreateTicket($params, $dict);
 		}
 		
 		return $out;
