@@ -3,7 +3,7 @@
 </div>
 
 <div style="float:left;">
-	<h2>Mailbox Accounts</h2>
+	<h2>Mailboxes</h2>
 </div>
 
 <div style="clear:both;"></div>
