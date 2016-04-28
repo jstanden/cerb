@@ -276,7 +276,7 @@ class ChSignInPage extends CerberusPageExtension {
 		$online_workers = DAO_Worker::getAllOnline(PHP_INT_MAX, 0);
 		$max = intval(max($honesty->w, 1));
 		
-		if($max <= count($online_workers) && $max < 100) {
+		if($max <= count($online_workers) && $max != 100) {
 			// Try to free up (n) seats (n = seats used - seat limit + 1)
 			$online_workers = DAO_Worker::getAllOnline(600, count($online_workers) - $max + 1);
 			

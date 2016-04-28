@@ -127,7 +127,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		}
 		
 		// Most idle workers first
-		arsort($workers_by_last_activity);
+		asort($workers_by_last_activity);
 		
 		foreach($workers_by_last_activity as $worker_id => $last_activity) {
 			if(!isset($workers[$worker_id]))
