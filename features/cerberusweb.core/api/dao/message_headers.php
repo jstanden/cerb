@@ -48,7 +48,7 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 		if(false === ($raw_headers = $db->GetOneSlave($sql)))
 			return false;
 		
-		return ltrim($raw_headers);
+		return trim($raw_headers) . "\r\n\r\n";
 	}
 	
 	static function getAll($message_id, $flatten_arrays=true) {
