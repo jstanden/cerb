@@ -62,6 +62,8 @@
 	</tr>
 </table>
 
+<script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/async-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+
 <script type="text/javascript">
 	// Page title
 	
@@ -69,46 +71,24 @@
 
 	// Widget loader
 	
-	$.widgetAjaxLoader = function() {
-		this.widget_ids = [];
-		this.is_running = false;
-	};
+	var async_tasks = [];
 	
-	$.widgetAjaxLoader.prototype = {
-		add: function(widget_id) {
-			this.widget_ids.push(widget_id);
-			this.next();
-		},
-		
-		next: function() {
-			if(this.widget_ids.length == 0)
-				return;
-			
-			if(this.is_running == true)
-				return;
-			
-			var widget_id = this.widget_ids.shift();
-			var loader = this;
-			var $div = $('#widget' + widget_id);
-			
-			var cb = function() {
-				loader.is_running = false;
-				loader.next();
-			}
-
-			this.is_running = true;
-			genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id, cb);
-		},
-	};
-	
-	var $widgetAjaxLoader = new $.widgetAjaxLoader();
+	var cerbLoadWidget = function(widget_id, callback) {
+		genericAjaxGet('widget' + widget_id, 'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id, function() {
+			callback(null);
+		});
+	}
 	
 	{foreach from=$columns item=widgets}
 		{foreach from=$widgets item=widget key=widget_id}
 			if(!$('#widget{$widget_id}').is('.widget-preloaded'))
-				$widgetAjaxLoader.add({$widget_id});
+				async_tasks.push(async.apply(cerbLoadWidget, '{$widget_id}'));
 		{/foreach}
 	{/foreach}
+	
+	async.parallelLimit(async_tasks, 3, function(err, data) {
+		// Done!
+	});
 	
 	try {
 		clearInterval(window.dashboardTimer{$workspace_tab->id});
@@ -130,8 +110,8 @@
 	} catch(e) {
 	}
 
-	$frm = $('#frmAddWidget{$workspace_tab->id} button.add_widget').click(function(e) {
-		$popup = genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id=0&workspace_tab_id={$workspace_tab->id}',null,false,'500');
+	var $frm = $('#frmAddWidget{$workspace_tab->id} button.add_widget').click(function(e) {
+		var $popup = genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id=0&workspace_tab_id={$workspace_tab->id}',null,false,'500');
 		$popup.one('new_widget', function(e) {
 			if(null == e.widget_id)
 				return;
@@ -139,10 +119,10 @@
 			var widget_id = e.widget_id;
 			
 			// Create the widget DOM
-			$new_widget = $('<div class="dashboard-widget"></div>').attr('id','widget' + widget_id);
+			var $new_widget = $('<div class="dashboard-widget"></div>').attr('id','widget' + widget_id);
 			
 			// Append it to the first column
-			$dashboard = $('#dashboard{$workspace_tab->id}');
+			var $dashboard = $('#dashboard{$workspace_tab->id}');
 			
 			$dashboard.find('tr td:first').prepend($new_widget);
 			
@@ -171,8 +151,6 @@
 	);
 	
 	$dashboard.on('reorder', function(e) {
-		$dashboard = $(this);
-		
 		var $tr = $dashboard.find('TBODY > TR');
 		var widget_positions = '';
 		
