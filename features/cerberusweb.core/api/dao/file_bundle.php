@@ -244,7 +244,7 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 				break;
 		}
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'file_bundle.id');
 
 		$select_sql = sprintf("SELECT ".
 			"file_bundle.id as %s, ".

@@ -267,7 +267,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Mailbox::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'mailbox.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"mailbox.id as %s, ".

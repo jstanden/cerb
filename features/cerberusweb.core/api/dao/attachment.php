@@ -193,7 +193,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Attachment::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields, $sortBy, array(), 'a.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
@@ -1364,7 +1364,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_AttachmentLink::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields, $sortBy, array(), 'al.attachment_id');
 		
 		$select_sql = sprintf("SELECT ".
 			"al.attachment_id as %s, ".

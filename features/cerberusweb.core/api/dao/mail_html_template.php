@@ -201,7 +201,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_MailHtmlTemplate::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'mail_html_template.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"mail_html_template.id as %s, ".

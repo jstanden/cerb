@@ -324,7 +324,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_TriggerEvent::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'trigger_event.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"trigger_event.id as %s, ".

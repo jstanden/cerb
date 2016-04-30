@@ -859,7 +859,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_KbCategory::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'kbc.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"kbc.id as %s, ".

@@ -239,7 +239,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WorkspacePage::getFields();
 
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'workspace_page.id');
 
 		$select_sql = sprintf("SELECT ".
 			"workspace_page.id as %s, ".
@@ -592,7 +592,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Workspace::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'workspace_tab.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"workspace_tab.id as %s, ".

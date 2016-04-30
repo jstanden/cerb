@@ -245,7 +245,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DecisionNode::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'decision_node.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"decision_node.id as %s, ".

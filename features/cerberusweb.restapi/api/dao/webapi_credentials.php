@@ -156,7 +156,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WebApiCredentials::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'webapi_credentials.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"webapi_credentials.id as %s, ".

@@ -194,7 +194,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContextActivityLog::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'context_activity_log.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"context_activity_log.id as %s, ".

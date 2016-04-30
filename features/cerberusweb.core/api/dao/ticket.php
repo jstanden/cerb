@@ -1639,7 +1639,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			SearchFields_Ticket::REQUESTER_ADDRESS,
 		);
 		
-		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, $ignore_params);
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, $ignore_params, 't.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".
@@ -1791,7 +1791,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		switch($param_key) {
 			case SearchFields_Ticket::REQUESTER_ID:
 				$fields = SearchFields_Ticket::getFields();
-				$where_sql = $param->getWhereSQL($fields);
+				$where_sql = $param->getWhereSQL($fields, $from_index);
 				
 				$args['join_sql'] .= sprintf("INNER JOIN (".
 					"SELECT DISTINCT r.ticket_id ".
@@ -1804,7 +1804,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
 				$fields = SearchFields_Ticket::getFields();
-				$where_sql = $param->getWhereSQL($fields);
+				$where_sql = $param->getWhereSQL($fields, $from_index);
 				
 				$args['join_sql'] .= sprintf("INNER JOIN (".
 					"SELECT DISTINCT r.ticket_id ".

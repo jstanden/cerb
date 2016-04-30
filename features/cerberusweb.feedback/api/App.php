@@ -206,7 +206,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_FeedbackEntry::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns,$fields,$sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'f.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"f.id as %s, ".

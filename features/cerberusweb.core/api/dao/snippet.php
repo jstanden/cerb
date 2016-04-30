@@ -244,7 +244,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 				break;
 		}
 		
-		list($tables, $wheres, $null) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables, $wheres, $null) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'snippet.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"snippet.id as %s, ".

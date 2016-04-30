@@ -297,7 +297,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Task::getFields();
 		
-		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 't.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"t.id as %s, ".

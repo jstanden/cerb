@@ -2743,17 +2743,15 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 					$field_table
 				);
 
-				$join_sql .= sprintf("LEFT JOIN %s %s ON (%s.context = %s AND %s=%s.context_id AND %s.field_id=%d) ",
+				$join_sql .= sprintf("LEFT JOIN (SELECT context_id, field_value FROM %s WHERE context = %s AND field_id=%d) AS %s ON (%s.context_id=%s) ",
 					$value_table,
-					$field_table,
-					$field_table,
 					Cerb_ORMHelper::qstr($custom_fields[$field_id]->context),
-					$field_key,
+					$field_id,
 					$field_table,
 					$field_table,
-					$field_id
+					$field_key
 				);
-
+				
 				// If we do need to WHERE this JOIN, make sure we GROUP BY
 				if($has_multiple_values)
 					$return_multiple_values = true;

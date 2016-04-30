@@ -162,7 +162,7 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ConfirmationCode::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'confirmation_code.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"confirmation_code.id as %s, ".

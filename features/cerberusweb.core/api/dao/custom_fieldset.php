@@ -289,7 +289,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CustomFieldset::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'custom_fieldset.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"custom_fieldset.id as %s, ".

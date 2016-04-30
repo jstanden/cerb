@@ -175,7 +175,7 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ExampleObject::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'example_object.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"example_object.id as %s, ".

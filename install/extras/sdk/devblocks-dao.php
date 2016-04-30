@@ -275,7 +275,7 @@ foreach($fields as $field_name => $field_type) {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_<?php echo $class_name; ?>::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), '<?php echo $table_name; ?>.id');
 		
 		$select_sql = sprintf("SELECT ".
 <?php

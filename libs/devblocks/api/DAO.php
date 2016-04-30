@@ -166,7 +166,7 @@ abstract class DevblocksORMHelper {
 		$db->ExecuteMaster($sql);
 	}
 	
-	static protected function _parseSearchParams($params,$columns=array(),$fields,$sortBy='',$ignore_params=array()) {
+	static protected function _parseSearchParams($params, $columns=array(),$fields,$sortBy='',$ignore_params=array(), $pkey=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$tables = array();
@@ -216,7 +216,7 @@ abstract class DevblocksORMHelper {
 			
 			// Is this a criteria group (OR, AND)?
 			if(is_array($param)) {
-				$where = self::_parseNestedSearchParams($param, $tables, $fields, $ignore_params);
+				$where = self::_parseNestedSearchParams($param, $tables, $fields, $ignore_params, $pkey);
 				
 			// Is this a single parameter?
 			} elseif($param instanceOf DevblocksSearchCriteria) { /* @var $param DevblocksSearchCriteria */
@@ -231,7 +231,7 @@ abstract class DevblocksORMHelper {
 				
 				// Indexes for optimization
 				$tables[$fields[$param->field]->db_table] = $fields[$param->field]->db_table;
-				$where = $param->getWhereSQL($fields);
+				$where = $param->getWhereSQL($fields, $pkey);
 			}
 			
 			if(!empty($where)) {
@@ -242,7 +242,7 @@ abstract class DevblocksORMHelper {
 		return array($tables, $wheres, $selects);
 	}
 	
-	static private function _parseNestedSearchParams($param, &$tables, $fields, $ignore_params=array()) {
+	static private function _parseNestedSearchParams($param, &$tables, $fields, $ignore_params=array(), $pkey=null) {
 		$outer_wheres = array();
 		$group_wheres = array();
 		@$group_oper = strtoupper(array_shift($param));
@@ -251,9 +251,9 @@ abstract class DevblocksORMHelper {
 		switch($group_oper) {
 			case DevblocksSearchCriteria::GROUP_OR:
 			case DevblocksSearchCriteria::GROUP_AND:
-				foreach($param as $p) { /* @var $$p DevblocksSearchCriteria */
+				foreach($param as $p) { /* @var $p DevblocksSearchCriteria */
 					if(is_array($p)) {
-						$outer_wheres[] = self::_parseNestedSearchParams($p, $tables, $fields, $ignore_params);
+						$outer_wheres[] = self::_parseNestedSearchParams($p, $tables, $fields, $ignore_params, $pkey);
 						
 					} else {
 						// Skip virtuals
@@ -270,7 +270,7 @@ abstract class DevblocksORMHelper {
 						
 						// [JAS]: Indexes for optimization
 						$tables[$fields[$p->field]->db_table] = $fields[$p->field]->db_table;
-						$group_wheres[] = $p->getWhereSQL($fields);
+						$group_wheres[] = $p->getWhereSQL($fields, $pkey);
 						
 						$where = sprintf("%s",
 							implode(" $group_oper ", $group_wheres)
@@ -736,7 +736,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksTemplate::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'devblocks_template.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"devblocks_template.id as %s, ".
@@ -1185,7 +1185,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Translation::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields, $sortBy, array(), 'tl.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"tl.id as %s, ".
@@ -1499,7 +1499,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksStorageProfile::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'devblocks_storage_profile.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"devblocks_storage_profile.id as %s, ".

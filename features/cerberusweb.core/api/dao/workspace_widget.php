@@ -190,7 +190,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WorkspaceWidget::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'workspace_widget.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"workspace_widget.id as %s, ".

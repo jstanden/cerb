@@ -212,7 +212,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CommunityTool::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'ct.id');
 					
 		$select_sql = sprintf("SELECT ".
 			"ct.id as %s, ".

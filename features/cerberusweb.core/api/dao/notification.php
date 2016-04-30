@@ -414,7 +414,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Notification::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields, $sortBy, array(), 'we.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"we.id as %s, ".

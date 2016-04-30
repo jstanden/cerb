@@ -234,7 +234,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CalendarRecurringProfile::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'calendar_recurring_profile.id');
 		
 		$select_sql = sprintf("SELECT ".
 			"calendar_recurring_profile.id as %s, ".

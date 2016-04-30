@@ -383,7 +383,7 @@ class DevblocksSearchCriteria {
 		);
 	}
 	
-	public function getWhereSQL($fields) {
+	public function getWhereSQL($fields, $pkey) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$where = '';
 		
@@ -497,7 +497,7 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::OPER_NIN: // 'not in'
 				if(!is_array($this->value) && !is_string($this->value))
 					break;
-				
+					
 				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
 					$values = json_decode($this->value, true);
 					
@@ -524,22 +524,24 @@ class DevblocksSearchCriteria {
 				if(substr($this->field, 0, 3) == 'cf_') {
 					$field_id = substr($this->field, 3);
 					$custom_field = DAO_CustomField::get($field_id);
+					$field_value_table = DAO_CustomFieldValue::getValueTableName($field_id);
 					$has_multiple_values = Model_CustomField::hasMultipleValues($custom_field->type);
 				}
 					
+				$val_str = implode(",",$vals);
+
+				$where = sprintf("%s NOT IN (%s)",
+					$db_field_name,
+					$val_str
+				);
+				
 				if($has_multiple_values) {
-					$field_db_table = $fields[$this->field]->db_table;
-					
-					$where = sprintf("(%s.field_id, %s.context_id) NOT IN (SELECT field_id, context_id FROM custom_field_stringvalue WHERE field_value IN (%s))",
-						$field_db_table,
-						$field_db_table,
-						implode(",",$vals)
-					);
-					
-				} else {
-					$where = sprintf("%s NOT IN (%s)",
-						$db_field_name,
-						implode(",",$vals)
+					$where .= sprintf(" AND %s NOT IN (SELECT context_id FROM %s WHERE context = %s AND field_id = %d AND field_value IN (%s))",
+						$pkey,
+						$field_value_table,
+						$db->qstr($custom_field->context),
+						$field_id,
+						$val_str
 					);
 				}
 				
@@ -567,10 +569,9 @@ class DevblocksSearchCriteria {
 					$vals[$idx] = $db->qstr((string)$val);
 				}
 				
-				$where_in = '';
+				$where = '';
 				
 				if(empty($vals)) {
-					$where_in = '';
 					
 				} else {
 					$has_multiple_values = false;
@@ -578,31 +579,28 @@ class DevblocksSearchCriteria {
 					if(substr($this->field, 0, 3) == 'cf_') {
 						$field_id = substr($this->field, 3);
 						$custom_field = DAO_CustomField::get($field_id);
+						$field_value_table = DAO_CustomFieldValue::getValueTableName($field_id);
 						$has_multiple_values = Model_CustomField::hasMultipleValues($custom_field->type);
 					}
+					
+					$val_str = implode(",",$vals);
+					
+					$where = sprintf("(%s IS NULL OR %s NOT IN (%s))",
+						$db_field_name,
+						$db_field_name,
+						$val_str
+					);
 						
 					if($has_multiple_values) {
-						$field_db_table = $fields[$this->field]->db_table;
-						
-						$where_in = sprintf("(%s.field_id, %s.context_id) NOT IN (SELECT field_id, context_id FROM custom_field_stringvalue WHERE field_value IN (%s)) OR ",
-							$field_db_table,
-							$field_db_table,
-							implode(",",$vals)
+						$where .= sprintf(" AND %s NOT IN (SELECT context_id FROM %s WHERE context = %s AND field_id = %d AND field_value IN (%s))",
+							$pkey,
+							$field_value_table,
+							$db->qstr($custom_field->context),
+							$field_id,
+							$val_str
 						);
-						
-					} else {
-						$where_in = sprintf("%s NOT IN (%s) OR ",
-							$db_field_name,
-							implode(",",$vals)
-						);
-						
 					}
 				}
-				
-				$where = sprintf("(%s%s IS NULL)",
-					$where_in,
-					$db_field_name
-				);
 				break;
 				
 			case DevblocksSearchCriteria::OPER_LIKE: // 'like'

@@ -280,7 +280,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Message::getFields();
 		
-		list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(),$fields,$sortBy);
+		list($tables,$wheres,$selects) = parent::_parseSearchParams($params, array(), $fields, $sortBy, array(), 'm.id');
 
 		$select_sql = sprintf("SELECT ".
 			"m.id as %s, ".
