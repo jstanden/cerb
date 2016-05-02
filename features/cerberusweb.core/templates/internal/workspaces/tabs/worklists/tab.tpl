@@ -24,65 +24,50 @@
 {/foreach}
 </div>
 
+<script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/async-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+
 <script type="text/javascript">
-// Page title
-
-document.title = "{$tab->name|escape:'javascript' nofilter} - {$page->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
-
-// Worklist loader
-
-$.worklistAjaxLoader = function() {
-	this.worklist_ids = [];
-	this.is_running = false;
-};
-
-$.worklistAjaxLoader.prototype = {
-	add: function(worklist_id) {
-		this.worklist_ids.push(worklist_id);
-		this.next();
-	},
+$(function() {
+	// Page title
 	
-	next: function() {
-		if(this.worklist_ids.length == 0)
-			return;
-		
-		if(this.is_running == true)
-			return;
-		
-		var worklist_id = this.worklist_ids.shift();
-		var loader = this;
+	document.title = "{$tab->name|escape:'javascript' nofilter} - {$page->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
+	
+	// Worklist loader
+	
+	var async_tasks = [];
+	
+	var cerbLoadWorklist = function(worklist_id, callback) {
 		var $div = $('#worklistPlaceholder' + worklist_id);
+	
+		$div.fadeTo("fast", 0.2);
 		
-		var cb = function(html) {
+		genericAjaxGet('', 'c=pages&a=initWorkspaceList&list_id=' + worklist_id, function(html) {
+			var $div = $('#worklistPlaceholder' + worklist_id);
+			
 			if(null != $div) {
 				$div.fadeOut();
 				
 				var $worklist = 
 					$('<div style="margin-bottom:10px;"></div>')
-					.fadeTo("fast", 0.2)
-					.html(html)
-					.insertAfter($div)
-					.fadeTo("fast", 1.0)
-					;
+						.fadeTo("fast", 0.2)
+						.html(html)
+						.insertAfter($div)
+						.fadeTo("fast", 1.0)
+						;
 				
 				$div.remove();
 			}
 			
-			loader.is_running = false;
-			loader.next();
-		}
+			callback(null);
+		});
+	}
+	
+	{foreach from=$worklists item=worklist key=worklist_id}
+	async_tasks.push(async.apply(cerbLoadWorklist, '{$worklist_id}'));
+	{/foreach}
 
-		$div.fadeTo("fast", 0.2);
-		
-		this.is_running = true;
-		
-		genericAjaxGet('', 'c=pages&a=initWorkspaceList&list_id=' + worklist_id, cb);
-	},
-};
-
-var $worklistAjaxLoader = new $.worklistAjaxLoader();
-
-{foreach from=$worklists item=worklist key=worklist_id}
-$worklistAjaxLoader.add({$worklist_id});
-{/foreach}
+	async.series(async_tasks, function(err, data) {
+		// Done!
+	});
+});
 </script>
