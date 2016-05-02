@@ -1,5 +1,5 @@
 <form action="{devblocks_url}c=login&ext=password&a=setup{/devblocks_url}" method="post" id="loginForm">
-<input type="hidden" name="email" value="{$worker->email}">
+<input type="hidden" name="email" value="{$worker->getEmailString()}">
 
 <div class="help-box">
 	<h1>You need to finish setting up your account</h1>

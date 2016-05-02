@@ -1020,7 +1020,9 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$cfieldset = DAO_CustomFieldset::get($context_id);
+		if(false == ($cfieldset = DAO_CustomFieldset::get($context_id)))
+			return null;
+			
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		return array(

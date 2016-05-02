@@ -782,7 +782,7 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 		// Find inactive avatars
 		$sql = sprintf("SELECT id, storage_extension, storage_key, storage_profile_id, storage_size ".
 			"FROM context_avatar ".
-			"WHERE updated < %d ".
+			"WHERE updated_at < %d ".
 			"AND (storage_extension = %s AND storage_profile_id = %d) ".
 			"ORDER BY id ASC ",
 				time()-(86400*$archive_after_days),
