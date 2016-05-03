@@ -779,12 +779,12 @@ class Model_CalendarAvailability {
 			if(false === $offset) {
 				return false;
 			}
-
-			$next_block = strpos($this->_mins, '0', $offset);
 			
-			if(false === $next_block) {
-				return false;
-			}
+			$next_block = strpos($this->_mins, '0', $offset);
+
+			// If there isn't another busy block, use the last available minute as our end
+			if(false === $next_block)
+				$next_block = strlen($next_block) - 1;
 			
 			// If we have enough time in the current availability block to schedule a time
 			if($next_block - $offset >= $left) {

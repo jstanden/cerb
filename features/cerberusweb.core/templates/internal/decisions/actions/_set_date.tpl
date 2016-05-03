@@ -32,21 +32,23 @@
 </div>
 
 <script type="text/javascript">
-var $action = $('fieldset#{$namePrefix}');
-
-$action.autosize();
-
-$action.find('div.set-date-mode input:radio').change(function() {
-	var $radio = $(this);
+$(function() {
 	var $action = $('fieldset#{$namePrefix}');
-
-	$action.find('div.date-mode').hide();
 	
-	if($radio.val() == 'calendar') {
-		$action.find('div.date-mode-calendar').fadeIn();
-	} else {
-		$action.find('div.date-mode-placeholders').fadeIn();
-	}
+	$action.find('textarea').autosize();
 	
+	$action.find('div.set-date-mode input:radio').change(function() {
+		var $radio = $(this);
+		var $action = $('fieldset#{$namePrefix}');
+	
+		$action.find('div.date-mode').hide();
+		
+		if($radio.val() == 'calendar') {
+			$action.find('div.date-mode-calendar').fadeIn();
+		} else {
+			$action.find('div.date-mode-placeholders').fadeIn();
+		}
+		
+	});
 });
 </script>
