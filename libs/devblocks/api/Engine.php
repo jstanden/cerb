@@ -622,7 +622,7 @@ abstract class DevblocksEngine {
 					@$referer = $_SERVER['HTTP_REFERER'];
 					@$remote_addr = DevblocksPlatform::getClientIp();
 					
-					error_log(sprintf("[Cerb/Security] Possible CSRF attack from IP %s using referrer %s", $remote_addr, $referer), E_USER_WARNING);
+					//error_log(sprintf("[Cerb/Security] Possible CSRF attack from IP %s using referrer %s", $remote_addr, $referer), E_USER_WARNING);
 					DevblocksPlatform::dieWithHttpError("Access denied", 403);
 				}
 			}
