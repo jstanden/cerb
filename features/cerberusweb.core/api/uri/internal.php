@@ -2279,8 +2279,13 @@ class ChInternalController extends DevblocksControllerExtension {
 			foreach($cursor['tokens'] as $token) {
 				$value = $dict->$token;
 				
-				if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps'])
-					$value = date('r', $value);
+				if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
+					if(empty($value)) {
+						$value = '';
+					} else if(is_numeric($value)) {
+						$value = date('r', $value);
+					}
+				}
 				
 				if(is_array($value))
 					$value = json_encode($value);
@@ -2391,8 +2396,13 @@ class ChInternalController extends DevblocksControllerExtension {
 			foreach($cursor['tokens'] as $token) {
 				$value = $dict->$token;
 				
-				if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps'])
-					$value = date('r', $value);
+				if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
+					if(empty($value)) {
+						$value = '';
+					} else if (is_numeric($value)) {
+						$value = date('r', $value);
+					}
+				}
 				
 				$object[$token] = $value;
 			}
@@ -2501,8 +2511,13 @@ class ChInternalController extends DevblocksControllerExtension {
 			foreach($cursor['tokens'] as $token) {
 				$value = $dict->$token;
 
-				if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps'])
-					$value = date('r', $value);
+				if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
+					if(empty($value)) {
+						$value = '';
+					} else if(is_numeric($value)) {
+						$value = date('r', $value);
+					}
+				}
 				
 				if(is_array($value))
 					$value = json_encode($value);

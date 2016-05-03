@@ -4652,6 +4652,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = sprintf("[#%s] %s", $ticket->mask, $ticket->subject);
 			$token_values['closed_at'] = $ticket->closed_at;
+			$token_values['closed'] = $ticket->closed_at;
 			$token_values['created'] = $ticket->created_date;
 			$token_values['elapsed_response_first'] = $ticket->elapsed_response_first;
 			$token_values['elapsed_resolution_first'] = $ticket->elapsed_resolution_first;
