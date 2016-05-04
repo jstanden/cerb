@@ -301,10 +301,10 @@ class ChDebugController extends DevblocksControllerExtension  {
 						"[Stats] # Messages: %s\n".
 						"\n".
 						"[Database] Tables:\n",
-						intval($db->getOne('SELECT count(id) FROM worker')),
-						intval($db->getOne('SELECT count(id) FROM worker_group')),
-						intval($db->getOne('SELECT count(id) FROM ticket')),
-						intval($db->getOne('SELECT count(id) FROM message')),
+						intval($db->GetOneMaster('SELECT count(id) FROM worker')),
+						intval($db->GetOneMaster('SELECT count(id) FROM worker_group')),
+						intval($db->GetOneMaster('SELECT count(id) FROM ticket')),
+						intval($db->GetOneMaster('SELECT count(id) FROM message')),
 						''
 					);
 					

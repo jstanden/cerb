@@ -431,7 +431,7 @@ class _DevblocksDatabaseManager {
 	 * @return mixed|boolean
 	 */
 	function GetOne($sql) {
-		return $this->_GetOne($sql, $this->_slave_db);
+		return $this->GetOneSlave($sql, $this->_slave_db);
 	}
 	
 	function GetOneMaster($sql) {
