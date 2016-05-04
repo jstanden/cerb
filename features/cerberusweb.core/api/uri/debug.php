@@ -91,6 +91,104 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 				break;
 				
+			case 'status':
+				@$db = DevblocksPlatform::getDatabaseService();
+
+				header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+
+				$tickets_by_status = array();
+				
+				foreach($db->GetArrayMaster('SELECT count(*) as hits, status_id from ticket group by status_id') as $row) {
+					switch($row['status_id']) {
+						case 0:
+							$tickets_by_status['open'] = intval($row['hits']);
+							break;
+						case 1:
+							$tickets_by_status['waiting'] = intval($row['hits']);
+							break;
+						case 2:
+							$tickets_by_status['closed'] = intval($row['hits']);
+							break;
+						case 3:
+							$tickets_by_status['deleted'] = intval($row['hits']);
+							break;
+					}
+				}
+				
+				$status = array(
+					'counts' => array(
+						'attachments' => intval($db->GetOneMaster('SELECT count(id) FROM attachment')),
+						'buckets' => intval($db->GetOneMaster('SELECT count(id) FROM bucket')),
+						'comments' => intval($db->GetOneMaster('SELECT count(id) FROM comment')),
+						'custom_fields' => intval($db->GetOneMaster('SELECT count(id) FROM custom_field')),
+						'custom_fieldsets' => intval($db->GetOneMaster('SELECT count(id) FROM custom_fieldset')),
+						'groups' => intval($db->GetOneMaster('SELECT count(id) FROM worker_group')),
+						'mailboxes' => intval($db->GetOneMaster('SELECT count(id) FROM mailbox WHERE enabled=1')),
+						'mail_transports' => intval($db->GetOneMaster('SELECT count(id) FROM mail_transport')),
+						'messages' => intval($db->GetOneMaster('SELECT count(id) FROM message')),
+						'messages_stats' => array(
+							'received' => intval($db->GetOneMaster('SELECT count(id) FROM message WHERE is_outgoing=0')),
+							'received_24h' => intval($db->GetOneMaster(sprintf('SELECT count(id) FROM message WHERE is_outgoing=0 AND created_date >= %d', time()-86400))),
+							'sent' => intval($db->GetOneMaster('SELECT count(id) FROM message WHERE is_outgoing=1')),
+							'sent_24h' => intval($db->GetOneMaster(sprintf('SELECT count(id) FROM message WHERE is_outgoing=1 AND created_date >= %d', time()-86400))),
+						),
+						'portals' => intval(@$db->GetOneMaster('SELECT count(id) FROM community_tool')),
+						'tickets' => intval($db->GetOneMaster('SELECT count(id) FROM ticket')),
+						'tickets_status' => $tickets_by_status,
+						'va' => intval($db->GetOneMaster('SELECT count(id) FROM virtual_attendant')),
+						'va_behaviors' => intval($db->GetOneMaster('SELECT count(id) FROM trigger_event')),
+						'webhooks' => intval($db->GetOneMaster('SELECT count(id) FROM webhook_listener')),
+						'workers' => intval($db->GetOneMaster('SELECT count(id) FROM worker')),
+						'workers_active_15m' => intval($db->GetOneMaster(sprintf('SELECT count(user_id) FROM devblocks_session WHERE user_id != 0 AND refreshed_at >= %d GROUP BY user_id', time()-900))),
+						'workers_active_30m' => intval($db->GetOneMaster(sprintf('SELECT count(user_id) FROM devblocks_session WHERE user_id != 0 AND refreshed_at >= %d GROUP BY user_id', time()-1800))),
+						'workers_active_1h' => intval($db->GetOneMaster(sprintf('SELECT count(user_id) FROM devblocks_session WHERE user_id != 0 AND refreshed_at >= %d GROUP BY user_id', time()-3600))),
+						'workers_active_24h' => intval($db->GetOneMaster(sprintf('SELECT count(user_id) FROM devblocks_session WHERE user_id != 0 AND refreshed_at >= %d GROUP BY user_id', time()-86400))),
+					),
+					'storage_bytes' => array(
+						'attachment' => intval($db->GetOneMaster('SELECT sum(storage_size) FROM attachment')),
+						'context_avatar' => intval($db->GetOneMaster('SELECT sum(storage_size) FROM context_avatar')),
+						'message_content' => intval($db->GetOneMaster('SELECT sum(storage_size) FROM message')),
+					)
+				);
+				
+				// Storage
+				
+				$status['storage_bytes']['_total'] = array_sum($status['storage_bytes']);
+				
+				// Plugins
+				
+				$status['plugins'] = array();
+				$plugins = DevblocksPlatform::getPluginRegistry();
+				unset($plugins['cerberusweb.core']);
+				unset($plugins['devblocks.core']);
+				$status['counts']['plugins_enabled'] = count($plugins);
+				ksort($plugins);
+				
+				foreach($plugins as $plugin) {
+					if($plugin->enabled)
+						$status['plugins'][] = $plugin->id;
+				}
+				
+				// Tables
+				
+				$status['database'] = array(
+					'data_bytes' => 0,
+					'index_bytes' => 0,
+					'data_slack_bytes' => 0,
+				);
+				@$tables = $db->metaTablesDetailed();
+				
+				foreach($tables as $table => $info) {
+					$status['database']['data_bytes'] += $info['Data_length'];
+					$status['database']['index_bytes'] += $info['Index_length'];
+					$status['database']['data_slack_bytes'] += $info['Data_free'];
+				}
+				
+				// Output
+				
+				echo json_encode($status);
+				break;
+				
 			case 'report':
 				@$db = DevblocksPlatform::getDatabaseService();
 				@$settings = DevblocksPlatform::getPluginSettingsService();
