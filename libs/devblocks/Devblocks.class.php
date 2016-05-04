@@ -239,9 +239,15 @@ class DevblocksPlatform extends DevblocksEngine {
 		return min(max((float)$n, $min), $max);
 	}
 	
-	// [TODO] Handle proxy
 	static function getCurlHandle($url=null) {
 		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		
+		if(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY) {
+			curl_setopt($ch, CURLOPT_PROXY, DEVBLOCKS_HTTP_PROXY);
+		}
 		
 		return $ch;
 	}
