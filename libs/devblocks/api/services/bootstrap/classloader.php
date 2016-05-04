@@ -147,11 +147,6 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/openid.php', array(
 			'_DevblocksOpenIDManager',
 		));
-		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/proxy.php', array(
-			'_DevblocksProxy',
-			'_DevblocksProxy_Curl',
-			'_DevblocksProxy_Socket',
-		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/registry.php', array(
 			'_DevblocksRegistryManager',
 			'DevblocksRegistryEntry',

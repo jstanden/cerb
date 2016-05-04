@@ -2252,13 +2252,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
-	 * @return DevblocksProxy
-	 */
-	static function getProxyService() {
-		return DevblocksProxy::getProxy();
-	}
-	
-	/**
 	 * @return _DevblocksClassLoadManager
 	 */
 	static function getClassLoaderService() {
