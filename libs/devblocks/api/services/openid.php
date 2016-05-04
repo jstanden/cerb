@@ -17,7 +17,7 @@ class _DevblocksOpenIDManager {
 		do {
 			$repeat = false;
 			
-			$ch = curl_init();
+			$ch = DevblocksPlatform::getCurlHandle();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_HEADER, true);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -225,7 +225,7 @@ class _DevblocksOpenIDManager {
 			}
 		}
 		
-		$ch = curl_init();
+		$ch = DevblocksPlatform::getCurlHandle();
 		curl_setopt($ch, CURLOPT_URL, $url.$query);
 		curl_setopt($ch, CURLOPT_HEADER, false);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

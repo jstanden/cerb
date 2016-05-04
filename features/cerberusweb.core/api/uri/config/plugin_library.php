@@ -132,7 +132,7 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 				throw new Exception("The cURL PHP extension is not installed");
 			
 			// Connect to portal for download URL
-			$ch = curl_init($url);
+			$ch = DevblocksPlatform::getCurlHandle($url);
 			curl_setopt_array($ch, array(
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_FOLLOWLOCATION => true,

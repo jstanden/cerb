@@ -365,7 +365,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	private function _execute($verb='GET', $url, $payload=array()) {
 		$headers = array();
 		
-		$ch = curl_init($url);
+		$ch = DevblocksPlatform::getCurlHandle($url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		

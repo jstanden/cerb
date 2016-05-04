@@ -594,7 +594,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 		$cache_key = sprintf("widget%d_datasource", $widget->id);
 		
 		if(true || null === ($data = $cache->load($cache_key))) {
-			$ch = curl_init($url);
+			$ch = DevblocksPlatform::getCurlHandle($url);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

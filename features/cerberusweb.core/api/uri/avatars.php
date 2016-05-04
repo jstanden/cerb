@@ -97,7 +97,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			if(empty($url))
 				throw new DevblocksException("No URL provided");
 		
-			$ch = curl_init($url);
+			$ch = DevblocksPlatform::getCurlHandle($url);
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			
@@ -341,7 +341,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		$hash = md5($email);
 		$url = sprintf("https://www.gravatar.com/avatar/%s?s=100&r=pg&d=404", $hash);
 
-		$ch = curl_init($url);
+		$ch = DevblocksPlatform::getCurlHandle($url);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); // 5 sec

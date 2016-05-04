@@ -299,7 +299,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(!empty($params) && is_array($params))
 			$url .= '?' . http_build_query($params);
 		
-		$ch = curl_init($url);
+		$ch = DevblocksPlatform::getCurlHandle($url);
 		
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		

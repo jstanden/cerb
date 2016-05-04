@@ -68,7 +68,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$fp = DevblocksPlatform::getTempFile();
 		$fp_filename = DevblocksPlatform::getTempFileInfo($fp);
 		
-		$ch = curl_init($url);
+		$ch = DevblocksPlatform::getCurlHandle($url);
 		curl_setopt_array($ch, array(
 			CURLOPT_CUSTOMREQUEST => 'GET',
 			CURLOPT_RETURNTRANSFER => true,
@@ -237,6 +237,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	 */
 	static function floatClamp($n, $min, $max) {
 		return min(max((float)$n, $min), $max);
+	}
+	
+	// [TODO] Handle proxy
+	static function getCurlHandle($url=null) {
+		$ch = curl_init($url);
+		
+		return $ch;
 	}
 	
 	/**
@@ -993,7 +1000,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 		
 		if(extension_loaded("curl")) {
-			$ch = curl_init();
+			$ch = DevblocksPlatform::getCurlHandle();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_HEADER, false);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
