@@ -130,10 +130,13 @@ if(!defined('DEVELOPMENT_MODE_ALLOW_CSRF'))
 
 // ----
 
-@ini_set('session.gc_maxlifetime','86400');
-@ini_set('session.save_path',APP_TEMP_PATH);
 @date_default_timezone_set(date_default_timezone_get());
-@ini_set('magic_quotes_gpc',0);
-if(function_exists('set_magic_quotes_runtime'))
-	@set_magic_quotes_runtime(0);
 @ignore_user_abort(true);
+
+if(version_compare(PHP_VERSION, '5.4.0', '<')) {
+	@ini_set('magic_quotes_gpc', 0);
+	@ini_set('magic_quotes_runtime', 0);
+	
+	if(function_exists('set_magic_quotes_runtime'))
+		@set_magic_quotes_runtime(0);
+}
