@@ -7,12 +7,12 @@ class UmScHomeController extends Extension_UmScController {
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$tpl->display("devblocks:cerberusweb.support_center:portal_" . ChPortalHelper::getCode() .":support_center/home/index.tpl");
 	}
 	
 	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/home.tpl");
 	}
 };

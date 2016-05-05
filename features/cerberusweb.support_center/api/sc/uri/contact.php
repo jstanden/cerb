@@ -11,7 +11,7 @@ class UmScContactController extends Extension_UmScController {
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 
 		$umsession = ChPortalHelper::getSession();
 		
@@ -97,6 +97,9 @@ class UmScContactController extends Extension_UmScController {
 						$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 						$tpl->assign('ticket_fields', $ticket_fields);
 						
+						$workers = DAO_Worker::getAllActive();
+						$tpl->assign('workers', $workers);
+						
 						$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/contact/step2.tpl");
 						break;
 				}
@@ -106,7 +109,7 @@ class UmScContactController extends Extension_UmScController {
 	}
 
 	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 
 		$captcha_enabled = DAO_CommunityToolProperty::get($instance->code, self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);

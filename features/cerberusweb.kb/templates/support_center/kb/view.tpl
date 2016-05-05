@@ -82,7 +82,6 @@
 				</td>
 				
 			{elseif $column=="katc_top_category_id"}
-				{if !isset($categories)}{$categories = DAO_KbCategory::getAll()}{/if}
 				<td>
 					{if !empty($result.$column)}
 						{assign var=topic_id value=$result.$column}

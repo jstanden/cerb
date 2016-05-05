@@ -9,11 +9,11 @@ class UmScHistoryController extends Extension_UmScController {
 	}
 	
 	function renderSidebar(DevblocksHttpResponse $response) {
-//		$tpl = DevblocksPlatform::getTemplateService();
+//		$tpl = DevblocksPlatform::getTemplateSandboxService();
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
@@ -119,12 +119,15 @@ class UmScHistoryController extends Extension_UmScController {
 			$tpl->assign('messages', $messages);
 			$tpl->assign('attachments', $attachments);
 			
+			$badge_extensions = DevblocksPlatform::getExtensions('cerberusweb.support_center.message.badge', true);
+			$tpl->assign('badge_extensions', $badge_extensions);
+			
 			$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/display.tpl");
 		}
 	}
 	
 	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 
 		$params = array(
 			'columns' => DAO_CommunityToolProperty::get($instance->code, self::PARAM_WORKLIST_COLUMNS_JSON, '[]', true),
@@ -345,7 +348,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 	function render() {
 		//$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -354,6 +357,9 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		
 		$buckets = DAO_Bucket::getAll();
 		$tpl->assign('buckets', $buckets);
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
 		
 		$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/view.tpl");
 	}
@@ -386,7 +392,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 	function renderCriteria($field) {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		
 		$tpl->assign('id', $this->id);
 

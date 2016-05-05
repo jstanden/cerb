@@ -30,7 +30,7 @@ class UmScKbController extends Extension_UmScController {
 	}
 	
 	function renderSidebar(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		
 		@$q = DevblocksPlatform::importGPC($_POST['q'],'string','');
 		$tpl->assign('q', $q);
@@ -39,7 +39,7 @@ class UmScKbController extends Extension_UmScController {
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		
 		$umsession = ChPortalHelper::getSession();
 		
@@ -307,7 +307,7 @@ class UmScKbController extends Extension_UmScController {
 	}
 	
 	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 
 		// Knowledgebase
 		
@@ -418,10 +418,13 @@ class UmSc_KbArticleView extends C4_AbstractView {
 	function render() {
 		//$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
+		$categories = DAO_KbCategory::getAll();
+		$tpl->assign('categories', $categories);
+		
 		$tpl->display("devblocks:cerberusweb.kb:portal_".ChPortalHelper::getCode() . ":support_center/kb/view.tpl");
 	}
 

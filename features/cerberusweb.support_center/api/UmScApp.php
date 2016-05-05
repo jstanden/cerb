@@ -227,7 +227,7 @@ class UmScApp extends Extension_UsermeetTool {
 	public function writeResponse(DevblocksHttpResponse $response) {
 		$stack = $response->path;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		
 		$umsession = ChPortalHelper::getSession();
 		$tpl->assign('session', $umsession);
@@ -445,7 +445,7 @@ class UmScApp extends Extension_UsermeetTool {
 
 class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$umsession = ChPortalHelper::getSession();
 		
 		$stack = $response->path;
@@ -477,7 +477,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	function doRegisterAction() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$umsession = ChPortalHelper::getSession();
 		
@@ -532,7 +532,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		@$password = DevblocksPlatform::importGPC($_REQUEST['password'],'string','');
 		@$password2 = DevblocksPlatform::importGPC($_REQUEST['password2'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$umsession = ChPortalHelper::getSession();
 		
@@ -617,7 +617,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	function doRecoverAction() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		try {
@@ -669,7 +669,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		
 		$umsession = ChPortalHelper::getSession();
 		$url_writer = DevblocksPlatform::getUrlService();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		
 		try {
 			// Verify email is a contact
@@ -716,7 +716,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	 */
 	function authenticateAction() {
 		$umsession = ChPortalHelper::getSession();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$url_writer = DevblocksPlatform::getUrlService();
 
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email']);

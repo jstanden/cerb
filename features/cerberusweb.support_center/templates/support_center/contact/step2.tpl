@@ -82,9 +82,6 @@
 							{/foreach}
 						</select>
 					{elseif $field->type=='W'}
-						{if empty($workers)}
-							{$workers = DAO_Worker::getAllActive()}
-						{/if}
 						<select name="followup_a_{$idx}" class="{if $required}required{/if}">
 							<option value=""></option>
 							{foreach from=$workers item=worker key=worker_id}

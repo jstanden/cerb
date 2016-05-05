@@ -8,12 +8,16 @@ require(DEVBLOCKS_PATH . 'libs/smarty/Smarty.class.php');
  * @ingroup services
  */
 class _DevblocksTemplateManager {
+	static $_instance = null;
+	static $_instance_sandbox = null;
+	
 	/**
 	 * Constructor
 	 *
 	 * @private
 	 */
 	private function _DevblocksTemplateManager() {}
+	
 	/**
 	 * Returns an instance of the Smarty Template Engine
 	 *
@@ -21,8 +25,7 @@ class _DevblocksTemplateManager {
 	 * @return Smarty
 	 */
 	static function getInstance() {
-		static $instance = null;
-		if(null == $instance) {
+		if(null == self::$_instance) {
 			$instance = new Smarty();
 			
 			$instance->template_dir = APP_PATH . '/templates';
@@ -39,12 +42,15 @@ class _DevblocksTemplateManager {
 
 			$instance->error_unassigned = false;
 			$instance->error_reporting = DEVELOPMENT_MODE ? (E_ALL & ~E_NOTICE) : (E_ERROR & ~E_NOTICE);
+			$instance->php_handling = false;
 			
 			// Auto-escape HTML output
 			$instance->loadFilter('variable','htmlspecialchars');
 			
 			// Devblocks plugins
+			$instance->registerPlugin('function','fetch', array('_DevblocksTemplateManager', 'function_void'));
 			$instance->registerPlugin('block','devblocks_url', array('_DevblocksTemplateManager', 'block_devblocks_url'));
+			$instance->registerPlugin('block','php', array('_DevblocksTemplateManager', 'block_void'));
 			$instance->registerPlugin('modifier','devblocks_date', array('_DevblocksTemplateManager', 'modifier_devblocks_date'));
 			$instance->registerPlugin('modifier','devblocks_email_quotes_cull', array('_DevblocksTemplateManager', 'modifier_devblocks_email_quotes_cull'));
 			$instance->registerPlugin('modifier','devblocks_email_quote', array('_DevblocksTemplateManager', 'modifier_devblocks_email_quote'));
@@ -57,8 +63,56 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('modifier','devblocks_translate', array('_DevblocksTemplateManager', 'modifier_devblocks_translate'));
 			
 			$instance->registerResource('devblocks', new _DevblocksSmartyTemplateResource());
+			
+			self::$_instance = $instance;
 		}
-		return $instance;
+		return self::$_instance;
+	}
+	
+	/**
+	 * Returns an instance of the Smarty Template Engine
+	 *
+	 * @static
+	 * @return Smarty
+	 */
+	static function getInstanceSandbox() {
+		if(null == self::$_instance_sandbox) {
+			$instance = clone self::getInstance();
+			
+			$security = new Smarty_Security($instance);
+			$security->php_handling = Smarty::PHP_REMOVE;
+			$security->secure_dir = array();
+			$security->trusted_uri = array(
+				'#devblocks:.*$#i',
+			);
+			$security->allow_super_globals = false;
+			$security->php_functions = array(
+				'empty',
+				'in_array',
+				'is_array',
+				'isset',
+				'method_exists',
+				'strcasecmp',
+				'substr',
+				'uniqid',
+			);
+			$security->php_modifiers = array(
+				'count',
+				'md5',
+				'nl2br',
+				'trim',
+			);
+			$security->static_classes = array(
+				'none',
+			);
+			$security->streams = array(
+				'none'
+			);
+			$instance->enableSecurity($security);
+			
+			self::$_instance_sandbox = $instance;
+		}
+		return self::$_instance_sandbox;
 	}
 
 	static function modifier_devblocks_translate($string) {
@@ -74,6 +128,16 @@ class _DevblocksTemplateManager {
 			@$translated = vsprintf($translated, $args);
 		
 		return $translated;
+	}
+	
+	// Disable the {fetch} function
+	static function function_void($params, Smarty_Internal_Template $template) {
+		return null;
+	}
+	
+	// Disable the {php} block
+	static function block_void($params, $content, Smarty_Internal_Template $template, &$repeat) {
+		return null;
 	}
 	
 	static function block_devblocks_url($params, $content, Smarty_Internal_Template $template, &$repeat) {

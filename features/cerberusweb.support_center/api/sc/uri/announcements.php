@@ -3,7 +3,7 @@ class UmScAnnouncementsController extends Extension_UmScController {
 	const PARAM_NEWS_RSS = 'announcements.rss';
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		
 		$sNewsRss = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_NEWS_RSS, '');
 		$aNewsRss = !empty($sNewsRss) ? unserialize($sNewsRss) : array();
@@ -29,7 +29,7 @@ class UmScAnnouncementsController extends Extension_UmScController {
 	}
 	
 	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 
 		$sNewsRss = DAO_CommunityToolProperty::get($instance->code,self::PARAM_NEWS_RSS, '');
 		$news_rss = !empty($sNewsRss) ? unserialize($sNewsRss) : array();

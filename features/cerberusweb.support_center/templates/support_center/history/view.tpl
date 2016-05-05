@@ -42,11 +42,11 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{capture name=subject_block}
-		{if $result.t_status_id == Model_Ticket::STATUS_WAITING}
+		{if $result.t_status_id == 1}
 		<span class="glyphicons glyphicons-asterisk" style="color:rgb(200,0,0);"></span>
-		{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}
+		{elseif $result.t_status_id == 2}
 		<span class="glyphicons glyphicons-circle-ok" style="color:rgb(120,120,120);"></span>
-		{elseif $result.t_status_id == Model_Ticket::STATUS_DELETED}
+		{elseif $result.t_status_id == 3}
 		{else}
 		<span class="glyphicons glyphicons-clock"></span>
 		{/if}
@@ -79,11 +79,11 @@
 			
 			{elseif $column=="t_status_id"}
 				<td>
-					{if $result.$column == Model_Ticket::STATUS_WAITING}
+					{if $result.$column == 1}
 						{'status.waiting'|devblocks_translate|lower}
-					{elseif $result.$column == Model_Ticket::STATUS_CLOSED}
+					{elseif $result.$column == 2}
 						{'status.closed'|devblocks_translate|lower}
-					{elseif $result.$column == Model_Ticket::STATUS_DELETED}
+					{elseif $result.$column == 3}
 						{'status.deleted'|devblocks_translate|lower}
 					{else}
 						{'status.open'|devblocks_translate|lower}
@@ -94,9 +94,6 @@
 				<td><a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}">{$result.$column}</a></td>
 				
 			{elseif $column=="t_owner_id"}
-				{if empty($workers) && !empty($result.t_owner_id)}
-					{$workers = DAO_Worker::getAll()}
-				{/if}
 				<td>
 					{if isset($workers.{$result.t_owner_id})}
 						{$workers.{$result.t_owner_id}->getName()}

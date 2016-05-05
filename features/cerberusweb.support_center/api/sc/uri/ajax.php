@@ -3,7 +3,7 @@ class UmScAjaxController extends Extension_UmScController {
 	function __construct($manifest=null) {
 		parent::__construct($manifest);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$umsession = ChPortalHelper::getSession();
 		
 		@$active_contact = $umsession->getProperty('sc_login',null);
@@ -89,7 +89,7 @@ class UmScAjaxController extends Extension_UmScController {
 		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'],'string','');
 		@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		
 		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
 			$view->doSetCriteria($field, $oper, $value);
@@ -107,7 +107,7 @@ class UmScAjaxController extends Extension_UmScController {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		
 		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
 			$view->renderCriteria($field);
@@ -122,7 +122,7 @@ class UmScAjaxController extends Extension_UmScController {
 		@$do = DevblocksPlatform::importGPC($_REQUEST['do'],'string','');
 		@$filters = DevblocksPlatform::importGPC($_REQUEST['filters'],'array',array());
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		
 		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
 			switch($do) {

@@ -2432,6 +2432,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function getTemplateService() {
 		return _DevblocksTemplateManager::getInstance();
 	}
+	
+	/**
+	 * @return Smarty
+	 */
+	static function getTemplateSandboxService() {
+		return _DevblocksTemplateManager::getInstanceSandbox();
+	}
 
 	/**
 	 *

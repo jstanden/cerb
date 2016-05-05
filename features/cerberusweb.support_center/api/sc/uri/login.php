@@ -69,7 +69,7 @@ class UmScLoginController extends Extension_UmScController {
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$umsession = ChPortalHelper::getSession();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 
 		$stack = $response->path;
 		@array_shift($stack); // login
@@ -84,7 +84,7 @@ class UmScLoginController extends Extension_UmScController {
 	}
 	
 	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::getTemplateSandboxService();
 
 		// Login extensions
 		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator');
