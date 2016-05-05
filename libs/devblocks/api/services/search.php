@@ -365,9 +365,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	private function _execute($verb='GET', $url, $payload=array()) {
 		$headers = array();
 		
-		$ch = DevblocksPlatform::getCurlHandle($url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		$ch = DevblocksPlatform::curlInit($url);
 		
 		if(!empty($headers))
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -381,7 +379,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				break;
 		}
 		
-		$out = curl_exec($ch);
+		$out = DevblocksPlatform::curlExec($ch, true);
 		
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);

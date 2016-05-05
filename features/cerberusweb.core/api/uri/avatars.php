@@ -97,9 +97,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			if(empty($url))
 				throw new DevblocksException("No URL provided");
 		
-			$ch = DevblocksPlatform::getCurlHandle($url);
-			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$ch = DevblocksPlatform::curlInit($url);
 			
 			// If same origin, add cookie and CSRF header
 			if(parse_url($base_url, PHP_URL_HOST) == parse_url($url, PHP_URL_HOST)) {
@@ -111,7 +109,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			}
 			
-			$output = curl_exec($ch);
+			$output = DevblocksPlatform::curlExec($ch);
 			$info = curl_getinfo($ch);
 			curl_close($ch);
 			
@@ -341,11 +339,9 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		$hash = md5($email);
 		$url = sprintf("https://www.gravatar.com/avatar/%s?s=100&r=pg&d=404", $hash);
 
-		$ch = DevblocksPlatform::getCurlHandle($url);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$ch = DevblocksPlatform::curlInit($url);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); // 5 sec
-		$imagedata = curl_exec($ch);
+		$imagedata = DevblocksPlatform::curlExec($ch);
 		$info = curl_getinfo($ch);
 		curl_close($ch);
 		

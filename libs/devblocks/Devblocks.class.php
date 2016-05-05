@@ -68,15 +68,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		$fp = DevblocksPlatform::getTempFile();
 		$fp_filename = DevblocksPlatform::getTempFileInfo($fp);
 		
-		$ch = DevblocksPlatform::getCurlHandle($url);
+		$ch = DevblocksPlatform::curlInit($url);
 		curl_setopt_array($ch, array(
 			CURLOPT_CUSTOMREQUEST => 'GET',
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_SSL_VERIFYPEER => false,
 			//CURLOPT_FILE => $fp,
 		));
-		$data = curl_exec($ch);
+		$data = DevblocksPlatform::curlExec($ch);
 		
 		if(curl_errno($ch)) {
 			//curl_error($ch);
@@ -239,17 +237,39 @@ class DevblocksPlatform extends DevblocksEngine {
 		return min(max((float)$n, $min), $max);
 	}
 	
-	static function getCurlHandle($url=null) {
+	static function curlInit($url=null) {
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		
+		return $ch;
+	}
+	
+	static function curlExec($ch, $follow=false, $return=true) {
+		// Proxy
 		if(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY) {
 			curl_setopt($ch, CURLOPT_PROXY, DEVBLOCKS_HTTP_PROXY);
 		}
 		
-		return $ch;
+		// Return transfer
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, $return);
+		
+		// Follow redirects
+		if($follow) {
+			curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+			$out = curl_exec($ch);
+			$status = curl_getinfo($ch);
+			
+			// It's a 3xx redirect
+			if(isset($status['redirect_url']) && $status['redirect_url'] && floor($status['http_code']/100) == 3) {
+				curl_setopt($ch, CURLOPT_URL, $status['redirect_url']);
+				return self::curlExec($ch, $follow, $return);
+			}
+			
+			return $out;
+		}
+		
+		return curl_exec($ch);
 	}
 	
 	/**
@@ -1006,30 +1026,20 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 		
 		if(extension_loaded("curl")) {
-			$ch = DevblocksPlatform::getCurlHandle();
+			$ch = DevblocksPlatform::curlInit();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_HEADER, false);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			
 			$user_agent = 'Cerb ' . APP_VERSION . ' (Build ' . APP_BUILD . ')';
 			curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
 			
-			$is_safemode = !(ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off'));
-	
-			// We can't use option this w/ safemode enabled
-			if(!$is_safemode)
-				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-			
-			$data = curl_exec($ch);
+			$data = DevblocksPlatform::curlExec($ch, true);
 			curl_close($ch);
-			
-		} elseif(ini_get('allow_url_fopen')) {
-			@$data = file_get_contents($url);
 			
 		} else {
 			$logger = DevblocksPlatform::getConsoleLog();
-			$logger->error("[Platform] 'curl' extension is not enabled and 'allow_url_fopen' is Off. Can not load a URL.");
+			$logger->error("[Platform] 'curl' extension is not enabled. Can not load a URL.");
 			return;
 		}
 		

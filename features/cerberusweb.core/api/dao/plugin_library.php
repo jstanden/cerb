@@ -326,12 +326,8 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 			if(!extension_loaded("curl"))
 				throw new Exception("The cURL PHP extension is not installed");
 			
-			$ch = DevblocksPlatform::getCurlHandle($url);
-			curl_setopt_array($ch, array(
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_FOLLOWLOCATION => true,
-			));
-			$json_data = curl_exec($ch);
+			$ch = DevblocksPlatform::curlInit($url);
+			$json_data = DevblocksPlatform::curlExec($ch, true);
 			
 		} catch(Exception $e) {
 			return false;
@@ -441,13 +437,11 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 			);
 			
 			// Connect to portal for download URL
-			$ch = DevblocksPlatform::getCurlHandle($url);
+			$ch = DevblocksPlatform::curlInit($url);
 			curl_setopt_array($ch, array(
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_FOLLOWLOCATION => true,
 				CURLOPT_SSL_VERIFYPEER => false,
 			));
-			$json_data = curl_exec($ch);
+			$json_data = DevblocksPlatform::curlExec($ch, true);
 			
 			if(false === ($response = json_decode($json_data, true)))
 				continue;

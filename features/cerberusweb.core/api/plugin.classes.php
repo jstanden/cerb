@@ -299,9 +299,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(!empty($params) && is_array($params))
 			$url .= '?' . http_build_query($params);
 		
-		$ch = DevblocksPlatform::getCurlHandle($url);
-		
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$ch = DevblocksPlatform::curlInit($url);
 		
 		if(isset($options['ignore_ssl_validation']) && $options['ignore_ssl_validation']) {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -331,7 +329,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(!empty($headers))
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		
-		$out = curl_exec($ch);
+		$out = DevblocksPlatform::curlExec($ch);
 		
 		$info = curl_getinfo($ch);
 		

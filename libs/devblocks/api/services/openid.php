@@ -17,17 +17,12 @@ class _DevblocksOpenIDManager {
 		do {
 			$repeat = false;
 			
-			$ch = DevblocksPlatform::getCurlHandle();
+			$ch = DevblocksPlatform::curlInit();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_HEADER, true);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-			// We can't use option this w/ safemode enabled
-			if(!$is_safemode)
-				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-			
-			$content = curl_exec($ch);
+			$content = DevblocksPlatform::curlExec($ch);
 			$info = curl_getinfo($ch);
 			curl_close($ch);
 	
@@ -225,12 +220,11 @@ class _DevblocksOpenIDManager {
 			}
 		}
 		
-		$ch = DevblocksPlatform::getCurlHandle();
+		$ch = DevblocksPlatform::curlInit();
 		curl_setopt($ch, CURLOPT_URL, $url.$query);
 		curl_setopt($ch, CURLOPT_HEADER, false);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		$response = curl_exec($ch);
+		$response = DevblocksPlatform::curlExec($ch);
 		curl_close($ch);
 		
 		if(preg_match('/is_valid:true/', $response))
