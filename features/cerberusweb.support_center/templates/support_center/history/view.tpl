@@ -42,11 +42,11 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{capture name=subject_block}
-		{if $result.t_status_id == 1}
+		{if $result.t_status_id == Model_Ticket::STATUS_WAITING}
 		<span class="glyphicons glyphicons-asterisk" style="color:rgb(200,0,0);"></span>
-		{elseif $result.t_status_id == 2}
+		{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}
 		<span class="glyphicons glyphicons-circle-ok" style="color:rgb(120,120,120);"></span>
-		{elseif $result.t_status_id == 3}
+		{elseif $result.t_status_id == Model_Ticket::STATUS_DELETED}
 		{else}
 		<span class="glyphicons glyphicons-clock"></span>
 		{/if}
@@ -79,11 +79,11 @@
 			
 			{elseif $column=="t_status_id"}
 				<td>
-					{if $result.$column == 1}
+					{if $result.$column == Model_Ticket::STATUS_WAITING}
 						{'status.waiting'|devblocks_translate|lower}
-					{elseif $result.$column == 2}
+					{elseif $result.$column == Model_Ticket::STATUS_CLOSED}
 						{'status.closed'|devblocks_translate|lower}
-					{elseif $result.$column == 3}
+					{elseif $result.$column == Model_Ticket::STATUS_DELETED}
 						{'status.deleted'|devblocks_translate|lower}
 					{else}
 						{'status.open'|devblocks_translate|lower}

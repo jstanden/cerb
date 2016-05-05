@@ -425,6 +425,12 @@ class UmSc_KbArticleView extends C4_AbstractView {
 		$categories = DAO_KbCategory::getAll();
 		$tpl->assign('categories', $categories);
 		
+		$custom_fields = DAO_CustomField::getAll();
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
 		$tpl->display("devblocks:cerberusweb.kb:portal_".ChPortalHelper::getCode() . ":support_center/kb/view.tpl");
 	}
 

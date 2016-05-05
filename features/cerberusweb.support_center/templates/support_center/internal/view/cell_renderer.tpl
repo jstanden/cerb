@@ -1,4 +1,3 @@
-{if empty($custom_fields)}{$custom_fields = DAO_CustomField::getAll()}{/if}
 {$col = explode('_',$column)}
 {$col_id = $col[1]}
 {$col = $custom_fields[$col_id]}
@@ -15,8 +14,8 @@
 	<td>{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_MULTI_CHECKBOX}
 	<td>
-		{$opts = DevblocksPlatform::parseCrlfString($result.$column)}
-		{DevblocksPlatform::sortObjects($opts)}
+		{$opts = $result.$column|explode:','|sort}
+		{$opts|array_keys}
 		{foreach from=$opts item=opt name=opts}
 			<span>{$opt}</span>{if !$smarty.foreach.opts.last}, {/if}
 		{/foreach}
@@ -50,9 +49,6 @@
 {elseif $col->type==Model_CustomField::TYPE_WORKER}
 	<td>
 	{assign var=worker_id value=$result.$column}
-	{if empty($workers) && !empty($worker_id)}
-		{$workers = DAO_Worker::getAll()}
-	{/if}
 	{if !empty($worker_id) && isset($workers.$worker_id)}
 		{$workers.$worker_id->getName()}
 	{/if}

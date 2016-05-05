@@ -87,7 +87,10 @@ class _DevblocksTemplateManager {
 			);
 			$security->allow_super_globals = false;
 			$security->php_functions = array(
+				'array_keys',
 				'empty',
+				'explode',
+				'implode',
 				'in_array',
 				'is_array',
 				'isset',
@@ -97,13 +100,17 @@ class _DevblocksTemplateManager {
 				'uniqid',
 			);
 			$security->php_modifiers = array(
+				'array_keys',
 				'count',
+				'explode',
 				'md5',
 				'nl2br',
+				'sort',
 				'trim',
 			);
 			$security->static_classes = array(
-				'none',
+				'Model_CustomField',
+				'Model_Ticket',
 			);
 			$security->streams = array(
 				'none'
