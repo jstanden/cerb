@@ -185,6 +185,9 @@ class MaintCron extends CerberusCronPageExtension {
 		// Platform
 		DAO_Platform::maint();
 		
+		// Purge expired sessions
+		Cerb_DevblocksSessionHandler::gc(0);
+		
 		// Purge Deleted Content
 		$purge_waitdays = intval($this->getParam('purge_waitdays', 7));
 		$purge_waitsecs = time() - (intval($purge_waitdays) * 86400);
