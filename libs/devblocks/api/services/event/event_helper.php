@@ -2937,13 +2937,15 @@ class DevblocksEventHelper {
 
 	static function simulateActionAddRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		
-		@$recipients = DevblocksPlatform::parseCsvString(
-			$tpl_builder->build(
-				DevblocksPlatform::importVar($params['recipients'],'string',''),
-				$dict
-			)
+		$recipients = array();
+
+		$email_addresses_str = $tpl_builder->build(
+			DevblocksPlatform::importVar($params['recipients'],'string',''),
+			$dict
 		);
+		
+		if(false != ($parsed_recipients = CerberusMail::parseRfcAddresses($email_addresses_str, true)) && is_array($recipients))
+			$recipients = DevblocksPlatform::extractArrayValues($parsed_recipients, 'email', true);
 		
 		// Include addys from variables
 		
@@ -2980,13 +2982,15 @@ class DevblocksEventHelper {
 	
 	static function runActionAddRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		
-		@$recipients = DevblocksPlatform::parseCsvString(
-			$tpl_builder->build(
-				DevblocksPlatform::importVar($params['recipients'],'string',''),
-				$dict
-			)
+		$recipients = array();
+
+		$email_addresses_str = $tpl_builder->build(
+			DevblocksPlatform::importVar($params['recipients'],'string',''),
+			$dict
 		);
+		
+		if(false != ($parsed_recipients = CerberusMail::parseRfcAddresses($email_addresses_str, true)) && is_array($recipients))
+			$recipients = DevblocksPlatform::extractArrayValues($parsed_recipients, 'email', true);
 		
 		// Include addys from variables
 		
@@ -3025,13 +3029,15 @@ class DevblocksEventHelper {
 
 	static function simulateActionRemoveRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		
-		@$recipients = DevblocksPlatform::parseCsvString(
-			$tpl_builder->build(
-				DevblocksPlatform::importVar($params['recipients'],'string',''),
-				$dict
-			)
+		$recipients = array();
+
+		$email_addresses_str = $tpl_builder->build(
+			DevblocksPlatform::importVar($params['recipients'],'string',''),
+			$dict
 		);
+		
+		if(false != ($parsed_recipients = CerberusMail::parseRfcAddresses($email_addresses_str, true)) && is_array($recipients))
+			$recipients = DevblocksPlatform::extractArrayValues($parsed_recipients, 'email', true);
 		
 		// Include addys from variables
 		
@@ -3068,13 +3074,15 @@ class DevblocksEventHelper {
 	
 	static function runActionRemoveRecipients($params, DevblocksDictionaryDelegate $dict, $default_on) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		
-		@$recipients = DevblocksPlatform::parseCsvString(
-			$tpl_builder->build(
-				DevblocksPlatform::importVar($params['recipients'],'string',''),
-				$dict
-			)
+		$recipients = array();
+
+		$email_addresses_str = $tpl_builder->build(
+			DevblocksPlatform::importVar($params['recipients'],'string',''),
+			$dict
 		);
+		
+		if(false != ($parsed_recipients = CerberusMail::parseRfcAddresses($email_addresses_str, true)) && is_array($recipients))
+			$recipients = DevblocksPlatform::extractArrayValues($parsed_recipients, 'email', true);
 
 		// Include addys from variables
 		
