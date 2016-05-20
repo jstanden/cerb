@@ -1768,238 +1768,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_Ticket::REQUESTER_ID:
-				$fields = SearchFields_Ticket::getFields();
-				$where_sql = $param->getWhereSQL($fields, $from_index);
-				
-				$args['join_sql'] .= sprintf("INNER JOIN (".
-					"SELECT DISTINCT r.ticket_id ".
-					"FROM requester r ".
-					"WHERE %s ".
-					") virt_requester_ids ON (virt_requester_ids.ticket_id = t.id) ",
-					$where_sql
-				);
-				break;
-				
-			case SearchFields_Ticket::REQUESTER_ADDRESS:
-				$fields = SearchFields_Ticket::getFields();
-				$where_sql = $param->getWhereSQL($fields, $from_index);
-				
-				$args['join_sql'] .= sprintf("INNER JOIN (".
-					"SELECT DISTINCT r.ticket_id ".
-					"FROM requester r ".
-					"INNER JOIN address ra ON (ra.id = r.address_id) ".
-					"WHERE %s ".
-					") virt_requester_emails ON (virt_requester_emails.ticket_id = t.id) ",
-					$where_sql
-				);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME:
-				$attachment_wheres = array();
-				
-				// Multiple tuples
-				foreach($param->value as $param_value) {
-				
-					switch($param->operator) {
-						default:
-						case DevblocksSearchCriteria::OPER_EQ:
-							$attachment_wheres[] = sprintf("attachment.display_name = %s",
-								Cerb_ORMHelper::qstr($param_value)
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_NEQ:
-							$attachment_wheres[] = sprintf("attachment.display_name != %s",
-								Cerb_ORMHelper::qstr($param_value)
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_LIKE:
-							$attachment_wheres[] = sprintf("attachment.display_name like %s",
-								Cerb_ORMHelper::qstr(str_replace('*','%',$param_value))
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_NOT_LIKE:
-							$attachment_wheres[] = sprintf("attachment.display_name not like %s",
-								Cerb_ORMHelper::qstr(str_replace('*','%',$param_value))
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_IS_NULL:
-							$attachment_wheres[] = sprintf("attachment.display_name is null");
-							break;
-					}
-				}
-				
-				if(!empty($attachment_wheres)) {
-					$args['join_sql'] .= sprintf("INNER JOIN (".
-						"SELECT DISTINCT message.ticket_id AS ticket_id ".
-						"FROM attachment_link ".
-						"INNER JOIN attachment ON (attachment_link.attachment_id = attachment.id) ".
-						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
-						"WHERE %s ".
-						") virt_attachment_names ON (virt_attachment_names.ticket_id = t.id) ",
-						implode(' OR ', $attachment_wheres)
-					);
-				}
-				break;
-				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
 				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 				
-			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
-				if(!empty($param->value)) {
-					$args['join_sql'] .= sprintf("INNER JOIN (".
-						"SELECT DISTINCT message.ticket_id ".
-						"FROM attachment_link ".
-						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
-						") virt_has_attachments ON (virt_has_attachments.ticket_id = t.id) "
-					);
-				} else {
-					$args['where_sql'] .= sprintf("AND t.id NOT IN (".
-						"SELECT DISTINCT message.ticket_id ".
-						"FROM attachment_link ".
-						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
-						") "
-					);
-				}
-				break;
-			
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_WATCHERS:
-				$args['has_multiple_values'] = true;
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS:
-				$worker_id = $param->value;
-				
-				if(0 == $worker_id) {
-					$args['where_sql'] .= "AND t.id NOT IN (SELECT context_id FROM context_recommendation WHERE context = 'cerberusweb.contexts.ticket') ";
-					
-				} else {
-					$args['join_sql'] .= sprintf("INNER JOIN (".
-						"SELECT reco.context_id ".
-						"FROM context_recommendation reco ".
-						"WHERE reco.context = 'cerberusweb.contexts.ticket' ".
-						"AND reco.worker_id = %d ".
-						") AS virt_recommendations ON (virt_recommendations.context_id = t.id) ",
-						$worker_id
-					);
-				}
-				
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
-				if(null == ($member = DAO_Worker::get($param->value)))
-					break;
-					
-				$all_groups = DAO_Group::getAll();
-				$roster = $member->getMemberships();
-				
-				if(empty($roster))
-					$roster = array(0 => 0);
-				
-				$restricted_groups = array_diff(array_keys($all_groups), array_keys($roster));
-				
-				// If the worker is in every group, ignore this filter entirely
-				if(empty($restricted_groups))
-					break;
-				
-				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
-				
-				$args['where_sql'] .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
-				break;
-				
-			// [TODO] This doesn't need to be virtual now
-			case SearchFields_Ticket::VIRTUAL_ORG_ID:
-				$org_id = $param->value;
-				
-				$args['where_sql'] .= sprintf("AND (t.org_id = %d) ",
-					$org_id
-				);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_CONTACT_ID:
-				$contact_ids = is_array($param->value) ? $param->value : array($param->value);
-				$contact_ids = DevblocksPlatform::sanitizeArray($contact_ids, 'int');
-				
-				$contact_ids_string = implode(',', $contact_ids);
-				
-				if(empty($contact_ids_string))
-					$contact_ids_string = '-1';
-				
-				$args['where_sql'] .= sprintf("AND (t.id IN (SELECT DISTINCT r.ticket_id FROM requester r INNER JOIN address a ON (r.address_id=a.id) WHERE a.contact_id IN (%s))) ",
-					$contact_ids_string,
-					$contact_ids_string
-				);
-				
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID:
-				$participant_ids = is_array($param->value) ? $param->value : array($param->value);
-				$participant_ids = DevblocksPlatform::sanitizeArray($participant_ids, 'int');
-				
-				$participant_ids_string = implode(',', $participant_ids);
-				
-				if(empty($participant_ids_string))
-					$participant_ids_string = '-1';
-				
-				$args['where_sql'] .= sprintf("AND (t.first_wrote_address_id IN (%s) OR t.id IN (SELECT DISTINCT r.ticket_id FROM requester r WHERE r.address_id IN (%s))) ",
-					$participant_ids_string,
-					$participant_ids_string
-				);
-				
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_STATUS:
-				$values = $param->value;
-				if(!is_array($values))
-					$values = array($values);
-					
-				$oper_sql = array();
-				$statuses = array();
-				
-				switch($param->operator) {
-					default:
-					case DevblocksSearchCriteria::OPER_IN:
-					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-						$oper = '';
-						break;
-					case DevblocksSearchCriteria::OPER_NIN:
-					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-						$oper = 'NOT ';
-						break;
-				}
-				
-				foreach($values as $value) {
-					switch($value) {
-						case 'open':
-							$statuses[] = Model_Ticket::STATUS_OPEN;
-							break;
-						case 'waiting':
-							$statuses[] = Model_Ticket::STATUS_WAITING;
-							break;
-						case 'closed':
-							$statuses[] = Model_Ticket::STATUS_CLOSED;
-							break;
-						case 'deleted':
-							$statuses[] = Model_Ticket::STATUS_DELETED;
-							break;
-					}
-				}
-				
-				if(empty($statuses))
-					break;
-				
-				$args['where_sql'] .= sprintf('AND t.status_id %sIN (%s) ', $oper, implode(',', $statuses));
 				break;
 		}
 	}
@@ -2172,6 +1947,69 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_HAS_ATTACHMENTS:
+				return sprintf("%s %sIN (".
+					"SELECT message.ticket_id ".
+					"FROM attachment_link ".
+					"INNER JOIN message ON (attachment_link.context_id = message.id) ".
+					"WHERE context='cerberusweb.contexts.message' AND message.ticket_id = %s ".
+					")",
+					self::getPrimaryKey(),
+					!empty($param->value) ? '' : 'NOT ',
+					self::getPrimaryKey()
+				);
+				break;
+				
+			case self::VIRTUAL_ATTACHMENT_NAME:
+				$where = '0';
+				$values = array();
+				$not = false;
+				
+				if(is_array($param->value))
+				foreach($param->value as $value)
+					$values[] = Cerb_ORMHelper::qstr($value);
+				
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_IN:
+					case DevblocksSearchCriteria::OPER_NIN:
+						$not = ($param->operator == DevblocksSearchCriteria::OPER_NIN);
+						$wheres = sprintf('attachment.display_name IN (%s)',
+							implode(',', $values)
+						);
+						break;
+						
+					case DevblocksSearchCriteria::OPER_EQ:
+					case DevblocksSearchCriteria::OPER_NEQ:
+						$not = ($param->operator == DevblocksSearchCriteria::OPER_NEQ);
+						$wheres = sprintf('attachment.display_name = %s',
+							Cerb_ORMHelper::qstr($param->value)
+						);
+						break;
+						
+					case DevblocksSearchCriteria::OPER_LIKE:
+					case DevblocksSearchCriteria::OPER_NOT_LIKE:
+						$not = ($param->operator == DevblocksSearchCriteria::OPER_NOT_LIKE);
+						$wheres = sprintf('attachment.display_name LIKE %s',
+							Cerb_ORMHelper::qstr(str_replace('*','%',$param->value))
+						);
+						break;
+				}
+				
+				return sprintf("%s %sIN (".
+					"SELECT message.ticket_id ".
+					"FROM attachment_link ".
+					"INNER JOIN attachment ON (attachment.id=attachment_link.attachment_id) ".
+					"INNER JOIN message ON (attachment_link.context_id = message.id) ".
+					"WHERE context='cerberusweb.contexts.message' AND message.ticket_id = %s ".
+					"AND %s".
+					")",
+					self::getPrimaryKey(),
+					!empty($param->value) ? '' : 'NOT ',
+					self::getPrimaryKey(),
+					$wheres
+				);
+				break;
+			
 			case self::FULLTEXT_MESSAGE_CONTENT:
 				if(false == ($search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID)))
 					return null;
@@ -2233,6 +2071,169 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 				break;
+				
+			case self::VIRTUAL_ORG_ID:
+				$org_id = $param->value;
+				
+				return sprintf("t.org_id = %d",
+					$org_id
+				);
+				break;
+				
+			case self::VIRTUAL_CONTACT_ID:
+				$contact_ids = is_array($param->value) ? $param->value : array($param->value);
+				$contact_ids = DevblocksPlatform::sanitizeArray($contact_ids, 'int');
+				
+				$contact_ids_string = implode(',', $contact_ids);
+				
+				if(empty($contact_ids_string))
+					$contact_ids_string = '-1';
+				
+				return sprintf("(t.id IN (SELECT r.ticket_id FROM requester r INNER JOIN address a ON (r.address_id=a.id) WHERE a.contact_id IN (%s)))",
+					$contact_ids_string
+				);
+				
+				break;
+				
+			case self::VIRTUAL_PARTICIPANT_ID:
+				$participant_ids = is_array($param->value) ? $param->value : array($param->value);
+				$participant_ids = DevblocksPlatform::sanitizeArray($participant_ids, 'int');
+				
+				$participant_ids_string = implode(',', $participant_ids);
+				
+				if(empty($participant_ids_string))
+					$participant_ids_string = '-1';
+				
+				return sprintf("(t.first_wrote_address_id IN (%s) OR t.id IN (SELECT r.ticket_id FROM requester r WHERE r.address_id IN (%s)))",
+					$participant_ids_string,
+					$participant_ids_string
+				);
+				break;
+			
+			case self::VIRTUAL_GROUPS_OF_WORKER:
+				if(null == ($member = DAO_Worker::get($param->value)))
+					break;
+					
+				$all_groups = DAO_Group::getAll();
+				$roster = $member->getMemberships();
+				
+				if(empty($roster))
+					$roster = array(0 => 0);
+				
+				$restricted_groups = array_diff(array_keys($all_groups), array_keys($roster));
+				
+				// If the worker is in every group, ignore this filter entirely
+				if(empty($restricted_groups))
+					break;
+				
+				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
+				
+				return sprintf("t.group_id IN (%s)", implode(',', array_keys($roster)));
+				break;
+			
+			case self::VIRTUAL_STATUS:
+				$values = $param->value;
+				if(!is_array($values))
+					$values = array($values);
+					
+				$oper_sql = array();
+				$statuses = array();
+				
+				switch($param->operator) {
+					default:
+					case DevblocksSearchCriteria::OPER_IN:
+					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+						$oper = '';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN:
+					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+						$oper = 'NOT ';
+						break;
+				}
+				
+				foreach($values as $value) {
+					switch($value) {
+						case 'open':
+							$statuses[] = Model_Ticket::STATUS_OPEN;
+							break;
+						case 'waiting':
+							$statuses[] = Model_Ticket::STATUS_WAITING;
+							break;
+						case 'closed':
+							$statuses[] = Model_Ticket::STATUS_CLOSED;
+							break;
+						case 'deleted':
+							$statuses[] = Model_Ticket::STATUS_DELETED;
+							break;
+					}
+				}
+				
+				if(empty($statuses))
+					break;
+				
+				return sprintf('t.status_id %sIN (%s) ', $oper, implode(', ', $statuses));
+				break;
+				
+			case self::REQUESTER_ID:
+				$where_sql = $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				
+				return sprintf("%s IN (SELECT r.ticket_id FROM requester r INNER JOIN address ra ON (ra.id=r.address_id) WHERE %s AND r.ticket_id = %s)",
+					self::getPrimaryKey(),
+					$where_sql,
+					self::getPrimaryKey()
+				);
+				break;
+			
+			case self::REQUESTER_ADDRESS:
+				$where_sql = $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				
+				return sprintf("%s IN (SELECT r.ticket_id FROM requester r INNER JOIN address ra ON (ra.id=r.address_id) WHERE %s AND r.ticket_id = %s)",
+					self::getPrimaryKey(),
+					$where_sql,
+					self::getPrimaryKey()
+				);
+				break;
+				
+			case self::VIRTUAL_RECOMMENDATIONS:
+				$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
+		
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_IN:
+						return sprintf("%s IN (SELECT context_id FROM context_recommendation WHERE context = %s AND context_id = %s AND worker_id IN (%s))",
+							self::getPrimaryKey(),
+							Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
+							self::getPrimaryKey(),
+							implode(',', $ids)
+						);
+						break;
+						
+					case DevblocksSearchCriteria::OPER_NIN:
+						return sprintf("%s NOT IN (SELECT context_id FROM context_recommendation WHERE context = %s AND context_id = %s AND worker_id IN (%s))",
+							self::getPrimaryKey(),
+							Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
+							self::getPrimaryKey(),
+							implode(',', $ids)
+						);
+						break;
+					
+					case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+						return sprintf("%s IN (SELECT context_id FROM context_recommendation WHERE context = %s AND context_id = %s)",
+							self::getPrimaryKey(),
+							Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
+							self::getPrimaryKey()
+						);
+						break;
+						
+					case DevblocksSearchCriteria::OPER_IS_NULL:
+						return sprintf("%s NOT IN (SELECT context_id FROM context_recommendation WHERE context = %s AND context_id = %s)",
+							self::getPrimaryKey(),
+							Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
+							self::getPrimaryKey()
+						);
+						break;
+				}
+				break;
+				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 				break;

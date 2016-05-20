@@ -347,154 +347,6 @@ class DAO_Message extends Cerb_ORMHelper {
 		return $result;
 	}
 
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-		
-		$from_context = 'cerberusweb.contexts.message';
-		$from_index = 'm.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-
-		switch($param_key) {
-				
-			case SearchFields_Message::VIRTUAL_ATTACHMENT_NAME:
-				$attachment_wheres = array();
-				
-				// Multiple tuples
-				foreach($param->value as $param_value) {
-				
-					switch($param->operator) {
-						default:
-						case DevblocksSearchCriteria::OPER_EQ:
-							$attachment_wheres[] = sprintf("attachment.display_name = %s",
-								Cerb_ORMHelper::qstr($param_value)
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_NEQ:
-							$attachment_wheres[] = sprintf("attachment.display_name != %s",
-								Cerb_ORMHelper::qstr($param_value)
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_LIKE:
-							$attachment_wheres[] = sprintf("attachment.display_name like %s",
-								Cerb_ORMHelper::qstr(str_replace('*','%',$param_value))
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_NOT_LIKE:
-							$attachment_wheres[] = sprintf("attachment.display_name not like %s",
-								Cerb_ORMHelper::qstr(str_replace('*','%',$param_value))
-							);
-							break;
-							
-						case DevblocksSearchCriteria::OPER_IS_NULL:
-							$attachment_wheres[] = sprintf("attachment.display_name is null");
-							break;
-					}
-				}
-				
-				if(!empty($attachment_wheres)) {
-					$args['join_sql'] .= sprintf("INNER JOIN (".
-						"SELECT DISTINCT message.id AS message_id ".
-						"FROM attachment_link ".
-						"INNER JOIN attachment ON (attachment_link.attachment_id = attachment.id) ".
-						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
-						"WHERE %s ".
-						") virt_attachment_names ON (virt_attachment_names.message_id = m.id) ",
-						implode(' OR ', $attachment_wheres)
-					);
-				}
-				break;
-				
-			case SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS:
-				if(!empty($param->value)) {
-					$args['join_sql'] .= sprintf("INNER JOIN (".
-						"SELECT DISTINCT message.id AS message_id ".
-						"FROM attachment_link ".
-						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
-						") virt_has_attachments ON (virt_has_attachments.message_id = m.id) "
-					);
-				} else {
-					$args['where_sql'] .= sprintf("AND m.id NOT IN (".
-						"SELECT DISTINCT message.id ".
-						"FROM attachment_link ".
-						"INNER JOIN message ON (attachment_link.context='cerberusweb.contexts.message' and attachment_link.context_id = message.id) ".
-						") "
-					);
-				}
-				break;
-			
-			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
-				if(null == ($member = DAO_Worker::get($param->value)))
-					break;
-					
-				$all_groups = DAO_Group::getAll();
-				$roster = $member->getMemberships();
-				
-				if(empty($roster))
-					$roster = array(0 => 0);
-				
-				$restricted_groups = array_diff(array_keys($all_groups), array_keys($roster));
-				
-				// If the worker is in every group, ignore this filter entirely
-				if(empty($restricted_groups))
-					break;
-				
-				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
-				
-				$args['where_sql'] .= sprintf("AND t.group_id IN (%s) ", implode(',', array_keys($roster)));
-				break;
-				
-			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
-				$values = $param->value;
-				if(!is_array($values))
-					$values = array($values);
-					
-				$oper_sql = array();
-				$statuses = array();
-				
-				switch($param->operator) {
-					default:
-					case DevblocksSearchCriteria::OPER_IN:
-					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-						$oper = '';
-						break;
-					case DevblocksSearchCriteria::OPER_NIN:
-					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-						$oper = 'NOT ';
-						break;
-				}
-				
-				foreach($values as $value) {
-					switch($value) {
-						case 'open':
-							$statuses[] = Model_Ticket::STATUS_OPEN;
-							break;
-						case 'waiting':
-							$statuses[] = Model_Ticket::STATUS_WAITING;
-							break;
-						case 'closed':
-							$statuses[] = Model_Ticket::STATUS_CLOSED;
-							break;
-						case 'deleted':
-							$statuses[] = Model_Ticket::STATUS_DELETED;
-							break;
-					}
-				}
-				
-				if(empty($statuses))
-					break;
-				
-				$args['where_sql'] .= sprintf('AND t.status_id %sIN (%s) ', $oper, implode(', ', $statuses));
-				
-				break;
-		}
-	}
-	
 	/**
 	 * Enter description here...
 	 *
@@ -618,6 +470,131 @@ class SearchFields_Message extends DevblocksSearchFields {
 				
 			case self::FULLTEXT_NOTE_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_MESSAGE, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_HAS_ATTACHMENTS:
+				return sprintf("%s %sIN (".
+					"SELECT context_id ".
+					"FROM attachment_link ".
+					"WHERE context='cerberusweb.contexts.message' AND context_id = %s ".
+					")",
+					self::getPrimaryKey(),
+					!empty($param->value) ? '' : 'NOT ',
+					self::getPrimaryKey()
+				);
+				break;
+				
+			case self::VIRTUAL_ATTACHMENT_NAME:
+				$where = '0';
+				$values = array();
+				$not = false;
+				
+				if(is_array($param->value))
+				foreach($param->value as $value)
+					$values[] = Cerb_ORMHelper::qstr($value);
+				
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_IN:
+					case DevblocksSearchCriteria::OPER_NIN:
+						$not = ($param->operator == DevblocksSearchCriteria::OPER_NIN);
+						$wheres = sprintf('attachment.display_name IN (%s)',
+							implode(',', $values)
+						);
+						break;
+						
+					case DevblocksSearchCriteria::OPER_EQ:
+					case DevblocksSearchCriteria::OPER_NEQ:
+						$not = ($param->operator == DevblocksSearchCriteria::OPER_NEQ);
+						$wheres = sprintf('attachment.display_name = %s',
+							Cerb_ORMHelper::qstr($param->value)
+						);
+						break;
+						
+					case DevblocksSearchCriteria::OPER_LIKE:
+					case DevblocksSearchCriteria::OPER_NOT_LIKE:
+						$not = ($param->operator == DevblocksSearchCriteria::OPER_NOT_LIKE);
+						$wheres = sprintf('attachment.display_name LIKE %s',
+							Cerb_ORMHelper::qstr(str_replace('*','%',$param->value))
+						);
+						break;
+				}
+				
+				return sprintf("%s %sIN (".
+					"SELECT context_id ".
+					"FROM attachment_link ".
+					"INNER JOIN attachment ON (attachment.id=attachment_link.attachment_id) ".
+					"WHERE attachment_link.context='cerberusweb.contexts.message' AND attachment_link.context_id = %s ".
+					"AND %s".
+					")",
+					self::getPrimaryKey(),
+					($not ? 'NOT ' : ''),
+					self::getPrimaryKey(),
+					$wheres
+				);
+				break;
+			
+			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
+				if(null == ($member = DAO_Worker::get($param->value)))
+					break;
+					
+				$all_groups = DAO_Group::getAll();
+				$roster = $member->getMemberships();
+				
+				if(empty($roster))
+					$roster = array(0 => 0);
+				
+				$restricted_groups = array_diff(array_keys($all_groups), array_keys($roster));
+				
+				// If the worker is in every group, ignore this filter entirely
+				if(empty($restricted_groups))
+					break;
+				
+				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
+				
+				return sprintf("t.group_id IN (%s)", implode(',', array_keys($roster)));
+				break;
+				
+			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
+				$values = $param->value;
+				if(!is_array($values))
+					$values = array($values);
+					
+				$oper_sql = array();
+				$statuses = array();
+				
+				switch($param->operator) {
+					default:
+					case DevblocksSearchCriteria::OPER_IN:
+					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+						$oper = '';
+						break;
+					case DevblocksSearchCriteria::OPER_NIN:
+					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+						$oper = 'NOT ';
+						break;
+				}
+				
+				foreach($values as $value) {
+					switch($value) {
+						case 'open':
+							$statuses[] = Model_Ticket::STATUS_OPEN;
+							break;
+						case 'waiting':
+							$statuses[] = Model_Ticket::STATUS_WAITING;
+							break;
+						case 'closed':
+							$statuses[] = Model_Ticket::STATUS_CLOSED;
+							break;
+						case 'deleted':
+							$statuses[] = Model_Ticket::STATUS_DELETED;
+							break;
+					}
+				}
+				
+				if(empty($statuses))
+					break;
+				
+				return sprintf('t.status_id %sIN (%s) ', $oper, implode(', ', $statuses));
 				break;
 				
 			default:

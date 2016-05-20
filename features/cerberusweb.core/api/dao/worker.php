@@ -847,77 +847,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
-			
-			case SearchFields_Worker::VIRTUAL_GROUPS:
-				if(!is_array($param->value))
-					break;
-					
-				// Sanitize array
-				$param->value = array_filter($param->value, function($v) {
-					return !empty($v);
-				});
-				
-				$args['has_multiple_values'] = true;
-				if(empty($param->value)) { // empty
-					$args['join_sql'] .= "LEFT JOIN worker_to_group ON (worker_to_group.worker_id = w.id) ";
-					$args['where_sql'] .= "AND worker_to_group.worker_id IS NULL ";
-					
-				} else {
-					$args['join_sql'] .= sprintf("INNER JOIN worker_to_group ON (worker_to_group.worker_id = w.id AND worker_to_group.group_id IN (%s)) ",
-						implode(',', $param->value)
-					);
-				}
-				break;
-				
-			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
-				if(!is_array($param->value) || count($param->value) != 3)
-					break;
-					
-				$from = $param->value[0];
-				$to = $param->value[1];
-				$is_available = !empty($param->value[2]);
-				
-				// [TODO] Load all worker availability calendars
-				
-				$workers = DAO_Worker::getAllActive();
-				$results = array();
-				
-				foreach($workers as $worker_id => $worker) {
-					@$calendar_id = $worker->calendar_id;
-					
-					if(empty($calendar_id)) {
-						if(!$is_available)
-							$results[] = $worker_id;
-						continue;
-					}
-					
-					if(false == ($calendar = DAO_Calendar::get($calendar_id))) {
-						if(!$is_available)
-							$results[] = $worker_id;
-						continue;
-					}
-					
-					@$cal_from = strtotime("today", strtotime($from));
-					@$cal_to = strtotime("tomorrow", strtotime($to));
-					
-					// [TODO] Cache!!
-					$calendar_events = $calendar->getEvents($cal_from, $cal_to);
-					$availability = $calendar->computeAvailability($cal_from, $cal_to, $calendar_events);
-					
-					$pass = $availability->isAvailableBetween(strtotime($from), strtotime($to));
-					
-					if($pass == $is_available) {
-						$results[] = $worker_id;
-						continue;
-					}
-				}
-				
-				if(empty($results))
-					$results[] = '-1';
-				
-				$args['where_sql'] .= sprintf("AND w.id IN (%s) ", implode(', ', $results));
-				
-				break;
 		}
 	}
 	
@@ -1020,7 +949,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		return array($results,$total);
 	}
-		
 };
 
 /**
@@ -1075,13 +1003,79 @@ class SearchFields_Worker extends DevblocksSearchFields {
 		);
 	}
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		$where = null;
-		
 		switch($param->field) {
 			case self::FULLTEXT_WORKER:
 				return self::_getWhereSQLFromFulltextField($param, Search_Worker::ID, self::getPrimaryKey());
 				break;
 				
+			case self::VIRTUAL_GROUPS:
+				if(!is_array($param->value))
+					break;
+					
+				// Sanitize array
+				$param->value = DevblocksPlatform::sanitizeArray($param->value, 'int');
+				
+				$param->value = array_filter($param->value, function($v) {
+					return !empty($v);
+				});
+				
+				if($param->value) {
+					return sprintf("w.id %sIN (SELECT worker_id FROM worker_to_group WHERE group_id IN (%s))",
+						$param->operator == 'not in' ? 'NOT ' : '',
+						implode(',', $param->value)
+					);
+				}
+				break;
+				
+			case self::VIRTUAL_CALENDAR_AVAILABILITY:
+				if(!is_array($param->value) || count($param->value) != 3)
+					break;
+					
+				$from = $param->value[0];
+				$to = $param->value[1];
+				$is_available = !empty($param->value[2]);
+				
+				// [TODO] Load all worker availability calendars
+				
+				$workers = DAO_Worker::getAllActive();
+				$results = array();
+				
+				foreach($workers as $worker_id => $worker) {
+					@$calendar_id = $worker->calendar_id;
+					
+					if(empty($calendar_id)) {
+						if(!$is_available)
+							$results[] = $worker_id;
+						continue;
+					}
+					
+					if(false == ($calendar = DAO_Calendar::get($calendar_id))) {
+						if(!$is_available)
+							$results[] = $worker_id;
+						continue;
+					}
+					
+					@$cal_from = strtotime("today", strtotime($from));
+					@$cal_to = strtotime("tomorrow", strtotime($to));
+					
+					// [TODO] Cache!!
+					$calendar_events = $calendar->getEvents($cal_from, $cal_to);
+					$availability = $calendar->computeAvailability($cal_from, $cal_to, $calendar_events);
+					
+					$pass = $availability->isAvailableBetween(strtotime($from), strtotime($to));
+					
+					if($pass == $is_available) {
+						$results[] = $worker_id;
+						continue;
+					}
+				}
+				
+				if(empty($results))
+					$results[] = '-1';
+				
+				return sprintf("w.id IN (%s) ", implode(', ', $results));
+				break;
+			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -1091,7 +1085,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				break;
 		}
 		
-		return $where;
+		return false;
 	}
 	
 	static function getFields() {

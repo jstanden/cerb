@@ -480,23 +480,6 @@ class DAO_Address extends Cerb_ORMHelper {
 			case SearchFields_Address::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
-			
-			case SearchFields_Address::VIRTUAL_TICKET_ID:
-				$args['has_multiple_values'] = true;
-				
-				if(is_array($param->value)) {
-					$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
-					
-					$args['join_sql'] .= sprintf("INNER JOIN (".
-						"SELECT DISTINCT r.address_id ".
-						"FROM requester r ".
-						"WHERE r.ticket_id IN (%s) ".
-						") virt_address_ids ON (virt_address_ids.address_id = a.id) ",
-						implode(',', $ids)
-					);
-				}
-				break;
-				
 		}
 	}
 	
@@ -568,7 +551,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY a.id ' : '').
 			$sort_sql;
-			
+		
 		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
 			return false;
 		
@@ -642,6 +625,18 @@ class SearchFields_Address extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_TICKET_ID:
+				if(!is_array($param->value))
+					break;
+				
+				$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
+				
+				return sprintf("%s IN (SELECT address_id FROM requester r WHERE r.ticket_id IN (%s))",
+					self::getPrimaryKey(),
+					implode(',', $ids)
+				);
+				break;
+				
 			case self::FULLTEXT_ADDRESS:
 				return self::_getWhereSQLFromFulltextField($param, Search_Address::ID, self::getPrimaryKey());
 				break;
@@ -1361,24 +1356,35 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Address::CONTACT_ID:
-				$contact_name = null;
-				
 				if(empty($param->value)) {
-					$contact_name = '(empty)';
-				} else if(false != ($contact = DAO_Contact::get($param->value))) {
-					$contact_name = $contact->getName();
+					$contact_names[] = '(empty)';
+					
+				} else {
+					$contact_ids = !is_array($param->value) ? array($param->value) : $param->value;
+					$contacts = DAO_Contact::getIds($contact_ids);
+					$contact_names = array();
+					
+					foreach($contacts as $contact)
+						$contact_names[] = sprintf("<b>%s</b>", DevblocksPlatform::strEscapeHtml($contact->getName()));
 				}
 				
-				echo sprintf("<b>%s</b>", DevblocksPlatform::strEscapeHtml($contact_name));
+				echo implode(' or ', $contact_names);
 				break;
 				
 			case SearchFields_Address::CONTACT_ORG_ID:
-				$org_name = null;
+				if(empty($param->value)) {
+					$org_names[] = '(empty)';
+					
+				} else {
+					$org_ids = !is_array($param->value) ? array($param->value) : $param->value;
+					$orgs = DAO_ContactOrg::getIds($org_ids);
+					$org_names = array();
+					
+					foreach($orgs as $org)
+						$org_names[] = sprintf('<b>%s</b>', DevblocksPlatform::strEscapeHtml($org->name));
+				}
 				
-				if(false != ($org = DAO_ContactOrg::get($param->value)))
-					$org_name = $org->name;
-				
-				echo sprintf("<b>%s</b>", DevblocksPlatform::strEscapeHtml($org_name));
+				echo implode(' or ', $org_names);
 				break;
 			
 			default:
