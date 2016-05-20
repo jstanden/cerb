@@ -534,24 +534,31 @@ class SearchFields_Message extends DevblocksSearchFields {
 				break;
 			
 			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
-				if(null == ($member = DAO_Worker::get($param->value)))
+				$param_values = !is_array($param->value) ? array($param->value) : $param->value;
+				$ids = DevblocksPlatform::sanitizeArray($param_values, 'integer');
+				
+				if(null == ($members = DAO_Worker::getIds($ids)))
 					break;
 					
 				$all_groups = DAO_Group::getAll();
-				$roster = $member->getMemberships();
+				$group_ids = array();
 				
-				if(empty($roster))
-					$roster = array(0 => 0);
+				foreach($members as $member) {
+					$group_ids = array_merge($group_ids, array_keys($member->getMemberships()));
+				}
 				
-				$restricted_groups = array_diff(array_keys($all_groups), array_keys($roster));
+				$group_ids = array_unique($group_ids);
+				
+				if(empty($group_ids))
+					$group_ids = array(0);
+				
+				$restricted_groups = array_diff(array_keys($all_groups), $group_ids);
 				
 				// If the worker is in every group, ignore this filter entirely
 				if(empty($restricted_groups))
 					break;
 				
-				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
-				
-				return sprintf("t.group_id IN (%s)", implode(',', array_keys($roster)));
+				return sprintf("t.group_id IN (%s)", implode(',', $group_ids));
 				break;
 				
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
@@ -1729,35 +1736,40 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case 'inGroupsOfWorker':
 				$field_key = SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER;
 				$oper = null;
-				$v = null;
+				$values = null;
 				
-				CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $v);
+				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $values);
 				
-				$worker_id = 0;
+				$worker_ids = array();
 				
-				switch(strtolower($v)) {
-					case 'current':
-						$worker_id = '{{current_worker_id}}';
-						break;
+				foreach($values as $v)  {
+					switch(strtolower($v)) {
+						case 'current':
+							$worker_ids['{{current_worker_id}}'] = true;
+							break;
+							
+						case 'me':
+						case 'mine':
+						case 'my':
+							if(false != ($active_worker = CerberusApplication::getActiveWorker()))
+								$worker_ids[$active_worker->id] = true;
+							break;
 						
-					case 'me':
-					case 'mine':
-					case 'my':
-						if(false != ($active_worker = CerberusApplication::getActiveWorker()))
-							$worker_id = $active_worker->id;
-						break;
-					
-					default:
-						if(false != ($matches = DAO_Worker::getByString($v)) && !empty($matches))
-							$worker_id = key($matches);
-						break;
+						default:
+							if(false != ($matches = DAO_Worker::getByString($v)) && !empty($matches))
+								$worker_ids[key($matches)] = true;
+							break;
+					}
 				}
 				
-				if($worker_id) {
+				if(empty($worker_ids))
+					$worker_ids = array(-1);
+				
+				if($worker_ids) {
 					return new DevblocksSearchCriteria(
 						$field_key,
 						$oper,
-						$worker_id
+						array_keys($worker_ids)
 					);
 				}
 				break;
@@ -1877,16 +1889,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 			
 			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
-				$worker_name = $param->value;
-				
-				if(is_numeric($worker_name)) {
-					if(null == ($worker = DAO_Worker::get($worker_name)))
-						break;
-					
-					$worker_name = $worker->getName();
-				}
-					
-				echo sprintf("In <b>%s</b>'s groups", DevblocksPlatform::strEscapeHtml($worker_name));
+				echo "In groups of ";
+				self::_renderCriteriaParamWorker($param);
 				break;
 				
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
