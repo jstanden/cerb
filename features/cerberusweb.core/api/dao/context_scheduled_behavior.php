@@ -677,13 +677,11 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::RUN_DATE),
 				),
-			/*
 			'va' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID),
 				),
-			*/
 		);
 		
 		// Add is_sortable
@@ -779,8 +777,16 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			// [TODO]
 			case SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID:
+				$ids = DevblocksPlatform::sanitizeArray($param->value, 'int');
+				$vas = DAO_VirtualAttendant::getIds($ids);
+				$strings = array();
+				
+				foreach($vas as $va) {
+					$strings[] = DevblocksPlatform::strEscapeHtml($va->name);
+				}
+				
+				echo implode(' or ', $strings);
 				break;
 				
 			default:
