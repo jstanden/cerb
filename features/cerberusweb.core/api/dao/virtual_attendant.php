@@ -391,11 +391,6 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
 				
 				break;
-		
-			case SearchFields_VirtualAttendant::VIRTUAL_WATCHERS:
-				$args['has_multiple_values'] = true;
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
-				break;
 		}
 	}
 	
@@ -506,6 +501,10 @@ class SearchFields_VirtualAttendant extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_WATCHERS:
+				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, self::getPrimaryKey());
+				break;
+			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);

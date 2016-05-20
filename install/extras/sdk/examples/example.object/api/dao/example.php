@@ -197,24 +197,6 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ExampleObject');
 	
-		// Virtuals
-		foreach($params as $param) {
-			if(!is_a($param, 'DevblocksSearchCriteria'))
-				continue;
-			
-			$param_key = $param->field;
-			settype($param_key, 'string');
-			switch($param_key) {
-				case SearchFields_ExampleObject::VIRTUAL_WATCHERS:
-					$has_multiple_values = true;
-					$from_context = Context_ExampleObject::ID; // [TODO]
-					$from_index = 'example_object.id'; // [TODO]
-					
-					self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $join_sql, $where_sql);
-					break;
-			}
-		}
-		
 		return array(
 			'primary_table' => 'example_object',
 			'select' => $select_sql,
@@ -319,6 +301,10 @@ class SearchFields_ExampleObject extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_WATCHERS:
+				return self::_getWhereSQLFromWatchersField($param, Context_ExampleObject::ID, self::getPrimaryKey());
+				break;
+			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);

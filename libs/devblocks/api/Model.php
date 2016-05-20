@@ -68,6 +68,46 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		return $field_key;
 	}
 	
+	static function _getWhereSQLFromWatchersField(DevblocksSearchCriteria $param, $from_context, $pkey) {
+		$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_IN:
+				return sprintf("%s IN (SELECT from_context_id FROM context_link WHERE from_context = %s AND from_context_id = %s AND to_context = 'cerberusweb.contexts.worker' AND to_context_id IN (%s))",
+					$pkey,
+					Cerb_ORMHelper::qstr($from_context),
+					$pkey,
+					implode(',', $ids)
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_NIN:
+				return sprintf("%s NOT IN (SELECT from_context_id FROM context_link WHERE from_context = %s AND to_context = 'cerberusweb.contexts.worker' AND to_context_id IN (%s))",
+					$pkey,
+					Cerb_ORMHelper::qstr($from_context),
+					implode(',', $ids)
+				);
+				break;
+			
+			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+				return sprintf("%s IN (SELECT DISTINCT from_context_id FROM context_link WHERE from_context = %s AND from_context_id = %s AND to_context = 'cerberusweb.contexts.worker')",
+					$pkey,
+					Cerb_ORMHelper::qstr($from_context),
+					$pkey
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				return sprintf("%s NOT IN (SELECT DISTINCT from_context_id FROM context_link WHERE from_context = %s AND to_context = 'cerberusweb.contexts.worker')",
+					$pkey,
+					Cerb_ORMHelper::qstr($from_context)
+				);
+				break;
+		}
+		
+		return null;
+	}
+	
 	static function _getWhereSQLFromCustomFields($param) {
 		if(0 == ($field_id = intval(substr($param->field,3))))
 			return 0;
