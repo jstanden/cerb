@@ -341,21 +341,6 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.opportunity' AND context_link.to_context_id = o.id) " : " ")
 			;
 			
-		$cfield_index_map = array(
-			CerberusContexts::CONTEXT_OPPORTUNITY => 'o.id',
-			CerberusContexts::CONTEXT_ADDRESS => 'a.id',
-			CerberusContexts::CONTEXT_ORG => 'a.contact_org_id',
-		);
-			
-		// Custom field joins
-		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-			$tables,
-			$params,
-			$cfield_index_map,
-			$select_sql,
-			$join_sql
-		);
-		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 		
@@ -665,6 +650,9 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_CrmOpportunity');
+		
 		return $objects;
 	}
 	

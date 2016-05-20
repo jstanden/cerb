@@ -798,15 +798,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		(isset($tables['address']) ? "INNER JOIN address ON (w.email_id = address.id) " : " ")
 		;
 		
-		// Custom field joins
-		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-			$tables,
-			$params,
-			'w.id',
-			$select_sql,
-			$join_sql
-		);
-				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
@@ -1630,6 +1621,8 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Worker');
 		
 		return $objects;
 	}

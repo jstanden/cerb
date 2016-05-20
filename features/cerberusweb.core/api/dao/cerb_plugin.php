@@ -306,6 +306,8 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 			$this->renderTotal
 		);
 		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_CerbPlugin');
+		
 		return $objects;
 	}
 	

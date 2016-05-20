@@ -1120,6 +1120,9 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_WorkspacePage');
+		
 		return $objects;
 	}
 

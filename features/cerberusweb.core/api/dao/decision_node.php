@@ -447,6 +447,9 @@ class View_DecisionNode extends C4_AbstractView {
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_DecisionNode');
+		
 		return $objects;
 	}
 	

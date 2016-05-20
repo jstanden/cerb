@@ -617,6 +617,9 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_ContextScheduledBehavior');
+		
 		return $objects;
 	}
 

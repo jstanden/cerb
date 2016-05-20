@@ -169,6 +169,69 @@ abstract class C4_AbstractView {
 		return $objects;
 	}
 	
+	protected function _lazyLoadCustomFieldsIntoObjects(&$objects, $search_class) {
+		if(!$search_class || !class_exists($search_class) || !class_implements('DevblocksSearchFields'))
+			return false;
+		
+		if(!is_array($objects) || !isset($objects[0]) || !is_array($objects[0]))
+			return false;
+		
+		$fields = $search_class::getFields();
+		$custom_fields = DAO_CustomField::getAll();
+		
+		$cfield_columns = array_values(array_filter($this->view_columns, function($field_key) {
+			return 'cf_' == substr($field_key, 0, 3);
+		}));
+		
+		$cfield_contexts = array();
+		
+		// Remove any cfields that we're sorting on (we already have their values in SELECT)
+		$sort_columns = is_array($this->renderSortBy) ? $this->renderSortBy : array($this->renderSortBy);
+		$cfield_columns = array_diff($cfield_columns, $sort_columns);
+		
+		foreach($cfield_columns as $cfield_key) {
+			$cfield_id = intval(substr($cfield_key, 3));
+			
+			if(!$cfield_id || false == (@$cfield = $custom_fields[$cfield_id]))
+				continue;
+			
+			if(false == ($field_key = $search_class::getCustomFieldContextFieldKey($cfield->context))
+				|| !isset($fields[$field_key]))
+					continue;
+				
+			if(!isset($cfield_contexts[$cfield->context]))
+				$cfield_contexts[$cfield->context] = array();
+				
+			$cfield_contexts[$cfield->context][$cfield_key] = array('context' => $cfield->context, 'on_key' => $field_key);
+		}
+		
+		foreach($cfield_contexts as $cfield_context => $cfields) {
+			foreach($cfields as $cfield_key => $cfield_data) {
+				$on_key = $cfield_data['on_key'];
+				
+				if(empty($on_key))
+					continue;
+				
+				$ids = DevblocksPlatform::extractArrayValues($objects, $on_key);
+				$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($cfield_context, $ids);
+				
+				array_walk($objects[0], function(&$object) use ($on_key, $custom_field_values) {
+					foreach($custom_field_values as $join_id => $values) {
+						if(!isset($object[$on_key]) || $object[$on_key] != $join_id)
+							continue;
+						
+						foreach($values as $k => $v) {
+							if(is_array($v))
+								$v = implode(', ', $v);
+							
+							$object['cf_' . $k] = $v;
+						}
+					}
+				});
+			}
+		}
+	}
+	
 	function isCustom() {
 		return 'cust_' == substr($this->id, 0, 5);
 	}

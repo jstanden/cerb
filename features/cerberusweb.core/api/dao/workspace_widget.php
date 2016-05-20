@@ -220,17 +220,6 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 	
-		array_walk_recursive(
-			$params,
-			array('DAO_WorkspaceWidget', '_translateVirtualParameters'),
-			array(
-				'join_sql' => &$join_sql,
-				'where_sql' => &$where_sql,
-				'tables' => &$tables,
-				'has_multiple_values' => &$has_multiple_values
-			)
-		);
-	
 		return array(
 			'primary_table' => 'workspace_widget',
 			'select' => $select_sql,
@@ -239,26 +228,6 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		//$from_context = CerberusContexts::CONTEXT_EXAMPLE;
-		//$from_index = 'example.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			/*
-			case SearchFields_EXAMPLE::VIRTUAL_WATCHERS:
-				$args['has_multiple_values'] = true;
-				self::_searchComponentsVirtualWatchers($param, $from_context, $from_index, $args['join_sql'], $args['where_sql'], $args['tables']);
-				break;
-			*/
-		}
 	}
 	
 	/**

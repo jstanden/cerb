@@ -580,6 +580,9 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_MailQueue');
+		
 		return $objects;
 	}
 	

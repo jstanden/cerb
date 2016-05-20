@@ -456,6 +456,9 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_ContextActivityLog');
+		
 		return $objects;
 	}
 	

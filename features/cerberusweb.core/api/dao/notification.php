@@ -644,6 +644,9 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Notification');
+		
 		return $objects;
 	}
 

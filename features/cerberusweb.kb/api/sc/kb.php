@@ -412,6 +412,9 @@ class UmSc_KbArticleView extends C4_AbstractView {
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_KbArticle');
+		
 		return $objects;
 	}
 

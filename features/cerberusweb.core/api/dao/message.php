@@ -335,21 +335,6 @@ class DAO_Message extends Cerb_ORMHelper {
 		
 		$has_multiple_values = false;
 		
-		// Translate virtual fields
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-			'has_multiple_values' => &$has_multiple_values
-		);
-		
-		array_walk_recursive(
-			$params,
-			array('DAO_Message', '_translateVirtualParameters'),
-			$args
-		);
-		
 		$result = array(
 			'primary_table' => 'm',
 			'select' => $select_sql,
@@ -1375,6 +1360,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Message');
 		
 		return $objects;
 	}

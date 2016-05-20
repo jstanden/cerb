@@ -665,6 +665,9 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_CustomFieldset');
+		
 		return $objects;
 	}
 	

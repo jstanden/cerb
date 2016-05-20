@@ -227,16 +227,6 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		
 		$join_sql = "FROM community_tool ct ";
 		
-				
-		// Custom field joins
-		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-			$tables,
-			$params,
-			'ct.id',
-			$select_sql,
-			$join_sql
-		);
-				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
@@ -630,6 +620,9 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_CommunityTool');
+		
 		return $objects;
 	}
 	

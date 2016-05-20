@@ -344,6 +344,9 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_WebApiCredentials');
+		
 		return $objects;
 	}
 	

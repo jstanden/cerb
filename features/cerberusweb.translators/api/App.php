@@ -424,6 +424,9 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Translation');
+		
 		return $objects;
 	}
 

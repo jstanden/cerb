@@ -724,6 +724,9 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_AttachmentLink');
+		
 		return $objects;
 	}
 	

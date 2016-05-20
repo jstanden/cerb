@@ -413,6 +413,9 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_DevblocksSession');
+		
 		return $objects;
 	}
 	

@@ -1723,22 +1723,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$join_sql .= "LEFT JOIN contact_org o ON (t.org_id=o.id) ";
 		}
 		
-		// Map custom fields to indexes
-		
-		$cfield_index_map = array(
-			CerberusContexts::CONTEXT_TICKET => 't.id',
-			CerberusContexts::CONTEXT_ORG => 't.org_id',
-		);
-		
-		// Custom field joins
-		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-			$tables,
-			$params,
-			$cfield_index_map,
-			$select_sql,
-			$join_sql
-		);
-		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
@@ -2621,6 +2605,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Ticket');
+		
 		return $objects;
 	}
 

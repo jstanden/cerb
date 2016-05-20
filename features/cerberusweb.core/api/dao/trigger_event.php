@@ -916,6 +916,9 @@ class View_TriggerEvent extends C4_AbstractView {
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_TriggerEvent');
+		
 		return $objects;
 	}
 	

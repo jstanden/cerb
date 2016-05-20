@@ -86,6 +86,9 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_DevblocksStorageProfile');
+		
 		return $objects;
 	}
 	

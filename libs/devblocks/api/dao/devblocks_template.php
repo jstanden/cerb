@@ -68,7 +68,7 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 	}
 
 	function getData() {
-		return DAO_DevblocksTemplate::search(
+		$objects = DAO_DevblocksTemplate::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -77,6 +77,10 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_DevblocksTemplate');
+		
+		return $objects;
 	}
 	
 	function getQuickSearchFields() {

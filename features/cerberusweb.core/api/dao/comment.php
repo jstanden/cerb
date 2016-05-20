@@ -789,6 +789,9 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Comment');
+		
 		return $objects;
 	}
 	

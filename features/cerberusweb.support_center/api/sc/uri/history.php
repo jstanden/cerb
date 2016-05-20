@@ -342,6 +342,9 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Ticket');
+		
 		return $objects;
 	}
 
