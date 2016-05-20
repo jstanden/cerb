@@ -3062,6 +3062,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_IMPORTANCE),
 				),
+			'inGroupsOfWorker' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER),
+					'examples' => array_merge(array('me','current'),array_slice($worker_names, 0, 13)),
+				),
 			'mask' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
