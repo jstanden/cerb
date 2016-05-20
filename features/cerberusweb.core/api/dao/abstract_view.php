@@ -492,24 +492,35 @@ abstract class C4_AbstractView {
 	
 	// Search params
 	
-	static function findParam($field_key, $params) {
+	static function findParam($field_key, $params, $recursive=true) {
 		$results = array();
 		
-		array_walk_recursive($params, function(&$v, $k, $field_key) use (&$results) {
-			if(!($v instanceof DevblocksSearchCriteria))
-				return;
-
-			if($v->field == $field_key) {
-				$results[] = $v;
-			}
+		if($recursive) {
+			array_walk_recursive($params, function(&$v, $k) use (&$results, $field_key) {
+				if(!($v instanceof DevblocksSearchCriteria))
+					return;
+	
+				if($v->field == $field_key) {
+					$results[$k] = $v;
+				}
+			});
 			
-		}, $field_key);
+		} else {
+			array_walk($params, function(&$v, $k) use (&$results, $field_key) {
+				if(!($v instanceof DevblocksSearchCriteria))
+					return;
+	
+				if($v->field == $field_key) {
+					$results[$k] = $v;
+				}
+			});
+		}
 		
 		return $results;
 	}
 	
-	static function hasParam($field_key, $params) {
-		return count(self::findParam($field_key, $params)) > 0;
+	static function hasParam($field_key, $params, $recursive=true) {
+		return count(self::findParam($field_key, $params, $recursive)) > 0;
 	}
 	
 	// Placeholders
