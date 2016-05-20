@@ -1313,12 +1313,18 @@ abstract class C4_AbstractView {
 		if(!is_array($vals))
 			$vals = array($vals);
 		
-		$implode_token = ' or ';
-		
 		$fields = $this->getFields();
 		
-		if(isset($fields[$field]) && $fields[$field]->type == Model_CustomField::TYPE_DATE)
+		if(isset($fields[$field]) && $fields[$field]->type == Model_CustomField::TYPE_DATE) {
 			$implode_token = ' to ';
+			
+		} else if(in_array($param->operator, array(DevblocksSearchCriteria::OPER_BETWEEN, DevblocksSearchCriteria::OPER_NOT_BETWEEN))) {
+			$implode_token = ' and ';
+			
+		} else {
+			$implode_token = ' or ';
+			
+		}
 
 		if($param->operator == DevblocksSearchCriteria::OPER_FULLTEXT)
 			unset($vals[1]);
