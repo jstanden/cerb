@@ -342,8 +342,8 @@ abstract class C4_AbstractView {
 	}
 	
 	function addParam($param, $key=null) {
-		if(empty($key) && $param instanceof DevblocksSearchCriteria)
-			$key = $param->field;
+		if(!$key || is_numeric($key))
+			$key = uniqid();
 		
 		$this->_paramsEditable[$key] = $param;
 	}
@@ -354,7 +354,7 @@ abstract class C4_AbstractView {
 		
 		if(is_array($params))
 		foreach($params as $key => $param) {
-			$key = (!is_string($key) && is_object($param)) ? $param->field : $key;
+			$key = is_numeric($key) ? null : $key;
 			$this->addParam($param, $key);
 		}
 	}
