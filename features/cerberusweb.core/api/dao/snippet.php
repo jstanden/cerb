@@ -317,29 +317,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_Snippet::FULLTEXT_SNIPPET:
-				$search = Extension_DevblocksSearchSchema::get(Search_Snippet::ID);
-				$query = $search->getQueryFromParam($param);
-				
-				if(false === ($ids = $search->query($query, array()))) {
-					$args['where_sql'] .= 'AND 0 ';
-				
-				} elseif(is_array($ids)) {
-					if(empty($ids))
-						$ids = array(-1);
-					
-					$args['where_sql'] .= sprintf('AND snippet.id IN (%s) ',
-						implode(', ', $ids)
-					);
-					
-				} elseif(is_string($ids)) {
-					$args['join_sql'] .= sprintf("INNER JOIN %s ON (%s.id=snippet.id) ",
-						$ids,
-						$ids
-					);
-				}
-				break;
-			
 			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
 				$args['has_multiple_values'] = true;
 				if(is_array($args) && isset($args['join_sql']) && isset($args['where_sql']))
@@ -494,6 +471,10 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case SearchFields_Snippet::FULLTEXT_SNIPPET:
+				return self::_getWhereSQLFromFulltextField($param, Search_Snippet::ID, self::getPrimaryKey());
+				break;
+				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);

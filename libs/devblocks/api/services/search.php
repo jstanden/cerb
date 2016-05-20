@@ -830,8 +830,8 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		// The max desired results (blank for unlimited)
 		$max_results = isset($this->_config['max_results']) ? intval($this->_config['max_results']) : 0;
 
-		// Our temp table name is consistently named because we may keep it around for the duration of the request
-		$temp_table = sprintf("_search_%s", sha1($ns.$query));
+		// Randomly named temporary table
+		$temp_table = sprintf("_search_%s", uniqid());
 		
 		$sql = sprintf("CREATE TEMPORARY TABLE IF NOT EXISTS %s (PRIMARY KEY (id)) ".
 			"SELECT id, MATCH content AGAINST ('%s' IN BOOLEAN MODE) AS score ".

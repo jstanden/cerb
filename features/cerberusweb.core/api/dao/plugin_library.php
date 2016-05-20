@@ -198,41 +198,6 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 		return $result; 
 	}
 	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		$from_index = 'plugin_library.id';
-		
-		switch($param_key) {
-			case SearchFields_PluginLibrary::FULLTEXT_PLUGIN_LIBRARY:
-				$search = Extension_DevblocksSearchSchema::get(Search_PluginLibrary::ID);
-				$query = $search->getQueryFromParam($param);
-				
-				if(false === ($ids = $search->query($query, array()))) {
-					$args['where_sql'] .= 'AND 0 ';
-				
-				} elseif(is_array($ids)) {
-					if(empty($ids))
-						$ids = array(-1);
-					
-					$args['where_sql'] .= sprintf('AND plugin_library.id IN (%s) ',
-						implode(', ', $ids)
-					);
-					
-				} elseif(is_string($ids)) {
-					$args['join_sql'] .= sprintf("INNER JOIN %s ON (%s.id=plugin_library.id) ",
-						$ids,
-						$ids
-					);
-				}
-				break;
-		}
-	}	
-	
 	/**
 	 * Enter description here...
 	 *
@@ -498,6 +463,10 @@ class SearchFields_PluginLibrary extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::FULLTEXT_PLUGIN_LIBRARY:
+				return self::_getWhereSQLFromFulltextField($param, Search_PluginLibrary::ID, self::getPrimaryKey());
+				break;
+			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);

@@ -68,6 +68,61 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		return $field_key;
 	}
 	
+	static function _getWhereSQLFromFulltextField(DevblocksSearchCriteria $param, $schema, $pkey) {
+		if(false == ($search = Extension_DevblocksSearchSchema::get($schema)))
+			return null;
+		
+		$query = $search->getQueryFromParam($param);
+		
+		if(false === ($ids = $search->query($query, array()))) {
+			return '0';
+			
+		} elseif(is_array($ids)) {
+			if(empty($ids))
+				$ids = array(-1);
+			
+			return sprintf('%s IN (%s)',
+				$pkey,
+				implode(', ', $ids)
+			);
+			
+		} elseif(is_string($ids)) {
+			return sprintf("%s IN (SELECT %s.id FROM %s WHERE %s.id=%s)",
+				$pkey,
+				$ids,
+				$ids,
+				$ids,
+				$pkey
+			);
+		}
+		
+		return '0';
+	}
+	
+	static function _getWhereSQLFromCommentFulltextField(DevblocksSearchCriteria $param, $schema, $from_context, $pkey) {
+		$search = Extension_DevblocksSearchSchema::get($schema);
+		$query = $search->getQueryFromParam($param);
+		
+		if(false === ($ids = $search->query($query, array('context_crc32' => sprintf("%u", crc32($from_context)))))) {
+			return '0';
+		
+		} elseif(is_array($ids)) {
+			$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);
+			
+			return sprintf('%s IN (%s)',
+				$pkey,
+				implode(', ', (!empty($from_ids) ? $from_ids : array(-1)))
+			);
+			
+		} elseif(is_string($ids)) {
+			return sprintf("%s IN (SELECT context_id FROM comment INNER JOIN %s ON (%s.id=comment.id))",
+				$pkey,
+				$ids,
+				$ids
+			);
+		}
+	}
+	
 	static function _getWhereSQLFromWatchersField(DevblocksSearchCriteria $param, $from_context, $pkey) {
 		$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
 		
