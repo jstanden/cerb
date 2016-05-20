@@ -37,7 +37,7 @@ $(function() {
 						ajax.viewRemoveFilter('{$view->id}', ['s_title']);
 					} else {
 						// Add search filter
-						ajax.viewAddFilter('{$view->id}', 's_title', 'like', { 'value':$(this).val() } );
+						ajax.viewAddFilter('{$view->id}', 's_title', 'like', { 'value':$(this).val() }, true);
 					}
 					$(this).focus().select();
 					break;

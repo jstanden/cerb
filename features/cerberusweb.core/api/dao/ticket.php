@@ -2763,14 +2763,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$params = $this->getParams();
 		
 		// Don't drill down to buckets (usability)
-		if(isset($params[SearchFields_Ticket::TICKET_BUCKET_ID])) {
-			// Allow all inbox search if no group filter
-			if(!isset($params[SearchFields_Ticket::TICKET_GROUP_ID])
-				&& isset($params[SearchFields_Ticket::TICKET_BUCKET_ID]->value)) {
-					// Allow single drill-down
-			 } else {
-				unset($params[SearchFields_Ticket::TICKET_BUCKET_ID]);
-			 }
+		if($this->hasParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false)
+			&& $this->hasParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false)) {
+				$results = $this->findParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false);
+				
+				if(is_array($results))
+				foreach(array_keys($results) as $k)
+					unset($params[$k]);
 		}
 		
 		if(!method_exists('DAO_Ticket','getSearchQueryComponents'))

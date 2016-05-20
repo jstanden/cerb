@@ -371,15 +371,16 @@ var cAjaxCalls = function() {
 		}
 	}
 	
-	this.viewAddFilter = function(view_id, field, oper, values) {
+	this.viewAddFilter = function(view_id, field, oper, values, replace) {
 		var $view = $('#view'+view_id);
 		
 		var post_str = 'c=internal' +
 			'&a=viewAddFilter' + 
 			'&id=' + view_id +
+			'&replace=' + encodeURIComponent(replace ? 1 : 0) +
 			'&field=' + encodeURIComponent(field) +
 			'&oper=' + encodeURIComponent(oper) +
-			'&' + $.param(values, true)  
+			'&' + $.param(values, true)
 			;
 		
 		var cb = function(o) {

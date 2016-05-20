@@ -1807,9 +1807,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$is_custom = DevblocksPlatform::importGPC($_REQUEST['is_custom'],'integer',0);
 
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
-		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper']);
+		@$field = DevblocksPlatform::importGPC($_REQUEST['field'], 'string', null);
+		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'], 'string', null);
 		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
+		@$replace = DevblocksPlatform::importGPC($_REQUEST['replace'], 'integer', 0);
 		@$field_deletes = DevblocksPlatform::importGPC($_REQUEST['field_deletes'],'array',array());
 
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
