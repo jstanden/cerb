@@ -1281,6 +1281,16 @@ class DevblocksPlatform extends DevblocksEngine {
 		return implode(', ', $output);
 	}
 	
+	static function strTimeToSecs($string) {
+		if(empty($string))
+			return 0;
+		
+		$now = time();
+		$then = strtotime("+".$string, $now);
+		
+		return $then-$now;
+	}	
+	
 	/**
 	 * 
 	 * @param string $string
