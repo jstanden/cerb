@@ -244,7 +244,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 				break;
 		}
 		
-		list($tables, $wheres, $null) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'snippet.id');
+		list($tables, $wheres, $null) = parent::_parseSearchParams($params, $columns, 'SearchFields_Snippet', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"snippet.id as %s, ".
@@ -278,7 +278,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		$where_sql = ''.
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 		
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Snippet');
 		
 		$args = array(
 			'join_sql' => &$join_sql,
@@ -456,7 +456,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 
 };
 
-class SearchFields_Snippet implements IDevblocksSearchFields {
+class SearchFields_Snippet extends DevblocksSearchFields {
 	const ID = 's_id';
 	const TITLE = 's_title';
 	const CONTEXT = 's_context';
@@ -480,10 +480,45 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'snippet.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_SNIPPET => new DevblocksSearchFieldContextKeys('snippet.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+		return false;
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -514,9 +549,7 @@ class SearchFields_Snippet implements IDevblocksSearchFields {
 		
 		// Custom fields with fieldsets
 		
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_SNIPPET,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(is_array($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -887,7 +920,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$search_fields = SearchFields_Snippet::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Snippet::FULLTEXT_SNIPPET),
@@ -914,7 +947,8 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'examples' => array(
 						'plaintext',
 						'ticket',
-						'plaintext,ticket',
+						'[plaintext,ticket]',
+						'![plaintext]',
 					),
 				),
 			'updated' => 
@@ -939,7 +973,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		}
 		
 		if(!empty($ft_examples))
-			$fields['_fulltext']['examples'] = $ft_examples;
+			$fields['text']['examples'] = $ft_examples;
 		
 		// Add is_sortable
 		
@@ -952,52 +986,45 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				case 'type':
-					$field_keys = array(
-						'type' => SearchFields_Snippet::CONTEXT,
-					);
-					
-					@$field_key = $field_keys[$k];
-					
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					
-					$patterns = DevblocksPlatform::parseCsvString($v);
-					$contexts = Extension_DevblocksContext::getAll(false);
-					$values = array();
-					
-					if(is_array($patterns))
-					foreach($patterns as $pattern) {
-						if(in_array($pattern, array('plain', 'plaintext'))) {
-							$values[''] = true;
-							continue;
-						}
-						
-						foreach($contexts as $context_id => $context) {
-							if(false !== stripos($context->name, $pattern))
-								$values[$context_id] = true;
-						}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'type':
+				$field_key = SearchFields_Snippet::CONTEXT;
+				$oper = null;
+				$patterns = array();
+				
+				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $patterns);
+				
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$values = array();
+				
+				if(is_array($patterns))
+				foreach($patterns as $pattern) {
+					if(in_array($pattern, array('plain', 'plaintext'))) {
+						$values[''] = true;
+						continue;
 					}
 					
-					$param = new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						array_keys($values)
-					);
-					$params[$field_key] = $param;
-					break;
-					
-			}
+					foreach($contexts as $context_id => $context) {
+						if(false !== stripos($context->name, $pattern))
+							$values[$context_id] = true;
+					}
+				}
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					array_keys($values)
+				);
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

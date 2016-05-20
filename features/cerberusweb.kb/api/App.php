@@ -859,7 +859,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_KbCategory::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'kbc.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_KbCategory', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"kbc.id as %s, ".
@@ -875,7 +875,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_KbCategory');
 		
 		$result = array(
 			'primary_table' => 'kbc',
@@ -945,16 +945,46 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_KbCategory implements IDevblocksSearchFields {
+class SearchFields_KbCategory extends DevblocksSearchFields {
 	// Table
 	const ID = 'kbc_id';
 	const PARENT_ID = 'kbc_parent_id';
 	const NAME = 'kbc_name';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'kbc.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_KB_CATEGORY => new DevblocksSearchFieldContextKeys('kbc.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -966,9 +996,7 @@ class SearchFields_KbCategory implements IDevblocksSearchFields {
 		
 		// Custom fields with fieldsets
 		
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_KB_CATEGORY,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(is_array($custom_columns))
 			$columns = array_merge($columns, $custom_columns);

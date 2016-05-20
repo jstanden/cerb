@@ -80,7 +80,11 @@
 			<class name="C4_AbstractView" />
 			<class name="C4_AbstractLoader" />
 			<class name="C4_AbstractModel" />
+			<class name="CerbQuickSearchLexer" />
+			<class name="CerbQuickSearchLexerToken" />
 			<class name="DAO_WorkerViewModel" />
+			<class name="IAbstractView_QuickSearch" />
+			<class name="IAbstractView_Subtotals" />
 		</file>
 		
 		<file path="api/dao/address.php">

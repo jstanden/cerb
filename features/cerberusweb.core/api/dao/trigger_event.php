@@ -324,7 +324,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_TriggerEvent::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'trigger_event.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_TriggerEvent', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"trigger_event.id as %s, ".
@@ -348,7 +348,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_TriggerEvent');
 	
 		return array(
 			'primary_table' => 'trigger_event',
@@ -469,7 +469,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_TriggerEvent implements IDevblocksSearchFields {
+class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	const ID = 't_id';
 	const TITLE = 't_title';
 	const IS_DISABLED = 't_is_disabled';
@@ -477,10 +477,41 @@ class SearchFields_TriggerEvent implements IDevblocksSearchFields {
 	const VIRTUAL_ATTENDANT_ID = 't_virtual_attendant_id';
 	const EVENT_POINT = 't_event_point';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'trigger_event.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('trigger_event.id', self::ID),
+			CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT => new DevblocksSearchFieldContextKeys('trigger_event.virtual_attendant_id', self::VIRTUAL_ATTENDANT_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(

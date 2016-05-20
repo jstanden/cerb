@@ -211,7 +211,7 @@ class PageSection_SetupMailFailed extends Extension_PageSection {
 	}
 };
 
-class SearchFields_MailParseFail {
+class SearchFields_MailParseFail extends DevblocksSearchFields {
 	const NAME = 'mf_name';
 	const SIZE = 'mf_size';
 	const CTIME = 'mf_ctime';
@@ -403,7 +403,7 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 		$search_fields = SearchFields_MailParseFail::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_MailParseFail::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -441,21 +441,17 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// ...
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
-	
+
 	function render() {
 		$this->_sanitize();
 		

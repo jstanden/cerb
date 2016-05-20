@@ -299,7 +299,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CrmOpportunity::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'o.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CrmOpportunity', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"o.id as %s, ".
@@ -344,7 +344,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 		
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_CrmOpportunity');
 
 		// Translate virtual fields
 		
@@ -495,7 +495,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
+class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	// Table
 	const ID = 'o_id';
 	const PRIMARY_EMAIL_ID = 'o_primary_email_id';
@@ -527,10 +527,46 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'o.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_OPPORTUNITY => new DevblocksSearchFieldContextKeys('o.id', self::ID),
+			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('o.primary_email_id', self::PRIMARY_EMAIL_ID),
+			CerberusContexts::CONTEXT_ORG => new DevblocksSearchFieldContextKeys('a.contact_org_id', self::ORG_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -569,11 +605,7 @@ class SearchFields_CrmOpportunity implements IDevblocksSearchFields {
 		
 		// Custom fields with fieldsets
 		
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_OPPORTUNITY,
-			CerberusContexts::CONTEXT_ADDRESS,
-			CerberusContexts::CONTEXT_ORG,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(is_array($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -750,7 +782,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$search_fields = SearchFields_CrmOpportunity::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -860,19 +892,15 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// ...
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

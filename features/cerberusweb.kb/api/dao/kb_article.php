@@ -305,7 +305,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_KbArticle::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'kb.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_KbArticle', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"kb.id as %s, ".
@@ -339,7 +339,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_KbArticle');
 
 		// Translate virtual fields
 		
@@ -473,7 +473,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_KbArticle implements IDevblocksSearchFields {
+class SearchFields_KbArticle extends DevblocksSearchFields {
 	// Table
 	const ID = 'kb_id';
 	const TITLE = 'kb_title';
@@ -494,10 +494,45 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'kb.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_KB_ARTICLE => new DevblocksSearchFieldContextKeys('kb.id', self::ID),
+			CerberusContexts::CONTEXT_KB_CATEGORY => new DevblocksSearchFieldContextKeys('katc.kb_category_id', self::CATEGORY_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -527,10 +562,7 @@ class SearchFields_KbArticle implements IDevblocksSearchFields {
 
 		// Custom fields with fieldsets
 		
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_KB_ARTICLE,
-			CerberusContexts::CONTEXT_KB_CATEGORY,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(is_array($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -1172,7 +1204,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		$search_fields = SearchFields_KbArticle::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT),
@@ -1219,7 +1251,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		}
 		
 		if(!empty($ft_examples)) {
-			$fields['_fulltext']['examples'] = $ft_examples;
+			$fields['text']['examples'] = $ft_examples;
 			$fields['content']['examples'] = $ft_examples;
 		}
 		
@@ -1234,19 +1266,15 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// ...
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

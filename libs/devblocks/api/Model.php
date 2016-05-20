@@ -18,9 +18,178 @@ class DevblocksTourCallout {
 		$this->yOffset = $yOffset;
 	}
 };
+
+class DevblocksSearchFieldContextKeys {
+	public $where_key = null;
+	public $field_key = null;
+	public $dict_key = null;
+	
+	function __construct($where_key, $field_key=null, $dict_key=null) {
+		$this->where_key = $where_key;
+		$this->field_key = $field_key;
+		$this->dict_key = $dict_key;
+	}
+};
+
 interface IDevblocksSearchFields {
 	static function getFields();
+	static function getPrimaryKey();
+	static function getCustomFieldContextKeys();
+	static function getWhereSQL(DevblocksSearchCriteria $param);
 }
+
+abstract class DevblocksSearchFields implements IDevblocksSearchFields {
+	static function getCustomFieldContextData($context) {
+		$map = static::getCustomFieldContextKeys();
+		
+		if(!isset($map[$context]))
+			return false;
+		
+		return $map[$context];
+	}
+	
+	static function getCustomFieldContextWhereKey($context) {
+		$where_key = null;
+		
+		if(false != ($cfield_ctx = self::getCustomFieldContextData($context))) { /* @var $cfield_ctx DevblocksSearchFieldContextKeys */
+			$where_key = $cfield_ctx->where_key;
+		}
+		
+		return $where_key;
+
+	}
+	static function getCustomFieldContextFieldKey($context) {
+		$field_key = null;
+		
+		if(false != ($cfield_ctx = self::getCustomFieldContextData($context))) { /* @var $cfield_ctx DevblocksSearchFieldContextKeys */
+			$field_key = $cfield_ctx->field_key;
+		}
+		
+		return $field_key;
+	}
+	
+	static function _getWhereSQLFromCustomFields($param) {
+		if(0 == ($field_id = intval(substr($param->field,3))))
+			return 0;
+		
+		if(false == ($field = DAO_CustomField::get($field_id)))
+			return 0;
+
+		$field_table = sprintf("cf_%d", $field_id);
+		$value_table = DAO_CustomFieldValue::getValueTableName($field_id);
+		$field_key = $param->field;
+		$cfield_key = null;
+		
+		$cfield_key = static::getCustomFieldContextWhereKey($field->context);
+		
+		if(empty($cfield_key))
+			return 0;
+		
+		$not = false;
+		
+		$param = clone $param;
+		
+		// Custom field optimizations
+		
+		// Field type special handling
+		switch($field->type) {
+			
+			// An unchecked checkbox is simply NOT a checked checkbox (faster than LEFT JOIN)
+			case Model_CustomField::TYPE_CHECKBOX:
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_EQ:
+					case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
+						if(empty($param->value)) {
+							$not = true;
+							$param->operator = DevblocksSearchCriteria::OPER_EQ;
+							$param->value = 1;
+						}
+						break;
+				}
+				break;
+				
+			case Model_CustomField::TYPE_DATE:
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_EQ_OR_NULL:
+						$not = true;
+						$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
+						$param->value = null;
+						break;
+				}
+				break;
+				
+			default:
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
+						$param->operator = DevblocksSearchCriteria::OPER_IN;
+						break;
+						
+					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
+						$not = true;
+						$param->operator = DevblocksSearchCriteria::OPER_IN;
+						break;
+						
+					case DevblocksSearchCriteria::OPER_NEQ:
+						$not = true;
+						$param->operator = DevblocksSearchCriteria::OPER_EQ;
+						break;
+						
+					case DevblocksSearchCriteria::OPER_NIN:
+						$not = true;
+						$param->operator = DevblocksSearchCriteria::OPER_IN;
+						break;
+						
+					case DevblocksSearchCriteria::OPER_NOT_LIKE:
+						$not = true;
+						$param->operator = DevblocksSearchCriteria::OPER_LIKE;
+						break;
+						
+					case DevblocksSearchCriteria::OPER_NOT_BETWEEN:
+						$not = true;
+						$param->operator = DevblocksSearchCriteria::OPER_BETWEEN;
+						break;
+				}
+				break;
+		}
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+				return sprintf("%s %sIN (SELECT context_id FROM %s AS %s WHERE %s.context = %s AND %s.context_id = %s AND %s.field_id=%d)",
+					$cfield_key,
+					($param->operator == DevblocksSearchCriteria::OPER_IS_NULL) ? 'NOT ' : '',
+					$value_table,
+					$field_table,
+					$field_table,
+					Cerb_ORMHelper::qstr($field->context),
+					$field_table,
+					$cfield_key,
+					$field_table,
+					$field_id
+				);
+				break;
+				
+			default:
+				return sprintf("%s %sIN (SELECT context_id FROM %s AS %s WHERE %s.context = %s AND %s.context_id = %s AND %s.field_id=%d AND %s)",
+					$cfield_key,
+					($not) ? 'NOT ' : '',
+					$value_table,
+					$field_table,
+					$field_table,
+					Cerb_ORMHelper::qstr($field->context),
+					$field_table,
+					$cfield_key,
+					$field_table,
+					$field_id,
+					$param->getWhereSQL(static::getFields(), static::getPrimaryKey())
+				);
+				break;
+		}
+		
+		return 0;
+	}
+}
+
 class DevblocksSearchCriteria {
 	const OPER_EQ = '=';
 	const OPER_EQ_OR_NULL = 'equals or null';
@@ -41,6 +210,7 @@ class DevblocksSearchCriteria {
 	const OPER_BETWEEN = 'between';
 	const OPER_NOT_BETWEEN = 'not between';
 	const OPER_TRUE = '1';
+	const OPER_FALSE = '0';
 	const OPER_CUSTOM = 'custom';
 	
 	const GROUP_OR = 'OR';
@@ -67,85 +237,85 @@ class DevblocksSearchCriteria {
 	 * @param mixed $value
 	 * @return DevblocksSearchCriteria
 	 */
-	public function DevblocksSearchCriteria($field,$oper,$value=null) {
+	public function __construct($field, $oper, $value=null) {
 		$this->field = $field;
 		$this->operator = $oper;
 		$this->value = $value;
 	}
 	
-	public static function getParamsFromQueryFields($fields, $meta) {
+	public static function getParamFromQueryFieldTokens($field, $tokens, $meta) {
 		$search_fields = $meta;
-		$params = array();
+		@$search_field = $search_fields[$field];
 		
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			@$search_field = $search_fields[$k];
-			
-			// Only parse valid fields
-			if(!$search_field || !isset($search_field['type']))
-				continue;
+		// Only parse valid fields
+		if(!$search_field || !isset($search_field['type']))
+			return false;
 
-			@$param_key = $search_fields[$k]['options']['param_key'];
-			
-			switch($search_field['type']) {
-				case DevblocksSearchCriteria::TYPE_BOOL:
-					if($param_key && false != ($param = DevblocksSearchCriteria::getBooleanParamFromQuery($param_key, $v)))
-						$params[$param_key] = $param;
-					continue;
-					
-				case DevblocksSearchCriteria::TYPE_DATE:
-					if($param_key && false != ($param = DevblocksSearchCriteria::getDateParamFromQuery($param_key, $v)))
-						$params[$param_key] = $param;
-					continue;
-					
-				case DevblocksSearchCriteria::TYPE_FULLTEXT:
-					if($param_key && false != ($param = DevblocksSearchCriteria::getFulltextParamFromQuery($param_key, $v)))
-						$params[$param_key] = $param;
-					continue;
-					
-				case DevblocksSearchCriteria::TYPE_NUMBER:
-					if($param_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromQuery($param_key, $v)))
-						$params[$param_key] = $param;
-					continue;
-					
-				case DevblocksSearchCriteria::TYPE_TEXT:
-					@$match_type = $search_field['options']['match'];
-					
-					if($param_key && false != ($param = DevblocksSearchCriteria::getTextParamFromQuery($param_key, $v, $match_type)))
-						$params[$param_key] = $param;
-					continue;
-					
-				case DevblocksSearchCriteria::TYPE_WORKER:
-					if($param_key && false != ($param = DevblocksSearchCriteria::getWorkerParamFromQuery($param_key, $v)))
-						$params[$param_key] = $param;
-					continue;
-			}
+		@$param_key = $search_fields[$field]['options']['param_key'];
+		
+		switch($search_field['type']) {
+			case DevblocksSearchCriteria::TYPE_BOOL:
+				if($param_key && false != ($param = DevblocksSearchCriteria::getBooleanParamFromTokens($param_key, $tokens)))
+					return $param;
+				continue;
+				
+			case DevblocksSearchCriteria::TYPE_DATE:
+				if($param_key && false != ($param = DevblocksSearchCriteria::getDateParamFromTokens($param_key, $tokens)))
+					return $param;
+				continue;
+				
+			case DevblocksSearchCriteria::TYPE_FULLTEXT:
+				if($param_key && false != ($param = DevblocksSearchCriteria::getFulltextParamFromTokens($param_key, $tokens)))
+					return $param;
+				continue;
+				
+			case DevblocksSearchCriteria::TYPE_NUMBER:
+				if($param_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens)))
+					return $param;
+				continue;
+				
+			case DevblocksSearchCriteria::TYPE_TEXT:
+				@$match_type = $search_field['options']['match'];
+				
+				if($param_key && false != ($param = DevblocksSearchCriteria::getTextParamFromTokens($param_key, $tokens, $match_type)))
+					return $param;
+				continue;
+				
+			case DevblocksSearchCriteria::TYPE_WORKER:
+				if($param_key && false != ($param = DevblocksSearchCriteria::getWorkerParamFromTokens($param_key, $tokens)))
+					return $param;
+				continue;
 		}
 		
-		return $params;
+		return false;
 	}
 	
-	public static function getDateParamFromQuery($field_key, $query) {
+	public static function getDateParamFromTokens($field_key, $tokens) {
 		// [TODO] Add more operators, for now we assume it's always '[date] to [date]' format
-		
 		// [TODO] If not a range search, and not a relative start point, we could treat this as an absolute (=)
-		
 		// [TODO] Handle >=, >, <=, <, =, !=
 		
 		$oper = DevblocksSearchCriteria::OPER_BETWEEN;
-		$values = null;
+		$values = array();
 		
-		if(0 == strcasecmp(trim($query), 'never') || empty($query)) {
-			$oper = DevblocksSearchCriteria::OPER_EQ;
-			$values = 'never';
-			
-		} else {
-			$values = explode(' to ', strtolower($query), 2);
-			
-			if(1 == count($values))
-				$values[] = 'now';
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_QUOTED_TEXT':
+				case 'T_TEXT':
+					if(0 == strcasecmp(trim($token->value), 'never') || empty($token->value)) {
+						$oper = DevblocksSearchCriteria::OPER_EQ;
+						$values = 'never';
+						
+					} else {
+						$values = explode(' to ', strtolower($token->value), 2);
+						
+						if(1 == count($values))
+							$values[] = 'now';
+					}
+					break;
+			}
 		}
-		
+
 		return new DevblocksSearchCriteria(
 			$field_key,
 			$oper,
@@ -153,67 +323,96 @@ class DevblocksSearchCriteria {
 		);
 	}
 	
-	public static function getBooleanParamFromQuery($field_key, $query) {
-		// Attempt to interpret bool values
-		if(
-			false !== stristr($query, 'yes')
-			|| false !== stristr($query, 'y')
-			|| false !== stristr($query, 'true')
-			|| false !== stristr($query, 't')
-			|| intval($query) > 0
-		) {
-			$oper = DevblocksSearchCriteria::OPER_EQ;
-			$value = true;
-			
-		} else {
-			$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
-			$value = false;
-		}
+	public static function getBooleanParamFromTokens($field_key, $tokens) {
+		$oper = DevblocksSearchCriteria::OPER_EQ;
+		$value = true;
 		
-		return new DevblocksSearchCriteria(
-			$field_key,
-			$oper,
-			$value
-		);
-	}
-	
-	public static function getNumberParamFromQuery($field_key, $query) {
-		// [TODO] Add more operators
-
-		$oper = self::OPER_EQ;
-		
-		if(preg_match('#^([\<\>\!\=]+)(.*)#', $query, $matches)) {
-			$oper_hint = trim($matches[1]);
-			$query = trim($matches[2]);
-			
-			switch($oper_hint) {
-				case '!':
-				case '!=':
-					$oper = self::OPER_NEQ;
-					break;
-					
-				case '>':
-					$oper = self::OPER_GT;
-					break;
-					
-				case '>=':
-					$oper = self::OPER_GTE;
-					break;
-					
-				case '<':
-					$oper = self::OPER_LT;
-					break;
-					
-				case '<=':
-					$oper = self::OPER_LTE;
-					break;
-					
-				default:
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_QUOTED_TEXT':
+				case 'T_TEXT':
+					if(false !== stristr($token->value, 'n')
+						|| false !== stristr($token->value, 'f')
+						|| $token->value == '0'
+					) {
+						$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
+						$value = false;
+					}
 					break;
 			}
 		}
 		
-		$value = $query;
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$value
+		);
+	}
+	
+	public static function getNumberParamFromTokens($field_key, $tokens) {
+		$oper = DevblocksSearchCriteria::OPER_EQ;
+		$value = null;
+		$not = false;
+		
+		if(is_array($tokens))
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_NOT':
+					$not = true;
+					break;
+					
+				case 'T_ARRAY':
+					$oper = $not ? DevblocksSearchCriteria::OPER_NIN : DevblocksSearchCriteria::OPER_IN;
+					$value = DevblocksPlatform::sanitizeArray($token->value, 'int');
+					break;
+					
+				case 'T_TEXT':
+				case 'T_QUOTED_TEXT':
+					$oper = $not ? DevblocksSearchCriteria::OPER_NEQ : DevblocksSearchCriteria::OPER_EQ;
+					$value = $token->value;
+					
+					if(preg_match('#(\d+)\.{3}(\d+)#', $value, $matches) || preg_match('#(\d+)\s+to\s+(\d+)#', $value, $matches)) {
+						$from = intval($matches[1]);
+						$to = intval($matches[2]);
+						
+						$oper = DevblocksSearchCriteria::OPER_BETWEEN;
+						$value = array($from, $to);
+						
+					} else if(preg_match('#^([\<\>\!\=]+)(.*)#', $value, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$value = trim($matches[2]);
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								$oper = self::OPER_NEQ;
+								break;
+								
+							case '>':
+								$oper = self::OPER_GT;
+								break;
+								
+							case '>=':
+								$oper = self::OPER_GTE;
+								break;
+								
+							case '<':
+								$oper = self::OPER_LT;
+								break;
+								
+							case '<=':
+								$oper = self::OPER_LTE;
+								break;
+								
+							default:
+								break;
+						}
+						
+						$value = intval($value);
+					}
+					break;
+			}
+		}
 		
 		return new DevblocksSearchCriteria(
 			$field_key,
@@ -222,96 +421,72 @@ class DevblocksSearchCriteria {
 		);
 	}
 	
-	public static function getWorkerParamFromQuery($field_key, $query) {
-		// [TODO] NOT?
+	public static function getWorkerParamFromTokens($field_key, $tokens) {
 		// [TODO] This can have placeholders
 		
 		$oper = self::OPER_IN;
+		$not = false;
 		$value = null;
+		$terms = null;
 		
-		// Parse operator hints
-		if(preg_match('#^([\!\=]+)(.*)#', $query, $matches)) {
-			$oper_hint = trim($matches[1]);
-			$query = trim($matches[2]);
-			
-			switch($oper_hint) {
-				case '!':
-				case '!=':
-					$oper = self::OPER_NIN_OR_NULL;
-					
-					if(empty($query)) {
-						$oper = self::OPER_IS_NOT_NULL;
-						$value = true;
-					}
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_NOT':
+					$not = !$not;
 					break;
 					
-				default:
-					$oper = self::OPER_IN;
+				case 'T_ARRAY':
+					$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
+					$terms = $token->value;
+					break;
 					
-					if(empty($query)) {
-						$oper = self::OPER_IS_NULL;
-						$value = true;
-					}
+				case 'T_QUOTED_TEXT':
+				case 'T_TEXT':
+					$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
+					$terms = DevblocksPlatform::parseCsvString($token->value);
 					break;
 			}
 		}
 
-		if(!empty($query)) {
-			switch(strtolower($query)) {
-				case 'any':
-				case 'anyone':
-				case 'anybody':
-					$oper = self::OPER_NIN;
-					$value = array(0);
-					break;
+		if(1 == count($terms) && in_array(strtolower($terms[0]), array('any','anyone','anybody'))) {
+			$oper = self::OPER_IS_NOT_NULL;
+			$value = null;
+			
+		} else if(1 == count($terms) && in_array(strtolower($terms[0]), array('blank','empty','no','none','noone','nobody'))) {
+			$oper = self::OPER_IS_NULL;
+			$value = null;
+			
+		} else {
+			$active_worker = CerberusApplication::getActiveWorker();
+			$workers = DAO_Worker::getAllActive();
+				
+			if(!is_array($terms))
+				break;
+			
+			$worker_ids = array();
+			
+			foreach($terms as $term) {
+				if(is_numeric($term) && isset($workers[$term])) {
+					$worker_ids[intval($term)] = true;
+					continue;
+				
+				} elseif($active_worker && 0 == strcasecmp($term, 'me')) {
+					$worker_ids[$active_worker->id] = true;
+					continue;
+				}
+				
+				foreach($workers as $worker_id => $worker) {
+					if(isset($workers_ids[$worker_id]))
+						continue;
 					
-				case 'blank':
-				case 'empty':
-				case 'no':
-				case 'none':
-				case 'noone':
-				case 'nobody':
-					$oper = self::OPER_IN_OR_NULL;
-					$value = array(0);
-					break;
-					
-				default:
-					$active_worker = CerberusApplication::getActiveWorker();
-					$workers = DAO_Worker::getAllActive();
-					$patterns = DevblocksPlatform::parseCsvString($query);
-					
-					if(!is_array($patterns))
-						break;
-					
-					$worker_ids = array();
-					
-					foreach($patterns as $pattern) {
-						if(is_numeric($pattern) && isset($workers[$pattern])) {
-							$worker_ids[intval($pattern)] = true;
-						
-						} elseif($active_worker && 0 == strcasecmp($pattern, 'me')) {
-							$worker_ids[$active_worker->id] = true;
-							continue;
-							
-						} elseif(in_array(strtolower($pattern), array('none','noone','nobody'))) {
-							$oper = self::OPER_IN_OR_NULL;
-							$worker_ids[0] = true;
-						}
-						
-						foreach($workers as $worker_id => $worker) {
-							if(isset($workers_ids[$worker_id]))
-								continue;
-							
-							if(false !== stristr($worker->getName(), $pattern)) {
-								$worker_ids[$worker_id] = true;
-							}
-						}
+					if(false !== stristr($worker->getName(), $term)) {
+						$worker_ids[$worker_id] = true;
 					}
-					
-					if(!empty($worker_ids)) {
-						$value = array_keys($worker_ids);
-					}
-					break;
+				}
+			}
+			
+			if(!empty($worker_ids)) {
+				$value = array_keys($worker_ids);
 			}
 		}
 		
@@ -322,55 +497,145 @@ class DevblocksSearchCriteria {
 		);
 	}
 	
-	public static function getFulltextParamFromQuery($field_key, $query) {
+	public static function getWatcherParamFromTokens($field_key, $tokens) {
+		$oper = self::OPER_IN;
+		$not = false;
+		$value = null;
+		$terms = null;
+		
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_NOT':
+					$not = !$not;
+					break;
+					
+				case 'T_ARRAY':
+					$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
+					$terms = $token->value;
+					break;
+					
+				case 'T_QUOTED_TEXT':
+				case 'T_TEXT':
+					$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
+					$terms = DevblocksPlatform::parseCsvString($token->value);
+					break;
+			}
+		}
+		
+		if(1 == count($terms) && in_array(strtolower($terms[0]), array('any','yes'))) {
+			$oper = self::OPER_IS_NOT_NULL;
+			$value = array();
+			
+		} else if(1 == count($terms) && in_array(strtolower($terms[0]), array('none','no'))) {
+			$oper = self::OPER_IS_NULL;
+			$value = array();
+			
+		} else {
+			$active_worker = CerberusApplication::getActiveWorker();
+			$workers = DAO_Worker::getAllActive();
+				
+			if(!is_array($terms))
+				break;
+			
+			$worker_ids = array();
+			
+			foreach($terms as $term) {
+				if(is_numeric($term) && isset($workers[$term])) {
+					$worker_ids[intval($term)] = true;
+				
+				} elseif($active_worker && 0 == strcasecmp($term, 'me')) {
+					$worker_ids[$active_worker->id] = true;
+					continue;
+				}
+				
+				foreach($workers as $worker_id => $worker) {
+					if(isset($workers_ids[$worker_id]))
+						continue;
+					
+					if(false !== stristr($worker->getName(), $term)) {
+						$worker_ids[$worker_id] = true;
+					}
+				}
+			}
+			
+			if(!empty($worker_ids)) {
+				$value = array_keys($worker_ids);
+			} else {
+				$value = array(-1);
+			}
+		}
+		
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$value
+		);
+	}
+
+	public static function getFulltextParamFromTokens($field_key, $tokens) {
+		$terms = array();
+		
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_QUOTED_TEXT':
+					$terms[] = '"' . $token->value . '"';
+					break;
+					
+				case 'T_TEXT':
+					$terms[] = $token->value;
+					break;
+			}
+		}
+		
 		return new DevblocksSearchCriteria(
 			$field_key,
 			DevblocksSearchCriteria::OPER_FULLTEXT,
 			array(
-				$query,
+				implode(' ', $terms),
 				'expert'
 			)
 		);
 	}
 	
-	public static function getTextParamFromQuery($field_key, $query, $options=0) {
-		// [TODO] Detect operators
-		// [TODO] OPER_NEQ OPER_NIN?
-		// [TODO] OPER_IN?
-		// [TODO] Quoted query is literal (no wildcards)
-		// [TODO] AND/OR/NOT parentheses? <- Would probably need a lexer
+	public static function getTextParamFromTokens($field_key, $tokens, $options=0) {
+		$oper = DevblocksSearchCriteria::OPER_EQ;
+		$value = null;
+		$not = false;
 		
-		$oper = self::OPER_EQ;
-		
-		// If blank
-		if(empty($query)) {
-			$oper = self::OPER_EQ;
-			$value = "";
-		
-		// If quoted
-		} elseif(preg_match('#^"(.*)"$#', $query)) {
-			$value = trim($query,'"');
-			
-		// Otherwise, handle as a fuzzy search
-		} else {
-			
-			if(false !== strpos($query, '*')) {
-				$oper = self::OPER_LIKE;
-				$value = $query;
-				
-			} else {
-				if($options & self::OPTION_TEXT_PARTIAL) {
-					$oper = self::OPER_LIKE;
-					$value = sprintf('*%s*', $query);
+		if(is_array($tokens))
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_NOT':
+					$not = true;
+					break;
 					
-				} elseif($options & self::OPTION_TEXT_PREFIX) {
-					$oper = self::OPER_LIKE;
-					$value = sprintf('%s*', $query);
+				case 'T_ARRAY':
+					$oper = $not ? DevblocksSearchCriteria::OPER_NIN : DevblocksSearchCriteria::OPER_IN;
+					$value = $token->value;
+					break;
 					
-				} else {
-					$oper = self::OPER_EQ;
-					$value = $query;
-				}
+				case 'T_QUOTED_TEXT':
+				case 'T_TEXT':
+					if(false !== strpos($token->value, '*')) {
+						$oper = $not ? DevblocksSearchCriteria::OPER_NOT_LIKE : DevblocksSearchCriteria::OPER_LIKE;
+						$value = $token->value;
+						
+					} else {
+						$oper = $not ? DevblocksSearchCriteria::OPER_NEQ : DevblocksSearchCriteria::OPER_EQ;
+						$value = $token->value;
+						
+						if($token->type == 'T_TEXT') {
+							if($options & self::OPTION_TEXT_PARTIAL) {
+								$oper = $not ? self::OPER_NOT_LIKE : self::OPER_LIKE;
+								$value = sprintf('*%s*', $value);
+								
+							} elseif($options & self::OPTION_TEXT_PREFIX) {
+								$oper = $not ? self::OPER_NOT_LIKE : self::OPER_LIKE;
+								$value = sprintf('%s*', $value);
+							}
+						}
+					}
+					break;
 			}
 		}
 		
@@ -382,11 +647,22 @@ class DevblocksSearchCriteria {
 	}
 	
 	public function getWhereSQL($fields, $pkey) {
+		if(isset($this->where_sql))
+			return $this->where_sql;
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		$where = '';
 		
+		if(!isset($fields[$this->field]))
+			return '';
+		
 		$db_field_name = $fields[$this->field]->db_table . '.' . $fields[$this->field]->db_column;
 
+		// This should be handled by SearchFields_*::getWhereSQL()
+		if('*_' == substr($this->field,0,2)) {
+			return '';
+		}
+		
 		// [JAS]: Operators
 		switch($this->operator) {
 			case "eq":
@@ -422,9 +698,11 @@ class DevblocksSearchCriteria {
 				break;
 			
 			case "in":
-				if(!is_array($this->value) && !is_string($this->value))
+				if(!is_array($this->value) && !is_string($this->value)) {
+					$where = '0';
 					break;
-				
+				}
+					
 				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
 					$values = json_decode($this->value, true);
 					
@@ -453,8 +731,10 @@ class DevblocksSearchCriteria {
 				break;
 				
 			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-				if(!is_array($this->value) && !is_string($this->value))
+				if(!is_array($this->value) && !is_string($this->value)) {
+					$where = '0';
 					break;
+				}
 				
 				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
 					$values = json_decode($this->value, true);
@@ -493,8 +773,10 @@ class DevblocksSearchCriteria {
 				break;
 
 			case DevblocksSearchCriteria::OPER_NIN: // 'not in'
-				if(!is_array($this->value) && !is_string($this->value))
+				if(!is_array($this->value) && !is_string($this->value)) {
+					$where = '0';
 					break;
+				}
 					
 				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
 					$values = json_decode($this->value, true);
@@ -546,8 +828,10 @@ class DevblocksSearchCriteria {
 				break;
 				
 			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-				if(!is_array($this->value) && !is_string($this->value))
+				if(!is_array($this->value) && !is_string($this->value)) {
+					$where = '0';
 					break;
+				}
 				
 				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
 					$values = json_decode($this->value, true);
@@ -639,8 +923,10 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::OPER_NOT_BETWEEN: // 'not between'
 				$not = $this->operator == DevblocksSearchCriteria::OPER_NOT_BETWEEN ? true : false;
 				
-				if(!is_array($this->value) && 2 != count($this->value))
+				if(!is_array($this->value) || 2 != count($this->value)) {
+					return 0;
 					break;
+				}
 					
 				$from_date = $this->value[0];
 				if(!is_numeric($from_date)) {

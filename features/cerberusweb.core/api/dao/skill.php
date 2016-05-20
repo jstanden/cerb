@@ -239,7 +239,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Skill::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'skill.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Skill', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"skill.id as %s, ".
@@ -261,7 +261,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Skill');
 	
 		// Virtuals
 		
@@ -391,7 +391,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 
 };
 
-class SearchFields_Skill implements IDevblocksSearchFields {
+class SearchFields_Skill extends DevblocksSearchFields {
 	const ID = 's_id';
 	const NAME = 's_name';
 	const SKILLSET_ID = 's_skillset_id';
@@ -405,10 +405,44 @@ class SearchFields_Skill implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'skill.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_SKILL => new DevblocksSearchFieldContextKeys('skill.id', self::ID),
+			CerberusContexts::CONTEXT_SKILLSET => new DevblocksSearchFieldContextKeys('skill.skillset_id', self::SKILLSET_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -427,9 +461,7 @@ class SearchFields_Skill implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_SKILL,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(!empty($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -583,7 +615,7 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$search_fields = SearchFields_Skill::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Skill::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -628,42 +660,42 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				case 'skillset':
-					$field_key = SearchFields_Skill::SKILLSET_ID;
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					
-					$skillsets = DAO_Skillset::getAll();
-					$patterns = DevblocksPlatform::parseCsvString($v);
-					$values = array();
-					
-					if(is_array($values))
-					foreach($patterns as $pattern) {
-						foreach($skillsets as $skillset_id => $skillset) {
-							if(false !== stripos($skillset->name, $pattern))
-								$values[$skillset_id] = true;
-						}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'skillset':
+				$field_key = SearchFields_Skill::SKILLSET_ID;
+				$oper = null;
+				$terms = null;
+				
+				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms);
+				
+				$skillsets = DAO_Skillset::getAll();
+				$values = array();
+				
+				if(is_array($values))
+				foreach($terms as $term) {
+					foreach($skillsets as $skillset_id => $skillset) {
+						if(false !== stripos($skillset->name, $term))
+							$values[$skillset_id] = true;
 					}
-					
-					if(!empty($values)) {
-						$params[$field_key] = new DevblocksSearchCriteria(
-							$field_key,
-							$oper,
-							array_keys($values)
-						);
-					}
-					break;
-			}
+				}
+				
+				if(!empty($values)) {
+					return new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						array_keys($values)
+					);
+				}
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

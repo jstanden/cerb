@@ -96,7 +96,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 		$search_fields = SearchFields_DevblocksStorageProfile::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_DevblocksStorageProfile::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -119,29 +119,15 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$params = array();
-
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			
-			switch($k) {
-				// Texts (fuzzy)
-				
-				case '_fulltext':
-					$field_keys = array(
-						'_fulltext' => SearchFields_DevblocksStorageProfile::NAME,
-					);
-					
-					@$field_key = $field_keys[$k];
-					
-					if($field_key && false != ($param = DevblocksSearchCriteria::getTextParamFromQuery($field_key, $v, DevblocksSearchCriteria::OPTION_TEXT_PARTIAL)))
-						$params[$field_key] = $param;
-					break;
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

@@ -139,7 +139,7 @@ class DAO_ViewFiltersPreset extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ViewFiltersPreset::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'view_filters_preset.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ViewFiltersPreset', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"view_filters_preset.id as %s, ".
@@ -157,7 +157,7 @@ class DAO_ViewFiltersPreset extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select, 'SearchFields_ViewFiltersPreset');
 		
 		$result = array(
 			'primary_table' => 'view_filters_preset',
@@ -252,16 +252,47 @@ class Model_ViewFiltersPreset {
 	public $sort_asc;
 };
 
-class SearchFields_ViewFiltersPreset implements IDevblocksSearchFields {
+class SearchFields_ViewFiltersPreset extends DevblocksSearchFields {
 	const ID = 'v_id';
 	const NAME = 'v_name';
 	const VIEW_CLASS = 'v_view_class';
 	const WORKER_ID = 'v_worker_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'view_filters_preset.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('view_filters_preset.id', self::ID),
+			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('view_filters_preset.worker_id', self::WORKER_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(

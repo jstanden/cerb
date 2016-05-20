@@ -399,7 +399,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 			$fields = SearchFields_TimeTrackingEntry::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'tt.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_TimeTrackingEntry', $sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"tt.id as %s, ".
@@ -426,7 +426,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_TimeTrackingEntry');
 		
 		// Translate virtual fields
 		
@@ -617,7 +617,7 @@ class Model_TimeTrackingEntry {
 	}
 };
 
-class SearchFields_TimeTrackingEntry {
+class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 	// TimeTracking_Entry
 	const ID = 'tt_id';
 	const TIME_ACTUAL_MINS = 'tt_time_actual_mins';
@@ -638,10 +638,45 @@ class SearchFields_TimeTrackingEntry {
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_owners';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'tt.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_TIMETRACKING => new DevblocksSearchFieldContextKeys('tt.id', self::ID),
+			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('tt.worker_id', self::WORKER_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -668,9 +703,7 @@ class SearchFields_TimeTrackingEntry {
 		
 		// Custom fields with fieldsets
 		
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_TIMETRACKING,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(is_array($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -840,13 +873,13 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		return $counts;
 	}
 	
-	// [TODO] activity, timeElapsed
+	// [TODO] activity
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_TimeTrackingEntry::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT),
@@ -871,10 +904,19 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_TimeTrackingEntry::IS_CLOSED),
 				),
-			'mins' => 
+			'timeSpent' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS),
+					'examples' => array(
+						'30',
+						'"< 1 hour"',
+						'">= 1 hour"',
+						'[30,60,90]',
+						'![0]',
+						'1...60',
+						'"1 min ... 1 hour"',
+					),
 				),
 			'worker' => 
 				array(
@@ -903,7 +945,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		}
 		
 		if(!empty($ft_examples)) {
-			$fields['_fulltext']['examples'] = $ft_examples;
+			$fields['text']['examples'] = $ft_examples;
 			$fields['comments']['examples'] = $ft_examples;
 		}
 		
@@ -918,41 +960,27 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				case 'timeElapsed':
-					$field_keys = array(
-						'timeElapsed' => SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
-					);
-					
-					@$field_key = $field_keys[$k];
-					
-					$oper_hint = 0;
-					
-					if(preg_match('#^([\!\=\>\<]+)(.*)#', $v, $matches)) {
-						$oper_hint = trim($matches[1]);
-						$v = trim($matches[2]);
-					}
-					
-					// [TODO] This could be a placeholder
-					// [TODO] This should be unit tested
-					$elapsed = DevblocksPlatform::strTimeToSecs($v);
-					
-					$value = $oper_hint . $elapsed;
-					
-					if($field_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromQuery($field_key, $value)))
-						$params[$field_key] = $param;
-					break;
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'mins':
+			case 'timeSpent':
+				$tokens = CerbQuickSearchLexer::getHumanTimeTokensAsNumbers($tokens, 60);
+				
+				$field_key = SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS;
+				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
+				break;
+			
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS, $tokens);
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {
@@ -1072,6 +1100,24 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				$this->_renderCriteriaParamWorker($param);
 				break;
 
+			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
+				$strings = array();
+				$sep = ' or ';
+				
+				if($param->operator == DevblocksSearchCriteria::OPER_BETWEEN)
+					$sep = ' and ';
+				
+				foreach($values as $value) {
+					if(empty($value)) {
+						$strings[] = 'never';
+					} else {
+						$strings[] = DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value*60, 2));
+					}
+				}
+				
+				echo implode($sep, $strings);
+				break;
+				
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
 				$activities = DAO_TimeTrackingActivity::getWhere(); // [TODO] getAll cache
 				$strings = array();

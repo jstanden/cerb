@@ -175,7 +175,7 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ExampleObject::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'example_object.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ExampleObject', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"example_object.id as %s, ".
@@ -195,7 +195,7 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ExampleObject');
 	
 		// Virtuals
 		foreach($params as $param) {
@@ -295,7 +295,7 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 
 };
 
-class SearchFields_ExampleObject implements IDevblocksSearchFields {
+class SearchFields_ExampleObject extends DevblocksSearchFields {
 	const ID = 'e_id';
 	const NAME = 'e_name';
 	const CREATED = 'e_created';
@@ -305,10 +305,44 @@ class SearchFields_ExampleObject implements IDevblocksSearchFields {
 	
 	const VIRTUAL_WATCHERS = '*_workers';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'example_object.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			Context_ExampleObject::ID => new DevblocksSearchFieldContextKeys('example_object.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -324,9 +358,7 @@ class SearchFields_ExampleObject implements IDevblocksSearchFields {
 		
 		// Custom fields with fieldsets
 		
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			Context_ExampleObject::ID,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(is_array($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -461,7 +493,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 		$search_fields = SearchFields_ExampleObject::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ExampleObject::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -498,19 +530,15 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// ...
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 
 	function render() {

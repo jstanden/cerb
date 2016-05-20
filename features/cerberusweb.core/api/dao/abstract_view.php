@@ -371,9 +371,19 @@ abstract class C4_AbstractView {
 		
 		// Get fields
 		
-		$fields = $this->_getFieldsFromQuickSearchQuery($query);
+		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
 		
-		// Quick search multi-sorting
+		array_walk_recursive($fields, function(&$v, $k) {
+			if($v instanceof DevblocksSearchCriteria) {
+				$param = $this->getParamFromQuickSearchFieldTokens($v->key, $v->tokens);
+				
+				if($param instanceof DevblocksSearchCriteria) {
+					$v = $param;
+				} else {
+					$v = new DevblocksSearchCriteria('_unknown', DevblocksSearchCriteria::OPER_FALSE);
+				}
+			}
+		});
 		
 		if(isset($fields['sort']) && $fields['sort']) {
 			if(false != ($sort_results = $this->_getSortFromQuickSearchQuery($fields['sort'])) && is_array($sort_results)) {
@@ -385,11 +395,7 @@ abstract class C4_AbstractView {
 			unset($fields['sort']);
 		}
 		
-		// Build params
-		
-		$params = $this->getParamsFromQuickSearchFields($fields);
-		
-		$this->addParams($params, $replace);
+		$this->addParams($fields, $replace);
 		$this->renderPage = 0;
 	}
 	
@@ -1113,120 +1119,6 @@ abstract class C4_AbstractView {
 		}
 		
 		return $criteria;
-	}
-	
-	protected function _getFieldsFromQuickSearchQuery($query) {
-		$tokens = array();
-		
-		// Tokens for lexer
-		$token_map = array(
-			'[a-zA-Z0-9\_\.]+\:' => 'T_FIELD',
-			'\( (?: (?: (?>[^()]+) | (?R) )* ) \)' => 'T_PARENTHETIC_TEXT',
-			'\[ (?: (?: (?>[^\[\]]+) | (?R) )* ) \]' => 'T_BRACKET_TEXT',
-			'"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"' => 'T_QUOTED_TEXT',
-			'\s+' => 'T_WHITESPACE',
-			'[^\s]+' => 'T_TEXT',
-		);
-		
-		$token_offsets = array_values($token_map);
-		
-		// Compile the regexp
-		$regexp = '((' . implode(')|(', array_keys($token_map)) . '))Ax';
-		
-		$offset = 0;
-		
-		while(isset($query[$offset])) {
-			if(!preg_match($regexp, $query, $matches, null, $offset))
-				break;
-			
-			if('' == $matches[0])
-				break;
-			
-			$match = $matches[0];
-			array_shift($matches);
-			
-			if(false === ($idx = array_search($match, $matches)))
-				break;
-			
-			if(!isset($token_offsets[$idx]))
-				break;
-			
-			$tokens[] = array($match, $token_offsets[$idx]);
-			$offset += strlen($match);
-		}
-		
-		$fields = array();
-		
-		$text = '';
-		
-		while(list($v, $token_type) = current($tokens)) {
-			
-			switch($token_type) {
-				case 'T_FIELD':
-					$field = rtrim($v, ':');
-					
-					// Look ahead
-					if(list($arg_v, $arg_k) = next($tokens)) {
-					
-						// Handle known arguments
-						switch($arg_k) {
-							case 'T_BRACKET_TEXT':
-								$arg = str_replace(array('\[','\]'), array('[', ']'), trim($arg_v, '[]'));
-								$fields[$field] = $arg;
-								break;
-								
-							case 'T_PARENTHETIC_TEXT':
-								$arg = str_replace(array('\(','\)'), array('(', ')'), trim($arg_v, '()'));
-								$fields[$field] = $arg;
-								break;
-								
-							case 'T_QUOTED_TEXT':
-								$arg = str_replace(array('\"','\"'), array('"', '"'), trim($arg_v, '"'));
-								$fields[$field] = $arg;
-								break;
-								
-							case 'T_TEXT':
-								$fields[$field] = $arg_v;
-								break;
-								
-							// Otherwise, back up.
-							default:
-								prev($tokens);
-								break;
-						}
-					}
-					
-					break;
-					
-				case 'T_QUOTED_TEXT':
-				case 'T_TEXT':
-					$text .= $v;
-					break;
-					
-				case 'T_WHITESPACE':
-					// Look ahead to see if the next token is text
-					if(list($next_v, $next_k) = next($tokens)) {
-						// If so, append the space
-						switch($next_k) {
-							case 'T_QUOTED_TEXT':
-							case 'T_TEXT':
-								if(!empty($text) && ' ' != substr($text,-1))
-									$text .= ' ';
-						}
-						
-						// Then rewind
-						prev($tokens);
-					}
-					break;
-			}
-			
-			next($tokens);
-		}
-		
-		if(!empty($text))
-			$fields['_fulltext'] = $text;
-		
-		return $fields;
 	}
 	
 	protected function _appendFieldsFromQuickSearchContext($context, $fields=array(), $prefix=null) {
@@ -2558,12 +2450,445 @@ abstract class C4_AbstractView {
 
 interface IAbstractView_QuickSearch {
 	function getQuickSearchFields();
-	function getParamsFromQuickSearchFields($fields);
+	function getParamFromQuickSearchFieldTokens($field, $tokens);
 };
 
 interface IAbstractView_Subtotals {
 	function getSubtotalCounts($column);
 	function getSubtotalFields();
+};
+
+class CerbQuickSearchLexer {
+	private static function _recurse($token, $key, $callback) {
+		if(empty($key) || $token->type == $key)
+			$callback($token);
+		
+		foreach($token->children as $child)
+			self::_recurse($child, $key, $callback);
+	}
+	
+	static function buildParams($token, &$parent) {
+		switch($token->type) {
+			case 'T_GROUP':
+				$param = array(
+					$token->value == 'OR' ? DevblocksSearchCriteria::GROUP_OR : DevblocksSearchCriteria::GROUP_AND,
+				);
+				foreach($token->children as $child)
+					self::buildParams($child, $param);
+				
+				if(!is_array($parent)) {
+					$parent = $param;
+				} else {
+					$parent[] = $param;
+				}
+				break;
+				
+			case 'T_FIELD':
+				$param = new DevblocksSearchCriteria(null, null);
+				$param->key = $token->value;
+				$param->tokens = $token->children;
+				$parent[] = $param;
+				break;
+		}
+	}
+	
+	static function getFieldsFromQuery($query) {
+		$original_query = $query;
+		$tokens = array();
+		
+		// Extract double-quoted literals text
+		
+		$quotes = array();
+		$start = 0;
+		
+		while(false !== ($from = strpos($query, '"', $start))) {
+			if(false === ($to = strpos($query, '"', $from+1)))
+				break;
+			
+			$idx = count($quotes);
+			$cut = substr($query, $from, $to-$from+1);
+			$quotes[] = trim($cut,'"');
+			$query = str_replace($cut, ' <$Q:'.$idx.'> ', $query);
+			$start = $from;
+		}
+		
+		// Tokenize symbols
+		
+		$query = str_replace(array(' OR ',' AND ','(',')','[',']','"'), array(' <$OR> ',' <$AND> ',' <$PO> ',' <$PC> ',' <$BO> ',' <$BC> '), $query);
+		
+		// Cap at two continuous whitespace chars
+		
+		$query = preg_replace('#\s{2,}#', '  ', $query);
+		
+		// Tokens for lexer
+		$token_map = array(
+			'[a-zA-Z0-9\_\.]+\:' => 'T_FIELD',
+			'\s+' => 'T_WHITESPACE',
+			'[^\s]+' => 'T_TEXT',
+		);
+		
+		$token_offsets = array_values($token_map);
+		
+		// Compile the regexp
+		$regexp = '((' . implode(')|(', array_keys($token_map)) . '))Ax';
+		
+		$offset = 0;
+		
+		while(isset($query[$offset])) {
+			if(!preg_match($regexp, $query, $matches, null, $offset))
+				break;
+			
+			if('' == $matches[0])
+				break;
+			
+			$match = $matches[0];
+			array_shift($matches);
+			
+			if(false === ($idx = array_search($match, $matches)))
+				break;
+			
+			if(!isset($token_offsets[$idx]))
+				break;
+			
+			$token_type = $token_offsets[$idx];
+			$token_value = $match;
+			
+			switch($token_type) {
+				case 'T_FIELD':
+					$token_value = rtrim($match, ':');
+					break;
+					
+				case 'T_WHITESPACE':
+					$token_type = null;
+					break;
+					
+				case 'T_TEXT':
+					if($match == '!') {
+						$token_type = 'T_NOT';
+						
+					} elseif (substr($match,0,4) == '<$Q:') {
+						$idx = intval(substr($match,4));
+						$token_type = 'T_QUOTED_TEXT';
+						$token_value = $quotes[$idx];
+						
+					} else {
+						switch($match) {
+							case '<$PO>':
+								$token_type = 'T_PARENTHETICAL_OPEN';
+								$token_value = '(';
+								break;
+							case '<$PC>':
+								$token_type = 'T_PARENTHETICAL_CLOSE';
+								$token_value = ')';
+								break;
+							case '<$BO>':
+								$token_type = 'T_BRACKET_OPEN';
+								$token_value = '[';
+								break;
+							case '<$BC>':
+								$token_type = 'T_BRACKET_CLOSE';
+								$token_value = ']';
+								break;
+							case '<$AND>':
+								$token_type = 'T_BOOL';
+								$token_value = 'AND';
+								break;
+							case '<$OR>':
+								$token_type = 'T_BOOL';
+								$token_value = 'OR';
+								break;
+						}
+					}
+					break;
+			}
+			
+			if($token_type)
+				$tokens[] = new CerbQuickSearchLexerToken($token_type, $token_value);
+			
+			$offset += strlen($match);
+		}
+		
+		// Bracket arrays
+		
+		reset($tokens);
+		$start = null;
+		while($token = current($tokens)) {
+			switch($token->type) {
+				case 'T_BRACKET_OPEN':
+					$start = key($tokens);
+					break;
+					
+				case 'T_BRACKET_CLOSE':
+					if($start) {
+						$len = key($tokens)-$start+1;
+						$cut = array_splice($tokens, $start, $len, array(array()));
+						
+						array_shift($cut);
+						array_pop($cut);
+						
+						$tokens[$start] = new CerbQuickSearchLexerToken('T_ARRAY', null, $cut);
+						$start = null;
+					}
+					break;
+			}
+			
+			next($tokens);
+		}
+		
+		// Group parentheticals
+		
+		reset($tokens);
+		$start_idx = $end_idx = null;
+		$opens = array();
+		
+		while($token = current($tokens)) {
+			switch($token->type) {
+				case 'T_PARENTHETICAL_OPEN':
+					$opens[] = key($tokens);
+					next($tokens);
+					break;
+					
+				case 'T_PARENTHETICAL_CLOSE':
+					$start = array_pop($opens);
+					$len = key($tokens)-$start+1;
+					$cut = array_splice($tokens, $start, $len, array(array()));
+					
+					// Remove the wrappers
+					array_shift($cut);
+					array_pop($cut);
+					
+					// If we only had one element in the group, don't bother grouping
+					if(count($cut) == 1) {
+						$tokens[$start] = $cut[0];
+					} else {
+						$tokens[$start] = new CerbQuickSearchLexerToken('T_GROUP', null, $cut);
+					}
+					reset($tokens);
+					break;
+					
+				default:
+					next($tokens);
+					break;
+			}
+		}
+		
+		$tokens = new CerbQuickSearchLexerToken('T_GROUP', null, $tokens);
+		
+		// Arrays
+		
+		self::_recurse($tokens, 'T_ARRAY', function($token) {
+			$elements = array();
+			
+			self::_recurse($token, 'T_TEXT', function($token) use (&$elements) {
+				$elements = array_merge($elements, DevblocksPlatform::parseCsvString($token->value));
+			});
+			
+			$token->value = $elements;
+			$token->children = array();
+		});
+		
+		// Recurse
+		
+		self::_recurse($tokens, '', function($token) {
+			$append_to = null;
+			
+			foreach($token->children as $k => $child) {
+				switch($child->type) {
+					case 'T_FIELD':
+						$append_to = $k;
+						break;
+						
+					case 'T_ARRAY':
+					case 'T_GROUP':
+						if(!is_null($append_to)) {
+							$token->children[$append_to]->children[] = $child;
+							unset($token->children[$k]);
+						}
+						$append_to = null;
+						break;
+						
+					case 'T_NOT':
+					case 'T_TEXT':
+					case 'T_QUOTED_TEXT':
+						if(!is_null($append_to)) {
+							$token->children[$append_to]->children[] = $child;
+							unset($token->children[$k]);
+						}
+						break;
+						
+					default:
+						$append_to = null;
+						break;
+				}
+			}
+		});
+		
+		// Move any unattached text into a fulltext field
+		self::_recurse($tokens, 'T_GROUP', function($token) {
+			$field = null;
+			
+			foreach($token->children as $k => $child) {
+				switch($child->type) {
+					case 'T_QUOTED_TEXT':
+					case 'T_TEXT':
+						if(is_null($field)) {
+							$field = new CerbQuickSearchLexerToken('T_FIELD', 'text');
+							$token->children[] = $field;
+						}
+							
+						$field->children[] = $child;
+						unset($token->children[$k]);
+						break;
+						
+					default:
+						$field = null;
+						break;
+				}
+			}
+		});
+		
+		// Sort out the boolean mode of each group
+		self::_recurse($tokens, 'T_GROUP', function($token) {
+			$field = null;
+			
+			// [TODO] Operator precedence AND -> OR
+			// [TODO] Handle 'a OR b AND c'
+			
+			foreach($token->children as $k => $child) {
+				switch($child->type) {
+					case 'T_BOOL':
+						if(empty($token->value))
+							$token->value = $child->value ?: 'AND';
+						unset($token->children[$k]);
+						break;
+				}
+			}
+		});
+				
+		$params = null;
+		self::buildParams($tokens, $params);
+		
+		// Remove the outer grouping if it's not necessary
+		if($params[0] == 'AND') {
+			array_shift($params);
+			$params = $params;
+		} else {
+			$params = array($params);
+		}
+		
+		return $params;
+	}
+	
+	static function getOperStringFromTokens($tokens, &$oper, &$value) {
+		self::_getOperValueFromTokens($tokens, $oper, $value);
+		
+		$not = ($oper == DevblocksSearchCriteria::OPER_NIN);
+		
+		if(0 == count($value)) {
+			$oper = $not ? DevblocksSearchCriteria::OPER_IS_NOT_NULL : DevblocksSearchCriteria::OPER_IS_NULL;
+			$value = null;
+			
+		} else {
+			$oper = $not ? DevblocksSearchCriteria::OPER_NEQ : DevblocksSearchCriteria::OPER_EQ;
+			$value = array_shift($value);
+		}
+		
+		return true;
+	}
+	
+	static function getOperArrayFromTokens($tokens, &$oper, &$value) {
+		return self::_getOperValueFromTokens($tokens, $oper, $value);
+	}
+	
+	static function _getOperValueFromTokens($tokens, &$oper, &$value) {
+		if(!is_array($tokens))
+			return false;
+		
+		$not = false;
+		$oper = DevblocksSearchCriteria::OPER_IN;
+		$value = array();
+		
+		foreach($tokens as $token) {
+			if(!($token instanceof CerbQuickSearchLexerToken))
+				continue;
+			
+			switch($token->type) {
+				case 'T_NOT':
+					$not = !$not;
+					break;
+					
+				case 'T_QUOTED_TEXT':
+				case 'T_TEXT':
+					$oper = $not ? DevblocksSearchCriteria::OPER_NIN : DevblocksSearchCriteria::OPER_IN;
+					$value = array($token->value);
+					break;
+					
+				case 'T_ARRAY':
+					$oper = $not ? DevblocksSearchCriteria::OPER_NIN : DevblocksSearchCriteria::OPER_IN;
+					$value = $token->value;
+					break;
+			}
+		}
+		
+		return true;
+	}
+	
+	static function getHumanTimeTokensAsNumbers($tokens, $interval=1) {
+		if(!is_array($tokens))
+			return false;
+		
+		$new_tokens = $tokens;
+			
+		foreach($new_tokens as &$token) {
+			switch($token->type) {
+				case 'T_QUOTED_TEXT':
+				case 'T_TEXT':
+					$v = $token->value;
+					
+					if(preg_match('#^([\!\=\>\<]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+						
+						if(!is_numeric($v))
+							$v = floor(DevblocksPlatform::strTimeToSecs($v) / $interval);
+						
+						$v = $oper_hint . $v;
+						
+					} else if(preg_match('#^(.*)?\.\.\.(.*)#', $v, $matches)) {
+						 $from = trim($matches[1]);
+						 $to = trim($matches[2]);
+						 
+						 if(!is_numeric($from))
+							$from = floor(DevblocksPlatform::strTimeToSecs($from) / $interval);
+						 if(!is_numeric($to))
+							$to = floor(DevblocksPlatform::strTimeToSecs($to) / $interval);
+						 
+						 $v = sprintf("%s...%s", $from, $to);
+						 
+					} else {
+						if(!is_numeric($v))
+							$v = floor(DevblocksPlatform::strTimeToSecs($v) / $interval);
+					}
+					
+					$token->value = $v;
+					break;
+			}
+		}
+		
+		return $new_tokens;
+	}
+};
+
+class CerbQuickSearchLexerToken {
+	public $type = null;
+	public $value = null;
+	public $children = array();
+	
+	public function __construct($type, $value, $children=array()) {
+		$this->type = $type;
+		$this->value = $value;
+		$this->children = $children;
+	}
 };
 
 /**

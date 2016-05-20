@@ -206,7 +206,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_FeedbackEntry::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'f.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_FeedbackEntry', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"f.id as %s, ".
@@ -238,7 +238,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_FeedbackEntry');
 
 		// Translate virtual fields
 		
@@ -365,7 +365,7 @@ class Model_FeedbackEntry {
 	public $source_url;
 };
 
-class SearchFields_FeedbackEntry {
+class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 	// Feedback_Entry
 	const ID = 'f_id';
 	const LOG_DATE = 'f_log_date';
@@ -383,10 +383,48 @@ class SearchFields_FeedbackEntry {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'f.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_FEEDBACK => new DevblocksSearchFieldContextKeys('f.id', self::ID),
+			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('f.quote_address_id', self::QUOTE_ADDRESS_ID),
+			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('f.worker_id', self::WORKER_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'f', 'id', $translate->_('feedback_entry.id'), null, true),
@@ -408,9 +446,7 @@ class SearchFields_FeedbackEntry {
 		
 		// Custom fields with fieldsets
 		
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_FEEDBACK,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(is_array($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -567,7 +603,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		$search_fields = SearchFields_FeedbackEntry::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_FeedbackEntry::QUOTE_TEXT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -586,6 +622,13 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_FeedbackEntry::QUOTE_MOOD),
+					'examples' => array(
+						'praise',
+						'neutral',
+						'criticism',
+						'[p,n,c]',
+						'![crit]',
+					)
 				),
 			'quote' => 
 				array(
@@ -619,44 +662,51 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			
-			switch($k) {
-				case 'mood':
-					$field_key = SearchFields_FeedbackEntry::QUOTE_MOOD;
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					$patterns = DevblocksPlatform::parseCsvString($v);
-					
-					$values = array();
-					
-					foreach($patterns as $pattern) {
-						switch(strtolower(substr($pattern,0,1))) {
-							case 'n':
-								$values[0] = true;
-								break;
-							case 'p':
-								$values[1] = true;
-								break;
-							case 'c':
-								$values[2] = true;
-								break;
-						}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'mood':
+				$field_key = SearchFields_FeedbackEntry::QUOTE_MOOD;
+				$oper = null;
+				$patterns = array();
+				
+				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $patterns);
+				
+				$values = array();
+				
+				foreach($patterns as $pattern) {
+					switch(strtolower(substr($pattern,0,1))) {
+						case 'n':
+							$values[0] = true;
+							break;
+						case 'p':
+							$values[1] = true;
+							break;
+						case 'c':
+							$values[2] = true;
+							break;
 					}
-					
-					if(!empty($values))
-						$params[$field_key] = new DevblocksSearchCriteria($field_key, $oper, array_keys($values));
-						
-					break;
-			}
+				}
+				
+				if(!empty($values)) {
+					return new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						array_keys($values)
+					);
+				}
+				break;
+		
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_FeedbackEntry::VIRTUAL_WATCHERS, $tokens);
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

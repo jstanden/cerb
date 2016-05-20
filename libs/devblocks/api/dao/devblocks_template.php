@@ -87,7 +87,7 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 		$search_fields = SearchFields_DevblocksTemplate::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_DevblocksTemplate::PATH, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -120,61 +120,15 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$params = array();
-
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			
-			switch($k) {
-				// Texts (fuzzy)
-				
-				case '_fulltext':
-				case 'path':
-				case 'plugin':
-				case 'tag':
-					$field_keys = array(
-						'_fulltext' => SearchFields_DevblocksTemplate::PATH,
-						'path' => SearchFields_DevblocksTemplate::PATH,
-						'plugin' => SearchFields_DevblocksTemplate::PLUGIN_ID,
-						'tag' => SearchFields_DevblocksTemplate::TAG,
-					);
-					
-					@$field_key = $field_keys[$k];
-					
-					if($field_key && false != ($param = DevblocksSearchCriteria::getTextParamFromQuery($field_key, $v, DevblocksSearchCriteria::OPTION_TEXT_PARTIAL)))
-						$params[$field_key] = $param;
-					break;
-					
-				// Dates
-				
-				case 'updated':
-					$field_keys = array(
-						'updated' => SearchFields_DevblocksTemplate::LAST_UPDATED,
-					);
-					
-					@$field_key = $field_keys[$k];
-					
-					if($field_key && false != ($param = DevblocksSearchCriteria::getDateParamFromQuery($field_key, $v)))
-						$params[$field_key] = $param;
-					break;
-					
-				// Numbers
-				
-				case 'id':
-					$field_keys = array(
-						'id' => SearchFields_DevblocksTemplate::ID,
-					);
-					
-					@$field_key = $field_keys[$k];
-					
-					if($field_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromQuery($field_key, $v)))
-						$params[$field_key] = $param;
-					break;
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

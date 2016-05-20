@@ -193,7 +193,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Attachment::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields, $sortBy, array(), 'a.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(), 'SearchFields_Attachment', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
@@ -224,7 +224,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Attachment');
 		
 		$result = array(
 			'primary_table' => 'a',
@@ -297,7 +297,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_Attachment implements IDevblocksSearchFields {
+class SearchFields_Attachment extends DevblocksSearchFields {
 	const ID = 'a_id';
 	const DISPLAY_NAME = 'a_display_name';
 	const MIME_TYPE = 'a_mime_type';
@@ -311,10 +311,40 @@ class SearchFields_Attachment implements IDevblocksSearchFields {
 	const LINK_CONTEXT = 'al_context';
 	const LINK_CONTEXT_ID = 'al_context_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'a.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_ATTACHMENT => new DevblocksSearchFieldContextKeys('a.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -803,7 +833,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		$search_fields = SearchFields_AttachmentLink::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -864,20 +894,16 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		return $fields;
 	}	
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// ...
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
-	}	
+		return false;
+	}
 	
 	function render() {
 		$this->_sanitize();
@@ -1369,7 +1395,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_AttachmentLink::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields, $sortBy, array(), 'al.attachment_id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(), 'SearchFields_AttachmentLink', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"al.attachment_id as %s, ".
@@ -1407,7 +1433,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_AttachmentLink');
 		
 		$result = array(
 			'primary_table' => 'al',
@@ -1481,7 +1507,7 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		
 };
 
-class SearchFields_AttachmentLink implements IDevblocksSearchFields {
+class SearchFields_AttachmentLink extends DevblocksSearchFields {
 	const ID = 'al_attachment_id';
 	const LINK_CONTEXT = 'al_context';
 	const LINK_CONTEXT_ID = 'al_context_id';
@@ -1495,10 +1521,40 @@ class SearchFields_AttachmentLink implements IDevblocksSearchFields {
 	const ATTACHMENT_STORAGE_SHA1HASH = 'a_storage_sha1hash';
 	const ATTACHMENT_UPDATED = 'a_updated';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'al.attachment_id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_ATTACHMENT => new DevblocksSearchFieldContextKeys('al.attachment_id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(

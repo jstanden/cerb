@@ -7,26 +7,56 @@ abstract class DevblocksORMHelper {
 	const OPT_UPDATE_NO_EVENTS = 2;
 	const OPT_UPDATE_NO_READ_AFTER_WRITE = 4;
 	
-	static protected function _buildSortClause($sortBy, $sortAsc, $fields) {
+	static protected function _buildSortClause($sortBy, $sortAsc, $fields, &$select_sql, $search_class=null) {
 		$sort_sql = null;
 		
-		if(is_string($sortBy)) {
-			// We can't sort on virtual fields, the field must exist, and must be flagged sortable
-			if('*'==substr($sortBy,0,1) 
-					|| !isset($fields[$sortBy]) 
-					|| !$fields[$sortBy]->is_sortable) {
-				$sortBy=null;
+		if(!is_array($sortBy))
+			$sortBy = array($sortBy);
+		
+		if(!is_array($sortAsc))
+			$sortAsc = array($sortAsc);
+		
+		// Append custom fields to the SELECT if (and only if) we're sorting on it
+		
+		foreach($sortBy as $sort_field) {
+			if('cf_' != substr($sort_field,0,3))
+				continue;
+			
+			if(false == ($field_id = intval(substr($sort_field, 3))))
+				continue;
+	
+			if(false == ($field = DAO_CustomField::get($field_id)))
+				continue;
+			
+			$cfield_key = null;
+			
+			if($search_class && class_exists($search_class))
+				$cfield_key = $search_class::getCustomFieldContextWhereKey($field->context);
+			
+			if($cfield_key) {
+				$select_sql .= sprintf(", (SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d ORDER BY field_value%s) AS %s ",
+					DAO_CustomFieldValue::getValueTableName($field->id),
+					Cerb_ORMHelper::qstr($field->context),
+					$cfield_key,
+					$field_id,
+					' LIMIT 1',
+					$sort_field
+				);
 			}
-			
-			$sort_sql = (!empty($sortBy) ? sprintf("ORDER BY %s %s ",$sortBy,($sortAsc || is_null($sortAsc))?"ASC":"DESC") : " ");
-			
-		} elseif(is_array($sortBy) && is_array($sortAsc) && count($sortBy) == count($sortAsc)) {
+		}
+		
+		if(is_array($sortBy) && is_array($sortAsc) && count($sortBy) == count($sortAsc)) {
 			$sorts = array();
 			
 			foreach($sortBy as $idx => $field) {
-				@$asc = $sortAsc[$idx];
+				// We can't sort on virtual fields, the field must exist, and must be flagged sortable
+				if('*'==substr($field,0,1) 
+						|| !isset($fields[$field]) 
+						|| !$fields[$field]->is_sortable) {
+					continue;
+				}
 				
-				// [TODO] Do the same field validation here
+				@$asc = $sortAsc[$idx];
 				
 				$sorts[] = sprintf("%s %s",
 					$field,
@@ -166,8 +196,14 @@ abstract class DevblocksORMHelper {
 		$db->ExecuteMaster($sql);
 	}
 	
-	static protected function _parseSearchParams($params, $columns=array(),$fields,$sortBy='',$ignore_params=array(), $pkey=null) {
+	static protected function _parseSearchParams($params, $columns=array(), $search_class, $sortBy='') {
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(!class_exists($search_class) || !class_implements($search_class, 'DevblocksSearchFields'))
+			return false;
+		
+		$pkey = $search_class::getPrimaryKey();
+		$fields = $search_class::getFields();
 		
 		$tables = array();
 		$selects = array();
@@ -189,6 +225,9 @@ abstract class DevblocksORMHelper {
 		// Columns
 		if(is_array($columns))
 		foreach($columns as $column) {
+			if(!isset($fields[$column]))
+				continue;
+			
 			$table_name = $fields[$column]->db_table;
 			$tables[$fields[$column]->db_table] = $table_name;
 			
@@ -206,32 +245,19 @@ abstract class DevblocksORMHelper {
 		// Params
 		if(is_array($params))
 		foreach($params as $param_key => $param) {
-			// If malformed
-			if(!is_array($param) && !is_object($param))
-				continue;
-			
-			// Skip virtuals
-			if(!is_array($param) && '*_' == substr($param->field,0,2))
-				continue;
-			
+			if(!is_array($param) && !is_object($param)) {
+				$where = "-1";
+				
 			// Is this a criteria group (OR, AND)?
-			if(is_array($param)) {
-				$where = self::_parseNestedSearchParams($param, $tables, $fields, $ignore_params, $pkey);
+			} elseif(is_array($param)) {
+				$where = self::_parseNestedSearchParams($param, $tables, $search_class, $pkey);
 				
 			// Is this a single parameter?
 			} elseif($param instanceOf DevblocksSearchCriteria) { /* @var $param DevblocksSearchCriteria */
+				if(isset($fields[$param->field]))
+					$tables[$fields[$param->field]->db_table] = $fields[$param->field]->db_table;
 				
-				// If ignored
-				if(true === in_array($param->field, $ignore_params))
-					continue;
-				
-				// Filter allowed columns (ignore invalid/deprecated)
-				if(!isset($fields[$param->field]))
-					continue;
-				
-				// Indexes for optimization
-				$tables[$fields[$param->field]->db_table] = $fields[$param->field]->db_table;
-				$where = $param->getWhereSQL($fields, $pkey);
+				$where = $search_class::getWhereSQL($param);
 			}
 			
 			if(!empty($where)) {
@@ -242,54 +268,54 @@ abstract class DevblocksORMHelper {
 		return array($tables, $wheres, $selects);
 	}
 	
-	static private function _parseNestedSearchParams($param, &$tables, $fields, $ignore_params=array(), $pkey=null) {
+	static private function _parseNestedSearchParams($param, &$tables, $search_class, $pkey=null) {
+		$pkey = $search_class::getPrimaryKey();
+		$fields = $search_class::getFields();
+		
 		$outer_wheres = array();
 		$group_wheres = array();
 		@$group_oper = strtoupper(array_shift($param));
+		$sql = '';
 		$where = '';
 		
 		if(empty($param))
-			return;
+			return null;
 		
 		switch($group_oper) {
 			case DevblocksSearchCriteria::GROUP_OR:
 			case DevblocksSearchCriteria::GROUP_AND:
 				foreach($param as $p) { /* @var $p DevblocksSearchCriteria */
 					if(is_array($p)) {
-						$outer_wheres[] = self::_parseNestedSearchParams($p, $tables, $fields, $ignore_params, $pkey);
+						$outer_wheres[] = self::_parseNestedSearchParams($p, $tables, $search_class, $pkey);
 						
 					} else {
-						// Skip virtuals
-						if('*_' == substr($p->field,0,2))
-							continue;
-						
-						// Skip ignored
-						if(true === in_array($p->field, $ignore_params))
-							continue;
-						
-						// Filter allowed columns (ignore invalid/deprecated)
-						if(!isset($fields[$p->field]))
-							continue;
-						
-						// [JAS]: Indexes for optimization
-						$tables[$fields[$p->field]->db_table] = $fields[$p->field]->db_table;
-						$group_wheres[] = $p->getWhereSQL($fields, $pkey);
+						if(!isset($fields[$p->field])) {
+							$group_wheres[] = '0';
+							
+						} else {
+							// [JAS]: Indexes for optimization
+							if(isset($fields[$p->field]))
+								$tables[$fields[$p->field]->db_table] = $fields[$p->field]->db_table;
+							
+							$group_wheres[] = $search_class::getWhereSQL($p);
+						}
 						
 						$where = sprintf("%s",
 							implode(" $group_oper ", $group_wheres)
 						);
 					}
 				}
-				
 				break;
 		}
 		
-		if(!empty($where))
+		if(0 != strlen($where))
 			$outer_wheres[] = $where;
 		
-		$sql = sprintf("(%s)",
-			implode(" $group_oper ", $outer_wheres)
-		);
+		if($group_oper && $outer_wheres) {
+			$sql = sprintf("(%s)",
+				implode(" $group_oper ", $outer_wheres)
+			);
+		}
 		
 		return $sql;
 	}
@@ -739,7 +765,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksTemplate::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'devblocks_template.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DevblocksTemplate', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"devblocks_template.id as %s, ".
@@ -758,19 +784,10 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 			
 		$join_sql = "FROM devblocks_template ";
 		
-		// Custom field joins
-		//list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-		//	$tables,
-		//	$params,
-		//	'devblocks_template.id',
-		//	$select_sql,
-		//	$join_sql
-		//);
-				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_DevblocksTemplate');
 		
 		$result = array(
 			'primary_table' => 'devblocks_template',
@@ -902,18 +919,47 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 
 };
 
-class SearchFields_DevblocksTemplate implements IDevblocksSearchFields {
+class SearchFields_DevblocksTemplate extends DevblocksSearchFields {
 	const ID = 'd_id';
 	const PLUGIN_ID = 'd_plugin_id';
 	const PATH = 'd_path';
 	const TAG = 'd_tag';
 	const LAST_UPDATED = 'd_last_updated';
-//	const CONTENT = 'd_content';
+	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'devblocks_template.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('devblocks_template.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
 	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -1188,7 +1234,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Translation::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(), $fields, $sortBy, array(), 'tl.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, array(), 'SearchFields_Translation', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"tl.id as %s, ".
@@ -1209,7 +1255,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Translation');
 		
 		$result = array(
 			'primary_table' => 'translation',
@@ -1280,7 +1326,7 @@ class DAO_Translation extends DevblocksORMHelper {
 
 };
 
-class SearchFields_Translation implements IDevblocksSearchFields {
+class SearchFields_Translation extends DevblocksSearchFields {
 	// Translate
 	const ID = 'tl_id';
 	const STRING_ID = 'tl_string_id';
@@ -1288,10 +1334,40 @@ class SearchFields_Translation implements IDevblocksSearchFields {
 	const STRING_DEFAULT = 'tl_string_default';
 	const STRING_OVERRIDE = 'tl_string_override';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'tl.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('tl.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		return array(
 			self::ID => new DevblocksSearchField(self::ID, 'tl', 'id', $translate->_('translate.id'), null, true),
@@ -1496,7 +1572,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksStorageProfile::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'devblocks_storage_profile.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DevblocksStorageProfile', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"devblocks_storage_profile.id as %s, ".
@@ -1514,7 +1590,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_DevblocksStorageProfile');
 		
 		$result = array(
 			'primary_table' => 'devblocks_storage_profile',
@@ -1599,16 +1675,46 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 
 };
 
-class SearchFields_DevblocksStorageProfile implements IDevblocksSearchFields {
+class SearchFields_DevblocksStorageProfile extends DevblocksSearchFields {
 	const ID = 'd_id';
 	const NAME = 'd_name';
 	const EXTENSION_ID = 'd_extension_id';
 	const PARAMS_JSON = 'd_params_json';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'devblocks_storage_profile.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('devblocks_storage_profile.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(

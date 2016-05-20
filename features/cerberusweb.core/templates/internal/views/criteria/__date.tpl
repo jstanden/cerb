@@ -10,11 +10,10 @@
 	<select name="oper">
 		<option value="between" {if $param && $param->operator=='between'}selected="selected"{/if}>{'search.date.between'|devblocks_translate|lower}</option>
 		<option value="not between" {if $param && $param->operator=='not between'}selected="selected"{/if}>{'search.date.between.not'|devblocks_translate}</option>
-		<option value="equals or null" {if $param && $param->operator=='equals or null'}selected="selected"{/if}>{'search.oper.null'|devblocks_translate}</option>
 	</select>
 </blockquote>
 
-<div class="date_range" style="display:{if ($param && $param->operator == 'equals or null')}none{else}block{/if};">
+<div class="date_range">
 	<b>{'search.value'|devblocks_translate|capitalize}:</b><br>
 	
 	<blockquote style="margin:5px;">
@@ -31,18 +30,8 @@
 </div>
 
 <script type="text/javascript">
-devblocksAjaxDateChooser('#searchDateFrom');
-devblocksAjaxDateChooser('#searchDateTo');
-
-$('#div{$uniq_id} select[name=oper]').change(function(e) {
-	var $div = $('#div{$uniq_id}');
-	var $select = $(this);
-	var val = $select.val();
-	
-	if(val == 'equals or null') {
-		$div.find('div.date_range').hide();
-	} else {
-		$div.find('div.date_range').show();
-	}
+$(function() {
+	devblocksAjaxDateChooser('#searchDateFrom');
+	devblocksAjaxDateChooser('#searchDateTo');
 });
 </script>

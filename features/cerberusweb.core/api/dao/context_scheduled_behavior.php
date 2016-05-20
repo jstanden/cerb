@@ -258,7 +258,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContextScheduledBehavior::getFields();
 
-		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'context_scheduled_behavior.id');
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextScheduledBehavior', $sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"context_scheduled_behavior.id as %s, ".
@@ -294,7 +294,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ContextScheduledBehavior');
 
 		return array(
 			'primary_table' => 'context_scheduled_behavior',
@@ -398,7 +398,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
+class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	const ID = 'c_id';
 	const CONTEXT = 'c_context';
 	const CONTEXT_ID = 'c_context_id';
@@ -414,10 +414,41 @@ class SearchFields_ContextScheduledBehavior implements IDevblocksSearchFields {
 	
 	const VIRTUAL_TARGET = '*_target';
 
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'context_scheduled_behavior.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('context_scheduled_behavior.id', self::ID),
+			CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT => new DevblocksSearchFieldContextKeys('trigger_event.virtual_attendant_id', self::BEHAVIOR_VIRTUAL_ATTENDANT_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$columns = array(
@@ -631,7 +662,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$search_fields = SearchFields_ContextScheduledBehavior::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -666,47 +697,43 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		return $fields;
 	}	
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				case 'va':
-					$field_keys = array(
-						'va' => SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID,
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'va':
+				$field_key = SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID;
+				$oper = null;
+				$terms = null;
+				
+				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms, false))
+					return false;
+				
+				$vas = DAO_VirtualAttendant::getAll();
+				$values = array();
+				
+				if(is_array($terms))
+				foreach($terms as $term) {
+					foreach($vas as $va_id => $va) {
+						if(false !== stripos($va->name, $term))
+							$values[$va_id] = true;
+					}
+				}
+				
+				if(!empty($values)) {
+					return new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						array_keys($values)
 					);
-					
-					@$field_key = $field_keys[$k];
-					
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					
-					$vas = DAO_VirtualAttendant::getAll();
-					$patterns = DevblocksPlatform::parseCsvString($v);
-					$values = array();
-					
-					if(is_array($values))
-					foreach($patterns as $pattern) {
-						foreach($vas as $va_id => $va) {
-							if(false !== stripos($va->name, $pattern))
-								$values[$va_id] = true;
-						}
-					}
-					
-					if(!empty($values)) {
-						$params[$field_key] = new DevblocksSearchCriteria(
-							$field_key,
-							$oper,
-							array_keys($values)
-						);
-					}
-					break;
-			}
+				}
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

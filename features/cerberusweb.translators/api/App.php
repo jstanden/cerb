@@ -488,7 +488,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		$search_fields = SearchFields_Translation::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Translation::STRING_DEFAULT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -502,13 +502,18 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Translation::LANG_CODE),
+					'examples' => array(
+						'en',
+						'[en,de,nl]',
+						'![en]',
+					)
 				),
-			'myTranslation' => 
+			'mine' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Translation::STRING_OVERRIDE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'text' => 
+			'theirs' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Translation::STRING_DEFAULT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -525,46 +530,62 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		
 		return $fields;
 	}	
-	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
 
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				case 'lang':
-					$lang_codes = DAO_Translation::getDefinedLangCodes();
-					
-					$field_keys = array(
-						'lang' => SearchFields_Translation::LANG_CODE,
-					);
-					
-					@$field_key = $field_keys[$k];
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					$patterns = DevblocksPlatform::parseCsvString($v);
-					
-					$values = array();
-					
-					foreach($patterns as $pattern) {
-						foreach($lang_codes as $lang_code => $lang_label) {
-							if(false !== stripos($lang_code . ' ' . $lang_label, $pattern))
-								$values[$lang_code] = true;
-						}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'lang':
+				$field_key = SearchFields_Translation::LANG_CODE;
+				$oper = null;
+				$patterns = array();
+				
+				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $patterns);
+				
+				$lang_codes = DAO_Translation::getDefinedLangCodes();
+				
+				$values = array();
+				
+				foreach($patterns as $pattern) {
+					foreach($lang_codes as $lang_code => $lang_label) {
+						if(false !== stripos($lang_code . ' ' . $lang_label, $pattern))
+							$values[$lang_code] = true;
 					}
+				}
 
-					$param = new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						array_keys($values)
-					);
-					$params[$field_key] = $param;
-					break;
-			}
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					array_keys($values)
+				);
+				break;
+		
+			case 'ticket.id':
+				$field_key = SearchFields_Address::VIRTUAL_TICKET_ID;
+				$oper = null;
+				$value = null;
+				
+				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value))
+					return false;
+				
+				$value = DevblocksPlatform::sanitizeArray($value, 'int');
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					$value
+				);
+				break;
+				
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_Address::VIRTUAL_WATCHERS, $tokens);
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

@@ -239,7 +239,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WorkspacePage::getFields();
 
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'workspace_page.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkspacePage', $sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"workspace_page.id as %s, ".
@@ -259,7 +259,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_WorkspacePage');
 
 		return array(
 			'primary_table' => 'workspace_page',
@@ -592,7 +592,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WorkspaceTab::getFields();
 		
-		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'workspace_tab.id');
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Workspace', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"workspace_tab.id as %s, ".
@@ -612,7 +612,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_WorkspaceTab');
 	
 		return array(
 			'primary_table' => 'workspace_tab',
@@ -707,7 +707,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	
 };
 
-class SearchFields_WorkspacePage implements IDevblocksSearchFields {
+class SearchFields_WorkspacePage extends DevblocksSearchFields {
 	const ID = 'w_id';
 	const NAME = 'w_name';
 	const OWNER_CONTEXT = 'w_owner_context';
@@ -716,10 +716,40 @@ class SearchFields_WorkspacePage implements IDevblocksSearchFields {
 	
 	const VIRTUAL_OWNER = '*_owner';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'workspace_page.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_WORKSPACE_PAGE => new DevblocksSearchFieldContextKeys('workspace_page.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -739,17 +769,48 @@ class SearchFields_WorkspacePage implements IDevblocksSearchFields {
 	}
 };
 
-class SearchFields_WorkspaceTab implements IDevblocksSearchFields {
+class SearchFields_WorkspaceTab extends DevblocksSearchFields {
 	const ID = 'w_id';
 	const NAME = 'w_name';
 	const WORKSPACE_PAGE_ID = 'w_workspace_page_id';
 	const POS = 'w_pos';
 	const EXTENSION_ID = 'w_extension_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'workspace_tab.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_WORKSPACE_TAB => new DevblocksSearchFieldContextKeys('workspace_tab.id', self::ID),
+			CerberusContexts::CONTEXT_WORKSPACE_PAGE => new DevblocksSearchFieldContextKeys('workspace_tab.workspace_page_id', self::WORKSPACE_PAGE_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -1134,7 +1195,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$search_fields = SearchFields_WorkspacePage::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WorkspacePage::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -1161,19 +1222,15 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// ...
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 
 	function render() {

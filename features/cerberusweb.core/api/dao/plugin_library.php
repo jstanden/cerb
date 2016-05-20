@@ -152,7 +152,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_PluginLibrary::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'plugin_library.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_PluginLibrary', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"plugin_library.id as %s, ".
@@ -184,7 +184,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_PluginLibrary');
 	
 		$result = array(
 			'primary_table' => 'plugin_library',
@@ -469,7 +469,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	
 };
 
-class SearchFields_PluginLibrary implements IDevblocksSearchFields {
+class SearchFields_PluginLibrary extends DevblocksSearchFields {
 	const ID = 'p_id';
 	const PLUGIN_ID = 'p_plugin_id';
 	const NAME = 'p_name';
@@ -484,10 +484,44 @@ class SearchFields_PluginLibrary implements IDevblocksSearchFields {
 	// Fulltexts
 	const FULLTEXT_PLUGIN_LIBRARY = 'ft_plugin_library';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'plugin_library.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('plugin_library.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -796,7 +830,7 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		$search_fields = SearchFields_PluginLibrary::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_PluginLibrary::FULLTEXT_PLUGIN_LIBRARY),
@@ -806,7 +840,7 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_PluginLibrary::AUTHOR, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'description' => 
+			'desc' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_PluginLibrary::DESCRIPTION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -853,7 +887,7 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		}
 		
 		if(!empty($ft_examples))
-			$fields['_fulltext']['examples'] = $ft_examples;
+			$fields['text']['examples'] = $ft_examples;
 		
 		// Add is_sortable
 		
@@ -866,36 +900,45 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				case 'version':
-					$field_keys = array(
-						'version' => SearchFields_PluginLibrary::LATEST_VERSION,
-					);
-					
-					@$field_key = $field_keys[$k];
-					$oper_hint = 0;
-					
-					if(preg_match('#^([\!\=\>\<]+)(.*)#', $v, $matches)) {
-						$oper_hint = trim($matches[1]);
-						$v = trim($matches[2]);
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'version':
+				foreach($tokens as &$token) {
+					switch($token->type) {
+						case 'T_QUOTED_TEXT':
+						case 'T_TEXT':
+							$v = $token->value;
+							
+							if(preg_match('#^([\!\=\>\<]+)(.*)#', $v, $matches)) {
+								$oper_hint = trim($matches[1]);
+								$v = trim($matches[2]);
+								$v = $oper_hint . DevblocksPlatform::strVersionToInt($v, 3);
+								
+							} else if(preg_match('#^(.*)?\.\.\.(.*)#', $v, $matches)) {
+								 $from = DevblocksPlatform::strVersionToInt(trim($matches[1]), 3);
+								 $to = DevblocksPlatform::strVersionToInt(trim($matches[2]), 3);
+								 $v = sprintf("%d...%d", $from, $to);
+							} else {
+								$v = DevblocksPlatform::strVersionToInt($v, 3);
+							}
+							
+							$token->value = $v;
+							break;
 					}
-					
-					$value = $oper_hint . DevblocksPlatform::strVersionToInt($v, 3);
-					
-					if($field_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromQuery($field_key, $value)))
-						$params[$field_key] = $param;
-					break;
-			}
+				}
+				
+				$param = DevblocksSearchCriteria::getNumberParamFromTokens('version', $tokens);
+				$param->field = SearchFields_PluginLibrary::LATEST_VERSION;
+				return $param;
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {
@@ -947,8 +990,23 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 
 		switch($field) {
 			case SearchFields_PluginLibrary::LATEST_VERSION:
-				echo DevblocksPlatform::strEscapeHtml(DevblocksPlatform::intVersionToStr($param->value));
+				if(is_array($param->value)) {
+					$sep = ' or ';
+					$strings = array();
+					
+					if($param->operator == DevblocksSearchCriteria::OPER_BETWEEN)
+						$sep = ' and ';
+					
+					foreach($param->value as $value)
+						$strings[] = DevblocksPlatform::strEscapeHtml(DevblocksPlatform::intVersionToStr($value));
+					
+					echo implode($sep, $strings);
+					
+				} else {
+					echo DevblocksPlatform::strEscapeHtml(DevblocksPlatform::intVersionToStr($param->value));
+				}
 				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;

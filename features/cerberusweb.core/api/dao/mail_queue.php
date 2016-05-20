@@ -191,7 +191,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_MailQueue::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'mail_queue.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_MailQueue', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"mail_queue.id as %s, ".
@@ -221,7 +221,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_MailQueue');
 		
 		$result = array(
 			'primary_table' => 'mail_queue',
@@ -305,7 +305,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_MailQueue implements IDevblocksSearchFields {
+class SearchFields_MailQueue extends DevblocksSearchFields {
 	const ID = 'm_id';
 	const WORKER_ID = 'm_worker_id';
 	const UPDATED = 'm_updated';
@@ -317,10 +317,42 @@ class SearchFields_MailQueue implements IDevblocksSearchFields {
 	const QUEUE_DELIVERY_DATE = 'm_queue_delivery_date';
 	const QUEUE_FAILS = 'm_queue_fails';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'mail_queue.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_DRAFT => new DevblocksSearchFieldContextKeys('mail_queue.id', self::ID),
+			CerberusContexts::CONTEXT_TICKET => new DevblocksSearchFieldContextKeys('mail_queue.ticket_id', self::TICKET_ID),
+			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('mail_queue.worker_id', self::WORKER_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -572,7 +604,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 
 	function getData() {
 		$objects = DAO_MailQueue::search(
-			array(),
+			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
 			$this->renderPage,
@@ -664,7 +696,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		$search_fields = SearchFields_MailQueue::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_MailQueue::SUBJECT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -706,19 +738,15 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// ...
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 
 	function render() {

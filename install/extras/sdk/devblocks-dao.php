@@ -275,7 +275,7 @@ foreach($fields as $field_name => $field_type) {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_<?php echo $class_name; ?>::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), '<?php echo $table_name; ?>.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_<?php echo $class_name; ?>', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 <?php
@@ -307,7 +307,7 @@ foreach($fields as $field_name => $field_type) {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_<?php echo $class_name; ?>');
 	
 		// Virtuals
 		
@@ -433,7 +433,7 @@ foreach($fields as $field_name => $field_type) {
 </textarea>
 
 <textarea style="width:98%;height:200px;">
-class SearchFields_<?php echo $class_name; ?> implements IDevblocksSearchFields {
+class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 <?php
 foreach($fields as $field_name => $field_type) {
 	printf("\tconst %s = '%s_%s';\n",
@@ -451,10 +451,45 @@ foreach($fields as $field_name => $field_type) {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return '<?php echo $table_name; ?>.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		// [TODO] Context
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('<?php echo $table_name; ?>.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -480,9 +515,7 @@ foreach($fields as $field_name => $field_type) {
 		);
 		
 		// Custom Fields
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			'<?php echo $ctx_ext_id; ?>',
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(!empty($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -651,7 +684,7 @@ foreach($fields as $field_name => $field_type) {
 	
 		/*
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -694,19 +727,15 @@ foreach($fields as $field_name => $field_type) {
 	}	
 	
 	// [TODO] Implement quick search fields
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// ...
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

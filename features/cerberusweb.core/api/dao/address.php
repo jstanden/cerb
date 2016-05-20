@@ -396,7 +396,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Address::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'a.id');
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Address', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
@@ -432,7 +432,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 		
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Address');
 		
 		// Translate virtual fields
 		
@@ -658,7 +658,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_Address implements IDevblocksSearchFields {
+class SearchFields_Address extends DevblocksSearchFields {
 	// Address
 	const ID = 'a_id';
 	const EMAIL = 'a_email';
@@ -686,10 +686,48 @@ class SearchFields_Address implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'a.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('a.id', self::ID),
+			CerberusContexts::CONTEXT_CONTACT => new DevblocksSearchFieldContextKeys('a.contact_id', self::CONTACT_ID),
+			CerberusContexts::CONTEXT_ORG => new DevblocksSearchFieldContextKeys('a.contact_org_id', self::CONTACT_ORG_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -724,10 +762,7 @@ class SearchFields_Address implements IDevblocksSearchFields {
 		
 		// Custom fields with fieldsets
 		
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_ADDRESS,
-			CerberusContexts::CONTEXT_ORG,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(is_array($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -1112,7 +1147,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$search_fields = SearchFields_Address::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Address::FULLTEXT_ADDRESS),
@@ -1179,7 +1214,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				),
 			'watchers' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Address::VIRTUAL_WATCHERS),
 				),
 		);
@@ -1200,7 +1235,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		}
 		
 		if(!empty($ft_examples))
-			$fields['_fulltext']['examples'] = $ft_examples;
+			$fields['text']['examples'] = $ft_examples;
 		
 		// Engine/schema examples: Comments
 		
@@ -1226,34 +1261,37 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				case 'ticket.id':
-					$field_key = SearchFields_Address::VIRTUAL_TICKET_ID;
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					
-					if(empty($v))
-						return false;
-					
-					$ids = DevblocksPlatform::parseCsvString($v);
-					
-					$params[$field_key] = new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						$ids
-					);
-					break;
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'ticket.id':
+				$field_key = SearchFields_Address::VIRTUAL_TICKET_ID;
+				$oper = null;
+				$value = null;
+				
+				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value))
+					return false;
+				
+				$value = DevblocksPlatform::sanitizeArray($value, 'int');
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					$value
+				);
+				break;
+				
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_Address::VIRTUAL_WATCHERS, $tokens);
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
-	}	
+		return false;
+	}
 	
 	function render() {
 		$this->_sanitize();

@@ -216,7 +216,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CalendarEvent::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'calendar_event.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CalendarEvent', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"calendar_event.id as %s, ".
@@ -240,7 +240,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_CalendarEvent');
 	
 		$args = array(
 			'join_sql' => &$join_sql,
@@ -354,7 +354,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_CalendarEvent implements IDevblocksSearchFields {
+class SearchFields_CalendarEvent extends DevblocksSearchFields {
 	const ID = 'c_id';
 	const NAME = 'c_name';
 	const CALENDAR_ID = 'c_calendar_id';
@@ -369,10 +369,41 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'calendar_event.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_CALENDAR_EVENT => new DevblocksSearchFieldContextKeys('calendar_event.id', self::ID),
+			CerberusContexts::CONTEXT_CALENDAR => new DevblocksSearchFieldContextKeys('calendar_event.calendar_id', self::CALENDAR_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -391,9 +422,7 @@ class SearchFields_CalendarEvent implements IDevblocksSearchFields {
 		
 		// Custom fields with fieldsets
 		
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_CALENDAR_EVENT,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(is_array($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -552,7 +581,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		$search_fields = SearchFields_CalendarEvent::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CalendarEvent::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -603,63 +632,70 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				case 'status':
-					$field_key = SearchFields_CalendarEvent::IS_AVAILABLE;
-					$oper = DevblocksSearchCriteria::OPER_EQ;
-					$value = 0;
-					
-					// Normalize status labels
-					switch(substr(strtolower($v), 0, 1)) {
-						case 'a':
-						case 'y':
-							$value = 1;
-							break;
-					}
-					
-					$params[$field_key] = new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						$value
-					);
-					break;
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'calendar':
+				$field_key = SearchFields_CalendarEvent::CALENDAR_ID;
+				$oper = null;
+				$terms = array();
 				
-				case 'calendar':
-					$field_key = SearchFields_CalendarEvent::CALENDAR_ID;
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					
-					$calendars = DAO_Calendar::getAll();
-					$patterns = DevblocksPlatform::parseCsvString($v);
-					$values = array();
-					
-					if(is_array($values))
-					foreach($patterns as $pattern) {
-						foreach($calendars as $calendar_id => $calendar) {
-							if(false !== stripos($calendar->name, $pattern))
-								$values[$calendar_id] = true;
-						}
+				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms, false))
+					return false;
+				
+				if(empty($terms))
+					return false;
+				
+				$calendars = DAO_Calendar::getAll();
+				$value = array();;
+				
+				if(is_array($terms))
+				foreach($terms as $term) {
+					foreach($calendars as $calendar_id => $calendar) {
+						if(false !== stripos($calendar->name, $term))
+							$values[$calendar_id] = true;
 					}
-					
-					if(!empty($values)) {
-						$params[$field_key] = new DevblocksSearchCriteria(
-							$field_key,
-							$oper,
-							array_keys($values)
-						);
-					}
-					break;
-			}
+				}
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					array_keys($values)
+				);
+				break;
+				
+			case 'status':
+				$field_key = SearchFields_CalendarEvent::IS_AVAILABLE;
+				$oper = null;
+				$term = null;
+				$value = 0;
+				
+				if(false == CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $term, false))
+					return false;
+				
+				// Normalize status labels
+				switch(substr(strtolower($term), 0, 1)) {
+					case 'a':
+					case 'y':
+					case '1':
+						$value = 1;
+						break;
+				}
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					$value
+				);
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
-	}	
+		return false;
+	}
 	
 	function render() {
 		$this->_sanitize();

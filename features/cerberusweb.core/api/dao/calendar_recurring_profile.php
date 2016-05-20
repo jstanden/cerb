@@ -234,7 +234,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CalendarRecurringProfile::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'calendar_recurring_profile.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CalendarRecurringProfile', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"calendar_recurring_profile.id as %s, ".
@@ -266,7 +266,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_CalendarRecurringProfile');
 	
 		// Virtuals
 		
@@ -392,7 +392,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 
 };
 
-class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
+class SearchFields_CalendarRecurringProfile extends DevblocksSearchFields {
 	const ID = 'c_id';
 	const EVENT_NAME = 'c_event_name';
 	const IS_AVAILABLE = 'c_is_available';
@@ -411,10 +411,45 @@ class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'calendar_recurring_profile.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING => new DevblocksSearchFieldContextKeys('calendar_recurring_profile.id', self::ID),
+			CerberusContexts::CONTEXT_CALENDAR => new DevblocksSearchFieldContextKeys('calendar_recurring_profile.calendar_id', self::CALENDAR_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -438,9 +473,7 @@ class SearchFields_CalendarRecurringProfile implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(!empty($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -723,7 +756,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 		$search_fields = SearchFields_CalendarRecurringProfile::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::EVENT_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -732,11 +765,6 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::CALENDAR_ID),
-				),
-			'endAt' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::EVENT_END, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'id' =>
 				array(
@@ -747,26 +775,6 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::EVENT_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'on' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::PATTERNS, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'recurFrom' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_DATE,
-					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::RECUR_START),
-				),
-			'recurTo' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::RECUR_END),
-				),
-			'startAt' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::EVENT_START, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'status' =>
 				array(
@@ -802,76 +810,75 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// Virtuals
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'calendar':
+				$field_key = SearchFields_CalendarRecurringProfile::CALENDAR_ID;
+				$oper = null;
+				$terms = array();
 				
-				case 'status':
-					$field_keys = array(
-						'status' => SearchFields_CalendarRecurringProfile::IS_AVAILABLE,
-					);
-					
-					$oper = DevblocksSearchCriteria::OPER_EQ;
-					
-					@$field_key = $field_keys[$k];
-					$value = 0;
-					
-					// Normalize status labels
-					switch(substr(strtolower($v), 0, 1)) {
-						case 'a':
-						case 'y':
-							$value = 1;
-							break;
-					}
-					
-					$params[$field_key] = new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						$value
-					);
-					break;
+				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms, false))
+					return false;
 				
-				case 'calendar':
-					$field_keys = array(
-						'calendar' => SearchFields_CalendarRecurringProfile::CALENDAR_ID,
-					);
-					
-					@$field_key = $field_keys[$k];
-					
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					
-					$calendars = DAO_Calendar::getAll();
-					$patterns = DevblocksPlatform::parseCsvString($v);
-					$values = array();
-					
-					if(is_array($values))
-					foreach($patterns as $pattern) {
-						foreach($calendars as $calendar_id => $calendar) {
-							if(false !== stripos($calendar->name, $pattern))
-								$values[$calendar_id] = true;
-						}
+				if(empty($terms))
+					return false;
+				
+				$calendars = DAO_Calendar::getAll();
+				$value = array();;
+				
+				if(is_array($terms))
+				foreach($terms as $term) {
+					foreach($calendars as $calendar_id => $calendar) {
+						if(false !== stripos($calendar->name, $term))
+							$values[$calendar_id] = true;
 					}
-					
-					if(!empty($values)) {
-						$params[$field_key] = new DevblocksSearchCriteria(
-							$field_key,
-							$oper,
-							array_keys($values)
-						);
-					}
-					break;
-			}
+				}
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					array_keys($values)
+				);
+				break;
+				
+			case 'status':
+				$field_key = SearchFields_CalendarRecurringProfile::IS_AVAILABLE;
+				$oper = null;
+				$term = null;
+				$value = 0;
+				
+				if(false == CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $term, false))
+					return false;
+				
+				// Normalize status labels
+				switch(substr(strtolower($term), 0, 1)) {
+					case 'a':
+					case 'y':
+					case '1':
+						$value = 1;
+						break;
+				}
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					$value
+				);
+				break;
+				
+			case 'watchers':
+				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_CalendarRecurringProfile::VIRTUAL_WATCHERS, $tokens);
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

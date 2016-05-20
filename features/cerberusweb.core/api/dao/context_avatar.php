@@ -361,7 +361,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContextAvatar::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'context_avatar.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextAvatar', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"context_avatar.id as %s, ".
@@ -393,7 +393,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ContextAvatar');
 	
 		// Virtuals
 		
@@ -517,7 +517,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 
 };
 
-class SearchFields_ContextAvatar implements IDevblocksSearchFields {
+class SearchFields_ContextAvatar extends DevblocksSearchFields {
 	const ID = 'c_id';
 	const CONTEXT = 'c_context';
 	const CONTEXT_ID = 'c_context_id';
@@ -536,10 +536,44 @@ class SearchFields_ContextAvatar implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'context_avatar.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_CONTEXT_AVATAR => new DevblocksSearchFieldContextKeys('context_avatar.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+		
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -563,9 +597,7 @@ class SearchFields_ContextAvatar implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			'cerberusweb.contexts.context.avatar',
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(!empty($custom_columns))
 			$columns = array_merge($columns, $custom_columns);

@@ -220,7 +220,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksSession::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DevblocksSession', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"devblocks_session.session_key as %s, ".
@@ -246,7 +246,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_DevblocksSession');
 	
 		return array(
 			'primary_table' => 'devblocks_session',
@@ -338,7 +338,7 @@ class Model_DevblocksSession {
 	public $user_agent;
 };
 
-class SearchFields_DevblocksSession implements IDevblocksSearchFields {
+class SearchFields_DevblocksSession extends DevblocksSearchFields {
 	const SESSION_KEY = 'd_session_key';
 	const CREATED = 'd_created';
 	const UPDATED = 'd_updated';
@@ -347,10 +347,41 @@ class SearchFields_DevblocksSession implements IDevblocksSearchFields {
 	const USER_IP = 'd_user_ip';
 	const USER_AGENT = 'd_user_agent';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'devblocks_session.session_key';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('devblocks_session.session_key', self::SESSION_KEY),
+			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('devblocks_session.user_id', self::USER_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -477,7 +508,7 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 		$search_fields = SearchFields_DevblocksSession::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_DevblocksSession::USER_AGENT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -520,22 +551,15 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 		return $fields;
 	}
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// ...
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		$this->renderPage = 0;
-		$this->addParams($params, true);
-		
-		return $params;
+		return false;
 	}
 
 	function render() {

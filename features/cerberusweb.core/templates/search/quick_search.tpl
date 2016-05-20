@@ -82,8 +82,7 @@
 				{elseif $field.type == DevblocksSearchCriteria::TYPE_FULLTEXT}
 				<ul style="width:200px;">
 					<li>word</li>
-					<li>"a multiple word phrase"</li>
-					<li>("any" "of" "these" "words")</li>
+					<li>"any of these words"</li>
 					<li>person@example.com</li>
 				</ul>
 				{elseif $field.type == DevblocksSearchCriteria::TYPE_NUMBER}
@@ -94,6 +93,9 @@
 					<li>&gt;=5</li>
 					<li>&lt;50</li>
 					<li>&lt;=100</li>
+					<li>1...10</li>
+					<li>[1,2,3]</li>
+					<li>![1,2,3]</li>
 				</ul>
 				{elseif $field.type == DevblocksSearchCriteria::TYPE_TEXT}
 				<ul style="width:200px;">
@@ -101,7 +103,9 @@
 					<li>prefix*</li>
 					<li>*wildcard*</li>
 					<li>"a several word phrase"</li>
-					<li>("an exact match")</li>
+					<li>[this,that]</li>
+					<li>![not,this,that]</li>
+					<li>!(wildcard*)</li>
 				</ul>
 				{elseif $field.type == DevblocksSearchCriteria::TYPE_WORKER}
 				<ul style="width:200px;">
@@ -109,7 +113,7 @@
 					<li>any</li>
 					<li>none</li>
 					<li>no</li>
-					<li>jeff,dan,darren</li>
+					<li>[kina,milo,karl]</li>
 				</ul>
 				{/if}
 			{/if}

@@ -245,7 +245,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DecisionNode::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'decision_node.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DecisionNode', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"decision_node.id as %s, ".
@@ -271,7 +271,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_DecisionNode');
 	
 		return array(
 			'primary_table' => 'decision_node',
@@ -357,7 +357,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_DecisionNode implements IDevblocksSearchFields {
+class SearchFields_DecisionNode extends DevblocksSearchFields {
 	const ID = 'd_id';
 	const PARENT_ID = 'd_parent_id';
 	const TRIGGER_ID = 'd_trigger_id';
@@ -366,10 +366,40 @@ class SearchFields_DecisionNode implements IDevblocksSearchFields {
 	const POS = 'd_pos';
 	const PARAMS_JSON = 'd_params_json';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'decision_node.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('decision_node.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		if('cf_' == substr($param->field, 0, 3)) {
+			return self::_getWhereSQLFromCustomFields($param);
+		} else {
+			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(

@@ -773,11 +773,10 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema) {
 		return array(
-			'(+all +of +these +terms)',
-			'(+this -that)',
 			'"a multiple word phrase"',
-			'("any" "of" "these terms")',
 			'person@example.com',
+			'"+all +of +these +terms"',
+			'"+this -that"',
 		);
 	}
 	

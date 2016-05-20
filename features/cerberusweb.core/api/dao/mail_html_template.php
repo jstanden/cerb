@@ -201,7 +201,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_MailHtmlTemplate::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'mail_html_template.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_MailHtmlTemplate', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"mail_html_template.id as %s, ".
@@ -227,7 +227,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_MailHtmlTemplate');
 	
 		// Virtuals
 		
@@ -389,7 +389,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 
 };
 
-class SearchFields_MailHtmlTemplate implements IDevblocksSearchFields {
+class SearchFields_MailHtmlTemplate extends DevblocksSearchFields {
 	const ID = 'm_id';
 	const NAME = 'm_name';
 	const UPDATED_AT = 'm_updated_at';
@@ -408,10 +408,44 @@ class SearchFields_MailHtmlTemplate implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'mail_html_template.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE => new DevblocksSearchFieldContextKeys('mail_html_template.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -438,9 +472,7 @@ class SearchFields_MailHtmlTemplate implements IDevblocksSearchFields {
 		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
 		// Custom Fields
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(!empty($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -617,7 +649,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		$search_fields = SearchFields_MailHtmlTemplate::getFields();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_MailHtmlTemplate::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -687,19 +719,15 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		return $fields;
 	}	
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				// ...
-			}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {

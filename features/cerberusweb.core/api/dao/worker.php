@@ -748,7 +748,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Worker::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'w.id');
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Worker', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"w.id as %s, ".
@@ -800,8 +800,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
-			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Worker');
 		
 		$args = array(
 			'join_sql' => &$join_sql,
@@ -1050,7 +1050,7 @@ class DAO_Worker extends Cerb_ORMHelper {
  * ...
  *
  */
-class SearchFields_Worker implements IDevblocksSearchFields {
+class SearchFields_Worker extends DevblocksSearchFields {
 	// Worker
 	const ID = 'w_id';
 	const AUTH_EXTENSION_ID = 'w_auth_extension_id';
@@ -1084,10 +1084,46 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'w.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('w.id', self::ID),
+			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('w.email_id', self::EMAIL_ID),
+			CerberusContexts::CONTEXT_CALENDAR => new DevblocksSearchFieldContextKeys('w.calendar_id', self::CALENDAR_ID),
+		);
+	}
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		$where = null;
+		
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+		
+		return $where;
+	}
+	
+	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+			
+		return self::$_fields;
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
-	static function getFields() {
+	static private function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -1130,9 +1166,7 @@ class SearchFields_Worker implements IDevblocksSearchFields {
 		
 		// Custom fields with fieldsets
 		
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(
-			CerberusContexts::CONTEXT_WORKER
-		);
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(is_array($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -1726,7 +1760,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$group_names = DAO_Group::getNames();
 		
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Worker::FULLTEXT_WORKER),
@@ -1751,16 +1785,16 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Worker::GENDER, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
-			'isAdmin' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_BOOL,
-					'options' => array('param_key' => SearchFields_Worker::IS_SUPERUSER),
-				),
-			'inGroups' => 
+			'group' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_GROUPS),
 					'examples' => array_slice($group_names, 0, 15),
+				),
+			'isAdmin' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Worker::IS_SUPERUSER),
 				),
 			'isAvailable' => 
 				array(
@@ -1847,7 +1881,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		}
 		
 		if(!empty($ft_examples))
-			$fields['_fulltext']['examples'] = $ft_examples;
+			$fields['text']['examples'] = $ft_examples;
 		
 		// Add is_sortable
 		
@@ -1860,84 +1894,82 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		return $fields;
 	}	
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				case 'inGroups':
-					$field_key = SearchFields_Worker::VIRTUAL_GROUPS;
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					
-					if(preg_match('#^([\!\=]+)(.*)#', $v, $matches)) {
-						$oper_hint = trim($matches[1]);
-						$v = trim($matches[2]);
-						
-						switch($oper_hint) {
-							case '!':
-							case '!=':
-								$oper = DevblocksSearchCriteria::OPER_NIN;
-								break;
-								
-							default:
-								$oper = DevblocksSearchCriteria::OPER_IN;
-								break;
-						}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'group':
+			case 'inGroups':
+				$field_key = SearchFields_Worker::VIRTUAL_GROUPS;
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				
+				$terms = array();
+				
+				foreach($tokens as $token) {
+					switch($token->type) {
+						case 'T_NOT':
+							$oper = DevblocksSearchCriteria::OPER_NIN;
+							break;
+						case 'T_QUOTED_TEXT':
+						case 'T_TEXT':
+							$terms[] = $token->value;
+							break;
+						case 'T_ARRAY':
+							$terms += $token->value;
+							break;
 					}
-					
-					$groups = DAO_Group::getAll();
-					
-					$patterns = DevblocksPlatform::parseCsvString($v);
-					
-					if(!is_array($patterns))
-						break;
-					
-					$group_ids = array();
-					
-					foreach($patterns as $pattern) {
-						// Allow raw IDs
-						if(is_numeric($pattern) && isset($groups[$pattern])) {
-							$group_ids[intval($pattern)] = true;
+				}
+				
+				$groups = DAO_Group::getAll();
+				
+				if(!is_array($terms))
+					break;
+				
+				$group_ids = array();
+				
+				foreach($terms as $term) {
+					// Allow raw IDs
+					if(is_numeric($term) && isset($groups[$term])) {
+						$group_ids[intval($term)] = true;
+						
+					} else {
+						foreach($groups as $group_id => $group) {
+							if(isset($group_ids[$group_id]))
+								continue;
 							
-						} else {
-							foreach($groups as $group_id => $group) {
-								if(isset($group_ids[$group_id]))
-									continue;
-								
-								if(false !== stristr($group->name, $pattern)) {
-									$group_ids[$group_id] = true;
-								}
+							if(false !== stristr($group->name, $term)) {
+								$group_ids[$group_id] = true;
 							}
 						}
 					}
-					
-					if(!empty($group_ids)) {
-						$params[$field_key] = new DevblocksSearchCriteria(
-							$field_key,
-							$oper,
-							array_keys($group_ids)
-						);
-					}
-					break;
-					
-				case 'isAvailable':
-					$param = DevblocksSearchCriteria::getDateParamFromQuery(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $v);
-					$param->value[] = '1';
-					$params[] = $param;
-					break;
-					
-				case 'isBusy':
-					$param = DevblocksSearchCriteria::getDateParamFromQuery(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $v);
-					$param->value[] = '0';
-					$params[] = $param;
-					break;
-			}
+				}
+				
+				if(!empty($group_ids)) {
+					return new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						array_keys($group_ids)
+					);
+				}
+				break;
+				
+			case 'isAvailable':
+				$param = DevblocksSearchCriteria::getDateParamFromTokens(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $tokens);
+				$param->value[] = '1';
+				return $param;
+				break;
+				
+			case 'isBusy':
+				$param = DevblocksSearchCriteria::getDateParamFromTokens(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $tokens);
+				$param->value[] = '0';
+				return $param;
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {
@@ -1990,7 +2022,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							$strings[] = '<b>'.DevblocksPlatform::strEscapeHtml($groups[$group_id]->name).'</b>';
 					}
 					
-					echo sprintf("Group member of %s", implode(' or ', $strings));
+					echo sprintf("Is %sa member of %s",
+						$param->operator == 'not in' ? 'not ' : '',
+						implode(' or ', $strings)
+					);
 				}
 				
 				break;

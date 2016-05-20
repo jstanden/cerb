@@ -407,7 +407,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Bucket::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'bucket.id');
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Bucket', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"bucket.id as %s, ".
@@ -437,7 +437,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Bucket');
 	
 		// Virtuals
 		
@@ -563,7 +563,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	
 };
 
-class SearchFields_Bucket implements IDevblocksSearchFields {
+class SearchFields_Bucket extends DevblocksSearchFields {
 	const ID = 'b_id';
 	const GROUP_ID = 'b_group_id';
 	const NAME = 'b_name';
@@ -581,10 +581,45 @@ class SearchFields_Bucket implements IDevblocksSearchFields {
 	const CONTEXT_LINK = 'cl_context_from';
 	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'bucket.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_BUCKET => new DevblocksSearchFieldContextKeys('bucket.id', self::ID),
+			CerberusContexts::CONTEXT_GROUP => new DevblocksSearchFieldContextKeys('bucket.group_id', self::GROUP_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
 	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
@@ -607,9 +642,7 @@ class SearchFields_Bucket implements IDevblocksSearchFields {
 		);
 		
 		// Custom Fields
-		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			CerberusContexts::CONTEXT_BUCKET,
-		));
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
 		
 		if(!empty($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
@@ -1300,7 +1333,7 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$search_fields = SearchFields_Bucket::getFields();
 	
 		$fields = array(
-			'_fulltext' => 
+			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Bucket::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -1336,73 +1369,72 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		return $fields;
 	}	
 	
-	function getParamsFromQuickSearchFields($fields) {
-		$search_fields = $this->getQuickSearchFields();
-		$params = DevblocksSearchCriteria::getParamsFromQueryFields($fields, $search_fields);
-
-		// Handle virtual fields and overrides
-		if(is_array($fields))
-		foreach($fields as $k => $v) {
-			switch($k) {
-				case 'group':
-					$field_key = SearchFields_Bucket::GROUP_ID;
-					
-					$oper = DevblocksSearchCriteria::OPER_IN;
-					
-					if(preg_match('#^([\!\=]+)(.*)#', $v, $matches)) {
-						$oper_hint = trim($matches[1]);
-						$v = trim($matches[2]);
-						
-						switch($oper_hint) {
-							case '!':
-							case '!=':
-								$oper = DevblocksSearchCriteria::OPER_NIN;
-								break;
-								
-							default:
-								$oper = DevblocksSearchCriteria::OPER_IN;
-								break;
-						}
-					}
-					
-					$groups = DAO_Group::getAll();
-					$patterns = DevblocksPlatform::parseCsvString($v);
-					
-					if(!is_array($patterns))
-						break;
-					
-					$group_ids = array();
-					
-					foreach($patterns as $pattern) {
-						// Match IDs
-						if(is_numeric($pattern) && isset($groups[$pattern])) {
-							$group_id = intval($pattern);
-							$group_ids[$group_id] = true;
-							continue;
-						}
-							
-						foreach($groups as $group_id => $group) {
-							if(isset($group_ids[$group_id]))
-								continue;
-							
-							if(false !== stristr($group->name, $pattern)) {
-								$group_ids[$group_id] = true;
-							}
-						}
-					}
-					
-					if(!empty($group_ids)) {
-						$params[$field_key] = new DevblocksSearchCriteria(
-							$field_key,
-							$oper,
-							array_keys($group_ids)
-						);
-					}
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'group':
+				$field_key = SearchFields_Bucket::GROUP_ID;
+				$oper = null;
+				$terms = array();
+				
+				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms))
+					return false;
+				
+				$groups = DAO_Group::getAll();
+				
+				if(!is_array($terms))
 					break;
-			}
+				
+				$group_ids = array();
+				
+				foreach($terms as $term) {
+					// Match IDs
+					if(is_numeric($term) && isset($groups[$term])) {
+						$group_id = intval($term);
+						$group_ids[$group_id] = true;
+						continue;
+					}
+						
+					foreach($groups as $group_id => $group) {
+						if(isset($group_ids[$group_id]))
+							continue;
+						
+						if(false !== stristr($group->name, $term)) {
+							$group_ids[$group_id] = true;
+						}
+					}
+				}
+				
+				if(!empty($group_ids)) {
+					return new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						array_keys($group_ids)
+					);
+				}
+				break;
+			
+			case 'ticket.id':
+				$field_key = SearchFields_Address::VIRTUAL_TICKET_ID;
+				$oper = null;
+				$value = null;
+				
+				if(false == CerbQuickSearchLexer::getOperValueFromTokens($tokens, $oper, $value, false))
+					return false;
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					$value
+				);
+				break;
+				
+			default:
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
 		}
 		
-		return $params;
+		return false;
 	}
 	
 	function render() {
