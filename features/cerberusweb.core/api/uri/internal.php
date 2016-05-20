@@ -1831,6 +1831,11 @@ class ChInternalController extends DevblocksControllerExtension {
 				$view->doRemoveCriteria($field_delete);
 			}
 		}
+
+		// Remove the same param at the top level
+		if($replace) {
+			$view->removeParamByField($field);
+		}
 		
 		// Add
 		if(!empty($field)) {
