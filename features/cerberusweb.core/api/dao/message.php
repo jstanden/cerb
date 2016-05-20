@@ -1761,8 +1761,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					);
 				}
 				break;
-			
+
 			case 'responseTime':
+				$tokens = CerbQuickSearchLexer::getHumanTimeTokensAsNumbers($tokens);
+				
 				$field_key = SearchFields_Message::RESPONSE_TIME;
 				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
 				break;
