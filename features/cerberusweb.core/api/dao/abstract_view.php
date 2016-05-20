@@ -3345,40 +3345,26 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	}
 
 	static public function decodeParamsJson($json) {
-		$params = array();
-		
-		if(empty($json) || false === ($params_data = json_decode($json, true)))
+		if(empty($json) || false === ($params = json_decode($json, true)))
 			return array();
 		
-		if(is_array($params_data))
-		foreach($params_data as $key => $data) {
-			if(is_array($data) && is_numeric(key($data))) {
-				$params[$key] = self::_recurseParam($data);
-			} else {
-				$params[$key] = new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']);
+		self::_walkSerializedParams($params, function(&$node) {
+			if(is_array($node) && isset($node['field'])) {
+				$node = new DevblocksSearchCriteria($node['field'], $node['operator'], $node['value']);
 			}
-		}
+		});
 		
 		return $params;
 	}
 	
-	static private function _recurseParam($group) {
-		$params = array();
+	static private function _walkSerializedParams(&$params, $callback) {
+		if(is_array($params))
+			$callback($params);
 		
-		foreach($group as $key => $data) {
-			if(is_array($data)) {
-				if(is_numeric(key($data))) {
-					$params[$key] = array(array_shift($data)) + self::_recurseParam($data);
-				} else {
-					$param = new DevblocksSearchCriteria($data['field'], $data['operator'], $data['value']);
-					$params[$key] = $param;
-				}
-			} elseif(is_string($data)) {
-				$params[$key] = $data;
-			}
+		if(is_array($params))
+		foreach($params as &$param) {
+			self::_walkSerializedParams($param, $callback);
 		}
-		
-		return $params;
 	}
 	
 	static public function setView($worker_id, $view_id, C4_AbstractViewModel $model) {
