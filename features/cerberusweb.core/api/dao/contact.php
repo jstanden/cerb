@@ -510,6 +510,7 @@ class SearchFields_Contact extends DevblocksSearchFields {
 	
 	const ORG_NAME = 'o_name';
 	
+	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	const FULLTEXT_CONTACT = 'ft_contact';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -539,6 +540,10 @@ class SearchFields_Contact extends DevblocksSearchFields {
 				return self::_getWhereSQLFromFulltextField($param, Search_Contact::ID, self::getPrimaryKey());
 				break;
 				
+			case self::FULLTEXT_COMMENT_CONTENT:
+				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_CONTACT, self::getPrimaryKey());
+				break;
+			
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_CONTACT, self::getPrimaryKey());
 				break;
@@ -591,6 +596,7 @@ class SearchFields_Contact extends DevblocksSearchFields {
 			self::PRIMARY_EMAIL_ADDRESS => new DevblocksSearchField(self::PRIMARY_EMAIL_ADDRESS, 'address', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, false), // [TODO]
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'contact_org', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE, true),
 
+			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 			self::FULLTEXT_CONTACT => new DevblocksSearchField(self::FULLTEXT_CONTACT, 'ft', 'contact', $translate->_('common.search.fulltext'), 'FT', false),
 				
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -604,6 +610,7 @@ class SearchFields_Contact extends DevblocksSearchFields {
 		// Fulltext indexes
 		
 		$columns[self::FULLTEXT_CONTACT]->ft_schema = Search_Contact::ID;
+		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -895,6 +902,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Contact::AUTH_SALT,
 			SearchFields_Contact::AUTH_PASSWORD,
 			SearchFields_Contact::PRIMARY_EMAIL_ADDRESS,
+			SearchFields_Contact::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Contact::FULLTEXT_CONTACT,
 			SearchFields_Contact::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Contact::VIRTUAL_HAS_FIELDSET,
@@ -1013,6 +1021,11 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Contact::FULLTEXT_CONTACT),
+				),
+			'comments' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_Address::FULLTEXT_COMMENT_CONTENT),
 				),
 			'created' => 
 				array(
@@ -1146,6 +1159,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
+			case SearchFields_Contact::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_Contact::FULLTEXT_CONTACT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
 				break;
@@ -1271,6 +1285,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
+			case SearchFields_Contact::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_Contact::FULLTEXT_CONTACT:
 				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
