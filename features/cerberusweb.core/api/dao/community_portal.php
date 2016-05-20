@@ -667,7 +667,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();

@@ -502,7 +502,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();
@@ -518,7 +518,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 		
 		return $params;
 	}
-	
+
 	function render() {
 		$this->_sanitize();
 		

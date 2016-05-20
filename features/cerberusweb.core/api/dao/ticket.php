@@ -2241,13 +2241,9 @@ class SearchFields_Ticket implements IDevblocksSearchFields {
 	// Sender Org
 	const ORG_NAME = 'o_name';
 
-	// Comment Content
+	// Fulltexts
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
-
-	// Message Content
 	const FULLTEXT_MESSAGE_CONTENT = 'ftmc_content';
-	
-	// Note Content
 	const FULLTEXT_NOTE_CONTENT = 'ftnc_content';
 	
 	// Context Links

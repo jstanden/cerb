@@ -623,7 +623,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();

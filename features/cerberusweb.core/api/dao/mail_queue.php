@@ -701,7 +701,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();
@@ -717,7 +717,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		
 		return $params;
 	}
-	
+
 	function render() {
 		$this->_sanitize();
 		

@@ -439,7 +439,7 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();

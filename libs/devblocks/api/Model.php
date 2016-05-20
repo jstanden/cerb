@@ -62,8 +62,6 @@ class DevblocksSearchCriteria {
 	public $value;
 	
 	/**
-	 * Enter description here...
-	 *
 	 * @param string $field
 	 * @param string $oper
 	 * @param mixed $value
@@ -332,7 +330,7 @@ class DevblocksSearchCriteria {
 				$query,
 				'expert'
 			)
-		);		
+		);
 	}
 	
 	public static function getTextParamFromQuery($field_key, $query, $options=0) {
@@ -613,7 +611,7 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::OPER_NOT_LIKE: // 'not like'
 				$where = sprintf("%s NOT LIKE %s",
 					$db_field_name,
-					str_replace('*','%%',self::_escapeSearchParam($this, $fields))
+					str_replace('*','%',self::_escapeSearchParam($this, $fields))
 				);
 				break;
 			

@@ -248,21 +248,6 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-			'has_multiple_values' => &$has_multiple_values
-		);
-	
-		array_walk_recursive(
-			$params,
-			array('DAO_DevblocksSession', '_translateVirtualParameters'),
-			$args
-		);
-		
 		return array(
 			'primary_table' => 'devblocks_session',
 			'select' => $select_sql,
@@ -271,17 +256,6 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-		}
 	}
 	
 	/**
@@ -541,7 +515,7 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();
@@ -560,7 +534,7 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 		
 		return $params;
 	}
-	
+
 	function render() {
 		$this->_sanitize();
 		

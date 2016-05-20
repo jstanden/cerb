@@ -633,7 +633,7 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();

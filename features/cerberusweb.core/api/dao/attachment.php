@@ -445,13 +445,15 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		// Save to storage
 		if(false === ($storage_key = $storage->put('attachments', $id, $contents)))
 			return false;
-			
-		if(is_resource($contents)) {
+		
+		if(is_string($contents)) {
+			$storage_size = strlen($contents);
+			unset($contents);
+		} else if(is_resource($contents)) {
 			$stats = fstat($contents);
 			$storage_size = $stats['size'];
 		} else {
-			$storage_size = strlen($contents);
-			unset($contents);
+			return false;
 		}
 		
 		// Update storage key

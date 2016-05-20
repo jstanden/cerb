@@ -632,7 +632,7 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();

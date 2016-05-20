@@ -911,7 +911,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			'totalUses' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_Snippet::TITLE),
+					'options' => array('param_key' => SearchFields_Snippet::TOTAL_USES),
 				),
 			'type' => 
 				array(

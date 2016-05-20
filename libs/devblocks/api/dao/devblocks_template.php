@@ -114,7 +114,7 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$params = array();
@@ -172,7 +172,7 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 		
 		return $params;
 	}
-
+	
 	function render() {
 		$this->_sanitize();
 		

@@ -114,7 +114,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$params = array();
@@ -140,7 +140,7 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 		
 		return $params;
 	}
-
+	
 	function render() {
 		$this->_sanitize();
 		

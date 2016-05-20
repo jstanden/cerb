@@ -870,7 +870,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();

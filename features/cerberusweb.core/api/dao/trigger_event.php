@@ -343,14 +343,6 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			
 		$join_sql = "FROM trigger_event ";
 		
-		// Custom field joins
-		//list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-		//	$tables,
-		//	$params,
-		//	'trigger.id',
-		//	$select_sql,
-		//	$join_sql
-		//);
 		$has_multiple_values = false; // [TODO] Temporary when custom fields disabled
 				
 		$where_sql = "".

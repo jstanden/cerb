@@ -2612,7 +2612,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	/**
 	 * 
 	 * @param array $ids
-	 * @return Model_Address[]
+	 * @return Model[]
 	 */
 	static function getIds($ids) {
 		if(!is_array($ids))

@@ -1366,7 +1366,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 
 	function getData() {
-		return DAO_Message::search(
+		$objects = DAO_Message::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -1375,6 +1375,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		return $objects;
 	}
 
 	function getDataAsObjects($ids=null) {

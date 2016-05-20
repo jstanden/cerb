@@ -248,6 +248,9 @@ abstract class DevblocksORMHelper {
 		@$group_oper = strtoupper(array_shift($param));
 		$where = '';
 		
+		if(empty($param))
+			return;
+		
 		switch($group_oper) {
 			case DevblocksSearchCriteria::GROUP_OR:
 			case DevblocksSearchCriteria::GROUP_AND:
@@ -1193,7 +1196,6 @@ class DAO_Translation extends DevblocksORMHelper {
 			"tl.lang_code as %s, ".
 			"tl.string_default as %s, ".
 			"tl.string_override as %s ",
-//			"o.name as %s ".
 				SearchFields_Translation::ID,
 				SearchFields_Translation::STRING_ID,
 				SearchFields_Translation::LANG_CODE,
@@ -1203,11 +1205,6 @@ class DAO_Translation extends DevblocksORMHelper {
 		
 		$join_sql =
 			"FROM translation tl ";
-//			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) "
-
-			// [JAS]: Dynamic table joins
-//			(isset($tables['o']) ? "LEFT JOIN contact_org o ON (o.id=a.contact_org_id)" : " ").
-//			(isset($tables['mc']) ? "INNER JOIN message_content mc ON (mc.message_id=m.id)" : " ").
 
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -1514,15 +1511,6 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 			
 		$join_sql = "FROM devblocks_storage_profile ";
 		
-		// Custom field joins
-		//list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
-		//	$tables,
-		//	$params,
-		//	'devblocks_storage_profile.id',
-		//	$select_sql,
-		//	$join_sql
-		//);
-				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			

@@ -1304,7 +1304,6 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Bucket::getFields();
-		// [TODO] Group name
 	
 		$fields = array(
 			'_fulltext' => 
@@ -1327,13 +1326,6 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Bucket::UPDATED_AT),
 				),
-			/*
-			'watchers' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
-					'options' => array('param_key' => SearchFields_Bucket::VIRTUAL_WATCHERS),
-				),
-			*/
 		);
 		
 		// Add searchable custom fields

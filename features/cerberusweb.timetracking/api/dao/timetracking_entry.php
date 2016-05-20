@@ -922,7 +922,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();
@@ -1096,7 +1096,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 					}
 					echo implode(", ", $strings);
 				}
-				
 				break;
 
 			default:

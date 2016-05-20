@@ -872,10 +872,6 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			
 		$join_sql = "FROM kb_category kbc ";
 
-		// [JAS]: Dynamic table joins
-//		if(isset($tables['context_link']))
-//			$join_sql .= "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.kb_article' AND context_link.to_context_id = kb.id) ";
-		
 		// Custom field joins
 		list($select_sql, $join_sql, $has_multiple_values) = self::_appendSelectJoinSqlForCustomFieldTables(
 			$tables,

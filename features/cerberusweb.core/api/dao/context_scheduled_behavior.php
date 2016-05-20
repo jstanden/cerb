@@ -296,21 +296,6 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields);
 
-		// Translate virtual fields
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-			'has_multiple_values' => &$has_multiple_values
-		);
-		
-		array_walk_recursive(
-			$params,
-			array('DAO_ContextScheduledBehavior', '_translateVirtualParameters'),
-			$args
-		);
-		
 		return array(
 			'primary_table' => 'context_scheduled_behavior',
 			'select' => $select_sql,
@@ -319,18 +304,6 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
-	}
-
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		switch($param_key) {
-			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
-				break;
-		}
 	}
 	
 	/**

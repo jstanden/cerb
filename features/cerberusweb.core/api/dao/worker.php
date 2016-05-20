@@ -396,6 +396,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$results = array();
 		
+		if(is_array($patterns))
 		foreach($patterns as $pattern) {
 			foreach($workers as $worker_id => $worker) {
 				$worker_name = $worker->getName();
@@ -404,7 +405,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 					continue;
 
 				// Check @mention
-				if(false !== strcasecmp($worker->at_mention_name, $pattern)) {
+				if(0 == strcasecmp($worker->at_mention_name, $pattern)) {
 					$results[$worker_id] = $worker;
 					continue;
 				}
@@ -416,7 +417,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				}
 			}
 		}
-
+		
 		return $results;
 	}
 	
@@ -1620,7 +1621,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 
 	function getData() {
-		return DAO_Worker::search(
+		$objects = DAO_Worker::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -1629,6 +1630,8 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		return $objects;
 	}
 
 	function getDataAsObjects($ids=null) {

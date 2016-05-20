@@ -590,7 +590,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
-		$fields = SearchFields_Workspace::getFields();
+		$fields = SearchFields_WorkspaceTab::getFields();
 		
 		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, $fields, $sortBy, array(), 'workspace_tab.id');
 		
@@ -1156,7 +1156,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();

@@ -674,7 +674,7 @@ abstract class C4_AbstractView {
 			} elseif (!empty($worker_id)) {
 				$strings[] = sprintf('<b>%d</b>',$worker_id);
 			} elseif (0 == strlen($worker_id)) {
-				$strings[] = '<b>blank</b>';
+				$strings[] = '<b>nobody</b>';
 			} elseif (empty($worker_id)) {
 				$strings[] = '<b>nobody</b>';
 			}
@@ -831,6 +831,7 @@ abstract class C4_AbstractView {
 		$workers = DAO_Worker::getAll();
 		$strings = array();
 		
+		if(is_array($param->value))
 		foreach($param->value as $worker_id) {
 			if(isset($workers[$worker_id]))
 				$strings[] = sprintf("<b>%s</b>",DevblocksPlatform::strEscapeHtml($workers[$worker_id]->getName()));
@@ -1385,14 +1386,8 @@ abstract class C4_AbstractView {
 					break;
 					
 				case Model_CustomField::TYPE_WORKER:
-					$workers = DAO_worker::getAll();
-					foreach($vals as $idx => $worker_id) {
-						if(empty($worker_id)) {
-							$vals[$idx] = 'nobody';
-						} elseif(isset($workers[$worker_id])) {
-							$vals[$idx] = $workers[$worker_id]->getName();
-						}
-					}
+					$this->_renderCriteriaParamWorker($param);
+					return;
 					break;
 			}
 		}
@@ -2762,6 +2757,9 @@ class C4_AbstractViewLoader {
 	}
 	
 	static function unserializeViewFromAbstractJson($view_model, $view_id) {
+		if(!isset($view_model['context']))
+			return false;
+			
 		$view_context = $view_model['context'];
 		
 		if(empty($view_context))

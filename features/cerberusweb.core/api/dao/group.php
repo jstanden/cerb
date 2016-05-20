@@ -1069,7 +1069,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 
 	function getData() {
-		return DAO_Group::search(
+		$objects = DAO_Group::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -1078,6 +1078,8 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+		
+		return $objects;
 	}
 
 	function getDataAsObjects($ids=null) {
@@ -1204,7 +1206,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamsFromQuickSearchFields($fields) {
 		$search_fields = $this->getQuickSearchFields();

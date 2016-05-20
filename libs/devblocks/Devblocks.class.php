@@ -506,8 +506,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function strUnidecode($string, $from_encoding = 'utf-8') {
-		if(empty($string))
-			return $string;
+		if(0 == strlen($string))
+			return '';
 		
 		$len = strlen($string);
 		$out = '';
@@ -1155,7 +1155,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function strEscapeHtml($string) {
-		if(empty($string))
+		if(0 == strlen($string))
 			return '';
 		
 		return htmlentities($string, ENT_QUOTES, LANG_CHARSET_CODE);
@@ -1186,7 +1186,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function strToPermalink($string, $spaces_as='-') {
-		if(empty($string))
+		if(0 == strlen($string))
 			return '';
 		
 		// Unidecode
@@ -1394,7 +1394,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function parseCsvString($string, $keep_blanks=false, $typecast=null) {
-		if(empty($string))
+		if(0 == strlen($string))
 			return array();
 		
 		if(!$keep_blanks)

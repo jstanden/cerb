@@ -8,8 +8,12 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
 	$('#{$btnId}').each(function() {
-		ajax.chooser(this,'cerberusweb.contexts.group','group_id', { autocomplete:true });
+		ajax.chooser(this,'{CerberusContexts::CONTEXT_GROUP}','group_id', { autocomplete:true });
 	})
-	.first().siblings('input:text').focus();
+	.first()
+	.siblings('input:text')
+	.focus();
+});
 </script>
