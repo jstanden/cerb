@@ -180,6 +180,7 @@ $.fn.cerbDateInputHelper = function(options) {
 		$this
 			.attr('placeholder', '+2 hours; +4 hours @Calendar; Jan 15 2018 2pm; 5pm America/New York')
 			.autocomplete({
+				delay: 300,
 				minLength: 1,
 				autoFocus: false,
 				source: function(request, response) {
@@ -454,6 +455,9 @@ var cAjaxCalls = function() {
 	this.emailAutoComplete = function(sel, options) {
 		var url = DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.address&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
 		if(null == options) options = { };
+		
+		if(null == options.delay)
+			options.delay = 300;
 
 		if(null == options.minLength)
 			options.minLength = 1;
@@ -535,6 +539,9 @@ var cAjaxCalls = function() {
 		
 		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getOrgsAutoCompletions&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
 		
+		if(null == options.delay)
+			options.delay = 300;
+		
 		if(null == options.minLength)
 			options.minLength = 1;
 		
@@ -551,6 +558,9 @@ var cAjaxCalls = function() {
 		if(null == options) options = { };
 		
 		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getCountryAutoCompletions&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
+		
+		if(null == options.delay)
+			options.delay = 300;
 		
 		if(null == options.minLength)
 			options.minLength = 1;
@@ -614,6 +624,7 @@ var cAjaxCalls = function() {
 			$autocomplete.insertBefore($button);
 			
 			$autocomplete.autocomplete({
+				delay: 300,
 				source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
 				minLength: 1,
 				focus:function(event, ui) {
@@ -1133,6 +1144,7 @@ var ajax = new cAjaxCalls();
 				$autocomplete.insertAfter($trigger);
 				
 				$autocomplete.autocomplete({
+					delay: 300,
 					source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
 					minLength: 1,
 					focus:function(event, ui) {
