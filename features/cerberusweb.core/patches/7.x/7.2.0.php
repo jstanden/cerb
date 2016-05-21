@@ -358,7 +358,19 @@ if(isset($columns['is_waiting']) && isset($columns['is_closed']) && isset($colum
 	$db->ExecuteMaster("UPDATE ticket SET status_id = 3 WHERE is_deleted = 1 AND status_id = 0");
 	$db->ExecuteMaster("UPDATE ticket SET status_id = 2 WHERE is_closed = 1 AND  status_id = 0");
 	$db->ExecuteMaster("UPDATE ticket SET status_id = 1 WHERE is_waiting = 1 AND  status_id = 0");
-	$db->ExecuteMaster("ALTER TABLE ticket DROP COLUMN is_waiting, DROP COLUMN is_closed, DROP COLUMN is_deleted, ADD INDEX status_and_group (status_id, group_id)");
+	$db->ExecuteMaster("ALTER TABLE ticket DROP COLUMN is_waiting, DROP COLUMN is_closed, DROP COLUMN is_deleted, ADD INDEX status_and_group (status_id, group_id), ADD INDEX status_and_bucket (status_id, bucket_id)");
+}
+
+list($columns, $indexes) = $db->metaTable('ticket');
+
+$changes = array();
+
+if(!isset($indexes['status_and_bucket']))
+	$changes[] = 'ADD INDEX status_and_bucket (status_id, bucket_id)';
+
+if(!empty($changes)) {
+	$sql = sprintf("ALTER TABLE ticket %s", implode(', ', $changes));
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 }
 
 // ===========================================================================
