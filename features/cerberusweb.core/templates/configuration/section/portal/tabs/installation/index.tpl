@@ -18,7 +18,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2011110101); // last change
+define('SCRIPT_LAST_MODIFY', 2016052001); // last change
 
 @session_start();
 
@@ -242,77 +242,6 @@ class DevblocksProxy {
 	}
 };
 
-class DevblocksProxy_Socket extends DevblocksProxy {
-	function _get($remote_path, $local_path) {
-		$host = (REMOTE_PROTOCOL=='https' ? 'ssl://' : 'tcp://') . REMOTE_HOST;
-		$fp = fsockopen($host, REMOTE_PORT, $errno, $errstr, 10);
-		
-		if ($fp) {
-			$out = "GET " . $remote_path . $local_path . " HTTP/1.0\r\n";
-			$out .= "Host: " . REMOTE_HOST . "\r\n";
-			$out .= 'Via: 1.1 ' . LOCAL_HOST . "\r\n";
-			if($this->_isSSL()) $out .= 'DevblocksProxySSL: ' . '1' . "\r\n";
-			$out .= 'DevblocksProxyHost: ' . LOCAL_HOST . "\r\n";
-			$out .= 'DevblocksProxyBase: ' . LOCAL_BASE . "\r\n";
-			$out .= 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';' . "\r\n";
-			$out .= "Connection: Close\r\n\r\n";
-
-			$this->_send($fp, $out);
-		}
-	}
-
-	function _post($remote_path, $local_path) {
-		$host = (REMOTE_PROTOCOL=='https' ? 'ssl://' : 'tcp://') . REMOTE_HOST;
-		$fp = fsockopen($host, REMOTE_PORT, $errno, $errstr, 10);
-		
-		if ($fp) {
-			$boundary = $this->_generateMimeBoundary();
-			$content = $this->_buildPost($boundary);
-			
-			$out = "POST " . $remote_path . $local_path . " HTTP/1.0\r\n";
-			$out .= "Host: " . REMOTE_HOST . "\r\n";
-			$out .= 'Via: 1.1 ' . LOCAL_HOST . "\r\n";
-			if($this->_isSSL()) $out .= 'DevblocksProxySSL: ' . '1' . "\r\n";
-			$out .= 'DevblocksProxyHost: ' . LOCAL_HOST . "\r\n";
-			$out .= 'DevblocksProxyBase: ' . LOCAL_BASE . "\r\n";
-			$out .= 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';' . "\r\n";
-			$out .= "Content-Type: multipart/form-data, boundary=".$boundary."\r\n";
-			$out .= "Content-Length: " . strlen($content) . "\r\n";
-			$out .= "Connection: Close\r\n";
-			$out .= "\r\n";
-			$out .= $content;
-			
-			$this->_send($fp, $out);
-		}
-	}
-	
-	function _send($fp, $out) {
-		fwrite($fp, $out);
-	
-		$content = '';
-		
-		while(!feof($fp))
-			$content .= fread($fp, 1024);		
-		fclose($fp);
-		
-		list($headers, $content) = $this->_parseResponse($content);
-		
-		foreach($headers as $header) {
-			// Do we need to redirect?
-			if(preg_match("/^Location:/i", $header)) {
-				header($header);
-				exit;
-			}
-			// Passthru content type
-			if(preg_match("/^Content-Type:/i", $header)) {
-				header($header);
-			}
-		}
-		
-		echo $content;
-	}
-};
-
 class DevblocksProxy_Curl extends DevblocksProxy {
 	function _get($remote_path, $local_path) {
 		$url = REMOTE_PROTOCOL . '://' . REMOTE_HOST . ':' . REMOTE_PORT . $remote_path . $local_path;
@@ -406,24 +335,8 @@ class DevblocksRouter {
 //		echo "SRU: ",$_SERVER['REQUEST_URI'],"<BR>";
 //		echo "Localbase: ",LOCAL_BASE,"<BR>";
 //		echo $local_path,"<BR>";
-		$proxy = $this->_factory();
+		$proxy = new DevblocksProxy_Curl();
 		$proxy->proxy($local_path);
-	}
-
-	/**
-	 * @return DevblocksProxy
-	 */
-	function _factory() {
-		$proxy = null;
-
-		// Determine if CURL or FSOCK is available
-		if(function_exists('curl_exec')) {
-			$proxy = new DevblocksProxy_Curl();
-		} elseif(function_exists('fsockopen')) {
-			$proxy = new DevblocksProxy_Socket();
-		}
-
-		return $proxy;
 	}
 
 	/**
