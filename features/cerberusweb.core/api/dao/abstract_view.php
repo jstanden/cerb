@@ -373,6 +373,32 @@ abstract class C4_AbstractView {
 		
 		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
 		
+		// Quick search multi-sorting
+		// [TODO] Stacked sorts
+		
+		foreach($fields as $k => $p) {
+			if($p instanceof DevblocksSearchCriteria && $p->key == 'sort') {
+				$oper = null;
+				$value = null;
+				
+				if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+					continue;
+				
+				if(false == ($sort_results = $this->_getSortFromQuickSearchQuery($value)))
+					continue;
+				
+				if(isset($sort_results['sort_by']) && !empty($sort_results['sort_by']))
+					$this->renderSortBy = $sort_results['sort_by'][0];
+				
+				if(isset($sort_results['sort_asc']) && !empty($sort_results['sort_asc']))
+					$this->renderSortAsc = $sort_results['sort_asc'][0];
+					
+				unset($fields[$k]);
+			}
+		}
+		
+		// Convert fields T_FIELD to DevblocksSearchCriteria
+		
 		array_walk_recursive($fields, function(&$v, $k) {
 			if($v instanceof DevblocksSearchCriteria) {
 				$param = $this->getParamFromQuickSearchFieldTokens($v->key, $v->tokens);
@@ -385,20 +411,11 @@ abstract class C4_AbstractView {
 			}
 		});
 		
-		if(isset($fields['sort']) && $fields['sort']) {
-			if(false != ($sort_results = $this->_getSortFromQuickSearchQuery($fields['sort'])) && is_array($sort_results)) {
-				if(isset($sort_results['sort_by']) && !empty($sort_results['sort_by']))
-					$this->renderSortBy = $sort_results['sort_by'][0];
-				if(isset($sort_results['sort_asc']) && !empty($sort_results['sort_asc']))
-				$this->renderSortAsc = $sort_results['sort_asc'][0];
-			}
-			unset($fields['sort']);
-		}
-		
 		$this->addParams($fields, $replace);
 		$this->renderPage = 0;
 	}
 	
+	// [TODO] Test this
 	function _getSortFromQuickSearchQuery($sort_query) {
 		$sort_results = array(
 			'sort_by' => array(),
@@ -2789,7 +2806,7 @@ class CerbQuickSearchLexer {
 				}
 			}
 		});
-				
+		
 		$params = null;
 		self::buildParams($tokens, $params);
 		
