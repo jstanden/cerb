@@ -7,7 +7,7 @@
 	<div style="margin-top:10px;">
 		<label><input type="checkbox" name="{$namePrefix}[search_mode]" value="quick_search" class="mode" {if $params.search_mode == "quick_search"}checked="checked"{/if}> <b>and filter using quick search:</b></label>
 		<div style="margin-left:20px;">
-			<input type="text" name="{$namePrefix}[quick_search]" value="{$params.quick_search}" class="quicksearch placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+			<textarea name="{$namePrefix}[quick_search]" value="{$params.quick_search}" class="quicksearch placeholders" style="width:95%;border-radius:5px;" autocomplete="off" spellcheck="off"></textarea>
 		</div>
 	</div>
 </div>
@@ -40,6 +40,8 @@ $(function() {
 	var $div = $('#popup{$uniq_id}');
 	var $parent = $div.parent();
 	var $popup = $div.closest('.ui-dialog');
+	
+	$parent.find('textarea').autosize();
 	
 	$div.click(function(e) {
 		var width = $(window).width()-100;
