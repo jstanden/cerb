@@ -329,7 +329,9 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(!empty($headers))
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		
-		$out = DevblocksPlatform::curlExec($ch);
+		// [TODO] User-level option to follow redirects
+		
+		$out = DevblocksPlatform::curlExec($ch, true);
 		
 		$info = curl_getinfo($ch);
 		
