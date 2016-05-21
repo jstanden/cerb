@@ -26,6 +26,16 @@
 			</ul>
 		</li>
 		{/if}
+		
+		{if !empty($placeholder_labels)}
+		<li field="">
+			(booleans)
+			<ul style="width:200px;">
+				<li value="{literal}(field:val OR field:val){/literal}">OR</li>
+				<li value="{literal}(field:val AND field:val){/literal}">AND</li>
+			</ul>
+		</li>
+		{/if}
 
 		{capture name=sortable_fields}{*
 		*}{if !empty($search_fields)}{*
