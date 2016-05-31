@@ -154,7 +154,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				
 				try {
 					// If authorized, lock and attempt update
-					if(!file_exists($file) || @filectime($file)+600 < time()) { // 10 min lock
+					if(!file_exists($file) || @filectime($file)+1200 < time()) { // 20 min lock
 						// Log everybody out since we're touching the database
 						//$session = DevblocksPlatform::getSessionService();
 						//$session->clearAll();
