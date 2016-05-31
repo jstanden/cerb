@@ -464,11 +464,14 @@ abstract class C4_AbstractView {
 			unset($this->_paramsEditable[$key]);
 	}
 	
-	function removeParamByField($field) {
-		foreach($this->_paramsEditable as $k => $p) {
+	function removeParamByField($field, &$params=null) {
+		if(is_null($params))
+			$params =& $this->_paramsEditable;
+		
+		foreach($params as $k => $p) {
 		if($p instanceof DevblocksSearchCriteria)
 			if($p->field == $field)
-				unset($this->_paramsEditable[$k]);
+				unset($params[$k]);
 		}
 	}
 	
