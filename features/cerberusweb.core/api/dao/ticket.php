@@ -2025,7 +2025,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					
 					$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 					
-					return sprintf('%s IN (SELECT ticket_id FROM message WHERE id=%s AND id IN (%s))',
+					return sprintf('%s IN (SELECT ticket_id FROM message WHERE ticket_id=%s AND id IN (%s))',
 						self::getPrimaryKey(),
 						self::getPrimaryKey(),
 						implode(', ', $ids)
@@ -3472,8 +3472,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$oper = null;
 				$value = null;
 				
-				//DevblocksSearchCriteria::getStringParamFromTokens($field_key, $tokens);
-				
 				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
 				
 				$values = array();
@@ -4002,7 +4000,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				$strings = array();
-
+				
+				if(!is_array($values))
+					$values = array($values);
+				
+				if(is_array($values))
 				foreach($values as $val) {
 					switch($val) {
 						case 'S':

@@ -27,23 +27,6 @@ $(function() {
 		
 		$popup.find('input:text:first').focus().select();
 		
-		$popup.find('input.search').keypress(function(e) {
-			switch(e.which) {
-				case 13:
-					val = $(this).val();
-					
-					if(0 == val.length) {
-						// Remove search filter
-						ajax.viewRemoveFilter('{$view->id}', ['s_title']);
-					} else {
-						// Add search filter
-						ajax.viewAddFilter('{$view->id}', 's_title', 'like', { 'value':$(this).val() }, true);
-					}
-					$(this).focus().select();
-					break;
-			}
-		});
-		
 		// Progressive de-enhancement
 		
 		var on_refresh = function() {
