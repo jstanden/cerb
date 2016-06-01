@@ -879,18 +879,18 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		switch($scope) {
 			case 'all':
-				$value = $this->prepareText($value);
+				$value = $this->prepareText($value, true);
 				$value = '+'.str_replace(' ', ' +', $value);
 				break;
 				
 			case 'any':
-				$value = $this->prepareText($value);
+				$value = $this->prepareText($value, true);
 				break;
 				
 			case 'phrase':
 				$value = '"'.$this->prepareText($value).'"';
 				break;
-				
+			
 			default:
 			case 'expert':
 				// We don't want to strip punctuation in expert mode
@@ -1058,16 +1058,14 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return $words;
 	}
 	
-	public function prepareText($text) {
+	public function prepareText($text, $is_query=false) {
 		$text = DevblocksPlatform::strUnidecode($text);
 
-		$text = str_replace("'", '', $text);
+		// Allow wildcards in queries
+		$regexp = $is_query ? '[^[:alnum:]\*]' : '[^[:alnum:]]';
 		
-		if(function_exists('mb_ereg_replace')) {
-			$text = mb_ereg_replace("[^[:alnum:]]", ' ', mb_convert_case($text, MB_CASE_LOWER));
-		} else {
-			$text = preg_replace("/[^[:alnum:]]/u", ' ', mb_convert_case($text, MB_CASE_LOWER));
-		}
+		$text = str_replace("'", '', $text);
+		$text = mb_ereg_replace($regexp, ' ', mb_convert_case($text, MB_CASE_LOWER));
 		
 		$words = explode(' ', $text);
 		unset($text);
