@@ -470,7 +470,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		if(false === ($json = $this->_execute('GET', $base_url)))
 			return false;
 		
-		if(isset($json['status']) && 200 == $json['status']) {
+		if(isset($json['version']) && isset($json['version']['number'])) {
 			return true;
 			
 		} else {
