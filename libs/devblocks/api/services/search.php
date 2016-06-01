@@ -834,14 +834,12 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$temp_table = sprintf("_search_%s", uniqid());
 		
 		$sql = sprintf("CREATE TEMPORARY TABLE IF NOT EXISTS %s (PRIMARY KEY (id)) ".
-			"SELECT id, MATCH content AGAINST ('%s' IN BOOLEAN MODE) AS score ".
+			"SELECT id ".
 			"FROM fulltext_%s ".
 			"WHERE MATCH content AGAINST ('%s' IN BOOLEAN MODE) ".
 			"%s ".
-			"ORDER BY score DESC ".
 			($max_results ? sprintf("LIMIT 0,%d ", $max_results) : ''),
 			$temp_table,
-			$escaped_query,
 			$this->escapeNamespace($ns),
 			$escaped_query,
 			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
