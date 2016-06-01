@@ -24,8 +24,6 @@
 {/foreach}
 </div>
 
-<script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/async-min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
-
 <script type="text/javascript">
 $(function() {
 	// Page title
