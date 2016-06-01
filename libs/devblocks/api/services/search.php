@@ -984,6 +984,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			'but' => true,
 			'by' => true,
 			'can' => true,
+			'com' => true,
 			'could' => true,
 			'did' => true,
 			'do' => true,
