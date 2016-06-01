@@ -1124,6 +1124,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -1137,7 +1138,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 						continue;
 					$label_map[$topic_id] = $topic->name;
 				}
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_KbArticle', $column, $label_map, 'in', 'options[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_KbArticle::FORMAT:
@@ -1146,25 +1147,25 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 					'1' => 'HTML',
 					'2' => 'Markdown',
 				);
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_KbArticle', $column, $label_map, '=', 'value');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
 				break;
 
 			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_KbArticle', CerberusContexts::CONTEXT_KB_ARTICLE, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 				
 			case SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_KbArticle', CerberusContexts::CONTEXT_KB_ARTICLE, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_KbArticle', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_KbArticle', $column, 'kb.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;

@@ -702,7 +702,7 @@ class Model_PluginLibrary {
 	}
 };
 
-class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
+class View_PluginLibrary extends C4_AbstractView implements IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'plugin_library';
 
 	function __construct() {
@@ -756,45 +756,6 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_Subtot
 		return $this->_doGetDataSample('DAO_PluginLibrary', $size);
 	}
 
-	function getSubtotalFields() {
-		$all_fields = $this->getParamsAvailable(true);
-		
-		$fields = array();
-
-		if(is_array($all_fields))
-		foreach($all_fields as $field_key => $field_model) {
-			$pass = false;
-			
-			switch($field_key) {
-				// DAO
-				case SearchFields_PluginLibrary::AUTHOR:
-					$pass = true;
-					break;
-			}
-			
-			if($pass)
-				$fields[$field_key] = $field_model;
-		}
-		
-		return $fields;
-	}
-	
-	function getSubtotalCounts($column) {
-		$counts = array();
-		$fields = $this->getFields();
-
-		if(!isset($fields[$column]))
-			return array();
-		
-		switch($column) {
-			case SearchFields_PluginLibrary::AUTHOR:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_PluginLibrary', $column);
-				break;
-		}
-		
-		return $counts;
-	}
-	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_PluginLibrary::getFields();
 		

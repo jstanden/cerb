@@ -789,6 +789,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_TIMETRACKING;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -804,11 +805,11 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 					$label_map[$activity_id] = $activity->name;
 				}
 				
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_TimeTrackingEntry', $column, $label_map, DevblocksSearchCriteria::OPER_IN, 'options[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, DevblocksSearchCriteria::OPER_IN, 'options[]');
 				break;
 				
 			case SearchFields_TimeTrackingEntry::IS_CLOSED:
-				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_TimeTrackingEntry', $column);
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
 			case SearchFields_TimeTrackingEntry::WORKER_ID:
@@ -816,25 +817,25 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				$label_map = array();
 				foreach($workers as $worker_id => $worker)
 					$label_map[$worker_id] = $worker->getName();
-				$counts = $this->_getSubtotalCountForNumberColumn('DAO_TimeTrackingEntry', $column, $label_map, 'in', 'worker_id[]');
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'worker_id[]');
 				break;
 				
 			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_TimeTrackingEntry', CerberusContexts::CONTEXT_TIMETRACKING, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 				
 			case SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_TimeTrackingEntry', CerberusContexts::CONTEXT_TIMETRACKING, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_TimeTrackingEntry', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_TimeTrackingEntry', $column, 'tt.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
@@ -1273,6 +1274,14 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_TimeTracking extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	function getDaoClass() {
+		return 'DAO_TimeTrackingEntry';
+	}
+	
+	function getSearchClass() {
+		return 'SearchFields_TimeTrackingEntry';
+	}
+	
 	function getRandom() {
 		return DAO_TimeTrackingEntry::random();
 	}

@@ -435,6 +435,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		
 		$fields = array();
 
+		/*
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
 			$pass = false;
@@ -455,6 +456,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 			if($pass)
 				$fields[$field_key] = $field_model;
 		}
+		*/
 		
 		return $fields;
 	}
@@ -462,24 +464,27 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = null; // [TODO]
 
 		if(!isset($fields[$column]))
 			return array();
 		
+		/*
 		switch($column) {
 			case SearchFields_Translation::LANG_CODE:
 				$codes = DAO_Translation::getDefinedLangCodes();
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Translation', $column, $codes, 'in', 'options[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $codes, 'in', 'options[]');
 				break;
 
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Translation', $column, 't.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
 		}
+		*/
 		
 		return $counts;
 	}

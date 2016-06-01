@@ -1380,13 +1380,14 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_MESSAGE;
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
 			case SearchFields_Message::ADDRESS_EMAIL:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Message', $column);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 				
 			case SearchFields_Message::TICKET_GROUP_ID:
@@ -1394,7 +1395,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$label_map = array();
 				foreach($groups as $group_id => $group)
 					$label_map[$group_id] = $group->name;
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Message', $column, $label_map, 'in', 'group_id[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'group_id[]');
 				break;
 				
 			case SearchFields_Message::WORKER_ID:
@@ -1402,13 +1403,13 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$label_map = array();
 				foreach($workers as $worker_id => $worker)
 					$label_map[$worker_id] = $worker->getName();
-				$counts = $this->_getSubtotalCountForNumberColumn('DAO_Message', $column, $label_map, 'in', 'worker_id[]');
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'worker_id[]');
 				break;
 
 			case SearchFields_Message::IS_BROADCAST:
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
-				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Message', $column);
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 			
 			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
@@ -1418,7 +1419,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Message', $column, 'm.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
@@ -1435,12 +1436,15 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$params = $this->getParams();
 		
 		// We want counts for all statuses even though we're filtering
+		$results = $this->findParam(SearchFields_Message::VIRTUAL_TICKET_STATUS, $params, false);
+		$param = array_shift($results);
+		
 		if(
-			isset($params[SearchFields_Message::VIRTUAL_TICKET_STATUS])
-			&& is_array($params[SearchFields_Message::VIRTUAL_TICKET_STATUS]->value)
-			&& count($params[SearchFields_Message::VIRTUAL_TICKET_STATUS]->value) < 2
+			$param instanceof DevblocksSearchCriteria
+			&& is_array($param->value)
+			&& count($param->value) < 2
 			)
-			unset($params[SearchFields_Message::VIRTUAL_TICKET_STATUS]);
+			$this->removeParamByField($param->field, $params);
 			
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
 			return array();

@@ -51,7 +51,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	static function getCustomFieldContextWhereKey($context) {
 		$where_key = null;
 		
-		if(false != ($cfield_ctx = self::getCustomFieldContextData($context))) { /* @var $cfield_ctx DevblocksSearchFieldContextKeys */
+		if($context && false !== ($cfield_ctx = self::getCustomFieldContextData($context))) { /* @var $cfield_ctx DevblocksSearchFieldContextKeys */
 			$where_key = $cfield_ctx->where_key;
 		}
 		

@@ -378,11 +378,11 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		switch($column) {
 			case SearchFields_CerbPlugin::AUTHOR:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_CerbPlugin', $column);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 				
 			case SearchFields_CerbPlugin::ENABLED:
-				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CerbPlugin', $column);
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 		}
 		

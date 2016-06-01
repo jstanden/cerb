@@ -546,9 +546,9 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_Skill::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_Skill::SKILLSET_ID:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_Skill::VIRTUAL_CONTEXT_LINK:
@@ -574,35 +574,37 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_SKILL;
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
-//			case SearchFields_Skill::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Skill', $column);
-//				break;
-
-//			case SearchFields_Skill::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Skill', $column);
-//				break;
+			case SearchFields_Skill::SKILLSET_ID:
+				$skillsets = DAO_Skillset::getAll();
+				$labels = array();
+				foreach($skillsets as $skillset)
+					$labels[$skillset->id] = $skillset->name;
+				
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $labels, 'in', 'options[]');
+				break;
 				
 			case SearchFields_Skill::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Skill', CerberusContexts::CONTEXT_SKILL, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
 			case SearchFields_Skill::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Skill', CerberusContexts::CONTEXT_SKILL, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_Skill::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_Skill', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Skill', $column, 'skill.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;

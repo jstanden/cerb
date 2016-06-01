@@ -450,23 +450,24 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = Context_ExampleObject::ID;
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
 			case SearchFields_ExampleObject::NAME:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_ExampleObject', $column);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 
 			case SearchFields_ExampleObject::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_ExampleObject', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_ExampleObject', $column, 'e.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;

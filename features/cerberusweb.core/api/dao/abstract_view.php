@@ -1522,34 +1522,24 @@ abstract class C4_AbstractView {
 		return $pass;
 	}
 	
-	protected function _getSubtotalDataForColumn($dao_class, $field_key) {
+	protected function _getSubtotalDataForColumn($context, $field_key) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 		
-		if(!isset($params[$field_key])) {
-			$new_params = array(
-				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
-			);
-			$params = array_merge($new_params, $params);
-		} else {
-			switch($params[$field_key]->operator) {
-				case DevblocksSearchCriteria::OPER_EQ:
-				case DevblocksSearchCriteria::OPER_IS_NULL:
-					$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
-					break;
-				case DevblocksSearchCriteria::OPER_IN:
-				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
-						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
-					break;
-			}
-		}
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return array();
+		
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			return array();
 		
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
 			return array();
+		
+		if(!isset($columns[$field_key]))
+			$columns[] = $field_key;
 		
 		$query_parts = call_user_func_array(
 			array($dao_class,'getSearchQueryComponents'),
@@ -1582,9 +1572,9 @@ abstract class C4_AbstractView {
 		return $results;
 	}
 	
-	protected function _getSubtotalCountForStringColumn($dao_class, $field_key, $label_map=array(), $value_oper='=', $value_key='value') {
+	protected function _getSubtotalCountForStringColumn($context, $field_key, $label_map=array(), $value_oper='=', $value_key='value') {
 		$counts = array();
-		$results = $this->_getSubtotalDataForColumn($dao_class, $field_key);
+		$results = $this->_getSubtotalDataForColumn($context, $field_key);
 		
 		foreach($results as $result) {
 			$label = $result['label'];
@@ -1632,9 +1622,9 @@ abstract class C4_AbstractView {
 		return $counts;
 	}
 	
-	protected function _getSubtotalCountForNumberColumn($dao_class, $field_key, $label_map=array(), $value_oper='=', $value_key='value') {
+	protected function _getSubtotalCountForNumberColumn($context, $field_key, $label_map=array(), $value_oper='=', $value_key='value') {
 		$counts = array();
-		$results = $this->_getSubtotalDataForColumn($dao_class, $field_key);
+		$results = $this->_getSubtotalDataForColumn($context, $field_key);
 		
 		foreach($results as $result) {
 			$label = $result['label'];
@@ -1682,11 +1672,11 @@ abstract class C4_AbstractView {
 		return $counts;
 	}
 	
-	protected function _getSubtotalCountForBooleanColumn($dao_class, $field_key) {
+	protected function _getSubtotalCountForBooleanColumn($context, $field_key) {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$counts = array();
-		$results = $this->_getSubtotalDataForColumn($dao_class, $field_key);
+		$results = $this->_getSubtotalDataForColumn($context, $field_key);
 		
 		foreach($results as $result) {
 			$label = $result['label'];
@@ -1718,33 +1708,26 @@ abstract class C4_AbstractView {
 		return $counts;
 	}
 	
-	protected function _getSubtotalDataForWatcherColumn($dao_class, $field_key) {
+	protected function _getSubtotalDataForWatcherColumn($context, $field_key) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
 		$params = $this->getParams();
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return array();
 		
-		if(!isset($params[$field_key])) {
-			$new_params = array(
-				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
-			);
-			$params = array_merge($new_params, $params);
-		} else {
-			switch($params[$field_key]->operator) {
-				case DevblocksSearchCriteria::OPER_EQ:
-				case DevblocksSearchCriteria::OPER_IS_NULL:
-					$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
-					break;
-				case DevblocksSearchCriteria::OPER_IN:
-				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
-						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
-					break;
-			}
-		}
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			return array();
 		
-		if(!method_exists($dao_class,'getSearchQueryComponents'))
+		if(false == ($search_class = $context_ext->getSearchClass()))
+			return array();
+		
+		if(!method_exists($dao_class, 'getSearchQueryComponents'))
+			return array();
+		
+		if(!method_exists($search_class, 'getPrimaryKey'))
 			return array();
 		
 		$query_parts = call_user_func_array(
@@ -1760,7 +1743,15 @@ abstract class C4_AbstractView {
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
 		
-		$sql = "SELECT context_watcher.to_context_id as watcher_id, count(*) as hits ". //SQL_CALC_FOUND_ROWS
+		$join_sql .= sprintf(" LEFT JOIN context_link AS watchers ON (".
+			"watchers.to_context = 'cerberusweb.contexts.worker' ".
+			"AND watchers.from_context = %s ".
+			"AND watchers.from_context_id = %s) ",
+			$db->qstr($context),
+			$search_class::getPrimaryKey()
+		);
+		
+		$sql = "SELECT watchers.to_context_id as watcher_id, count(*) as hits ". //SQL_CALC_FOUND_ROWS
 			$join_sql.
 			$where_sql.
 			"GROUP BY watcher_id ".
@@ -1773,12 +1764,13 @@ abstract class C4_AbstractView {
 		return $results;
 	}
 	
-	protected function _getSubtotalCountForWatcherColumn($dao_class, $field_key) {
+	protected function _getSubtotalCountForWatcherColumn($context, $field_key) {
 		$workers = DAO_Worker::getAll();
 		
 		$counts = array();
-		$results = $this->_getSubtotalDataForWatcherColumn($dao_class, $field_key);
+		$results = $this->_getSubtotalDataForWatcherColumn($context, $field_key);
 		
+		if(is_array($results))
 		foreach($results as $result) {
 			$watcher_id = intval($result['watcher_id']);
 			$hits = $result['hits'];
@@ -1812,7 +1804,7 @@ abstract class C4_AbstractView {
 		return $counts;
 	}
 		
-	protected function _getSubtotalDataForContextLinkColumn($dao_class, $context, $field_key) {
+	protected function _getSubtotalDataForContextLinkColumn($context, $field_key) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$fields = $this->getFields();
@@ -1820,6 +1812,12 @@ abstract class C4_AbstractView {
 
 		$params = $this->getParams();
 		$param_results = C4_AbstractView::findParam($field_key, $params);
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return array();
+		
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			return array();
 		
 		$has_context_already = false;
 		
@@ -1903,11 +1901,11 @@ abstract class C4_AbstractView {
 		return $results;
 	}
 	
-	protected function _getSubtotalCountForContextLinkColumn($dao_class, $context, $field_key) {
+	protected function _getSubtotalCountForContextLinkColumn($context, $field_key) {
 		$contexts = Extension_DevblocksContext::getAll(false);
 		$counts = array();
 		
-		$results = $this->_getSubtotalDataForContextLinkColumn($dao_class, $context, $field_key);
+		$results = $this->_getSubtotalDataForContextLinkColumn($context, $field_key);
 		
 		if(is_array($results))
 		foreach($results as $result) {
@@ -1965,7 +1963,7 @@ abstract class C4_AbstractView {
 		return $counts;
 	}
 		
-	protected function _getSubtotalDataForContextAndIdColumns($dao_class, $context, $field_key, $context_field, $context_id_field) {
+	protected function _getSubtotalDataForContextAndIdColumns($context, $field_key, $context_field, $context_id_field) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$fields = $this->getFields();
@@ -1973,6 +1971,12 @@ abstract class C4_AbstractView {
 
 		$params = $this->getParams();
 		$param_results = C4_AbstractView::findParam($field_key, $params);
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return array();
+		
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			return array();
 		
 		$has_context_already = false;
 		
@@ -2049,11 +2053,11 @@ abstract class C4_AbstractView {
 		return $results;
 	}
 	
-	protected function _getSubtotalCountForContextAndIdColumns($dao_class, $context, $field_key, $context_field, $context_id_field, $filter_field='context_link[]') {
+	protected function _getSubtotalCountForContextAndIdColumns($context, $field_key, $context_field, $context_id_field, $filter_field='context_link[]') {
 		$contexts = Extension_DevblocksContext::getAll(false);
 		$counts = array();
 		
-		$results = $this->_getSubtotalDataForContextAndIdColumns($dao_class, $context, $field_key, $context_field, $context_id_field);
+		$results = $this->_getSubtotalDataForContextAndIdColumns($context, $field_key, $context_field, $context_id_field);
 		
 		if(is_array($results))
 		foreach($results as $result) {
@@ -2116,11 +2120,11 @@ abstract class C4_AbstractView {
 		return $counts;
 	}
 	
-	protected function _getSubtotalCountForHasFieldsetColumn($dao_class, $context, $field_key) {
+	protected function _getSubtotalCountForHasFieldsetColumn($context, $field_key) {
 		$counts = array();
 		
 		$custom_fieldsets = DAO_CustomFieldset::getAll();
-		$data = $this->_getSubtotalDataForHasFieldsetColumn($dao_class, $context);
+		$data = $this->_getSubtotalDataForHasFieldsetColumn($context, $context);
 		
 		foreach($data as $row) {
 			@$custom_fieldset = $custom_fieldsets[$row['link_fieldset_id']];
@@ -2152,6 +2156,12 @@ abstract class C4_AbstractView {
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return array();
+		
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			return array();
+		
 		// [TODO] Is this the best way to go about this?
 		// Show all linked custom fieldsets; ignore current fieldset filters
 		unset($params['*_has_fieldset']);
@@ -2189,7 +2199,7 @@ abstract class C4_AbstractView {
 		
 	}
 	
-	protected function _getSubtotalCountForCustomColumn($dao_class, $field_key, $primary_key) {
+	protected function _getSubtotalCountForCustomColumn($context, $field_key) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -2199,8 +2209,8 @@ abstract class C4_AbstractView {
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 
-		$field_id = substr($field_key,3);
-
+		$field_id = substr($field_key, 3);
+		
 		// If the custom field id is invalid, abort.
 		if(!isset($custom_fields[$field_id]))
 			return array();
@@ -2208,25 +2218,27 @@ abstract class C4_AbstractView {
 		// Load the custom field
 		$cfield = $custom_fields[$field_id];
 
-		// Always join the custom field so we have quick access to values
-		if(!isset($params[$field_key])) {
-			$add_param = array(
-				$field_key => new DevblocksSearchCriteria($field_key,DevblocksSearchCriteria::OPER_TRUE),
-			);
-			$params = array_merge($params, $add_param);
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return array();
+		
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			return array();
+		
+		if(false == ($search_class = $context_ext->getSearchClass()))
+			return array();
+		
+		$cfield_select_sql = null;
+		
+		$cfield_key = $search_class::getCustomFieldContextWhereKey($cfield->context);
 			
-		} elseif($params[$field_key] instanceof DevblocksSearchCriteria) {
-			switch($params[$field_key]->operator) {
-				case DevblocksSearchCriteria::OPER_EQ:
-				case DevblocksSearchCriteria::OPER_IS_NULL:
-					$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
-					break;
-				case DevblocksSearchCriteria::OPER_IN:
-				case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-					if(is_array($params[$field_key]->value) && count($params[$field_key]->value) < 2)
-						$params[$field_key] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE);
-					break;
-			}
+		if($cfield_key) {
+			$cfield_select_sql .= sprintf("(SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d ORDER BY field_value%s)",
+				DAO_CustomFieldValue::getValueTableName($field_id),
+				Cerb_ORMHelper::qstr($cfield->context),
+				$cfield_key,
+				$field_id,
+				' LIMIT 1'
+			);
 		}
 		
 		// ... and that the DAO object is valid
@@ -2251,8 +2263,8 @@ abstract class C4_AbstractView {
 			
 			case Model_CustomField::TYPE_CHECKBOX:
 				$select = sprintf(
-					"SELECT COUNT(*) AS hits, %s.field_value AS %s ",
-					$field_key,
+					"SELECT COUNT(*) AS hits, %s AS %s ",
+					$cfield_select_sql,
 					$field_key
 				);
 				
@@ -2266,9 +2278,10 @@ abstract class C4_AbstractView {
 					).
 					"ORDER BY hits DESC "
 				;
-		
+				
 				$results = $db->GetArraySlave($sql);
 		
+				if(is_array($results))
 				foreach($results as $result) {
 					$label = '';
 					$oper = DevblocksSearchCriteria::OPER_EQ;
@@ -2308,8 +2321,8 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_URL:
 				$select = sprintf(
-					"SELECT COUNT(*) AS hits, %s.field_value AS %s ", //SQL_CALC_FOUND_ROWS
-					$field_key,
+					"SELECT COUNT(*) AS hits, %s AS %s ", //SQL_CALC_FOUND_ROWS
+					$cfield_select_sql,
 					$field_key
 				);
 				
@@ -2329,6 +2342,7 @@ abstract class C4_AbstractView {
 //				$total = count($results);
 //				$total = ($total < 20) ? $total : $db->GetOneSlave("SELECT FOUND_ROWS()");
 				
+				if(is_array($results))
 				foreach($results as $result) {
 					$label = '';
 					$oper = DevblocksSearchCriteria::OPER_IN;
@@ -2351,8 +2365,8 @@ abstract class C4_AbstractView {
 					
 					if(empty($label)) {
 						$label = '(no data)';
-						$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
-						$values = array('value' => '');
+						$oper = DevblocksSearchCriteria::OPER_IS_NULL;
+						$values = array('value' => null);
 					}
 					
 					$counts[$result[$field_key]] = array(
@@ -2373,10 +2387,8 @@ abstract class C4_AbstractView {
 				
 				$sql =
 					sprintf(
-						"SELECT COUNT(*) AS hits, IFNULL((SELECT field_value FROM custom_field_numbervalue WHERE context=%s AND %s=context_id AND field_id=%d LIMIT 1),0) AS %s ", //SQL_CALC_FOUND_ROWS
-						$db->qstr($cfield->context),
-						$primary_key,
-						$field_id,
+						"SELECT COUNT(*) AS hits, %s AS %s ", //SQL_CALC_FOUND_ROWS
+						$cfield_select_sql,
 						$field_key
 					).
 					$join_sql.
@@ -2393,6 +2405,7 @@ abstract class C4_AbstractView {
 //				$total = count($results);
 //				$total = ($total < 20) ? $total : $db->GetOneSlave("SELECT FOUND_ROWS()");
 		
+				if(is_array($results))
 				foreach($results as $result) {
 					$label = '';
 					$oper = DevblocksSearchCriteria::OPER_EQ;

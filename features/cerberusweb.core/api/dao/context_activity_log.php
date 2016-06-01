@@ -537,6 +537,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_ACTIVITY_LOG;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -554,21 +555,21 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 						$label_map[$k] = $translate->_($string_id);
 					}
 				}
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContextActivityLog', $column, $label_map, 'in', 'options[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns('DAO_ContextActivityLog', CerberusContexts::CONTEXT_ACTIVITY_LOG, $column, DAO_ContextActivityLog::ACTOR_CONTEXT, DAO_ContextActivityLog::ACTOR_CONTEXT_ID);
+				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_ContextActivityLog::ACTOR_CONTEXT, DAO_ContextActivityLog::ACTOR_CONTEXT_ID);
 				break;
 				
 			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns('DAO_ContextActivityLog', CerberusContexts::CONTEXT_ACTIVITY_LOG, $column, DAO_ContextActivityLog::TARGET_CONTEXT, DAO_ContextActivityLog::TARGET_CONTEXT_ID);
+				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_ContextActivityLog::TARGET_CONTEXT, DAO_ContextActivityLog::TARGET_CONTEXT_ID);
 				break;
 				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_ContextActivityLog', $column, 'context_activity_log.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;

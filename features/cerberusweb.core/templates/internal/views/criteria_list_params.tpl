@@ -19,37 +19,49 @@
 					{else}
 						{$view_filters.{$p->field}->db_label|capitalize} 
 						{if $p->operator=='='}
-							is
+							is 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='equals or null'}
-							is  
+							is 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='!='}
 							is not 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='like'}
-							is
+							is 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='not like'}
 							is not 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='in'}
-							is    
+							is 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='in or null'}
 							is blank{if !empty($p->value)} or{/if} 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='not in'}
-							is not
+							is not 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='not in or null'}
 							is blank{if !empty($p->value)} or not{/if} 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='is null'}
-							is {if empty($p->value)}blank{/if}
+							is <b>null</b>
 						{elseif $p->operator=='is not null'}
-							is not {if empty($p->value)}blank{/if}
+							is <b>not null</b>
 						{elseif $param->operator=='between'}
-							is between
+							is between 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $param->operator=='not between'}
-							is not between
+							is not between 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{elseif $p->operator=='fulltext'}
-							search
+							search 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{else} 
-							{$p->operator}
+							{$p->operator} 
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{/if}
-						<b>{$view->renderCriteriaParam($p)}</b>
 					{/if}
 				{/if}
 				
@@ -61,37 +73,49 @@
 		{$view_filters.$field->db_label|capitalize}
 		{* [TODO] Add operator labels to platform *}
 		{if $param->operator=='='}
-			is
+			is 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='equals or null'}
-			is  
+			is 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='!='}
 			is not 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='like'}
-			is
+			is 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='not like'}
 			is not 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='in'}
-			is    
+			is 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='in or null'}
-			is blank{if !empty($param->value)} or{/if} 
+			is null{if !empty($param->value)} or{/if} 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='not in'}
-			is not
+			is not 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='not in or null'}
-			is blank{if !empty($param->value)} or not{/if}  
+			is null{if !empty($param->value)} or not{/if} 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='is null'}
-			is {if empty($param->value)}null{/if}
+			is <b>null</b>
 		{elseif $param->operator=='is not null'}
-			is {if empty($param->value)}not null{/if}
+			is <b>not null</b>
 		{elseif $param->operator=='between'}
-			is between
+			is between 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='not between'}
-			is not between
+			is not between 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='fulltext'}
-			search
+			search 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{else} 
-			{$param->operator}
+			{$param->operator} 
+			<b>{$view->renderCriteriaParam($param)}</b>
 		{/if}
-		<b>{$view->renderCriteriaParam($param)}</b>
 		
 		{if $nested}{if $smarty.foreach.params.first}<tt style="color:black;font-weight:bold;padding:0px 2px 0px 0px;">(</tt>{/if}
 			{if !$smarty.foreach.params.first && !$smarty.foreach.params.last}<tt style="color:black;font-weight:bold;padding:0px 5px;">{$params.0}</tt>{/if}

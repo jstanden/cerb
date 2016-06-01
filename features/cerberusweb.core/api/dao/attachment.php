@@ -793,6 +793,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_ATTACHMENT_LINK;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -800,7 +801,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 		switch($column) {
 			case SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME:
 			case SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_AttachmentLink', $column);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 
 			case SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION:
@@ -811,7 +812,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 					$label_map[$k] = $mft->name;
 				}
 				
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_AttachmentLink', $column, $label_map);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
 			case SearchFields_AttachmentLink::LINK_CONTEXT:
@@ -822,7 +823,7 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 					$label_map[$k] = $mft->name;
 				}
 				
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_AttachmentLink', $column, $label_map, 'in', 'contexts[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'contexts[]');
 				break;
 		}
 		

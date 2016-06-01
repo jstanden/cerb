@@ -703,6 +703,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -716,33 +717,33 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 				foreach($calendars as $calendar)
 					$label_map[$calendar->id] = $calendar->name;
 				
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_CalendarRecurringProfile', $column, $label_map, DevblocksSearchCriteria::OPER_IN, 'context_id[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, DevblocksSearchCriteria::OPER_IN, 'context_id[]');
 				break;
 			
 			case SearchFields_CalendarRecurringProfile::IS_AVAILABLE:
-				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CalendarRecurringProfile', $column);
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 
 			case SearchFields_CalendarRecurringProfile::TZ:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_CalendarRecurringProfile', $column);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 				
 			case SearchFields_CalendarRecurringProfile::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_CalendarRecurringProfile', CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
 			case SearchFields_CalendarRecurringProfile::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_CalendarRecurringProfile', CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_CalendarRecurringProfile::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_CalendarRecurringProfile', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_CalendarRecurringProfile', $column, 'calendar_recurring_profile.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;

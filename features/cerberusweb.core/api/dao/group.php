@@ -1121,6 +1121,9 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			$pass = false;
 			
 			switch($field_key) {
+				case SearchFields_Group::IS_DEFAULT:
+				case SearchFields_Group::IS_PRIVATE:
+				case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
@@ -1143,23 +1146,29 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_GROUP;
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
+			case SearchFields_Group::IS_DEFAULT;
+			case SearchFields_Group::IS_PRIVATE;
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
+				break;
+				
 			case SearchFields_Group::VIRTUAL_CONTEXT_LINK;
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Group', CerberusContexts::CONTEXT_GROUP, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 				
 			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Group', CerberusContexts::CONTEXT_GROUP, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Group', $column, 'g.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
@@ -1322,6 +1331,11 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_Group::IS_DEFAULT:
+			case SearchFields_Group::IS_PRIVATE:
+				parent::_renderCriteriaParamBoolean($param);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;

@@ -702,6 +702,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 				// DAO
 				case SearchFields_Notification::ACTIVITY_POINT:
 				case SearchFields_Notification::IS_READ:
+				case SearchFields_Notification::WORKER_ID:
 					$pass = true;
 					break;
 					
@@ -722,6 +723,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_NOTIFICATION;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -739,17 +741,25 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 						$label_map[$k] = $translate->_($string_id);
 					}
 				}
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Notification', $column, $label_map, 'in', 'options[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_Notification::IS_READ:
-				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Notification', $column);
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
+				break;
+				
+			case SearchFields_Notification::WORKER_ID:
+				$workers = DAO_Worker::getAll();
+				$label_map = array();
+				foreach($workers as $worker_id => $worker)
+					$label_map[$worker_id] = $worker->getName();
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'worker_id[]');
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Notification', $column, 'n.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;

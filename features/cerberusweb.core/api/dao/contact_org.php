@@ -976,6 +976,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_ORG;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -984,25 +985,25 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_ContactOrg::COUNTRY:
 			case SearchFields_ContactOrg::PROVINCE:
 			case SearchFields_ContactOrg::POSTAL:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_ContactOrg', $column);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 				
 			case SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_ContactOrg', CerberusContexts::CONTEXT_ORG, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 				
 			case SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_ContactOrg', CerberusContexts::CONTEXT_ORG, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_ContactOrg', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_ContactOrg', $column, 'c.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
@@ -1392,6 +1393,21 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 
 class Context_Org extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.org';
+	
+	/**
+	 * @see Extension_DevblocksContext::getDaoClass()
+	 */
+	function getDaoClass() {
+		return 'DAO_ContactOrg';
+	}
+	
+
+	/**
+	 * @see Extension_DevblocksContext::getSearchClass()
+	 */
+	function getSearchClass() {
+		return 'SearchFields_ContactOrg';
+	}
 	
 	function profileGetUrl($context_id) {
 		if(empty($context_id))

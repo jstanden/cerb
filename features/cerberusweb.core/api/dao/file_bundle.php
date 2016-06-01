@@ -664,39 +664,32 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_FILE_BUNDLE;
 
 		if(!isset($fields[$column]))
 			return array();
 
 		switch($column) {
-			//			case SearchFields_FileBundle::EXAMPLE_BOOL:
-			//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_FileBundle', $column);
-			//				break;
-
-			//			case SearchFields_FileBundle::EXAMPLE_STRING:
-			//				$counts = $this->_getSubtotalCountForStringColumn('DAO_FileBundle', $column);
-			//				break;
-
 			case SearchFields_FileBundle::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_FileBundle', CerberusContexts::CONTEXT_FILE_BUNDLE, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
 			case SearchFields_FileBundle::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_FileBundle', CerberusContexts::CONTEXT_FILE_BUNDLE, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 
 			case SearchFields_FileBundle::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_FileBundle', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 					
 			case SearchFields_FileBundle::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns('DAO_FileBundle', CerberusContexts::CONTEXT_FILE_BUNDLE, $column, DAO_FileBundle::OWNER_CONTEXT, DAO_Snippet::OWNER_CONTEXT_ID, 'owner_context[]');
+				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_FileBundle::OWNER_CONTEXT, DAO_Snippet::OWNER_CONTEXT_ID, 'owner_context[]');
 				break;
 				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_FileBundle', $column, 'file_bundle.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 
 				break;

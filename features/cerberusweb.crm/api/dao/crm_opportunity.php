@@ -708,6 +708,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -715,31 +716,31 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		switch($column) {
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 			case SearchFields_CrmOpportunity::ORG_NAME:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_CrmOpportunity', $column);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 				
 			case SearchFields_CrmOpportunity::IS_CLOSED:
 			case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 			case SearchFields_CrmOpportunity::IS_WON:
-				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CrmOpportunity', $column);
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 			
 			case SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_CrmOpportunity', CerberusContexts::CONTEXT_OPPORTUNITY, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 				
 			case SearchFields_CrmOpportunity::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_CrmOpportunity', CerberusContexts::CONTEXT_OPPORTUNITY, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_CrmOpportunity::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_CrmOpportunity', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_CrmOpportunity', $column, 'o.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
@@ -1262,6 +1263,14 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 };
 
 class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+	function getDaoClass() {
+		return 'DAO_CrmOpportunity';
+	}
+	
+	function getSearchClass() {
+		return 'SearchFields_CrmOpportunity';
+	}
+	
 	function getRandom() {
 		return DAO_CrmOpportunity::random();
 	}

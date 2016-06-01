@@ -659,9 +659,10 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_Mailbox::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_Mailbox::HOST:
+				case SearchFields_Mailbox::PROTOCOL:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_Mailbox::VIRTUAL_CONTEXT_LINK:
@@ -687,35 +688,33 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_MAILBOX;
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
-//			case SearchFields_Mailbox::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Mailbox', $column);
-//				break;
-
-//			case SearchFields_Mailbox::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Mailbox', $column);
-//				break;
+			case SearchFields_Mailbox::HOST:
+			case SearchFields_Mailbox::PROTOCOL:
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
 				
 			case SearchFields_Mailbox::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Mailbox', CerberusContexts::CONTEXT_MAILBOX, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
 			case SearchFields_Mailbox::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Mailbox', CerberusContexts::CONTEXT_MAILBOX, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_Mailbox::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_Mailbox', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Mailbox', $column, 'mailbox.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;

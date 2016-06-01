@@ -1941,7 +1941,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('t.owner_id', self::TICKET_OWNER_ID),
 			CerberusContexts::CONTEXT_GROUP => new DevblocksSearchFieldContextKeys('t.group_id', self::TICKET_GROUP_ID),
 			CerberusContexts::CONTEXT_BUCKET => new DevblocksSearchFieldContextKeys('t.bucket_id', self::TICKET_BUCKET_ID),
-			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('t.t_first_wrote', self::TICKET_FIRST_WROTE_ID),
+			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('t.first_wrote_address_id', self::TICKET_FIRST_WROTE_ID),
 		);
 	}
 	
@@ -2679,6 +2679,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_TICKET;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -2688,7 +2689,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_FIRST_WROTE:
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
 			case SearchFields_Ticket::TICKET_SUBJECT:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 				
 			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
@@ -2697,7 +2698,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'R' => 'Recipient Replied',
 					'W' => 'Worker Replied',
 				);
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column, $label_map, 'in', 'options[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
@@ -2706,7 +2707,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'S' => 'Spam',
 					'N' => 'Not spam',
 				);
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_Ticket', $column, $label_map);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_Ticket::TICKET_OWNER_ID:
@@ -2716,7 +2717,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$workers = DAO_Worker::getAll();
 				foreach($workers as $k => $v)
 					$label_map[$k] = $v->getName();
-				$counts = $this->_getSubtotalCountForNumberColumn('DAO_Ticket', $column, $label_map, 'in', 'worker_id[]');
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'worker_id[]');
 				break;
 				
 			case SearchFields_Ticket::TICKET_GROUP_ID:
@@ -2732,21 +2733,21 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Ticket', CerberusContexts::CONTEXT_TICKET, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Ticket', CerberusContexts::CONTEXT_TICKET, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_Ticket', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Ticket', $column, 't.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
@@ -2902,15 +2903,18 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
 		$params = $this->getParams();
-		
+
 		// We want counts for all statuses even though we're filtering
+		$results = $this->findParam(SearchFields_Ticket::VIRTUAL_STATUS, $params, false);
+		$param = array_shift($results);
+		
 		if(
-			isset($params[SearchFields_Ticket::VIRTUAL_STATUS])
-			&& is_array($params[SearchFields_Ticket::VIRTUAL_STATUS]->value)
-			&& count($params[SearchFields_Ticket::VIRTUAL_STATUS]->value) < 2
+			$param instanceof DevblocksSearchCriteria
+			&& is_array($param->value)
+			&& count($param->value) < 2
 			)
-			unset($params[SearchFields_Ticket::VIRTUAL_STATUS]);
-			
+			$this->removeParamByField($param->field, $params);
+		
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
 			return array();
 		

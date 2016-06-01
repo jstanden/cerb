@@ -642,35 +642,36 @@ foreach($fields as $field_name => $field_type) {
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = '<?php echo $ctx_ext_id; ?>';
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
 //			case SearchFields_<?php echo $class_name; ?>::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_<?php echo $class_name; ?>', $column);
+//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 //				break;
 
 //			case SearchFields_<?php echo $class_name; ?>::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_<?php echo $class_name; ?>', $column);
+//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 //				break;
 				
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_<?php echo $class_name; ?>', '<?php echo $ctx_ext_id; ?>', $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_<?php echo $class_name; ?>', '<?php echo $ctx_ext_id; ?>', $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_<?php echo $class_name; ?>', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_<?php echo $class_name; ?>', $column, '<?php echo $table_name; ?>.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;

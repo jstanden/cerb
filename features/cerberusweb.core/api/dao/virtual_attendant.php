@@ -752,39 +752,36 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
 			case SearchFields_VirtualAttendant::IS_DISABLED:
-				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_VirtualAttendant', $column);
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 
-//			case SearchFields_VirtualAttendant::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_VirtualAttendant', $column);
-//				break;
-				
 			case SearchFields_VirtualAttendant::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_VirtualAttendant', CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
 			case SearchFields_VirtualAttendant::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_VirtualAttendant', CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_VirtualAttendant::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns('DAO_VirtualAttendant', CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $column, DAO_CustomFieldset::OWNER_CONTEXT, DAO_CustomFieldset::OWNER_CONTEXT_ID, 'owner_context[]');
+				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_CustomFieldset::OWNER_CONTEXT, DAO_CustomFieldset::OWNER_CONTEXT_ID, 'owner_context[]');
 				break;
 				
 			case SearchFields_VirtualAttendant::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_VirtualAttendant', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_VirtualAttendant', $column, 'virtual_attendant.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;

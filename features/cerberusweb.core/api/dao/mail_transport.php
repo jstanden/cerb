@@ -214,7 +214,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 			new Model_DevblocksEvent(
 				'context.delete',
 				array(
-					'context' => 'cerberusweb.contexts.mail.transport',
+					'context' => CerberusContexts::CONTEXT_MAIL_TRANSPORT,
 					'context_ids' => $ids
 				)
 			)
@@ -246,7 +246,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 			);
 			
 		$join_sql = "FROM mail_transport ".
-			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = mail_transport.id) ", Cerb_ORMHelper::qstr('cerberusweb.contexts.mail.transport')) : " ").
+			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = mail_transport.id) ", Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_MAIL_TRANSPORT)) : " ").
 			'';
 		
 		$where_sql = "".
@@ -283,7 +283,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 			
-		$from_context = 'cerberusweb.contexts.mail.transport';
+		$from_context = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
 		$from_index = 'mail_transport.id';
 		
 		$param_key = $param->field;
@@ -550,9 +550,10 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_MailTransport::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_MailTransport::EXTENSION_ID:
+				case SearchFields_MailTransport::IS_DEFAULT:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_MailTransport::VIRTUAL_CONTEXT_LINK:
@@ -578,35 +579,36 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
-//			case SearchFields_MailTransport::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_MailTransport', $column);
-//				break;
-
-//			case SearchFields_MailTransport::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_MailTransport', $column);
-//				break;
+			case SearchFields_MailTransport::EXTENSION_ID:
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
+				
+			case SearchFields_MailTransport::IS_DEFAULT:
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
+				break;
 				
 			case SearchFields_MailTransport::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_MailTransport', 'cerberusweb.contexts.mail.transport', $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
 			case SearchFields_MailTransport::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_MailTransport', 'cerberusweb.contexts.mail.transport', $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_MailTransport::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_MailTransport', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_MailTransport', $column, 'mail_transport.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
@@ -648,7 +650,7 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		
 		// Add searchable custom fields
 		
-		$fields = self::_appendFieldsFromQuickSearchContext('cerberusweb.contexts.mail.transport', $fields, null);
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $fields, null);
 		
 		// Add is_sortable
 		
@@ -679,7 +681,7 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.mail.transport');
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MAIL_TRANSPORT);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Mail Transport extensions
@@ -721,7 +723,7 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 				break;
 				
 			case SearchFields_MailTransport::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, 'cerberusweb.contexts.mail.transport');
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_MAIL_TRANSPORT);
 				break;
 				
 			case SearchFields_MailTransport::VIRTUAL_WATCHERS:
@@ -744,6 +746,10 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_MailTransport::IS_DEFAULT:
+				parent::_renderCriteriaParamBoolean($param);
+				break;
+			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -882,7 +888,7 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 			}
 
 			// Custom Fields
-			self::_doBulkSetCustomFields('cerberusweb.contexts.mail.transport', $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}
@@ -936,7 +942,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 			$prefix = 'Mail Transport:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.mail.transport');
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MAIL_TRANSPORT);
 
 		// Polymorph
 		if(is_numeric($mail_transport)) {
@@ -982,7 +988,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = 'cerberusweb.contexts.mail.transport';
+		$token_values['_context'] = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
 		$token_values['_types'] = $token_types;
 		
 		if($mail_transport) {
@@ -1009,7 +1015,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		if(!isset($dictionary['id']))
 			return;
 		
-		$context = 'cerberusweb.contexts.mail.transport';
+		$context = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
@@ -1098,11 +1104,11 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 			$tpl->assign('model', $mail_transport);
 		}
 		
-		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.mail.transport', false);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MAIL_TRANSPORT, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		if(!empty($context_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.mail.transport', $context_id);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		}

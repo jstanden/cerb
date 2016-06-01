@@ -557,21 +557,22 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_FEEDBACK;
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
 			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_FeedbackEntry', $column);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_FeedbackEntry', CerberusContexts::CONTEXT_FEEDBACK, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_FeedbackEntry', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 				
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
@@ -583,13 +584,13 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 					'2' => $translate->_('feedback.mood.criticism'),
 				);
 				
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_FeedbackEntry', $column, $label_map, 'in', 'moods[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_FeedbackEntry', $column, 'f.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
@@ -1149,6 +1150,14 @@ endif;
 
 // [TODO] Move to a DAO class
 class Context_Feedback extends Extension_DevblocksContext implements IDevblocksContextPeek {
+	function getDaoClass() {
+		return 'DAO_FeedbackEntry';
+	}
+	
+	function getSearchClass() {
+		return 'SearchFields_FeedbackEntry';
+	}
+	
 	static function searchInboundLinks($from_context, $from_context_id) {
 		list($results, $null) = DAO_FeedbackEntry::search(
 			array(

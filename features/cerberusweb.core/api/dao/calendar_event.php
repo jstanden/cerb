@@ -540,6 +540,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -554,21 +555,21 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 					$label_map[$calendar_id] = $calendar->name;
 				}
 				
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_CalendarEvent', $column, $label_map, DevblocksSearchCriteria::OPER_IN, 'context_id[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, DevblocksSearchCriteria::OPER_IN, 'context_id[]');
 				break;
 				
 			case SearchFields_CalendarEvent::IS_AVAILABLE:
-				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_CalendarEvent', $column);
+				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
 			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_CalendarEvent', CerberusContexts::CONTEXT_CALENDAR_EVENT, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_CalendarEvent', $column, 'calendar_event.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;

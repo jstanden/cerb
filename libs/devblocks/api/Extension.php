@@ -297,7 +297,30 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
 
 	function getDaoClass() {
-		return @$this->manifest->params['dao_class'];
+		$class = str_replace('Context_','DAO_', get_called_class());
+		
+		if(!class_exists($class))
+			return false;
+		
+		return $class;
+	}
+	
+	function getSearchClass() {
+		$class = str_replace('Context_','SearchFields_', get_called_class());
+		
+		if(!class_exists($class))
+			return false;
+		
+		return $class;
+	}
+
+	function getViewClass() {
+		$class = str_replace('Context_','View_', get_called_class());
+		
+		if(!class_exists($class))
+			return false;
+		
+		return $class;
 	}
 
 	function getModelObjects(array $ids) {
@@ -423,11 +446,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	}
 
 	abstract function getChooserView($view_id=null);
-
-	function getViewClass() {
-		return @$this->manifest->params['view_class'];
-	}
-
 	abstract function getView($context=null, $context_id=null, $options=array(), $view_id=null);
 
 	function lazyLoadContextValues($token, $dictionary) { return array(); }

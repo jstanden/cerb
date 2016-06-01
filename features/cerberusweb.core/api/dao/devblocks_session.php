@@ -401,7 +401,7 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 	}
 };
 
-class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
+class View_DevblocksSession extends C4_AbstractView implements IAbstractView_QuickSearch { /* IAbstractView_Subtotals */
 	const DEFAULT_ID = 'devblocks_sessions';
 
 	function __construct() {
@@ -458,6 +458,7 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 		return $this->_doGetDataSample('DAO_DevblocksSession', $size);
 	}
 
+	/*
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
@@ -484,6 +485,7 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = null;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -497,12 +499,13 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Sub
 					$label_map[$worker_id] = $worker->getName();
 				}
 				
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_DevblocksSession', $column, $label_map, 'in', 'worker_id[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'worker_id[]');
 				break;
 		}
 		
 		return $counts;
 	}
+	*/
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_DevblocksSession::getFields();

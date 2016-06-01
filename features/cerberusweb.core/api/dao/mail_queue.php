@@ -659,6 +659,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_DRAFT;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -669,7 +670,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 					'mail.compose' => 'Compose',
 					'ticket.reply' => 'Reply',
 				);
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_MailQueue', $column, $label_map);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 
 			case SearchFields_MailQueue::WORKER_ID:
@@ -677,13 +678,13 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 				$workers = DAO_Worker::getAll();
 				foreach($workers as $worker_id => $worker)
 					$label_map[$worker_id] = $worker->getName();
-				$counts = $this->_getSubtotalCountForStringColumn('DAO_MailQueue', $column, $label_map, 'in', 'worker_id[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'worker_id[]');
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_MailQueue', $column, 'm.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
@@ -942,6 +943,14 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 };
 
 class Context_Draft extends Extension_DevblocksContext {
+	function getDaoClass() {
+		return 'DAO_MailQueue';
+	}
+	
+	function getSearchClass() {
+		return 'SearchFields_MailQueue';
+	}
+	
 	function getMeta($context_id) {
 		if(null == ($draft = DAO_MailQueue::get($context_id)))
 			return false;
