@@ -1328,6 +1328,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							}
 							break;
 					}
+			} else {
+				$logger->info("  ... FAIL (invalid condition)");
+				return false;
 			}
 			break;
 		}
