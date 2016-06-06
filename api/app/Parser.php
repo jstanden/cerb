@@ -885,6 +885,31 @@ class CerberusParser {
 		// Parse headers into $model
 		$model = new CerberusParserModel($message); /* @var $model CerberusParserModel */
 		
+		$log_headers = array(
+			'from' => 'From',
+			'to' => 'To',
+			'delivered-to' => 'Delivered-To',
+			'envelope-to' => 'Envelope-To',
+			'subject' => 'Subject',
+			'date' => 'Date',
+			'message-id' => 'Message-Id',
+			'in-reply-to' => 'In-Reply-To',
+			'references' => 'References',
+		);
+		
+		foreach($log_headers as $log_header => $log_label) {
+			if(!isset($message->headers[$log_header]))
+				continue;
+			
+			$vals = $message->headers[$log_header];
+			
+			if(!is_array($vals))
+				$vals = array($vals);
+			
+			foreach($vals as $val)
+				$logger->info("[Parser] [Headers] " . $log_label . ': ' . $val);
+		}
+		
 		if(false == ($validated = $model->validate()))
 			return $validated; // false or null
 		
