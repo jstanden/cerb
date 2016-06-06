@@ -305,7 +305,13 @@ class UmScContactController extends Extension_UmScController {
 		// Subject is required if the field is on the form
 		if(isset($_POST['subject']) && empty($sSubject)) {
 			$umsession->setProperty('support.write.last_error','A subject is required.');
-			
+			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','step2')));
+			return;
+		}
+		
+		// Message is required
+		if(empty($sContent)) {
+			$umsession->setProperty('support.write.last_error','The message content is required.');
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','step2')));
 			return;
 		}
@@ -314,7 +320,7 @@ class UmScContactController extends Extension_UmScController {
 		if(empty($sFrom) || ($captcha_enabled && !empty($captcha_session) && 0 != strcasecmp($sCaptcha, $captcha_session))) {
 			
 			if(empty($sFrom)) {
-				$umsession->setProperty('support.write.last_error','Invalid e-mail address.');
+				$umsession->setProperty('support.write.last_error','Invalid email address.');
 			} else {
 				$umsession->setProperty('support.write.last_error','What you typed did not match the image.');
 			}
@@ -354,6 +360,13 @@ class UmScContactController extends Extension_UmScController {
 			}
 			foreach($aFollowUpQ as $idx => $q) {
 				$answer = isset($aFollowUpA[$idx]) ? $aFollowUpA[$idx] : '';
+				
+				if('*' == substr($q,0,1) && 0 == strlen($answer)) {
+					$umsession->setProperty('support.write.last_error',sprintf("'%s' is required.", ltrim($q,'*')));
+					DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','step2')));
+					return;
+				}
+				
 				$fieldContent .= "Q) " . $q . "\r\n" . "A) " . $answer . "\r\n";
 				if($idx+1 < count($aFollowUpQ)) $fieldContent .= "\r\n";
 			}
