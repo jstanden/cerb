@@ -31,13 +31,9 @@
 			<br>
 			{/if}
 			
-			{if empty($last_subject) && !empty($situation)}
-				{$last_subject = $situation}
-			{/if}
-	
 			<b>{'ticket.subject'|devblocks_translate|capitalize}:</b><br>
 			{if $allow_subjects}
-			<input type="text" name="subject" value="{if !empty($last_subject)}{$last_subject}{/if}" autocomplete="off" style="width:100%;" class="required"><br>
+			<input type="text" name="subject" value="{if !empty($last_subject)}{$last_subject}{/if}" placeholder="{$situation}" autocomplete="off" style="width:100%;" class="required"><br>
 			{else}
 			{$situation}<br>
 			{/if}
