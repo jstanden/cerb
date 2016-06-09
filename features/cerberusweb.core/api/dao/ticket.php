@@ -2135,7 +2135,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				$values = $param->value;
 				if(!is_array($values))
 					$values = array($values);
-					
+				
 				$oper_sql = array();
 				$statuses = array();
 				

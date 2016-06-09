@@ -83,7 +83,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 				$content_type = 'image/png';
 				
 				// Decode it to binary
-				if(false == ($imagedata = base64_decode(substr($imagedata,17))))
+				if(false == ($imagedata = base64_decode(substr($imagedata, 17))))
 					return false;
 				
 			// If we don't know what it is, fail.
