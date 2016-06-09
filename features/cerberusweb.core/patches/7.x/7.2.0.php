@@ -434,6 +434,20 @@ if($rs instanceof mysqli_result) {
 }
 
 // ===========================================================================
+// Add a 'checked_at' timestamp to 'mailbox' records
+
+if(!isset($tables['mailbox'])) {
+	$logger->error("The 'mailbox' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('mailbox');
+
+if(!isset($columns['checked_at'])) {
+	$db->ExecuteMaster('ALTER TABLE mailbox ADD COLUMN checked_at INT UNSIGNED NOT NULL DEFAULT 0');
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

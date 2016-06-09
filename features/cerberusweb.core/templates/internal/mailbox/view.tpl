@@ -94,7 +94,7 @@
 				<a href="{devblocks_url}c=profiles&type=mailbox&id={$result.p_id}-{$result.p_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.p_name}</a>
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.p_id}&view_id={$view->id}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
-			{elseif in_array($column, ["p_updated_at", "p_delay_until"])}
+			{elseif in_array($column, ["p_checked_at", "p_updated_at", "p_delay_until"])}
 				<td title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;

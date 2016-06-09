@@ -32,6 +32,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	const MAX_MSG_SIZE_KB = 'max_msg_size_kb';
 	const SSL_IGNORE_VALIDATION = 'ssl_ignore_validation';
 	const UPDATED_AT = 'updated_at';
+	const CHECKED_AT = 'checked_at';
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -103,7 +104,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, enabled, name, protocol, host, username, password, port, num_fails, delay_until, timeout_secs, max_msg_size_kb, ssl_ignore_validation, updated_at ".
+		$sql = "SELECT id, enabled, name, protocol, host, username, password, port, num_fails, delay_until, timeout_secs, max_msg_size_kb, ssl_ignore_validation, updated_at, checked_at ".
 			"FROM mailbox ".
 			$where_sql.
 			$sort_sql.
@@ -219,6 +220,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			$object->max_msg_size_kb = intval($row['max_msg_size_kb']);
 			$object->ssl_ignore_validation = $row['ssl_ignore_validation'] ? 1 : 0;
 			$object->updated_at = intval($row['updated_at']);
+			$object->checked_at = intval($row['checked_at']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -283,7 +285,8 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			"mailbox.timeout_secs as %s, ".
 			"mailbox.max_msg_size_kb as %s, ".
 			"mailbox.ssl_ignore_validation as %s, ".
-			"mailbox.updated_at as %s ",
+			"mailbox.updated_at as %s, ".
+			"mailbox.checked_at as %s ",
 				SearchFields_Mailbox::ID,
 				SearchFields_Mailbox::ENABLED,
 				SearchFields_Mailbox::NAME,
@@ -297,7 +300,8 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 				SearchFields_Mailbox::TIMEOUT_SECS,
 				SearchFields_Mailbox::MAX_MSG_SIZE_KB,
 				SearchFields_Mailbox::SSL_IGNORE_VALIDATION,
-				SearchFields_Mailbox::UPDATED_AT
+				SearchFields_Mailbox::UPDATED_AT,
+				SearchFields_Mailbox::CHECKED_AT
 			);
 			
 		$join_sql = "FROM mailbox ".
@@ -441,6 +445,7 @@ class Model_Mailbox {
 	public $max_msg_size_kb = 25600;
 	public $ssl_ignore_validation = 0;
 	public $updated_at = 0;
+	public $checked_at = 0;
 	
 	function getImapConnectString() {
 		$connect = null;
@@ -497,6 +502,7 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 	const MAX_MSG_SIZE_KB = 'p_max_msg_size_kb';
 	const SSL_IGNORE_VALIDATION = 'p_ssl_ignore_validation';
 	const UPDATED_AT = 'p_updated_at';
+	const CHECKED_AT = 'p_checked_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -564,6 +570,7 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 			self::MAX_MSG_SIZE_KB => new DevblocksSearchField(self::MAX_MSG_SIZE_KB, 'mailbox', 'max_msg_size_kb', $translate->_('dao.mailbox.max_msg_size_kb'), Model_CustomField::TYPE_NUMBER, true),
 			self::SSL_IGNORE_VALIDATION => new DevblocksSearchField(self::SSL_IGNORE_VALIDATION, 'mailbox', 'ssl_ignore_validation', $translate->_('dao.mailbox.ssl_ignore_validation'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'mailbox', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::CHECKED_AT => new DevblocksSearchField(self::CHECKED_AT, 'mailbox', 'checked_at', $translate->_('dao.mailbox.checked_at'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -608,6 +615,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Mailbox::TIMEOUT_SECS,
 			SearchFields_Mailbox::MAX_MSG_SIZE_KB,
 			SearchFields_Mailbox::UPDATED_AT,
+			SearchFields_Mailbox::CHECKED_AT,
 		);
 
 		$this->addColumnsHidden(array(
@@ -732,6 +740,11 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Mailbox::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'checkedAt' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Mailbox::CHECKED_AT),
+				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -815,6 +828,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
+			case SearchFields_Mailbox::CHECKED_AT:
 			case SearchFields_Mailbox::DELAY_UNTIL:
 			case SearchFields_Mailbox::UPDATED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
@@ -905,6 +919,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
+			case SearchFields_Mailbox::CHECKED_AT:
 			case SearchFields_Mailbox::DELAY_UNTIL:
 			case SearchFields_Mailbox::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
@@ -1046,6 +1061,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
+			'checked_at',
 			'updated_at',
 		);
 	}
@@ -1071,6 +1087,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'checked_at' => $prefix.$translate->_('dao.mailbox.checked_at'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
@@ -1080,6 +1097,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'checked_at' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
@@ -1103,6 +1121,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		if($mailbox) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $mailbox->name;
+			$token_values['checked_at'] = $mailbox->checked_at;
 			$token_values['id'] = $mailbox->id;
 			$token_values['name'] = $mailbox->name;
 			$token_values['updated_at'] = $mailbox->updated_at;

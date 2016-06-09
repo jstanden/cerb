@@ -52,9 +52,9 @@ class ParseCron extends CerberusCronPageExtension {
 		$runtime = microtime(true);
 		 
 		// Allow runtime overloads (by host, etc.)
-		@$gpc_parse_max = DevblocksPlatform::importGPC($_REQUEST['parse_max'],'integer');
+		@$opt_parse_max = DevblocksPlatform::importGPC($_REQUEST['parse_max'],'integer');
 		
-		$total = !empty($gpc_parse_max) ? $gpc_parse_max : $this->getParam('max_messages', 500);
+		$total = !empty($opt_parse_max) ? $opt_parse_max : $this->getParam('max_messages', 500);
 
 		$mailDir = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR;
 		$subdirs = glob($mailDir . '*', GLOB_ONLYDIR);
@@ -1106,19 +1106,25 @@ class MailboxCron extends CerberusCronPageExtension {
 		$logger->info("[Mailboxes] Started Mailbox Checker job");
 		
 		if (!extension_loaded("imap")) {
-			$logger->err("[Parser] The 'IMAP' extension is not loaded.  Aborting!");
+			$logger->err("[Mailboxes] The 'IMAP' extension is not loaded. Aborting!");
 			return false;
 		}
 		
 		if (!extension_loaded("mailparse")) {
-			$logger->err("[Parser] The 'mailparse' extension is not loaded.  Aborting!");
+			$logger->err("[Mailboxes] The 'mailparse' extension is not loaded. Aborting!");
 			return false;
 		}
 		
 		@set_time_limit(600); // 10m
 
-		$accounts = DAO_Mailbox::getAll();
-
+		if(false == ($accounts = DAO_Mailbox::getAll())) {
+			$logger->err("[Mailboxes] There are no mailboxes to check. Aborting!");
+			return false;
+		}
+		
+		// Sort by the least recently checked mailbox
+		DevblocksPlatform::sortObjects($accounts, 'checked_at');
+		
 		$timeout = ini_get('max_execution_time');
 		
 		// Allow runtime overloads (by host, etc.)
@@ -1176,6 +1182,7 @@ class MailboxCron extends CerberusCronPageExtension {
 				$delay_until = time() + (min($num_fails, 15) * 120);
 				
 				$fields = array(
+					DAO_Mailbox::CHECKED_AT => time(),
 					DAO_Mailbox::NUM_FAILS => $num_fails,
 					DAO_Mailbox::DELAY_UNTIL => $delay_until, // Delay 2 mins per consecutive failure
 				);
@@ -1304,15 +1311,14 @@ class MailboxCron extends CerberusCronPageExtension {
 			}
 			
 			// Clear the fail count if we had past fails
-			if($account->num_fails) {
-				DAO_Mailbox::update(
-					$account->id,
-					array(
-						DAO_Mailbox::NUM_FAILS => 0,
-						DAO_Mailbox::DELAY_UNTIL => 0,
-					)
-				);
-			}
+			DAO_Mailbox::update(
+				$account->id,
+				array(
+					DAO_Mailbox::CHECKED_AT => time(),
+					DAO_Mailbox::NUM_FAILS => 0,
+					DAO_Mailbox::DELAY_UNTIL => 0,
+				)
+			);
 			
 			imap_expunge($mailbox);
 			imap_close($mailbox);

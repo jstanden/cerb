@@ -1701,6 +1701,9 @@
 		
 		<!-- Mailbox -->
 		
+		<tu tuid='dao.mailbox.checked_at'>
+			<tuv xml:lang="en_US"><seg>Checked At</seg></tuv>
+		</tu>
 		<tu tuid='dao.mailbox.protocol'>
 			<tuv xml:lang="en_US"><seg>Protocol</seg></tuv>
 		</tu>
