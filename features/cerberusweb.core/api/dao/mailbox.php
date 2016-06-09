@@ -1206,12 +1206,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		if(!$context_id && CERB_LIMITS_MAILBOX_COUNT != -1 && false !== ($count = DAO_Mailbox::count()) && $count >= CERB_LIMITS_MAILBOX_COUNT) {
-			$tpl->assign('error_message', sprintf("You have reached your mailbox account limit (%d).", CERB_LIMITS_MAILBOX_COUNT));
-			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
-			return;
-		}
-		
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id) && null != ($mailbox = DAO_Mailbox::get($context_id))) {
