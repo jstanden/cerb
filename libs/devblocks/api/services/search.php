@@ -684,8 +684,21 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
 		
-		$escaped_query = $db->escape($query);
-		$where_sql = null;
+		if(false == ($query_parts = $this->_parseQuery($query)))
+			return false;
+		
+		if(!isset($query_parts['terms']) || empty($query_parts['terms']))
+			return false;
+		
+		$escaped_query = $db->escape($query_parts['terms']);
+		$where_sql = array();
+		
+		if(isset($query_parts['phrases']) && isset($query_parts['phrases']))
+		foreach($query_parts['phrases'] as $phrase) {
+			$where_sql[] = sprintf("content LIKE '%%%s%%'",
+				$db->escape($phrase)
+			);
+		}
 		
 		$schema_attributes = $schema->getAttributes();
 		
@@ -757,14 +770,34 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		return $temp_table;
 	}
 	
+	private function _parseQuery($query) {
+		// Extract quotes
+		$phrases = array();
+		$start = 0;
 		
+		while(false !== ($from = strpos($query, '"', $start))) {
+			if(false === ($to = strpos($query, '"', $from+1)))
+				break;
 			
+			$cut = substr($query, $from, $to-$from+1);
+			$phrase = trim($cut,'"');
 			
+			// Ignore single word phrases with no symbols
+			if($phrase != mb_ereg_replace('[^[:alnum:]]', '', $phrase))
+				$phrases[] = $phrase;
 			
+			$start = $to+1;
 		}
 		
+		// Required terms
+		$terms = $this->prepareText($query, true);
 		
+		if(empty($terms))
+			$terms = 'THIS_SHOULD_NEVER_MATCH_ANYTHING';
 		
+		$terms = '+'.str_replace(' ', ' +', $terms);
+		
+		return array('terms' => $terms, 'phrases' => $phrases);
 	}
 	
 	public function removeStopWords($words) {
