@@ -917,6 +917,14 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		// Remove stop words from queries
 		if($is_query) {
 			$words = $this->removeStopWords($words);
+			
+			// Remove min/max sizes
+			$words = array_filter($words, function($word) {
+				if(strlen($word) < 3 || strlen($word) > 83)
+					return false;
+				
+				return true;
+			});
 		}
 		
 		// Reassemble
