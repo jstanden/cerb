@@ -1128,9 +1128,10 @@ class MailboxCron extends CerberusCronPageExtension {
 		$timeout = ini_get('max_execution_time');
 		
 		// Allow runtime overloads (by host, etc.)
-		@$gpc_mailbox_max = DevblocksPlatform::importGPC($_REQUEST['mailbox_max'],'integer');
+		@$opt_max_messages = DevblocksPlatform::importGPC($_REQUEST['max_messages'],'integer');
+		@$opt_max_mailboxes = DevblocksPlatform::importGPC($_REQUEST['max_mailboxes'],'integer');
 		
-		$max_downloads = !empty($gpc_mailbox_max) ? $gpc_mailbox_max : $this->getParam('max_messages', (($timeout) ? 20 : 50));
+		$max_downloads = !empty($opt_max_messages) ? $opt_max_messages : $this->getParam('max_messages', (($timeout) ? 20 : 50));
 		
 		// [JAS]: Make sure our output directory is writeable
 		if(!is_writable(APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR)) {
@@ -1149,6 +1150,11 @@ class MailboxCron extends CerberusCronPageExtension {
 			if($account->delay_until > time()) {
 				$logger->info(sprintf("[Mailboxes] Delaying failing mailbox '%s' check for %d more seconds (%s)", $account->name, $account->delay_until - time(), date("h:i a", $account->delay_until)));
 				continue;
+			}
+			
+			if($opt_max_mailboxes && $mailboxes_checked >= $opt_max_mailboxes) {
+				$logger->info(sprintf("[Mailboxes] We're limited to checking %d mailboxes per invocation. Stopping early.", $opt_max_mailboxes));
+				break;
 			}
 			
 			// Per-account IMAP timeouts
