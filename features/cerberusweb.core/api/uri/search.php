@@ -140,7 +140,58 @@ class Page_Search extends CerberusPageExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view', $view);
+		
+		// Add search meta output to the view marquee
+		
+		if(false != ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true))) {
+			$params = $view->getParams();
+			$marquees = array();
 			
+			$search_class = $context_ext->getSearchClass();
+			
+			array_walk_recursive($params, function($param) use (&$marquees, $search_class) {
+				if(!($param instanceof DevblocksSearchCriteria))
+					return;
+				
+				if($param->operator == DevblocksSearchCriteria::OPER_FULLTEXT && isset($param->value[0])) {
+					$search_class::getWhereSQL($param);
+					
+					$key = 'search_' . sha1($param->value[0]);
+					if(false != ($meta = DevblocksPlatform::getRegistryKey($key, DevblocksRegistryEntry::TYPE_JSON)) 
+							&& is_array($meta)
+							&& isset($meta['total'])
+							&& isset($meta['results'])
+							&& isset($meta['took_ms'])
+							&& isset($meta['engine'])
+							) {
+								
+							if($meta['results'] < $meta['total']) {
+								$marquees[] = sprintf("Found %s match%s for <b>%s</b>. Using the first %s. Try being more specific. [%s: %d ms]",
+									number_format($meta['total']),
+									(1 == $meta['results']) ? '' : 'es',
+									DevblocksPlatform::strEscapeHtml($meta['query']),
+									number_format($meta['results']),
+									$meta['engine'],
+									$meta['took_ms']
+								);
+							} else {
+								$marquees[] = sprintf("Found %s match%s for <b>%s</b> [%s: %d ms]",
+									number_format($meta['results']),
+									(1 == $meta['results']) ? '' : 'es',
+									DevblocksPlatform::strEscapeHtml($meta['query']),
+									$meta['engine'],
+									$meta['took_ms']
+								);
+							}
+					}
+				}
+			});
+				
+			if(!empty($marquees)) {
+				C4_AbstractView::setMarquee($view->id, implode('<br>', $marquees));
+			}
+		}
+		
 		$html = $tpl->fetch('devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl');
 		
 		echo json_encode(array(

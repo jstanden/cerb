@@ -7,7 +7,6 @@
 		</div>
 		
 		<p>
-			<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 			{$view_marquee nofilter}
 		</p>
 	</div>
