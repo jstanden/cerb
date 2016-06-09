@@ -13,125 +13,7 @@
 		<a href="javascript:;" class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span></a>
 	</div>
 	
-	<ul class="cerb-quick-search-menu" style="position:absolute;float:right;margin-right:10px;z-index:5;display:none;">
-		{$placeholder_labels = $view->getPlaceholderLabels()}
-		
-		{if !empty($placeholder_labels)}
-		<li field="">
-			(placeholders)
-			<ul style="width:200px;">
-				{foreach from=$placeholder_labels item=v key=k}
-				<li value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v.label}</li>
-				{/foreach}
-			</ul>
-		</li>
 		{/if}
-		
-		{if !empty($placeholder_labels)}
-		<li field="">
-			(booleans)
-			<ul style="width:200px;">
-				<li value="{literal}(field:val OR field:val){/literal}">OR</li>
-				<li value="{literal}(field:val AND field:val){/literal}">AND</li>
-			</ul>
-		</li>
-		{/if}
-
-		{capture name=sortable_fields}{*
-		*}{if !empty($search_fields)}{*
-		*}{foreach from=$search_fields key=field_key item=field}{*
-		*}{if $field.is_sortable}
-			<li field="">
-				{$field_key}
-				<ul style="width:200px;">
-					<li value="sort:{$field_key}">ascending</li>
-					<li value="sort:-{$field_key}">descending</li>
-				</ul>
-			</li>
-		{/if}{*
-		*}{/foreach}{*
-		*}{/if}{*
-		*}{/capture}
-		
-		{if $smarty.capture.sortable_fields}
-		<li field="">
-			(sort)
-			<ul style="width:200px;">
-				{$smarty.capture.sortable_fields nofilter}
-			</ul>
-		</li>
-		{/if}
-		
-		{if !empty($search_fields)}
-		{foreach from=$search_fields key=field_key item=field}
-		<li field="{$field_key}">
-			<b>{$field_key}</b>
-			
-			{if $field.examples}
-				<ul style="width:200px;">
-					{foreach from=$field.examples item=example}
-					<li>{$example}</li>
-					{/foreach}
-				</ul>
-			{else}
-				{if $field.type == DevblocksSearchCriteria::TYPE_BOOL}
-				<ul style="width:200px;">
-					<li>yes</li>
-					<li>no</li>
-				</ul>
-				{elseif $field.type == DevblocksSearchCriteria::TYPE_DATE}
-				<ul style="width:200px;">
-					<li>never</li>
-					<li>"-1 day"</li>
-					<li>"-2 weeks"</li>
-					<li>"big bang to now"</li>
-					<li>"yesterday to today"</li>
-					<li>"last Monday to next Monday"</li>
-					<li>"Jan 1 to Dec 31 23:59:59"</li>
-				</ul>
-				{elseif $field.type == DevblocksSearchCriteria::TYPE_FULLTEXT}
-				<ul style="width:200px;">
-					<li>word</li>
-					<li>"any of these words"</li>
-					<li>person@example.com</li>
-				</ul>
-				{elseif $field.type == DevblocksSearchCriteria::TYPE_NUMBER}
-				<ul style="width:200px;">
-					<li>1</li>
-					<li>!=42</li>
-					<li>&gt;0</li>
-					<li>&gt;=5</li>
-					<li>&lt;50</li>
-					<li>&lt;=100</li>
-					<li>1...10</li>
-					<li>[1,2,3]</li>
-					<li>![1,2,3]</li>
-				</ul>
-				{elseif $field.type == DevblocksSearchCriteria::TYPE_TEXT}
-				<ul style="width:200px;">
-					<li>word</li>
-					<li>prefix*</li>
-					<li>*wildcard*</li>
-					<li>"a several word phrase"</li>
-					<li>[this,that]</li>
-					<li>![not,this,that]</li>
-					<li>!(wildcard*)</li>
-				</ul>
-				{elseif $field.type == DevblocksSearchCriteria::TYPE_WORKER}
-				<ul style="width:200px;">
-					<li>me</li>
-					<li>any</li>
-					<li>none</li>
-					<li>no</li>
-					<li>[kina,milo,karl]</li>
-				</ul>
-				{/if}
-			{/if}
-		</li>
-		{/foreach}
-		{/if}
-	</ul>
-
 </form>
 
 <script type="text/javascript">
@@ -140,63 +22,91 @@ $(function() {
 	var $input = $div.find('input:text');
 	var $popup = $input.closest('.ui-dialog');
 	var isInPopup = ($popup.length > 0);
+		
+	var autocompleteFields = ['OR ','AND '];
 	
-	$input.keyup(function(e) {
-		if(e.keyCode == 27) {
-			if(!isInPopup) {
-				$menu.hide();
+	{if !empty($search_fields)}
+	{foreach from=$search_fields key=field_key item=field}
+	autocompleteFields.push('{$field_key}:');
+	{/foreach}
+	{/if}
+	
+	{$placeholder_labels = $view->getPlaceholderLabels()}
+	{if !empty($placeholder_labels)}
+	{foreach from=$placeholder_labels key=k item=v}
+	autocompleteFields.push('{literal}{{{/literal}{$k}{literal}}}{/literal}');
+	{/foreach}
+	{/if}
+	
+	function split( val ) {
+		return val.split(' ');
+	}
+	
+	function extractLast( term ) {
+		return split(term).pop();
+	}	
+	
+	$input.autocomplete({
+		autoFocus: false,
+		minLength: 0,
+		delay: 0,
+		source: function(req, res) {
+			var q = '';
+			
+			if(0 == req.term.length) {
+				q = '';
 				
 			} else {
-				if($menu.is(':visible')) {
-					$menu.hide();
+				var pos = $input.caret('pos');
+				
+				for(idx = pos; idx >= 0; idx--) {
+					var c = req.term[idx-1];
 					
-				} else {
-					$popup.find('.devblocks-popup').dialog('close');
+					if(idx == 0 || c == ' ' || c == '(') {
+						var offset = (c == ' ' || c == '(') ? 1 : 0;
+						var q = req.term.substring(idx + offset, pos);
+						break;
+					}
 				}
 			}
+			
+			res($.ui.autocomplete.filter(autocompleteFields, q));
+		},
+		focus: function() {
+			return false;
+		},
+		select: function(event, ui) {
+			var pos = $input.caret('pos');
+			var val = $input.val();
+			
+			if(0 == pos) {
+				this.value = ui.item.value;
+				return false;
+			}
+			
+			for(idx = pos - 1; idx >= 0; idx--) {
+				var c = val[idx];
+				
+				if(idx == 0 || c == ' ' || c == '(') {
+					var offset = (c == ' ' || c == '(') ? 1 : 0;
+					this.value = val.substring(0, idx + offset) + ui.item.value + val.substr(pos);
+					$input.caret('pos', idx + ui.item.value.length + 1);
+					return false;
+				}
+			}
+			
+			return false;
 		}
 	});
-	
-	var $menu = $div.find('ul.cerb-quick-search-menu')
-		.menu({
-			items: "> :not(.ui-widget-header)",
-			select: function(event, ui) {
-				var val = $input.val();
-				
-				if(undefined == ui.item.attr('field')) {
-					var field_key = ui.item.parent().closest('li').attr('field');
-					var field_value = '';
 
-					if(ui.item.attr('value')) {
-						field_value = ui.item.attr('value');
-					} else {
-						field_value = ui.item.text();
-					}
-					
-					var insert_txt = (field_key ? (field_key + ':') : '') + field_value;
-					
-				} else {
-					var field_key = ui.item.attr('field');
-					var insert_txt = (field_key ? (field_key + ':') : '');
-					
-				}
-				
-				if(val.length > 0 && val.substr(-1) != " ")
-					insert_txt = " " + insert_txt;
-				
-				if(insert_txt.length > 0) {
-					$input.insertAtCursor(insert_txt).scrollLeft(2000);
-					$menu.hide();
-				}
-			}
-		})
-		.css('width', $input.width())
-		.hide()
-		;
-	
 	var $menu_trigger = $div.find('a.cerb-quick-search-menu-trigger').click(function() {
-		$menu.toggle();
-		$input.insertAtCursor('').scrollLeft(2000);
+		var $menu = $input.autocomplete('widget');
+		
+		if($menu.is(':visible')) {
+			$input.autocomplete('close');
+		} else {
+			$input.autocomplete('search', '');
+		}
 	});
 	
 	$div.submit(function() {
