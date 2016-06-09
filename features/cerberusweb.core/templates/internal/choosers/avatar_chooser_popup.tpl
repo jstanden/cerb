@@ -147,6 +147,44 @@ $(function() {
 			}
 		});
 		
+		/*
+		$canvas.on('dragover', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		});
+		
+		$canvas.on('dragend', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		});
+		
+		$canvas.on('drop', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			
+			var files = e.originalEvent.dataTransfer.files;
+			var reader = new FileReader();
+			
+			if(files.length == 0)
+				return;
+			
+			$spinner.show();
+			
+			reader.onload = function(event) {
+				$(img).attr('src', event.target.result);
+				scale = 1.0;
+				x = 0;
+				y = 0;
+				$canvas.trigger('avatar-redraw');
+				$spinner.hide();
+			}
+			
+			reader.readAsDataURL(files[0]);
+		});
+		*/
+		
 		$canvas.on('avatar-redraw', function() {
 			var bgcolor = $bgcolor_well.val();
 			
