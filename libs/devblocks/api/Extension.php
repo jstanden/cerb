@@ -1907,7 +1907,6 @@ interface IDevblocksSearchEngine {
 
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema);
 	public function getIndexMeta(Extension_DevblocksSearchSchema $schema);
-	public function getQueryFromParam($param);
 
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250);
 	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=array());
@@ -1945,7 +1944,7 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 			return $ext;
 		}
 	}
-
+	
 	protected function escapeNamespace($namespace) {
 		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
 	}
@@ -1962,6 +1961,33 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 		return implode(' ', $output);
 	}
 
+	public function getQueryFromParam($param) {
+		$values = array();
+
+		if(!is_array($param->value) && !is_string($param->value))
+			return false;
+		
+		if(!is_array($param->value) && preg_match('#^\[.*\]$#', $param->value)) {
+			$values = json_decode($param->value, true);
+			
+		} elseif(is_array($param->value)) {
+			$values = $param->value;
+			
+		} else {
+			$values = $param->value;
+			
+		}
+		
+		if(!is_array($values)) {
+			$value = $values;
+			
+		} else {
+			$value = $values[0];
+		}
+		
+		return $value;
+	}
+	
 	public function truncateOnWhitespace($content, $length) {
 		$start = 0;
 		$len = mb_strlen($content);

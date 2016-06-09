@@ -211,68 +211,6 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		return $ids;
 	}
 	
-	public function getQueryFromParam($param) {
-		$values = array();
-		$value = null;
-		$scope = null;
-
-		if(!is_array($param->value) && !is_string($param->value))
-			return false;
-		
-		if(!is_array($param->value) && preg_match('#^\[.*\]$#', $param->value)) {
-			$values = json_decode($param->value, true);
-			
-		} elseif(is_array($param->value)) {
-			$values = $param->value;
-			
-		} else {
-			$values = $param->value;
-			
-		}
-		
-		if(!is_array($values)) {
-			$value = $values;
-			$scope = 'expert';
-		} else {
-			$value = $values[0];
-			$scope = $values[1];
-		}
-		
-		switch($scope) {
-			case 'all':
-				$value = $value;
-				break;
-				
-			// OR
-			case 'any':
-				$words = explode(' ', $value);
-				$value = implode(' | ', $words);
-				break;
-				
-			case 'phrase':
-				$value = '"'.$value.'"';
-				break;
-				
-			default:
-			case 'expert':
-				// Left-hand wildcards aren't supported in Sphinx
-				$value = ltrim($value, '*');
-				
-				// If this is a single term
-				if(false === strpos($value, ' ')) {
-					// If without quotes or wildcards, quote it (email addy, URL)
-					if(false === strpos($value, '"') && false === strpos($value, '*')) {
-						if(preg_match('#([\+\-]*)(\S*)#ui', $value, $matches))
-							$value = sprintf('%s"%s"', $matches[1], $matches[2]);
-					}
-				}
-				
-				break;
-		}
-		
-		return $value;
-	}
-	
 	private function _index(Extension_DevblocksSearchSchema $schema, $id, array $doc, $attributes=array()) {
 		if(is_null($this->db))
 			return false;
@@ -518,12 +456,13 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				return DevblocksPlatform::parseCrlfString($engine_params['config']['quick_search_examples']);
 		
 		return array(
-			"(all of these words)",
-			'("this exact phrase")',
-			'(this OR that)',
-			'[(this OR that) NOT (this OR that)]',
-			'(wildcard*)',
-			'(person@example.com)',
+			"all of these words",
+			'"this exact phrase"',
+			'this && that',
+			'this || that',
+			'(this || that) !(this && that)',
+			'wildcard*',
+			'person@example.com',
 		);
 	}
 	
@@ -570,7 +509,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		}
 		
 		$cache = DevblocksPlatform::getCacheService();
-		$cache_key = sprintf("elasticsearch:%s:%s", $type, md5($query));
+		$cache_key = sprintf("elasticsearch:%s:%s", $type, sha1($query));
 		$is_only_cached_for_request = !$cache->isVolatile();
 		
 		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
@@ -582,61 +521,18 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				$ids[] = $hit['_id'];
 			}
 			
+			@$took_ms = intval($json['took']);
+			@$total_hits = intval($json['hits']['total']);
+			
+			// Store the search info in a request registry for later use
+			$meta_key = 'search_' . sha1($query);
+			$meta = array('engine' => 'elasticsearch', 'query' => $query, 'took_ms' => $took_ms, 'results' => count($ids), 'total' => $total_hits);
+			DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
+			
 			$cache->save($ids, $cache_key, array(), 300, $is_only_cached_for_request);
 		}
 		
 		return $ids;
-	}
-	
-	public function getQueryFromParam($param) {
-		$values = array();
-		$value = null;
-		$scope = null;
-
-		if(!is_array($param->value) && !is_string($param->value))
-			return false;
-		
-		if(!is_array($param->value) && preg_match('#^\[.*\]$#', $param->value)) {
-			$values = json_decode($param->value, true);
-			
-		} elseif(is_array($param->value)) {
-			$values = $param->value;
-			
-		} else {
-			$values = $param->value;
-			
-		}
-		
-		if(!is_array($values)) {
-			$value = $values;
-			$scope = 'expert';
-			
-		} else {
-			$value = $values[0];
-			$scope = $values[1];
-		}
-		
-		switch($scope) {
-			case 'all':
-				$value = $value;
-				break;
-				
-			// OR
-			case 'any':
-				$words = explode(' ', $value);
-				$value = implode(' | ', $words);
-				break;
-				
-			case 'phrase':
-				$value = '"'.$value.'"';
-				break;
-				
-			default:
-			case 'expert':
-				break;
-		}
-		
-		return $value;
 	}
 	
 	private function _index(Extension_DevblocksSearchSchema $schema, $id, array $doc, $attributes=array()) {
@@ -773,10 +669,10 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema) {
 		return array(
-			'"a multiple word phrase"',
-			'person@example.com',
-			'"+all +of +these +terms"',
-			'"+this -that"',
+			'all of these words',
+			'"this exact phrase"',
+			'"mail@example.com"',
+			'"127.0.0.1"',
 		);
 	}
 	
@@ -833,8 +729,10 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		// Randomly named temporary table
 		$temp_table = sprintf("_search_%s", uniqid());
 		
+		$start_time = microtime(true);
+		
 		$sql = sprintf("CREATE TEMPORARY TABLE IF NOT EXISTS %s (PRIMARY KEY (id)) ".
-			"SELECT id ".
+			"SELECT SQL_CALC_FOUND_ROWS id ".
 			"FROM fulltext_%s ".
 			"WHERE MATCH content AGAINST ('%s' IN BOOLEAN MODE) ".
 			"%s ".
@@ -847,117 +745,26 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$db->ExecuteSlave($sql);
 		
+		@$took_ms = (microtime(true) - $start_time) * 1000;
+		$total = intval($db->Found_Rows());
+		$count = $max_results ? min($total, $max_results) : $total;
+		
+		// Store the search info in a request registry for later use
+		$meta_key = 'search_' . sha1($query);
+		$meta = array('engine' => 'mysql-fulltext', 'query' => $query, 'took_ms' => $took_ms, 'results' => $count, 'total' => $total);
+		DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
+		
 		return $temp_table;
 	}
 	
-	public function getQueryFromParam($param) {
-		$values = array();
-		$value = null;
-		$scope = null;
-
-		if(!is_array($param->value) && !is_string($param->value))
-			return false;
 		
-		if(!is_array($param->value) && preg_match('#^\[.*\]$#', $param->value)) {
-			$values = json_decode($param->value, true);
 			
-		} elseif(is_array($param->value)) {
-			$values = $param->value;
 			
-		} else {
-			$values = $param->value;
 			
 		}
 		
-		if(!is_array($values)) {
-			$value = $values;
-			$scope = 'expert';
-		} else {
-			$value = $values[0];
-			$scope = $values[1];
-		}
 		
-		switch($scope) {
-			case 'all':
-				$value = $this->prepareText($value, true);
-				$value = '+'.str_replace(' ', ' +', $value);
-				break;
-				
-			case 'any':
-				$value = $this->prepareText($value, true);
-				break;
-				
-			case 'phrase':
-				$value = '"'.$this->prepareText($value).'"';
-				break;
-			
-			default:
-			case 'expert':
-				// We don't want to strip punctuation in expert mode
-				$value = DevblocksPlatform::strUnidecode($value);
-				
-				// Left-hand wildcards aren't supported in MySQL fulltext
-				$value = ltrim($value, '*');
-				
-				// If this is a single term
-				if(false === strpos($value, ' ')) {
-					// If without quotes, wildcards, or plus, quote it (email addy, URL)
-					if(false === strpos($value, '"')
-						&& false === strpos($value, '*')
-						&& false === strpos($value, '+')
-						) {
-						if(preg_match('#([\+\-]*)(\S*)#ui', $value, $matches))
-							$value = sprintf('%s"%s"', $matches[1], $matches[2]);
-					}
-					
-				} else {
-					$search = $this;
-					
-					// If the user provided their own quotes
-					if(false !== strpos($value, '"')) {
-						
-						// Extract quotes and remove stop words
-						$value = preg_replace_callback(
-							'#"(.*?)"#',
-							function($matches) use ($search) {
-								return sprintf('"%s"', implode(' ', $search->removeStopWords(explode(' ', $matches[1]))));
-							},
-							$value
-						);
-							
-					// If the user didn't provide their own quotes
-					} else {
-						
-						// And they didn't use wildcards or booleans
-						if(false === strpos($value, '*') && false === strpos($value, '+')) {
-							// Wrap the entire text in quotes
-							$value = '"' . implode(' ', $search->removeStopWords(explode(' ', $value))) . '"';
-							
-						// Or they did use wildcards
-						} else if (false !== strpos($value, '*')) {
-							// Split terms on spaces
-							$terms = explode(' ', $value);
-							
-							// Quote each term if it doesn't contain wildcards
-							foreach($terms as $term_idx => $term) {
-								if(false === strpos($term, '*')) {
-									$matches = null;
-									if(preg_match('#([\+\-]*)(\S*)#ui', $term, $matches)) {
-										$terms[$term_idx] = sprintf('%s"%s"', $matches[1], $matches[2]);
-									}
-								}
-							}
-							
-							$value = implode(' ', $terms);
-						}
-						
-					}
-				}
-				
-				break;
-		}
 		
-		return $value;
 	}
 	
 	public function removeStopWords($words) {
@@ -1099,7 +906,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$fields = array(
 			'id' => intval($id),
-			'content' => sprintf("'%s'", $db->escape($content)),
+			'content' => $db->qstr($content),
 		);
 		
 		// Attributes
@@ -1114,13 +921,13 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			
 			switch($attr_type) {
 				case 'string':
-					$fields[$db->escape($attr)] = sprintf("'%s'", $db->escape($attr_val));
+					$fields[$db->escape($attr)] = $db->qstr($attr_val);
 					break;
 				
 				case 'int':
 				case 'int4':
 				case 'int8':
-					$fields[$db->escape($attr)] = sprintf("%d", $attr_val);
+					$fields[$db->escape($attr)] = intval($attr_val);
 					break;
 					
 				case 'uint4':
