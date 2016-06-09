@@ -2277,6 +2277,21 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksRegistryManager::getInstance();
 	}
 	
+	static function setRegistryKey($key, $value, $as=DevblocksRegistryEntry::TYPE_STRING, $persist=false) {
+		$registry = self::getRegistryService();
+		$registry->set($key, $value, $as);
+		$registry->persist($key, $persist);
+	}
+	
+	static function getRegistryKey($key, $as=DevblocksRegistryEntry::TYPE_STRING, $default=null) {
+		$registry = self::getRegistryService();
+		
+		if(null == ($value = $registry->get($key, $as, $default)))
+			return null;
+		
+		return $value;
+	}
+	
 	/**
 	 * @return _DevblocksClassLoadManager
 	 */
