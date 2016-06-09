@@ -35,9 +35,27 @@ class _DevblocksRegistryManager {
 			}
 		}
 		
-		// [TODO] As
-		
-		return $entry->value;
+		switch($as) {
+			case DevblocksRegistryEntry::TYPE_BOOL:
+				return !empty($entry->value);
+				break;
+				
+			case DevblocksRegistryEntry::TYPE_NUMBER:
+				return intval($entry->value);
+				break;
+				
+			case DevblocksRegistryEntry::TYPE_STRING:
+				return $entry->value;
+				break;
+				
+			case DevblocksRegistryEntry::TYPE_JSON:
+				return json_decode($entry->value, true);
+				break;
+				
+			default:
+				return $entry->value;
+				break;
+		}
 	}
 	
 	private function _initIfEmpty($key, $value=null, $as=DevblocksRegistryEntry::TYPE_STRING) {
@@ -104,6 +122,7 @@ class DevblocksRegistryEntry {
 	const TYPE_STRING = 'string';
 	const TYPE_NUMBER = 'number';
 	const TYPE_BOOL = 'bool';
+	const TYPE_JSON = 'json';
 	
 	public $key = null;
 	public $initial_value = null;
@@ -147,7 +166,7 @@ class DevblocksRegistryEntry {
 	
 	public function set($val, $as=DevblocksRegistryEntry::TYPE_STRING) {
 		$this->as = $as;
-		$this->value = $val;
+		$this->value = ($as == DevblocksRegistryEntry::TYPE_JSON) ? json_encode($val) : $val;
 		$this->delta = false;
 		$this->dirty = true;
 	}
