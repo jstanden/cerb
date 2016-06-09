@@ -470,6 +470,19 @@ class _DevblocksDatabaseManager {
 		return mysqli_affected_rows($this->_master_db);
 	}
 	
+	// Always last connection
+	function Found_Rows() {
+		$rs = $this->_Execute("SELECT FOUND_ROWS()", $this->_last_used_db);
+		
+		if($rs instanceof mysqli_result) {
+			$row = mysqli_fetch_row($rs);
+			mysqli_free_result($rs);
+			return $row[0];
+		}
+			
+		return false;
+	}
+	
 	// By default, this reports on the last used DB connection
 	function ErrorMsg() {
 		return $this->_ErrorMsg($this->_last_used_db);
