@@ -3027,6 +3027,11 @@ For example: http://www.cerbweb.com/support/</seg>
 				<seg>Has Attachments</seg>
 			</tuv>
 		</tu>
+		<tu tuid="message.search.header_message_id">
+			<tuv xml:lang="en_US">
+				<seg>Message-Id Header</seg>
+			</tuv>
+		</tu>
 
 		<!-- Preferences -->
 		

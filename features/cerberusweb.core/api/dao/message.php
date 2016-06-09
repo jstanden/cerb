@@ -444,6 +444,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	// Virtuals
 	const VIRTUAL_ATTACHMENT_NAME = '*_attachment_name';
 	const VIRTUAL_HAS_ATTACHMENTS = '*_has_attachments';
+	const VIRTUAL_HEADER_MESSAGE_ID = '*_header_message_id';
 	const VIRTUAL_TICKET_STATUS = '*_ticket_status';
 	const VIRTUAL_TICKET_IN_GROUPS_OF_WORKER = '*_in_groups_of_worker';
 
@@ -481,6 +482,12 @@ class SearchFields_Message extends DevblocksSearchFields {
 					self::getPrimaryKey(),
 					!empty($param->value) ? '' : 'NOT ',
 					self::getPrimaryKey()
+				);
+				break;
+				
+			case self::VIRTUAL_HEADER_MESSAGE_ID:
+				return sprintf("m.hash_header_message_id = %s",
+					Cerb_ORMHelper::qstr(sha1($param->value))
 				);
 				break;
 				
@@ -658,6 +665,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 			
 			SearchFields_Message::VIRTUAL_ATTACHMENT_NAME => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENT_NAME, '*', 'attachment_name', $translate->_('message.search.attachment_name'), null, false),
 			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX, false),
+			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID, '*', 'header_message_id', $translate->_('message.search.header_message_id'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER, '*', 'in_groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
 			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('common.status'), null, false),
 				
@@ -1311,6 +1319,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::TICKET_STATUS_ID, // [TODO] Keep, or convert the virtual?
 			SearchFields_Message::VIRTUAL_ATTACHMENT_NAME,
 			SearchFields_Message::VIRTUAL_HAS_ATTACHMENTS,
+			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
 			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER,
 		));
 		
@@ -1318,6 +1327,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::HTML_ATTACHMENT_ID,
 			SearchFields_Message::ID,
 			SearchFields_Message::TICKET_STATUS_ID, // [TODO] Keep the virtual?
+			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
 		));
 		
 		$this->doResetCriteria();
@@ -1576,6 +1586,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'options' => array('param_key' => SearchFields_Message::TICKET_GROUP_ID),
 					'examples' => array_slice($group_names, 0, 15),
 				),
+			'header.messageId' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID),
+				),
 			'inGroupsOfWorker' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -1737,6 +1752,22 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				return false;
 				break;
 				
+			case 'header.messageId':
+				$field_key = SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID;
+				$oper = null;
+				$value = null;
+				
+				CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
+				
+				if($value) {
+					return new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						$value
+					);
+				}
+				break;
+				
 			case 'inGroupsOfWorker':
 				$field_key = SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER;
 				$oper = null;
@@ -1882,6 +1913,12 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				echo sprintf("Attachment name %s %s",
 					DevblocksPlatform::strEscapeHtml($oper),
 					implode(' or ', $strings_or)
+				);
+				break;
+				
+			case SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID:
+				echo sprintf("Message-ID header is <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
 				
