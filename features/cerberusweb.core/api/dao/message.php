@@ -912,8 +912,8 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 					$content = preg_replace("/(^\>(.*)\$)/m", "", $content);
 					$content = preg_replace("/[\r\n]+/", "\n", $content);
 					
-					// Truncate to 10KB
-					$content = $engine->truncateOnWhitespace($content, 10000);
+					// Truncate to 5KB
+					$content = $engine->truncateOnWhitespace($content, 5000);
 					
 					$doc['content'] = $content;
 				}

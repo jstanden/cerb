@@ -689,7 +689,7 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 				$content = $comment->comment;
 				
 				if(!empty($content)) {
-					$content = $engine->truncateOnWhitespace($content, 10000);
+					$content = $engine->truncateOnWhitespace($content, 5000);
 					
 					$doc = array(
 						'content' => $content,
