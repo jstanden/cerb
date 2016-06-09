@@ -902,17 +902,23 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$text = DevblocksPlatform::strUnidecode($text);
 
 		// Allow wildcards in queries
-		$regexp = $is_query ? '[^[:alnum:]\*]' : '[^[:alnum:]]';
-		
-		$text = str_replace("'", '', $text);
-		$text = mb_ereg_replace($regexp, ' ', mb_convert_case($text, MB_CASE_LOWER));
-		
-		$words = explode(' ', $text);
-		unset($text);
+		if($is_query) {
+			$regexp = '[^[:alnum:]\*]';
+			$text = mb_ereg_replace($regexp, ' ', mb_convert_case($text, MB_CASE_LOWER));
+			
+			$words = explode(' ', $text);
+			
+			foreach($words as $word)
+				$word = ltrim($word, '+-');
+				
+			unset($text);
+		}
 
-		// Remove common words
-		$words = $this->removeStopWords($words);
-
+		// Remove stop words from queries
+		if($is_query) {
+			$words = $this->removeStopWords($words);
+		}
+		
 		// Reassemble
 		$text = implode(' ', $words);
 		unset($words);
@@ -929,8 +935,6 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$ns = $schema->getNamespace();
 		
 		$content = $this->_getTextFromDoc($doc);
-		
-		$content = $this->prepareText($content);
 		
 		// If the table doesn't exist, create it at index time
 		if(!isset($tables['fulltext_' . $this->escapeNamespace($ns)]))
