@@ -155,7 +155,7 @@
 			</blockquote>
 		
 			<div id="add{$parent_div}" style="background-color:rgb(255,255,255);"></div>
-			<button type="button" onclick="$form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewAddFilter{if $is_custom}&is_custom=1{/if}');"><span class="glyphicons glyphicons-circle-plus"></span> Add Filter</button>
+			<button type="button" onclick="$form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewAddFilter&replace=1{if $is_custom}&is_custom=1{/if}');"><span class="glyphicons glyphicons-circle-plus"></span> Add Filter</button>
 		</fieldset>
 	</td>
 </tr>

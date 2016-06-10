@@ -1773,10 +1773,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			// Do we already have this filter to re-edit?
 			$params = $view->getEditableParams();
 			
-			if(isset($params[$field])) {
-				$tpl->assign('param', $params[$field]);
+			if(false != ($results = $view->findParam($field, $params, false))) {
+				$param = array_shift($results);
+				$tpl->assign('param', $param);
 			}
-			
+
 			// Render from the View_* implementation.
 			$view->renderCriteria($field);
 		}
