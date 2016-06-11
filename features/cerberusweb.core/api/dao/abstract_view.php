@@ -3179,8 +3179,15 @@ class C4_AbstractViewLoader {
 		$inst->addParamsRequired($parent->getParamsRequired());
 		unset($parent);
 		
-		if($checksum)
-			$inst->_init_checksum = sha1(serialize($inst));
+		if($checksum) {
+			// If the param keys changed during unserialization, then consider everything changed
+			if(array_keys($model->paramsEditable) != array_keys($inst->getParams(false))) {
+				$inst->_init_checksum = sha1(mt_rand());
+				
+			} else {
+				$inst->_init_checksum = sha1(serialize($inst));
+			}
+		}
 		
 		return $inst;
 	}
@@ -3267,7 +3274,13 @@ class C4_AbstractViewLoader {
 		
 		$view->setPlaceholderValues($values);
 		
-		$view->_init_checksum = sha1(serialize($view));
+		// If the param keys changed during unserialization, then consider everything changed
+		if(array_keys($view_model['params']) != array_keys($view->getParams(false))) {
+			$view->_init_checksum = sha1(mt_rand());
+			
+		} else {
+			$view->_init_checksum = sha1(serialize($view));
+		}
 		
 		return $view;
 	}
