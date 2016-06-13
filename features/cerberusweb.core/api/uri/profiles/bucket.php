@@ -133,7 +133,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				throw new Exception_DevblocksAjaxValidationError("The specified bucket record doesn't exist.");
 			
 			// ACL
-			if(!$active_worker->is_superuser && !$active_worker->isGroupManager($bucket->group_id))
+			if($id && !$active_worker->is_superuser && !$active_worker->isGroupManager($bucket->group_id))
 				throw new Exception_DevblocksAjaxValidationError("You do not have permission to delete this bucket.");
 			
 			if($id && !empty($do_delete)) { // Delete

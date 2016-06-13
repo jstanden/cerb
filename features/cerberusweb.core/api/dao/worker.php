@@ -1502,8 +1502,8 @@ class Model_Worker {
 		if($this->is_superuser)
 			return true;
 		
-		if(empty($group_id)) {
-			foreach($groups as $group) {
+		if(empty($group_id) && is_array($groups)) {
+			foreach(array_keys($groups) as $group_id) {
 				// Is the worker a manager of this group?
 				if(isset($memberships[$group_id]) && $memberships[$group_id]->is_manager)
 					return true;
