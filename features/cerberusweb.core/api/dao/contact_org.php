@@ -1409,6 +1409,13 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		return 'SearchFields_ContactOrg';
 	}
 	
+	/**
+	 * @see Extension_DevblocksContext::getViewClass()
+	 */
+	function getViewClass() {
+		return 'View_ContactOrg';
+	}
+	
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';
