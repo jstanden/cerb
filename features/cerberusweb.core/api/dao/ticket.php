@@ -2089,7 +2089,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				if(empty($contact_ids_string))
 					$contact_ids_string = '-1';
 				
-				return sprintf("(t.id IN (SELECT r.ticket_id FROM requester r INNER JOIN address a ON (r.address_id=a.id) WHERE a.contact_id IN (%s)))",
+				return sprintf("(t.id IN (SELECT DISTINCT r.ticket_id FROM requester r INNER JOIN address a ON (a.id=r.address_id) WHERE a.contact_id IN (%s)))",
 					$contact_ids_string
 				);
 				
@@ -2104,7 +2104,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				if(empty($participant_ids_string))
 					$participant_ids_string = '-1';
 				
-				return sprintf("(t.first_wrote_address_id IN (%s) OR t.id IN (SELECT r.ticket_id FROM requester r WHERE r.address_id IN (%s)))",
+				return sprintf("(t.first_wrote_address_id IN (%s) OR t.id IN (SELECT DISTINCT r.ticket_id FROM requester r WHERE r.address_id IN (%s)))",
 					$participant_ids_string,
 					$participant_ids_string
 				);
@@ -2177,20 +2177,18 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			case self::REQUESTER_ID:
 				$where_sql = $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				
-				return sprintf("%s IN (SELECT r.ticket_id FROM requester r INNER JOIN address ra ON (ra.id=r.address_id) WHERE %s AND r.ticket_id = %s)",
+				return sprintf("%s IN (SELECT DISTINCT r.ticket_id FROM requester r WHERE %s)",
 					self::getPrimaryKey(),
-					$where_sql,
-					self::getPrimaryKey()
+					$where_sql
 				);
 				break;
 			
 			case self::REQUESTER_ADDRESS:
 				$where_sql = $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				
-				return sprintf("%s IN (SELECT r.ticket_id FROM requester r INNER JOIN address ra ON (ra.id=r.address_id) WHERE %s AND r.ticket_id = %s)",
+				return sprintf("%s IN (SELECT DISTINCT r.ticket_id FROM requester r INNER JOIN address ra ON (ra.id=r.address_id) WHERE %s)",
 					self::getPrimaryKey(),
-					$where_sql,
-					self::getPrimaryKey()
+					$where_sql
 				);
 				break;
 				
