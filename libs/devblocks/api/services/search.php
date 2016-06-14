@@ -745,6 +745,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$start_time = microtime(true);
 		
+		/*
 		$sql = sprintf("CREATE TEMPORARY TABLE IF NOT EXISTS %s (PRIMARY KEY (id)) ".
 			"SELECT SQL_CALC_FOUND_ROWS id ".
 			"FROM fulltext_%s ".
@@ -756,19 +757,46 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			$escaped_query,
 			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
 		);
-		
 		$db->ExecuteSlave($sql);
+		*/
+		
+		$sql = sprintf("SELECT SQL_CALC_FOUND_ROWS id ".
+			"FROM fulltext_%s ".
+			"WHERE MATCH content AGAINST ('%s' IN BOOLEAN MODE) ".
+			"%s ".
+			($max_results ? sprintf("LIMIT %d ", $max_results) : ''),
+			$this->escapeNamespace($ns),
+			$escaped_query,
+			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
+		);
+		
+		$cache = DevblocksPlatform::getCacheService();
+		$cache_key = sprintf("search:%s", md5($sql));
+		$is_only_cached_for_request = !$cache->isVolatile();
+		
+		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
+			$ids = array();
+			
+			$results = $db->GetArraySlave($sql);
+			
+			if(is_array($results))
+			foreach($results as $result)
+				$ids[] = intval($result['id']);
+			
+			$cache->save($ids, $cache_key, array(), 300, $is_only_cached_for_request);
+		}
 		
 		@$took_ms = (microtime(true) - $start_time) * 1000;
-		$total = intval($db->Found_Rows());
-		$count = $max_results ? min($total, $max_results) : $total;
+		$count = count($ids);
+		$total = !empty($count) ? intval($db->Found_Rows()) : 0;
 		
 		// Store the search info in a request registry for later use
 		$meta_key = 'search_' . sha1($query);
-		$meta = array('engine' => 'mysql-fulltext', 'query' => $query, 'took_ms' => $took_ms, 'results' => $count, 'total' => $total);
+		$meta = array('engine' => 'mysql-fulltext', 'query' => $query, 'took_ms' => $took_ms, 'results' => $count, 'total' => $total, 'database' => APP_DB_DATABASE);
 		DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
 		
-		return $temp_table;
+		//return $temp_table;
+		return $ids;
 	}
 	
 	private function _parseQuery($query) {
