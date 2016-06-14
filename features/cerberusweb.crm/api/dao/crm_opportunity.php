@@ -1271,6 +1271,10 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		return 'SearchFields_CrmOpportunity';
 	}
 	
+	function getViewClass() {
+		return 'View_CrmOpportunity';
+	}
+	
 	function getRandom() {
 		return DAO_CrmOpportunity::random();
 	}
