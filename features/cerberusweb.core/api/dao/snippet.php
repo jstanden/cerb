@@ -631,7 +631,7 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 				
 				$doc = array(
 					'title' => $snippet->title,
-					'content' => $snippet->content,						
+					'content' => $snippet->content,
 				);
 				
 				if(false === ($engine->index($this, $id, $doc)))

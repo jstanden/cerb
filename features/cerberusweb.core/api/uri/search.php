@@ -166,7 +166,7 @@ class Page_Search extends CerberusPageExtension {
 							) {
 								
 							if($meta['results'] < $meta['total']) {
-								$marquees[] = sprintf("Found %s match%s for <b>%s</b>. Using the first %s. Try being more specific. [%s: %d ms]",
+								$marquees[] = sprintf("Found %s match%s for <b>%s</b>. Using %s. Try being more specific. [%s: %d ms]",
 									number_format($meta['total']),
 									(1 == $meta['results']) ? '' : 'es',
 									DevblocksPlatform::strEscapeHtml($meta['query']),
