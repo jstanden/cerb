@@ -738,6 +738,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 
 		// The max desired results (blank for unlimited)
 		$max_results = isset($this->_config['max_results']) ? intval($this->_config['max_results']) : 0;
+		$max_results = (!$max_results || $max_results > 500) ? 500 : $max_results;
 
 		// Randomly named temporary table
 		$temp_table = sprintf("_search_%s", uniqid());
