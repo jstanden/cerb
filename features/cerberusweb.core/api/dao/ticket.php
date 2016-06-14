@@ -2195,10 +2195,12 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_RECOMMENDATIONS:
-				$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
+				$ids = is_array($param->value) ? $param->value : array($param->value);
+				$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
 		
 				switch($param->operator) {
 					case DevblocksSearchCriteria::OPER_IN:
+					case DevblocksSearchCriteria::OPER_EQ:
 						return sprintf("%s IN (SELECT context_id FROM context_recommendation WHERE context = %s AND context_id = %s AND worker_id IN (%s))",
 							self::getPrimaryKey(),
 							Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
@@ -2208,6 +2210,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 						break;
 						
 					case DevblocksSearchCriteria::OPER_NIN:
+					case DevblocksSearchCriteria::OPER_NEQ:
 						return sprintf("%s NOT IN (SELECT context_id FROM context_recommendation WHERE context = %s AND context_id = %s AND worker_id IN (%s))",
 							self::getPrimaryKey(),
 							Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
@@ -3869,6 +3872,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						return;
 						break;
 						
+					case DevblocksSearchCriteria::OPER_EQ:
+					case DevblocksSearchCriteria::OPER_NEQ:
 					case DevblocksSearchCriteria::OPER_IN:
 					case DevblocksSearchCriteria::OPER_NIN:
 						$sep = ' or ';
@@ -4164,8 +4169,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS:
 				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'string','');
-				$oper = DevblocksSearchCriteria::OPER_EQ;
-				$criteria = new DevblocksSearchCriteria($field, $oper, $worker_id);
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				$criteria = new DevblocksSearchCriteria($field, $oper, array($worker_id));
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
