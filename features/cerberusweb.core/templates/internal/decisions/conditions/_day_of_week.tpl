@@ -15,12 +15,12 @@
 		<td align="center">Sat</td>
 	</tr>
 	<tr>
-		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="7" {if in_array(7,$params.day)}checked="checked"{/if}></td>
-		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="1" {if in_array(1,$params.day)}checked="checked"{/if}></td>
-		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="2" {if in_array(2,$params.day)}checked="checked"{/if}></td>
-		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="3" {if in_array(3,$params.day)}checked="checked"{/if}></td>
-		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="4" {if in_array(4,$params.day)}checked="checked"{/if}></td>
-		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="5" {if in_array(5,$params.day)}checked="checked"{/if}></td>
-		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="6" {if in_array(6,$params.day)}checked="checked"{/if}></td>
+		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="7" {if is_array($params.day) && in_array(7,$params.day)}checked="checked"{/if}></td>
+		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="1" {if is_array($params.day) && in_array(1,$params.day)}checked="checked"{/if}></td>
+		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="2" {if is_array($params.day) && in_array(2,$params.day)}checked="checked"{/if}></td>
+		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="3" {if is_array($params.day) && in_array(3,$params.day)}checked="checked"{/if}></td>
+		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="4" {if is_array($params.day) && in_array(4,$params.day)}checked="checked"{/if}></td>
+		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="5" {if is_array($params.day) && in_array(5,$params.day)}checked="checked"{/if}></td>
+		<td align="center"><input type="checkbox" name="{$namePrefix}[day][]" value="6" {if is_array($params.day) && in_array(6,$params.day)}checked="checked"{/if}></td>
 	</tr>
 </table>

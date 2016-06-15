@@ -632,7 +632,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		// Do as quicker strings if under 1MB?
 		$is_small = ($src_size < 1000000) ? true : false;
 		
-		// Allocate a temporary file for retrieving content
+		// If smaller than 1MB, load into a variable
 		if($is_small) {
 			if(false === ($data = $src_engine->get($ns, $src_key))) {
 				$logger->error(sprintf("[Storage] Error reading %s key (%s) from (%s)",
@@ -642,6 +642,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 				));
 				return;
 			}
+		// Otherwise, allocate a temporary file handle
 		} else {
 			$fp_in = DevblocksPlatform::getTempFile();
 			if(false === $src_engine->get($ns, $src_key, $fp_in)) {
@@ -683,7 +684,9 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 					$src_id,
 					$dst_profile->extension_id
 				));
-				fclose($fp_in);
+				
+				if(is_resource($fp_in))
+					fclose($fp_in);
 				return;
 			}
 		}
