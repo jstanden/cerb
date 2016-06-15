@@ -377,7 +377,7 @@ class DevblocksSearchCriteria {
 				continue;
 				
 			case DevblocksSearchCriteria::TYPE_WORKER:
-				if($param_key && false != ($param = DevblocksSearchCriteria::getWorkerParamFromTokens($param_key, $tokens)))
+				if($param_key && false != ($param = DevblocksSearchCriteria::getWorkerParamFromTokens($param_key, $tokens, $search_field)))
 					return $param;
 				continue;
 		}
@@ -516,7 +516,7 @@ class DevblocksSearchCriteria {
 		);
 	}
 	
-	public static function getWorkerParamFromTokens($field_key, $tokens) {
+	public static function getWorkerParamFromTokens($field_key, $tokens, $search_field) {
 		// [TODO] This can have placeholders
 		
 		$oper = self::OPER_IN;
@@ -542,14 +542,26 @@ class DevblocksSearchCriteria {
 					break;
 			}
 		}
-
+		
 		if(1 == count($terms) && in_array(strtolower($terms[0]), array('any','anyone','anybody'))) {
-			$oper = self::OPER_IS_NOT_NULL;
-			$value = null;
+			@$is_cfield = $search_field['options']['cf_id'];
+			if($is_cfield) {
+				$oper = self::OPER_IS_NOT_NULL;
+				$value = null;
+			} else {
+				$oper = self::OPER_NEQ;
+				$value = 0;
+			}
 			
 		} else if(1 == count($terms) && in_array(strtolower($terms[0]), array('blank','empty','no','none','noone','nobody'))) {
-			$oper = self::OPER_IS_NULL;
-			$value = null;
+			@$is_cfield = $search_field['options']['cf_id'];
+			if($is_cfield) {
+				$oper = self::OPER_IS_NULL;
+				$value = null;
+			} else {
+				$oper = self::OPER_EQ;
+				$value = 0;
+			}
 			
 		} else {
 			$active_worker = CerberusApplication::getActiveWorker();
@@ -561,7 +573,7 @@ class DevblocksSearchCriteria {
 			$worker_ids = array();
 			
 			foreach($terms as $term) {
-				if(is_numeric($term) && isset($workers[$term])) {
+				if(is_numeric($term) && (empty($term) || isset($workers[$term]))) {
 					$worker_ids[intval($term)] = true;
 					continue;
 				
@@ -585,11 +597,13 @@ class DevblocksSearchCriteria {
 			}
 		}
 		
-		return new DevblocksSearchCriteria(
+		$param = new DevblocksSearchCriteria(
 			$field_key,
 			$oper,
 			$value
 		);
+		
+		return $param;
 	}
 	
 	public static function getWatcherParamFromTokens($field_key, $tokens) {
