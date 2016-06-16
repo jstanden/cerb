@@ -111,7 +111,8 @@ class CerberusInstaller {
 			$buffer[] = str_replace(array("\r","\n"),'',$line); // strip CRLF
 		}
 		
-		@fclose($fp_in);
+		if(is_resource($fp_in))
+			fclose($fp_in);
 		
 		$saved = FALSE;
 		

@@ -1259,7 +1259,8 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 					$src_id,
 					$dst_profile->extension_id
 				));
-				fclose($fp_in);
+				if(is_resource($fp_in))
+					fclose($fp_in);
 				return;
 			}
 		}
@@ -1276,7 +1277,8 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 			unset($data);
 		} else {
 			@unlink(DevblocksPlatform::getTempFileInfo($fp_in));
-			fclose($fp_in);
+			if(is_resource($fp_in))
+				fclose($fp_in);
 		}
 		
 		$src_engine->delete($ns, $src_key);

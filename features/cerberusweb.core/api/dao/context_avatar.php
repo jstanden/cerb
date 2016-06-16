@@ -707,18 +707,17 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 
 		$storage = DevblocksPlatform::getStorageService($profile);
 
-		// Save to storage
-		if(false === ($storage_key = $storage->put('context_avatar', $id, $contents)))
-			return false;
-			
 		if(is_resource($contents)) {
 			$stats = fstat($contents);
 			$storage_size = $stats['size'];
 		} else {
 			$storage_size = strlen($contents);
-			unset($contents);
 		}
 		
+		// Save to storage
+		if(false === ($storage_key = $storage->put('context_avatar', $id, $contents)))
+			return false;
+			
 		// Update storage key
 		DAO_ContextAvatar::update($id, array(
 			DAO_ContextAvatar::STORAGE_EXTENSION => $storage->manifest->id,
@@ -914,7 +913,8 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 					$src_id,
 					$dst_profile->extension_id
 				));
-				fclose($fp_in);
+				if(is_resource($fp_in))
+					fclose($fp_in);
 				return;
 			}
 		}
@@ -931,7 +931,8 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 			unset($data);
 		} else {
 			@unlink(DevblocksPlatform::getTempFileInfo($fp_in));
-			fclose($fp_in);
+			if(is_resource($fp_in))
+				fclose($fp_in);
 		}
 		
 		$src_engine->delete($ns, $src_key);

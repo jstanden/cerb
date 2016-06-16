@@ -472,19 +472,18 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 
 		$storage = DevblocksPlatform::getStorageService($profile);
 
-		// Save to storage
-		if(false === ($storage_key = $storage->put('attachments', $id, $contents)))
-			return false;
-		
 		if(is_string($contents)) {
 			$storage_size = strlen($contents);
-			unset($contents);
 		} else if(is_resource($contents)) {
 			$stats = fstat($contents);
 			$storage_size = $stats['size'];
 		} else {
 			return false;
 		}
+		
+		// Save to storage
+		if(false === ($storage_key = $storage->put('attachments', $id, $contents)))
+			return false;
 		
 		// Update storage key
 		DAO_Attachment::update($id, array(
@@ -545,7 +544,8 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 			"FROM attachment ".
 			"WHERE attachment.updated < %d ".
 			"AND (attachment.storage_extension = %s AND attachment.storage_profile_id = %d) ".
-			"ORDER BY attachment.id ASC ",
+			"ORDER BY attachment.id ASC ".
+			"LIMIT 500",
 				time()-(86400*$archive_after_days),
 				$db->qstr($src_profile->extension_id),
 				$src_profile->id
@@ -703,7 +703,8 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 			unset($data);
 		} else {
 			@unlink(DevblocksPlatform::getTempFileInfo($fp_in));
-			fclose($fp_in);
+			if(is_resource($fp_in))
+				fclose($fp_in);
 		}
 		
 		$src_engine->delete($ns, $src_key);

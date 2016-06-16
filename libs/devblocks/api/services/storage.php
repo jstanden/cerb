@@ -612,8 +612,11 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		
 		if(is_resource($data)) {
 			// Write the content from stream
-			$stat = fstat($data);
-			if(false === $this->_s3->putObject($this->_s3->inputResource($data, $stat['size']), $bucket, $path, S3::ACL_PRIVATE)) {
+			if(false === ($object = $this->_s3->inputResource($data))) {
+				return false;
+			}
+			
+			if(false === $this->_s3->putObject($object, $bucket, $path, S3::ACL_PRIVATE)) {
 				return false;
 			}
 			
