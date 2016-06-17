@@ -873,6 +873,66 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		return $ids;
 	}
 	
+	private function _indexDictionary($dict, $engine) {
+		$logger = DevblocksPlatform::getConsoleLog();
+
+		$id = $dict->id;
+		
+		if(empty($id))
+			return false;
+		
+		$content = $dict->content;
+		
+		// Strip reply quotes
+		$content = preg_replace("/(^\>(.*)\$)/m", "", $content);
+		$content = preg_replace("/[\r\n]+/", "\n", $content);
+		
+		// Truncate to 5KB
+		$content = $engine->truncateOnWhitespace($content, 5000);
+		
+		$doc = array(
+			'created' => $dict->created,
+		);
+		
+		$doc['content'] = implode("\n", array(
+			$dict->sender__label,
+			$dict->ticket_subject,
+			$dict->ticket_mask,
+			$dict->ticket_org__label,
+			$content,
+		));
+		
+		$logger->info(sprintf("[Search] Indexing %s %d...",
+			$this->getNamespace(),
+			$id
+		));
+		
+		if(false === ($engine->index($this, $id, $doc)))
+			return false;
+		
+		return true;
+	}
+	
+	public function indexIds(array $ids=array()) {
+		if(empty($ids))
+			return;
+		
+		if(false == ($engine = $this->getEngine()))
+			return false;
+		
+		if(false == ($models = DAO_Message::getIds($ids)))
+			return;
+		
+		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_MESSAGE, array('ticket_','ticket_org_','sender_','content'));
+		
+		if(empty($dicts))
+			return;
+		
+		foreach($dicts as $dict) {
+			$this->_indexDictionary($dict, $engine);
+		}
+	}
+	
 	public function index($stop_time=null) {
 		$logger = DevblocksPlatform::getConsoleLog();
 		
@@ -885,62 +945,21 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		
 		while(!$done && time() < $stop_time) {
 			$where = sprintf("%s > %d", DAO_Message::ID, $id);
-			$messages = DAO_Message::getWhere($where, 'id', true, 100);
-	
-			if(empty($messages)) {
+			$models = DAO_Message::getWhere($where, 'id', true, 100);
+			
+			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_MESSAGE, array('ticket_','ticket_org_','sender_','content'));
+			
+			if(empty($dicts)) {
 				$done = true;
 				continue;
 			}
 			
-			$count = 0;
-			
-			if(is_array($messages))
-			foreach($messages as $message) { /* @var $message Model_Message */
-				$id = $message->id;
+			// Loop dictionaries
+			foreach($dicts as $dict) {
+				$id = $dict->id;
 				
-				$logger->info(sprintf("[Search] Indexing %s %d...",
-					$ns,
-					$id
-				));
-				
-				$doc = array();
-				
-				// Add sender fields
-				if(false != ($sender = $message->getSender())) {
-					$doc['sender_name'] = $sender->getName();
-					$doc['sender_email'] = $sender->email;
-				}
-				
-				// Add ticket fields
-				if(false != ($ticket = DAO_Ticket::get($message->ticket_id))) {
-					$doc['mask'] = $ticket->mask;
-					$doc['subject'] = $ticket->subject;
-					
-					// Org
-					if(null != ($org = $ticket->getOrg()) && $org instanceof Model_ContactOrg) {
-						$doc['org_name'] = $org->name;
-					}
-				}
-				
-				if(false !== ($content = Storage_MessageContent::get($message))) {
-					// Strip reply quotes
-					$content = preg_replace("/(^\>(.*)\$)/m", "", $content);
-					$content = preg_replace("/[\r\n]+/", "\n", $content);
-					
-					// Truncate to 5KB
-					$content = $engine->truncateOnWhitespace($content, 5000);
-					
-					$doc['content'] = $content;
-				}
-				
-				if(false === ($engine->index($this, $id, $doc)))
+				if(false == $this->_indexDictionary($dict, $engine))
 					return false;
-
-				// Record our progress every 25th index
-				if(++$count % 25 == 0) {
-					if(!empty($id))
-						DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);
-				}
 			}
 			
 			flush();
