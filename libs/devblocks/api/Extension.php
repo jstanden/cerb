@@ -2129,6 +2129,7 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 
 	abstract function getNamespace();
 	abstract function getAttributes();
+	//abstract function getFields();
 	abstract function query($query, $attributes=array(), $limit=250);
 	abstract function index($stop_time=null);
 	abstract function reindex();

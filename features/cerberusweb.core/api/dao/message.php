@@ -819,6 +819,13 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
+	public function getFields() {
+		return array(
+			'content',
+			'created',
+		);
+	}
+	
 	public function reindex() {
 		$engine = $this->getEngine();
 		$meta = $engine->getIndexMeta($this);

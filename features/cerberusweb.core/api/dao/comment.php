@@ -609,6 +609,12 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 		);
 	}
 	
+	public function getFields() {
+		return array(
+			'content',
+		);
+	}
+	
 	public function reindex() {
 		$engine = $this->getEngine();
 		$meta = $engine->getIndexMeta($this);

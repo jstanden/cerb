@@ -553,6 +553,12 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
+	public function getFields() {
+		return array(
+			'content',
+		);
+	}
+	
 	public function query($query, $attributes=array(), $limit=500) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -630,8 +636,10 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 				));
 				
 				$doc = array(
-					'title' => $snippet->title,
-					'content' => $snippet->content,
+					'content' => implode("\n", array(
+						$snippet->title,
+						$snippet->content,
+					))
 				);
 				
 				if(false === ($engine->index($this, $id, $doc)))

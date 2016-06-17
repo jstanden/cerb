@@ -1164,6 +1164,12 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
+	public function getFields() {
+		return array(
+			'content',
+		);
+	}
+	
 	public function query($query, $attributes=array(), $limit=500) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -1210,11 +1216,12 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 			return false;
 		
 		$doc = array(
-			'firstName' => $dict->first_name,
-			'lastName' => $dict->last_name,
-			'email' => $dict->address_email,
-			'title' => $dict->title,
-			'atMentionName' => $dict->at_mention_name,
+			'content' => implode("\n", array(
+				$dict->__label,
+				$dict->address_email,
+				$dict->title,
+				$dict->at_mention_name,
+			)),
 		);
 
 		$logger->info(sprintf("[Search] Indexing %s %d...",

@@ -561,6 +561,12 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
+	public function getFields() {
+		return array(
+			'content',
+		);
+	}
+	
 	public function reindex() {
 		$engine = $this->getEngine();
 		$meta = $engine->getIndexMeta($this);
@@ -639,8 +645,10 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 				));
 				
 				$doc = array(
-					'title' => $article->title,
-					'content' => strip_tags($article->content),
+					'content' => implode("\n", array(
+						$article->title,
+						strip_tags($article->content)
+					)),
 				);
 				
 				if(false === ($engine->index($this, $id, $doc)))

@@ -732,6 +732,12 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
+	public function getFields() {
+		return array(
+			'content',
+		);
+	}
+	
 	public function query($query, $attributes=array(), $limit=500) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -778,10 +784,11 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 			return false;
 		
 		$doc = array(
-			'email' => $dict->address,
-			'firstName' => $dict->contact_first_name,
-			'lastName' => $dict->contact_last_name,
-			'org' => $dict->org_name,
+			'content' => implode("\n", array(
+				$dict->address,
+				$dict->contact__label,
+				$dict->org__label,
+			))
 		);
 		
 		$logger->info(sprintf("[Search] Indexing %s %d...",
@@ -805,7 +812,7 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 		if(false == ($models = DAO_Address::getIds($ids)))
 			return;
 		
-		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_ADDRESS, array('contact_','org_name'));
+		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_ADDRESS, array('contact_','org_'));
 		
 		if(empty($dicts))
 			return;

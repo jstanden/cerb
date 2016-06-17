@@ -530,6 +530,12 @@ class Search_PluginLibrary extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
+	public function getFields() {
+		return array(
+			'content',
+		);
+	}
+	
 	public function query($query, $attributes=array(), $limit=500) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -607,11 +613,13 @@ class Search_PluginLibrary extends Extension_DevblocksSearchSchema {
 				));
 				
 				$doc = array(
-					'id' => $plugin->plugin_id,
-					'name' => $plugin->name,
-					'author' => $plugin->author,
-					'description' => $plugin->description,
-					'url' => $plugin->link,
+					'content' => implode("\n", array(
+						$plugin->plugin_id,
+						$plugin->name,
+						$plugin->author,
+						$plugin->description,
+						$plugin->link,
+					))
 				);
 				
 				if(false === ($engine->index($this, $id, $doc)))

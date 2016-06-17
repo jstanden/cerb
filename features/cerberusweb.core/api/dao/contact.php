@@ -636,6 +636,12 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
+	public function getFields() {
+		return array(
+			'content',
+		);
+	}
+	
 	public function query($query, $attributes=array(), $limit=500) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -682,16 +688,16 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 			return false;
 		
 		$doc = array(
-			'firstName' => $dict->first_name,
-			'lastName' => $dict->last_name,
-			'title' => $dict->title,
-			'location' => $dict->location,
-			'phone' => $dict->phone,
-			'mobile' => $dict->mobile,
-			'gender' => $dict->gender,
-			'email' => $dict->address_email,
-			'org' => $dict->org_name,
-			'emails' => $dict->emails,
+			'content' => implode("\n", array(
+				$dict->_label,
+				$dict->email_address,
+				implode("\n", $dict->emails),
+				$dict->org_name,
+				$dict->title,
+				$dict->location,
+				$dict->phone,
+				$dict->mobile,
+			))
 		);
 		
 		$logger->info(sprintf("[Search] Indexing %s %d...",

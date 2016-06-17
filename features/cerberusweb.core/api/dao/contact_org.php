@@ -670,6 +670,12 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
+	public function getFields() {
+		return array(
+			'content',
+		);
+	}
+	
 	public function query($query, $attributes=array(), $limit=500) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -716,14 +722,16 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 			return false;
 		
 		$doc = array(
-			'name' => $dict->name,
-			'street' => $dict->street,
-			'city' => $dict->city,
-			'state' => $dict->province,
-			'postal' => $dict->postal,
-			'country' => $dict->country,
-			'phone' => $dict->phone,
-			'website' => $dict->website,
+			'content' => implode("\n", array(
+				$dict->name,
+				$dict->street,
+				$dict->city,
+				$dict->province,
+				$dict->postal,
+				$dict->country,
+				$dict->phone,
+				$dict->website,
+			))
 		);
 		
 		$logger->info(sprintf("[Search] Indexing %s %d...",
