@@ -368,6 +368,9 @@ $changes = array();
 if(!isset($indexes['status_and_bucket']))
 	$changes[] = 'ADD INDEX status_and_bucket (status_id, bucket_id)';
 
+if(!isset($indexes['status_and_owner']))
+	$changes[] = 'ADD INDEX status_and_owner (status_id, owner_id)';
+
 if(!empty($changes)) {
 	$sql = sprintf("ALTER TABLE ticket %s", implode(', ', $changes));
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
