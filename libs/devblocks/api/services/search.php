@@ -355,18 +355,23 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	private function _getSearch($type, $query, $limit=500) {
 		@$base_url = rtrim($this->_config['base_url'], '/');
 		@$index = trim($this->_config['index'], '/');
+		@$df = $this->_config['default_query_field'];
+		
+		if(empty($df))
+			$df = '_all';
 		
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
 		
 		// [TODO] Paging
 		
-		$url = sprintf("%s/%s/%s/_search?q=%s&_source=false&size=%d&default_operator=AND",
+		$url = sprintf("%s/%s/%s/_search?q=%s&_source=false&size=%d&df=%s&default_operator=AND",
 			$base_url,
 			urlencode($index),
 			urlencode($type),
 			urlencode($query),
-			$limit
+			$limit,
+			urlencode($df)
 		);
 		
 		if(false == ($json = $this->_execute('GET', $url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))

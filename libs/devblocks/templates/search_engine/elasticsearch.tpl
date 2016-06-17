@@ -23,6 +23,11 @@
 		<input type="text" name="params[{$engine->id}][index]" value="{$engine_params.index}" size="45" style="width:100%;" placeholder="cerb">
 	</p>
 	
+	<b>Default query field:</b>
+	<p style="margin-left:5px;">
+		<input type="text" name="params[{$engine->id}][default_query_field]" value="{$engine_params.default_query_field}" size="45" style="width:100%;" placeholder="_all">
+	</p>
+	
 	<b>Quick search examples:</b> (optional)
 	{$examples = implode("\n", $engine->getQuickSearchExamples($schema))}
 	<p style="margin-left:5px;">
