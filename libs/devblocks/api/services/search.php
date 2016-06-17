@@ -297,13 +297,15 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 
 class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine {
 	const ID = 'devblocks.search.engine.elasticsearch';
+	const READ_TIMEOUT_MS = 5000;
 	
 	private $_config = array();
 	
-	private function _execute($verb='GET', $url, $payload=array()) {
+	private function _execute($verb='GET', $url, $payload=array(), $timeout=20000) {
 		$headers = array();
 		
 		$ch = DevblocksPlatform::curlInit($url);
+		curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout);
 		
 		if(!empty($headers))
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -367,7 +369,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			$limit
 		);
 		
-		if(false == ($json = $this->_execute('GET', $url)))
+		if(false == ($json = $this->_execute('GET', $url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))
 			return false;
 		
 		return $json;
@@ -386,7 +388,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			urlencode($type)
 		);
 		
-		if(false == ($json = $this->_execute('GET', $url)))
+		if(false == ($json = $this->_execute('GET', $url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))
 			return false;
 		
 		if(!is_array($json) || !isset($json['count']))
@@ -405,7 +407,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		if(empty($index))
 			return "An index name is required.";
 		
-		if(false === ($json = $this->_execute('GET', $base_url)))
+		if(false === ($json = $this->_execute('GET', $base_url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))
 			return false;
 		
 		if(isset($json['version']) && isset($json['version']['number'])) {
