@@ -217,6 +217,27 @@ class SearchFields_MailParseFail extends DevblocksSearchFields {
 	const CTIME = 'mf_ctime';
 	const MTIME = 'mf_mtime';
 	
+	static function getPrimaryKey() {
+		return '';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
