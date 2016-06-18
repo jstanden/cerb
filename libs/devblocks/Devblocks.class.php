@@ -2505,7 +2505,45 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function getDateService($datestamp=null) {
 		return _DevblocksDateManager::getInstance();
 	}
+	
+	private static function _discoverTimezone() {
+		$timezone = null;
+		
+		// Try worker session
+		if(empty($timezone) && isset($_SESSION['timezone']))
+			$timezone = $_SESSION['timezone'];
+		
+		// Try app default
+		if(empty($timezone))
+			$timezone = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TIMEZONE, null);
+		
+		// Try system timezone
+		if(empty($timezone))
+			@$timezone = date_default_timezone_get();
+		
+		// Otherwise, use UTC
+		if(empty($timezone))
+			$timezone = 'UTC';
+		
+		return $timezone;
+	}
 
+	static function getTimezone() {
+		if(!empty(self::$timezone))
+			return self::$timezone;
+		
+		return @date_default_timezone_get();
+	}
+	
+	static function setTimezone($timezone=null) {
+		if(empty($timezone))
+			$timezone = self::_discoverTimezone();
+		
+		self::$timezone = $timezone;
+		@date_default_timezone_set(self::$timezone);
+		return self::$timezone;
+	}
+	
 	/**
 	 * 
 	 * @param string $locale

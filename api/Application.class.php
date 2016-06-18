@@ -2272,6 +2272,7 @@ class CerberusSettings {
 	const RELAY_DISABLE_AUTH = 'relay_disable_auth';
 	const RELAY_SPOOF_FROM = 'relay_spoof_from';
 	const SESSION_LIFESPAN = 'session_lifespan';
+	const TIMEZONE = 'timezone';
 	const TIME_FORMAT = 'time_format';
 	const AVATAR_DEFAULT_STYLE_CONTACT = 'avatar_default_style_contact';
 	const AVATAR_DEFAULT_STYLE_WORKER = 'avatar_default_style_worker';
@@ -2291,6 +2292,7 @@ class CerberusSettingsDefaults {
 	const RELAY_SPOOF_FROM = 0;
 	const SESSION_LIFESPAN = 0;
 	const TIME_FORMAT = 'D, d M Y h:i a';
+	const TIMEZONE = '';
 	const AVATAR_DEFAULT_STYLE_CONTACT = 'monograms';
 	const AVATAR_DEFAULT_STYLE_WORKER = 'monograms';
 	const HTML_NO_STRIP_MICROSOFT = 0;
@@ -2535,7 +2537,7 @@ class CerberusVisit extends DevblocksVisit {
 			// Timezone
 			if($worker->timezone) {
 				$_SESSION['timezone'] = $worker->timezone;
-				@date_default_timezone_set($worker->timezone);
+				DevblocksPlatform::setTimezone($worker->timezone);
 			}
 
 			// Time format

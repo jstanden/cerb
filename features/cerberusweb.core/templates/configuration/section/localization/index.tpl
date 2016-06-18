@@ -10,6 +10,18 @@
 <fieldset>
 	<legend>Date &amp; Time</legend>
 	
+	{$setting_timezone = $settings->get('cerberusweb.core', CerberusSettings::TIMEZONE, '')}
+
+	<div style="margin-bottom:5px;">
+		<b>{'preferences.account.timezone'|devblocks_translate|capitalize}</b><br>
+		<select name="timezone">
+			<option value="">({'common.default'|devblocks_translate|lower})</option>
+			{foreach from=$timezones item=tz}
+				<option value="{$tz}" {if $tz==$setting_timezone}selected{/if}>{$tz}</option>
+			{/foreach}
+		</select>
+	</div>
+	
 	{$setting_time_format = $settings->get('cerberusweb.core',CerberusSettings::TIME_FORMAT,CerberusSettingsDefaults::TIME_FORMAT)}
 	
 	<b>{'preferences.account.timeformat'|devblocks_translate|capitalize}</b><br>

@@ -162,7 +162,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 	function savePeekPopupJsonAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
-		$default_tz = @$_SESSION['timezone'] ?: date_default_timezone_get();
+		$default_tz = DevblocksPlatform::getTimezone();
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['calendar_id'], 'integer', 0);

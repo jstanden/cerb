@@ -19,8 +19,12 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
+		$date = DevblocksPlatform::getDateService();
 		
 		$visit->set(ChConfigurationPage::ID, 'localization');
+		
+		$timezones = $date->getTimezones();
+		$tpl->assign('timezones', $timezones);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/localization/index.tpl');
 	}
@@ -32,12 +36,11 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception("You are not a superuser.");
 			
-			@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string','');
+			@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string','');
+			@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string',CerberusSettingsDefaults::TIME_FORMAT);
 	
-			if(empty($time_format))
-				$time_format = CerberusSettingsDefaults::TIME_FORMAT;
-				
 			$settings = DevblocksPlatform::getPluginSettingsService();
+			$settings->set('cerberusweb.core',CerberusSettings::TIMEZONE, $timezone);
 			$settings->set('cerberusweb.core',CerberusSettings::TIME_FORMAT, $time_format);
 			
 			echo json_encode(array('status'=>true));

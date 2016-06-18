@@ -95,9 +95,15 @@ $session = DevblocksPlatform::getSessionService();
 
 DevblocksPlatform::setDateTimeFormat(DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TIME_FORMAT, CerberusSettingsDefaults::TIME_FORMAT));
 
+// Locale
 DevblocksPlatform::setLocale((isset($_SESSION['locale']) && !empty($_SESSION['locale'])) ? $_SESSION['locale'] : 'en_US');
-if(isset($_SESSION['timezone'])) @date_default_timezone_set($_SESSION['timezone']);
-if(isset($_SESSION['time_format'])) DevblocksPlatform::setDateTimeFormat($_SESSION['time_format']);
+
+// Timezone
+DevblocksPlatform::setTimezone();
+
+// Time format
+if(isset($_SESSION['time_format']))
+	DevblocksPlatform::setDateTimeFormat($_SESSION['time_format']);
 
 // Initialize Logging
 

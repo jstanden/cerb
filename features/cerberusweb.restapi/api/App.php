@@ -305,7 +305,8 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 			DevblocksPlatform::setLocale(!empty($worker->language) ? $worker->language : 'en_US');
 			
 			// Set worker timezone
-			if(!empty($worker->timezone)) @date_default_timezone_set($worker->timezone);
+			if(!empty($worker->timezone))
+				DevblocksPlatform::setTimezone($worker->timezone);
 			
 			// Set worker time format
 			$default_time_format = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TIME_FORMAT, CerberusSettingsDefaults::TIME_FORMAT);

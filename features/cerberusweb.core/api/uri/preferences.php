@@ -416,7 +416,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		
 		// Timezones
 		$tpl->assign('timezones', $date_service->getTimezones());
-		@$server_timezone = date_default_timezone_get();
+		@$server_timezone = DevblocksPlatform::getTimezone();
 		$tpl->assign('server_timezone', $server_timezone);
 
 		// Languages
@@ -553,7 +553,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		// Time
 		
 		$_SESSION['timezone'] = $timezone;
-		@date_default_timezone_set($timezone);
+		DevblocksPlatform::setTimezone($timezone);
 		$worker_fields[DAO_Worker::TIMEZONE] = $timezone;
 		
 		@$time_format = DevblocksPlatform::importGPC($_REQUEST['time_format'],'string',null);

@@ -38,6 +38,7 @@ abstract class DevblocksEngine {
 	static protected $start_memory = 0;
 	static protected $start_peak_memory = 0;
 
+	static protected $timezone = '';
 	static protected $locale = 'en_US';
 	static protected $dateTimeFormat = 'D, d M Y h:i a';
 

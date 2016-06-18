@@ -86,7 +86,7 @@ class _DevblocksDateManager {
 			$format = DevblocksPlatform::getDateTimeFormat();
 		
 		if(!$gmt)
-			$datetime->setTimezone(new DateTimeZone(date_default_timezone_get()));
+			$datetime->setTimezone(new DateTimeZone(DevblocksPlatform::getTimezone()));
 			
 		return $datetime->format($format);
 	}

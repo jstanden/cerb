@@ -564,13 +564,13 @@ class Model_CalendarRecurringProfile {
 					// If we have to hack around the PHP bug with DateTime::modify($absolute_time)
 					} else {
 						$datetime_date = date('Y-m-d', $day);
-						$previous_timezone = date_default_timezone_get();
-						date_default_timezone_set($this->tz);
+						$previous_timezone = DevblocksPlatform::getTimezone();
+						DevblocksPlatform::setTimezone($this->tz);
 						$datetime = strtotime($datetime_date);
 						
 						@$event_start_local = strtotime($this->event_start ?: 'midnight', $datetime);
 						@$event_end_local = strtotime($this->event_end ?: 'midnight', $datetime);
-						date_default_timezone_set($previous_timezone);
+						DevblocksPlatform::setTimezone($previous_timezone);
 					}
 					
 					// If the generated event starts before the recurring event begins, skip
@@ -1403,7 +1403,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			$model->id = 0;
 			$model->calendar_id = $calendar_id;
 			$model->is_available = 0;
-			$model->tz = @$_SESSION['timezone'] ?: date_default_timezone_get();
+			$model->tz = DevblocksPlatform::getTimezone();
 			$tpl->assign('model', $model);
 		}
 
