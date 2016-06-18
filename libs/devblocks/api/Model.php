@@ -524,6 +524,7 @@ class DevblocksSearchCriteria {
 		$value = null;
 		$terms = null;
 		
+		if(is_array($tokens))
 		foreach($tokens as $token) {
 			switch($token->type) {
 				case 'T_NOT':

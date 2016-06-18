@@ -484,6 +484,9 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	public function setOptions($options=array()) {
 		parent::setOptions($options);
 		
+		if(!isset($this->_options['host']))
+			$this->_options['host'] = null;
+		
 		// Fail, this info is required.
 		if(!isset($this->_options['access_key']))
 			return false;
