@@ -1074,25 +1074,31 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_NOTIFICATION)))
 			return;
 		
-		if(false == ($view = $context_ext->getSearchView('my_notifications')) || !($view instanceof IAbstractView_QuickSearch))
-			return;
-		
 		$translate = DevblocksPlatform::getTranslationService();
+		$view_id = 'my_notifications';
 		
-		$view->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Notification');
+		$defaults->id = $view_id;
+		$defaults->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
+		$defaults->view_columns = array(
+			SearchFields_Notification::CREATED_DATE,
+			SearchFields_Notification::IS_READ,
+		);
+		$defaults->renderSubtotals = SearchFields_Notification::ACTIVITY_POINT;
+		$defaults->renderSortBy = SearchFields_Notification::CREATED_DATE;
+		$defaults->renderSortAsc = false;
+		$defaults->renderLimit = 10;
+		$defaults->is_ephemeral = false;
+		$defaults->paramsEditable = array(
+			new DevblocksSearchCriteria(SearchFields_Notification::IS_READ, DevblocksSearchCriteria::OPER_EQ, 0),
+		);
+		
+		if(false == ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults)))
+			return;
 		
 		$view->addParamsRequired(array(
 			SearchFields_Notification::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
 		), true);
-		
-		$view->addParams(array(
-			SearchFields_Notification::IS_READ => new DevblocksSearchCriteria(SearchFields_Notification::IS_READ, DevblocksSearchCriteria::OPER_EQ, 0),
-		), true);
-		
-		$view->renderSubtotals = SearchFields_Notification::ACTIVITY_POINT;
-		$view->renderSortBy = SearchFields_Notification::CREATED_DATE;
-		$view->renderSortAsc = false;
-		$view->renderLimit = 10;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('popup_title', mb_convert_case($translate->_('common.notifications'), MB_CASE_TITLE));
