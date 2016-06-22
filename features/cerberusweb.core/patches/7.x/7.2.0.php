@@ -292,6 +292,13 @@ foreach($custom_field_tables as $custom_field_table) {
 	if(!isset($indexes['context_and_id']))
 		$changes[] = 'add index context_and_id (context, context_id)';
 	
+	switch($custom_field_table) {
+		case 'custom_field_stringvalue':
+			if(!isset($indexes['field_id_and_value']))
+				$changes[] = 'add index field_id_and_value (field_id, field_value(8))';
+			break;
+	}
+	
 	if(!empty($changes)) {
 		$sql = sprintf("ALTER TABLE %s %s", $custom_field_table, implode(', ', $changes));
 		$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
