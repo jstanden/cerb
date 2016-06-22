@@ -88,6 +88,7 @@ class Page_Profiles extends CerberusPageExtension {
 				'label' => $cfield->name,
 				'type' => $cfield->type,
 				'value' => $values[$cf_id],
+				'params' => @$cfield->params ?: array(),
 			);
 		}
 		
