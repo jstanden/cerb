@@ -1158,6 +1158,10 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		return 'SearchFields_FeedbackEntry';
 	}
 	
+	function getViewClass() {
+		return 'View_FeedbackEntry';
+	}
+	
 	static function searchInboundLinks($from_context, $from_context_id) {
 		list($results, $null) = DAO_FeedbackEntry::search(
 			array(

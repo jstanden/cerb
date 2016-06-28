@@ -1282,6 +1282,10 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		return 'SearchFields_TimeTrackingEntry';
 	}
 	
+	function getViewClass() {
+		return 'View_TimeTrackingEntry';
+	}
+	
 	function getRandom() {
 		return DAO_TimeTrackingEntry::random();
 	}
