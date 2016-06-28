@@ -899,8 +899,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 					$buckets[$bucket_id]->name
 				);
 				
-				$dict->group_id = $to_group_id;
-				$dict->ticket_bucket_id = $to_bucket_id;
+				$dict->group_id = $group_id;
+				$dict->ticket_bucket_id = $bucket_id;
 				
 				return $out;
 				break;
