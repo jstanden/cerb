@@ -802,13 +802,18 @@ class DevblocksPlatform extends DevblocksEngine {
 		$lists = $xpath->query('//ol');
 		
 		foreach($lists as $list) { /* @var $list DOMElement */
-			$items = $xpath->query('./li/text()', $list);
+			$items = $xpath->query('./li', $list);
 			
 			$counter = 1;
-			foreach($items as $item) { /* @var $item DOMText */
-				$txt = $dom->createTextNode('');
-				$txt->nodeValue = $counter++ . '. ' . $item->nodeValue;
-				$item->parentNode->replaceChild($txt, $item);
+			foreach($items as $item) { /* @var $item DOMElement */
+				if(false == (@$inner_html = $dom->saveXML($item)))
+					continue;
+				
+				$value = DevblocksPlatform::stripHTML($inner_html);
+				
+				$txt = $dom->createTextNode($counter++ . '. ' . str_replace("\n", "{{BR}}", $value));
+				$item->parentNode->insertBefore($txt, $item);
+				$item->parentNode->removeChild($item);
 			}
 		}
 
@@ -817,14 +822,20 @@ class DevblocksPlatform extends DevblocksEngine {
 		$lists = $xpath->query('//ul');
 		
 		foreach($lists as $list) { /* @var $list DOMElement */
-			$items = $xpath->query('./li/text()', $list);
+			$items = $xpath->query('./li', $list);
 			
-			foreach($items as $idx => $item) { /* @var $item DOMText */
-				$txt = $dom->createTextNode('- ' . $item->nodeValue);
-				$item->parentNode->replaceChild($txt, $item);
+			foreach($items as $item) { /* @var $item DOMElement */
+				if(false == (@$inner_html = $dom->saveXML($item)))
+					continue;
+				
+				$value = DevblocksPlatform::stripHTML($inner_html);
+				
+				$txt = $dom->createTextNode('- ' . str_replace("\n", "{{BR}}", $value));
+				$item->parentNode->insertBefore($txt, $item);
+				$item->parentNode->removeChild($item);
 			}
 		}
-		
+			
 		$html = $dom->saveXML();
 		
 		// Make sure it's not blank before trusting it.
@@ -866,6 +877,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Turn block tags into a linefeed
 		$str = str_ireplace(
 			array(
+				'{{BR}}',
 				'<BR>',
 				'<P>',
 				'</P>',
