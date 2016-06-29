@@ -20,6 +20,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	const TITLE = 'title';
 	const CREATED_AT = 'created_at';
 	const UPDATED_DATE = 'updated_date';
+	const OWNER_ID = 'owner_id';
 	const DUE_DATE = 'due_date';
 	const IS_COMPLETED = 'is_completed';
 	const COMPLETED_DATE = 'completed_date';
@@ -189,7 +190,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id, title, due_date, created_at, updated_date, is_completed, completed_date ".
+		$sql = "SELECT id, title, owner_id, importance, due_date, created_at, updated_date, is_completed, completed_date ".
 			"FROM task ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -233,6 +234,7 @@ class DAO_Task extends Cerb_ORMHelper {
 			$object->created_at = intval($row['created_at']);
 			$object->updated_date = intval($row['updated_date']);
 			$object->due_date = intval($row['due_date']);
+			$object->owner_id = intval($row['owner_id']);
 			$object->is_completed = intval($row['is_completed']);
 			$object->completed_date = intval($row['completed_date']);
 			$objects[$object->id] = $object;
@@ -304,6 +306,7 @@ class DAO_Task extends Cerb_ORMHelper {
 			"t.title as %s, ".
 			"t.created_at as %s, ".
 			"t.updated_date as %s, ".
+			"t.owner_id as %s, ".
 			"t.due_date as %s, ".
 			"t.is_completed as %s, ".
 			"t.completed_date as %s ",
@@ -311,6 +314,7 @@ class DAO_Task extends Cerb_ORMHelper {
 				SearchFields_Task::TITLE,
 				SearchFields_Task::CREATED_AT,
 				SearchFields_Task::UPDATED_DATE,
+				SearchFields_Task::OWNER_ID,
 				SearchFields_Task::DUE_DATE,
 				SearchFields_Task::IS_COMPLETED,
 				SearchFields_Task::COMPLETED_DATE
@@ -446,6 +450,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 	const ID = 't_id';
 	const CREATED_AT = 't_created_at';
 	const UPDATED_DATE = 't_updated_date';
+	const OWNER_ID = 't_owner_id';
 	const DUE_DATE = 't_due_date';
 	const IS_COMPLETED = 't_is_completed';
 	const COMPLETED_DATE = 't_completed_date';
@@ -515,6 +520,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 't', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', $translate->_('task.is_completed'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::OWNER_ID => new DevblocksSearchField(self::OWNER_ID, 't', 'owner_id', $translate->_('common.owner'), Model_CustomField::TYPE_WORKER, true),
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date'), Model_CustomField::TYPE_DATE, true),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', $translate->_('task.completed_date'), Model_CustomField::TYPE_DATE, true),
 			
@@ -550,10 +556,18 @@ class Model_Task {
 	public $id;
 	public $title;
 	public $created_at;
+	public $owner_id;
 	public $due_date;
 	public $is_completed;
 	public $completed_date;
 	public $updated_date;
+	
+	function getOwner() {
+		if(!$this->owner_id || false === ($worker = DAO_Worker::get($this->owner_id)))
+			return null;
+		
+		return $worker;
+	}
 };
 
 class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -570,6 +584,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		$this->view_columns = array(
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
+			SearchFields_Task::OWNER_ID,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -726,6 +741,11 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Task::IS_COMPLETED),
 				),
+			'owner' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'options' => array('param_key' => SearchFields_Task::OWNER_ID),
+				),
 			'title' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -845,6 +865,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_TASK);
 				break;
 			
+			case SearchFields_Task::OWNER_ID:
 			case SearchFields_Task::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
@@ -888,6 +909,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				$this->_renderCriteriaParamBoolean($param);
 				break;
 				
+			case SearchFields_Task::OWNER_ID:
+				$this->_renderCriteriaParamWorker($param);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -928,6 +953,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
+			case SearchFields_Task::OWNER_ID:
 			case SearchFields_Task::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
@@ -976,6 +1002,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				case 'due':
 					@$date = strtotime($v);
 					$change_fields[DAO_Task::DUE_DATE] = intval($date);
+					break;
+				case 'owner':
+					@$owner_id = intval($v);
+					$change_fields[DAO_Task::OWNER_ID] = $owner_id;
 					break;
 				case 'status':
 					switch($v) {
@@ -1123,6 +1153,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		return array(
 			'status',
 			'created',
+			'owner',
 			'due',
 			'completed',
 		);
@@ -1196,6 +1227,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$token_values['due'] = $task->due_date;
 			$token_values['id'] = $task->id;
 			$token_values['is_completed'] = $task->is_completed;
+			$token_values['owner_id'] = $task->owner_id;
 			$token_values['title'] = $task->title;
 			$token_values['updated'] = $task->updated_date;
 			
@@ -1213,6 +1245,29 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=task&id=%d-%s",$task->id, DevblocksPlatform::strToPermalink($task->title)), true);
 		}
+		
+		// Owner
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
+
+			// Clear dupe content
+			CerberusContexts::scrubTokensWithRegexp(
+				$merge_token_labels,
+				$merge_token_values,
+				array(
+					"#^address_org_#",
+				)
+			);
+		
+			CerberusContexts::merge(
+				'owner_',
+				$prefix.'Owner:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
 
 		return true;
 	}
@@ -1267,6 +1322,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$view->view_columns = array(
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
+			SearchFields_Task::OWNER_ID,
 		);
 		$view->addParams(array(
 			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
@@ -1357,6 +1413,11 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 				'label' => 'Is Completed',
 				'type' => Model_CustomField::TYPE_CHECKBOX,
 				'param' => SearchFields_Task::IS_COMPLETED,
+			),
+			'owner_id' => array(
+				'label' => 'Owner',
+				'type' => Model_CustomField::TYPE_WORKER,
+				'param' => SearchFields_Task::OWNER_ID,
 			),
 			'title' => array(
 				'label' => 'Title',

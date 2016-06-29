@@ -458,6 +458,33 @@ if(!isset($columns['checked_at'])) {
 }
 
 // ===========================================================================
+// Add 'owner_id' and 'importance' to 'task' records
+
+if(!isset($tables['task'])) {
+	$logger->error("The 'task' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('task');
+
+$changes = array();
+
+if(!isset($columns['owner_id']))
+	$changes[] = 'add column owner_id int unsigned not null default 0';
+
+if(!isset($indexes['owner_id']))
+	$changes[] = 'add index (owner_id)';
+
+if(!empty($changes)) {
+	$sql = sprintf("ALTER TABLE task %s", implode(', ', $changes));
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	if(!isset($columns['importance'])) {
+		$db->ExecuteMaster("UPDATE task SET importance = 50");
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

@@ -116,6 +116,14 @@
 					<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span>
 					{/if}
 				</td>
+			{elseif $column=="t_owner_id"}
+			<td>
+				{$owner = $workers.{$result.t_owner_id}}
+				{if $owner instanceof Model_Worker}
+					<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;"> 
+					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a>
+				{/if}
+			</td>
 			{else}
 				<td>{$result.$column}</td>
 			{/if}
