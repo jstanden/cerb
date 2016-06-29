@@ -104,12 +104,6 @@
 					{math assign=overdue equation="(t-x)" t=$timestamp_now x=$result.t_due_date format="%d"}
 				{/if}
 				<td title="{$result.t_due_date|devblocks_date}" style="{if $overdue > 0}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_due_date|devblocks_prettytime}</td>
-			{elseif $column=="t_url"}
-				<td>
-					{if empty($result.t_url)}
-					<a href="{$result.t_url}" target="_blank">{$result.t_url|truncate:64:'...':true}</a>
-					{/if}
-				</td>
 			{elseif $column=="t_is_completed"}
 				<td>
 					{if $result.t_is_completed}

@@ -1178,11 +1178,10 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	function getDefaultProperties() {
 		return array(
 			'status',
-			'created',
 			'owner',
 			'importance',
 			'due',
-			'completed',
+			'updated',
 		);
 	}
 	
@@ -1263,9 +1262,9 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			
 			// Status
 			if($task->is_completed) {
-				$token_values['status'] = 'completed';
+				$token_values['status'] = mb_convert_case($translate->_('status.completed'), MB_CASE_LOWER);
 			} else {
-				$token_values['status'] = 'active';
+				$token_values['status'] = mb_convert_case($translate->_('status.open'), MB_CASE_LOWER);
 			}
 
 			// Custom fields
@@ -1350,10 +1349,10 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tasks';
 		$view->view_columns = array(
-			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
 			SearchFields_Task::IMPORTANCE,
 			SearchFields_Task::OWNER_ID,
+			SearchFields_Task::UPDATED_DATE,
 		);
 		$view->addParams(array(
 			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
@@ -1392,7 +1391,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
-
+		
 		if(!empty($context_id)) {
 			$task = DAO_Task::get($context_id);
 			$tpl->assign('task', $task);

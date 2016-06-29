@@ -4539,6 +4539,11 @@ login</seg>
 				<seg>Geschlossen</seg>
 			</tuv>
 		</tu>
+		<tu tuid="status.completed">
+			<tuv xml:lang="de_DE">
+				<seg>Erledigt</seg>
+			</tuv>
+		</tu>
 		<tu tuid="status.deleted">
 			<tuv xml:lang="de_DE">
 				<seg>Gelöscht</seg>
@@ -4572,11 +4577,6 @@ login</seg>
 		<tu tuid="task.status.active">
 			<tuv xml:lang="de_DE">
 				<seg>Aktiv</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.status.completed">
-			<tuv xml:lang="de_DE">
-				<seg>Erledigt</seg>
 			</tuv>
 		</tu>
 		<tu tuid="task.worker_id">

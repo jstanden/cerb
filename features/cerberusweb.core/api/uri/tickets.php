@@ -250,7 +250,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 			// Load the existing model so we can detect changes
 			if(false == ($ticket = DAO_Ticket::get($id)))
-				throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this ticket.");
+				throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
 			
 			// Validation
 			if(empty($subject))

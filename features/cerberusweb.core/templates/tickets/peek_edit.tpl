@@ -113,7 +113,7 @@
 		
 		{* Owner *}
 		<tr>
-			<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'common.owner'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" align="right" valign="middle">{'common.owner'|devblocks_translate|capitalize}:</td>
 			<td width="99%" valign="top">
 					<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="inGroups:{$ticket->group_id}" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
 					
@@ -138,9 +138,6 @@
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id}
-
-{* Comments *}
-{include file="devblocks:cerberusweb.core::internal/peek/peek_comments_pager.tpl" comments=$comments}
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>

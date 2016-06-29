@@ -4537,6 +4537,11 @@ login &lt;ftp&#13;
 				<seg>Закрытая</seg>
 			</tuv>
 		</tu>
+		<tu tuid="status.completed">
+			<tuv xml:lang="ru_RU">
+				<seg>Закрыто</seg>
+			</tuv>
+		</tu>
 		<tu tuid="status.deleted">
 			<tuv xml:lang="ru_RU">
 				<seg>Удалено</seg>
@@ -4570,11 +4575,6 @@ login &lt;ftp&#13;
 		<tu tuid="task.status.active">
 			<tuv xml:lang="ru_RU">
 				<seg>Активно</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.status.completed">
-			<tuv xml:lang="ru_RU">
-				<seg>Закрыто</seg>
 			</tuv>
 		</tu>
 		<tu tuid="task.worker_id">

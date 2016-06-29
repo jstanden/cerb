@@ -4508,6 +4508,11 @@
 				<seg>Chiuso</seg>
 			</tuv>
 		</tu>
+		<tu tuid="status.completed">
+			<tuv xml:lang="it_IT">
+				<seg/>
+			</tuv>
+		</tu>
 		<tu tuid="status.deleted">
 			<tuv xml:lang="it_IT">
 				<seg>Cancellato</seg>
@@ -4539,11 +4544,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="task.status.active">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="task.status.completed">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

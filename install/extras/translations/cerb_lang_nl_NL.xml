@@ -4509,6 +4509,11 @@
 				<seg>Gesloten</seg>
 			</tuv>
 		</tu>
+		<tu tuid="status.completed">
+			<tuv xml:lang="nl_NL">
+				<seg>Voltooid</seg>
+			</tuv>
+		</tu>
 		<tu tuid="status.deleted">
 			<tuv xml:lang="nl_NL">
 				<seg>Verwijderd</seg>
@@ -4542,11 +4547,6 @@
 		<tu tuid="task.status.active">
 			<tuv xml:lang="nl_NL">
 				<seg>Actief</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.status.completed">
-			<tuv xml:lang="nl_NL">
-				<seg>Voltooid</seg>
 			</tuv>
 		</tu>
 		<tu tuid="task.worker_id">

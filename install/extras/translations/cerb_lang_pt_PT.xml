@@ -4537,6 +4537,11 @@ Por exemplo: *recipiente*</seg>
 				<seg>Fechado</seg>
 			</tuv>
 		</tu>
+		<tu tuid="status.completed">
+			<tuv xml:lang="pt_PT">
+				<seg>Concluído</seg>
+			</tuv>
+		</tu>
 		<tu tuid="status.deleted">
 			<tuv xml:lang="pt_PT">
 				<seg>Eliminado</seg>
@@ -4570,11 +4575,6 @@ Por exemplo: *recipiente*</seg>
 		<tu tuid="task.status.active">
 			<tuv xml:lang="pt_PT">
 				<seg>Activa</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.status.completed">
-			<tuv xml:lang="pt_PT">
-				<seg>Concluído</seg>
 			</tuv>
 		</tu>
 		<tu tuid="task.worker_id">
