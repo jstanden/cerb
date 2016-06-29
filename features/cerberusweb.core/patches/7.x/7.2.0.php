@@ -472,8 +472,14 @@ $changes = array();
 if(!isset($columns['owner_id']))
 	$changes[] = 'add column owner_id int unsigned not null default 0';
 
+if(!isset($columns['importance']))
+	$changes[] = 'add column importance tinyint unsigned not null default 0';
+
 if(!isset($indexes['owner_id']))
 	$changes[] = 'add index (owner_id)';
+
+if(!isset($indexes['importance']))
+	$changes[] = 'add index (importance)';
 
 if(!empty($changes)) {
 	$sql = sprintf("ALTER TABLE task %s", implode(', ', $changes));

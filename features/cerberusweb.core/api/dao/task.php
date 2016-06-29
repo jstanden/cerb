@@ -21,6 +21,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	const CREATED_AT = 'created_at';
 	const UPDATED_DATE = 'updated_date';
 	const OWNER_ID = 'owner_id';
+	const IMPORTANCE = 'importance';
 	const DUE_DATE = 'due_date';
 	const IS_COMPLETED = 'is_completed';
 	const COMPLETED_DATE = 'completed_date';
@@ -235,6 +236,7 @@ class DAO_Task extends Cerb_ORMHelper {
 			$object->updated_date = intval($row['updated_date']);
 			$object->due_date = intval($row['due_date']);
 			$object->owner_id = intval($row['owner_id']);
+			$object->importance = intval($row['importance']);
 			$object->is_completed = intval($row['is_completed']);
 			$object->completed_date = intval($row['completed_date']);
 			$objects[$object->id] = $object;
@@ -307,6 +309,7 @@ class DAO_Task extends Cerb_ORMHelper {
 			"t.created_at as %s, ".
 			"t.updated_date as %s, ".
 			"t.owner_id as %s, ".
+			"t.importance as %s, ".
 			"t.due_date as %s, ".
 			"t.is_completed as %s, ".
 			"t.completed_date as %s ",
@@ -315,6 +318,7 @@ class DAO_Task extends Cerb_ORMHelper {
 				SearchFields_Task::CREATED_AT,
 				SearchFields_Task::UPDATED_DATE,
 				SearchFields_Task::OWNER_ID,
+				SearchFields_Task::IMPORTANCE,
 				SearchFields_Task::DUE_DATE,
 				SearchFields_Task::IS_COMPLETED,
 				SearchFields_Task::COMPLETED_DATE
@@ -451,6 +455,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 	const CREATED_AT = 't_created_at';
 	const UPDATED_DATE = 't_updated_date';
 	const OWNER_ID = 't_owner_id';
+	const IMPORTANCE = 't_importance';
 	const DUE_DATE = 't_due_date';
 	const IS_COMPLETED = 't_is_completed';
 	const COMPLETED_DATE = 't_completed_date';
@@ -521,6 +526,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 			self::TITLE => new DevblocksSearchField(self::TITLE, 't', 'title', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::IS_COMPLETED => new DevblocksSearchField(self::IS_COMPLETED, 't', 'is_completed', $translate->_('task.is_completed'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::OWNER_ID => new DevblocksSearchField(self::OWNER_ID, 't', 'owner_id', $translate->_('common.owner'), Model_CustomField::TYPE_WORKER, true),
+			self::IMPORTANCE => new DevblocksSearchField(self::IMPORTANCE, 't', 'importance', $translate->_('common.importance'), Model_CustomField::TYPE_NUMBER, true),
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date'), Model_CustomField::TYPE_DATE, true),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', $translate->_('task.completed_date'), Model_CustomField::TYPE_DATE, true),
 			
@@ -557,6 +563,7 @@ class Model_Task {
 	public $title;
 	public $created_at;
 	public $owner_id;
+	public $importance;
 	public $due_date;
 	public $is_completed;
 	public $completed_date;
@@ -584,6 +591,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		$this->view_columns = array(
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
+			SearchFields_Task::IMPORTANCE,
 			SearchFields_Task::OWNER_ID,
 		);
 		
@@ -736,6 +744,11 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Task::DUE_DATE),
 				),
+			'importance' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Task::IMPORTANCE),
+				),
 			'isCompleted' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
@@ -844,6 +857,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
+			case SearchFields_Task::IMPORTANCE:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+				break;
+				
 			case SearchFields_Task::CREATED_AT:
 			case SearchFields_Task::UPDATED_DATE:
 			case SearchFields_Task::DUE_DATE:
@@ -931,6 +948,11 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
+			case SearchFields_Task::IMPORTANCE:
+				@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'integer',0);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
 			case SearchFields_Task::CREATED_AT:
 			case SearchFields_Task::UPDATED_DATE:
 			case SearchFields_Task::COMPLETED_DATE:
@@ -1002,6 +1024,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				case 'due':
 					@$date = strtotime($v);
 					$change_fields[DAO_Task::DUE_DATE] = intval($date);
+					break;
+				case 'importance':
+					@$importance = DevblocksPlatform::intClamp($v, 0, 100);
+					$change_fields[DAO_Task::IMPORTANCE] = $importance;
 					break;
 				case 'owner':
 					@$owner_id = intval($v);
@@ -1154,6 +1180,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'status',
 			'created',
 			'owner',
+			'importance',
 			'due',
 			'completed',
 		);
@@ -1184,6 +1211,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'completed' => $prefix.$translate->_('task.completed_date'),
 			'due' => $prefix.$translate->_('task.due_date'),
 			'id' => $prefix.$translate->_('common.id'),
+			'importance' => $prefix.$translate->_('common.importance'),
 			'is_completed' => $prefix.$translate->_('task.is_completed'),
 			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('common.title'),
@@ -1198,6 +1226,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'completed' => Model_CustomField::TYPE_DATE,
 			'due' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'importance' => Model_CustomField::TYPE_NUMBER,
 			'is_completed' => Model_CustomField::TYPE_CHECKBOX,
 			'status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1226,6 +1255,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$token_values['completed'] = $task->completed_date;
 			$token_values['due'] = $task->due_date;
 			$token_values['id'] = $task->id;
+			$token_values['importance'] = $task->importance;
 			$token_values['is_completed'] = $task->is_completed;
 			$token_values['owner_id'] = $task->owner_id;
 			$token_values['title'] = $task->title;
@@ -1322,6 +1352,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$view->view_columns = array(
 			SearchFields_Task::UPDATED_DATE,
 			SearchFields_Task::DUE_DATE,
+			SearchFields_Task::IMPORTANCE,
 			SearchFields_Task::OWNER_ID,
 		);
 		$view->addParams(array(
@@ -1408,6 +1439,11 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 				'label' => 'Due Date',
 				'type' => Model_CustomField::TYPE_DATE,
 				'param' => SearchFields_Task::DUE_DATE,
+			),
+			'importance' => array(
+				'label' => 'Importance',
+				'type' => Model_CustomField::TYPE_NUMBER,
+				'param' => SearchFields_Task::IMPORTANCE,
 			),
 			'is_completed' => array(
 				'label' => 'Is Completed',

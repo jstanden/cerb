@@ -116,6 +116,12 @@
 					<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span>
 					{/if}
 				</td>
+			{elseif $column=="t_importance"}
+			<td>
+				<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
+					<div style="position:relative;margin-left:-5px;top:-1px;left:{$result.$column}%;width:10px;height:10px;border-radius:10px;background-color:{if $result.$column < 50}rgb(0,200,0);{elseif $result.$column > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
+				</div>
+			</td>
 			{elseif $column=="t_owner_id"}
 			<td>
 				{$owner = $workers.{$result.t_owner_id}}
