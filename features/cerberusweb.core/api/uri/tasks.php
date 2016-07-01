@@ -26,96 +26,141 @@ class ChTasksPage extends CerberusPageExtension {
 		return true;
 	}
 	
-	function saveTaskPeekAction() {
+	function savePeekJsonAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!empty($id) && !empty($do_delete)) { // delete
-			$task = DAO_Task::get($id);
-
-			// Check privs
-			if($active_worker->hasPriv('core.tasks.actions.delete'))
-				DAO_Task::delete($id);
-			
-		} else { // create|update
-			$fields = array();
-	
-			// Title
-			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
-			$fields[DAO_Task::TITLE] = !empty($title) ? $title : 'New Task';
-	
-			// Completed
-			@$completed = DevblocksPlatform::importGPC($_REQUEST['completed'],'integer',0);
-			
-			$fields[DAO_Task::IS_COMPLETED] = intval($completed);
-			
-			// [TODO] This shouldn't constantly update the completed date (it should compare)
-			if($completed)
-				$fields[DAO_Task::COMPLETED_DATE] = time();
-			else
-				$fields[DAO_Task::COMPLETED_DATE] = 0;
-			
-			// Updated Date
-			$fields[DAO_Task::UPDATED_DATE] = time();
-			
-			// Due Date
-			@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
-			@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));
-	
-			// Comment
-			@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
-
-			// Custom Fields
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			
-			// Save
-			if(!empty($id)) {
-				DAO_Task::update($id, $fields);
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
-				
-			} else {
-				$custom_fields = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TASK, $field_ids);
-				
-				if(false == ($id = DAO_Task::create($fields, $custom_fields)))
-					return false;
-
-				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
-				if(!empty($add_watcher_ids))
-					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $id, $add_watcher_ids);
-				
-				// Context Link (if given)
-				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $id, $link_context, $link_context_id);
-				}
-				
-				// View marquee
-				if(!empty($id) && !empty($view_id)) {
-					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TASK, $id);
-				}
-			}
-
-			// Comments
-			if(!empty($comment) && !empty($id)) {
-				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-				
-				$fields = array(
-					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
-					DAO_Comment::CONTEXT_ID => $id,
-					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-					DAO_Comment::CREATED => time(),
-					DAO_Comment::COMMENT => $comment,
-				);
-				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-			}
-		}
+		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
 		
-		exit;
+		try {
+			if(!empty($id) && !empty($delete)) { // delete
+				if(!$active_worker->hasPriv('core.tasks.actions.delete'))
+					throw new Exception_DevblocksAjaxValidationError("You don't have permission to delete this record.");
+				
+				DAO_Task::delete($id);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
+				
+			} else { // create/edit
+			
+				// Load the existing model so we can detect changes
+				if($id && false == ($task = DAO_Task::get($id)))
+					throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
+				
+				$fields = array();
+	
+				// Title
+				@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
+				
+				if(empty($title))
+					throw new Exception_DevblocksAjaxValidationError("The 'title' field is required.", 'title');
+				
+				$fields[DAO_Task::TITLE] = $title;
+				
+				// Completed
+				@$completed = DevblocksPlatform::importGPC($_REQUEST['completed'],'integer',0);
+				
+				$fields[DAO_Task::IS_COMPLETED] = intval($completed);
+				
+				// [TODO] This shouldn't constantly update the completed date (it should compare)
+				if($completed)
+					$fields[DAO_Task::COMPLETED_DATE] = time();
+				else
+					$fields[DAO_Task::COMPLETED_DATE] = 0;
+				
+				// Updated Date
+				$fields[DAO_Task::UPDATED_DATE] = time();
+				
+				// Due Date
+				@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
+				@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));
+		
+				// Importance
+				@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'],'integer',0);
+				$fields[DAO_Task::IMPORTANCE] = $importance;
+				
+				// Owner
+				@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
+				$fields[DAO_Task::OWNER_ID] = $owner_id;
+		
+				// Comment
+				@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+	
+				// Custom Fields
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+				
+				// Save
+				if(!empty($id)) {
+					DAO_Task::update($id, $fields);
+					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
+					
+				} else {
+					$custom_fields = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TASK, $field_ids);
+					
+					if(false == ($id = DAO_Task::create($fields, $custom_fields)))
+						return false;
+	
+					// Context Link (if given)
+					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+					@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TASK, $id, $link_context, $link_context_id);
+					}
+					
+					// View marquee
+					if(!empty($id) && !empty($view_id)) {
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TASK, $id);
+					}
+				}
+	
+				// Comments
+				if(!empty($comment) && !empty($id)) {
+					$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+					
+					$fields = array(
+						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
+						DAO_Comment::CONTEXT_ID => $id,
+						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+						DAO_Comment::CREATED => time(),
+						DAO_Comment::COMMENT => $comment,
+					);
+					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+				}
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'label' => $title,
+					'view_id' => $view_id,
+				));
+				return;
+			}
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			return;
+			
+		}
 	}
 	
 	function showTaskBulkPanelAction() {

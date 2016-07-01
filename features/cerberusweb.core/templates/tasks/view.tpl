@@ -10,7 +10,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'500');"><span class="glyphicons glyphicons-circle-plus"></span></a>
+			<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
@@ -83,7 +83,7 @@
 				{/if}
 				<a href="{devblocks_url}c=profiles&type=task&id={$result.t_id}-{$result.t_title|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.t_title)}{$result.t_title}{else}New Task{/if}</a> 
 				
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.t_id}&view_id={$view->id}',null,false,'500');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.t_id}" data-width="55%"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

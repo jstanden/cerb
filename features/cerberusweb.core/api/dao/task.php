@@ -1397,27 +1397,69 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$tpl->assign('task', $task);
 		}
 
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK, false);
-		$tpl->assign('custom_fields', $custom_fields);
+		if(empty($context_id) || $edit) {
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TASK, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_TASK, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				CerberusContexts::CONTEXT_TASK => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_TASK,
+							$context_id,
+							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_TASK, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_TASK, $context_id, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			$tpl->assign('properties',
+				array(
+					'task__label',
+					'status',
+					'importance',
+					'due',
+					'updated',
+					'owner__label',
+				)
+			);
+			
+			$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');
+		}
 
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TASK, $context_id);
-		if(isset($custom_field_values[$context_id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-
-		// Comments
-		
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TASK, $context_id);
-		$comments = array_reverse($comments, true);
-		$tpl->assign('comments', $comments);
-
-		// View
-		$tpl->assign('id', $context_id);
-		$tpl->assign('view_id', $view_id);
-		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');
 	}
 	
 	function importGetKeys() {
