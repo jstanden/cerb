@@ -60,26 +60,17 @@
 					{if empty($workers)}
 						{$workers = DAO_Worker::getAllActive()}
 					{/if}
-					<select name="{$field_name}">
-						<option value=""></option>
-						{foreach from=$workers item=worker}
-						<option value="{$worker->id}" {if $worker->id==$custom_field_values.$f_id}selected="selected"{/if}>{$worker->getName()}</option>
-						{/foreach}
-						{foreach from=$values_to_contexts item=context_data key=val_key}
-							{if $context_data.context == CerberusContexts::CONTEXT_WORKER && !$context_data.is_multiple}
-							<option value="{$val_key}" {if $val_key==$custom_field_values.$f_id}selected="selected"{/if}>(placeholder) {$context_data.label}</option>
-							{/if}
-						{/foreach}
-						{foreach from=$trigger->variables item=var key=var_key}
-							{if $var.type == Model_CustomField::TYPE_WORKER}
-							<option value="{$var_key}" {if $var_key==$custom_field_values.$f_id}selected="selected"{/if}>(variable) {$var.label}</option>
-							{/if}
-						{/foreach}
-					</select>
-					<button type="button" onclick="$(this).siblings('select').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
-					<button type="button" onclick="$(this).siblings('select').val('');">{'common.nobody'|devblocks_translate|lower}</button>
+					
+					<button type="button" class="chooser-cfield-worker" data-field-name="{$field_name}" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+					
+					<ul class="bubbles chooser-container">
+						{if $custom_field_values.$f_id}
+							{CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $custom_field_values.$f_id, $cf_link_labels, $cf_link_values, null, true)}
+							<li><img src="{devblocks_url}c=avatars&context=worker&context_id={$custom_field_values.$f_id}{/devblocks_url}?v=" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;"> <input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">{$cf_link_values._label} <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+						{/if}
+					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_LINK}
-					<button type="button" field_name="{$field_name}" class="chooser-abstract" context="{$f->params.context}"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-cfield-link" data-field-name="{$field_name}" data-context="{$f->params.context}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
 					
 					<ul class="bubbles chooser-container">
 						{if $custom_field_values.$f_id}
@@ -116,62 +107,36 @@
 
 <script type="text/javascript">
 $(function() {
-var $cfields = $('#cfields{$uniqid}');
-
-$cfields.find('input.input_date').cerbDateInputHelper();
-
-$cfields.find('input:checkbox[name="field_ids[]"]').change(function() {
-	var $div = $('#bulkOpts' + $(this).val());
+	var $cfields = $('#cfields{$uniqid}');
 	
-	if($(this).is(':checked')) {
-		$div.show();
-	} else {
-		$div.hide();
-	}
-});
-
-$cfields.find('button.chooser-cfield-file').each(function() {
-	var options = {
-		single: true,
-	};
-	ajax.chooserFile(this,$(this).attr('field_name'),options);
-});
-
-$cfields.find('button.chooser-cfield-files').each(function() {
-	ajax.chooserFile(this,$(this).attr('field_name'));
-});
-
-// Abstract choosers
-$cfields.find('button.chooser-abstract').each(function() {
-	$(this).click(function() {
-		var $button = $(this);
-		var ctx = $button.attr('context');
+	$cfields.find('input.input_date').cerbDateInputHelper();
+	
+	$cfields.find('input:checkbox[name="field_ids[]"]').change(function() {
+		var $div = $('#bulkOpts' + $(this).val());
 		
-		var $chooser = genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(ctx) + '&single=1',null,true,'750');
-		$chooser.one('chooser_save', function(event) {
-			if(typeof event.values == "object" && event.values.length > 0) {
-				var context_label = event.labels[0];
-				var context_id = event.values[0];
-				
-				var $ul = $button.siblings('ul.chooser-container');
-				var context = $button.attr('context');
-				var field_name = $button.attr('field_name');
-				
-				// Clear previous selections
-				$ul.find('li').remove();
-				
-				// Add new bubble
-				for(i in event.labels) {
-					$li = $('<li/>').text(event.labels[i]);
-					$li.append($('<input type="hidden">').attr('name',field_name).attr('value',event.values[i]));
-					$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
-					
-					$ul.append($li);
-				}
-			}
-		});
+		if($(this).is(':checked')) {
+			$div.show();
+		} else {
+			$div.hide();
+		}
 	});
-});
+	
+	// Workers
+	$cfields.find('button.chooser-cfield-worker').cerbChooserTrigger();
+	
+	// Links
+	$cfields.find('button.chooser-cfield-link').cerbChooserTrigger();
+	
+	$cfields.find('button.chooser-cfield-file').each(function() {
+		var options = {
+			single: true,
+		};
+		ajax.chooserFile(this,$(this).attr('field_name'),options);
+	});
+	
+	$cfields.find('button.chooser-cfield-files').each(function() {
+		ajax.chooserFile(this,$(this).attr('field_name'));
+	});
 });
 </script>
 {/if}
