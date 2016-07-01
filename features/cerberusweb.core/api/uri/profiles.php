@@ -137,4 +137,39 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		return $properties;
 	}
+	
+	static function getTimelineJson($models, $is_ascending=true) {
+		$json = array(
+			'objects' => array(),
+			'length' => count($models),
+			'last' => 0,
+			'index' => 0,
+			'context' => '',
+			'context_id' => 0,
+		);
+		
+		foreach($models as $idx => $model) {
+			if($model instanceof Model_Comment) {
+				$context = CerberusContexts::CONTEXT_COMMENT;
+				$context_id = $model->id;
+				$object = array('context' => $context, 'context_id' => $model->id);
+				$json['objects'][] = $object;
+			} elseif($model instanceof Model_Message) {
+				$context = CerberusContexts::CONTEXT_MESSAGE;
+				$context_id = $model->id;
+				$object = array('context' => $context, 'context_id' => $model->id);
+				$json['objects'][] = $object;
+			}
+		}
+		
+		if(isset($json['objects']) && is_array($json['objects']))
+		if(false != ($object = end($json['objects']))) {
+			$json['last'] = key($json['objects']);
+			$json['index'] = key($json['objects']);
+			$json['context'] = $object['context'];
+			$json['context_id'] = $object['context_id'];
+		}
+		
+		return json_encode($json);
+	}
 };
