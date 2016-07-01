@@ -84,31 +84,9 @@
 	</div>
 </fieldset>
 
-<div class="cerb-peek-timeline-pager">
-	<table width="100%" cellpadding="0" cellspacing="0">
-		<tr>
-			<td width="40%" align="right" nowrap="nowrap">
-				<button type="button" class="cerb-button-first"><span class="glyphicons glyphicons-fast-backward"></span></button>
-				<button type="button" class="cerb-button-prev"><span class="glyphicons glyphicons-step-backward"></span></button>
-			</td>
-			<td width="20%" align="center" nowrap="nowrap" style="font-weight:bold;font-size:1.2em;padding:0px 10px;">
-				<span class="cerb-peek-timeline-label"></span>
-			</td>
-			<td width="40%" align="left" nowrap="nowrap">
-				<button type="button" class="cerb-button-next"><span class="glyphicons glyphicons-step-forward"></span></button>
-				<button type="button" class="cerb-button-last"><span class="glyphicons glyphicons-fast-forward"></span></button>
-			</td>
-		</tr>
-	</table>
-</div>
-
 {include file="devblocks:cerberusweb.core::internal/peek/peek_links.tpl" links=$links}
 
-<fieldset class="peek cerb-peek-timeline" style="margin:5px 0px 0px 0px;">
-	<div class="cerb-peek-timeline-preview" style="margin:0px 5px;">
-		<span class="cerb-ajax-spinner"></span>
-	</div>
-</fieldset>
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
 <script type="text/javascript">
 $(function() {
@@ -116,31 +94,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind($div);
 	var $layer = $popup.attr('data-layer');
 	
-	var $timeline = {
-		'objects': [],
-		'length': {count($timeline)},
-		'last': 0,
-		'index': 0,
-		'context': '',
-		'context_id': 0,
-	};
-	
-	{foreach from=$timeline item=timeline_object name=timeline_objects key=idx}
-	{if $timeline_object instanceof Model_Message}
-		{$context = CerberusContexts::CONTEXT_MESSAGE}
-		{$context_id = $timeline_object->id}
-	{elseif $timeline_object instanceof Model_Comment}
-		{$context = CerberusContexts::CONTEXT_COMMENT}
-		{$context_id = $timeline_object->id}
-	{/if}
-	{if $smarty.foreach.timeline_objects.last}
-		$timeline.last = {$idx};
-		$timeline.index = {$idx};
-		$timeline.context = '{$context}';
-		$timeline.context_id = {$context_id};
-	{/if}
-	$timeline.objects.push({ 'context': '{$context}', 'context_id': {$context_id} });
-	{/foreach}
+	var $timeline = {$timeline_json|default:'{}' nofilter};
 	
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', "{'common.ticket'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
@@ -180,68 +134,7 @@ $(function() {
 		});
 		
 		// Timeline
-		var $timeline_fieldset = $popup.find('fieldset.cerb-peek-timeline');
-		var $timeline_pager = $popup.find('div.cerb-peek-timeline-pager');
-		var $timeline_preview = $popup.find('div.cerb-peek-timeline-preview').width($timeline_fieldset.width());
-		
-		$timeline_fieldset.on('cerb-redraw', function() {
-			// Spinner
-			$timeline_preview.html('<span class="cerb-ajax-spinner"></span>');
-			
-			// Label
-			$timeline_pager.find('span.cerb-peek-timeline-label').text('{'common.message'|devblocks_translate|capitalize} ' + ($timeline.index+1) + ' of ' + $timeline.length);
-			
-			// Paget
-			if($timeline.objects.length <= 1)
-				$timeline_pager.hide();
-			else
-				$timeline_pager.show();
-			
-			// Buttons
-			if($timeline.index == 0) {
-				$timeline_pager.find('button.cerb-button-first').hide();
-				$timeline_pager.find('button.cerb-button-prev').hide();
-			} else {
-				$timeline_pager.find('button.cerb-button-first').show();
-				$timeline_pager.find('button.cerb-button-prev').show();
-			}
-			
-			if($timeline.index == $timeline.last) {
-				$timeline_pager.find('button.cerb-button-next').hide();
-				$timeline_pager.find('button.cerb-button-last').hide();
-			} else {
-				$timeline_pager.find('button.cerb-button-next').show();
-				$timeline_pager.find('button.cerb-button-last').show();
-			}
-			
-			// Ajax update
-			var $timeline_object = $timeline.objects[$timeline.index];
-			var context = $timeline_object.context;
-			var context_id = $timeline_object.context_id;
-			genericAjaxGet($timeline_preview, 'c=profiles&a=handleSectionAction&section=ticket&action=getPeekPreview&context=' + context + '&context_id=' + context_id);
-		});
-		
-		$timeline_pager.find('button.cerb-button-first').click(function() {
-			$timeline.index = 0;
-			$timeline_fieldset.trigger('cerb-redraw');
-		});
-		
-		$timeline_pager.find('button.cerb-button-prev').click(function() {
-			$timeline.index = Math.max(0, $timeline.index - 1);
-			$timeline_fieldset.trigger('cerb-redraw');
-		});
-		
-		$timeline_pager.find('button.cerb-button-next').click(function() {
-			$timeline.index = Math.min($timeline.last, $timeline.index + 1);
-			$timeline_fieldset.trigger('cerb-redraw');
-		});
-		
-		$timeline_pager.find('button.cerb-button-last').click(function() {
-			$timeline.index = $timeline.last;
-			$timeline_fieldset.trigger('cerb-redraw');
-		});
-		
-		$timeline_fieldset.trigger('cerb-redraw');
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
 	});
 });
 </script>

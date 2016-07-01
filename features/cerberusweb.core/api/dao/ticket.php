@@ -5269,13 +5269,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->assign('links', $links);
 			
 			// Timeline
-			
-			$timeline = $ticket->getTimeline();
-			$tpl->assign('timeline', $timeline);
-			
-			$timeline_keys = array_keys($timeline);
-			$timeline_idx = array_pop($timeline_keys);
-			$tpl->assign('timeline_idx', $timeline_idx);
+			$timeline_json = Page_Profiles::getTimelineJson($ticket->getTimeline());
+			$tpl->assign('timeline_json', $timeline_json);
 			
 			// Dictionary
 			$labels = array();
