@@ -1945,6 +1945,12 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_GROUP, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+			
 			$tpl->display('devblocks:cerberusweb.core::groups/peek.tpl');
 		}
 	}
