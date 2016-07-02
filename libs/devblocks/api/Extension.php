@@ -617,6 +617,37 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 
 		return true;
 	}
+	
+	static function getTimelineComments($context, $context_id, $is_ascending=true) {
+		$timeline = array();
+		
+		if(false != ($comments = DAO_Comment::getByContext($context, $context_id)))
+			$timeline = array_merge($timeline, $comments);
+		
+		usort($timeline, function($a, $b) use ($is_ascending) {
+			if($a instanceof Model_Comment) {
+				$a_time = intval($a->created);
+			} else {
+				$a_time = 0;
+			}
+			
+			if($b instanceof Model_Comment) {
+				$b_time = intval($b->created);
+			} else {
+				$b_time = 0;
+			}
+			
+			if($a_time > $b_time) {
+				return ($is_ascending) ? 1 : -1;
+			} else if ($a_time < $b_time) {
+				return ($is_ascending) ? -1 : 1;
+			} else {
+				return 0;
+			}
+		});
+		
+		return $timeline;
+	}
 };
 
 abstract class Extension_DevblocksEvent extends DevblocksExtension {

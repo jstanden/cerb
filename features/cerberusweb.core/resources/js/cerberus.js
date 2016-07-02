@@ -904,6 +904,26 @@ var ajax = new cAjaxCalls();
 		});
 	}
 	
+	// Abstract comments
+	
+	$.fn.cerbCommentTrigger = function(options) {
+		return this.each(function() {
+			var $button = $(this);
+			
+			$button.click(function() {
+				var context = encodeURIComponent($button.attr('data-context'));
+				var context_id = encodeURIComponent($button.attr('data-context-id'));
+				var $comment_popup = genericAjaxPopup('comment', 'c=internal&a=commentShowPopup&context=' + context + '&context_id=' + context_id, null, false, '50%');
+				$comment_popup.one('comment_save', function(event) {
+					$button.trigger('cerb-comment-saved');
+				});
+				$comment_popup.on('dialogclose', function(e) {
+					$button.trigger('cerb-comment-aborted');
+				});
+			});
+		});
+	}
+	
 	// File drag/drop zones
 	
 	$.fn.cerbAttachmentsDropZone = function() {

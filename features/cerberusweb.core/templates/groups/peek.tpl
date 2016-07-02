@@ -14,6 +14,7 @@
 		<div style="margin-top:5px;">
 			{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$group->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
 			{if $group}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="cerb-peek-comments-add" data-context="{$peek_context}" data-context-id="{$group->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 </div>
@@ -62,6 +63,14 @@ $(function() {
 			})
 			.on('cerb-peek-deleted', function(e) {
 				genericAjaxPopupClose($layer);
+			})
+			;
+		
+		// Comments
+		$popup.find('button.cerb-peek-comments-add')
+			.cerbCommentTrigger()
+			.on('cerb-comment-saved', function() {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$group->id}&view_id={$view_id}','reuse',false,'50%');
 			})
 			;
 		
