@@ -2776,6 +2776,12 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->assign('latest_activity', $worker->getLatestActivity());
 			$tpl->assign('latest_session', $worker->getLatestSession());
 			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_WORKER, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+			
 			// Dictionary
 			$labels = array();
 			$values = array();

@@ -1,4 +1,5 @@
 {$div_id = "peek{uniqid()}"}
+{$peek_context = CerberusContexts::CONTEXT_WORKER}
 
 <div id="{$div_id}">
 	<div style="float:left;margin-right:10px;">
@@ -23,7 +24,7 @@
 		{/if}
 		
 		<div style="margin-top:5px;">
-			{if $active_worker->is_superuser}<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
+			{if $active_worker->is_superuser}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
 			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
@@ -88,11 +89,15 @@
 
 {include file="devblocks:cerberusweb.core::internal/peek/peek_links.tpl" links=$links links_label="{'common.watching'|devblocks_translate|capitalize}"}
 
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
+
 <script type="text/javascript">
 $(function() {
 	var $div = $('#{$div_id}');
 	var $popup = genericAjaxPopupFind($div);
 	var $layer = $popup.attr('data-layer');
+	
+	var $timeline = {$timeline_json|default:'{}' nofilter};
 
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', "{'common.worker'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
@@ -104,7 +109,7 @@ $(function() {
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
-				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_WORKER}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
 			})
 			.on('cerb-peek-deleted', function(e) {
 				genericAjaxPopupClose($layer);
@@ -134,6 +139,8 @@ $(function() {
 			}
 		});
 		
+		// Timeline
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
 	});
 });
 </script>
