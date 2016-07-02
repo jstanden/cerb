@@ -1,4 +1,5 @@
 {$div_id = "peek{uniqid()}"}
+{$peek_context = CerberusContexts::CONTEXT_CONTACT}
 
 <div id="{$div_id}">
 	<div style="float:left;margin-right:10px;">
@@ -22,11 +23,11 @@
 		
 		<div style="margin-top:5px;">
 			{if !empty($dict->id)}
-				{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_CONTACT, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
-				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_CONTACT context_id=$dict->id full=true}
+				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
 			{/if}
 			
-			<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
@@ -81,12 +82,16 @@
 
 {include file="devblocks:cerberusweb.core::internal/peek/peek_links.tpl" links=$links}
 
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
+
 </form>
 
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#{$div_id}');
 	var $layer = $popup.attr('data-layer');
+	
+	var $timeline = {$timeline_json|default:'{}' nofilter};
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'Contact'|escape:'javascript' nofilter}");
@@ -100,7 +105,7 @@ $(function() {
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
-				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CONTACT}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
 			})
 			.on('cerb-peek-deleted', function(e) {
 				genericAjaxPopupClose($layer);
@@ -125,6 +130,8 @@ $(function() {
 			}
 		});
 		
+		// Timeline
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
 	});
 });
 </script>
