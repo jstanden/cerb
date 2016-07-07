@@ -635,7 +635,7 @@
 					try {
 						event.preventDefault();
 						
-						var $radio = $frm.find('input:radio[name=closed]');
+						var $radio = $frm.find('input:radio[name=status_id]');
 						
 						switch(event.which) {
 							case 67: // closed

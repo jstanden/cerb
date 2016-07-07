@@ -43,7 +43,7 @@ $textarea_reply.insertAtCursor('content');
 */
 
 /*
-var $radio_status = $form.actions.find('input:radio[name=closed]');
+var $radio_status = $form.actions.find('input:radio[name=status_id]');
 // Change the status (0=open, 1=waiting, 2=closed)
 $radio_status.filter(':nth(2)').click();
 */

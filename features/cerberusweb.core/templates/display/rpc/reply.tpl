@@ -853,7 +853,7 @@
 						event.preventDefault();
 						
 						var $reply_status = $('#replyStatus{$message->id}');
-						var $radio = $reply_status.find('input:radio[name=closed]');
+						var $radio = $reply_status.find('input:radio[name=status_id]');
 						
 						switch(event.which) {
 							case 67: // closed
