@@ -1647,10 +1647,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"t.first_outgoing_message_id as %s, ".
 			"t.last_message_id as %s, ".
 			"a1.email as %s, ".
-			"a1.num_spam as %s, ".
-			"a1.num_nonspam as %s, ".
 			"a2.email as %s, ".
-			"a1.contact_org_id as %s, ".
 			"t.created_date as %s, ".
 			"t.updated_date as %s, ".
 			"t.closed_at as %s, ".
@@ -1676,10 +1673,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				SearchFields_Ticket::TICKET_FIRST_OUTGOING_MESSAGE_ID,
 				SearchFields_Ticket::TICKET_LAST_MESSAGE_ID,
 				SearchFields_Ticket::TICKET_FIRST_WROTE,
-				SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM,
-				SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM,
 				SearchFields_Ticket::TICKET_LAST_WROTE,
-				SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID,
 				SearchFields_Ticket::TICKET_CREATED_DATE,
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
 				SearchFields_Ticket::TICKET_CLOSED_AT,
@@ -1870,9 +1864,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const TICKET_LAST_MESSAGE_ID = 't_last_message_id';
 	const TICKET_FIRST_WROTE_ID = 't_first_wrote_address_id';
 	const TICKET_FIRST_WROTE = 't_first_wrote';
-	const TICKET_FIRST_WROTE_SPAM = 't_first_wrote_spam';
-	const TICKET_FIRST_WROTE_NONSPAM = 't_first_wrote_nonspam';
-	const TICKET_FIRST_CONTACT_ORG_ID = 't_first_contact_org_id';
 	const TICKET_LAST_WROTE_ID = 't_last_wrote_address_id';
 	const TICKET_LAST_WROTE = 't_last_wrote';
 	const TICKET_CREATED_DATE = 't_created_date';
@@ -2278,8 +2269,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			
 			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id', null, null, true),
 			SearchFields_Ticket::TICKET_FIRST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE, 'a1', 'email',$translate->_('ticket.first_wrote'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM, 'a1', 'num_spam',$translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER, true),
-			SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM, 'a1', 'num_nonspam',$translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER, true),
 				
 			SearchFields_Ticket::TICKET_LAST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id', null, null, true),
 			SearchFields_Ticket::TICKET_LAST_WROTE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE, 'a2', 'email',$translate->_('ticket.last_wrote'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -2305,7 +2294,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_SCORE, 't', 'spam_score',$translate->_('ticket.spam_score'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS => new DevblocksSearchField(SearchFields_Ticket::TICKET_INTERESTING_WORDS, 't', 'interesting_words',$translate->_('ticket.interesting_words'), null, true),
 			SearchFields_Ticket::TICKET_REOPEN_AT => new DevblocksSearchField(SearchFields_Ticket::TICKET_REOPEN_AT, 't', 'reopen_at',$translate->_('ticket.reopen_at'), Model_CustomField::TYPE_DATE, true),
-			SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_CONTACT_ORG_ID, 'a1', 'contact_org_id', null, true),
 			
 			SearchFields_Ticket::BUCKET_RESPONSIBILITY => new DevblocksSearchField(SearchFields_Ticket::BUCKET_RESPONSIBILITY, 'wtb', 'responsibility_level', mb_convert_case($translate->_('common.responsibility'), MB_CASE_TITLE), null, true),
 				
@@ -3143,16 +3131,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_FIRST_WROTE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
-			'sender.nonspam' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM),
-				),
-			'sender.spam' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM),
-				),
 			'spam.score' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -3604,8 +3582,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 
-			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
-			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
 			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_IMPORTANCE:
 			case SearchFields_Ticket::TICKET_NUM_MESSAGES:
@@ -4075,8 +4051,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
-			case SearchFields_Ticket::TICKET_FIRST_WROTE_SPAM:
-			case SearchFields_Ticket::TICKET_FIRST_WROTE_NONSPAM:
 			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_IMPORTANCE:
 			case SearchFields_Ticket::TICKET_NUM_MESSAGES:

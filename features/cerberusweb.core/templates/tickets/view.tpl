@@ -201,10 +201,6 @@
 				<span title="{$result.t_last_wrote}">{'mail.sent'|devblocks_translate} from <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
 			{/if}
 		</td>
-		{elseif $column=="t_first_wrote_spam"}
-		<td>{$result.t_first_wrote_spam}</td>
-		{elseif $column=="t_first_wrote_nonspam"}
-		<td>{$result.t_first_wrote_nonspam}</td>
 		{elseif $column=="t_spam_score" || $column=="t_spam_training"}
 		<td>
 			{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
