@@ -1889,6 +1889,31 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'gender':
+				$field_key = SearchFields_Worker::GENDER;
+				$oper = null;
+				$value = null;
+				
+				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value))
+					return false;
+				
+				foreach($value as &$v) {
+					if(substr(strtolower($v), 0, 1) == 'm') {
+						$v = 'M';
+					} else if(substr(strtolower($v), 0, 1) == 'f') {
+						$v = 'F';
+					} else {
+						$v = '';
+					}
+				}
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					$value
+				);
+				break;
+			
 			case 'group':
 			case 'inGroups':
 				$field_key = SearchFields_Worker::VIRTUAL_GROUPS;
@@ -2112,10 +2137,32 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_Worker::GENDER:
+				$strings = array();
+				$values = is_array($param->value) ? $param->value : array($param->value);
+				
+				foreach($values as $value) {
+					switch($value) {
+						case 'M':
+							$strings[] = '<b>Male</b>';
+							break;
+						case 'F':
+							$strings[] = '<b>Female</b>';
+							break;
+						default:
+							$strings[] = '<b>(unknown)</b>';
+							break;
+					}
+				}
+				
+				echo sprintf("%s", implode(' or ', $strings));
+				break;
+			
 			case SearchFields_Worker::IS_DISABLED:
 			case SearchFields_Worker::IS_SUPERUSER:
 				$this->_renderCriteriaParamBoolean($param);
 				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
