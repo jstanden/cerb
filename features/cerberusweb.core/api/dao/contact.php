@@ -958,6 +958,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			
 			switch($field_key) {
 				// Fields
+				case SearchFields_Contact::GENDER:
 				case SearchFields_Contact::ORG_NAME:
 					$pass = true;
 					break;
@@ -992,6 +993,15 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			return array();
 		
 		switch($column) {
+			case SearchFields_Contact::GENDER:
+				$label_map = array(
+					'M' => 'Male',
+					'F' => 'Female',
+					'' => '(unknown)',
+				);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+				
 			case SearchFields_Contact::ORG_NAME:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
