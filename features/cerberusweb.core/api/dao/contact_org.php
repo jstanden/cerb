@@ -755,7 +755,7 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 		if(false == ($models = DAO_ContactOrg::getIds($ids)))
 			return;
 		
-		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_ORG, array());
+		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_ORG, array());
 		
 		if(empty($dicts))
 			return;
@@ -786,7 +786,7 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 			);
 			$models = DAO_ContactOrg::getWhere($where, array(DAO_ContactOrg::UPDATED, DAO_ContactOrg::ID), array(true, true), 100);
 
-			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_ORG, array());
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_ORG, array());
 			
 			if(empty($dicts)) {
 				$done = true;

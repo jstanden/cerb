@@ -283,6 +283,29 @@ class DevblocksDictionaryDelegate {
 		}
 	}
 	
+	public static function getDictionariesFromModels(array $models, $context, array $keys=array()) {
+		$dicts = array();
+		
+		if(empty($models)) {
+			return array();
+		}
+		
+		foreach($models as $model_id => $model) {
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, null, true, true);
+			$dicts[$model_id] = DevblocksDictionaryDelegate::instance($values);
+		}
+		
+		// Batch load extra keys
+		if(is_array($keys) && !empty($keys))
+		foreach($keys as $key) {
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $key);
+		}
+		
+		return $dicts;
+	}
+	
 	public static function bulkLazyLoad(array $dicts, $token) {
 		if(empty($dicts))
 			return;

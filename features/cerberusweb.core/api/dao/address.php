@@ -812,7 +812,7 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 		if(false == ($models = DAO_Address::getIds($ids)))
 			return;
 		
-		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_ADDRESS, array('contact_','org_'));
+		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_ADDRESS, array('contact_','org_'));
 		
 		if(empty($dicts))
 			return;
@@ -841,7 +841,7 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 			);
 			$models = DAO_Address::getWhere($where, array(DAO_Address::UPDATED, DAO_Address::ID), array(true, true), 100);
 
-			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_ADDRESS, array('contact_','org_name'));
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_ADDRESS, array('contact_','org_name'));
 			
 			if(empty($dicts)) {
 				$done = true;

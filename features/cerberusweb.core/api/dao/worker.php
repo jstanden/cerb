@@ -1245,7 +1245,7 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 		if(false == ($models = DAO_Worker::getIds($ids)))
 			return;
 		
-		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER, array('address_'));
+		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER, array('address_'));
 		
 		if(empty($dicts))
 			return;
@@ -1276,7 +1276,7 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 			);
 			$models = DAO_Worker::getWhere($where, array(DAO_Worker::UPDATED, DAO_Worker::ID), array(true, true), 100);
 			
-			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER, array('address_'));
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER, array('address_'));
 			
 			if(empty($dicts)) {
 				$done = true;

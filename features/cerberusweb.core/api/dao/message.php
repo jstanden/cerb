@@ -923,7 +923,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		if(false == ($models = DAO_Message::getIds($ids)))
 			return;
 		
-		$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_MESSAGE, array('ticket_','ticket_org_','sender_','content'));
+		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_MESSAGE, array('ticket_','ticket_org_','sender_','content'));
 		
 		if(empty($dicts))
 			return;
@@ -947,7 +947,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 			$where = sprintf("%s > %d", DAO_Message::ID, $id);
 			$models = DAO_Message::getWhere($where, 'id', true, 100);
 			
-			$dicts = $this->_getDictionariesFromModels($models, CerberusContexts::CONTEXT_MESSAGE, array('ticket_','ticket_org_','sender_','content'));
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_MESSAGE, array('ticket_','ticket_org_','sender_','content'));
 			
 			if(empty($dicts)) {
 				$done = true;
