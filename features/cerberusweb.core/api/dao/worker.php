@@ -1664,6 +1664,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				// DAO
 				case SearchFields_Worker::AT_MENTION_NAME:
 				case SearchFields_Worker::FIRST_NAME:
+				case SearchFields_Worker::GENDER:
 				case SearchFields_Worker::IS_DISABLED:
 				case SearchFields_Worker::IS_SUPERUSER:
 				case SearchFields_Worker::LANGUAGE:
@@ -1708,6 +1709,15 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Worker::TIMEZONE:
 			case SearchFields_Worker::TITLE:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
+				
+			case SearchFields_Worker::GENDER:
+				$label_map = array(
+					'M' => 'Male',
+					'F' => 'Female',
+					'' => '(unknown)',
+				);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 
 			case SearchFields_Worker::IS_DISABLED:
