@@ -67,7 +67,7 @@
 				{$entry = json_decode($result.we_entry_json, true)}
 				{$params_req = $view->getParamsRequired()}
 				{if $result.we_is_read}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span> {/if}
-				{CerberusContexts::formatActivityLogEntry($entry,'html',null,true) nofilter}
+				<span class="subject">{CerberusContexts::formatActivityLogEntry($entry,'html',null,true) nofilter}</span>
 			</td>
 		</tr>
 	

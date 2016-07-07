@@ -70,7 +70,7 @@ $(function() {
 
 			var $tbody = $(this).closest('tbody');
 
-			var $label = $tbody.find('b.subject').text();
+			var $label = $tbody.find('.subject').text();
 			var $value = $(this).val();
 		
 			if(checked) {
