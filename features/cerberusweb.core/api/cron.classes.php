@@ -742,13 +742,13 @@ class ImportCron extends CerberusCronPageExtension {
 				}
 	
 				@$msgWorkerId = intval($email_to_worker_id[strtolower($msgFromInst->email)]);
-	//			$logger->info('Checking if '.$msgFromInst->email.' is a worker');
 				
 				$fields = array(
 					DAO_Message::TICKET_ID => $ticket_id,
 					DAO_Message::CREATED_DATE => intval(strtotime($sMsgDate)),
 					DAO_Message::ADDRESS_ID => $msgFromInst->id,
 					DAO_Message::IS_OUTGOING => $iIsOutgoing,
+					DAO_Message::HASH_HEADER_MESSAGE_ID => isset($headers['message-id']) ? sha1(@$headers['message-id']) : '',
 					DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
 				);
 				$email_id = DAO_Message::create($fields);
