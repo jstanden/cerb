@@ -643,55 +643,7 @@ class ImportCron extends CerberusCronPageExtension {
 		// Xpath the first and last "from" out of "/ticket/messages/message/headers/from"
 		$aMessageNodes = $xml->xpath("/ticket/messages/message");
 		$iNumMessages = count($aMessageNodes);
-		
-		@$eFirstMessage = reset($aMessageNodes);
-		
-		if(is_null($eFirstMessage)) {
-			$logger->warning('[Importer] Ticket ' . $sMask . " doesn't have any messages.  Skipping.");
-			return false;
-		}
-		
-		if(is_null($eFirstMessage->headers) || is_null($eFirstMessage->headers->from)) {
-			$logger->warning('[Importer] Ticket ' . $sMask . " first message doesn't provide a sender address.");
-			return false;
-		}
 
-		$sFirstWrote = self::_parseRfcAddressList($eFirstMessage->headers->from, true);
-		
-		if(null == ($firstWroteInst = CerberusApplication::hashLookupAddress($sFirstWrote, true))) {
-			$logger->warning('[Importer] Ticket ' . $sMask . " - Invalid sender adddress: " . $sFirstWrote);
-			return false;
-		}
-		
-		$eLastMessage = end($aMessageNodes);
-		
-		if(is_null($eLastMessage)) {
-			$logger->warning('[Importer] Ticket ' . $sMask . " doesn't have any messages.  Skipping.");
-			return false;
-		}
-		
-		if(is_null($eLastMessage->headers) || is_null($eLastMessage->headers->from)) {
-			$logger->warning('[Importer] Ticket ' . $sMask . " last message doesn't provide a sender address.");
-			return false;
-		}
-		
-		$sLastWrote = self::_parseRfcAddressList($eLastMessage->headers->from, true);
-		
-		if(null == ($lastWroteInst = CerberusApplication::hashLookupAddress($sLastWrote, true))) {
-			$logger->warning('[Importer] Ticket ' . $sMask . ' last message has an invalid sender address: ' . $sLastWrote);
-			return false;
-		}
-
-		// Last action code + last worker
-		$sLastActionCode = CerberusTicketActionCode::TICKET_OPENED;
-		if($iNumMessages > 1) {
-			if(isset($email_to_worker_id[strtolower($lastWroteInst->email)])) {
-				$sLastActionCode = CerberusTicketActionCode::TICKET_WORKER_REPLY;
-			} else {
-				$sLastActionCode = CerberusTicketActionCode::TICKET_CUSTOMER_REPLY;
-			}
-		}
-		
 		// Dupe check by ticket mask
 		if(null != DAO_Ticket::getTicketByMask($sMask)) {
 			$logger->warning("[Importer] Ticket mask '" . $sMask . "' already exists.  Making it unique.");
@@ -720,14 +672,11 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::MASK => $sMask,
 			DAO_Ticket::SUBJECT => $sSubject,
 			DAO_Ticket::STATUS_ID => $statusId,
-			DAO_Ticket::FIRST_WROTE_ID => intval($firstWroteInst->id),
-			DAO_Ticket::LAST_WROTE_ID => intval($lastWroteInst->id),
 			DAO_Ticket::ORG_ID => intval($firstWroteInst->contact_org_id),
 			DAO_Ticket::CREATED_DATE => $iCreatedDate,
 			DAO_Ticket::UPDATED_DATE => $iUpdatedDate,
 			DAO_Ticket::GROUP_ID => intval($iDestGroupId),
 			DAO_Ticket::BUCKET_ID => intval($iDestBucketId),
-			DAO_Ticket::LAST_ACTION_CODE => $sLastActionCode,
 			DAO_Ticket::IMPORTANCE => 50,
 		);
 		$ticket_id = DAO_Ticket::create($fields);
@@ -740,6 +689,12 @@ class ImportCron extends CerberusCronPageExtension {
 			// Insert requesters
 			DAO_Ticket::createRequester($sRequesterAddy, $ticket_id);
 		}
+		
+		$first_message_id = 0;
+		$first_wrote_id = 0;
+		$first_outgoing_message_id = 0;
+		$last_message_id = 0;
+		$last_wrote_id = 0;
 		
 		// Create messages
 		if(!is_null($xml->messages)) {
@@ -775,20 +730,21 @@ class ImportCron extends CerberusCronPageExtension {
 				);
 				$email_id = DAO_Message::create($fields);
 				
+				if(empty($first_outgoing_message_id) && $iIsOutgoing)
+					$first_outgoing_message_id = $email_id;
+				
 				// First thread
 				if(1==$seek_messages) {
-					DAO_Ticket::update($ticket_id, array(
-						DAO_Ticket::FIRST_MESSAGE_ID => $email_id
-					), false);
+					$first_message_id = $email_id;
+					$first_wrote_id = $msgFromInst->id;
 				}
 				
 				// Last thread
 				if($count_messages==$seek_messages) {
-					DAO_Ticket::update($ticket_id, array(
-						DAO_Ticket::LAST_MESSAGE_ID => $email_id
-					), false);
+					$last_message_id = $email_id;
+					$last_wrote_id = $msgFromInst->id;
 				}
-	
+				
 				// Create attachments
 				if(!is_null($eMessage->attachments) && $eMessage->attachments instanceof Traversable)
 				foreach($eMessage->attachments->attachment as $eAttachment) { /* @var $eAttachment SimpleXMLElement */
@@ -854,6 +810,15 @@ class ImportCron extends CerberusCronPageExtension {
 				
 				$seek_messages++;
 			}
+			
+			// Update ticket message meta
+			DAO_Ticket::update($ticket_id, array(
+				DAO_Ticket::FIRST_MESSAGE_ID => $first_message_id,
+				DAO_Ticket::FIRST_WROTE_ID => $first_wrote_id,
+				DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => $first_outgoing_message_id,
+				DAO_Ticket::LAST_MESSAGE_ID => $last_message_id,
+				DAO_Ticket::LAST_WROTE_ID => $last_wrote_id,
+			), false);
 		}
 		
 		// Create comments
