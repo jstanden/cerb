@@ -706,6 +706,8 @@ class ImportCron extends CerberusCronPageExtension {
 			$count_messages = count($xml->messages->message);
 			$seek_messages = 1;
 			foreach($xml->messages->message as $eMessage) { /* @var $eMessage SimpleXMLElement */
+				$iIsOutgoing = (integer) $eMessage->is_outgoing;
+				
 				$eHeaders =& $eMessage->headers; /* @var $eHeaders SimpleXMLElement */
 	
 				$sMsgFrom = (string) $eHeaders->from;
@@ -730,7 +732,7 @@ class ImportCron extends CerberusCronPageExtension {
 					DAO_Message::TICKET_ID => $ticket_id,
 					DAO_Message::CREATED_DATE => strtotime($sMsgDate),
 					DAO_Message::ADDRESS_ID => $msgFromInst->id,
-					DAO_Message::IS_OUTGOING => !empty($msgWorkerId) ? 1 : 0,
+					DAO_Message::IS_OUTGOING => $iIsOutgoing,
 					DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
 				);
 				$email_id = DAO_Message::create($fields);
