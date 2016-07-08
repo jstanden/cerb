@@ -630,7 +630,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$fields = array(
 				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
 				DAO_Ticket::REOPEN_AT => 0,
-				DAO_Ticket::NUM_MESSAGES => 0,
 				DAO_Ticket::FIRST_MESSAGE_ID => 0,
 				DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
 				DAO_Ticket::LAST_MESSAGE_ID => 0,

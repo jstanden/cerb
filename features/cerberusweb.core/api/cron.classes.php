@@ -678,6 +678,7 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::SUBJECT => $sSubject,
 			DAO_Ticket::ORG_ID => intval($firstWroteInst->contact_org_id),
 			DAO_Ticket::STATUS_ID => intval($statusId),
+			DAO_Ticket::NUM_MESSAGES => $iNumMessages,
 			DAO_Ticket::CREATED_DATE => $iCreatedDate,
 			DAO_Ticket::UPDATED_DATE => $iUpdatedDate,
 			DAO_Ticket::GROUP_ID => intval($iDestGroupId),
@@ -730,7 +731,7 @@ class ImportCron extends CerberusCronPageExtension {
 				
 				$fields = array(
 					DAO_Message::TICKET_ID => $ticket_id,
-					DAO_Message::CREATED_DATE => strtotime($sMsgDate),
+					DAO_Message::CREATED_DATE => intval(strtotime($sMsgDate)),
 					DAO_Message::ADDRESS_ID => $msgFromInst->id,
 					DAO_Message::IS_OUTGOING => $iIsOutgoing,
 					DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
@@ -754,6 +755,7 @@ class ImportCron extends CerberusCronPageExtension {
 				
 				// Create attachments
 				if(!is_null($eMessage->attachments) && $eMessage->attachments instanceof Traversable)
+				if($eMessage->attachments->attachment instanceof Traversable)
 				foreach($eMessage->attachments->attachment as $eAttachment) { /* @var $eAttachment SimpleXMLElement */
 					$sFileName = (string) $eAttachment->name;
 					$sMimeType = (string) $eAttachment->mimetype;
