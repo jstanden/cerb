@@ -710,9 +710,24 @@ class ImportCron extends CerberusCronPageExtension {
 				$iIsOutgoing = (integer) $eMessage->is_outgoing;
 				
 				$eHeaders =& $eMessage->headers; /* @var $eHeaders SimpleXMLElement */
-	
-				$sMsgFrom = (string) $eHeaders->from;
-				$sMsgDate = (string) $eHeaders->date;
+				$rawHeaders = (string) $eHeaders;
+				
+				// If we only have itemized headers, convert them back into raw
+				if(empty($rawHeaders)) {
+					$rawHeaders = '';
+				
+					foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
+						$header_key = strtolower($eHeader->getName());
+						$header_val = (string) $eHeader;
+						$rawHeaders .= $header_key . ': ' . $header_val . "\r\n";
+					}
+				}
+				
+				// Parse raw headers
+				$headers = DAO_MessageHeaders::parse($rawHeaders);
+				
+				@$sMsgFrom = $headers['from'];
+				$sMsgDate = @$headers['date'] ?: date('r');
 				
 				$sMsgFrom = self::_parseRfcAddressList($sMsgFrom, true);
 				
@@ -809,13 +824,7 @@ class ImportCron extends CerberusCronPageExtension {
 	
 				// Headers
 				
-				$addHeaders = array();
-				
-				foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
-					$addHeaders[] = $eHeader->getName() . ': ' . (string) $eHeader;
-				}
-				
-				DAO_MessageHeaders::upsert($email_id, implode("\r\n", $addHeaders));
+				DAO_MessageHeaders::upsert($email_id, $rawHeaders);
 				
 				$seek_messages++;
 			}
