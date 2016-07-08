@@ -582,8 +582,7 @@ class ImportCron extends CerberusCronPageExtension {
 		$sBucket = (string) $xml->bucket;
 		$iCreatedDate = (integer) $xml->created_date;
 		$iUpdatedDate = (integer) $xml->updated_date;
-		$isWaiting = (integer) $xml->is_waiting;
-		$isClosed = (integer) $xml->is_closed;
+		$sStatus = (string) $xml->status;
 		
 		if(empty($sMask)) {
 			$sMask = CerberusApplication::generateTicketMask();
@@ -659,20 +658,26 @@ class ImportCron extends CerberusCronPageExtension {
 			$logger->info("[Importer] The unique mask for '".$origMask."' is now '" . $sMask . "'");
 		}
 		
-		if($isClosed) {
-			$statusId = Model_Ticket::STATUS_CLOSED;
-		} elseif($isWaiting) {
-			$statusId = Model_Ticket::STATUS_WAITING;
-		} else {
-			$statusId = Model_Ticket::STATUS_OPEN;
+		$statusId = 0;
+		
+		switch(strtolower($sStatus)) {
+			case 'waiting':
+				$statusId = 1;
+				break;
+			case 'closed':
+				$statusId = 2;
+				break;
+			case 'deleted':
+				$statusId = 3;
+				break;
 		}
 		
 		// Create ticket
 		$fields = array(
 			DAO_Ticket::MASK => $sMask,
 			DAO_Ticket::SUBJECT => $sSubject,
-			DAO_Ticket::STATUS_ID => $statusId,
 			DAO_Ticket::ORG_ID => intval($firstWroteInst->contact_org_id),
+			DAO_Ticket::STATUS_ID => intval($statusId),
 			DAO_Ticket::CREATED_DATE => $iCreatedDate,
 			DAO_Ticket::UPDATED_DATE => $iUpdatedDate,
 			DAO_Ticket::GROUP_ID => intval($iDestGroupId),
