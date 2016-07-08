@@ -45,7 +45,7 @@ class UmScHistoryController extends Extension_UmScController {
 			
 			if(empty($params_columns))
 				$params_columns = array(
-					SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+					SearchFields_Ticket::TICKET_LAST_WROTE,
 					SearchFields_Ticket::TICKET_UPDATED_DATE,
 				);
 				
@@ -320,7 +320,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		$this->view_columns = array(
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_SUBJECT,
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_LAST_WROTE,
 		);
 		
 		$this->addParamsHidden(array(

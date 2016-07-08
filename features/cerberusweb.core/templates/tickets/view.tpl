@@ -191,16 +191,6 @@
 				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket_bucket->id}">{$ticket_bucket->name}</a>
 				{/if}
 			</td>
-		{elseif $column=="t_last_action_code"}
-		<td>
-			{if $result.t_last_action_code=='O'}
-				<span title="{$result.t_first_wrote}">New from <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_first_wrote_address_id}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></span>
-			{elseif $result.t_last_action_code=='R'}
-				<span title="{$result.t_last_wrote}">{'mail.received'|devblocks_translate} from <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
-			{elseif $result.t_last_action_code=='W'}
-				<span title="{$result.t_last_wrote}">{'mail.sent'|devblocks_translate} from <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></span>
-			{/if}
-		</td>
 		{elseif $column=="t_spam_score" || $column=="t_spam_training"}
 		<td>
 			{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}

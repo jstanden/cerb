@@ -1443,7 +1443,6 @@ class CerberusParser {
 				DAO_Ticket::CREATED_DATE => time(),
 				DAO_Ticket::UPDATED_DATE => time(),
 				DAO_Ticket::ORG_ID => intval($model->getSenderAddressModel()->contact_org_id),
-				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 				DAO_Ticket::FIRST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::GROUP_ID => $deliver_to_group->id, // this triggers move rules
@@ -1470,7 +1469,6 @@ class CerberusParser {
 				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 				DAO_Ticket::LAST_MESSAGE_ID => $model->getMessageId(),
 				DAO_Ticket::LAST_WROTE_ID => $model->getSenderAddressModel()->id,
-				DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_CUSTOMER_REPLY,
 			));
 			// [TODO] The TICKET_CUSTOMER_REPLY should be sure of this message address not being a worker
 		}

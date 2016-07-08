@@ -1541,7 +1541,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Ticket::LAST_MESSAGE_ID => $orig_message->id,
 			DAO_Ticket::FIRST_WROTE_ID => $orig_message->address_id,
 			DAO_Ticket::LAST_WROTE_ID => $orig_message->address_id,
-			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_OPENED,
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 			DAO_Ticket::MASK => $new_ticket_mask,
 			DAO_Ticket::SUBJECT => (isset($orig_headers['subject']) ? $orig_headers['subject'] : $orig_ticket->subject),

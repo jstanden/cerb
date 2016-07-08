@@ -320,6 +320,9 @@ $changes = array();
 if(!isset($columns['status_id']))
 	$changes[] = 'add column status_id tinyint unsigned not null default 0';
 
+if(isset($columns['last_action_code']))
+	$changes[] = 'drop column last_action_code';
+
 if(isset($indexes['mask']) && 3 != $indexes['mask']['columns']['mask']['subpart'])
 	$changes[] = 'drop index mask, add index mask (mask(3))';
 
@@ -359,6 +362,12 @@ if(!isset($indexes['bucket_id']))
 if(!empty($changes)) {
 	$sql = sprintf("ALTER TABLE ticket %s", implode(', ', $changes));
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+}
+
+if(isset($columns['last_action_code'])) {
+	$db->ExecuteMaster("UPDATE worker_view_model SET columns_json = REPLACE(columns_json,'t_last_action_code','t_last_wrote') WHERE columns_json like '%t_last_action_code%'");
+	$db->ExecuteMaster("UPDATE workspace_list SET list_view = REPLACE(list_view,'s:18:\"t_last_action_code\"','s:12:\"t_last_wrote\"') WHERE list_view like '%t_last_action_code%'");
+	$db->ExecuteMaster("UPDATE workspace_widget SET params_json = REPLACE(params_json,'t_last_action_code','t_last_wrote') WHERE params_json like '%t_last_action_code%'");
 }
 
 if(isset($columns['is_waiting']) && isset($columns['is_closed']) && isset($columns['is_deleted'])) {

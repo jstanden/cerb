@@ -58,7 +58,7 @@
 		
 		<patch version="7.0.0" revision="1127" file="patches/7.x/7.0.0.php" />
 		<patch version="7.1.0" revision="1141" file="patches/7.x/7.1.0.php" />
-		<patch version="7.2.0" revision="1160" file="patches/7.x/7.2.0.php" />
+		<patch version="7.2.0" revision="1161" file="patches/7.x/7.2.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -385,7 +385,6 @@
 			<class name="Model_Ticket" />
 			<class name="SearchFields_Ticket" />
 			<class name="View_Ticket" />
-			<class name="CerberusTicketActionCode" />
 			<class name="CerberusTicketSpamTraining" />
 			<class name="Model_TicketViewLastAction" />
 		</file>

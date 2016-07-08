@@ -105,17 +105,6 @@
 					{if !empty($result.$column)}{$result.$column|devblocks_prettysecs:2}{/if}
 				</td>
 				
-			{elseif $column=="t_last_action_code"}
-				<td>
-				{if $result.t_last_action_code=='O'}
-					<span title="{$result.t_first_wrote}">New from {$result.t_last_wrote|truncate:45:'...':true:true}</span>
-				{elseif $result.t_last_action_code=='R'}
-					<span title="{$result.t_last_wrote}">{'mail.received'|devblocks_translate} from {$result.t_last_wrote|truncate:45:'...':true:true}</span>
-				{elseif $result.t_last_action_code=='W'}
-					<span title="{$result.t_last_wrote}">{'mail.sent'|devblocks_translate} from {$result.t_last_wrote|truncate:45:'...':true:true}</span>
-				{/if}
-				</td>
-			
 			{elseif $column=="t_group_id"}
 				<td>
 				{if $groups.{$result.$column}}

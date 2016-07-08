@@ -483,7 +483,6 @@ class CerberusMail {
 			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::ORG_ID => intval($org_id),
-			DAO_Ticket::LAST_ACTION_CODE => CerberusTicketActionCode::TICKET_WORKER_REPLY,
 			DAO_Ticket::IMPORTANCE => 50,
 		);
 		
@@ -969,10 +968,6 @@ class CerberusMail {
 			$change_fields[DAO_Ticket::LAST_MESSAGE_ID] = $fromAddressId;
 			$change_fields[DAO_Ticket::LAST_WROTE_ID] = $fromAddressId;
 			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
-			
-			if(!empty($worker_id)) {
-				$change_fields[DAO_Ticket::LAST_ACTION_CODE] = CerberusTicketActionCode::TICKET_WORKER_REPLY;
-			}
 			
 			// Only change the subject if not forwarding
 			if(!empty($subject) && !$is_forward) {

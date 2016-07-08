@@ -37,7 +37,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const SPAM_TRAINING = 'spam_training';
 	const SPAM_SCORE = 'spam_score';
 	const INTERESTING_WORDS = 'interesting_words';
-	const LAST_ACTION_CODE = 'last_action_code';
 	const NUM_MESSAGES = 'num_messages';
 	const ELAPSED_RESPONSE_FIRST = 'elapsed_response_first';
 	const ELAPSED_RESOLUTION_FIRST = 'elapsed_resolution_first';
@@ -662,7 +661,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			
 			// Set our destination ticket to the latest touched details
 			$fields = array(
-				DAO_Ticket::LAST_ACTION_CODE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_LAST_ACTION_CODE],
 				DAO_Ticket::UPDATED_DATE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_UPDATED_DATE],
 				DAO_Ticket::STATUS_ID => $merge_dst_status_id,
 			);
@@ -1654,7 +1652,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"t.reopen_at as %s, ".
 			"t.spam_training as %s, ".
 			"t.spam_score as %s, ".
-			"t.last_action_code as %s, ".
 			"t.num_messages as %s, ".
 			"t.elapsed_response_first as %s, ".
 			"t.elapsed_resolution_first as %s, ".
@@ -1680,7 +1677,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				SearchFields_Ticket::TICKET_REOPEN_AT,
 				SearchFields_Ticket::TICKET_SPAM_TRAINING,
 				SearchFields_Ticket::TICKET_SPAM_SCORE,
-				SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				SearchFields_Ticket::TICKET_NUM_MESSAGES,
 				SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST,
 				SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST,
@@ -1873,7 +1869,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const TICKET_SPAM_SCORE = 't_spam_score';
 	const TICKET_SPAM_TRAINING = 't_spam_training';
 	const TICKET_INTERESTING_WORDS = 't_interesting_words';
-	const TICKET_LAST_ACTION_CODE = 't_last_action_code';
 	const TICKET_NUM_MESSAGES = 't_num_messages';
 	const TICKET_ELAPSED_RESPONSE_FIRST = 't_elapsed_response_first';
 	const TICKET_ELAPSED_RESOLUTION_FIRST = 't_elapsed_resolution_first';
@@ -2286,7 +2281,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::TICKET_CLOSED_AT => new DevblocksSearchField(SearchFields_Ticket::TICKET_CLOSED_AT, 't', 'closed_at',$translate->_('ticket.closed_at'), Model_CustomField::TYPE_DATE, true),
 			SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_STATUS_ID, 't', 'status_id',$translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
 
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_ACTION_CODE, 't', 'last_action_code',$translate->_('ticket.last_action'), null, true),
 			SearchFields_Ticket::TICKET_NUM_MESSAGES => new DevblocksSearchField(SearchFields_Ticket::TICKET_NUM_MESSAGES, 't', 'num_messages',$translate->_('ticket.num_messages'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST => new DevblocksSearchField(SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST, 't', 'elapsed_response_first',$translate->_('ticket.elapsed_response_first'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST => new DevblocksSearchField(SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST, 't', 'elapsed_resolution_first',$translate->_('ticket.elapsed_resolution_first'), Model_CustomField::TYPE_NUMBER, true),
@@ -2368,7 +2362,6 @@ class Model_Ticket {
 	public $spam_score;
 	public $spam_training;
 	public $interesting_words;
-	public $last_action_code;
 	public $num_messages;
 	public $elapsed_response_first;
 	public $elapsed_resolution_first;
@@ -2549,7 +2542,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 		$this->view_columns = array(
 			SearchFields_Ticket::TICKET_IMPORTANCE,
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_LAST_WROTE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_GROUP_ID,
 			SearchFields_Ticket::TICKET_BUCKET_ID,
@@ -2583,6 +2576,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::CONTEXT_LINK,
 			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::REQUESTER_ID,
+			SearchFields_Ticket::TICKET_LAST_WROTE,
 			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::TICKET_STATUS_ID,
 			SearchFields_Ticket::VIRTUAL_CONTACT_ID,
@@ -2630,7 +2624,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				// DAO
 				case SearchFields_Ticket::ORG_NAME:
 				case SearchFields_Ticket::TICKET_FIRST_WROTE:
-				case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
 				case SearchFields_Ticket::TICKET_LAST_WROTE:
 				case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				case SearchFields_Ticket::TICKET_SUBJECT:
@@ -2679,15 +2672,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_LAST_WROTE:
 			case SearchFields_Ticket::TICKET_SUBJECT:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-				break;
-				
-			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
-				$label_map = array(
-					'O' => 'New Ticket',
-					'R' => 'Recipient Replied',
-					'W' => 'Worker Replied',
-				);
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
@@ -3619,17 +3603,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$tpl->display('devblocks:cerberusweb.core::tickets/search/criteria/ticket_spam_score.tpl');
 				break;
 
-			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
-				$options = array(
-					'O' => 'New Ticket',
-					'R' => 'Recipient Replied',
-					'W' => 'Worker Replied',
-				);
-				
-				$tpl->assign('options', $options);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
-				break;
-
 			case SearchFields_Ticket::TICKET_GROUP_ID:
 				$groups = DAO_Group::getAll();
 				$tpl->assign('options', $groups);
@@ -3958,25 +3931,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				echo implode(", ", $strings);
 				break;
 
-			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
-				$strings = array();
-
-				foreach($values as $val) {
-					switch($val) {
-						case 'O':
-							$strings[] = DevblocksPlatform::strEscapeHtml("New Ticket");
-							break;
-						case 'R':
-							$strings[] = DevblocksPlatform::strEscapeHtml("Recipient Replied");
-							break;
-						case 'W':
-							$strings[] = DevblocksPlatform::strEscapeHtml("Worker Replied");
-							break;
-					}
-				}
-				echo implode(", ", $strings);
-				break;
-
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				$strings = array();
 				
@@ -4080,7 +4034,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				}
 				break;
 
-			case SearchFields_Ticket::TICKET_LAST_ACTION_CODE:
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 			case SearchFields_Ticket::VIRTUAL_STATUS:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
@@ -5029,7 +4982,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tickets';
 		$view->view_columns = array(
-			SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
+			SearchFields_Ticket::TICKET_LAST_WROTE,
 			SearchFields_Ticket::TICKET_UPDATED_DATE,
 			SearchFields_Ticket::TICKET_GROUP_ID,
 			SearchFields_Ticket::TICKET_BUCKET_ID,
@@ -5452,10 +5405,4 @@ class CerberusTicketSpamTraining { // [TODO] Append 'Enum' to class name?
 	const BLANK = '';
 	const NOT_SPAM = 'N';
 	const SPAM = 'S';
-};
-
-class CerberusTicketActionCode {
-	const TICKET_OPENED = 'O';
-	const TICKET_CUSTOMER_REPLY = 'R';
-	const TICKET_WORKER_REPLY = 'W';
 };

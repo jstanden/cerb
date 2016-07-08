@@ -356,7 +356,6 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				
 				'first_wrote' => SearchFields_Ticket::TICKET_FIRST_WROTE,
 				'group' => SearchFields_Ticket::TICKET_GROUP_ID,
-				'last_action' => SearchFields_Ticket::TICKET_LAST_ACTION_CODE,
 				'last_wrote' => SearchFields_Ticket::TICKET_LAST_WROTE,
 				'org_name' => SearchFields_Ticket::ORG_NAME,
 				'owner' => SearchFields_Ticket::TICKET_OWNER_ID,
