@@ -580,6 +580,7 @@ class ImportCron extends CerberusCronPageExtension {
 		$sSubject = substr((string) $xml->subject,0,255);
 		$sGroup = (string) $xml->group;
 		$sBucket = (string) $xml->bucket;
+		$sOrg = (string) $xml->org;
 		$iCreatedDate = (integer) $xml->created_date;
 		$iUpdatedDate = (integer) $xml->updated_date;
 		$sStatus = (string) $xml->status;
@@ -639,6 +640,12 @@ class ImportCron extends CerberusCronPageExtension {
 			$bucket_name_to_id[$hash] = $iDestBucketId;
 		}
 			
+		// Org
+		$iOrgId = 0;
+		if(!empty($sOrg)) {
+			$iOrgId = DAO_ContactOrg::lookup($sOrg, true);
+		}
+		
 		// Xpath the first and last "from" out of "/ticket/messages/message/headers/from"
 		$aMessageNodes = $xml->xpath("/ticket/messages/message");
 		$iNumMessages = count($aMessageNodes);
@@ -676,9 +683,9 @@ class ImportCron extends CerberusCronPageExtension {
 		$fields = array(
 			DAO_Ticket::MASK => $sMask,
 			DAO_Ticket::SUBJECT => $sSubject,
-			DAO_Ticket::ORG_ID => intval($firstWroteInst->contact_org_id),
 			DAO_Ticket::STATUS_ID => intval($statusId),
 			DAO_Ticket::NUM_MESSAGES => $iNumMessages,
+			DAO_Ticket::ORG_ID => $iOrgId,
 			DAO_Ticket::CREATED_DATE => $iCreatedDate,
 			DAO_Ticket::UPDATED_DATE => $iUpdatedDate,
 			DAO_Ticket::GROUP_ID => intval($iDestGroupId),
