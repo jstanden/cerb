@@ -731,7 +731,7 @@ class ImportCron extends CerberusCronPageExtension {
 				}
 				
 				// Parse raw headers
-				$headers = DAO_MessageHeaders::parse($rawHeaders);
+				$headers = DAO_MessageHeaders::parse($rawHeaders, true, false);
 				
 				@$sMsgFrom = $headers['from'];
 				$sMsgDate = @$headers['date'] ?: date('r');
@@ -847,26 +847,32 @@ class ImportCron extends CerberusCronPageExtension {
 		}
 		
 		// Create comments
-		if(!is_null($xml->comments) && $xml->comments instanceof Traversable)
+		$default_sender = DAO_AddressOutgoing::getDefault();
+		
+		if(!is_null($xml->comments->comment) && $xml->comments->comment instanceof Traversable)
 		foreach($xml->comments->comment as $eComment) { /* @var $eMessage SimpleXMLElement */
 			$iCommentDate = (integer) $eComment->created_date;
-			$sCommentAuthor = (string) $eComment->author; // [TODO] Address Hash Lookup
+			$sCommentAuthor = (string) $eComment->author;
 			
 			$sCommentTextB64 = (string) $eComment->content;
 			$sCommentText = base64_decode($sCommentTextB64);
 			unset($sCommentTextB64);
 			
-			$commentAuthorInst = CerberusApplication::hashLookupAddress($sCommentAuthor, true);
+			if(empty($sCommentAuthor) || false == ($commentAuthorInst = CerberusApplication::hashLookupAddress($sCommentAuthor, true))) {
+				$iCommentAuthorId = $default_sender->address_id;
+			} else {
+				$iCommentAuthorId = $commentAuthorInst->id;
+			}
 			
-			// [TODO] Sanity checking
+			if(empty($iCommentAuthorId))
+				continue;
 			
 			$fields = array(
 				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
 				DAO_Comment::CONTEXT_ID => intval($ticket_id),
 				DAO_Comment::CREATED => intval($iCommentDate),
-				// [TODO] Worker?
 				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_ADDRESS,
-				DAO_Comment::OWNER_CONTEXT_ID => intval($commentAuthorInst->id),
+				DAO_Comment::OWNER_CONTEXT_ID => intval($iCommentAuthorId),
 				DAO_Comment::COMMENT => $sCommentText,
 			);
 			$comment_id = DAO_Comment::create($fields);
@@ -886,7 +892,6 @@ class ImportCron extends CerberusCronPageExtension {
 			if(!is_array($rfcAddressList) || empty($rfcAddressList))
 				return NULL;
 			
-
 			$addresses = array();
 			foreach($rfcAddressList as $rfcAddress) {
 				if(empty($rfcAddress->host) || $rfcAddress->host == 'host') {

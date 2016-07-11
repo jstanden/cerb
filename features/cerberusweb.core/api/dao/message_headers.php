@@ -16,14 +16,18 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 		));
 	}
 	
-	static function parse($raw_headers, $flatten_arrays=true) {
+	static function parse($raw_headers, $flatten_arrays=true, $convert_qp=true) {
 		if(false == ($mime = new MimeMessage('var', $raw_headers)))
 			return false;
 		
 		if(!isset($mime->data))
 			return false;
 		
-		$headers = CerberusParser::fixQuotePrintableArray($mime->data['headers']);
+		if($convert_qp) {
+			$headers = CerberusParser::fixQuotePrintableArray($mime->data['headers']);
+		} else {
+			$headers = $mime->data['headers'];
+		}
 		
 		if($flatten_arrays)
 		foreach($headers as &$v) {
