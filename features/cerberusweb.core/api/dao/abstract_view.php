@@ -3463,13 +3463,19 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	 *
 	 * @param integer$worker_id
 	 */
-	static public function flush($worker_id) {
+	static public function flush($worker_id=null) {
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d and is_ephemeral = 1",
-			$worker_id
-		));
-		$db->ExecuteMaster(sprintf("UPDATE worker_view_model SET render_page = 0 WHERE worker_id = %d",
-			$worker_id
-		));
+		
+		if($worker_id) {
+			$db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d and is_ephemeral = 1",
+				$worker_id
+			));
+			$db->ExecuteMaster(sprintf("UPDATE worker_view_model SET render_page = 0 WHERE worker_id = %d",
+				$worker_id
+			));
+			
+		} else {
+			$db->ExecuteMaster("DELETE FROM worker_view_model WHERE is_ephemeral = 1");
+		}
 	}
 };
