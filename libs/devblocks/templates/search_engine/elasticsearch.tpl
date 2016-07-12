@@ -28,6 +28,13 @@
 		<input type="text" name="params[{$engine->id}][default_query_field]" value="{$engine_params.default_query_field}" size="45" style="width:100%;" placeholder="_all">
 	</p>
 	
+	<div style="padding:5px 10px;">
+		<b>Max results:</b> <i>(blank for engine default)</i>
+		<p style="margin-left:5px;">
+			<input type="text" name="params[{$engine->id}][max_results]" value="{$engine_params.max_results}" size="45" style="width:100%;" placeholder="1000">
+		</p>
+	</div>
+	
 	<b>Quick search examples:</b> (optional)
 	{$examples = implode("\n", $engine->getQuickSearchExamples($schema))}
 	<p style="margin-left:5px;">

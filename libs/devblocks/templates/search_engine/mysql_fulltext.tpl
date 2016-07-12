@@ -6,8 +6,8 @@
 </div>
 
 <div style="padding:5px 10px;">
-	<b>Max results:</b> <i>(blank for unlimited)</i>
+	<b>Max results:</b> <i>(blank for engine default)</i>
 	<p style="margin-left:5px;">
-		<input type="text" name="params[{$engine->id}][max_results]" value="{$engine_params.max_results}" size="45" style="width:100%;" placeholder="unlimited">
+		<input type="text" name="params[{$engine->id}][max_results]" value="{$engine_params.max_results}" size="45" style="width:100%;" placeholder="1000">
 	</p>
 </div>

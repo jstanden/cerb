@@ -128,7 +128,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	}
 	
 	
-	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=500) {
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=null) {
 		if(is_null($this->db))
 			return false;
 		
@@ -176,6 +176,9 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 			}
 		}
 		
+		@$max_results = intval($limit) ?: intval($this->_config['max_results']) ?: 1000;
+		@$max_results = DevblocksPlatform::intClamp($max_results, 1, 10000);
+		
 		$sql = sprintf("SELECT id ".
 			"FROM %s ".
 			"WHERE MATCH ('(%s)%s') ".
@@ -185,7 +188,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 			mysqli_real_escape_string($this->db, $query),
 			!empty($field_sql) ? (' ' . implode(' ', $field_sql)) : '',
 			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : '',
-			$limit
+			$max_results
 		);
 
 		$cache = DevblocksPlatform::getCacheService();
@@ -352,7 +355,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		return $json;
 	}
 	
-	private function _getSearch($type, $query, $limit=500) {
+	private function _getSearch($type, $query, $limit=1000) {
 		@$base_url = rtrim($this->_config['base_url'], '/');
 		@$index = trim($this->_config['index'], '/');
 		@$df = $this->_config['default_query_field'];
@@ -473,7 +476,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		);
 	}
 	
-	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=500) {
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=null) {
 		@$type = $schema->getNamespace();
 		
 		if(empty($type))
@@ -514,6 +517,10 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 					break;
 			}
 		}
+		
+		// The max desired results (blank for unlimited)
+		@$max_results = intval($limit) ?: intval($this->_config['max_results']) ?: 1000;
+		@$max_results = DevblocksPlatform::intClamp($max_results, 1, 10000);
 		
 		$cache = DevblocksPlatform::getCacheService();
 		$cache_key = sprintf("elasticsearch:%s:%s", $type, sha1($query));
@@ -683,7 +690,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		);
 	}
 	
-	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=500) {
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		$ns = $schema->getNamespace();
@@ -744,9 +751,9 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		}
 
 		// The max desired results (blank for unlimited)
-		$max_results = isset($this->_config['max_results']) ? intval($this->_config['max_results']) : 0;
-		$max_results = (!$max_results || $max_results > 500) ? 500 : $max_results;
-
+		@$max_results = intval($limit) ?: intval($this->_config['max_results']) ?: 1000;
+		@$max_results = DevblocksPlatform::intClamp($max_results, 1, 1000);
+		
 		// Randomly named temporary table
 		$temp_table = sprintf("_search_%s", uniqid());
 		
