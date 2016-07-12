@@ -5032,13 +5032,13 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		if(empty($context_id)) {
-			$this->_renderPeekComposePopup($view_id);
+			$this->_renderPeekComposePopup($view_id, $edit);
 		} else {
 			$this->_renderPeekTicketPopup($context_id, $view_id);
 		}
 	}
 	
-	function _renderPeekComposePopup($view_id) {
+	function _renderPeekComposePopup($view_id, $edit=null) {
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 		
@@ -5049,8 +5049,28 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			return;
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$tpl->assign('view_id', $view_id);
+		
+		if(!empty($edit)) {
+			$tokens = explode(' ', trim($edit));
+			
+			foreach($tokens as $token) {
+				@list($k,$v) = explode(':', $token);
+				
+				if($v)
+				switch($k) {
+					case 'to':
+						$to = $v;
+						break;
+						
+					case 'org.id':
+						if(false != ($org = DAO_ContactOrg::get($v)))
+							$tpl->assign('org', $org->name);
+						break;
+				}
+			}
+		}
+		
 		$tpl->assign('to', $to);
 		
 		// Groups

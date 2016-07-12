@@ -47,7 +47,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.organization'|devblocks_translate|capitalize}:&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="org_name" value="{$draft->params.org_name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
+				<input type="text" name="org_name" value="{if !empty($org)}{$org}{else}{$draft->params.org_name}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
 			</td>
 		</tr>
 		<tr>
@@ -788,5 +788,10 @@
 				genericAjaxPopupPostCloseReloadView(null,'frmComposePeek{$random}','{$view_id}',false,'compose_save');
 			}
 		});
+		
+		{if $org}
+		$frm.find('input:text[name=org_name]').trigger('autocompletechange');
+		{/if}
+
 	});
 </script>
