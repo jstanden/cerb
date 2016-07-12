@@ -30,33 +30,31 @@
 	<br>
 {/if}
 
-<b>{'reports.ui.filters.worker'|devblocks_translate}</b> 
-<button type="button" class="chooser_worker"><span class="glyphicons glyphicons-search"></span></button>
-<ul class="chooser-container bubbles">
-{if is_array($filter_worker_ids) && !empty($filter_worker_ids)}
-	{foreach from=$filter_worker_ids item=filter_worker_id}
-	{$filter_worker = $workers.{$filter_worker_id}}
-	{if !empty($filter_worker)}
-	<li>{$filter_worker->getName()}<input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
-	{/if}
-	{/foreach}
-{/if}
-</ul>
-<br>
+<div>
+	<b>{'reports.ui.filters.worker'|devblocks_translate}</b>
+	<button type="button" class="chooser-abstract" data-field-name="worker_id[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+	<ul class="bubbles chooser-container">
+		{foreach from=$filter_worker_ids item=filter_worker_id}
+		{$filter_worker = $workers.{$filter_worker_id}}
+		{if !empty($filter_worker)}
+		<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$filter_worker->id}{/devblocks_url}?v={$filter_worker->updated}"><input type="hidden" name="worker_id[]" value="{$filter_worker->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$filter_worker->id}">{$filter_worker->getName()}</a></li>
+		{/if}
+		{/foreach}
+	</ul>
+</div>
 
-<b>{'reports.ui.filters.group'|devblocks_translate}</b> 
-<button type="button" class="chooser_group"><span class="glyphicons glyphicons-search"></span></button>
-{if is_array($filter_group_ids) && !empty($filter_group_ids)}
-<ul class="chooser-container bubbles">
-	{foreach from=$filter_group_ids item=filter_group_id}
-	{$filter_group = $groups.{$filter_group_id}}
-	{if !empty($filter_group)}
-	<li>{$filter_group->name}<input type="hidden" name="group_id[]" value="{$filter_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
-	{/if}
-	{/foreach}
-</ul>
-{/if}
-<br>
+<div>
+	<b>{'reports.ui.filters.group'|devblocks_translate}</b> 
+	<button type="button" class="chooser-abstract" data-field-name="group_id[]" data-context="{CerberusContexts::CONTEXT_GROUP}" data-query="" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+	<ul class="bubbles chooser-container">
+		{foreach from=$filter_group_ids item=filter_group_id}
+		{$filter_group = $groups.{$filter_group_id}}
+		{if !empty($filter_group)}
+		<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=group&context_id={$filter_group->id}{/devblocks_url}?v={$filter_group->updated}"><input type="hidden" name="group_id[]" value="{$filter_group->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$filter_group->id}">{$filter_group->name}</a></li>
+		{/if}
+		{/foreach}
+	</ul>
+</div>
 
 <b>{'reports.ui.filters.ticket.status'|devblocks_translate}</b>
 <label><input type="checkbox" name="filter_statuses[]" value="open" {if in_array('open', $filter_statuses)}checked="checked"{/if}> {'status.open'|devblocks_translate}</label>
@@ -295,13 +293,9 @@ var plot1 = $.jqplot('reportChart', chartData, chartOptions);
 {/if}
 
 <script type="text/javascript">
-	$('#frmRange button.chooser_worker').each(function(event) {
-		ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
-	});
-	
-	$('#frmRange button.chooser_group').each(function(event) {
-		ajax.chooser(this,'cerberusweb.contexts.group','group_id', { autocomplete:true });
-	});
+$(function() {
+	var $frm = $('#frmRange');
+	$frm.find('button.chooser-abstract').cerbChooserTrigger();
+});
 </script>
-
 <br>

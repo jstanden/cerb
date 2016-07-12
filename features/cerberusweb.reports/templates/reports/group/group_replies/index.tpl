@@ -31,19 +31,18 @@
 	<br>
 {/if}
 
-<b>{'reports.ui.filters.group'|devblocks_translate}</b> 
-<button type="button" class="chooser_group"><span class="glyphicons glyphicons-search"></span></button>
-{if is_array($filter_group_ids) && !empty($filter_group_ids)}
-<ul class="chooser-container bubbles">
-	{foreach from=$filter_group_ids item=filter_group_id}
-	{$filter_group = $groups.{$filter_group_id}}
-	{if !empty($filter_group)}
-	<li>{$filter_group->name}<input type="hidden" name="group_id[]" value="{$filter_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
-	{/if}
-	{/foreach}
-</ul>
-{/if}
-<br>
+<div>
+	<b>{'reports.ui.filters.group'|devblocks_translate}</b> 
+	<button type="button" class="chooser-abstract" data-field-name="group_id[]" data-context="{CerberusContexts::CONTEXT_GROUP}" data-query="" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+	<ul class="bubbles chooser-container">
+		{foreach from=$filter_group_ids item=filter_group_id}
+		{$filter_group = $groups.{$filter_group_id}}
+		{if !empty($filter_group)}
+		<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=group&context_id={$filter_group->id}{/devblocks_url}?v={$filter_group->updated}"><input type="hidden" name="group_id[]" value="{$filter_group->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$filter_group->id}">{$filter_group->name}</a></li>
+		{/if}
+		{/foreach}
+	</ul>
+</div>
 
 <div>
 	<button type="submit" id="btnSubmit">{'reports.common.run_report'|devblocks_translate|capitalize}</button>
@@ -281,9 +280,8 @@ var plot1 = $.jqplot('reportChart', chartData, chartOptions);
 {/if}
 
 <script type="text/javascript">
-	$('#frmRange button.chooser_group').each(function(event) {
-		ajax.chooser(this,'cerberusweb.contexts.group','group_id', { autocomplete:true });
-	});
+$(function() {
+	var $frm = $('#frmRange');
+	$frm.find('button.chooser-abstract').cerbChooserTrigger();
+});
 </script>
-
-<br>
