@@ -199,17 +199,22 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			'owner_context_id' => 'integer',
 			'created' => 'integer',
 			'comment' => 'string',
+			'file_id' => 'array',
 		);
 
 		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_POST['context'], 'integer', 0);
 		@$owner_context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
 		@$owner_context_id = DevblocksPlatform::importGPC($_POST['context'], 'integer', 0);
+		@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_id'], 'array', array()), 'int');
 
 		$fields = array();
 		
 		foreach($postfields as $postfield => $type) {
 			if(!isset($_POST[$postfield]))
+				continue;
+			
+			if(in_array($postfield, array('file_id')))
 				continue;
 				
 			@$value = DevblocksPlatform::importGPC($_POST[$postfield], 'string', '');
@@ -274,6 +279,11 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 		
 		// Create
 		if(false != ($id = DAO_Comment::create($fields))) {
+			// Attachments
+			if(is_array($file_ids) && !empty($file_ids))
+				DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_COMMENT, $id, $file_ids);
+			
+			// Retrieve record
 			$this->getId($id);
 		}
 	}
