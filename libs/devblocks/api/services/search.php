@@ -541,33 +541,33 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				$ids[] = $hit['_id'];
 			}
 			
-			// With fewer results, use the more efficient IN(...)
-			if($results_hits <= 1000) {
-				// Keep $ids
-				
-			// Otherwise, populate a temporary table and return it
-			} else {
-				$db = DevblocksPlatform::getDatabaseService();
-				$temp_table = sprintf("_search_%s", uniqid());
-				
-				$sql = sprintf("CREATE TEMPORARY TABLE IF NOT EXISTS %s (id int unsigned not null, PRIMARY KEY (id)) ", $temp_table);
-				$db->ExecuteSlave($sql);
-				
-				while($ids_part = array_splice($ids, 0, 1000, null)) {
-					$sql = sprintf("INSERT IGNORE INTO %s (id) VALUES (%s) ", $temp_table, implode('),(', $ids_part));
-					$db->ExecuteSlave($sql);
-				}
-				
-				$ids = $temp_table;
-			}
-			
-			// Store the search info in a request registry for later use
-			$meta_key = 'search_' . sha1($query);
-			$meta = array('engine' => 'elasticsearch', 'query' => $query, 'took_ms' => $took_ms, 'results' => $results_hits, 'total' => $total_hits);
-			DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
-			
 			$cache->save($ids, $cache_key, array(), 300, $is_only_cached_for_request);
 		}
+			
+		// With fewer results, use the more efficient IN(...)
+		if($results_hits <= 1000) {
+			// Keep $ids
+			
+		// Otherwise, populate a temporary table and return it
+		} else {
+			$db = DevblocksPlatform::getDatabaseService();
+			$temp_table = sprintf("_search_%s", uniqid());
+			
+			$sql = sprintf("CREATE TEMPORARY TABLE IF NOT EXISTS %s (id int unsigned not null, PRIMARY KEY (id))", $temp_table);
+			$db->ExecuteSlave($sql);
+			
+			while($ids_part = array_splice($ids, 0, 500, null)) {
+				$sql = sprintf("INSERT IGNORE INTO %s (id) VALUES (%s)", $temp_table, implode('),(', $ids_part));
+				$db->ExecuteSlave($sql);
+			}
+			
+			$ids = $temp_table;
+		}
+		
+		// Store the search info in a request registry for later use
+		$meta_key = 'search_' . sha1($query);
+		$meta = array('engine' => 'elasticsearch', 'query' => $query, 'took_ms' => $took_ms, 'results' => $results_hits, 'total' => $total_hits);
+		DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
 		
 		return $ids;
 	}
