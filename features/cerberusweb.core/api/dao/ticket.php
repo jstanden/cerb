@@ -3514,6 +3514,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
 
+		$sender_addresses = DAO_AddressOutgoing::getAll();
+		$tpl->assign('sender_addresses', $sender_addresses);
+		
 		$custom_fields =
 			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET) +
 			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)

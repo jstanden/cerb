@@ -108,24 +108,24 @@
 	</tbody>
 	
 	{else}
-	<tbody style="cursor:pointer;">
+	<tbody style="cursor:pointer;" data-num-messages="{$result.t_num_messages}">
 	
 	{if !$view->options.disable_recommendations || !$view->options.disable_watchers || !in_array('t_subject',$view->view_columns)}
 	<tr class="{$tableRowClass}">
 		{if !$view->options.disable_recommendations}
-		<td align="center" rowspan="2" nowrap="nowrap" style="padding-right:0;">
+		<td data-column="*_recommendations" align="center" rowspan="2" nowrap="nowrap" style="padding-right:0;">
 			{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$view_context context_id=$result.t_id recommend_group_id=$result.t_group_id recommend_bucket_id=$result.t_bucket_id}
 		</td>
 		{/if}
 		
 		{if !$view->options.disable_watchers}
-		<td align="center" rowspan="2" nowrap="nowrap" style="padding-right:0;">
+		<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding-right:0;">
 			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.t_id watchers_group_id=$result.t_group_id watchers_bucket_id=$result.t_bucket_id}
 		</td>
 		{/if}
 		
 		{if !in_array('t_subject',$view->view_columns)}
-		<td colspan="{$smarty.foreach.headers.total}">
+		<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 			{$smarty.capture.ticket_subject_content nofilter}
 		</td>
 		{/if}
@@ -137,34 +137,36 @@
 		{if substr($column,0,3)=="cf_"}
 			{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 		{elseif $column=="t_id"}
-		<td><a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_id}{/devblocks_url}">{$result.t_id}</a></td>
+		<td data-column="{$column}"><a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_id}{/devblocks_url}">{$result.t_id}</a></td>
 		{elseif $column=="t_mask"}
-		<td><a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
+		<td data-column="{$column}"><a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}{/devblocks_url}">{$result.t_mask}</a></td>
 		{elseif $column=="t_subject"}
-		<td title="{$result.t_subject}">
+		<td data-column="{$column}" title="{$result.t_subject}">
 			{$smarty.capture.ticket_subject_content nofilter}
 		</td>
 		{elseif $column=="t_status_id"}
+			<td data-column="{$column}">
 			{if $result.t_status_id == Model_Ticket::STATUS_WAITING}
-			<td><span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span></td>
+			<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>
 			{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}
-			<td><span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span></td>
+			<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span>
 			{elseif $result.t_status_id == Model_Ticket::STATUS_DELETED}
-			<td><span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span></td>
+			<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span>
 			{else}
 			{/if}
-		{elseif $column=="t_last_wrote"}
-		<td><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
-		{elseif $column=="t_first_wrote"}
-		<td><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_first_wrote_address_id}" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
-		{elseif $column=="t_created_date" || $column=="t_updated_date" || $column=="t_reopen_at" || $column=="t_closed_at"}
-		<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
-		{elseif $column=="t_elapsed_response_first" || $column=="t_elapsed_resolution_first"}
-			<td>
-				{if !empty($result.$column)}{$result.$column|devblocks_prettysecs:2}{/if}
 			</td>
+		{elseif $column=="t_first_wrote"}
+		<td data-column="{$column}"><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_first_wrote_address_id}" data-is-local="{if isset($sender_addresses.{$result.t_first_wrote_address_id})}true{/if}" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
+		{elseif $column=="t_last_wrote"}
+		<td data-column="{$column}"><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}" data-is-local="{if isset($sender_addresses.{$result.t_last_wrote_address_id})}true{/if}" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
+		{elseif $column=="t_created_date" || $column=="t_updated_date" || $column=="t_reopen_at" || $column=="t_closed_at"}
+		<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
+		{elseif $column=="t_elapsed_response_first" || $column=="t_elapsed_resolution_first"}
+		<td data-column="{$column}">
+			{if !empty($result.$column)}{$result.$column|devblocks_prettysecs:2}{/if}
+		</td>
 		{elseif $column=="t_owner_id"}
-		<td>
+		<td data-column="{$column}">
 			{$owner = $workers.{$result.t_owner_id}}
 			{if $owner instanceof Model_Worker}
 				<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;"> 
@@ -172,13 +174,13 @@
 			{/if}
 		</td>
 		{elseif $column=="o_name"}
-		<td>
+		<td data-column="{$column}">
 			{if $result.t_org_id}
 				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$result.t_org_id}">{$result.o_name}</a>
 			{/if}
 		</td>
 		{elseif $column=="t_group_id"}
-		<td>
+		<td data-column="{$column}">
 			{if $ticket_group instanceof Model_Group}
 				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket_group->id}">{$ticket_group->name}</a>
 			{/if}
@@ -186,13 +188,13 @@
 		{elseif $column=="t_bucket_id"}
 			{$ticket_bucket_id = $result.t_bucket_id}
 			{$ticket_bucket = $buckets.$ticket_bucket_id}
-			<td>
+			<td data-column="{$column}">
 				{if $ticket_bucket instanceof Model_Bucket}
 				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket_bucket->id}">{$ticket_bucket->name}</a>
 				{/if}
 			</td>
 		{elseif $column=="t_spam_score" || $column=="t_spam_training"}
-		<td>
+		<td data-column="{$column}">
 			{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
 			{if empty($result.t_spam_training)}
 			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="$(this).closest('tbody').remove();genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&view_id={$view->id}');">{/if}
@@ -205,19 +207,19 @@
 			{/if}
 		</td>
 		{elseif $column=="t_importance"}
-		<td>
+		<td data-column="{$column}">
 			<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
 				<div style="position:relative;margin-left:-5px;top:-1px;left:{$result.$column}%;width:10px;height:10px;border-radius:10px;background-color:{if $result.$column < 50}rgb(0,200,0);{elseif $result.$column > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
 			</div>
 		</td>
 		{elseif $column=="wtb_responsibility"}
-		<td>
+		<td data-column="{$column}">
 			<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
 				<div style="position:relative;margin-left:-5px;top:-1px;left:{$result.$column}%;width:10px;height:10px;border-radius:10px;background-color:{if $result.$column < 50}rgb(230,70,70);{elseif $result.$column > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
 			</div>
 		</td>
 		{elseif $column=="*_status"}
-		<td>
+		<td data-column="{$column}">
 			{if $result.t_status_id == Model_Ticket::STATUS_WAITING}
 				{'status.waiting.abbr'|devblocks_translate|lower}
 			{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}
@@ -229,7 +231,7 @@
 			{/if}
 		</td>
 		{else}
-		<td>{if $result.$column}{$result.$column}{/if}</td>
+		<td data-column="{$column}">{if $result.$column}{$result.$column}{/if}</td>
 		{/if}
 	{/foreach}
 	</tr>
