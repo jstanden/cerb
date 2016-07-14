@@ -1283,7 +1283,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getViewClass() {
-		return 'View_TimeTrackingEntry';
+		return 'View_TimeTracking';
 	}
 	
 	function getRandom() {
