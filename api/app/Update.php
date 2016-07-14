@@ -179,6 +179,12 @@ class ChUpdateController extends DevblocksControllerExtension {
 							$tpl->clearAllCache();
 						}
 
+						if(!APP_SMARTY_SANDBOX_COMPILE_PATH_MULTI_TENANT) {
+							$tpl = DevblocksPlatform::getTemplateSandboxService();
+							$tpl->clearCompiledTemplate();
+							$tpl->clearAllCache();
+						}
+						
 						// Reload plugin translations
 						DAO_Translation::reloadPluginStrings();
 

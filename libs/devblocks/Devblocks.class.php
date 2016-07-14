@@ -1620,6 +1620,11 @@ class DevblocksPlatform extends DevblocksEngine {
 				$tpl->clearCompiledTemplate();
 			}
 			
+			if(!APP_SMARTY_SANDBOX_COMPILE_PATH_MULTI_TENANT) {
+				$tpl = DevblocksPlatform::getTemplateSandboxService();
+				$tpl->clearCompiledTemplate();
+			}
+			
 			// Clear all locale caches
 			$langs = DAO_Translation::getDefinedLangCodes();
 			if(is_array($langs) && !empty($langs))

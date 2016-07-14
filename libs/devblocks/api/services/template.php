@@ -79,6 +79,12 @@ class _DevblocksTemplateManager {
 		if(null == self::$_instance_sandbox) {
 			$instance = clone self::getInstance();
 			
+			// Customize Smarty for the sandbox
+			$instance->compile_dir = APP_SMARTY_SANDBOX_COMPILE_PATH;
+			$instance->use_sub_dirs = APP_SMARTY_COMPILE_USE_SUBDIRS;
+			$instance->compile_id = null; //APP_BUILD;
+			
+			// Security policy
 			$security = new Smarty_Security($instance);
 			$security->php_handling = Smarty::PHP_REMOVE;
 			$security->secure_dir = array();
