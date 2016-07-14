@@ -384,7 +384,7 @@ class ImportCron extends CerberusCronPageExtension {
 				$file = $dest_file;
 				
 				// Parse the XML
-				if(!@$xml_root = simplexml_load_file($file)) { /* @var $xml_root SimpleXMLElement */
+				if(!@$xml_root = simplexml_load_file($file, 'SimpleXMLElement', LIBXML_PARSEHUGE)) { /* @var $xml_root SimpleXMLElement */
 					$logger->error("[Importer] Error parsing XML file: " . $file);
 					continue;
 				}
