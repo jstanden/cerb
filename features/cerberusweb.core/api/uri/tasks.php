@@ -208,6 +208,7 @@ class ChTasksPage extends CerberusPageExtension {
 		// Task fields
 		@$due = trim(DevblocksPlatform::importGPC($_POST['due'],'string',''));
 		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
+		@$owner = trim(DevblocksPlatform::importGPC($_POST['owner'],'string',''));
 
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
@@ -233,7 +234,11 @@ class ChTasksPage extends CerberusPageExtension {
 					break;
 			}
 		}
-			
+		
+		// Do: Owner
+		if(0 != strlen($owner))
+			$do['owner'] = intval($owner);
+		
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {
 			$do['behavior'] = array(

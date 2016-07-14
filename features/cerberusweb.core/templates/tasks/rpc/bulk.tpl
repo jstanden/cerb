@@ -44,6 +44,16 @@
 			</td>
 		</tr>
 		
+		{if 1}
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.owner'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<button type="button" class="chooser-abstract" data-field-name="owner" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="bubbles chooser-container"></ul>
+			</td>
+		</tr>
+		{/if}
+		
 		{if $active_worker->hasPriv('core.watchers.assign') || $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top">{'common.watchers'|devblocks_translate|capitalize}:</td>
@@ -83,6 +93,8 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		
+		$popup.find('button.chooser-abstract').cerbChooserTrigger();
 		
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', 'view{$view_id}', null, function() {
