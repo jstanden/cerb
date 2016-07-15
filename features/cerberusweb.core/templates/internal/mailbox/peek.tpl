@@ -90,6 +90,13 @@
 			</td>
 		</tr>
 		<tr>
+			<td width="0%" nowrap="nowrap"><b>{'dao.mailbox.auth_disable_plain'|devblocks_translate}:</b></td>
+			<td width="100%">
+				<label><input type="radio" name="auth_disable_plain" value="0" {if empty($model->auth_disable_plain)}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="auth_disable_plain" value="1" {if $model->auth_disable_plain}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+			</td>
+		</tr>
+		<tr>
 			<td colspan="2" style="padding-top:10px;">
 				<b>Note:</b> Messages in this mailbox will be deleted once they are downloaded. If this is not desirable 
 				behavior (e.g. IMAP), please create a disposible mailbox to use instead and have copies of your incoming 

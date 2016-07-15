@@ -114,6 +114,12 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			'value' => $mailbox->ssl_ignore_validation,
 		);
 		
+		$properties['auth_disable_plain'] = array(
+			'label' => mb_ucfirst($translate->_('dao.mailbox.auth_disable_plain')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $mailbox->auth_disable_plain,
+		);
+		
 		$properties['updated'] = array(
 			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -198,6 +204,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer');
 				@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer');
 				@$ssl_ignore_validation = DevblocksPlatform::importGPC($_REQUEST['ssl_ignore_validation'],'integer',0);
+				@$auth_disable_plain = DevblocksPlatform::importGPC($_REQUEST['auth_disable_plain'],'integer',0);
 				
 				if(empty($name))
 					$name = "Mailbox";
@@ -240,6 +247,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 					DAO_Mailbox::TIMEOUT_SECS => $timeout_secs,
 					DAO_Mailbox::MAX_MSG_SIZE_KB => $max_msg_size_kb,
 					DAO_Mailbox::SSL_IGNORE_VALIDATION => $ssl_ignore_validation,
+					DAO_Mailbox::AUTH_DISABLE_PLAIN => $auth_disable_plain,
 					DAO_Mailbox::UPDATED_AT => time(),
 				);
 				
@@ -308,6 +316,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			@$timeout_secs = DevblocksPlatform::importGPC($_REQUEST['timeout_secs'],'integer',0);
 			@$max_msg_size_kb = DevblocksPlatform::importGPC($_REQUEST['max_msg_size_kb'],'integer',25600);
 			@$ssl_ignore_validation = DevblocksPlatform::importGPC($_REQUEST['ssl_ignore_validation'],'integer',0);
+			@$auth_disable_plain = DevblocksPlatform::importGPC($_REQUEST['auth_disable_plain'],'integer',0);
 			
 			// Defaults
 			if(empty($port)) {
@@ -331,7 +340,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			if(!empty($host)) {
 				$mail_service = DevblocksPlatform::getMailService();
 				
-				if(false == $mail_service->testMailbox($host, $port, $protocol, $user, $pass, $ssl_ignore_validation, $timeout_secs, $max_msg_size_kb))
+				if(false == $mail_service->testMailbox($host, $port, $protocol, $user, $pass, $ssl_ignore_validation, $auth_disable_plain, $timeout_secs, $max_msg_size_kb))
 					throw new Exception($translate->_('config.mailboxes.failed'));
 				
 			} else {

@@ -80,7 +80,7 @@ class _DevblocksEmailManager {
 		return $this->_lastErrorMessage;
 	}
 	
-	function testMailbox($server, $port, $service, $username, $password, $ssl_ignore_validation=false, $timeout_secs=30, $max_msg_size_kb=0) {
+	function testMailbox($server, $port, $service, $username, $password, $ssl_ignore_validation=false, $auth_disable_plain=false, $timeout_secs=30, $max_msg_size_kb=0) {
 		if (!extension_loaded("imap"))
 			throw new Exception("PHP 'imap' extension is not loaded!");
 		
@@ -91,6 +91,11 @@ class _DevblocksEmailManager {
 		imap_timeout(IMAP_OPENTIMEOUT, $imap_timeout);
 		imap_timeout(IMAP_READTIMEOUT, $imap_timeout);
 		imap_timeout(IMAP_CLOSETIMEOUT, $imap_timeout);
+		
+		$imap_options = array();
+		
+		if($auth_disable_plain)
+			$imap_options['DISABLE_AUTHENTICATOR'] = 'PLAIN';
 		
 		switch($service) {
 			default:
@@ -129,7 +134,10 @@ class _DevblocksEmailManager {
 			$mailbox = @imap_open(
 				$connect,
 				!empty($username)?$username:"superuser",
-				!empty($password)?$password:"superuser"
+				!empty($password)?$password:"superuser",
+				0,
+				0,
+				$imap_options
 			);
 	
 			if($mailbox === FALSE)

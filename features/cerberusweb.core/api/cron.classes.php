@@ -1160,6 +1160,10 @@ class MailboxCron extends CerberusCronPageExtension {
 			imap_timeout(IMAP_CLOSETIMEOUT, $imap_timeout);
 			
 			$imap_timeout_read_ms = imap_timeout(IMAP_READTIMEOUT) * 1000; // ms
+			$imap_options = array();
+			
+			if($account->auth_disable_plain)
+				$imap_options['DISABLE_AUTHENTICATOR'] = 'PLAIN';
 			
 			$mailboxes_checked++;
 
@@ -1173,7 +1177,8 @@ class MailboxCron extends CerberusCronPageExtension {
 				!empty($account->username)?$account->username:"",
 				!empty($account->password)?$account->password:"",
 				null,
-				0
+				0,
+				$imap_options
 				))) {
 				
 				$logger->error("[Mailboxes] Failed with error: ".imap_last_error());

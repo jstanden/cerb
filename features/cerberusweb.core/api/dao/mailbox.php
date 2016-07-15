@@ -29,6 +29,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	const TIMEOUT_SECS = 'timeout_secs';
 	const MAX_MSG_SIZE_KB = 'max_msg_size_kb';
 	const SSL_IGNORE_VALIDATION = 'ssl_ignore_validation';
+	const AUTH_DISABLE_PLAIN = 'auth_disable_plain';
 	const UPDATED_AT = 'updated_at';
 	const CHECKED_AT = 'checked_at';
 	
@@ -102,7 +103,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, enabled, name, protocol, host, username, password, port, num_fails, delay_until, timeout_secs, max_msg_size_kb, ssl_ignore_validation, updated_at, checked_at ".
+		$sql = "SELECT id, enabled, name, protocol, host, username, password, port, num_fails, delay_until, timeout_secs, max_msg_size_kb, ssl_ignore_validation, auth_disable_plain, updated_at, checked_at ".
 			"FROM mailbox ".
 			$where_sql.
 			$sort_sql.
@@ -208,6 +209,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			$object->timeout_secs = intval($row['timeout_secs']);
 			$object->max_msg_size_kb = intval($row['max_msg_size_kb']);
 			$object->ssl_ignore_validation = $row['ssl_ignore_validation'] ? 1 : 0;
+			$object->auth_disable_plain = $row['auth_disable_plain'] ? 1 : 0;
 			$object->updated_at = intval($row['updated_at']);
 			$object->checked_at = intval($row['checked_at']);
 			$objects[$object->id] = $object;
@@ -274,6 +276,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			"mailbox.timeout_secs as %s, ".
 			"mailbox.max_msg_size_kb as %s, ".
 			"mailbox.ssl_ignore_validation as %s, ".
+			"mailbox.auth_disable_plain as %s, ".
 			"mailbox.updated_at as %s, ".
 			"mailbox.checked_at as %s ",
 				SearchFields_Mailbox::ID,
@@ -289,6 +292,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 				SearchFields_Mailbox::TIMEOUT_SECS,
 				SearchFields_Mailbox::MAX_MSG_SIZE_KB,
 				SearchFields_Mailbox::SSL_IGNORE_VALIDATION,
+				SearchFields_Mailbox::AUTH_DISABLE_PLAIN,
 				SearchFields_Mailbox::UPDATED_AT,
 				SearchFields_Mailbox::CHECKED_AT
 			);
@@ -433,6 +437,7 @@ class Model_Mailbox {
 	public $timeout_secs = 30;
 	public $max_msg_size_kb = 25600;
 	public $ssl_ignore_validation = 0;
+	public $auth_disable_plain = 0;
 	public $updated_at = 0;
 	public $checked_at = 0;
 	
@@ -490,6 +495,7 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 	const TIMEOUT_SECS = 'p_timeout_secs';
 	const MAX_MSG_SIZE_KB = 'p_max_msg_size_kb';
 	const SSL_IGNORE_VALIDATION = 'p_ssl_ignore_validation';
+	const AUTH_DISABLE_PLAIN = 'p_auth_disable_plain';
 	const UPDATED_AT = 'p_updated_at';
 	const CHECKED_AT = 'p_checked_at';
 
@@ -558,6 +564,7 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 			self::TIMEOUT_SECS => new DevblocksSearchField(self::TIMEOUT_SECS, 'mailbox', 'timeout_secs', $translate->_('dao.mailbox.timeout_secs'), Model_CustomField::TYPE_NUMBER, true),
 			self::MAX_MSG_SIZE_KB => new DevblocksSearchField(self::MAX_MSG_SIZE_KB, 'mailbox', 'max_msg_size_kb', $translate->_('dao.mailbox.max_msg_size_kb'), Model_CustomField::TYPE_NUMBER, true),
 			self::SSL_IGNORE_VALIDATION => new DevblocksSearchField(self::SSL_IGNORE_VALIDATION, 'mailbox', 'ssl_ignore_validation', $translate->_('dao.mailbox.ssl_ignore_validation'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::AUTH_DISABLE_PLAIN => new DevblocksSearchField(self::AUTH_DISABLE_PLAIN, 'mailbox', 'auth_disable_plain', $translate->_('dao.mailbox.auth_disable_plain'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'mailbox', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::CHECKED_AT => new DevblocksSearchField(self::CHECKED_AT, 'mailbox', 'checked_at', $translate->_('dao.mailbox.checked_at'), Model_CustomField::TYPE_DATE, true),
 
@@ -814,6 +821,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Mailbox::ENABLED:
 			case SearchFields_Mailbox::SSL_IGNORE_VALIDATION:
+			case SearchFields_Mailbox::AUTH_DISABLE_PLAIN:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -855,6 +863,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case SearchFields_Mailbox::ENABLED:
 			case SearchFields_Mailbox::SSL_IGNORE_VALIDATION:
+			case SearchFields_Mailbox::AUTH_DISABLE_PLAIN:
 				parent::_renderCriteriaParamBoolean($param);
 				break;
 			
@@ -916,6 +925,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Mailbox::ENABLED:
 			case SearchFields_Mailbox::SSL_IGNORE_VALIDATION:
+			case SearchFields_Mailbox::AUTH_DISABLE_PLAIN:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;

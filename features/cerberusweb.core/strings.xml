@@ -1728,7 +1728,10 @@
 			<tuv xml:lang="en_US"><seg>Max Msg Size</seg></tuv>
 		</tu>
 		<tu tuid='dao.mailbox.ssl_ignore_validation'>
-			<tuv xml:lang="en_US"><seg>Ssl Ignore Validation</seg></tuv>
+			<tuv xml:lang="en_US"><seg>SSL Ignore Validation</seg></tuv>
+		</tu>
+		<tu tuid='dao.mailbox.auth_disable_plain'>
+			<tuv xml:lang="en_US"><seg>Disable PLAIN Auth</seg></tuv>
 		</tu>
 
 		<!-- Snippets -->

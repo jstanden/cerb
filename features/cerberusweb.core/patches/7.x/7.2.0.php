@@ -466,6 +466,10 @@ if(!isset($columns['checked_at'])) {
 	$db->ExecuteMaster('ALTER TABLE mailbox ADD COLUMN checked_at INT UNSIGNED NOT NULL DEFAULT 0');
 }
 
+if(!isset($columns['auth_disable_plain'])) {
+	$db->ExecuteMaster('ALTER TABLE mailbox ADD COLUMN auth_disable_plain TINYINT UNSIGNED NOT NULL DEFAULT 0');
+}
+
 // ===========================================================================
 // Add 'owner_id' and 'importance' to 'task' records
 
