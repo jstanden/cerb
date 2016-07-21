@@ -7,24 +7,24 @@
 |
 | This source code is released under the Devblocks Public License.
 | The latest version of this license can be found here:
-| http://cerbweb.com/license
+| http://cerb.io/license
 |
 | By using this software, you acknowledge having read this license
 | and agree to be bound thereby.
 | ______________________________________________________________________
-|	http://www.cerbweb.com	    http://www.webgroupmedia.com/
+|	http://cerb.io	    http://webgroup.media
 ***********************************************************************/
 /*
- * IMPORTANT LICENSING NOTE from your friends on the Cerb Development Team
+ * IMPORTANT LICENSING NOTE from your friends at Cerb
  *
- * Sure, it would be so easy to just cheat and edit this file to use the
- * software without paying for it.  But we trust you anyway.  In fact, we're
- * writing this software for you!
+ * Sure, it would be really easy to just cheat and edit this file to use
+ * Cerb without paying for a license.  We trust you anyway.
  *
- * Quality software backed by a dedicated team takes money to develop.  We
- * don't want to be out of the office bagging groceries when you call up
- * needing a helping hand.  We'd rather spend our free time coding your
- * feature requests than mowing the neighbors' lawns for rent money.
+ * It takes a significant amount of time and money to develop, maintain,
+ * and support high-quality enterprise software with a dedicated team.
+ * For Cerb's entire history we've avoided taking money from outside
+ * investors, and instead we've relied on actual sales from satisfied
+ * customers to keep the project running.
  *
  * We've never believed in hiding our source code out of paranoia over not
  * getting paid.  We want you to have the full source code and be able to
@@ -32,21 +32,14 @@
  * having less of everything than you might need (time, people, money,
  * energy).  We shouldn't be your bottleneck.
  *
- * We've been building our expertise with this project since January 2002.  We
- * promise spending a couple bucks [Euro, Yuan, Rupees, Galactic Credits] to
- * let us take over your shared e-mail headache is a worthwhile investment.
- * It will give you a sense of control over your inbox that you probably
- * haven't had since spammers found you in a game of 'E-mail Battleship'.
- * Miss. Miss. You sunk my inbox!
+ * As a legitimate license owner, your feedback will help steer the project.
+ * We'll also prioritize your issues, and work closely with you to make sure
+ * your teams' needs are being met.
  *
- * A legitimate license entitles you to support from the developers,
- * and the warm fuzzy feeling of feeding a couple of obsessed developers
- * who want to help you get more done.
- *
- \* - Jeff Standen, Darren Sugita, Dan Hildebrandt
- *	 Webgroup Media LLC - Developers of Cerb
+ * - Jeff Standen and Dan Hildebrandt
+ *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
-define("APP_BUILD", 2016071201);
+define("APP_BUILD", 2016072001);
 define("APP_VERSION", '7.2.0');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
@@ -2216,7 +2209,7 @@ class CerberusLicense {
 	}
 
 	public static function getReleases() {
-		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000,'6.3.0'=>1364169600,'6.4.0'=>1370217600,'6.5.0'=>1379289600,'6.6.0'=>1391126400,'6.7.0'=>1398124800,'6.8.0'=>1410739200,'6.9.0'=>1422230400,'7.0.0'=>1432598400,'7.1.0'=>1448928000,'7.2.0'=>1460678400);/*
+		/*																																																																																																																														*/return array('5.0.0'=>1271894400,'5.1.0'=>1281830400,'5.2.0'=>1288569600,'5.3.0'=>1295049600,'5.4.0'=>1303862400,'5.5.0'=>1312416000,'5.6.0'=>1317686400,'5.7.0'=>1326067200,'6.0.0'=>1338163200,'6.1.0'=>1346025600,'6.2.0'=>1353888000,'6.3.0'=>1364169600,'6.4.0'=>1370217600,'6.5.0'=>1379289600,'6.6.0'=>1391126400,'6.7.0'=>1398124800,'6.8.0'=>1410739200,'6.9.0'=>1422230400,'7.0.0'=>1432598400,'7.1.0'=>1448928000,'7.2.0'=>1462060800);/*
 		 * Major versions by release date (in GMT)
 		 */
 		return array(
@@ -2240,7 +2233,7 @@ class CerberusLicense {
 			'6.9.0' => gmmktime(0,0,0,1,26,2015),
 			'7.0.0' => gmmktime(0,0,0,5,26,2015),
 			'7.1.0' => gmmktime(0,0,0,12,1,2015),
-			'7.2.0' => gmmktime(0,0,0,4,15,2016),
+			'7.2.0' => gmmktime(0,0,0,5,1,2016),
 		);
 	}
 
