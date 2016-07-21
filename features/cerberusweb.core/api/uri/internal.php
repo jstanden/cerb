@@ -2102,15 +2102,19 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
+		
 		$tpl->assign('view', $view);
 
-		$context_mft = Extension_DevblocksContext::getByViewClass(get_class($view));
+		$context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true);
+		$tpl->assign('tokens', $context_ext->getDefaultProperties());
 		
 		$labels = array();
 		$values = array();
-		CerberusContexts::getContext($context_mft->id, null, $labels, $values, null, true);
+		CerberusContexts::getContext($context_ext->id, null, $labels, $null, '', true, false);
+		$tpl->assign('labels', $labels);
 		
-		$tpl->assign('context_labels', $labels);
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+		$tpl->assign('placeholders', $placeholders);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/view_export.tpl');
 	}

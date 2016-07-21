@@ -8,23 +8,43 @@
 <div class="export-settings">
 
 <h1>{'common.export'|devblocks_translate|capitalize}</h1>
-<br>
 
-<div style="margin-bottom:10px;">
-	<b>Fields:</b>
- </div>
-
-<ul class="bubbles sortable" style="display:block;padding:0;"></ul>
-
-<div style="margin:10px 0px 0px 0px;">
-	<input type="text" size="32" class="input_search filter">
-</div>
-
-<ul class="cerb-popupmenu" style="border:0;margin:0px 0px 15px 0px;display:block;max-height:300px;overflow:auto;">
-	{foreach from=$context_labels item=label key=token}
-	<li><a href="javascript:;" token="{$token}">{$label}</a></li>
-	{/foreach}
-</ul>
+<table cellpadding="10" cellspacing="0">
+	<tr>
+		<td valign="top">
+			<b>Fields:</b>
+			
+			<ul class="bubbles sortable" style="display:block;padding:0;">
+				{foreach from=$tokens item=token}
+				<li style="display: block; cursor: move; margin: 5px;"><input type="hidden" name="tokens[]" value="{$token}">{$labels.$token}{if '_label' == substr($token, -6)} (Record){/if}<a href="javascript:;" style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a></li>		
+				{/foreach}
+			</ul>
+		</td>
+		
+		<td valign="top">
+			<b>{'common.add'|devblocks_translate|capitalize}:</b>
+			
+			{function tree level=0}
+				{foreach from=$keys item=data key=idx}
+					{if is_array($data)}
+						<li>
+							<div>{$idx|capitalize}</div>
+							<ul>
+								{tree keys=$data level=$level+1}
+							</ul>
+						</li>
+					{else}
+						<li data-token="{$data->key}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+					{/if}
+				{/foreach}
+			{/function}
+			
+			<ul class="menu" style="width:250px;">
+			{tree keys=$placeholders}
+			</ul>
+		</td>
+	</tr>
+</table>
 
 <div style="margin-bottom:10px;">
 	<b>Format dates as:</b>
@@ -57,12 +77,52 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frm{$view_id}_export');
-	var $menu = $frm.find('ul.cerb-popupmenu');
-	var $fields_menu = $frm.find('ul.cerb-popupmenu');
-	var $input = $frm.find('input.filter');
-
+	var $bubbles = $frm.find('ul.bubbles');
 	var $settings = $frm.find('div.export-settings');
 	var $status = $frm.find('div.export-status');
+	
+	var $placeholder_menu = $frm.find('ul.menu').menu({
+		select: function(event, ui) {
+			var token = ui.item.attr('data-token');
+			var label = ui.item.attr('data-label');
+			
+			if(undefined == token || undefined == label)
+				return;
+			
+			var $bubble = $('<li style="display:block;"></li>')
+				.css('cursor', 'move')
+				.css('margin', '5px')
+			;
+			
+			var $hidden = $('<input>');
+			$hidden.attr('type', 'hidden');
+			$hidden.attr('name', 'tokens[]');
+			$hidden.attr('value', token);
+			
+			var $a = $('<a href="javascript:;" style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
+			
+			$bubble.append($hidden);
+			$bubble.append(label);
+			$bubble.append($a);
+			$bubbles.append($bubble);
+		}
+	});
+	
+	$bubbles.on('click', function(e) {
+		var $target = $(e.target);
+		if($target.is('.glyphicons-circle-remove')) {
+			e.stopPropagation();
+			$target.closest('li').remove();
+		}
+	});
+	
+	$bubbles.on('mouseover', function(e) {
+		$bubbles.find('a').css('visibility', 'visible');
+	});
+	
+	$bubbles.on('mouseout', function(e) {
+		$bubbles.find('a').css('visibility', 'hidden');
+	});
 	
 	$frm.find('ul.bubbles.sortable').sortable({
 		placeholder: 'ui-state-highlight',
@@ -108,56 +168,16 @@ $(function() {
 	
 	$frm.find('button.submit').click(function() {
 		$settings.hide();
+		
+		// If in progress, continue looping pages
+		var $html = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
+			.text('Exporting...')
+			.append('<br><span class="cerb-ajax-spinner"></span>')
+			;
+		
+		$status.html($html).fadeIn();
+
 		$frm.trigger('export_increment');
-	});
-	
-	// Menu
-	
-	$input.keyup(
-		function(e) {
-			var term = $(this).val().toLowerCase();
-			$fields_menu.find('> li a').each(function(e) {
-				if(-1 != $(this).html().toLowerCase().indexOf(term)) {
-					$(this).parent().show();
-				} else {
-					$(this).parent().hide();
-				}
-			});
-		}
-	);
-
-	$fields_menu.find('> li').click(function(e) {
-		e.stopPropagation();
-		if(!$(e.target).is('li'))
-			return;
-
-		$(this).find('a').trigger('click');
-	});
-
-	$fields_menu.find('> li > a').click(function() {
-		var $item = $(this);
-		var token = $item.attr('token');
-		var $bubbles = $fields_menu.siblings('ul.bubbles');
-		
-		var $bubble = $('<li></li>');
-		$bubble.css('cursor', 'move');
-		
-		var $hidden = $('<input>');
-		$hidden.attr('type', 'hidden');
-		$hidden.attr('name', 'tokens[]');
-		$hidden.attr('value', token);
-		
-		var $a = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-		$a.click(function(e) {
-			$(this).closest('li').remove();
-		})
-		
-		$bubble.append($hidden);
-		$bubble.append($item.text());
-		$bubble.append($a);
-		$bubbles.append($bubble);
-		
-		$input.focus().select();
 	});
 });
 </script>

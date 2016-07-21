@@ -39,95 +39,11 @@ class PageSection_SetupCards extends Extension_PageSection {
 		
 		$tpl->assign('context_ext', $context_ext);
 		
-		CerberusContexts::getContext($context_ext->id, null, $labels, $values, '', true, false);
-		$tpl->assign('values', $values);
+		CerberusContexts::getContext($context_ext->id, null, $labels, $null, '', true, false);
+		$tpl->assign('labels', $labels);
 		
-		$keys = array();
-		
-		// Tokenize the placeholders
-		foreach($labels as $k => &$label) {
-			$label = trim($label);
-			
-			if('_label' == $k || '_label' == substr($k, -6)) {
-				$label = !empty($label) ? ($label.' (Record)') : '(Record)';
-			}
-			
-			$parts = explode(' ', $label);
-			
-			$ptr =& $keys;
-			
-			while($part = array_shift($parts)) {
-				if(!isset($ptr[$part]))
-					$ptr[$part] = array();
-				
-				$ptr =& $ptr[''.$part];
-			}
-		}
-		
-		// Convert the flat tokens into a tree
-		$forward_recurse = function(&$node, $node_key, &$stack) use (&$keys, &$forward_recurse, &$labels) {
-			$len = count($node);
-			
-			if(!empty($node_key))
-				array_push($stack, ''.$node_key);
-			
-			switch($len) {
-				case 0:
-					$o = new stdClass();
-					$o->label = implode(' ', $stack);
-					$o->key = array_search($o->label, $labels);
-					$o->l = $node_key;
-					$node = $o;
-					break;
-					
-				default:
-					if(is_array($node))
-					foreach($node as $k => &$n) {
-						$forward_recurse($n, $k, $stack);
-					}
-					break;
-			}
-			
-			array_pop($stack);
-		};
-		
-		$stack = array();
-		$forward_recurse($keys, '', $stack);
-
-		$condense = function(&$node, $key=null, &$parent=null) use (&$condense) {
-			// If this node has exactly one child
-			if(is_array($node) && 1 == count($node)) {
-				reset($node);
-				
-				// Replace the current node with its only child
-				$k = key($node);
-				$n = array_pop($node);
-				if(is_object($n))
-					$n->l = $key . ' ' . $n->l;
-				
-				// Deconstruct our parent
-				$keys = array_keys($parent);
-				$vals = array_values($parent);
-				
-				// Replace this node's key and value in the parent
-				$idx = array_search($key, $keys);
-				$keys[$idx] = $key.' '.$k;
-				$vals[$idx] = $n;
-				
-				// Reconstruct the parent
-				$parent = array_combine($keys, $vals);
-			}
-			
-			// If this node still has children, recurse into them
-			if(is_array($node))
-			foreach($node as $k => &$n)
-				$condense($n, $k, $node);
-		};
-		$condense($keys);
-		
-		$tpl->assign('keys', $keys);
-		
-		$tokens = array();
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+		$tpl->assign('placeholders', $placeholders);
 		
 		$properties = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'card:' . $context_ext->id, array(), true);
 		
