@@ -1337,7 +1337,6 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'owner__label',

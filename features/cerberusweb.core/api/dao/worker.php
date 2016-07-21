@@ -2477,17 +2477,17 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
-			'full_name',
-			'title',
 			'address__label',
-			'address_org__label',
+			'at_mention_name',
 			'is_disabled',
 			'is_superuser',
-			'timezone',
 			'language',
+			'location',
+			'phone',
+			'mobile',
+			'timezone',
 			'updated',
 		);
 	}
@@ -2839,26 +2839,19 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 				$tpl->assign('timeline_json', $timeline_json);
 			}
 			
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER)))
+				return;
+			
 			// Dictionary
 			$labels = array();
 			$values = array();
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
-			$tpl->assign('properties',
-				array(
-					'address__label',
-					'at_mention_name',
-					'is_disabled',
-					'is_superuser',
-					'language',
-					'location',
-					'phone',
-					'mobile',
-					'timezone',
-					'updated',
-				)
-			);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
 			
 			$tpl->display('devblocks:cerberusweb.core::workers/peek.tpl');
 		}

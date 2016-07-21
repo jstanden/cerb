@@ -1152,7 +1152,6 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'owner__label',

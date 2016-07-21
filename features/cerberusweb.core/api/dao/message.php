@@ -2357,16 +2357,14 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
-			'ticket__label',
 			'ticket_status',
-			'sender__label',
-			'is_outgoing',
-			'worker__label',
+			'ticket__label',
+			'ticket_group__label',
+			'ticket_bucket__label',
 			'ticket_org__label',
-			'created',
+			'ticket_updated',
 		);
 	}
 	
@@ -2641,6 +2639,10 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				),
 			);
 			$tpl->assign('links', $links);
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_MESSAGE)))
+				return;
 			
 			// Dictionary
 			$labels = array();
@@ -2648,16 +2650,9 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $message, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
-			$tpl->assign('properties',
-				array(
-					'ticket_status',
-					'ticket__label',
-					'ticket_group__label',
-					'ticket_bucket__label',
-					'ticket_org__label',
-					'ticket_updated',
-				)
-			);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/messages/peek.tpl');
 		}

@@ -843,7 +843,6 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'views',

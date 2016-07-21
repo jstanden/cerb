@@ -741,7 +741,6 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		);
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'created',

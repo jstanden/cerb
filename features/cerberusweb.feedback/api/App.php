@@ -1219,7 +1219,6 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'author__label',

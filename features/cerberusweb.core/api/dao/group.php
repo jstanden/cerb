@@ -1527,9 +1527,12 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
+			'replyto__label',
+			'is_private',
+			'is_default',
+			'updated',
 		);
 	}
 	
@@ -1950,6 +1953,20 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_GROUP, $context_id));
 				$tpl->assign('timeline_json', $timeline_json);
 			}
+			
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_GROUP)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
 			
 			$tpl->display('devblocks:cerberusweb.core::groups/peek.tpl');
 		}

@@ -1340,7 +1340,6 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'log_date',

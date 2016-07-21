@@ -52,11 +52,15 @@
 			</ul>
 		{/if}
 	{/if}
+{elseif $types.$k == 'id'}
+	{$dict->$k}
 {elseif $types.$k == 'percent'}
 	{$percent = $dict->$k * 100}
 	{$percent|number_format:2}%
 {elseif $types.$k == 'phone'}
 	<a href="tel:{$dict->$k}">{$dict->$k}</a>
+{elseif $types.$k == 'size_bytes'}
+	{$dict->$k|devblocks_prettybytes}
 {elseif $types.$k == 'time_secs'}
 	{$dict->$k|devblocks_prettysecs:2}
 {else}

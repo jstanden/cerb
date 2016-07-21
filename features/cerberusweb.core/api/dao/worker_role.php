@@ -387,7 +387,6 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		);
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 		);

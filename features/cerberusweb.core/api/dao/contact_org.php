@@ -1476,16 +1476,11 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
-			'street',
-			'city',
-			'province',
-			'postal',
-			'country',
 			'phone',
 			'website',
+			'updated',
 		);
 	}
 	
@@ -1758,19 +1753,19 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 				$tpl->assign('timeline_json', $timeline_json);
 			}
 			
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ORG)))
+				return;
+			
 			// Dictionary
 			$labels = array();
 			$values = array();
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, $contact, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
-			$tpl->assign('properties',
-				array(
-					'phone',
-					'website',
-					'updated',
-				)
-			);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
 			
 			$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek.tpl');
 		}

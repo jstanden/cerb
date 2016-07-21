@@ -1054,7 +1054,6 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		);
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'updated_at',

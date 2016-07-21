@@ -954,7 +954,6 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		);
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'updated_at',

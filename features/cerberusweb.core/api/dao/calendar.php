@@ -1387,7 +1387,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'owner__label',

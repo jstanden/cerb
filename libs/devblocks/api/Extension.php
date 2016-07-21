@@ -295,6 +295,23 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	abstract function getRandom();
 	abstract function getMeta($context_id);
 	abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
+	
+	function getDefaultProperties() {
+		return array();
+	}
+	
+	/**
+	 * @return array
+	 */
+	function getCardProperties() {
+		// Load cascading properties
+		$properties = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'card:' . $this->id, array(), true);
+		
+		if(empty($properties))
+			$properties = $this->getDefaultProperties();
+		
+		return $properties;
+	}
 
 	function getDaoClass() {
 		$class = str_replace('Context_','DAO_', get_called_class());

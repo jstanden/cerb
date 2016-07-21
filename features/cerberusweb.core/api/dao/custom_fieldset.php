@@ -1085,7 +1085,6 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'name',

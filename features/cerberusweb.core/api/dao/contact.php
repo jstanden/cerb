@@ -1493,9 +1493,13 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
+			'email__label',
+			'org__label',
+			'location',
+			'phone',
+			'mobile',
 			'updated_at',
 		);
 	}
@@ -1837,22 +1841,19 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				$tpl->assign('timeline_json', $timeline_json);
 			}
 			
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_CONTACT)))
+				return;
+			
 			// Dictionary
 			$labels = array();
 			$values = array();
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT, $contact, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
-			$tpl->assign('properties',
-				array(
-					'email__label',
-					'org__label',
-					'location',
-					'phone',
-					'mobile',
-					'updated_at',
-				)
-			);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/contact/peek.tpl');
 		}

@@ -21,6 +21,30 @@
 
 <div style="clear:both;padding-top:10px;"></div>
 
+{if !empty($properties)}
+<fieldset class="peek">
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+	
+	<div class="cerb-properties-grid" data-column-width="100">
+		
+		{$labels = $dict->_labels}
+		{$types = $dict->_types}
+		{foreach from=$properties item=k name=props}
+		{if $dict->$k}
+		<div>
+			{if $k == 'xxx'}
+				<label>{$labels.$k}</label>
+				{$dict->$k}
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+			{/if}
+		</div>
+		{/if}
+		{/foreach}
+	</div>
+</fieldset>
+{/if}
+
 <fieldset class="peek">
 	<legend>{'common.tickets'|devblocks_translate|capitalize}</legend>
 	<div>
@@ -54,6 +78,9 @@ $(function() {
 
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', "{'common.group'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		
+		// Properties grid
+		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
 		// Edit button
 		$popup.find('button.cerb-peek-edit')

@@ -1058,7 +1058,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		);
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'updated_at',

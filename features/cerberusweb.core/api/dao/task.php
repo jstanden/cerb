@@ -1174,14 +1174,13 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'status',
-			'owner',
 			'importance',
 			'due',
 			'updated',
+			'owner__label',
 		);
 	}
 	
@@ -1439,23 +1438,20 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_TASK, $context_id));
 				$tpl->assign('timeline_json', $timeline_json);
 			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TASK)))
+				return;
 			
 			// Dictionary
 			$labels = array();
 			$values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_TASK, $context_id, $labels, $values, '', true, false);
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_TASK, $task, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
-			$tpl->assign('properties',
-				array(
-					'task__label',
-					'status',
-					'importance',
-					'due',
-					'updated',
-					'owner__label',
-				)
-			);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
 			
 			$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');
 		}

@@ -842,7 +842,6 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'event',

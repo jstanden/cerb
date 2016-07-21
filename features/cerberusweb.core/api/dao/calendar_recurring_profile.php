@@ -1186,7 +1186,6 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'calendar__label',

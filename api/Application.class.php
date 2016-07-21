@@ -2062,7 +2062,6 @@ class Context_Application extends Extension_DevblocksContext {
 		);
 	}
 
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'name',

@@ -1092,7 +1092,6 @@ class Context_Notification extends Extension_DevblocksContext {
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'assignee__label',

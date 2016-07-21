@@ -1057,7 +1057,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'checked_at',

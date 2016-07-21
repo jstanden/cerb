@@ -582,6 +582,10 @@ button.ui-button::-moz-focus-inner {
 	margin: auto 0;
 }
 
+.ui-menu .ui-state-active .ui-icon {
+	background-image: url("images/ui-icons_217bc0_256x240.png");
+}
+
 /* right-aligned */
 .ui-menu .ui-menu-icon {
 	left: auto;

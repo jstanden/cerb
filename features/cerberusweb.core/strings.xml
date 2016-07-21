@@ -357,6 +357,16 @@
 				<seg>cancel</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.card">
+			<tuv xml:lang="en_US">
+				<seg>card</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.cards">
+			<tuv xml:lang="en_US">
+				<seg>cards</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.category">
 			<tuv xml:lang="en_US">
 				<seg>category</seg>
@@ -415,6 +425,11 @@
 		<tu tuid="common.context_id">
 			<tuv xml:lang="en_US">
 				<seg>Context ID</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.contexts">
+			<tuv xml:lang="en_US">
+				<seg>Contexts</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.continue">
@@ -912,6 +927,16 @@
 				<seg>Not Spam</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.object">
+			<tuv xml:lang="en_US">
+				<seg>object</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.objects">
+			<tuv xml:lang="en_US">
+				<seg>objects</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.optional">
 			<tuv xml:lang="en_US">
 				<seg>optional</seg>
@@ -1160,6 +1185,16 @@
 		<tu tuid="common.recommended">
 			<tuv xml:lang="en_US">
 				<seg>recommended</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.record">
+			<tuv xml:lang="en_US">
+				<seg>record</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.records">
+			<tuv xml:lang="en_US">
+				<seg>records</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.refresh">

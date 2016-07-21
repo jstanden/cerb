@@ -878,6 +878,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function getDefaultProperties() {
 		return array(
+			'replyto__label',
 			'updated_at',
 		);
 	}
@@ -1193,8 +1194,21 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 				$tpl->assign('timeline_json', $timeline_json);
 			}
 			
-			$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek.tpl');
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BUCKET)))
+				return;
 			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, $bucket, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek.tpl');
 		}
 		
 	}

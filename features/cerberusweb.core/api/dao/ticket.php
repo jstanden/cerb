@@ -4504,20 +4504,23 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
+		/*
 		return array(
-			'status',
-			'reopen_date',
-			'group__label',
-			'bucket__label',
 			'initial_message_sender__label',
 			'latest_message_sender__label',
-			'org__label',
-			'owner__label',
 			'spam_score',
-			'updated',
 			'num_messages',
+		);
+		*/
+		return array(
+			'status',
+			'group__label',
+			'bucket__label',
+			'owner__label',
+			'importance',
+			'updated',
+			'org__label',
 		);
 	}
 	
@@ -5221,23 +5224,19 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$timeline_json = Page_Profiles::getTimelineJson($ticket->getTimeline());
 			$tpl->assign('timeline_json', $timeline_json);
 			
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET)))
+				return;
+			
 			// Dictionary
 			$labels = array();
 			$values = array();
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
-			$tpl->assign('properties',
-				array(
-					'status',
-					'group__label',
-					'bucket__label',
-					'owner__label',
-					'importance',
-					'updated',
-					'org__label',
-				)
-			);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
 			
 			// Template
 			
