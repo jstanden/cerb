@@ -4,24 +4,27 @@
 			<div>
 				<a href="javascript:;" class="menu">Configure <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
-					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
+					<li><b>System</b></li>
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Branding</a></li>
-					<li><a href="{devblocks_url}c=config&a=localization{/devblocks_url}">Localization</a></li>
-					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">Security</a></li>
-					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">Custom Fields</a></li>
-					<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>
 					{if !$smarty.const.DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=cache{/devblocks_url}">Cache</a></li>{/if}
-					{if !$smarty.const.DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=search{/devblocks_url}">Search</a></li>{/if}
-					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
+					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
+					<li><a href="{devblocks_url}c=config&a=localization{/devblocks_url}">Localization</a></li>
+					<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>
+					{if !$smarty.const.DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=search{/devblocks_url}">{'common.search'|devblocks_translate|capitalize}</a></li>{/if}
+					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">Security</a></li>
 					<li><a href="{devblocks_url}c=config&a=sessions{/devblocks_url}">Sessions</a></li>
-					<li><a href="{devblocks_url}c=config&a=portals{/devblocks_url}">Community Portals</a></li>
-					<li><a href="{devblocks_url}c=config&a=skills{/devblocks_url}">Skills</a></li>
-					<li><a href="{devblocks_url}c=config&a=attendants{/devblocks_url}">Virtual Attendants</a></li>
-					<li><a href="{devblocks_url}c=config&a=scheduled_behavior{/devblocks_url}">Scheduled Behavior</a></li>
+					<li><hr></li>
+					<li><b>{'common.contexts'|devblocks_translate|capitalize}</b></li>
+					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
 					<li><a href="{devblocks_url}c=config&a=cards{/devblocks_url}">{'common.cards'|devblocks_translate|capitalize}</a></li>
+					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
+					<li><a href="{devblocks_url}c=config&a=skills{/devblocks_url}">{'common.skills'|devblocks_translate|capitalize}</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}
-					{if !empty($exts)}<li><hr></li>{/if}
+					{if !empty($exts)}
+						<li><hr></li>
+						<li><b>{'common.plugins'|devblocks_translate|capitalize}</b></li>
+					{/if}
 					{foreach from=$exts item=menu_item}
 						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
 					{/foreach}
@@ -49,7 +52,7 @@
 				<a href="javascript:;" class="menu">Mail <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><b>Incoming Mail</b></li>
-					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">Settings</a></li>
+					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=mailboxes{/devblocks_url}">Mailboxes</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_routing{/devblocks_url}">Routing</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_filtering{/devblocks_url}">Filtering</a></li>
@@ -79,11 +82,40 @@
 			<div>
 				<a href="javascript:;" class="menu">Storage <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
-					<li><a href="{devblocks_url}c=config&a=storage_content{/devblocks_url}">Content</a></li>
-					{if !$smarty.const.DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=storage_profiles{/devblocks_url}">Profiles</a></li>{/if}
-					<li><a href="{devblocks_url}c=config&a=storage_attachments{/devblocks_url}">Attachments</a></li>
+					<li><a href="{devblocks_url}c=config&a=storage_content{/devblocks_url}">Overview</a></li>
+					{if !$smarty.const.DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=storage_profiles{/devblocks_url}">{'common.profiles'|devblocks_translate|capitalize}</a></li>{/if}
+					<li><a href="{devblocks_url}c=config&a=storage_attachments{/devblocks_url}">{'common.objects'|devblocks_translate|capitalize}</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.storage')}
+					{if !empty($exts)}<li><hr></li>{/if}
+					{foreach from=$exts item=menu_item}
+						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
+					{/foreach}
+				</ul>
+			</div>
+		</li>
+		<li>
+			<div>
+				<a href="javascript:;" class="menu">{'common.virtual_attendants'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<ul class="cerb-popupmenu cerb-float">
+					<li><a href="{devblocks_url}c=config&a=attendants{/devblocks_url}">{'common.search'|devblocks_translate|capitalize}</a></li>
+					<li><a href="{devblocks_url}c=config&a=scheduled_behavior{/devblocks_url}">Scheduled Behavior</a></li>
+				
+					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.va')}
+					{if !empty($exts)}<li><hr></li>{/if}
+					{foreach from=$exts item=menu_item}
+						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
+					{/foreach}
+				</ul>
+			</div>
+		</li>
+		<li>
+			<div>
+				<a href="javascript:;" class="menu">{'common.portals'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<ul class="cerb-popupmenu cerb-float">
+					<li><a href="{devblocks_url}c=config&a=portals{/devblocks_url}">{'common.search'|devblocks_translate|capitalize}</a></li>
+				
+					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.portals')}
 					{if !empty($exts)}<li><hr></li>{/if}
 					{foreach from=$exts item=menu_item}
 						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}

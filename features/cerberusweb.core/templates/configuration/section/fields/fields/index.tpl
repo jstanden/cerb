@@ -2,7 +2,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">
 			<fieldset>
-				<legend>Record Type</legend>
+				<legend>{'common.context'|devblocks_translate|capitalize}</legend>
 				
 				<ul style="margin:0;padding:0;list-style:none;">
 				{if !empty($context_manifests)}

@@ -1097,6 +1097,26 @@
 				<seg>photo</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.plugin">
+			<tuv xml:lang="en_US">
+				<seg>plugin</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.plugins">
+			<tuv xml:lang="en_US">
+				<seg>plugins</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.portal">
+			<tuv xml:lang="en_US">
+				<seg>portal</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.portals">
+			<tuv xml:lang="en_US">
+				<seg>portals</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.preview">
 			<tuv xml:lang="en_US">
 				<seg>preview</seg>
@@ -1351,6 +1371,11 @@
 		<tu tuid="common.status">
 			<tuv xml:lang="en_US">
 				<seg>Status</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.storage">
+			<tuv xml:lang="en_US">
+				<seg>storage</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.subtotals">

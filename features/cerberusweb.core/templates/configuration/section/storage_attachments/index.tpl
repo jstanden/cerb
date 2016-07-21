@@ -3,7 +3,7 @@
 </div>
 
 <div style="float:left;">
-	<h2>Attachments</h2>
+	<h2>Storage Objects</h2>
 </div>
 
 <div style="clear:both;"></div>

@@ -1,4 +1,4 @@
-<h2>Storage Content</h2>
+<h2>{'common.storage'|devblocks_translate|capitalize}</h2>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:5px;">
 <input type="hidden" name="c" value="config">

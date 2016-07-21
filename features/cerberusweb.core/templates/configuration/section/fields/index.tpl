@@ -1,4 +1,4 @@
-<h2>Custom Fields</h2>
+<h2>{'common.custom_fields'|devblocks_translate|capitalize}</h2>
 
 <div id="cfTabs">
 	<ul>
@@ -9,7 +9,7 @@
 			<a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=fields&action=showFieldsTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">Global</a>
 		</li>
 		<li>
-			<a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=fields&action=showFieldsetsTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">Fieldsets</a>
+			<a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=fields&action=showFieldsetsTab&point={$point}&request={$response_uri|escape:'url'}{/devblocks_url}">{'common.fieldsets'|devblocks_translate|capitalize}</a>
 		</li>
 	</ul>
 </div> 
