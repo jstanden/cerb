@@ -1336,14 +1336,16 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('context', $context);
 		
-		if(!empty($context)) {
-			$token_labels = array();
-			$token_values = array();
-			
-			CerberusContexts::getContext($context, null, $token_labels, $token_values);
-			
-			$tpl->assign('token_labels', $token_labels);
-		}
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		$labels = array();
+		$null = array();
+		
+		CerberusContexts::getContext($context, null, $labels, $null, '', true, false);
+		
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+		$tpl->assign('placeholders', $placeholders);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/snippets/peek_toolbar.tpl');
 	}

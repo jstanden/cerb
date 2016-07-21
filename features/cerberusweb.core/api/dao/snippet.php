@@ -1040,7 +1040,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 			default:
-				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/snippets/views/default.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/snippets/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}

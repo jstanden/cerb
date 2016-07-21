@@ -232,6 +232,7 @@
 </form>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('{$layer}');
 	
 	$popup.one('popup_open',function(event,ui) {
@@ -261,7 +262,7 @@
 		
 		var $change_dropdown = $popup.find("form select[name=context]");
 		$change_dropdown.change(function(e) {
-			ctx = $(this).val();
+			var ctx = $(this).val();
 			genericAjaxGet($popup.find('DIV.toolbar'), 'c=internal&a=showSnippetsPeekToolbar&context=' + ctx);
 		});
 		
@@ -337,4 +338,5 @@
 			}
 		});
 	});
+});
 </script>
