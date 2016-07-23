@@ -1576,6 +1576,7 @@ UL.ui-menu {
   -moz-box-shadow: 0 5px 15px 0px #afafaf;
   -webkit-box-shadow: 0 5px 15px 0px #afafaf;
   box-shadow: 0 5px 15px 0px #afafaf;
+  min-width: 150px;
 }
 
 UL.ui-menu li.ui-menu-item {

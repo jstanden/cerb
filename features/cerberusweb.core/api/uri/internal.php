@@ -3329,6 +3329,9 @@ class ChInternalController extends DevblocksControllerExtension {
 				$labels = $evt->getLabels($trigger);
 				$tpl->assign('labels', $labels);
 					
+				$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+				$tpl->assign('placeholders', $placeholders);
+				
 				$values = $evt->getValues();
 				$tpl->assign('values', $values);
 				
@@ -3345,6 +3348,9 @@ class ChInternalController extends DevblocksControllerExtension {
 				// Action labels
 				$labels = $evt->getLabels($trigger);
 				$tpl->assign('labels', $labels);
+				
+				$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+				$tpl->assign('placeholders', $placeholders);
 				
 				$values = $evt->getValues();
 				$tpl->assign('values', $values);

@@ -42,25 +42,31 @@
 </div>
 
 <div id="divDecisionActionToolbar{$id}" style="display:none;">
+	<div class="tester"></div>
+
 	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
 	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 	
-	<div class="tester"></div>
-	<ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;">
-		<li style="background:none;">
-			<input type="text" size="18" class="input_search filter">
-		</li>
-		{$types = $values._types}
-		{foreach from=$labels key=k item=v}
-			{$modifier = ''}
-			
-			{$type = $types.$k}
-			{if $type == Model_CustomField::TYPE_DATE}
-				{$modifier = '|date'}
+	{$types = $values._types}
+	{function tree level=0}
+		{foreach from=$keys item=data key=idx}
+			{if is_array($data)}
+				<li>
+					<div>{$idx|capitalize}</div>
+					<ul>
+						{tree keys=$data level=$level+1}
+					</ul>
+				</li>
+			{else}
+				{$type = $types.{$data->key}}
+				<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
 			{/if}
-			<li><a href="javascript:;" token="{$k}{$modifier}">{$v}</a></li>
 		{/foreach}
+	{/function}
+	
+	<ul class="menu" style="width:150px;">
+	{tree keys=$placeholders}
 	</ul>
 </div>
 
@@ -117,8 +123,9 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('node_action{$id}');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{if empty($id)}New {/if}Actions");
-		$(this).find('input:text').first().focus();
+		$popup.dialog('option','title',"{if empty($id)}New {/if}Actions");
+		$popup.find('input:text').first().focus();
+		$popup.css('overflow', 'inherit');
 
 		// Choosers
 		
@@ -172,7 +179,7 @@ $(function() {
 			
 			if(0 == $src.nextAll('#divDecisionActionToolbar{$id}').length) {
 				$toolbar.find('div.tester').html('');
-				$toolbar.find('ul.cerb-popupmenu').hide();
+				$toolbar.find('ul.menu').hide();
 				
 				$toolbar.data('src', $src);
 				
@@ -193,12 +200,38 @@ $(function() {
 		
 		var $divPlaceholderMenu = $('#divDecisionActionToolbar{$id}');
 		
-		var $ph_menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
-		var $ph_menu = $divPlaceholderMenu.find('ul.cerb-popupmenu');
-		$ph_menu_trigger.data('menu', $ph_menu);
+		var $placeholder_menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
+		var $placeholder_menu = $divPlaceholderMenu.find('ul.menu').hide();
+		
+		// Quick insert token menu
+		
+		$placeholder_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
+				
+				if(undefined == token || undefined == label)
+					return;
+				
+				var $toolbar = $('DIV#divDecisionActionToolbar{$id}');
+				var $field = null;
+				
+				if($toolbar.data('src')) {
+					$field = $toolbar.data('src');
+				
+				} else {
+					$field = $toolbar.prev(':text, textarea');
+				}
+				
+				if(null == $field)
+					return;
+				
+				$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+			}
+		});
 		
 		$divPlaceholderMenu.find('button.tester').click(function(e) {
-			var divTester = $(this).nextAll('div.tester').first();
+			var divTester = $divPlaceholderMenu.find('div.tester').first();
 			
 			var $toolbar = $('DIV#divDecisionActionToolbar{$id}');
 			
@@ -226,71 +259,18 @@ $(function() {
 			genericAjaxPost($(this).closest('form').attr('id'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);
 		});
 		
-		$ph_menu_trigger
+		$placeholder_menu_trigger
 			.click(
 				function(e) {
-					$ph_menu = $(this).data('menu');
-					
-					if($ph_menu.is(':visible')) {
-						$ph_menu.hide();
-						
-					} else {
-						$ph_menu
-							.show()
-							.find('> li input:text')
-							.focus()
-							.select()
-							;
-					}
+					$placeholder_menu.toggle();
 				}
 			)
 			.bind('remove',
 				function(e) {
-					$ph_menu = $(this).data('menu');
-					$ph_menu.remove();
+					$placeholder_menu.remove();
 				}
 			)
 		;
-		
-		$ph_menu.find('> li > input.filter').keyup(
-			function(e) {
-				var term = $(this).val().toLowerCase();
-				$ph_menu = $(this).closest('ul.cerb-popupmenu');
-				$ph_menu.find('> li a').each(function(e) {
-					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
-						$(this).parent().show();
-					} else {
-						$(this).parent().hide();
-					}
-				});
-			}
-		);
-		
-		$ph_menu.find('> li').click(function(e) {
-			e.stopPropagation();
-			if(!$(e.target).is('li'))
-				return;
-		
-			$(this).find('a').trigger('click');
-		});
-		
-		$ph_menu.find('> li > a').click(function() {
-			var $toolbar = $('DIV#divDecisionActionToolbar{$id}');
-			
-			if($toolbar.data('src')) {
-				$field = $toolbar.data('src');
-			
-			} else {
-				$field = $toolbar.prev(':text, textarea');
-			}
-			
-			if(null == $field)
-				return;
-			
-			var strtoken = $(this).attr('token');
-			
-			$field.focus().insertAtCursor('{literal}{{{/literal}' + strtoken + '{literal}}}{/literal}');
-		});
 		
 		// Action menu
 		
