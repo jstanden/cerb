@@ -90,7 +90,7 @@ if(!defined('APP_SMARTY_COMPILE_PATH'))
 	define('APP_SMARTY_COMPILE_PATH',APP_TEMP_PATH . '/templates_c');
 
 if(!defined('APP_SMARTY_SANDBOX_COMPILE_PATH'))
-	define('APP_SMARTY_COMPILE_PATH',APP_TEMP_PATH . '/templates_c');
+	define('APP_SMARTY_SANDBOX_COMPILE_PATH',APP_TEMP_PATH . '/templates_c');
 
 if(!defined('APP_SMARTY_COMPILE_USE_SUBDIRS'))
 	define('APP_SMARTY_COMPILE_USE_SUBDIRS', false);
