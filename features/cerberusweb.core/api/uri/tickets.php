@@ -1249,9 +1249,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		// Buckets
-		$group_buckets = DAO_Bucket::getGroups(); // [TODO] Cache these
-		$tpl->assign('group_buckets', $group_buckets);
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
 		
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);

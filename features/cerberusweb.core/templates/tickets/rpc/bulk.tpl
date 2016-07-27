@@ -22,17 +22,21 @@
 		{if $active_worker->hasPriv('core.ticket.actions.move')}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Move to:</td>
-			<td width="100%"><select name="do_move">
-				<option value=""></option>
-				{foreach from=$group_buckets item=buckets key=groupId}
-					{$group = $groups.$groupId}
-					{foreach from=$buckets item=bucket}
-					{if $bucket->is_default || !empty($active_worker_memberships.$groupId)}
-						<option value="{$bucket->id}">{$group->name}: {$bucket->name}</option>
-					{/if}
+			<td width="100%">
+				<select class="cerb-moveto-group">
+					<option></option>
+					{foreach from=$groups item=group}
+					<option value="{$group->id}">{$group->name}</option>
 					{/foreach}
-				{/foreach}
-			</select></td>
+				</select>
+				<select class="cerb-moveto-bucket-options" style="display:none;">
+					{foreach from=$buckets item=bucket}
+					<option value="{$bucket->id}" data-group-id="{$bucket->group_id}">{$bucket->name}</option>
+					{/foreach}
+				</select>
+				<select name="do_move" class="cerb-moveto-bucket" style="display:none;">
+				</select>
+			</td>
 		</tr>
 		{/if}
 		
@@ -202,6 +206,35 @@ $(function() {
 		$frm.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'broadcast_file_ids');
 		});
+		
+		// Move to
+		
+		var $select_moveto_group = $popup.find('select.cerb-moveto-group');
+		var $select_moveto_bucket = $popup.find('select.cerb-moveto-bucket');
+		var $select_moveto_bucket_options = $popup.find('select.cerb-moveto-bucket-options');
+		
+		$select_moveto_group.change(function() {
+			var group_id = $(this).val();
+			
+			$select_moveto_bucket.find('> option').remove();
+			
+			$('<option/>').appendTo($select_moveto_bucket);
+			
+			if(0 == group_id.length) {
+				$select_moveto_bucket.val('').hide();
+				return;
+			}
+			
+			$select_moveto_bucket_options.find('option').each(function() {
+				var $opt = $(this);
+				if($opt.attr('data-group-id') == group_id)
+					$opt.clone().appendTo($select_moveto_bucket);
+			});
+			
+			$select_moveto_bucket.val('').fadeIn();
+		});
+		
+		// Broadcast
 		
 		var $content = $frm.find('textarea[name=broadcast_message]');
 		
