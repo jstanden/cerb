@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -58,9 +58,9 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
@@ -69,11 +69,11 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="c_name"}
-			<td>
+			<td data-column="{$column}">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=handleSectionAction&section=custom_fieldsets&action=showCustomFieldsetPeek&view_id={$view->id}&id={$result.c_id}', null, false, '550');" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
 			</td>
 			{elseif $column=="c_context"}
-			<td>
+			<td data-column="{$column}">
 				{if isset($contexts.{$result.$column})}
 					{$contexts.{$result.$column}->name}
 				{else}
@@ -84,7 +84,7 @@
 				{$owner_context = $result.c_owner_context}
 				{$owner_context_id = $result.c_owner_context_id}
 				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
-				<td>
+				<td data-column="{$column}">
 					{if !is_null($owner_context_ext)}
 						{$meta = $owner_context_ext->getMeta($owner_context_id)}
 						{if !empty($meta)}
@@ -94,7 +94,7 @@
 					{/if}
 				</td>
 			{else}
-			<td>{$result.$column}</td>
+			<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

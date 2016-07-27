@@ -1,7 +1,7 @@
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -52,9 +52,9 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	
 	{assign var=list_id value=$result.f_list_id}
@@ -62,7 +62,7 @@
 	{assign var=mood value=$result.f_quote_mood}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td colspan="{$smarty.foreach.headers.total}">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.tl_id}" style="display:none;">
 				<div id="subject_{$result.tl_id}_{$view->id}" style="margin:2px;font-size:12px;">
 					<input type="hidden" name="row_ids[]" value="{$result.tl_id}">
@@ -119,20 +119,20 @@
 			{assign var=lang_code value=$result.tl_lang_code}
 		
 			{if $column=="tl_id"}
-				<td valign="top">{$result.tl_id}&nbsp;</td>
+				<td data-column="{$column}" valign="top">{$result.tl_id}&nbsp;</td>
 			{elseif $column=="tl_string_override"}
-				<td>
+				<td data-column="{$column}">
 					{math assign=height equation="25+(25*floor(x/65))" x=$english_string->string_default|count_characters format="%d"}
 					<textarea name="translations[]" style="width:98%;height:{$height}px;border:1px solid rgb(80,80,80);" rows="3" cols="45">{if !empty($result.$column)}{$result.$column}{/if}</textarea>
 				</td>
 			{elseif $column=="tl_string_id"}
-				<td valign="top">{$result.$column}&nbsp;</td>
+				<td data-column="{$column}" valign="top">{$result.$column}&nbsp;</td>
 			{elseif $column=="tl_lang_code"}
-				<td valign="top">
+				<td data-column="{$column}" valign="top">
 					{$langs.$lang_code}&nbsp;
 				</td>
 			{else}
-				<td valign="top">{$result.$column}&nbsp;</td>
+				<td data-column="{$column}" valign="top">{$result.$column}&nbsp;</td>
 			{/if}
 		{/foreach}
 		</tr>

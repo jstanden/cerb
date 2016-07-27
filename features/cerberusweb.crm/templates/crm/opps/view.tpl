@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_OPPORTUNITY}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -68,16 +68,16 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2">
+			<td data-column="*_watchers" align="center" rowspan="2">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.o_id}
 			</td>
-			<td colspan="{$smarty.foreach.headers.total}">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.o_id}" style="display:none;">
 				
 				{if $result.o_is_closed && $result.o_is_won}<span style="color:rgb(0,120,0);font-weight:bold;"><span class="glyphicons glyphicons-up-arrow" title="Won" style="line-height:16px;"></span></span> 
@@ -91,7 +91,7 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="o_id"}
-				<td>{$result.o_id}&nbsp;</td>
+				<td data-column="{$column}">{$result.o_id}&nbsp;</td>
 			{elseif $column=="org_name"}
 				<td>
 					{if !empty($result.org_id)}
@@ -99,9 +99,9 @@
 					{/if}
 				</td>
 			{elseif $column=="o_amount"}
-				<td>{$result.o_amount|number_format:2}&nbsp;</td>
+				<td data-column="{$column}">{$result.o_amount|number_format:2}&nbsp;</td>
 			{elseif $column=="a_email"}
-				<td>
+				<td data-column="{$column}">
 					{if !empty($result.a_email)}
 						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'500');" title="{$result.a_email}">{$result.a_email}</a>&nbsp;
 					{else}
@@ -109,20 +109,20 @@
 					{/if}
 				</td>
 			{elseif $column=="o_created_date"}
-				<td><abbr title="{$result.$column|devblocks_date}">{$result.o_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.o_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="o_updated_date"}
-				<td><abbr title="{$result.$column|devblocks_date}">{$result.o_updated_date|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.o_updated_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="o_closed_date"}
-				<td><abbr title="{$result.$column|devblocks_date}">{$result.o_closed_date|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.o_closed_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="o_worker_id"}
-				<td>
+				<td data-column="{$column}">
 					{assign var=o_worker_id value=$result.o_worker_id}
 					{if isset($workers.$o_worker_id)}
 						{$workers.$o_worker_id->getName()}&nbsp;
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

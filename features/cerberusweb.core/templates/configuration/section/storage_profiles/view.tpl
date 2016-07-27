@@ -1,7 +1,7 @@
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklist">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -49,27 +49,27 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		{*
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"></td>
+			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"></td>
 		</tr>
 		*}
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="d_id"}
-			<td>{$result.d_id}&nbsp;</td>
+			<td data-column="{$column}">{$result.d_id}&nbsp;</td>
 			{elseif $column=="d_name"}
-			<td style="padding:5px;">
+			<td data-column="{$column}" style="padding:5px;">
 				<input type="checkbox" name="row_id[]" value="{$result.d_id}" style="display:none;">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_profiles&action=showStorageProfilePeek&id={$result.d_id}&view_id={$view->id|escape:'url'}',null,false,'500');" class="subject">{$result.d_name}</a>
 			</td>
 			{else}
-			<td>{$result.$column}</td>
+			<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

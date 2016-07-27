@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_FEEDBACK}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -61,25 +61,25 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	
 	{assign var=worker_id value=$result.f_worker_id}
 	{assign var=mood value=$result.f_quote_mood}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" valign="top" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" valign="top" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.f_id}
 			</td>
 			{foreach from=$view->view_columns item=column name=columns}
 				{if substr($column,0,3)=="cf_"}
 					{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 				{elseif $column=="f_id"}
-					<td>{$result.f_id}&nbsp;</td>
+					<td data-column="{$column}">{$result.f_id}&nbsp;</td>
 				{elseif $column=="a_email"}
-					<td>
+					<td data-column="{$column}">
 						{if !empty($result.a_email)}
 							<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$result.f_quote_address_id}&view_id={$view->id}',null,false,'500');">{$result.a_email}</a>
 						{else}
@@ -87,11 +87,11 @@
 						{/if}
 					</td>
 				{elseif $column=="f_log_date"}
-					<td title="{$result.f_log_date|devblocks_date}">{$result.f_log_date|devblocks_prettytime}&nbsp;</td>
+					<td data-column="{$column}" title="{$result.f_log_date|devblocks_date}">{$result.f_log_date|devblocks_prettytime}&nbsp;</td>
 				{elseif $column=="f_worker_id"}
-					<td>{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{/if}&nbsp;</td>
+					<td data-column="{$column}">{if isset($workers.$worker_id)}{$workers.$worker_id->getName()}{/if}&nbsp;</td>
 				{elseif $column=="f_quote_mood"}
-					<td>
+					<td data-column="{$column}">
 						{if 1==$result.$column}
 						<span class="tag tag-green" style="vertical-align:middle;">{'feedback.mood.praise'|devblocks_translate|lower}</span>
 						{elseif 2==$result.$column}
@@ -101,14 +101,14 @@
 						{/if}
 					</td>
 				{elseif $column=="f_source_url"}
-					<td><a href="{$result.f_source_url}" target="_blank" title="{$result.f_source_url}">{$result.f_source_url|truncate:35:'...':true:false}</a>&nbsp;</td>
+					<td data-column="{$column}"><a href="{$result.f_source_url}" target="_blank" title="{$result.f_source_url}">{$result.f_source_url|truncate:35:'...':true:false}</a>&nbsp;</td>
 				{else}
-					<td>{$result.$column}</td>
+					<td data-column="{$column}">{$result.$column}</td>
 				{/if}
 			{/foreach}
 		</tr>
 		<tr class="{$tableRowClass}">
-			<td colspan="{$smarty.foreach.headers.total}">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<div id="subject_{$result.f_id}_{$view->id}" style="margin:5px;margin-left:10px;font-size:12px;">
 					<input type="checkbox" name="row_id[]" value="{$result.f_id}" style="display:none;">
 					{$result.f_quote_text} 

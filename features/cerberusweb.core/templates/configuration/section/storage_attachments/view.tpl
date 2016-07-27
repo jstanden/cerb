@@ -1,7 +1,7 @@
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklist">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -51,31 +51,31 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"><input type="checkbox" name="row_id[]" value="{$result.al_guid}" style="display:none;"></td>
-			<td colspan="{$smarty.foreach.headers.total}">
+			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"><input type="checkbox" name="row_id[]" value="{$result.al_guid}" style="display:none;"></td>
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<a href="{devblocks_url}c=files&p={$result.al_guid}&name={$result.a_display_name|escape:'url'}{/devblocks_url}" class="subject" target="_blank">{$result.a_display_name|default:'(no name)'}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="al_attachment_id"}
-			<td>{$result.al_attachment_id}&nbsp;</td>
+			<td data-column="{$column}">{$result.al_attachment_id}&nbsp;</td>
 			{elseif $column=="a_storage_size"}
-			<td>{$result.a_storage_size|devblocks_prettybytes}&nbsp;</td>
+			<td data-column="{$column}">{$result.a_storage_size|devblocks_prettybytes}&nbsp;</td>
 			{elseif $column=="a_storage_extension"}
-			<td>
+			<td data-column="{$column}">
 				{if isset($storage_extensions.{$result.$column})}
 					{$storage_extensions.{$result.$column}->name}
 				{/if}
 			</td>
 			{elseif $column=="a_storage_profile_id"}
-			<td>
+			<td data-column="{$column}">
 				{if $result.$column}
 					{$storage_profile_id = $result.a_storage_profile_id}
 					{if isset($storage_profiles.$storage_profile_id)}
@@ -84,9 +84,9 @@
 				{/if}
 			</td>
 			{elseif $column=="a_updated"}
-			<td title="{$result.a_updated|devblocks_date}">{$result.a_updated|devblocks_prettytime}&nbsp;</td>
+			<td data-column="{$column}" title="{$result.a_updated|devblocks_date}">{$result.a_updated|devblocks_prettytime}&nbsp;</td>
 			{elseif $column=="al_context"}
-			<td>
+			<td data-column="{$column}">
 				{if isset($contexts.{$result.$column})}
 					{$owner_context = Extension_DevblocksContext::get($result.al_context)}
 					{if $owner_context}
@@ -100,7 +100,7 @@
 				{/if}
 			</td>
 			{else}
-			<td>{$result.$column}</td>
+			<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

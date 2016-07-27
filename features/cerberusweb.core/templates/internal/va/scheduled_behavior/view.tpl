@@ -1,7 +1,7 @@
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -50,9 +50,9 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
@@ -60,12 +60,12 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="b_behavior_name"}
-			<td>
+			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
 				<a href="javascript:;" onclick="$popup=genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&job_id={$result.c_id}&view_id={$view->id}',this,false,'550');$popup.one('behavior_save',function(e) { genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}'); });" class="subject">{$result.$column}</a>
 			</td>
 			{elseif $column=="c_run_date"}
-			<td style="width:100px;">
+			<td data-column="{$column}" style="width:100px;">
 				{if $result.$column <= time()}
 				now
 				{else}
@@ -73,7 +73,7 @@
 				{/if}
 			</td>
 			{elseif $column=="b_behavior_virtual_attendant_id"}
-			<td>
+			<td data-column="{$column}">
 				{$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)}
 				{if is_object($ctx)}
 				{$meta = $ctx->getMeta($result.$column)}
@@ -87,7 +87,7 @@
 				{/if}
 			</td>
 			{elseif $column=="*_target"}
-			<td>
+			<td data-column="{$column}">
 				{$ctx = Extension_DevblocksContext::get($result.c_context)}
 				{if is_object($ctx)}
 				{$meta = $ctx->getMeta($result.c_context_id)}
@@ -101,7 +101,7 @@
 				{/if}
 			</td>
 			{elseif $column=="c_repeat_json"}
-			<td>
+			<td data-column="{$column}">
 				{if !empty($result.$column)}
 					{$repeat = json_decode($result.$column, true)}
 					{if $repeat.freq == 'interval'}
@@ -113,7 +113,7 @@
 				{/if}
 			</td>
 			{else}
-			<td>{$result.$column}</td>
+			<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

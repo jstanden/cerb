@@ -3,17 +3,17 @@
 {$col = $custom_fields[$col_id]}
 
 {if $col->type==Model_CustomField::TYPE_SINGLE_LINE}
-	<td>{$result.$column}</td>
+	<td data-column="{$column}">{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_URL}
-	<td>{if !empty($result.$column)}<a href="{$result.$column}" target="_blank">{$result.$column}</a>{/if}</td>
+	<td data-column="{$column}">{if !empty($result.$column)}<a href="{$result.$column}" target="_blank">{$result.$column}</a>{/if}</td>
 {elseif $col->type==Model_CustomField::TYPE_NUMBER}
-	<td>{$result.$column}</td>
+	<td data-column="{$column}">{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_MULTI_LINE}
-	<td title="{$result.$column}">{$result.$column|truncate:32}</td>
+	<td data-column="{$column}" title="{$result.$column}">{$result.$column|truncate:32}</td>
 {elseif $col->type==Model_CustomField::TYPE_DROPDOWN}
-	<td>{$result.$column}</td>
+	<td data-column="{$column}">{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_MULTI_CHECKBOX}
-	<td>
+	<td data-column="{$column}">
 		{$opts = $result.$column|explode:','|sort}
 		{$opts|array_keys}
 		{foreach from=$opts item=opt name=opts}
@@ -21,14 +21,13 @@
 		{/foreach}
 	</td>
 {elseif $col->type==Model_CustomField::TYPE_DATE}
-	<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
+	<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 {elseif $col->type==Model_CustomField::TYPE_CHECKBOX}
-	<td>{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
+	<td data-column="{$column}">{if '1'==$result.$column}Yes{elseif '0'==$result.$column}No{/if}</td>
 {elseif $col->type==Model_CustomField::TYPE_LINK}
-	<td>
-	</td>
+	<td data-column="{$column}"></td>
 {elseif $col->type==Model_CustomField::TYPE_FILE}
-	<td>
+	<td data-column="{$column}">
 	{*
 		{$file_id = $result.$column}
 		{$file = DAO_Attachment::get($file_id)}
@@ -36,7 +35,7 @@
 	*}
 	</td>
 {elseif $col->type==Model_CustomField::TYPE_FILES}
-	<td>
+	<td data-column="{$column}">
 	{*
 		{$file_ids = DevblocksPlatform::parseCrlfString($result.$column)}
 
@@ -47,12 +46,12 @@
 	*}
 	</td>
 {elseif $col->type==Model_CustomField::TYPE_WORKER}
-	<td>
+	<td data-column="{$column}">
 	{assign var=worker_id value=$result.$column}
 	{if !empty($worker_id) && isset($workers.$worker_id)}
 		{$workers.$worker_id->getName()}
 	{/if}
 	</td>
 {else}
-	<td></td>
+	<td data-column="{$column}"></td>
 {/if}

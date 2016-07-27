@@ -1,7 +1,7 @@
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -64,13 +64,13 @@
 	{$in_menu = in_array($result.w_id, $menu)}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" nowrap="nowrap" style="padding:5px;">
+			<td data-column="button" align="center" nowrap="nowrap" style="padding:5px;">
 				<button class="add" type="button" page_id="{$result.w_id}" page_label="{$result.w_name|lower}" page_url="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span>{else}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(150,150,150);">{/if}</button>
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
 			</td>
@@ -78,7 +78,7 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="w_name"}
-			<td>
+			<td data-column="{$column}">
 				<a href="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.w_name)}{$result.w_name}{else}New Page{/if}</a>
 				{if CerberusContexts::isWriteableByActor($result.w_owner_context, $result.w_owner_context_id, $active_worker)}
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$result.w_id}&view_id={$view->id}',null,true,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
@@ -88,7 +88,7 @@
 				{$owner_context = $result.w_owner_context}
 				{$owner_context_id = $result.w_owner_context_id}
 				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
-				<td>
+				<td data-column="{$column}">
 					{if !is_null($owner_context_ext)}
 						{$meta = $owner_context_ext->getMeta($owner_context_id)}
 						{if !empty($meta)}
@@ -98,7 +98,7 @@
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

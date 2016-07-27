@@ -59,9 +59,9 @@
 	{$custom_placeholders = $result.s_custom_placeholders_json|json_decode:true}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	
 	{$dict = null}
@@ -72,12 +72,12 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="s_title"}
-			<td context="{$result.s_context}" id="{$result.s_id}" has_custom_placeholders="{if !empty($custom_placeholders)}true{else}false{/if}">
+			<td data-column="{$column}" context="{$result.s_context}" id="{$result.s_id}" has_custom_placeholders="{if !empty($custom_placeholders)}true{else}false{/if}">
 				<input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;">
 				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&view_id={$view->id}&id={$result.s_id}', null, false, '550');" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
 			</td>
 			{elseif $column=="s_context"}
-			<td>
+			<td data-column="{$column}">
 				{if '' == $result.$column}
 					Plaintext
 				{elseif isset($contexts.{$result.$column})}
@@ -90,7 +90,7 @@
 				{$owner_context = $result.s_owner_context}
 				{$owner_context_id = $result.s_owner_context_id}
 				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
-				<td>
+				<td data-column="{$column}">
 					{if !is_null($owner_context_ext)}
 						{$meta = $owner_context_ext->getMeta($owner_context_id)}
 						{if !empty($meta)}
@@ -100,16 +100,16 @@
 					{/if}
 				</td>
 			{elseif $column=="s_updated_at"}
-			<td>
+			<td data-column="{$column}">
 				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 			</td>
 			{else}
-			<td>{$result.$column}</td>
+			<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>
 		<tr class="{$tableRowClass} preview" style="display:none;">
-			<td colspan="{count($view->view_columns)}">
+			<td data-column="preview" colspan="{count($view->view_columns)}">
 				{$snippet_content = $result.s_content|regex_replace:'#({{.*?}})#':'[ph]\1[/ph]'}
 				
 				{if isset($dicts.{$result.s_context}) && isset($tpl_builder)}

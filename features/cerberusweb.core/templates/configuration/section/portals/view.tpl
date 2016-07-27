@@ -1,7 +1,7 @@
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -51,13 +51,13 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center">
+			<td data-column="checkbox" align="center">
 				<input type="checkbox" name="row_id[]" value="{$result.ct_id}" style="display:none;">
 			</td>
 		{foreach from=$view->view_columns item=column name=columns}
@@ -65,18 +65,18 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="ct_name"}
-			<td style="padding:5px;">
+			<td data-column="{$column}" style="padding:5px;">
 				<a href="{devblocks_url}c=config&section=portal&portal={$result.ct_code}{/devblocks_url}" class="subject">{if !empty($result.ct_name)}{$result.ct_name}{elseif isset($tool_extensions.$extid)}{$tool_extensions.$extid->name}{else}(no name){/if}</a>&nbsp;
 			</td>
 			{elseif $column=="ct_extension_id"}
-			<td>
+			<td data-column="{$column}">
 				{if isset($tool_extensions.$extid)}
 					{assign var=ext value=$tool_extensions.$extid}
 					{$ext->name}&nbsp;
 				{/if}
 			</td>
 			{else}
-			<td>{$result.$column}</td>
+			<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

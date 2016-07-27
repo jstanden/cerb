@@ -1,7 +1,7 @@
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklist">
 	<tr>
 		<td nowrap="nowrap"><h2>{$view->name}</h2></td>
@@ -50,7 +50,7 @@
 	<tbody style="cursor:pointer;">
 		{if !in_array('kb_title', $view->view_columns)}
 		<tr class="{$tableRowClass}">
-			<td colspan="{$view->view_columns|count}">
+			<td data-column="label" colspan="{$view->view_columns|count}">
 				{$smarty.capture.kb_title_block nofilter}
 			</td>
 		</tr>
@@ -62,15 +62,15 @@
 				{include file="devblocks:cerberusweb.support_center::support_center/internal/view/cell_renderer.tpl"}
 
 			{elseif $column=="kb_title"}
-				<td>
+				<td data-column="{$column}">
 					{$smarty.capture.kb_title_block nofilter}
 				</td>
 				
 			{elseif $column=="kb_updated"}
-				<td><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td data-column="{$column}"><abbr title="{$result.kb_updated|devblocks_date}">{$result.kb_updated|devblocks_prettytime}</abbr>&nbsp;</td>
 				
 			{elseif $column=="kb_format"}
-				<td>
+				<td data-column="{$column}">
 					{if 0==$result.$column}
 						Plaintext
 					{elseif 1==$result.$column}
@@ -82,7 +82,7 @@
 				</td>
 				
 			{elseif $column=="katc_top_category_id"}
-				<td>
+				<td data-column="{$column}">
 					{if !empty($result.$column)}
 						{assign var=topic_id value=$result.$column}
 						{if isset($categories.$topic_id)}
@@ -93,7 +93,7 @@
 				</td>
 				
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 				
 			{/if}
 		{/foreach}

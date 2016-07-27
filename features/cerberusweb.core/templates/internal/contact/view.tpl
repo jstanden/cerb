@@ -84,16 +84,16 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.c_id}
 			</td>
-			<td colspan="{$smarty.foreach.headers.total}">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				{$full_name = "{$result.c_first_name}{if $result.c_first_name && $result.c_last_name} {/if}{$result.c_last_name}"}
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&type=contact&id={$result.c_id}-{$full_name|devblocks_permalink}{/devblocks_url}" class="subject">{$full_name}</a>
@@ -105,7 +105,7 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == SearchFields_Contact::GENDER}
-			<td>
+			<td data-column="{$column}">
 				{if $result.$column == 'M'}
 				<span class="glyphicons glyphicons-male"></span>
 				{elseif $result.$column == 'F'}
@@ -114,27 +114,27 @@
 				{/if}
 			</td>
 			{elseif $column == SearchFields_Contact::PRIMARY_EMAIL_ID}
-			<td>
+			<td data-column="{$column}">
 				{if isset($object_addys.{$result.$column})}
 				{$addy = $object_addys.{$result.$column}}
 				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
 				{/if}
 			</td>
 			{elseif $column == SearchFields_Contact::ORG_ID}
-			<td>
+			<td data-column="{$column}">
 				{if isset($object_orgs.{$result.$column})}
 				{$org = $object_orgs.{$result.$column}}
 				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a>
 				{/if}
 			</td>
 			{elseif in_array($column, ["c_created_at","c_updated_at","c_last_login_at"])}
-				<td title="{$result.$column|devblocks_date}">
+				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

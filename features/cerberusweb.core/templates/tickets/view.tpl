@@ -1,7 +1,7 @@
 {$view_context = CerberusContexts::CONTEXT_TICKET}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$total = $results[1]}
+{$data = $results[0]}
 <div id="{$view->id}_output_container">
 	{include file="devblocks:cerberusweb.core::tickets/rpc/ticket_view_output.tpl"}
 </div>
@@ -80,9 +80,9 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	
 	{* This is used in two places depending on if the row is one or two lines *}

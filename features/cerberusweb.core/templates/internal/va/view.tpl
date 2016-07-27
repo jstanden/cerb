@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -69,15 +69,15 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 	
 		{if !$view->options.disable_watchers}
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.v_id}
 			</td>
 		</tr>
@@ -88,7 +88,7 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == "v_name"}
-			<td>
+			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.v_id}" style="display:none;">
 				<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$result.v_id}{/devblocks_url}?v={$result.v_updated_at}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
 				<a href="{devblocks_url}c=profiles&type=virtual_attendant&id={$result.v_id}-{$result.v_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.v_name}</a>
@@ -100,13 +100,13 @@
 				{/if}
 			</td>
 			{elseif $column == "v_created_at" || $column == "v_updated_at"}
-				<td title="{$result.$column|devblocks_date}">
+				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
 			{elseif $column == "v_is_disabled"}
-				<td>
+				<td data-column="{$column}">
 					{if !empty($result.$column)}
 						{'common.yes'|devblocks_translate|lower}
 					{else}
@@ -117,7 +117,7 @@
 				{$owner_context = $result.v_owner_context}
 				{$owner_context_id = $result.v_owner_context_id}
 				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
-				<td>
+				<td data-column="{$column}">
 					{if !is_null($owner_context_ext)}
 						{$meta = $owner_context_ext->getMeta($owner_context_id)}
 						{if !empty($meta)}
@@ -136,7 +136,7 @@
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_TASK}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -67,16 +67,16 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.t_id}
 			</td>
-			<td colspan="{$smarty.foreach.headers.total}">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.t_id}" style="display:none;">
 				{if $result.t_is_completed}
 					<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);" title="{$result.t_completed_date|devblocks_date}"></span>
@@ -91,33 +91,33 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="t_id"}
-				<td>{$result.t_id}&nbsp;</td>
+				<td data-column="{$column}">{$result.t_id}&nbsp;</td>
 			{elseif $column=="t_created_at" || $column=="t_completed_date" || $column=="t_updated_date"}
-				<td title="{$result.$column|devblocks_date}">
+				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
 			{elseif $column=="t_due_date"}
-				{assign var=overdue value=0}
+				{$overdue = 0}
 				{if $result.t_due_date}
 					{math assign=overdue equation="(t-x)" t=$timestamp_now x=$result.t_due_date format="%d"}
 				{/if}
-				<td title="{$result.t_due_date|devblocks_date}" style="{if $overdue > 0}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_due_date|devblocks_prettytime}</td>
+				<td data-column="{$column}" title="{$result.t_due_date|devblocks_date}" style="{if $overdue > 0}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_due_date|devblocks_prettytime}</td>
 			{elseif $column=="t_is_completed"}
-				<td>
+				<td data-column="{$column}">
 					{if $result.t_is_completed}
 					<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span>
 					{/if}
 				</td>
 			{elseif $column=="t_importance"}
-			<td>
+			<td data-column="{$column}">
 				<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
 					<div style="position:relative;margin-left:-5px;top:-1px;left:{$result.$column}%;width:10px;height:10px;border-radius:10px;background-color:{if $result.$column < 50}rgb(0,200,0);{elseif $result.$column > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
 				</div>
 			</td>
 			{elseif $column=="t_owner_id"}
-			<td>
+			<td data-column="{$column}">
 				{$owner = $workers.{$result.t_owner_id}}
 				{if $owner instanceof Model_Worker}
 					<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;"> 
@@ -125,7 +125,7 @@
 				{/if}
 			</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

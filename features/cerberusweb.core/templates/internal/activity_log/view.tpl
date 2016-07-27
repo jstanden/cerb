@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_ACTIVITY_LOG}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -56,13 +56,13 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td colspan="{$smarty.foreach.headers.total}" style="font-size:12px;color:rgb(80,80,80);padding:2px 0px;">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}" style="font-size:12px;color:rgb(80,80,80);padding:2px 0px;">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
 				{* If we're looking at the target context, hide the text in the entry *}
 				{$entry = json_decode($result.c_entry_json, true)}
@@ -81,13 +81,13 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="c_created"}
-				<td title="{$result.$column|devblocks_date}">
+				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

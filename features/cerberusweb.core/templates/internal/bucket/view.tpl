@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_BUCKET}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -62,9 +62,9 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
@@ -72,30 +72,30 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == "b_name"}
-			<td>
+			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.b_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&type=bucket&id={$result.b_id}-{$result.b_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.b_name}</a>
 				<button type="button" class="cerb-peek-trigger peek" data-context="{$view_context}" data-context-id="{$result.b_id}"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 			{elseif $column == "b_group_id"}
-				<td>
+				<td data-column="{$column}">
 					{$group = $groups.{$result.$column}}
 					{if $group}
 						<a href="{devblocks_url}c=profiles&what=group&id={$group->id}{/devblocks_url}-{$group->name|devblocks_permalink}">{$group->name}</a>
 					{/if}
 				</td>
 			{elseif $column == "b_is_default"}
-				<td>
+				<td data-column="{$column}">
 					{if $result.$column}{'common.yes'|devblocks_translate|lower}{else}{'common.no'|devblocks_translate|lower}{/if}
 				</td>
 			{elseif $column == "b_updated_at"}
-				<td title="{$result.$column|devblocks_date}">
+				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

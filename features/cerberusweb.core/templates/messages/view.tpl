@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_MESSAGE}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -58,13 +58,13 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td colspan="{$smarty.foreach.headers.total}">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.m_id}" style="display:none;">
 				{if $result.t_status_id == Model_Ticket::STATUS_DELETED}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_WAITING}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
 				<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}&focus=message&focusid={$result.m_id}{/devblocks_url}" class="subject">{if !empty($result.t_subject)}{$result.t_subject}{else}(no subject){/if}</a>
@@ -76,11 +76,11 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="a_email"}
-				<td>
+				<td data-column="{$column}">
 					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.m_address_id}">{$result.$column}</a>
 				</td>
 			{elseif $column=="t_group_id"}
-				<td>
+				<td data-column="{$column}">
 				{if empty($groups)}{$groups = DAO_Group::getAll()}{/if}
 				{$group_id = $result.$column}
 				{if isset($groups.$group_id)}
@@ -88,7 +88,7 @@
 				{/if}
 				</td>
 			{elseif $column=="m_worker_id"}
-				<td>
+				<td data-column="{$column}">
 				{if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
 				{$worker_id = $result.$column}
 				{if isset($workers.$worker_id)}
@@ -98,15 +98,15 @@
 				{/if}
 				</td>
 			{elseif $column=="m_is_outgoing" || $column=="m_is_broadcast"}
-				<td>
+				<td data-column="{$column}">
 					{if !empty($result.$column)}{'common.yes'|devblocks_translate|lower}{else}{'common.no'|devblocks_translate|lower}{/if}
 				</td>
 			{elseif $column=="m_created_date"}
-				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="m_response_time"}
-				<td>{if !empty($result.$column)}{$result.$column|devblocks_prettysecs:2}{/if}</td>
+				<td data-column="{$column}">{if !empty($result.$column)}{$result.$column|devblocks_prettysecs:2}{/if}</td>
 			{elseif $column=="*_ticket_status"}
-				<td>
+				<td data-column="{$column}">
 					{if $result.status_id == Model_Ticket::STATUS_DELETED}
 						{'status.deleted'|devblocks_translate|lower}
 					{elseif $result.status_id == Model_Ticket::STATUS_CLOSED}
@@ -118,7 +118,7 @@
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

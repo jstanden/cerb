@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_ADDRESS}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -77,16 +77,16 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$result.a_id}
 			</td>
-			<td colspan="{$smarty.foreach.headers.total}">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.a_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&type=address&id={$result.a_id}-{$result.a_email|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_email}</a>
 				{if $result.a_is_banned}<span class="tag tag-red">banned</span> {/if}
@@ -99,30 +99,30 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="a_id"}
-			<td>{$result.a_id}&nbsp;</td>
+			<td data-column="{$column}">{$result.a_id}&nbsp;</td>
 			{elseif $column=="a_contact_id"}
-			<td>
+			<td data-column="{$column}">
 				{if isset($object_contacts.{$result.a_contact_id})}
 				{$contact = $object_contacts.{$result.a_contact_id}}
 				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}">{$contact->getName()}</a>
 				{/if}
 			</td>
 			{elseif $column=="o_name"}
-			<td>
+			<td data-column="{$column}">
 				{if !empty($result.o_name)}
 				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$result.a_contact_org_id}">{$result.o_name}</a>
 				{/if}
 			</td>
 			{elseif $column=="a_is_banned" || $column == "a_is_defunct"}
-			<td>
+			<td data-column="{$column}">
 				{if $result.$column}Yes{/if}&nbsp;
 			</td>
 			{elseif $column=="a_updated"}
-			<td>
+			<td data-column="{$column}">
 				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 			</td>
 			{else}
-			<td>{$result.$column}</td>
+			<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

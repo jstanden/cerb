@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_GROUP}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -62,9 +62,9 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
@@ -72,18 +72,18 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="g_name"}
-			<td>
+			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.g_id}" style="display:none;">
 				<img src="{devblocks_url}c=avatars&context=group&context_id={$result.g_id}{/devblocks_url}?v={$result.g_updated}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;margin-right:3px;">
 				<a href="{devblocks_url}c=profiles&g=group&id={$result.g_id}-{$result.g_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.$column}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$result.g_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif in_array($column, ["g_is_private", "g_is_default"])}
-				<td>{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(75,75,75);"></span{else}{/if}</td>
+				<td data-column="{$column}">{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(75,75,75);"></span{else}{/if}</td>
 			{elseif in_array($column, ["g_created", "g_updated"])}
-				<td><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			{else}
-			<td>{$result.$column}</td>
+			<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

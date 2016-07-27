@@ -1,8 +1,8 @@
 {$view_context = 'cerberusweb.contexts.calendar_event.recurring'}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -69,16 +69,16 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.c_id}
 			</td>
-			<td colspan="{$smarty.foreach.headers.total}">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&type=calendar_recurring_profile&id={$result.c_id}-{$result.c_event_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_event_name}</a>
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.c_id}&view_id={$view->id}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
@@ -89,7 +89,7 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == "c_calendar_id"}
-				<td>
+				<td data-column="{$column}">
 					{$calendar = $calendars.{$result.$column}}
 					{if $calendar instanceof Model_Calendar}
 						{if $calendar->isWriteableByActor($active_worker)}
@@ -100,22 +100,22 @@
 					{/if}
 				</td>
 			{elseif $column == "c_is_available"}
-				<td>
+				<td data-column="{$column}">
 					{if $result.$column}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}
 				</td>
 			{elseif $column == "c_patterns"}
-				<td>
+				<td data-column="{$column}">
 					{$patterns = DevblocksPlatform::parseCrlfString($result.$column)}
 					{$patterns|implode:', '}
 				</td>
 			{elseif $column == "c_recur_start" || $column == "c_recur_end"}
-				<td title="{$result.$column|devblocks_date}">
+				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_NOTIFICATION}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -55,13 +55,13 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td colspan="{$smarty.foreach.headers.total}" style="font-size:12px;color:rgb(80,80,80);padding:2px 0px 2px 5px;">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}" style="font-size:12px;color:rgb(80,80,80);padding:2px 0px 2px 5px;">
 				<input type="checkbox" name="row_id[]" value="{$result.we_id}" style="display:none;">
 				{* If we're looking at the target context, hide the text in the entry *}
 				{$entry = json_decode($result.we_entry_json, true)}
@@ -74,12 +74,12 @@
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="we_id"}
-				<td valign="top">{$result.we_id}&nbsp;</td>
+				<td data-column="{$column}" valign="top">{$result.we_id}&nbsp;</td>
 			{elseif $column=="we_created_date"}
-				<td valign="top" nowrap="nowrap"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td data-column="{$column}" valign="top" nowrap="nowrap"><abbr title="{$result.we_created_date|devblocks_date}">{$result.we_created_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="we_worker_id"}
 				{assign var=worker_id value=$result.$column}
-				<td>
+				<td data-column="{$column}">
 					{if !empty($worker_id)}
 						{$workers.$worker_id->getName()}
 					{else}
@@ -88,9 +88,9 @@
 					&nbsp;
 				</td>
 			{elseif $column=="we_is_read"}
-				<td valign="top">{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span>{/if}&nbsp;</td>
+				<td data-column="{$column}" valign="top">{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span>{/if}&nbsp;</td>
 			{else}
-				<td valign="top">{$result.$column}&nbsp;</td>
+				<td data-column="{$column}" valign="top">{$result.$column}&nbsp;</td>
 			{/if}
 		{/foreach}
 		</tr>

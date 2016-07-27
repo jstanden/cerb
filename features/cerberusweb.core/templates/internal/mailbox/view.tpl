@@ -1,8 +1,8 @@
 {$view_context = CerberusContexts::CONTEXT_MAILBOX}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -69,13 +69,13 @@
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.p_id}
 			</td>
 		</tr>
@@ -84,7 +84,7 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == "p_name"}
-			<td>
+			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.p_id}" style="display:none;">
 				{if !$result.p_enabled}
 					<span class="glyphicons glyphicons-circle-remove" style="font-size:16px;color:rgb(80,80,80);"></span>
@@ -95,13 +95,13 @@
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.p_id}&view_id={$view->id}',null,false,'550');"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 			{elseif in_array($column, ["p_checked_at", "p_updated_at", "p_delay_until"])}
-				<td title="{$result.$column|devblocks_date}">
+				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
 			{elseif in_array($column, ["p_enabled","p_ssl_ignore_validation"])}
-				<td>
+				<td data-column="{$column}">
 					{if $result.$column}
 					{'common.yes'|devblocks_translate|lower}
 					{else}
@@ -109,11 +109,11 @@
 					{/if}
 				</td>
 			{elseif $column == "p_timeout_secs"}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{elseif $column == "p_max_msg_size_kb"}
-				<td>{{$result.$column*1000}|devblocks_prettybytes}</td>
+				<td data-column="{$column}">{{$result.$column*1000}|devblocks_prettybytes}</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>

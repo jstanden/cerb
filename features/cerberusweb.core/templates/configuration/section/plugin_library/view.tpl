@@ -1,8 +1,8 @@
 {$app_version = DevblocksPlatform::strVersionToInt($smarty.const.APP_VERSION)}
 {$view_fields = $view->getColumnsAvailable()}
-{assign var=results value=$view->getData()}
-{assign var=total value=$results[1]}
-{assign var=data value=$results[0]}
+{$results = $view->getData()}
+{$total = $results[1]}
+{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -56,13 +56,13 @@
 	{$plugin = $plugins.{$result.p_plugin_id}}
 
 	{if $smarty.foreach.results.iteration % 2}
-		{assign var=tableRowClass value="even"}
+		{$tableRowClass = "even"}
 	{else}
-		{assign var=tableRowClass value="odd"}
+		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td rowspan="4" align="center">
+			<td data-column="p_icon_url" rowspan="4" align="center">
 				<div style="margin:0px 5px 5px 5px;">
 					{if !empty($plugin) && isset($plugin->manifest_cache.plugin_image) && !empty($plugin->manifest_cache.plugin_image)}
 						<img src="{devblocks_url}c=resource&p={$plugin->id}&f={$plugin->manifest_cache.plugin_image}{/devblocks_url}" width="100" height="100" style="border:1px solid rgb(200,200,200);">
@@ -75,7 +75,7 @@
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
-			<td colspan="{$smarty.foreach.headers.total}">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<div style="padding-bottom:2px;">
 					<input type="checkbox" name="row_id[]" value="{$result.p_id}" style="display:none;">
 					<b class="subject">{$result.p_name}</b>
@@ -88,9 +88,9 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="p_updated"}
-				<td><abbr title="{$result.$column|devblocks_date}">{$result.p_updated|devblocks_prettytime}</abbr>&nbsp;</td>
+				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.p_updated|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="p_latest_version"}
-				<td>
+				<td data-column="{$column}">
 					{if isset($plugin->version) && $plugin->version < $result.p_latest_version}
 						<div class="badge" style="font-weight:bold;">{DevblocksPlatform::intVersionToStr($result.$column)}</div>
 					{else}
@@ -98,11 +98,11 @@
 					{/if}
 				</td>
 			{elseif $column=="p_link"}
-				<td>
+				<td data-column="{$column}">
 					<a href="{$result.$column}" target="_blank">{$result.$column}</a>
 				</td>
 			{elseif $column=="p_author"}
-				<td>
+				<td data-column="{$column}">
 					{if !empty($column.p_link)}
 						<a href="{$result.p_link}" target="_blank">{$result.$column}</a>
 					{else}
@@ -110,12 +110,12 @@
 					{/if}
 				</td>
 			{else}
-				<td>{$result.$column}</td>
+				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
 		</tr>
 		<tr class="{$tableRowClass}">
-			<td colspan="{$smarty.foreach.headers.total}" valign="top">
+			<td data-column="p_description" colspan="{$smarty.foreach.headers.total}" valign="top">
 				<div style="padding:5px;">
 					{$result.p_description}
 				</div>
