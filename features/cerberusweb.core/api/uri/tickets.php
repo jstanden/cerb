@@ -1241,45 +1241,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 
-		$unique_sender_ids = array();
-		$unique_subjects = array();
-		
 		if(!empty($ids)) {
-			$ticket_ids = DevblocksPlatform::parseCsvString($ids);
-			
-			if(empty($ticket_ids))
-				return;
-			
-			$tickets = DAO_Ticket::getIds($ticket_ids);
-			if(is_array($tickets))
-			foreach($tickets as $ticket) { /* @var $ticket Model_Ticket */
-				$ptr =& $unique_sender_ids[$ticket->first_wrote_address_id];
-				$ptr = intval($ptr) + 1;
-				$ptr =& $unique_subjects[$ticket->subject];
-				$ptr = intval($ptr) + 1;
-			}
-	
-			arsort($unique_subjects); // sort by occurrences
-			
-			$senders = DAO_Address::getWhere(
-				sprintf("%s IN (%s)",
-					DAO_Address::ID,
-					implode(',',array_keys($unique_sender_ids))
-			));
-			
-			foreach($senders as $sender) {
-				$ptr =& $unique_senders[$sender->email];
-				$ptr = intval($ptr) + 1;
-			}
-			
-			arsort($unique_senders);
-			
-			unset($senders);
-			unset($unique_sender_ids);
-			
-			@$tpl->assign('ids', $ids);
-			@$tpl->assign('unique_senders', $unique_senders);
-			@$tpl->assign('unique_subjects', $unique_subjects);
+			$tpl->assign('ids', $ids);
 		}
 		
 		// Groups
@@ -1330,17 +1293,11 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$shortcut_name = DevblocksPlatform::importGPC($_REQUEST['shortcut_name'],'string','');
 
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-		@$senders = DevblocksPlatform::importGPC($_REQUEST['senders'],'string','');
-		@$subjects = DevblocksPlatform::importGPC($_REQUEST['subjects'],'string','');
-		
+
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 
-		$subjects = DevblocksPlatform::parseCrlfString($subjects);
-		$senders = DevblocksPlatform::parseCrlfString($senders);
-		
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
 		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
@@ -1450,12 +1407,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$ids = array();
 		
 		switch($filter) {
-			case 'sender':
-				$data = $senders;
-				break;
-			case 'subject':
-				$data = $subjects;
-				break;
 			case 'checks':
 				$filter = ''; // bulk update just looks for $ids == !null
 				$ids = DevblocksPlatform::parseCsvString($ticket_id_str);
