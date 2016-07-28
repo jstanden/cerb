@@ -1270,11 +1270,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(empty($snippet_id) || null == ($snippet = DAO_Snippet::get($snippet_id))) {
 			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
 			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
-		
+			@$text = DevblocksPlatform::importGPC($_REQUEST['text'], 'string', '');
+			
 			$snippet = new Model_Snippet();
 			$snippet->id = 0;
 			$snippet->owner_context = !empty($owner_context) ? $owner_context : '';
 			$snippet->owner_context_id = $owner_context_id;
+			$snippet->content = $text;
 		}
 		
 		$tpl->assign('snippet', $snippet);
