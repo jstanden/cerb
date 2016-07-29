@@ -718,6 +718,11 @@
 				<seg>Acesso negado.</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.actions">
+			<tuv xml:lang="pt_PT">
+				<seg>Acções</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.active">
 			<tuv xml:lang="pt_PT">
 				<seg/>
@@ -2461,11 +2466,6 @@
 		<tu tuid="dashboard">
 			<tuv xml:lang="pt_PT">
 				<seg>Dashboard</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dashboard.actions">
-			<tuv xml:lang="pt_PT">
-				<seg>Acções</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dashboard.active_dashboard">

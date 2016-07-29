@@ -217,6 +217,11 @@
 				<seg>Access denied.</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.actions">
+			<tuv xml:lang="en_US">
+				<seg>Actions</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.active">
 			<tuv xml:lang="en_US">
 				<seg>active</seg>
@@ -2448,11 +2453,6 @@ For example: http://www.cerbweb.com/support/</seg>
 		<tu tuid="dashboard">
 			<tuv xml:lang="en_US">
 				<seg>Dashboard</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dashboard.actions">
-			<tuv xml:lang="en_US">
-				<seg>Actions</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dashboard.active_dashboard">

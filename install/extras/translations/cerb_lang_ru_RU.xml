@@ -718,6 +718,11 @@
 				<seg>Доступ запрещен.</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.actions">
+			<tuv xml:lang="ru_RU">
+				<seg>Действия</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.active">
 			<tuv xml:lang="ru_RU">
 				<seg/>
@@ -2461,11 +2466,6 @@
 		<tu tuid="dashboard">
 			<tuv xml:lang="ru_RU">
 				<seg>Панель</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dashboard.actions">
-			<tuv xml:lang="ru_RU">
-				<seg>Действия</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dashboard.active_dashboard">

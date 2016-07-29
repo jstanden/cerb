@@ -723,6 +723,11 @@
 				<seg>Zugriff verweigert</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.actions">
+			<tuv xml:lang="de_DE">
+				<seg>Aktionen</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.active">
 			<tuv xml:lang="de_DE">
 				<seg/>
@@ -2466,11 +2471,6 @@
 		<tu tuid="dashboard">
 			<tuv xml:lang="de_DE">
 				<seg>Ansicht</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dashboard.actions">
-			<tuv xml:lang="de_DE">
-				<seg>Aktionen</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dashboard.active_dashboard">
