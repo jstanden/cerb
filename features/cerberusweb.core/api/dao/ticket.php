@@ -984,21 +984,22 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				
 				elseif($model->owner_id) {
 					$activity_point = 'ticket.owner.assigned';
-					$target_worker = DAO_Worker::get($model->owner_id);
-	
-					$entry = array(
-						//{{actor}} assigned ticket {{target}} to worker {{worker}}
-						'message' => 'activities.ticket.assigned',
-						'variables' => array(
-							'target' => sprintf("[%s] %s", $model->mask, $model->subject),
-							'worker' => (!empty($target_worker) && $target_worker instanceof Model_Worker) ? $target_worker->getName() : '',
-							),
-						'urls' => array(
-							'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $model->id, $model->mask),
-							)
-					);
-					CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $model->id, $entry);
 					
+					if(false != ($target_worker = DAO_Worker::get($model->owner_id)) && ($target_worker instanceof Model_Worker)) {
+						$entry = array(
+							//{{actor}} assigned ticket {{target}} to worker {{worker}}
+							'message' => 'activities.ticket.assigned',
+							'variables' => array(
+								'target' => sprintf("[%s] %s", $model->mask, $model->subject),
+								'worker' => $target_worker->getName(),
+								),
+							'urls' => array(
+								'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $model->id, $model->mask),
+								'worker' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_WORKER, $model->owner_id, DevblocksPlatform::strToPermalink($target_worker->getName())),
+								)
+						);
+						CerberusContexts::logActivity($activity_point, CerberusContexts::CONTEXT_TICKET, $model->id, $entry);
+					}
 				}
 			}
 			
