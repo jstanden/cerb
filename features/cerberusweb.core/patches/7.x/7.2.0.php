@@ -504,6 +504,31 @@ if(!empty($changes)) {
 }
 
 // ===========================================================================
+// Add async bulk update tables
+
+if(!isset($tables['context_bulk_update'])) {
+	$sql = sprintf("
+	CREATE TABLE `context_bulk_update` (
+		id int unsigned auto_increment,
+		batch_key varchar(40) not null default '',
+		context varchar(128) not null default '',
+		context_ids text,
+		num_records int unsigned not null default 0,
+		worker_id int unsigned not null default 0,
+		view_id varchar(128) not null default '',
+		created_at int unsigned not null default 0,
+		status_id tinyint unsigned not null default 0,
+		actions_json text,
+		primary key (id),
+		index batch_key (batch_key(4))
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['context_bulk_update'] = 'context_bulk_update';
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

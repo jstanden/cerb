@@ -2504,6 +2504,135 @@ abstract class C4_AbstractView {
 			DAO_CustomFieldset::linkToContextByFieldIds($context, $id, array_keys($custom_fields));
 		}
 	}
+	
+	public static function _doBulkScheduleBehavior($context, array $params, array $ids) {
+		if(!isset($params) || !is_array($params))
+			return false;
+			
+		@$behavior_id = $params['id'];
+		@$behavior_when = strtotime($params['when']) or time();
+		@$behavior_params = isset($params['params']) ? $params['params'] : array();
+		
+		if(empty($behavior_id))
+			return false;
+		
+		foreach($ids as $batch_id) {
+			DAO_ContextScheduledBehavior::create(array(
+				DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
+				DAO_ContextScheduledBehavior::CONTEXT => $context,
+				DAO_ContextScheduledBehavior::CONTEXT_ID => $batch_id,
+				DAO_ContextScheduledBehavior::RUN_DATE => $behavior_when,
+				DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($behavior_params),
+			));
+		}
+		
+		return true;
+	}
+	
+	public static function _doBulkChangeWatchers($context, array $params, array $ids) {
+		if(!isset($params) || !is_array($params))
+			return false;
+		
+		foreach($ids as $batch_id) {
+			if(isset($params['add']) && is_array($params['add']))
+				CerberusContexts::addWatchers($context, $batch_id, $params['add']);
+			
+			if(isset($params['remove']) && is_array($params['remove']))
+				CerberusContexts::removeWatchers($context, $batch_id, $params['remove']);
+		}
+	}
+	
+	public static function _doBulkBroadcast($context, array $params, array $ids, $to_key, array $options=array()) {
+		if(empty($params) || empty($ids))
+			return false;
+		
+		try {
+			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			
+			if(
+				!isset($params['worker_id'])
+				|| empty($params['worker_id'])
+				|| !isset($params['subject'])
+				|| empty($params['subject'])
+				|| !isset($params['message'])
+				|| empty($params['message'])
+				)
+				throw new Exception("Missing parameters for broadcast.");
+
+			$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false;
+			$status_id = intval(@$params['status_id']);
+			
+			$models = CerberusContexts::getModels($context, $ids);
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context, array('custom_'));
+			
+			if(is_array($dicts))
+			foreach($dicts as $id => $dict) {
+				try {
+					if(false == ($recipients = CerberusMail::parseRfcAddresses($dict->$to_key)))
+						continue;
+					
+					foreach($recipients as $to) {
+						@$callback_recipient_reject = $options['callback_recipient_reject'];
+						@$callback_recipient_expand = $options['callback_recipient_expand'];
+						
+						if(is_callable($callback_recipient_expand))
+							$callback_recipient_expand($to, $dict);
+						
+						// Are we skipping this recipient?
+						if(is_callable($callback_recipient_reject))
+							if(false === $callback_recipient_reject($dict))
+								continue;
+						
+						$subject = $tpl_builder->build($params['subject'], $dict);
+						$body = $tpl_builder->build($params['message'], $dict);
+						
+						$json_params = array(
+							'to' => $to['full_email'],
+							'group_id' => $params['group_id'],
+							'status_id' => $status_id,
+							'is_broadcast' => 1,
+							'context_links' => array(
+								array($context, $id),
+							),
+						);
+						
+						if(isset($params['format']))
+							$json_params['format'] = $params['format'];
+						
+						if(isset($params['html_template_id']))
+							$json_params['html_template_id'] = intval($params['html_template_id']);
+						
+						if(isset($params['file_ids']))
+							$json_params['file_ids'] = $params['file_ids'];
+						
+						$fields = array(
+							DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
+							DAO_MailQueue::TICKET_ID => 0,
+							DAO_MailQueue::WORKER_ID => $params['worker_id'],
+							DAO_MailQueue::UPDATED => time(),
+							DAO_MailQueue::HINT_TO => $to['full_email'],
+							DAO_MailQueue::SUBJECT => $subject,
+							DAO_MailQueue::BODY => $body,
+							DAO_MailQueue::PARAMS_JSON => json_encode($json_params),
+						);
+						
+						if($is_queued) {
+							$fields[DAO_MailQueue::IS_QUEUED] = 1;
+						}
+						
+						$draft_id = DAO_MailQueue::create($fields);
+					}
+					
+				} catch (Exception $e) {
+					return false;
+				}
+			}
+		} catch (Exception $e) {
+			return false;
+		}
+		
+		return true;
+	}
 };
 
 interface IAbstractView_QuickSearch {

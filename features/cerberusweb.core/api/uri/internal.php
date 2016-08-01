@@ -2098,6 +2098,55 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view->render();
 	}
 
+	function viewBulkUpdateWithCursorAction() {
+		@$cursor = DevblocksPlatform::importGPC($_REQUEST['cursor'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(empty($cursor))
+			return;
+		
+		$tpl->assign('cursor', $cursor);
+		$tpl->assign('view_id', $view_id);
+		
+		$total = DAO_ContextBulkUpdate::getTotalByCursor($cursor);
+		$tpl->assign('total', $total);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/view_bulk_progress.tpl');
+	}
+	
+	function viewBulkUpdateNextCursorJsonAction() {
+		@$cursor = DevblocksPlatform::importGPC($_REQUEST['cursor'], 'string', '');
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(empty($cursor))
+			return;
+		
+		$update = DAO_ContextBulkUpdate::getNextByCursor($cursor);
+		
+		// We have another job
+		if($update) {
+			if(false == ($context_ext = Extension_DevblocksContext::get($update->context)))
+				return false;
+			
+			$dao_class = $context_ext->getDaoClass();
+			$dao_class::bulkUpdate($update);
+			
+			echo json_encode(array(
+				'completed' => false,
+				'count' => $update->num_records,
+			));
+			
+		// We're done
+		} else {
+			echo json_encode(array(
+				'completed' => true,
+			));
+		}
+	}
+	
 	function viewShowExportAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
