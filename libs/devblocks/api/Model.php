@@ -1565,15 +1565,6 @@ class Model_DevblocksEvent {
   }
 };
 
-class Model_DevblocksTemplate {
-	public $id;
-	public $plugin_id;
-	public $path;
-	public $tag;
-	public $last_updated;
-	public $content;
-};
-
 class Model_Translation {
 	public $id;
 	public $string_id;
