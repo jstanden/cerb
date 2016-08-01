@@ -203,11 +203,6 @@
 				<seg>[Tickets] Puede fusionar tickets de las listas</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.view.actions.pile_sort">
-			<tuv xml:lang="es_ES">
-				<seg>[Tickets] Puede usar el clasificador en pilas en listas</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.watchers.assign">
 			<tuv xml:lang="es_ES">
 				<seg/>

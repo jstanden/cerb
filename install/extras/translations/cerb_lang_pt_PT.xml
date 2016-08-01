@@ -203,11 +203,6 @@
 				<seg>[Tickets] Pode fundir tickets das listagens</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.view.actions.pile_sort">
-			<tuv xml:lang="pt_PT">
-				<seg>[Tickets] Pode listar por pilha nas listagens</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.watchers.assign">
 			<tuv xml:lang="pt_PT">
 				<seg>[Observadores] Pode adicionar outros colaboradores como observadores</seg>

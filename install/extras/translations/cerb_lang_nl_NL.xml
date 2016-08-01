@@ -203,11 +203,6 @@
 				<seg>[Tickets] Kan tickets in lijsten samenvoegen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.view.actions.pile_sort">
-			<tuv xml:lang="nl_NL">
-				<seg>[Tickets] Kan stapel-sorteerder op lijsten gebruiken </seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.watchers.assign">
 			<tuv xml:lang="nl_NL">
 				<seg/>

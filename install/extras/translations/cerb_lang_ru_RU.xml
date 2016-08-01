@@ -203,11 +203,6 @@
 				<seg>[Заявки] Может объединять заявки в списках</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.view.actions.pile_sort">
-			<tuv xml:lang="ru_RU">
-				<seg>[Заявки] Может использовать сортировщик в списках</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.watchers.assign">
 			<tuv xml:lang="ru_RU">
 				<seg/>

@@ -203,11 +203,6 @@
 				<seg>[Tickets] Kann Tickets dieser Liste verschmelzen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.view.actions.pile_sort">
-			<tuv xml:lang="de_DE">
-				<seg>[Tickets] Kann Sortieroptionen in Listen nutzen</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.watchers.assign">
 			<tuv xml:lang="de_DE">
 				<seg/>
