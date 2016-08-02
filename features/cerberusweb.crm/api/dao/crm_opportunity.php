@@ -99,6 +99,97 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		}
 	}
 	
+	/**
+	 * @param Model_ContextBulkUpdate $update
+	 * @return boolean
+	 */
+	static function bulkUpdate(Model_ContextBulkUpdate $update) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		// Make sure we have actions
+		if(empty($ids) || empty($do))
+			return false;
+		
+		$update->markInProgress();
+		
+		$change_fields = array();
+		$custom_fields = array();
+		$deleted = false;
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'status':
+					switch(strtolower($v)) {
+						case 'open':
+							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 0;
+							$change_fields[DAO_CrmOpportunity::IS_WON] = 0;
+							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = 0;
+							break;
+							
+						case 'won':
+							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
+							$change_fields[DAO_CrmOpportunity::IS_WON] = 1;
+							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = time();
+							break;
+							
+						case 'lost':
+							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
+							$change_fields[DAO_CrmOpportunity::IS_WON] = 0;
+							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = time();
+							break;
+							
+						case 'deleted':
+							if($active_worker && $active_worker->hasPriv('crm.opp.actions.delete'))
+								$deleted = true;
+							break;
+					}
+					break;
+					
+				case 'closed_date':
+					$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = intval($v);
+					break;
+					
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+			}
+		}
+		
+		if(!$deleted) {
+			// Fields
+			if(!empty($change_fields))
+				DAO_CrmOpportunity::update($ids, $change_fields);
+			
+			// Custom Fields
+			if(!empty($custom_fields))
+				C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY, $custom_fields, $ids);
+			
+			// Scheduled behavior
+			if(isset($do['behavior']))
+				C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_OPPORTUNITY, $do['behavior'], $ids);
+			
+			// Watchers
+			if(isset($do['watchers']))
+				C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $do['watchers'], $ids);
+			
+			// Broadcast
+			if(isset($do['broadcast']))
+				C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_OPPORTUNITY, $do['broadcast'], $ids, 'email_address');
+			
+		} else {
+			DAO_CrmOpportunity::delete($batch_ids);
+		}
+		
+		$update->markCompleted();
+		return true;
+	}
+	
 	static function _processUpdateEvents($ids, $change_fields) {
 		// We only care about these fields, so abort if they aren't referenced
 
@@ -1059,206 +1150,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
-	}
-	
-	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(600); // 10m
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$change_fields = array();
-		$custom_fields = array();
-		$deleted = false;
-
-		// Make sure we have actions
-		if(empty($do))
-			return;
-
-		// Make sure we have checked items if we want a checked list
-		if(0 == strcasecmp($filter,"checks") && empty($ids))
-			return;
-			
-		if(is_array($do))
-		foreach($do as $k => $v) {
-			switch($k) {
-				case 'status':
-					switch(strtolower($v)) {
-						case 'open':
-							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 0;
-							$change_fields[DAO_CrmOpportunity::IS_WON] = 0;
-							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = 0;
-							break;
-						case 'won':
-							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
-							$change_fields[DAO_CrmOpportunity::IS_WON] = 1;
-							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = time();
-							break;
-						case 'lost':
-							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
-							$change_fields[DAO_CrmOpportunity::IS_WON] = 0;
-							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = time();
-							break;
-						case 'deleted':
-							if($active_worker->hasPriv('crm.opp.actions.delete'))
-								$deleted = true;
-							break;
-					}
-					break;
-				case 'closed_date':
-					$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = intval($v);
-					break;
-//				case 'worker_id':
-//					$change_fields[DAO_CrmOpportunity::WORKER_ID] = intval($v);
-//					break;
-				default:
-					// Custom fields
-					if(substr($k,0,3)=="cf_") {
-						$custom_fields[substr($k,3)] = $v;
-					}
-			}
-		}
-
-		$pg = 0;
-
-		if(empty($ids))
-		do {
-			list($objects, $null) = DAO_CrmOpportunity::search(
-				array(),
-				$this->getParams(),
-				100,
-				$pg++,
-				SearchFields_CrmOpportunity::ID,
-				true,
-				false
-			);
-			$ids = array_merge($ids, array_keys($objects));
-			
-		} while(!empty($objects));
-
-		// Broadcast?
-		if(isset($do['broadcast'])) {
-			try {
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-				
-				$params = $do['broadcast'];
-				if(
-					!isset($params['worker_id'])
-					|| empty($params['worker_id'])
-					|| !isset($params['subject'])
-					|| empty($params['subject'])
-					|| !isset($params['message'])
-					|| empty($params['message'])
-					)
-					throw new Exception("Missing parameters for broadcast.");
-	
-				$is_queued = (isset($params['is_queued']) && $params['is_queued']) ? true : false;
-				$status_id = intval(@$params['status_id']);
-				
-				if(is_array($ids))
-				foreach($ids as $opp_id) {
-					try {
-						CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $tpl_labels, $tpl_tokens);
-						
-						$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
-	
-						if($tpl_dict->email_is_defunct)
-							continue;
-						
-						$subject = $tpl_builder->build($params['subject'], $tpl_dict);
-						$body = $tpl_builder->build($params['message'], $tpl_dict);
-						
-						$json_params = array(
-							'to' => $tpl_dict->email_address,
-							'group_id' => $params['group_id'],
-							'status_id' => $status_id,
-							'is_broadcast' => 1,
-							'context_links' => array(
-								array(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id),
-							),
-						);
-						
-						if(isset($params['format']))
-							$json_params['format'] = $params['format'];
-						
-						if(isset($params['html_template_id']))
-							$json_params['html_template_id'] = intval($params['html_template_id']);
-						
-						if(isset($params['file_ids']))
-							$json_params['file_ids'] = $params['file_ids'];
-						
-						$fields = array(
-							DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
-							DAO_MailQueue::TICKET_ID => 0,
-							DAO_MailQueue::WORKER_ID => $params['worker_id'],
-							DAO_MailQueue::UPDATED => time(),
-							DAO_MailQueue::HINT_TO => $tpl_dict->email_address,
-							DAO_MailQueue::SUBJECT => $subject,
-							DAO_MailQueue::BODY => $body,
-							DAO_MailQueue::PARAMS_JSON => json_encode($json_params),
-						);
-						
-						if($is_queued) {
-							$fields[DAO_MailQueue::IS_QUEUED] = 1;
-						}
-						
-						$draft_id = DAO_MailQueue::create($fields);
-						
-					} catch (Exception $e) {
-						// [TODO] ...
-					}
-				}
-			} catch (Exception $e) {
-				
-			}
-		}
-		
-		$batch_total = count($ids);
-		for($x=0;$x<=$batch_total;$x+=100) {
-			$batch_ids = array_slice($ids,$x,100);
-			
-			if(!$deleted) {
-				DAO_CrmOpportunity::update($batch_ids, $change_fields);
-				
-				// Custom Fields
-				self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY, $custom_fields, $batch_ids);
-				
-				// Scheduled behavior
-				if(isset($do['behavior']) && is_array($do['behavior'])) {
-					$behavior_id = $do['behavior']['id'];
-					@$behavior_when = strtotime($do['behavior']['when']) or time();
-					@$behavior_params = isset($do['behavior']['params']) ? $do['behavior']['params'] : array();
-					
-					if(!empty($batch_ids) && !empty($behavior_id))
-					foreach($batch_ids as $batch_id) {
-						DAO_ContextScheduledBehavior::create(array(
-							DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
-							DAO_ContextScheduledBehavior::CONTEXT => CerberusContexts::CONTEXT_OPPORTUNITY,
-							DAO_ContextScheduledBehavior::CONTEXT_ID => $batch_id,
-							DAO_ContextScheduledBehavior::RUN_DATE => $behavior_when,
-							DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($behavior_params),
-						));
-					}
-				}
-				
-				// Watchers
-				if(isset($do['watchers']) && is_array($do['watchers'])) {
-					$watcher_params = $do['watchers'];
-					foreach($batch_ids as $batch_id) {
-						if(isset($watcher_params['add']) && is_array($watcher_params['add']))
-							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $watcher_params['add']);
-						if(isset($watcher_params['remove']) && is_array($watcher_params['remove']))
-							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $batch_id, $watcher_params['remove']);
-					}
-				}
-				
-			} else {
-				DAO_CrmOpportunity::delete($batch_ids);
-			}
-			
-			unset($batch_ids);
-		}
-
-		unset($ids);
 	}
 };
 

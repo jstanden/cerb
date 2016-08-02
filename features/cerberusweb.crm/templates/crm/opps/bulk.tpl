@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate" onsubmit="return false;">
-<input type="hidden" name="c" value="crm">
-<input type="hidden" name="a" value="doOppBulkUpdate">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="opportunity">
+<input type="hidden" name="action" value="startBulkUpdateJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="opp_ids" value="{$opp_ids}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -38,21 +40,31 @@
 			{/if}
 			</td>
 		</tr>
-		{if $active_worker->hasPriv('core.watchers.assign') || $active_worker->hasPriv('core.watchers.unassign')}
+		
+		{if $active_worker->hasPriv('core.watchers.assign')}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.watchers'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">Add watchers:</td>
 			<td width="100%">
-				{if $active_worker->hasPriv('core.watchers.assign')}
-				<button type="button" class="chooser-worker add"><span class="glyphicons glyphicons-search"></span></button>
-				<br>
-				{/if}
-				
-				{if $active_worker->hasPriv('core.watchers.unassign')}
-				<button type="button" class="chooser-worker remove"><span class="glyphicons glyphicons-search"></span></button>
-				{/if}
+				<div>
+					<button type="button" class="chooser-abstract" data-field-name="do_watcher_add_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+					<ul class="bubbles chooser-container" style="display:block;"></ul>
+				</div>
 			</td>
 		</tr>
 		{/if}
+		
+		{if $active_worker->hasPriv('core.watchers.unassign')}
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">Remove watchers:</td>
+			<td width="100%">
+				<div>
+					<button type="button" class="chooser-abstract" data-field-name="do_watcher_remove_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+					<ul class="bubbles chooser-container" style="display:block;"></ul>
+				</div>
+			</td>
+		</tr>
+		{/if}
+
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
@@ -153,10 +165,19 @@ $(function() {
 		
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 	
+		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+		
 		var $content = $this.find('textarea[name=broadcast_message]');
 		
 		$popup.find('button.submit').click(function() {
-			genericAjaxPost('formBatchUpdate', 'view{$view_id}', null, function() {
+			genericAjaxPost('formBatchUpdate', '', null, function(json) {
+				if(json.cursor) {
+					// Pull the cursor
+					var $tips = $('#{$view_id}_tips').html('');
+					var $spinner = $('<span class="cerb-ajax-spinner"/>').appendTo($tips);
+					genericAjaxGet($tips, 'c=internal&a=viewBulkUpdateWithCursor&view_id={$view_id}&cursor=' + json.cursor);
+				}
+				
 				genericAjaxPopupClose($popup);
 			});
 		});
@@ -175,16 +196,6 @@ $(function() {
 		
 		$this.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'broadcast_file_ids');
-		});
-		
-		$('#formBatchUpdate button.chooser-worker').each(function() {
-			$button = $(this);
-			context = 'cerberusweb.contexts.worker';
-			
-			if($button.hasClass('remove'))
-				ajax.chooser(this, context, 'do_watcher_remove_ids', { autocomplete: true, autocomplete_class:'input_remove' } );
-			else
-				ajax.chooser(this, context, 'do_watcher_add_ids', { autocomplete: true, autocomplete_class:'input_add'} );
 		});
 		
 		// Text editor
