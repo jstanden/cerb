@@ -107,6 +107,8 @@
 		</file>
 		
 		<file path="api/dao/attachment.php">
+			<class name="Context_Attachment" />
+			<class name="Context_AttachmentLink" />
 			<class name="DAO_Attachment" />
 			<class name="DAO_AttachmentLink" />
 			<class name="Model_Attachment" />
@@ -1026,7 +1028,7 @@
 			<id>cerberusweb.contexts.attachment_link</id>
 			<name>Attachment Link</name>
 			<class>
-				<file>api/dao/attachment_link.php</file>
+				<file>api/dao/attachment.php</file>
 				<name>Context_AttachmentLink</name>
 			</class>
 			<params>

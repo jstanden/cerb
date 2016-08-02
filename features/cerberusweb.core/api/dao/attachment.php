@@ -1043,68 +1043,6 @@ class View_AttachmentLink extends C4_AbstractView implements IAbstractView_Subto
 			$this->renderPage = 0;
 		}
 	}
-		
-	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(600); // 10m
-		
-		$change_fields = array();
-		$deleted = false;
-
-		// Make sure we have actions
-		if(empty($do))
-			return;
-
-		// Make sure we have checked items if we want a checked list
-		if(0 == strcasecmp($filter,"checks") && empty($ids))
-			return;
-			
-		if(is_array($do))
-		foreach($do as $k => $v) {
-			switch($k) {
-				case 'deleted':
-					$deleted = !empty($v);
-					break;
-				default:
-					break;
-			}
-		}
-
-		$pg = 0;
-
-		if(empty($ids))
-		do {
-			list($objects,$null) = DAO_AttachmentLink::search(
-				$this->view_columns,
-				$this->getParams(),
-				100,
-				$pg++,
-				SearchFields_AttachmentLink::GUID,
-				true,
-				false
-			);
-			
-			foreach($objects as $o)
-				$ids[] = $o[SearchFields_AttachmentLink::GUID];
-			
-		} while(!empty($objects));
-
-		$batch_total = count($ids);
-		for($x=0;$x<=$batch_total;$x+=100) {
-			$batch_ids = array_slice($ids,$x,100);
-			
-			if(!$deleted) {
-				//DAO_AttachmentLink::update($batch_ids, $change_fields);
-			} else {
-				foreach($batch_ids as $batch_id) {
-					DAO_AttachmentLink::deleteByGUID($batch_id);
-				}
-			}
-			
-			unset($batch_ids);
-		}
-
-		unset($ids);
-	}
 };
 
 class DAO_AttachmentLink extends Cerb_ORMHelper {
@@ -1112,6 +1050,42 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 	const ATTACHMENT_ID = 'attachment_id';
 	const CONTEXT = 'context';
 	const CONTEXT_ID = 'context_id';
+	
+	/**
+	 * @param Model_ContextBulkUpdate $update
+	 * @return boolean
+	 */
+	static function bulkUpdate(Model_ContextBulkUpdate $update) {
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		// Make sure we have actions
+		if(empty($ids) || empty($do))
+			return false;
+		
+		$update->markInProgress();
+		
+		$change_fields = array();
+		$deleted = false;
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'deleted':
+					$deleted = !empty($v);
+					break;
+				
+				default:
+					break;
+			}
+		}
+
+		if($deleted)
+			DAO_AttachmentLink::deleteByGUIDs($ids);
+		
+		$update->markCompleted();
+		return true;
+	}
 	
 	/**
 	 * @param string $where
@@ -1370,10 +1344,17 @@ class DAO_AttachmentLink extends Cerb_ORMHelper {
 		));
 	}
 	
-	static function deleteByGUID($guid) {
+	static function deleteByGUIDs($guids) {
+		if(!is_array($guids))
+			$guids = array($guids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
-		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE guid = %s",
-			$db->qstr($guid)
+		
+		foreach($guids as &$guid)
+			$guid = $db->qstr($guid);
+		
+		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE guid IN (%s)",
+			implode(',', $guids)
 		));
 	}
 		
@@ -1529,7 +1510,7 @@ class SearchFields_AttachmentLink extends DevblocksSearchFields {
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
-		return 'al.attachment_id';
+		return 'al.guid';
 	}
 	
 	static function getCustomFieldContextKeys() {
@@ -1606,6 +1587,8 @@ class Model_AttachmentLink {
 };
 
 class Context_Attachment extends Extension_DevblocksContext {
+	const ID = 'cerberusweb.contexts.attachment';
+	
 	function getMeta($context_id) {
 		$attachment = DAO_Attachment::get($context_id);
 
@@ -1811,6 +1794,8 @@ class Context_Attachment extends Extension_DevblocksContext {
 };
 
 class Context_AttachmentLink extends Extension_DevblocksContext {
+	const ID = 'cerberusweb.contexts.attachment_link';
+	
 	function getMeta($context_id) {
 		$link = DAO_AttachmentLink::getByGUID($context_id);
 
