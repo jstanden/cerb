@@ -63,6 +63,54 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * @param Model_ContextBulkUpdate $update
+	 * @return boolean
+	 */
+	static function bulkUpdate(Model_ContextBulkUpdate $update) {
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		// Make sure we have actions
+		if(empty($ids) || empty($do))
+			return false;
+		
+		$update->markInProgress();
+		
+		$change_fields = array();
+		$custom_fields = array();
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+					break;
+			}
+		}
+		
+		if(!empty($change_fields))
+			DAO_ExampleObject::update($ids, $change_fields);
+
+		// Custom Fields
+		if(!empty($custom_fields))
+			C4_AbstractView::_doBulkSetCustomFields(Context_ExampleObject::ID, $custom_fields, $ids);
+		
+		// Scheduled behavior
+		if(isset($do['behavior']))
+			C4_AbstractView::_doBulkScheduleBehavior(Context_ExampleObject::ID, $do['behavior'], $ids);
+		
+		// Watchers
+		if(isset($do['watchers']))
+			C4_AbstractView::_doBulkChangeWatchers(Context_ExampleObject::ID, $do['watchers'], $ids);
+		
+		$update->markCompleted();
+		return true;
+	}
+	
+	/**
 	 * @param string $where
 	 * @param mixed $sortBy
 	 * @param mixed $sortAsc
