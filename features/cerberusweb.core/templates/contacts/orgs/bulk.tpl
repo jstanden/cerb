@@ -91,6 +91,9 @@ $(function() {
 				genericAjaxPopupClose($popup);
 			});
 		});
+		
+		// Country autocomplete
+		ajax.countryAutoComplete($popup.find('form input[name=country]'));
 	});
 });
 </script>
