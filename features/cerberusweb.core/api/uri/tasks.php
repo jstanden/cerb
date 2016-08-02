@@ -195,7 +195,7 @@ class ChTasksPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/bulk.tpl');
 	}
 	
-	function doTaskBulkUpdateAction() {
+	function startBulkUpdateJsonAction() {
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		$ids = array();
@@ -271,17 +271,31 @@ class ChTasksPage extends CerberusPageExtension {
 				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
+				
 			case 'sample':
 				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
 				$filter = 'checks';
 				$ids = $view->getDataSample($sample_size);
 				break;
+				
 			default:
 				break;
 		}
 		
-		$view->doBulkUpdate($filter, $do, $ids);
-		$view->render();
+		// If we have specific IDs, add a filter for those too
+		if(!empty($ids)) {
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Task::ID, 'in', $ids));
+		}
+		
+		// Create batches
+		$batch_key = DAO_ContextBulkUpdate::createFromView($view, $do);
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		echo json_encode(array(
+			'cursor' => $batch_key,
+		));
+		
 		return;
 	}
 	
