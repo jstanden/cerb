@@ -266,35 +266,6 @@ class ChContactsPage extends CerberusPageExtension {
 		exit;
 	}
 
-	function showOrgBulkPanelAction() {
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
-
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('view_id', $view_id);
-
-		if(!empty($ids)) {
-			$org_ids = DevblocksPlatform::parseCsvString($ids);
-			$tpl->assign('org_ids', implode(',', $org_ids));
-		}
-		
-		// Custom Fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG, false);
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getReadableByActor(
-			$active_worker,
-			'event.macro.org'
-		);
-		$tpl->assign('macros', $macros);
-		
-		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/bulk.tpl');
-	}
-	
 	function showOrgMergePeekAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$org_ids = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string','');
@@ -887,76 +858,6 @@ class ChContactsPage extends CerberusPageExtension {
 				echo $output;
 			}
 		}
-	}
-	
-	function doOrgBulkUpdateAction() {
-		// Filter: whole list or check
-		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-		$ids = array();
-		
-		// View
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		$view = C4_AbstractViewLoader::getView($view_id);
-		$view->setAutoPersist(false);
-		
-		// Org fields
-		@$country = trim(DevblocksPlatform::importGPC($_POST['country'],'string',''));
-
-		// Scheduled behavior
-		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
-		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
-		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
-		
-		$do = array();
-		
-		// Do: Country
-		if(0 != strlen($country))
-			$do['country'] = $country;
-			
-		// Do: Scheduled Behavior
-		if(0 != strlen($behavior_id)) {
-			$do['behavior'] = array(
-				'id' => $behavior_id,
-				'when' => $behavior_when,
-				'params' => $behavior_params,
-			);
-		}
-		
-		// Watchers
-		$watcher_params = array();
-		
-		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
-		if(!empty($watcher_add_ids))
-			$watcher_params['add'] = $watcher_add_ids;
-			
-		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
-		if(!empty($watcher_remove_ids))
-			$watcher_params['remove'] = $watcher_remove_ids;
-		
-		if(!empty($watcher_params))
-			$do['watchers'] = $watcher_params;
-			
-		// Do: Custom fields
-		$do = DAO_CustomFieldValue::handleBulkPost($do);
-		
-		switch($filter) {
-			// Checked rows
-			case 'checks':
-				@$org_ids_str = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string');
-				$ids = DevblocksPlatform::parseCsvString($org_ids_str);
-				break;
-			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
-				$filter = 'checks';
-				$ids = $view->getDataSample($sample_size);
-				break;
-			default:
-				break;
-		}
-		
-		$view->doBulkUpdate($filter, $do, $ids);
-		$view->render();
-		return;
 	}
 	
 	function getOrgsAutoCompletionsAction() {
