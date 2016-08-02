@@ -78,6 +78,66 @@ class DAO_Contact extends Cerb_ORMHelper {
 		parent::_updateWhere('contact', $fields, $where);
 	}
 	
+	/**
+	 * @param Model_ContextBulkUpdate $update
+	 * @return boolean
+	 */
+	static function bulkUpdate(Model_ContextBulkUpdate $update) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		// Make sure we have actions
+		if(empty($ids) || empty($do))
+			return false;
+		
+		$update->markInProgress();
+		
+		$change_fields = array();
+		$custom_fields = array();
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'title':
+					$change_fields[DAO_Contact::TITLE] = $v;
+					break;
+					
+				case 'location':
+					$change_fields[DAO_Contact::LOCATION] = $v;
+					break;
+					
+				case 'gender':
+					if(in_array($v, array('M','F','')))
+						$change_fields[DAO_Contact::GENDER] = $v;
+					break;
+					
+				case 'org_id':
+					$change_fields[DAO_Contact::ORG_ID] = intval($v);
+					break;
+					
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+					break;
+			}
+		}
+		
+		// Fields
+		if(!empty($change_fields))
+			DAO_Contact::update($ids, $change_fields);
+
+		// Custom Fields
+		if(!empty($custom_fields))
+			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_CONTACT, $custom_fields, $ids);
+		
+		$update->markCompleted();
+		return true;
+	}
+	
 	static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
@@ -1381,83 +1441,6 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			$this->addParam($criteria, $field);
 			$this->renderPage = 0;
 		}
-	}
-		
-	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(600); // 10m
-	
-		$change_fields = array();
-		$custom_fields = array();
-
-		// Make sure we have actions
-		if(empty($do))
-			return;
-
-		// Make sure we have checked items if we want a checked list
-		if(0 == strcasecmp($filter,"checks") && empty($ids))
-			return;
-			
-		if(is_array($do))
-		foreach($do as $k => $v) {
-			switch($k) {
-				case 'title':
-					$change_fields[DAO_Contact::TITLE] = $v;
-					break;
-					
-				case 'location':
-					$change_fields[DAO_Contact::LOCATION] = $v;
-					break;
-					
-				case 'gender':
-					if(in_array($v, array('M','F','')))
-						$change_fields[DAO_Contact::GENDER] = $v;
-					break;
-					
-				case 'org_id':
-					$change_fields[DAO_Contact::ORG_ID] = intval($v);
-					break;
-					
-				default:
-					// Custom fields
-					if(substr($k,0,3)=="cf_") {
-						$custom_fields[substr($k,3)] = $v;
-					}
-					break;
-			}
-		}
-
-		$pg = 0;
-
-		if(empty($ids))
-		do {
-			list($objects,$null) = DAO_Contact::search(
-				array(),
-				$this->getParams(),
-				100,
-				$pg++,
-				SearchFields_Contact::ID,
-				true,
-				false
-			);
-			$ids = array_merge($ids, array_keys($objects));
-			 
-		} while(!empty($objects));
-
-		$batch_total = count($ids);
-		for($x=0;$x<=$batch_total;$x+=100) {
-			$batch_ids = array_slice($ids,$x,100);
-			
-			if(!empty($change_fields)) {
-				DAO_Contact::update($batch_ids, $change_fields);
-			}
-
-			// Custom Fields
-			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_CONTACT, $custom_fields, $batch_ids);
-			
-			unset($batch_ids);
-		}
-
-		unset($ids);
 	}
 };
 
