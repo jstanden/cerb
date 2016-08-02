@@ -164,7 +164,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::preferences/tabs/notifications/bulk.tpl');
 	}
 
-	function doNotificationsBulkUpdateAction() {
+	function startNotificationsBulkUpdateJsonAction() {
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		$ids = array();
@@ -183,15 +183,13 @@ class ChPreferencesPage extends CerberusPageExtension {
 		if(0 != strlen($is_read))
 			$do['is_read'] = $is_read;
 
-		// Do: Custom fields
-		//$do = DAO_CustomFieldValue::handleBulkPost($do);
-
 		switch($filter) {
 			// Checked rows
 			case 'checks':
 				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
+				
 			case 'sample':
 				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
 				$filter = 'checks';
@@ -200,9 +198,21 @@ class ChPreferencesPage extends CerberusPageExtension {
 			default:
 				break;
 		}
-
-		$view->doBulkUpdate($filter, $do, $ids);
-		$view->render();
+		
+		// If we have specific IDs, add a filter for those too
+		if(!empty($ids)) {
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Notification::ID, 'in', $ids));
+		}
+		
+		// Create batches
+		$batch_key = DAO_ContextBulkUpdate::createFromView($view, $do);
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		echo json_encode(array(
+			'cursor' => $batch_key,
+		));
+		
 		return;
 	}
 

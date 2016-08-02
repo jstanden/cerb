@@ -94,6 +94,55 @@ class DAO_Notification extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * @param Model_ContextBulkUpdate $update
+	 * @return boolean
+	 */
+	static function bulkUpdate(Model_ContextBulkUpdate $update) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		// Make sure we have actions
+		if(empty($ids) || empty($do))
+			return false;
+		
+		$update->markInProgress();
+		
+		$change_fields = array();
+		$custom_fields = array();
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'is_read':
+					$change_fields[DAO_Notification::IS_READ] = (1==intval($v)) ? 1 : 0;
+					break;
+					
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+			}
+		}
+		
+		if(!empty($change_fields))
+			DAO_Notification::update($ids, $change_fields);
+		
+		// Custom Fields
+		if(!empty($custom_fields))
+			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_NOTIFICATION, $custom_fields, $ids);
+		
+		if(isset($change_fields[DAO_Notification::IS_READ]))
+			if(null != ($active_worker = CerberusApplication::getActiveWorker()))
+				DAO_Notification::clearCountCache($active_worker->id);
+		
+		$update->markCompleted();
+		return true;
+	}
+	
+	/**
 	 * @param string $where
 	 * @return Model_Notification[]
 	 */
@@ -957,75 +1006,6 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
-	}
-	
-	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(600); // 10m
-		
-		$change_fields = array();
-//		$custom_fields = array();
-
-		// Make sure we have actions
-		if(empty($do))
-			return;
-
-		// Make sure we have checked items if we want a checked list
-		if(0 == strcasecmp($filter,"checks") && empty($ids))
-			return;
-			
-		if(is_array($do))
-		foreach($do as $k => $v) {
-			switch($k) {
-				case 'is_read':
-					if(1==intval($v)) {
-						$change_fields[DAO_Notification::IS_READ] = 1;
-					} else { // active
-						$change_fields[DAO_Notification::IS_READ] = 0;
-					}
-					break;
-				default:
-					// Custom fields
-//					if(substr($k,0,3)=="cf_") {
-//						$custom_fields[substr($k,3)] = $v;
-//					}
-			}
-		}
-		
-		$pg = 0;
-
-		if(empty($ids))
-		do {
-			list($objects,$null) = DAO_Notification::search(
-				array(),
-				$this->getParams(),
-				100,
-				$pg++,
-				SearchFields_Notification::ID,
-				true,
-				false
-			);
-			 
-			$ids = array_merge($ids, array_keys($objects));
-			 
-		} while(!empty($objects));
-
-		$batch_total = count($ids);
-		for($x=0;$x<=$batch_total;$x+=100) {
-			$batch_ids = array_slice($ids,$x,100);
-			DAO_Notification::update($batch_ids, $change_fields);
-			
-			// Custom Fields
-			//self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TASK, $custom_fields, $batch_ids);
-			
-			unset($batch_ids);
-		}
-
-		if(isset($change_fields[DAO_Notification::IS_READ])) {
-			if(null != ($active_worker = CerberusApplication::getActiveWorker()))
-				DAO_Notification::clearCountCache($active_worker->id);
-		}
-		
-		unset($ids);
 	}
 };
 
