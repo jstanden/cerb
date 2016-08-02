@@ -367,7 +367,7 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/workers/bulk.tpl');
 	}
 	
-	function doWorkersBulkUpdateAction() {
+	function startBulkUpdateJsonAction() {
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		$ids = array();
@@ -404,8 +404,20 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 				break;
 		}
 		
-		$view->doBulkUpdate($filter, $do, $ids);
-		$view->render();
+		// If we have specific IDs, add a filter for those too
+		if(!empty($ids)) {
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Worker::ID, 'in', $ids));
+		}
+		
+		// Create batches
+		$batch_key = DAO_ContextBulkUpdate::createFromView($view, $do);
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		echo json_encode(array(
+			'cursor' => $batch_key,
+		));
+		
 		return;
 	}
 }
