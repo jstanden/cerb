@@ -20,7 +20,9 @@
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="#">
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="sessions">
+<input type="hidden" name="action" value="viewDelete">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="3" cellspacing="0" border="0" width="100%" class="worklistBody">
@@ -106,9 +108,7 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
-		{if $active_worker && $active_worker->is_superuser}
-			<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=sessions&action=showSessionsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'500');"><span class="glyphicons glyphicons-folder-closed"></span></a> bulk update</button>
-		{/if}
+		<button type="button" class="action-delete"><span class="glyphicons glyphicons-remove"></span> {'common.delete'|devblocks_translate|lower}</button>
 	</div>
 	{/if}
 </div>
@@ -120,35 +120,31 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$frm = $('#viewForm{$view->id}');
-
-{if $pref_keyboard_shortcuts}
-$frm.bind('keyboard_shortcut',function(event) {
-	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
+$(function() {
+	var $frm = $('#viewForm{$view->id}');
+	var $view_actions = $('#{$view->id}_actions');
 	
-	$view_actions = $('#{$view->id}_actions');
+	$view_actions.find('.action-delete').click(function() {
+		genericAjaxPost($frm, '', '', function() {
+			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
+		});
+	})
 	
-	hotkey_activated = true;
-
-	switch(event.keypress_event.which) {
-		case 98: // (b) bulk update
-			$btn = $view_actions.find('button.action-bulkupdate');
+	{if $pref_keyboard_shortcuts}
+	$frm.bind('keyboard_shortcut',function(event) {
+		//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
 		
-			if(event.indirect) {
-				$btn.select().focus();
-				
-			} else {
-				$btn.click();
-			}
-			break;
-		
-		default:
-			hotkey_activated = false;
-			break;
-	}
-
-	if(hotkey_activated)
-		event.preventDefault();
+		var hotkey_activated = true;
+	
+		switch(event.keypress_event.which) {
+			default:
+				hotkey_activated = false;
+				break;
+		}
+	
+		if(hotkey_activated)
+			event.preventDefault();
+	});
+	{/if}
 });
-{/if}
 </script>
