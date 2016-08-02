@@ -1095,12 +1095,10 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	// Ajax
-	function doBulkUpdateAction() {
+	function startBulkUpdateJsonAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$ticket_id_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
-		@$shortcut_name = DevblocksPlatform::importGPC($_REQUEST['shortcut_name'],'string','');
-
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -1236,8 +1234,20 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
-		$view->doBulkUpdate($filter, '', $data, $do, $ids);
-		$view->render();
+		// If we have specific IDs, add a filter for those too
+		if(!empty($ids)) {
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID, 'in', $ids));
+		}
+		
+		// Create batches
+		$batch_key = DAO_ContextBulkUpdate::createFromView($view, $do);
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		echo json_encode(array(
+			'cursor' => $batch_key,
+		));
+		
 		return;
 	}
 

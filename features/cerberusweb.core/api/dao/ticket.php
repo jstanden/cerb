@@ -917,6 +917,177 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		}
 	}
 	
+	/**
+	 * @param Model_ContextBulkUpdate $update
+	 * @return boolean
+	 */
+	static function bulkUpdate(Model_ContextBulkUpdate $update) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		// Make sure we have actions
+		if(empty($ids) || empty($do))
+			return false;
+		
+		$update->markInProgress();
+		
+		$change_fields = array();
+		$custom_fields = array();
+		$worker_dict = null;
+		$do_merge = false;
+		
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'merge':
+					$do_merge = true;
+					break;
+				case 'move':
+					$change_fields[DAO_Ticket::GROUP_ID] = $v['group_id'];
+					$change_fields[DAO_Ticket::BUCKET_ID] = $v['bucket_id'];
+					break;
+				case 'importance':
+					$change_fields[DAO_Ticket::IMPORTANCE] = $v['importance'];
+					break;
+				case 'owner':
+					$change_fields[DAO_Ticket::OWNER_ID] = intval($v['worker_id']);
+					break;
+				case 'org':
+					$change_fields[DAO_Ticket::ORG_ID] = intval($v['org_id']);
+					break;
+				case 'status':
+					$change_fields[DAO_Ticket::STATUS_ID] = intval($v['status_id']);
+					break;
+				case 'reopen':
+					@$date = strtotime($v['date']);
+					$change_fields[DAO_Ticket::REOPEN_AT] = intval($date);
+					break;
+				default:
+					// Custom fields
+					if(substr($k,0,3)=="cf_") {
+						$custom_fields[substr($k,3)] = $v;
+					}
+			}
+		}
+		
+		// If merging, do that first, then run subsequent actions on the lone destination ticket
+		if($do_merge) {
+			if(null != ($merged_into_id = DAO_Ticket::merge($ids))) {
+				$ids = array($merged_into_id);
+			}
+		}
+		
+		// Fields
+		if(!empty($change_fields) || !empty($custom_fields)) {
+			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
+			DAO_Ticket::update($ids, $change_fields);
+		}
+		
+		// Custom Fields
+		C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TICKET, $custom_fields, $ids);
+		
+		// Spam
+		if(isset($do['spam'])) {
+			if(!empty($do['spam']['is_spam'])) {
+				foreach($ids as $batch_id)
+					CerberusBayes::markTicketAsSpam($batch_id);
+			} else {
+				foreach($ids as $batch_id)
+					CerberusBayes::markTicketAsNotSpam($batch_id);
+			}
+		}
+		
+		// Scheduled behavior
+		if(isset($do['behavior']))
+			C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_TICKET, $do['behavior'], $ids);
+		
+		// Watchers
+		if(isset($do['watchers']))
+			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_TICKET, $do['watchers'], $ids);
+		
+		if(isset($do['broadcast'])) {
+			try {
+				$broadcast_params = $do['broadcast'];
+				
+				if(
+					!isset($broadcast_params['worker_id']) || empty($broadcast_params['worker_id'])
+					|| !isset($broadcast_params['message']) || empty($broadcast_params['message'])
+					)
+					throw new Exception("Missing parameters for broadcast.");
+					
+				$models = CerberusContexts::getModels(CerberusContexts::CONTEXT_TICKET, $ids);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_TICKET);
+					
+				$is_queued = (isset($broadcast_params['is_queued']) && $broadcast_params['is_queued']) ? true : false;
+				
+				if(is_array($dicts))
+				foreach($dicts as $ticket_id => $dict) {
+					// Add the signature to the token_values
+					// [TODO] This shouldn't be redundant with ::doBulkUpdateBroadcastTestAction()
+					if(in_array('signature', $tpl_builder->tokenize($broadcast_params['message']))) {
+						if(isset($dict->group_id) && null != ($sig_group = DAO_Group::get($dict->group_id))) {
+							$sig_template = $sig_group->getReplySignature(@intval($dict->bucket_id));
+
+							// Lazy load the worker dictionary
+							if(is_null($worker_dict) && false != ($worker = CerberusApplication::getActiveWorker())) {
+								$worker_dicts = DevblocksDictionaryDelegate::getDictionariesFromModels(array($worker_id => $worker), CerberusContexts::CONTEXT_WORKER);
+								$worker_dict = $worker_dicts[$worker->id];
+								unset($worker_dicts);
+							}
+							 
+							if($worker_dict) {
+								if(false !== ($out = $tpl_builder->build($sig_template, $worker_dict))) {
+									$dict->signature = $out;
+								}
+							}
+						}
+					}
+					
+					$body = $tpl_builder->build($broadcast_params['message'], $dict);
+
+					$params_json = array(
+						'in_reply_message_id' => $dict->latest_message_id,
+						'is_broadcast' => 1,
+					);
+					
+					if(isset($broadcast_params['format']))
+						$params_json['format'] = $broadcast_params['format'];
+					
+					if(isset($broadcast_params['html_template_id']))
+						$params_json['html_template_id'] = intval($broadcast_params['html_template_id']);
+					
+					$fields = array(
+						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
+						DAO_MailQueue::TICKET_ID => $ticket_id,
+						DAO_MailQueue::WORKER_ID => $broadcast_params['worker_id'],
+						DAO_MailQueue::UPDATED => time(),
+						DAO_MailQueue::HINT_TO => $dict->initial_message_sender_address,
+						DAO_MailQueue::SUBJECT => $dict->subject,
+						DAO_MailQueue::BODY => $body,
+					);
+					
+					if($is_queued)
+						$fields[DAO_MailQueue::IS_QUEUED] = 1;
+
+					if(isset($broadcast_params['file_ids']))
+						$params_json['file_ids'] = $broadcast_params['file_ids'];
+					
+					if(!empty($params_json))
+						$fields[DAO_MailQueue::PARAMS_JSON] = json_encode($params_json);
+					
+					$draft_id = DAO_MailQueue::create($fields);
+				}
+			} catch (Exception $e) {
+				
+			}
+		}
+
+		$update->markCompleted();
+		return true;
+	}
+	
 	static function _processUpdateEvents($ids, $change_fields) {
 
 		// We only care about these fields, so abort if they aren't referenced
@@ -3901,265 +4072,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
-	}
-
-	/**
-	 * @param array
-	 * @param array
-	 * @return boolean
-	 */
-	function doBulkUpdate($filter, $filter_param, $data, $do, $ids=array()) {
-		@set_time_limit(600); // 10m
-		
-		$change_fields = array();
-		$custom_fields = array();
-
-		$do_merge = false;
-		
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		
-		// Make sure we have actions
-		if(empty($do))
-			return;
-		
-		// Make sure we have checked items if we want a checked list
-		if(0 == strcasecmp($filter,"checks") && empty($ids))
-			return;
-		
-		if(is_array($do))
-		foreach($do as $k => $v) {
-			switch($k) {
-				case 'merge':
-					$do_merge = true;
-					break;
-				case 'move':
-					$change_fields[DAO_Ticket::GROUP_ID] = $v['group_id'];
-					$change_fields[DAO_Ticket::BUCKET_ID] = $v['bucket_id'];
-					break;
-				case 'importance':
-					$change_fields[DAO_Ticket::IMPORTANCE] = $v['importance'];
-					break;
-				case 'owner':
-					$change_fields[DAO_Ticket::OWNER_ID] = intval($v['worker_id']);
-					break;
-				case 'org':
-					$change_fields[DAO_Ticket::ORG_ID] = intval($v['org_id']);
-					break;
-				case 'status':
-					$change_fields[DAO_Ticket::STATUS_ID] = intval($v['status_id']);
-					break;
-				case 'reopen':
-					@$date = strtotime($v['date']);
-					$change_fields[DAO_Ticket::REOPEN_AT] = intval($date);
-					break;
-				case 'broadcast':
-					if(isset($v['worker_id'])) {
-						CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $v['worker_id'], $worker_labels, $worker_values);
-					}
-					break;
-				default:
-					// Custom fields
-					if(substr($k,0,3)=="cf_") {
-						$custom_fields[substr($k,3)] = $v;
-					}
-			}
-		}
-			
-		$params = $this->getParams();
-
-		if(empty($filter)) {
-			$data[] = '*'; // All, just to permit a loop in foreach($data ...)
-		}
-
-		if(is_array($data))
-		foreach($data as $v) {
-			$new_params = array();
-			$do_header = null;
-	
-			switch($filter) {
-				case 'subject':
-					$new_params = array(
-						new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_SUBJECT,DevblocksSearchCriteria::OPER_LIKE,$v)
-					);
-					$do_header = 'subject';
-					$ids = array();
-					break;
-				case 'sender':
-					$new_params = array(
-						new DevblocksSearchCriteria(SearchFields_Ticket::SENDER_ADDRESS,DevblocksSearchCriteria::OPER_LIKE,$v)
-					);
-					$do_header = 'from';
-					$ids = array();
-					break;
-			}
-
-			$new_params = array_merge($new_params, $params);
-			$pg = 0;
-
-			if(empty($ids)) {
-				do {
-					list($tickets,$null) = DAO_Ticket::search(
-						array(),
-						$new_params,
-						100,
-						$pg++,
-						SearchFields_Ticket::TICKET_ID,
-						true,
-						false
-					);
-					 
-					$ids = array_merge($ids, array_keys($tickets));
-					 
-				} while(!empty($tickets));
-			}
-			
-			// If merging, do that first, then run subsequent actions on the lone destination ticket
-			// [TODO] This could show up on the ticket bulk update popup
-			if($do_merge) {
-				if(null != ($merged_into_id = DAO_Ticket::merge($ids))) {
-					$ids = array($merged_into_id);
-				}
-			}
-			
-			$batch_total = count($ids);
-			for($x=0;$x<=$batch_total;$x+=200) {
-				$batch_ids = array_slice($ids,$x,200);
-				
-				// Fields
-				if(!empty($change_fields)) {
-					$change_fields[DAO_Ticket::UPDATED_DATE] = time();
-					DAO_Ticket::update($batch_ids, $change_fields);
-				}
-				
-				// Custom Fields
-				self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TICKET, $custom_fields, $batch_ids);
-				
-				// Spam
-				if(isset($do['spam'])) {
-					if(!empty($do['spam']['is_spam'])) {
-						foreach($batch_ids as $batch_id)
-							CerberusBayes::markTicketAsSpam($batch_id);
-					} else {
-						foreach($batch_ids as $batch_id)
-							CerberusBayes::markTicketAsNotSpam($batch_id);
-					}
-				}
-				
-				// Scheduled behavior
-				if(isset($do['behavior']) && is_array($do['behavior'])) {
-					$behavior_id = $do['behavior']['id'];
-					@$behavior_when = strtotime($do['behavior']['when']) or time();
-					@$behavior_params = isset($do['behavior']['params']) ? $do['behavior']['params'] : array();
-					
-					if(!empty($batch_ids) && !empty($behavior_id))
-					foreach($batch_ids as $batch_id) {
-						DAO_ContextScheduledBehavior::create(array(
-							DAO_ContextScheduledBehavior::BEHAVIOR_ID => $behavior_id,
-							DAO_ContextScheduledBehavior::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-							DAO_ContextScheduledBehavior::CONTEXT_ID => $batch_id,
-							DAO_ContextScheduledBehavior::RUN_DATE => $behavior_when,
-							DAO_ContextScheduledBehavior::VARIABLES_JSON => json_encode($behavior_params),
-						));
-					}
-				}
-				
-				// Watchers
-				if(isset($do['watchers']) && is_array($do['watchers'])) {
-					$watcher_params = $do['watchers'];
-					foreach($batch_ids as $batch_id) {
-						if(isset($watcher_params['add']) && is_array($watcher_params['add']))
-							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $batch_id, $watcher_params['add']);
-						if(isset($watcher_params['remove']) && is_array($watcher_params['remove']))
-							CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $batch_id, $watcher_params['remove']);
-					}
-				}
-				
-				if(isset($do['broadcast'])) {
-					try {
-						$broadcast_params = $do['broadcast'];
-						
-						if(
-							!isset($broadcast_params['worker_id']) || empty($broadcast_params['worker_id'])
-							|| !isset($broadcast_params['message']) || empty($broadcast_params['message'])
-							)
-							throw new Exception("Missing parameters for broadcast.");
-							
-						list($tickets, $null) = DAO_Ticket::search(
-							array(),
-							array(
-								SearchFields_Ticket::TICKET_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$batch_ids),
-							),
-							-1,
-							0,
-							null,
-							true,
-							false
-						);
-						$is_queued = (isset($broadcast_params['is_queued']) && $broadcast_params['is_queued']) ? true : false;
-						
-						if(is_array($tickets))
-						foreach($tickets as $ticket_id => $row) {
-							CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $tpl_labels, $tpl_tokens);
-							
-							// Add the signature to the token_values
-							// [TODO] This shouldn't be redundant with ::doBulkUpdateBroadcastTestAction()
-							if(in_array('signature', $tpl_builder->tokenize($broadcast_params['message']))) {
-								if(isset($tpl_tokens['group_id']) && null != ($sig_group = DAO_Group::get($tpl_tokens['group_id']))) {
-									 $sig_template = $sig_group->getReplySignature(@intval($tpl_tokens['bucket_id']));
-	
-									 if(isset($worker_values)) {
-										 if(false !== ($out = $tpl_builder->build($sig_template, $worker_values))) {
-										 	$tpl_tokens['signature'] = $out;
-										 }
-									 }
-								}
-							}
-							
-							$tpl_dict = new DevblocksDictionaryDelegate($tpl_tokens);
-							$body = $tpl_builder->build($broadcast_params['message'], $tpl_dict);
-	
-							$params_json = array(
-								'in_reply_message_id' => $row[SearchFields_Ticket::TICKET_FIRST_MESSAGE_ID],
-								'is_broadcast' => 1,
-							);
-							
-							if(isset($broadcast_params['format']))
-								$params_json['format'] = $broadcast_params['format'];
-							
-							if(isset($broadcast_params['html_template_id']))
-								$params_json['html_template_id'] = intval($broadcast_params['html_template_id']);
-							
-							$fields = array(
-								DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
-								DAO_MailQueue::TICKET_ID => $ticket_id,
-								DAO_MailQueue::WORKER_ID => $broadcast_params['worker_id'],
-								DAO_MailQueue::UPDATED => time(),
-								DAO_MailQueue::HINT_TO => $row[SearchFields_Ticket::TICKET_FIRST_WROTE],
-								DAO_MailQueue::SUBJECT => $row[SearchFields_Ticket::TICKET_SUBJECT],
-								DAO_MailQueue::BODY => $body,
-							);
-							
-							if($is_queued)
-								$fields[DAO_MailQueue::IS_QUEUED] = 1;
-	
-							if(isset($broadcast_params['file_ids']))
-								$params_json['file_ids'] = $broadcast_params['file_ids'];
-							
-							if(!empty($params_json))
-								$fields[DAO_MailQueue::PARAMS_JSON] = json_encode($params_json);
-							
-							$draft_id = DAO_MailQueue::create($fields);
-						}
-					} catch (Exception $e) {
-						
-					}
-				}
-				
-				unset($batch_ids);
-			}
-		}
-
-		unset($ids);
 	}
 
 	static public function setLastAction($view_id, Model_TicketViewLastAction $last_action=null) {
