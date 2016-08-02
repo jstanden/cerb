@@ -50,6 +50,60 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * @param Model_ContextBulkUpdate $update
+	 * @return boolean
+	 */
+	static function bulkUpdate(Model_ContextBulkUpdate $update) {
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		// Make sure we have actions
+		if(empty($ids) || empty($do))
+			return false;
+		
+		$update->markInProgress();
+		
+		$change_fields = array();
+		$custom_fields = array();
+		$deleted = false;
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'status':
+					switch($v) {
+						case 'queue':
+							$change_fields[DAO_MailQueue::IS_QUEUED] = 1;
+							$change_fields[DAO_MailQueue::QUEUE_FAILS] = 0;
+							break;
+							
+						case 'draft':
+							$change_fields[DAO_MailQueue::IS_QUEUED] = 0;
+							$change_fields[DAO_MailQueue::QUEUE_FAILS] = 0;
+							break;
+							
+						case 'delete':
+							$deleted = true;
+							break;
+					}
+					break;
+				default:
+					break;
+			}
+		}
+		
+		if(!$deleted) {
+			if(!empty($change_fields))
+				DAO_MailQueue::update($ids, $change_fields);
+		} else {
+			DAO_MailQueue::delete($ids);
+		}
+		
+		$update->markCompleted();
+		return true;
+	}
+	
+	/**
 	 * @param string $where
 	 * @param mixed $sortBy
 	 * @param mixed $sortAsc
@@ -867,78 +921,6 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 			$this->addParam($criteria);
 			$this->renderPage = 0;
 		}
-	}
-		
-	function doBulkUpdate($filter, $do, $ids=array()) {
-		@set_time_limit(600); // 10m
-		
-		$change_fields = array();
-		$custom_fields = array();
-		$deleted = false;
-
-		// Make sure we have actions
-		if(empty($do))
-			return;
-
-		// Make sure we have checked items if we want a checked list
-		if(0 == strcasecmp($filter,"checks") && empty($ids))
-			return;
-			
-		if(is_array($do))
-		foreach($do as $k => $v) {
-			switch($k) {
-				case 'status':
-					switch($v) {
-						case 'queue':
-							$change_fields[DAO_MailQueue::IS_QUEUED] = 1;
-							$change_fields[DAO_MailQueue::QUEUE_FAILS] = 0;
-							break;
-						case 'draft':
-							$change_fields[DAO_MailQueue::IS_QUEUED] = 0;
-							$change_fields[DAO_MailQueue::QUEUE_FAILS] = 0;
-							break;
-						case 'delete':
-							$deleted = true;
-							break;
-					}
-					break;
-				default:
-					break;
-			}
-		}
-
-		$pg = 0;
-
-		if(empty($ids))
-		do {
-			$params = $this->getParams();
-			list($objects,$null) = DAO_MailQueue::search(
-				array(),
-				$params,
-				100,
-				$pg++,
-				SearchFields_MailQueue::ID,
-				true,
-				false
-			);
-			$ids = array_merge($ids, array_keys($objects));
-			 
-		} while(!empty($objects));
-
-		$batch_total = count($ids);
-		for($x=0;$x<=$batch_total;$x+=100) {
-			$batch_ids = array_slice($ids,$x,100);
-			
-			if(!$deleted) {
-				DAO_MailQueue::update($batch_ids, $change_fields);
-			} else {
-				DAO_MailQueue::delete($batch_ids);
-			}
-			
-			unset($batch_ids);
-		}
-
-		unset($ids);
 	}
 };
 
