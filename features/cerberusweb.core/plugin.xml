@@ -2891,19 +2891,6 @@
 		</extension>
 		
 		<extension point="cerberusweb.page">
-			<id>core.page.tasks</id>
-			<name>Tasks Page</name>
-			<class>
-				<file>api/uri/tasks.php</file>
-				<name>ChTasksPage</name>
-			</class>
-			<params>
-				<param key="uri" value="tasks" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-
-		<extension point="cerberusweb.page">
 			<id>core.page.contacts</id>
 			<name>Contacts Page</name>
 			<class>
