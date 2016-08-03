@@ -144,57 +144,7 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
 {if $active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')}
-<fieldset class="peek">
-	<legend>Send Broadcast Reply</legend>
-	<label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkTicketBroadcast').toggle();"> {'common.enabled'|devblocks_translate|capitalize}</label>
-	<input type="hidden" name="broadcast_format" value="">
-	
-	<blockquote id="bulkTicketBroadcast" style="display:none;margin:10px;">
-		<b>Reply:</b>
-		
-		<div style="margin:0px 0px 5px 10px;">
-			<textarea name="broadcast_message" style="width:100%;height:200px;border:1px solid rgb(180,180,180);padding:2px;"></textarea>
-			<div>
-				<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
-				<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkTicketBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_TICKET}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-				
-				{$types = $values._types}
-				{function tree level=0}
-					{foreach from=$keys item=data key=idx}
-						{if is_array($data)}
-							<li>
-								<div>{$idx|capitalize}</div>
-								<ul>
-									{tree keys=$data level=$level+1}
-								</ul>
-							</li>
-						{else}
-							{$type = $types.{$data->key}}
-							<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
-						{/if}
-					{/foreach}
-				{/function}
-				
-				<ul class="menu" style="width:150px;">
-				{tree keys=$placeholders}
-				</ul>
-			</div>
-		</div>
-		
-		<b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
-	
-		<div style="margin:0px 0px 5px 10px;">
-			<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
-			<ul class="bubbles chooser-container">
-		</div>
-		
-		<b>Then:</b>
-		<div style="margin:0px 0px 5px 10px;">
-			<label><input type="radio" name="broadcast_is_queued" value="0" checked="checked"> Save as drafts</label>
-			<label><input type="radio" name="broadcast_is_queued" value="1"> Send now</label>
-		</div>
-	</blockquote>
-</fieldset>
+{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_TICKET is_reply=true}
 {/if}
 	
 <button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
@@ -225,10 +175,6 @@ $(function() {
 			});
 		});
 		
-		$frm.find('button.chooser_file').each(function() {
-			ajax.chooserFile(this,'broadcast_file_ids');
-		});
-		
 		// Move to
 		
 		var $select_moveto_group = $popup.find('select.cerb-moveto-group');
@@ -256,129 +202,7 @@ $(function() {
 			$select_moveto_bucket.val('').fadeIn();
 		});
 		
-		// Broadcast
-		
-		var $content = $frm.find('textarea[name=broadcast_message]');
-		
-		var $placeholder_menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
-		var $placeholder_menu = $popup.find('ul.menu').hide();
-		
-		$placeholder_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
-				
-				if(undefined == token || undefined == label)
-					return;
-				
-				$content.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
-			}
-		});
-		
-		$placeholder_menu_trigger
-			.click(
-				function(e) {
-					$placeholder_menu.toggle();
-				}
-			)
-		;
-		
-		// Text editor
-		
-		var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);
-		var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
-		
-		var markitupBroadcastFunctions = {
-			switchToMarkdown: function(markItUp) { 
-				$content.markItUpRemove().markItUp(markitupParsedownSettings);
-				$content.closest('form').find('input:hidden[name=broadcast_format]').val('parsedown');
-				
-				// Template chooser
-				
-				var $ul = $content.closest('.markItUpContainer').find('.markItUpHeader UL');
-				var $li = $('<li style="margin-left:10px;"></li>');
-				
-				var $select = $('<select name="broadcast_html_template_id"></select>');
-				$select.append($('<option value="0"/>').text(' - {'common.default'|devblocks_translate|lower|escape:'javascript'} -'));
-				
-				{foreach from=$html_templates item=html_template}
-				var $option = $('<option/>').attr('value','{$html_template->id}').text('{$html_template->name|escape:'javascript'}');
-				$select.append($option);
-				{/foreach}
-				
-				$li.append($select);
-				$ul.append($li);
-			},
-			
-			switchToPlaintext: function(markItUp) {
-				$content.markItUpRemove().markItUp(markitupPlaintextSettings);
-				$content.closest('form').find('input:hidden[name=broadcast_format]').val('');
-			}
-		};
-		
-		markitupPlaintextSettings.markupSet.unshift(
-			{ name:'Switch to Markdown', openWith: markitupBroadcastFunctions.switchToMarkdown, className:'parsedown' }
-		);
-		
-		markitupPlaintextSettings.markupSet.push(
-			{ separator:' ' },
-			{ name:'Preview', key: 'P', call:'preview', className:"preview" }
-		);
-		
-		var previewParser = function(content) {
-			genericAjaxPost(
-				'formBatchUpdate',
-				'',
-				'c=tickets&a=doBulkUpdateBroadcastTest',
-				function(o) {
-					content = o;
-				},
-				{
-					async: false
-				}
-			);
-			
-			return content;
-		};
-		
-		markitupPlaintextSettings.previewParser = previewParser;
-		markitupPlaintextSettings.previewAutoRefresh = false;
-		
-		markitupParsedownSettings.previewParser = previewParser;
-		markitupParsedownSettings.previewAutoRefresh = false;
-		delete markitupParsedownSettings.previewInWindow;
-		
-		markitupParsedownSettings.markupSet.unshift(
-			{ name:'Switch to Plaintext', openWith: markitupBroadcastFunctions.switchToPlaintext, className:'plaintext' },
-			{ separator:' ' }
-		);
-		
-		markitupParsedownSettings.markupSet.splice(
-			6,
-			0,
-			{ name:'Upload an Image', openWith: 
-				function(markItUp) {
-					$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
-					
-					$chooser.one('chooser_save', function(event) {
-						if(!event.response || 0 == event.response)
-							return;
-						
-						$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
-					});
-				},
-				key: 'U',
-				className:'image-inline'
-			}
-		);
-		
-		try {
-			$content.markItUp(markitupPlaintextSettings);
-			
-		} catch(e) {
-			if(window.console)
-				console.log(e);
-		}
+		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
 	});
 });
 </script>

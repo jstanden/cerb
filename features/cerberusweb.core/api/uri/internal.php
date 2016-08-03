@@ -32,13 +32,14 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		switch($action) {
 			case NULL:
-				// [TODO] Index/page render
 				break;
 
 			default:
 				// Default action, call arg as a method suffixed with Action
-				if(method_exists($this,$action)) {
-					call_user_func(array(&$this, $action));
+				if(method_exists($this, $action)) {
+					try {
+						call_user_func(array(&$this, $action));
+					} catch (Exception $e) { }
 				}
 				break;
 		}
@@ -2158,6 +2159,137 @@ class ChInternalController extends DevblocksControllerExtension {
 			echo json_encode(array(
 				'completed' => true,
 			));
+		}
+	}
+	
+	function viewBroadcastTestAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		if(false == ($view = C4_AbstractViewLoader::getView($view_id)))
+			return;
+		
+		$view->setAutoPersist(false);
+		
+		$view_class = get_class($view);
+		
+		if(false == ($context_ext = Extension_DevblocksContext::getByViewClass($view_class, true)))
+			return;
+		
+		$dao_class = $context_ext->getDaoClass();
+		$search_class = $context_ext->getSearchClass();
+		
+		$pkey = $search_class::getPrimaryKey();
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
+		@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+		@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
+		@$broadcast_html_template_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_html_template_id'],'integer',0);
+		@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
+		
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'string','');
+		
+		// Filter to checked
+		if('checks' == $filter && !empty($ids)) {
+			$view->addParam(new DevblocksSearchCriteria($pkey,'in',explode(',', $ids)));
+		}
+		
+		$results = $view->getDataSample(1);
+		
+		if(empty($results)) {
+			$success = false;
+			$output = "There aren't any rows in this view!";
+			
+		} else {
+			@$model = $dao_class::get(current($results));
+			
+			// Try to build the template
+			CerberusContexts::getContext($context_ext->id, $model, $token_labels, $token_values);
+			$dict = DevblocksDictionaryDelegate::instance($token_values);
+			
+			// [TODO] Hack!!!
+			switch($context_ext->id) {
+				case CerberusContexts::CONTEXT_DOMAIN:
+					// Load the contacts from a CSV placeholder
+					$contacts = CerberusMail::parseRfcAddresses($dict->contacts_list);
+					
+					if(empty($contacts))
+						break;
+					
+					shuffle($contacts);
+					
+					// Randomize the address
+					$contact = DAO_Address::lookupAddress($contacts[0]['email'], true);
+					
+					$dict->contact__context = CerberusContexts::CONTEXT_ADDRESS;
+					$dict->contact_id = $contact->id;
+					break;
+			}
+
+			if(!empty($broadcast_subject)) {
+				$template = "Subject: $broadcast_subject\n\n$broadcast_message";
+			} else {
+				$template = "$broadcast_message";
+			}
+			
+			if(false === ($out = $tpl_builder->build($template, $dict))) {
+				// If we failed, show the compile errors
+				$errors = $tpl_builder->getErrors();
+				$success= false;
+				$output = @array_shift($errors);
+				
+			} else {
+				// If successful, return the parsed template
+				$success = true;
+				$output = $out;
+				
+				switch($broadcast_format) {
+					case 'parsedown':
+						// Markdown
+						$output = DevblocksPlatform::parseMarkdown($output);
+						
+						// HTML Template
+						
+						$html_template = null;
+						
+						if($broadcast_html_template_id)
+							$html_template = DAO_MailHtmlTemplate::get($broadcast_html_template_id);
+						
+						if(!$html_template && false != ($group = DAO_Group::get($broadcast_group_id)))
+							$html_template = $group->getReplyHtmlTemplate(0);
+						
+						if(!$html_template && false != ($replyto = DAO_AddressOutgoing::getDefault()))
+							$html_template = $replyto->getReplyHtmlTemplate();
+						
+						if($html_template)
+							$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+						
+						// HTML Purify
+						$output = DevblocksPlatform::purifyHTML($output, true);
+						break;
+						
+					default:
+						$output = nl2br(DevblocksPlatform::strEscapeHtml($output));
+						break;
+				}
+			}
+			
+			if($success) {
+				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
+				echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
+					LANG_CHARSET_CODE
+				);
+				echo $output;
+				echo '</body></html>';
+				
+			} else {
+				echo $output;
+			}
 		}
 	}
 	
