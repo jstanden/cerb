@@ -295,13 +295,15 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		// Broadcast
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $token_labels, $token_values);
-		$tpl->assign('token_labels', $token_labels);
-		
 		// HTML templates
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
+		
+		// Broadcast
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $token_labels, $token_values);
+		
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($token_labels);
+		$tpl->assign('placeholders', $placeholders);
 		
 		// Macros
 		

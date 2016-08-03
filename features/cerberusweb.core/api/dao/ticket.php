@@ -995,35 +995,14 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					throw new Exception("Missing parameters for broadcast.");
 					
 				$models = CerberusContexts::getModels(CerberusContexts::CONTEXT_TICKET, $ids);
-				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_TICKET);
-					
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_TICKET, array('custom_'));
+				
 				$is_queued = (isset($broadcast_params['is_queued']) && $broadcast_params['is_queued']) ? true : false;
 				
 				if(is_array($dicts))
 				foreach($dicts as $ticket_id => $dict) {
-					// Add the signature to the token_values
-					// [TODO] This shouldn't be redundant with ::doBulkUpdateBroadcastTestAction()
-					if(in_array('signature', $tpl_builder->tokenize($broadcast_params['message']))) {
-						if(isset($dict->group_id) && null != ($sig_group = DAO_Group::get($dict->group_id))) {
-							$sig_template = $sig_group->getReplySignature(@intval($dict->bucket_id));
-
-							// Lazy load the worker dictionary
-							if(is_null($worker_dict) && false != ($worker = CerberusApplication::getActiveWorker())) {
-								$worker_dicts = DevblocksDictionaryDelegate::getDictionariesFromModels(array($worker_id => $worker), CerberusContexts::CONTEXT_WORKER);
-								$worker_dict = $worker_dicts[$worker->id];
-								unset($worker_dicts);
-							}
-							 
-							if($worker_dict) {
-								if(false !== ($out = $tpl_builder->build($sig_template, $worker_dict))) {
-									$dict->signature = $out;
-								}
-							}
-						}
-					}
-					
 					$body = $tpl_builder->build($broadcast_params['message'], $dict);
-
+					
 					$params_json = array(
 						'in_reply_message_id' => $dict->latest_message_id,
 						'is_broadcast' => 1,
@@ -4540,6 +4519,18 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 						'org_id' => $req->contact_org_id,
 					);
 				}
+				break;
+				
+			case 'signature':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
+				if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+					break;
+				
+				if(!isset($dictionary['group_id']) || false == ($group = DAO_Group::get($dictionary['group_id'])))
+					break;
+				
+				$values['signature'] = $group->getReplySignature(intval($dictionary['bucket_id']), $active_worker);
 				break;
 				
 			case 'watchers':

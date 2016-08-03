@@ -197,13 +197,15 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		);
 		$tpl->assign('macros', $macros);
 		
-		// Broadcast
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, null, $token_labels, $token_values);
-		$tpl->assign('token_labels', $token_labels);
-		
 		// HTML templates
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
+		
+		// Broadcast
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, null, $token_labels, $token_values);
+		
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($token_labels);
+		$tpl->assign('placeholders', $placeholders);
 		
 		$tpl->display('devblocks:cerberusweb.crm::crm/opps/bulk.tpl');
 	}

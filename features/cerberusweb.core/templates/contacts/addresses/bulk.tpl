@@ -90,13 +90,29 @@
 			<textarea name="broadcast_message" style="width:100%;height:200px;"></textarea>
 			
 			<div>
+				<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
 				<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkAddyBroadcast textarea[name=broadcast_message]'), { '{CerberusContexts::CONTEXT_ADDRESS}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-				<select class="insert-placeholders">
-					<option value="">-- insert at cursor --</option>
-					{foreach from=$token_labels key=k item=v}
-					<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+				
+				{$types = $values._types}
+				{function tree level=0}
+					{foreach from=$keys item=data key=idx}
+						{if is_array($data)}
+							<li>
+								<div>{$idx|capitalize}</div>
+								<ul>
+									{tree keys=$data level=$level+1}
+								</ul>
+							</li>
+						{else}
+							{$type = $types.{$data->key}}
+							<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+						{/if}
 					{/foreach}
-				</select>
+				{/function}
+				
+				<ul class="menu" style="width:150px;">
+				{tree keys=$placeholders}
+				</ul>
 			</div>
 		</div>
 		
@@ -131,11 +147,12 @@
 </form>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFind('#formBatchUpdate');
 	
 	$popup.one('popup_open',function(event,ui) {
-		var $this = $(this);
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
 		
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', '', null, function(json) {
@@ -152,21 +169,34 @@
 		
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
 		
-		var $content = $this.find('textarea[name=broadcast_message]');
+		var $content = $popup.find('textarea[name=broadcast_message]');
 		
-		$this.find('select.insert-placeholders').change(function(e) {
-			var $select = $(this);
-			var $val = $select.val();
-			
-			if($val.length == 0)
-				return;
-			
-			$content.insertAtCursor($val).focus();
-			
-			$select.val('');
+		// Broadcast
+		
+		var $placeholder_menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
+		var $placeholder_menu = $popup.find('ul.menu').hide();
+		
+		$placeholder_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
+				
+				if(undefined == token || undefined == label)
+					return;
+				
+				$content.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+			}
 		});
 		
-		$this.find('button.chooser_file').each(function() {
+		$placeholder_menu_trigger
+			.click(
+				function(e) {
+					$placeholder_menu.toggle();
+				}
+			)
+		;
+		
+		$popup.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'broadcast_file_ids');
 		});
 		
@@ -268,4 +298,5 @@
 		}
 		
 	});
+});
 </script>
