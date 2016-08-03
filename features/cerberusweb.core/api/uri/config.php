@@ -63,7 +63,6 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$tpl->display('devblocks:cerberusweb.core::configuration/index.tpl');
 	}
 
-	// [TODO] This could probably go internal
 	function handleSectionActionAction() {
 		// GET has precedence over POST
 		@$section_uri = DevblocksPlatform::importGPC(isset($_GET['section']) ? $_GET['section'] : $_REQUEST['section'],'string','');

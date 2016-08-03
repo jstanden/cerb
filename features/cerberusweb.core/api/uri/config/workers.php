@@ -195,6 +195,8 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 							}
 							
 						} catch (Exception $e) {
+							// [TODO] need to report to the admin when the password email doesn't send.  The try->catch
+							// will keep it from killing php, but the password will be empty and the user will never get an email.
 						}
 					}
 					

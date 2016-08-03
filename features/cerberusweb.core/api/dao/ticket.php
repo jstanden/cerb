@@ -43,29 +43,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	
 	private function DAO_Ticket() {}
 	
-	public static function getFields() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		return array(
-			'id' => $translate->_('ticket.id'),
-			'mask' => $translate->_('ticket.mask'),
-			'subject' => $translate->_('ticket.subject'),
-			'status_id' => $translate->_('common.status'),
-			'group_id' => $translate->_('ticket.group'),
-			'bucket_id' => $translate->_('ticket.bucket'),
-			'owner_id' => $translate->_('common.owner'),
-			'importance' => $translate->_('common.importance'),
-			'updated_date' => $translate->_('common.updated'),
-			'closed_at' => $translate->_('ticket.closed_at'),
-			'spam_training' => $translate->_('ticket.spam_training'),
-			'spam_score' => $translate->_('ticket.spam_score'),
-			'interesting_words' => $translate->_('ticket.interesting_words'),
-			'num_messages' => $translate->_('ticket.num_messages'),
-			'elapsed_response_first' => $translate->_('ticket.elapsed_response_first'),
-			'elapsed_resolution_first' => $translate->_('ticket.elapsed_resolution_first'),
-		);
-	}
-	
 	/**
 	 * Enter description here...
 	 *

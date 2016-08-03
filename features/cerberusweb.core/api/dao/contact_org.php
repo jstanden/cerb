@@ -30,23 +30,6 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	
 	private function __construct() {}
 	
-	public static function getFields() {
-		$translate = DevblocksPlatform::getTranslationService();
-		return array(
-			'id' => $translate->_('common.id'),
-			'name' => $translate->_('common.name'),
-			'street' => $translate->_('contact_org.street'),
-			'city' => $translate->_('contact_org.city'),
-			'province' => $translate->_('contact_org.province'),
-			'postal' => $translate->_('contact_org.postal'),
-			'country' => $translate->_('contact_org.country'),
-			'phone' => $translate->_('common.phone'),
-			'website' => $translate->_('common.website'),
-			'created' => $translate->_('common.created'),
-			'updated' => $translate->_('common.updated'),
-		);
-	}
-	
 	/**
 	 * Enter description here...
 	 *

@@ -28,22 +28,6 @@ class DAO_Address extends Cerb_ORMHelper {
 	
 	private function __construct() {}
 	
-	public static function getFields() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		return array(
-			'id' => $translate->_('common.id'),
-			'email' => $translate->_('common.email'),
-			'contact_id' => $translate->_('common.contact'),
-			'contact_org_id' => $translate->_('address.contact_org_id'),
-			'num_spam' => $translate->_('address.num_spam'),
-			'num_nonspam' => $translate->_('address.num_nonspam'),
-			'is_banned' => $translate->_('address.is_banned'),
-			'is_defunct' => $translate->_('address.is_defunct'),
-			'updated' => mb_convert_case($translate->_('common.updated'), MB_CASE_TITLE),
-		);
-	}
-	
 	/**
 	 * Creates a new email address record.
 	 *
