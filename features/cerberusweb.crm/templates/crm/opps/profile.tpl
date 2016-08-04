@@ -110,7 +110,7 @@ $(function() {
 	var tabs = $("#profileOppTabs").tabs(tabOptions);
 	
 	$('#btnDisplayOppEdit').bind('click', function() {
-		var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$page_context_id}',null,false,'550');
+		var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$page_context_id}',null,false,'50%');
 		$popup.one('opp_save', function(event) {
 			event.stopPropagation();
 			document.location.href = '{devblocks_url}c=profiles&a=opportunity&id={$page_context_id}-{$opp->name|devblocks_permalink}{/devblocks_url}';

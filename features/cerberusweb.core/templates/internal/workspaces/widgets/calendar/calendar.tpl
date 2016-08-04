@@ -121,7 +121,7 @@ $(function() {
 	var $frm = $('#frm{$guid}');
 	
 	$frm.find('button.calendar-edit').click(function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR}&context_id={$calendar->id}',null,false,'550');
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR}&context_id={$calendar->id}',null,false,'50%');
 		$popup.one('calendar_save', function(event) {
 			event.stopPropagation();
 	

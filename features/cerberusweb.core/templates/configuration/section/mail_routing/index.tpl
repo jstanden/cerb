@@ -1,7 +1,7 @@
 <h2>Mail Routing</h2>
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_routing&action=showMailRoutingRulePanel&id=0',null,false,'550');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_routing&action=showMailRoutingRulePanel&id=0',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </form>
 
 <fieldset>
@@ -44,7 +44,7 @@
 					{/if}
 				</td>
 				<td style="{if $rule->is_sticky}background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);{else}{/if}padding:5px;">
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_routing&action=showMailRoutingRulePanel&id={$rule_id}',null,false,'550');" style="color:rgb(0,120,0);font-weight:bold;">{$rule->name}</a>
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_routing&action=showMailRoutingRulePanel&id={$rule_id}',null,false,'50%');" style="color:rgb(0,120,0);font-weight:bold;">{$rule->name}</a>
 					{if $rule->is_stackable}<span style="font-size:90%;padding-left:5px;color:rgb(0,120,0);">(Stackable)</span>{/if}
 					<br>
 					

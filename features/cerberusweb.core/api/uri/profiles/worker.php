@@ -178,10 +178,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$profile_worker_prefs = DAO_WorkerPref::getByWorker($worker->id);
 		$tpl->assign('profile_worker_prefs', $profile_worker_prefs);
 		
-		// SSL
-		$url_writer = DevblocksPlatform::getUrlService();
-		$tpl->assign('is_ssl', $url_writer->isSSL());
-		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/worker.tpl');
 	}

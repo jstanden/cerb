@@ -86,6 +86,9 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 				if(false == ($imagedata = base64_decode(substr($imagedata, 17))))
 					return false;
 				
+				// [TODO] Verify the "magic bytes"
+				// [TODO] 89 50 4E 47 0D 0A 1A 0A
+				
 			// If we don't know what it is, fail.
 			} else {
 				return false;

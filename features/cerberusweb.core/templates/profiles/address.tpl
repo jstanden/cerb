@@ -108,7 +108,7 @@ $(function() {
 	var tabs = $("#profileAddressTabs").tabs(tabOptions);
 
 	$('#btnDisplayAddyEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$page_context_id}',null,false,'550');
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&context_id={$page_context_id}',null,false,'50%');
 		$popup.one('address_save', function(event) {
 			event.stopPropagation();
 			document.location.href = '{devblocks_url}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}';

@@ -93,7 +93,7 @@ $(function() {
 	var tabs = $("#bucketTabs").tabs(tabOptions);
 	
 	$('#btnDisplayBucketEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
 		$popup.one('bucket_save', function(event) {
 			event.stopPropagation();
 			document.location.reload();

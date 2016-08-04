@@ -8,13 +8,13 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div style="margin-bottom:10px;">
-	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_from&action=peek&id=0',null,false,'550');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_from&action=peek&id=0',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </div>
 
 {foreach from=$addresses item=address key=address_id}
 <fieldset style="border:0;">
 	<legend {if $address->is_default}style="color:rgb(74,110,178);"{/if}>
-		<a href="javascript:;" {if $address->is_default}style="color:rgb(74,110,178);"{/if} onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_from&action=peek&id={$address_id}',null,false,'550');">{$address->email}</a>
+		<a href="javascript:;" {if $address->is_default}style="color:rgb(74,110,178);"{/if} onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_from&action=peek&id={$address_id}',null,false,'50%');">{$address->email}</a>
 		{if $address->is_default}
 		(default)
 		{/if}

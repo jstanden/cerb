@@ -31,7 +31,7 @@ $(function() {
 	var tabs = $('#objectTabs').tabs(tabOptions);
 	
 	$('#btnExObProfileEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=example.objects&a=showPeekPopup&id={$model->id}',null,false,'550');
+		$popup = genericAjaxPopup('peek','c=example.objects&a=showPeekPopup&id={$model->id}',null,false,'50%');
 		$popup.one('example_object_save', function(event) {
 			event.stopPropagation();
 			document.location.reload();
