@@ -65,6 +65,10 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
+{if $active_worker->hasPriv('context.contact.worklist.broadcast')}
+{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_CONTACT}
+{/if}
+
 <button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>
@@ -72,12 +76,10 @@
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#formBatchUpdate');
+	$popup.css('overflow', 'inherit');
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		
-		// Abstract choosers
-		$popup.find('button.chooser-abstract').cerbChooserTrigger();
 		
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', '', null, function(json) {
@@ -91,6 +93,11 @@ $(function() {
 				genericAjaxPopupClose($popup);
 			});
 		});
+		
+		// Abstract choosers
+		$popup.find('button.chooser-abstract').cerbChooserTrigger();
+		
+		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
 	});
 });
 </script>

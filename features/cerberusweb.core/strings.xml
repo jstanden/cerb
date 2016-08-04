@@ -1840,6 +1840,13 @@
 
 		<!-- ACL -->
 		
+		<!-- Contexts -->
+		
+		<tu tuid="acl.context.contact.worklist.broadcast">
+			<tuv xml:lang="en_US">
+				<seg>[Contacts] Can send broadcasts to contact worklists</seg>
+			</tuv>
+		</tu>
 		<!-- Address Book -->
 		
 		<tu tuid="acl.core.addybook">
