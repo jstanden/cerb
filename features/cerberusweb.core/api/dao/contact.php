@@ -17,6 +17,8 @@ class DAO_Contact extends Cerb_ORMHelper {
 	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
 	const LAST_LOGIN_AT = 'last_login_at';
+	const LANGUAGE = 'language';
+	const TIMEZONE = 'timezone';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -108,6 +110,14 @@ class DAO_Contact extends Cerb_ORMHelper {
 					$change_fields[DAO_Contact::LOCATION] = $v;
 					break;
 					
+				case 'language':
+					$change_fields[DAO_Contact::LANGUAGE] = $v;
+					break;
+					
+				case 'timezone':
+					$change_fields[DAO_Contact::TIMEZONE] = $v;
+					break;
+					
 				case 'gender':
 					if(in_array($v, array('M','F','')))
 						$change_fields[DAO_Contact::GENDER] = $v;
@@ -180,7 +190,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, primary_email_id, first_name, last_name, title, org_id, username, gender, dob, location, phone, mobile, auth_salt, auth_password, created_at, updated_at, last_login_at ".
+		$sql = "SELECT id, primary_email_id, first_name, last_name, title, org_id, username, gender, dob, location, phone, mobile, auth_salt, auth_password, created_at, updated_at, last_login_at, language, timezone ".
 			"FROM contact ".
 			$where_sql.
 			$sort_sql.
@@ -300,6 +310,8 @@ class DAO_Contact extends Cerb_ORMHelper {
 			$object->created_at = intval($row['created_at']);
 			$object->updated_at = intval($row['updated_at']);
 			$object->last_login_at = intval($row['last_login_at']);
+			$object->language = $row['language'];
+			$object->timezone = $row['timezone'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -376,6 +388,8 @@ class DAO_Contact extends Cerb_ORMHelper {
 			"contact.auth_password as %s, ".
 			"contact.created_at as %s, ".
 			"contact.updated_at as %s, ".
+			"contact.language as %s, ".
+			"contact.timezone as %s, ".
 			"contact.last_login_at as %s ",
 				SearchFields_Contact::ID,
 				SearchFields_Contact::PRIMARY_EMAIL_ID,
@@ -393,6 +407,8 @@ class DAO_Contact extends Cerb_ORMHelper {
 				SearchFields_Contact::AUTH_PASSWORD,
 				SearchFields_Contact::CREATED_AT,
 				SearchFields_Contact::UPDATED_AT,
+				SearchFields_Contact::LANGUAGE,
+				SearchFields_Contact::TIMEZONE,
 				SearchFields_Contact::LAST_LOGIN_AT
 			);
 			
@@ -569,6 +585,8 @@ class SearchFields_Contact extends DevblocksSearchFields {
 	const CREATED_AT = 'c_created_at';
 	const UPDATED_AT = 'c_updated_at';
 	const LAST_LOGIN_AT = 'c_last_login_at';
+	const LANGUAGE = 'c_language';
+	const TIMEZONE = 'c_timezone';
 	
 	const PRIMARY_EMAIL_ADDRESS = 'a_email_address';
 	
@@ -656,6 +674,8 @@ class SearchFields_Contact extends DevblocksSearchFields {
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'contact', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'contact', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::LAST_LOGIN_AT => new DevblocksSearchField(self::LAST_LOGIN_AT, 'contact', 'last_login_at', $translate->_('common.last_login'), Model_CustomField::TYPE_DATE, true),
+			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'contact', 'language', $translate->_('worker.language'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::TIMEZONE => new DevblocksSearchField(self::TIMEZONE, 'contact', 'timezone', $translate->_('worker.timezone'), Model_CustomField::TYPE_SINGLE_LINE, true),
 				
 			self::PRIMARY_EMAIL_ADDRESS => new DevblocksSearchField(self::PRIMARY_EMAIL_ADDRESS, 'address', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, false), // [TODO]
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'contact_org', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -877,6 +897,8 @@ class Model_Contact {
 	public $created_at;
 	public $updated_at;
 	public $last_login_at;
+	public $language;
+	public $timezone;
 	
 	function getName() {
 		return sprintf("%s%s%s",
@@ -963,6 +985,8 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Contact::USERNAME,
 			SearchFields_Contact::GENDER,
 			SearchFields_Contact::LOCATION,
+			SearchFields_Contact::LANGUAGE,
+			SearchFields_Contact::TIMEZONE,
 			SearchFields_Contact::UPDATED_AT,
 			SearchFields_Contact::LAST_LOGIN_AT,
 		);
@@ -1024,6 +1048,8 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				// Fields
 				case SearchFields_Contact::GENDER:
 				case SearchFields_Contact::ORG_NAME:
+				case SearchFields_Contact::LANGUAGE:
+				case SearchFields_Contact::TIMEZONE:
 					$pass = true;
 					break;
 					
@@ -1067,6 +1093,8 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Contact::ORG_NAME:
+			case SearchFields_Contact::LANGUAGE:
+			case SearchFields_Contact::TIMEZONE:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 
@@ -1126,17 +1154,27 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			'firstName' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Contact::FIRST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_Contact::FIRST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+				),
+			'lang' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Contact::LANGUAGE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
 			'lastName' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Contact::LAST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_Contact::LAST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
 			'org.id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Contact::ORG_ID),
+				),
+			'timezone' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Contact::TIMEZONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
 			'updated' => 
 				array(
@@ -1246,6 +1284,8 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Contact::MOBILE:
 			case SearchFields_Contact::AUTH_SALT:
 			case SearchFields_Contact::AUTH_PASSWORD:
+			case SearchFields_Contact::LANGUAGE:
+			case SearchFields_Contact::TIMEZONE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
@@ -1392,6 +1432,8 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Contact::MOBILE:
 			case SearchFields_Contact::AUTH_SALT:
 			case SearchFields_Contact::AUTH_PASSWORD:
+			case SearchFields_Contact::LANGUAGE:
+			case SearchFields_Contact::TIMEZONE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -1485,6 +1527,8 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'email__label',
 			'org__label',
 			'location',
+			'language',
+			'timezone',
 			'phone',
 			'mobile',
 			'updated_at',
@@ -1554,12 +1598,14 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => $prefix.$translate->_('common.id'),
 			'first_name' => $prefix.$translate->_('common.name.first'),
 			'gender' => $prefix.$translate->_('common.gender'),
+			'language' => $prefix.$translate->_('worker.language'),
 			'last_login_at' => $prefix.$translate->_('common.last_login'),
 			'last_name' => $prefix.$translate->_('common.name.last'),
 			'location' => $prefix.$translate->_('common.location'),
 			'mobile' => $prefix.$translate->_('common.mobile'),
 			'name' => $prefix.$translate->_('common.name'),
 			'phone' => $prefix.$translate->_('common.phone'),
+			'timezone' => $prefix.$translate->_('worker.timezone'),
 			'title' => $prefix.$translate->_('common.title'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'username' => $prefix.$translate->_('common.username'),
@@ -1572,12 +1618,14 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'gender' => Model_CustomField::TYPE_SINGLE_LINE,
+			'language' => Model_CustomField::TYPE_SINGLE_LINE,
 			'last_login_at' => Model_CustomField::TYPE_DATE,
 			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'location' => Model_CustomField::TYPE_SINGLE_LINE,
 			'mobile' => Model_CustomField::TYPE_SINGLE_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'phone' => Model_CustomField::TYPE_SINGLE_LINE,
+			'timezone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'username' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1604,12 +1652,14 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['id'] = $contact->id;
 			$token_values['first_name'] = $contact->first_name;
 			$token_values['gender'] = $contact->gender;
+			$token_values['language'] = $contact->language;
 			$token_values['last_login_at'] = $contact->last_login_at;
 			$token_values['last_name'] = $contact->last_name;
 			$token_values['location'] = $contact->location;
 			$token_values['mobile'] = $contact->mobile;
 			$token_values['phone'] = $contact->phone;
 			$token_values['name'] = $contact->getName();
+			$token_values['timezone'] = $contact->timezone;
 			$token_values['title'] = $contact->title;
 			$token_values['username'] = $contact->username;
 			$token_values['updated_at'] = $contact->updated_at;
@@ -1778,6 +1828,15 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		}
 		
+		// Languages
+		$translate = DevblocksPlatform::getTranslationService();
+		$locales = $translate->getLocaleStrings();
+		$tpl->assign('languages', $locales);
+		
+		// Timezones
+		$date = DevblocksPlatform::getDateService();
+		$tpl->assign('timezones', $date->getTimezones());
+		
 		if(empty($context_id) || $edit) {
 			if(empty($context_id) && !empty($edit)) {
 				$tokens = explode(' ', trim($edit));
@@ -1876,6 +1935,11 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'param' => SearchFields_Contact::GENDER,
 			),
+			'language' => array(
+				'label' => 'Language',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Contact::LANGUAGE,
+			),
 			'last_login_at' => array(
 				'label' => 'Last Login Date',
 				'type' => Model_CustomField::TYPE_DATE,
@@ -1905,6 +1969,11 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				'label' => 'Phone',
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'param' => SearchFields_Contact::PHONE,
+			),
+			'timezone' => array(
+				'label' => 'Timezone',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_Contact::TIMEZONE,
 			),
 			'title' => array(
 				'label' => 'Title',

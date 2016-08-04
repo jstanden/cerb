@@ -63,11 +63,33 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 			'params' => array('context' => CerberusContexts::CONTEXT_ORG),
 		);
 		
-		$properties['title'] = array(
-			'label' => mb_ucfirst($translate->_('common.title')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $contact->title,
-		);
+		if(!empty($contact->title))
+			$properties['title'] = array(
+				'label' => mb_ucfirst($translate->_('common.title')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $contact->title,
+			);
+		
+		if(!empty($contact->location))
+			$properties['location'] = array(
+				'label' => mb_ucfirst($translate->_('common.location')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $contact->location,
+			);
+		
+		if(!empty($contact->language))
+			$properties['language'] = array(
+				'label' => mb_ucfirst($translate->_('worker.language')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $contact->language,
+			);
+		
+		if(!empty($contact->timezone))
+			$properties['timezone'] = array(
+				'label' => mb_ucfirst($translate->_('worker.timezone')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $contact->timezone,
+			);
 		
 		$properties['created'] = array(
 			'label' => mb_ucfirst($translate->_('common.created')),
@@ -81,11 +103,12 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 			'value' => $contact->updated_at,
 		);
 		
-		$properties['last_login'] = array(
-			'label' => mb_ucfirst($translate->_('common.last_login')),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $contact->last_login_at,
-		);
+		if(!empty($contact->last_login_at))
+			$properties['last_login'] = array(
+				'label' => mb_ucfirst($translate->_('common.last_login')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $contact->last_login_at,
+			);
 	
 		// Custom Fields
 
@@ -171,6 +194,8 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				@$gender = DevblocksPlatform::importGPC($_REQUEST['gender'], 'string', '');
 				@$dob = DevblocksPlatform::importGPC($_REQUEST['dob'], 'string', '');
 				@$location = DevblocksPlatform::importGPC($_REQUEST['location'], 'string', '');
+				@$language = DevblocksPlatform::importGPC($_REQUEST['language'], 'string', '');
+				@$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'], 'string', '');
 				@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'], 'string', '');
 				@$mobile = DevblocksPlatform::importGPC($_REQUEST['mobile'], 'string', '');
 				@$password = DevblocksPlatform::importGPC($_REQUEST['password'], 'string', '');
@@ -206,6 +231,8 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						DAO_Contact::GENDER => $gender,
 						DAO_Contact::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 						DAO_Contact::LOCATION => $location,
+						DAO_Contact::LANGUAGE => $language,
+						DAO_Contact::TIMEZONE => $timezone,
 						DAO_Contact::PHONE => $phone,
 						DAO_Contact::MOBILE => $mobile,
 						DAO_Contact::CREATED_AT => time(),
@@ -246,6 +273,8 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						DAO_Contact::GENDER => $gender,
 						DAO_Contact::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 						DAO_Contact::LOCATION => $location,
+						DAO_Contact::LANGUAGE => $language,
+						DAO_Contact::TIMEZONE => $timezone,
 						DAO_Contact::PHONE => $phone,
 						DAO_Contact::MOBILE => $mobile,
 						DAO_Contact::UPDATED_AT => time(),
@@ -398,6 +427,15 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		// Languages
+		$translate = DevblocksPlatform::getTranslationService();
+		$locales = $translate->getLocaleStrings();
+		$tpl->assign('languages', $locales);
+		
+		// Timezones
+		$date = DevblocksPlatform::getDateService();
+		$tpl->assign('timezones', $date->getTimezones());
+		
 		// Broadcast
 		
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_CONTACT, null, $token_labels, $token_values);
@@ -438,6 +476,8 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		@$title = trim(DevblocksPlatform::importGPC($_POST['title'],'string',''));
 		@$org_id = DevblocksPlatform::importGPC($_POST['org_id'],'integer',0);
 		@$location = trim(DevblocksPlatform::importGPC($_POST['location'],'string',''));
+		@$language = trim(DevblocksPlatform::importGPC($_POST['language'],'string',''));
+		@$timezone = trim(DevblocksPlatform::importGPC($_POST['timezone'],'string',''));
 		@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string','');
 
 		// Scheduled behavior
@@ -454,6 +494,12 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		// Do: Location
 		if(0 != strlen($location))
 			$do['location'] = $location;
+		
+		if(0 != strlen($language))
+			$do['language'] = $language;
+		
+		if(0 != strlen($timezone))
+			$do['timezone'] = $timezone;
 		
 		// Do: Gender
 		if(0 != strlen($gender) && in_array($gender, array('M','F')))

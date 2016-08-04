@@ -549,6 +549,36 @@ if(!empty($changes)) {
 }
 
 // ===========================================================================
+// Add 'language' and 'timezone' to contact records
+
+if(!isset($tables['contact'])) {
+	$logger->error("The 'contact' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('contact');
+
+$changes = array();
+
+if(!isset($columns['language'])) {
+	$changes[] = "add column language varchar(16) not null default ''";
+	$changes[] = "add index (language)";
+}
+
+if(!isset($columns['timezone'])) {
+	$changes[] = "add column timezone varchar(128) not null default ''";
+	$changes[] = "add index (timezone)";
+}
+
+if(!empty($changes)) {
+	$sql = sprintf("ALTER TABLE contact %s", implode(', ', $changes));
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	if(!isset($columns['language']) && !isset($columns['timezone']))
+		$db->ExecuteMaster("UPDATE contact SET language = 'en_US', timezone='UTC'");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

@@ -66,6 +66,35 @@
 		</tr>
 		
 		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.location'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="location" value="{$model->location}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="middle"><b>{'worker.language'|devblocks_translate}:</b></td>
+			<td width="100%">
+				<select name="language">
+					{foreach from=$languages key=lang_code item=lang_name}
+					<option value="{$lang_code}" {if $model->language==$lang_code}selected="selected"{/if}>{$lang_name}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="middle"><b>{'worker.timezone'|devblocks_translate}:</b></td>
+			<td width="100%">
+				<select name="timezone">
+					{foreach from=$timezones item=timezone}
+					<option value="{$timezone}" {if $model->timezone==$timezone}selected="selected"{/if}>{$timezone}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		
+		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.phone'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<input type="text" name="phone" value="{$model->phone}" style="width:98%;" autocomplete="off" spellcheck="false">
@@ -76,13 +105,6 @@
 			<td width="1%" nowrap="nowrap"><b>{'common.mobile'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<input type="text" name="mobile" value="{$model->mobile}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.location'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="location" value="{$model->location}" style="width:98%;" autocomplete="off" spellcheck="false">
 			</td>
 		</tr>
 		

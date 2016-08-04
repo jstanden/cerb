@@ -21,24 +21,51 @@
 	<legend>Set Fields</legend>
 	<table cellspacing="0" cellpadding="2" width="100%">
 		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'common.organization'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="bubbles chooser-container"></ul>
+			</td>
+		</tr>
+		
+		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.title'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<input type="text" name="title" size="45" value="" style="width:90%;">
 			</td>
 		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.organization'|devblocks_translate|capitalize}:</td>
-			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
-			</td>
-		</tr>
+		
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.location'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<input type="text" name="location" size="45" value="" style="width:90%;">
 			</td>
 		</tr>
+		
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'worker.language'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<select name="language">
+					<option value=""></option>
+					{foreach from=$languages item=lang key=lang_code}
+					<option value="{$lang_code}">{$lang}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+	
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'worker.timezone'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<select name="timezone">
+					<option value=""></option>
+					{foreach from=$timezones item=tz}
+					<option value="{$tz}">{$tz}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+		
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.gender'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
@@ -51,6 +78,7 @@
 				<button type="button" onclick="this.form.gender.selectedIndex = 2;">{'common.gender.female'|devblocks_translate|lower}</button>
 			</td>
 		</tr>
+		
 	</table>
 </fieldset>
 
