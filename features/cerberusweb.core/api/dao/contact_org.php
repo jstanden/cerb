@@ -153,6 +153,10 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		if(isset($do['watchers']))
 			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_ORG, $do['watchers'], $ids);
 		
+		// Broadcast
+		if(isset($do['broadcast']))
+			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_ORG, $do['broadcast'], $ids, 'email_address');
+		
 		$update->markCompleted();
 		return true;
 	}

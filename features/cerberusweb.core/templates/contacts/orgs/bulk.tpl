@@ -66,6 +66,10 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
+{if $active_worker->hasPriv('context.org.worklist.broadcast')}
+{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_ORG}
+{/if}
+
 {if $active_worker->hasPriv('core.addybook.org.actions.update')}<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
 <br>
 </form>
@@ -76,6 +80,7 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
 		
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
 		
@@ -94,6 +99,8 @@ $(function() {
 		
 		// Country autocomplete
 		ajax.countryAutoComplete($popup.find('form input[name=country]'));
+		
+		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
 	});
 });
 </script>
