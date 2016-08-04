@@ -79,14 +79,14 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		
 		if(!empty($contact->language))
 			$properties['language'] = array(
-				'label' => mb_ucfirst($translate->_('worker.language')),
+				'label' => mb_ucfirst($translate->_('common.language')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $contact->language,
 			);
 		
 		if(!empty($contact->timezone))
 			$properties['timezone'] = array(
-				'label' => mb_ucfirst($translate->_('worker.timezone')),
+				'label' => mb_ucfirst($translate->_('common.timezone')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $contact->timezone,
 			);

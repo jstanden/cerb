@@ -45,7 +45,7 @@
 		</tr>
 		
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'worker.language'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right">{'common.language'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<select name="language">
 					<option value=""></option>
@@ -57,7 +57,7 @@
 		</tr>
 	
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'worker.timezone'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right">{'common.timezone'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<select name="timezone">
 					<option value=""></option>

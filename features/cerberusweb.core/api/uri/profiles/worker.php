@@ -105,13 +105,13 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		}
 		
 		$properties['language'] = array(
-			'label' => mb_ucfirst($translate->_('worker.language')),
+			'label' => mb_ucfirst($translate->_('common.language')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $worker->language,
 		);
 		
 		$properties['timezone'] = array(
-			'label' => mb_ucfirst($translate->_('worker.timezone')),
+			'label' => mb_ucfirst($translate->_('common.timezone')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $worker->timezone,
 		);

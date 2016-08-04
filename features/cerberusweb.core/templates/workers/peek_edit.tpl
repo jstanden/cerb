@@ -131,7 +131,7 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.language'|devblocks_translate}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'common.language'|devblocks_translate}: </td>
 			<td width="100%">
 				<select name="lang_code">
 					{foreach from=$languages key=lang_code item=lang_name}
@@ -141,7 +141,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.timezone'|devblocks_translate}: </td>
+			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'common.timezone'|devblocks_translate}: </td>
 			<td width="100%">
 				<select name="timezone">
 					{foreach from=$timezones item=timezone}

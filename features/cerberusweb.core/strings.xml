@@ -982,6 +982,11 @@
 				<seg>Label</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.language">
+			<tuv xml:lang="en_US">
+				<seg>Language</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.languages">
 			<tuv xml:lang="en_US">
 				<seg>Languages</seg>
@@ -1446,6 +1451,11 @@
 		<tu tuid="common.time.secs.num">
 			<tuv xml:lang="en_US">
 				<seg>%s sec</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.timezone">
+			<tuv xml:lang="en_US">
+				<seg>Timezone</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.title">
@@ -3594,19 +3604,9 @@ For example: *receipt*</seg>
 				<seg>Administrator</seg>
 			</tuv>
 		</tu>
-		<tu tuid="worker.language">
-			<tuv xml:lang="en_US">
-				<seg>Language</seg>
-			</tuv>
-		</tu>
 		<tu tuid="worker.time_format">
 			<tuv xml:lang="en_US">
 				<seg>Time Format</seg>
-			</tuv>
-		</tu>
-		<tu tuid="worker.timezone">
-			<tuv xml:lang="en_US">
-				<seg>Timezone</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.title">
