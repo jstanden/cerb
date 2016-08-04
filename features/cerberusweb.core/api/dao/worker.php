@@ -555,6 +555,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(!empty($custom_fields))
 			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_WORKER, $custom_fields, $ids);
 		
+		// Broadcast
+		if(isset($do['broadcast']))
+			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_WORKER, $do['broadcast'], $ids, 'address_address');
+		
 		$update->markCompleted();
 		return true;
 	}

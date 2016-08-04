@@ -1847,6 +1847,12 @@
 				<seg>[Contacts] Can send broadcasts to contact worklists</seg>
 			</tuv>
 		</tu>
+		<tu tuid="acl.context.worker.worklist.broadcast">
+			<tuv xml:lang="en_US">
+				<seg>[Workers] Can send broadcasts to worker worklists</seg>
+			</tuv>
+		</tu>
+		
 		<!-- Address Book -->
 		
 		<tu tuid="acl.core.addybook">

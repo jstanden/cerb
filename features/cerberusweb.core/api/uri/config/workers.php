@@ -366,10 +366,25 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		$auth_extensions = Extension_LoginAuthenticator::getAll(false);
 		$tpl->assign('auth_extensions', $auth_extensions);
 		
+		// Broadcast
+		
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $token_labels, $token_values);
+		
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($token_labels);
+		$tpl->assign('placeholders', $placeholders);
+		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/workers/bulk.tpl');
 	}
 	
 	function startBulkUpdateJsonAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		$ids = array();
@@ -396,12 +411,40 @@ class PageSection_SetupWorkers extends Extension_PageSection {
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
+		// Broadcast: Compose
+		if($active_worker->hasPriv('context.worker.worklist.broadcast')) {
+			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
+			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
+			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
+			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
+			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
+			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_html_template_id'],'integer',0);
+			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
+			@$broadcast_status_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_status_id'],'integer',0);
+			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
+			
+			if(0 != strlen($do_broadcast) && !empty($broadcast_subject) && !empty($broadcast_message)) {
+				$do['broadcast'] = array(
+					'subject' => $broadcast_subject,
+					'message' => $broadcast_message,
+					'format' => $broadcast_format,
+					'html_template_id' => $broadcast_html_template_id,
+					'is_queued' => $broadcast_is_queued,
+					'status_id' => $broadcast_status_id,
+					'group_id' => $broadcast_group_id,
+					'worker_id' => $active_worker->id,
+					'file_ids' => $broadcast_file_ids,
+				);
+			}
+		}
+		
 		switch($filter) {
 			// Checked rows
 			case 'checks':
 				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
+				
 			default:
 				break;
 		}
