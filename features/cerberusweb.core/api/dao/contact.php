@@ -144,6 +144,10 @@ class DAO_Contact extends Cerb_ORMHelper {
 		if(!empty($custom_fields))
 			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_CONTACT, $custom_fields, $ids);
 		
+		// Watchers
+		if(isset($do['watchers']))
+			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_CONTACT, $do['watchers'], $ids);
+		
 		// Broadcast
 		if(isset($do['broadcast']))
 			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_CONTACT, $do['broadcast'], $ids, 'email_address');

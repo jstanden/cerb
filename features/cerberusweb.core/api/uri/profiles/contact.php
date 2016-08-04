@@ -518,6 +518,20 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 			);
 		}
 		
+		// Watchers
+		$watcher_params = array();
+		
+		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
+		if(!empty($watcher_add_ids))
+			$watcher_params['add'] = $watcher_add_ids;
+			
+		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
+		if(!empty($watcher_remove_ids))
+			$watcher_params['remove'] = $watcher_remove_ids;
+		
+		if(!empty($watcher_params))
+			$do['watchers'] = $watcher_params;
+		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
