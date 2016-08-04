@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" onsubmit="return false;">
-<input type="hidden" name="c" value="config">
+<input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="workers">
+<input type="hidden" name="section" value="worker">
 <input type="hidden" name="action" value="startBulkUpdateJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ids" value="{$ids}">
@@ -18,6 +18,57 @@
 	<legend>Set Fields</legend>
 	<table cellspacing="0" cellpadding="2" width="100%">
 		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'common.title'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<input type="text" name="title" size="45" value="" style="width:90%;">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'common.location'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<input type="text" name="location" size="45" value="" style="width:90%;">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'common.gender'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<select name="gender">
+					<option value=""></option>
+					<option value="M">{'common.gender.male'|devblocks_translate|capitalize}</option>
+					<option value="F">{'common.gender.female'|devblocks_translate|capitalize}</option>
+				</select>
+				<button type="button" onclick="this.form.gender.selectedIndex = 1;">{'common.gender.male'|devblocks_translate|lower}</button>
+				<button type="button" onclick="this.form.gender.selectedIndex = 2;">{'common.gender.female'|devblocks_translate|lower}</button>
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'worker.language'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<select name="language">
+					<option value=""></option>
+					{foreach from=$languages item=lang key=lang_code}
+					<option value="{$lang_code}">{$lang}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+	
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'worker.timezone'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<select name="timezone">
+					<option value=""></option>
+					{foreach from=$timezones item=tz}
+					<option value="{$tz}">{$tz}</option>
+					{/foreach}
+				</select>
+			</td>
+		</tr>
+	
+		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.disabled'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<select name="is_disabled">
@@ -30,6 +81,7 @@
 				<button type="button" onclick="this.form.is_disabled.selectedIndex=2;">{'common.yes'|devblocks_translate}</button>
 			</td>
 		</tr>
+		
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'worker.auth_extension_id'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
@@ -41,6 +93,8 @@
 				</select>
 			</td>
 		</tr>
+		
+		
 	</table>
 </fieldset>
 

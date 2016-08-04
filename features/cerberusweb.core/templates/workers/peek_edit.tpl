@@ -1,10 +1,10 @@
 {$form_id = "frmWorkerEdit{uniqid()}"}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
-<input type="hidden" name="c" value="config">
+<input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="workers">
-<input type="hidden" name="action" value="saveWorkerPeek">
+<input type="hidden" name="section" value="worker">
+<input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="id" value="{$worker->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
@@ -92,8 +92,8 @@
 					<input type="hidden" name="is_disabled" value="{$worker->is_disabled}">
 					{if $worker->is_disabled}{'common.inactive'|devblocks_translate|capitalize}{else}{'common.active'|devblocks_translate|capitalize}{/if}
 				{else}
-					<label><input type="radio" name="is_disabled" value="0" {if !$worker->is_disabled}checked="checked"{/if}>{'common.active'|devblocks_translate|capitalize}</label>
-					<label><input type="radio" name="is_disabled" value="1" {if $worker->is_disabled}checked="checked"{/if}>{'common.inactive'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_disabled" value="0" {if !$worker->is_disabled}checked="checked"{/if}> {'common.active'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_disabled" value="1" {if $worker->is_disabled}checked="checked"{/if}> {'common.inactive'|devblocks_translate|capitalize}</label>
 				{/if}
 			</td>
 		</tr>
@@ -104,8 +104,8 @@
 					<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
 					{if !$worker->is_superuser}{'common.worker'|devblocks_translate|capitalize}{else}{'worker.is_superuser'|devblocks_translate|capitalize}{/if}
 				{else}
-					<label><input type="radio" name="is_superuser" value="0" {if !$worker->is_superuser}checked="checked"{/if}>{'common.worker'|devblocks_translate|capitalize}</label>
-					<label><input type="radio" name="is_superuser" value="1" {if $worker->is_superuser}checked="checked"{/if}>{'worker.is_superuser'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_superuser" value="0" {if !$worker->is_superuser}checked="checked"{/if}> {'common.worker'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_superuser" value="1" {if $worker->is_superuser}checked="checked"{/if}> {'worker.is_superuser'|devblocks_translate|capitalize}</label>
 				{/if}
 			</td>
 		</tr>

@@ -530,6 +530,27 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
+				case 'title':
+					$change_fields[DAO_Worker::TITLE] = $v;
+					break;
+					
+				case 'location':
+					$change_fields[DAO_Worker::LOCATION] = $v;
+					break;
+					
+				case 'gender':
+					if(in_array($v, array('M', 'F', '')))
+						$change_fields[DAO_Worker::GENDER] = $v;
+					break;
+					
+				case 'language':
+					$change_fields[DAO_Worker::LANGUAGE] = $v;
+					break;
+					
+				case 'timezone':
+					$change_fields[DAO_Worker::TIMEZONE] = $v;
+					break;
+					
 				case 'is_disabled':
 					$change_fields[DAO_Worker::IS_DISABLED] = intval($v);
 					break;
