@@ -124,7 +124,7 @@ $(function() {
 			;
 		
 		// Peeks
-		$popup.find('button.cerb-peek-trigger')
+		$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			;
 		

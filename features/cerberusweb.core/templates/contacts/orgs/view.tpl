@@ -67,6 +67,13 @@
 	{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 	{foreach from=$data item=result key=idx name=results}
 
+	{* Bulk lazy load contacts for this page *}
+	{$object_addys = []}
+	{if in_array(SearchFields_ContactOrg::EMAIL_ID, $view->view_columns)}
+		{$addy_ids = DevblocksPlatform::extractArrayValues($results, SearchFields_ContactOrg::EMAIL_ID)}
+		{$object_addys = DAO_Address::getIds($addy_ids)}
+	{/if}
+
 	{if $smarty.foreach.results.iteration % 2}
 		{$tableRowClass = "even"}
 	{else}
@@ -89,6 +96,13 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="c_id"}
 			<td data-column="{$column}">{$result.c_id}&nbsp;</td>
+			{elseif $column == SearchFields_ContactOrg::EMAIL_ID}
+			<td data-column="{$column}">
+				{if isset($object_addys.{$result.$column})}
+				{$addy = $object_addys.{$result.$column}}
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
+				{/if}
+			</td>
 			{elseif $column=="c_website"}
 			<td data-column="{$column}"><a href="{$result.c_website}" target="_blank">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
 			{elseif in_array($column, ["c_created", "c_updated"])}

@@ -1,8 +1,10 @@
 {$form_id = "peek{uniqid()}"}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
-<input type="hidden" name="c" value="contacts">
-<input type="hidden" name="a" value="saveOrgPeek">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="org">
+<input type="hidden" name="action" value="savePeekPopupJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="id" value="{$org->id}">
 {if !empty($link_context)}
@@ -11,6 +13,10 @@
 {/if}
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+
+{if $org instanceof Model_ContactOrg}
+	{$addy = $org->getEmail()}
+{/if}
 
 <fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate}</legend>
@@ -40,6 +46,18 @@
 			<td align="right">{'contact_org.country'|devblocks_translate|capitalize}: </td>
 			<td>
 				<input type="text" name="country" value="{$org->country}" style="width:98%;">
+			</td>
+		</tr>
+		<tr>
+			<td width="1%" nowrap="nowrap" align="right" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
+			<td width="99%" valign="top">
+					<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="org.id:{$org->id}" data-autocomplete="if-null" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+					
+					<ul class="bubbles chooser-container">
+						{if $addy}
+							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="email_id" value="{$addy->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a></li>
+						{/if}
+					</ul>
 			</td>
 		</tr>
 		<tr>

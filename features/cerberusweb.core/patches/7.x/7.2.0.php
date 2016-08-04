@@ -529,6 +529,26 @@ if(!isset($tables['context_bulk_update'])) {
 }
 
 // ===========================================================================
+// Add 'email_id' to organization records
+
+if(!isset($tables['contact_org'])) {
+	$logger->error("The 'contact_org' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('contact_org');
+
+$changes = array();
+
+if(!isset($columns['email_id']))
+	$changes[] = 'add column email_id int unsigned not null default 0';
+
+if(!empty($changes)) {
+	$sql = sprintf("ALTER TABLE contact_org %s", implode(', ', $changes));
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
