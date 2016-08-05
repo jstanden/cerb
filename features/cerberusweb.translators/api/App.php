@@ -428,7 +428,6 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		
 		$fields = array();
 
-		/*
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
 			$pass = false;
@@ -438,18 +437,11 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 				case SearchFields_Translation::LANG_CODE:
 					$pass = true;
 					break;
-					
-				// Valid custom fields
-				default:
-					if('cf_' == substr($field_key,0,3))
-						$pass = $this->_canSubtotalCustomField($field_key);
-					break;
 			}
 			
 			if($pass)
 				$fields[$field_key] = $field_model;
 		}
-		*/
 		
 		return $fields;
 	}
@@ -462,24 +454,111 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		if(!isset($fields[$column]))
 			return array();
 		
-		/*
 		switch($column) {
 			case SearchFields_Translation::LANG_CODE:
 				$codes = DAO_Translation::getDefinedLangCodes();
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $codes, 'in', 'options[]');
-				break;
-
-			default:
-				// Custom fields
-				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
-				}
-				
+				$counts = $this->_getSubtotalCountForLanguage();
 				break;
 		}
-		*/
 		
 		return $counts;
+	}
+	
+	private function _getSubtotalCountForLanguage() {
+		$field_key = SearchFields_Translation::LANG_CODE;
+		$value_oper = DevblocksSearchCriteria::OPER_IN;
+		$value_key = 'options[]';
+		
+		if(false == ($results = $this->_getSubtotalDataForLanguage()))
+			return false;
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			$label = $result['label'];
+			$key = $label;
+			$hits = $result['hits'];
+
+			if(isset($label_map[$result['label']]))
+				$label = $label_map[$result['label']];
+			
+			// Null strings
+			if(empty($label)) {
+				$label = '(none)';
+				if(!isset($counts[$key]))
+					$counts[$key] = array(
+						'hits' => $hits,
+						'label' => $label,
+						'filter' =>
+							array(
+								'field' => $field_key,
+								'oper' => DevblocksSearchCriteria::OPER_IN_OR_NULL,
+								'values' => array($value_key => ''),
+							),
+						'children' => array()
+					);
+				
+			// Anything else
+			} else {
+				if(!isset($counts[$key]))
+					$counts[$key] = array(
+						'hits' => $hits,
+						'label' => $label,
+						'filter' =>
+							array(
+								'field' => $field_key,
+								'oper' => $value_oper,
+								'values' => array($value_key => $key),
+							),
+						'children' => array()
+					);
+				
+			}
+		}
+		
+		return $counts;
+	}
+	
+	private function _getSubtotalDataForLanguage() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$field_key = SearchFields_Translation::LANG_CODE;
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		if(!method_exists('DAO_Translation','getSearchQueryComponents'))
+			return array();
+		
+		if(!isset($columns[$field_key]))
+			$columns[] = $field_key;
+		
+		$query_parts = call_user_func_array(
+			array('DAO_Translation','getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		
+		$sql = sprintf("SELECT %s.%s as label, count(*) as hits ", //SQL_CALC_FOUND_ROWS
+				$fields[$field_key]->db_table,
+				$fields[$field_key]->db_column
+			).
+			$join_sql.
+			$where_sql.
+			"GROUP BY label ".
+			"ORDER BY hits DESC ".
+			"LIMIT 0,250 "
+		;
+		
+		$results = $db->GetArraySlave($sql);
+		return $results;
 	}
 	
 	function getQuickSearchFields() {
