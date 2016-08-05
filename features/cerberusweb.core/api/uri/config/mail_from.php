@@ -37,12 +37,6 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 		if(!empty($id) && null != ($address = DAO_AddressOutgoing::get($id)))
 			$tpl->assign('address', $address);
 			
-		// Signature
-		$worker_token_labels = array();
-		$worker_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
-		$tpl->assign('worker_token_labels', $worker_token_labels);
-		
 		// Mail transports
 		$mail_transports = DAO_MailTransport::getAll();
 		$tpl->assign('mail_transports', $mail_transports);
@@ -50,6 +44,14 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 		// HTML templates
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
+		
+		// Signature
+		$worker_token_labels = array();
+		$worker_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
+		
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($worker_token_labels);
+		$tpl->assign('placeholders', $placeholders);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_from/peek.tpl');
 	}
