@@ -45,7 +45,7 @@
 	<fieldset class="peek">
 		<legend>Send worker replies as:</legend>
 		
-		<p>
+		<div>
 			<b>{'common.email'|devblocks_translate|capitalize}:</b><br>
 			<select name="reply_address_id">
 				<option value="">- {'common.default'|devblocks_translate|lower} -</option>
@@ -53,38 +53,73 @@
 				<option value="{$addy->address_id}" {if $bucket->reply_address_id == $addy->address_id}selected="selected"{/if}>{$addy->email}</option>
 				{/foreach}
 			</select>
-		</p>
+		</div>
 		
 		{$bucket_from_tester_id = "divSnippetBucketFromTester{uniqid()}"}
-		<p>
+		<div>
 			<b>{'common.name'|devblocks_translate|capitalize}:</b><br>
-			<input type="text" name="reply_personal" value="{$bucket->reply_personal}" class="placeholders" placeholder="(leave blank for default)" size="65" style="width:100%;"><br>
+			<input type="text" name="reply_personal" value="{$bucket->reply_personal}" class="placeholders" placeholder="(leave blank for default)" size="65" style="width:100%;">
+			<br>
+			<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
 			<button type="button" onclick="genericAjaxPost('{$form_id}','{$bucket_from_tester_id}','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
 			<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
-			<select name="personal_token">
-				<option value="">-- insert at cursor --</option>
-				{foreach from=$worker_token_labels key=k item=v}
-				<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+			
+			{$types = $values._types}
+			{function tree level=0}
+				{foreach from=$keys item=data key=idx}
+					{if is_array($data)}
+						<li>
+							<div>{$idx|capitalize}</div>
+							<ul>
+								{tree keys=$data level=$level+1}
+							</ul>
+						</li>
+					{else}
+						{$type = $types.{$data->key}}
+						<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+					{/if}
 				{/foreach}
-			</select>
+			{/function}
+			
+			<ul class="menu" style="width:150px;">
+			{tree keys=$placeholders}
+			</ul>
+
 			<div id="{$bucket_from_tester_id}"></div>
-		</p>
+		</div>
 	</fieldset>
 	
 	{$bucket_sig_tester_id = "divSnippetBucketSigTester{uniqid()}"}
 	<fieldset class="peek">
 		<legend>Bucket signature:</legend>
 		
-		<textarea name="reply_signature" rows="5" cols="76" style="width:100%;" class="placeholders" placeholder="(leave blank for default)" wrap="off">{$bucket->reply_signature}</textarea><br>
+		<textarea name="reply_signature" rows="5" cols="76" style="width:100%;" class="placeholders" placeholder="(leave blank for default)" wrap="off">{$bucket->reply_signature}</textarea>
+		<br>
+		<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
 		<button type="button" onclick="genericAjaxPost('{$form_id}','{$bucket_sig_tester_id}','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
-		{*<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id={$group_id}&bucket_id={$bucket_id}',function(txt) { $('#{$form_id} textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>*}
 		<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
-		<select name="sig_token">
-			<option value="">-- insert at cursor --</option>
-			{foreach from=$worker_token_labels key=k item=v}
-			<option value="{literal}{{{/literal}{$k}{literal}}}{/literal}">{$v}</option>
+		
+		{$types = $values._types}
+		{function tree level=0}
+			{foreach from=$keys item=data key=idx}
+				{if is_array($data)}
+					<li>
+						<div>{$idx|capitalize}</div>
+						<ul>
+							{tree keys=$data level=$level+1}
+						</ul>
+					</li>
+				{else}
+					{$type = $types.{$data->key}}
+					<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+				{/if}
 			{/foreach}
-		</select>
+		{/function}
+		
+		<ul class="menu" style="width:150px;">
+		{tree keys=$placeholders}
+		</ul>
+		
 		<div id="{$bucket_sig_tester_id}"></div>
 	</fieldset>
 	
@@ -136,41 +171,39 @@ $(function() {
 	
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', '{'common.edit'|devblocks_translate|capitalize}: {'common.bucket'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
+		$popup.css('overflow', 'inherit');
 		
 		// Buttons
 		
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
-		$popup.find('select[name=personal_token]').change(function(e) {
-			var $select = $(this);
-			var $val = $select.val();
-			
-			if($val.length == 0)
-				return;
-			
-			var $textarea = $select.siblings('input[name=reply_personal]');
-			
-			$textarea.insertAtCursor($val).focus();
-			
-			$select.val('');
-		});
-		
-		$popup.find('select[name=sig_token]').change(function(e) {
-			var $select = $(this);
-			var $val = $select.val();
-			
-			if($val.length == 0)
-				return;
-			
-			var $textarea = $select.siblings('textarea[name=reply_signature]');
-			
-			$textarea.insertAtCursor($val).focus();
-			
-			$select.val('');
-		});
-		
 		$popup.find('textarea[name=reply_signature]').autosize();
+		
+		// Placeholders
+		
+		var $placeholder_menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
+		var $placeholder_menu = $popup.find('ul.menu').hide();
+		
+		$placeholder_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
+				
+				if(undefined == token || undefined == label)
+					return;
+				
+				$(this).siblings('input:text,textarea').first().focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+			}
+		});
+		
+		$placeholder_menu_trigger
+			.click(
+				function(e) {
+					$(this).siblings('ul.menu').toggle();
+				}
+			)
+		;
 		
 		$popup.find('.placeholders')
 			.atwho({
