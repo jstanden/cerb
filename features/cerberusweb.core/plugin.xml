@@ -2854,6 +2854,7 @@
 			</params>
 		</extension>
 		
+		<!-- [TODO] Phase this out -->
 		<extension point="cerberusweb.page">
 			<id>core.page.mail</id>
 			<name>Mail Page</name>
@@ -2895,6 +2896,7 @@
 			</params>
 		</extension>
 		
+		<!-- [TODO] Phase this out -->
 		<extension point="cerberusweb.page">
 			<id>core.page.contacts</id>
 			<name>Contacts Page</name>
@@ -2909,6 +2911,7 @@
 			</params>
 		</extension>
 
+		<!-- [TODO] Phase this out -->
 		<extension point="cerberusweb.page">
 			<id>core.page.display</id>
 			<name>Display Ticket Page</name>

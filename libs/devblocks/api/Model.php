@@ -180,6 +180,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		if(empty($cfield_key))
 			return 0;
 		
+		// [TODO] Efficiently handle the "OR NULL" cfields
+		// [TODO] Efficiently handle "NOT 0"
+		
 		$not = false;
 		
 		$param = clone $param;

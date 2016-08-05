@@ -310,6 +310,8 @@ class DevblocksDictionaryDelegate {
 		if(empty($dicts))
 			return;
 		
+		// [TODO] Don't run (n) queries to lazy load custom fields
+		
 		// Examine contexts on the first dictionary
 		$first_dict = reset($dicts);
 

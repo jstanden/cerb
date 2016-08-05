@@ -140,6 +140,9 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 		if(!file_exists($path))
 			return false;
 		
+		//if(extension_loaded('zlib'))
+		//$path = 'compress.zlib://' . $path;
+		
 		// Read into file handle
 		if($fp && is_resource($fp)) {
 			$src_fp = fopen($path, 'rb');

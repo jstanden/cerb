@@ -532,6 +532,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	return $popup;
 }
 
+// [TODO] Deprecate this
 function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $event) {
 	var has_view = (null != view_id && view_id.length > 0 && $('#view'+view_id).length > 0) ? true : false;
 	if(null == has_output)

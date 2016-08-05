@@ -1010,19 +1010,7 @@ class CerberusContexts {
 		}
 
 		if(!$nested) {
-			// Globals
-			CerberusContexts::merge(
-				'global_',
-				'(Global) ',
-				array(
-					'timestamp' => 'Current Date+Time',
-				),
-				array(
-					'timestamp' => time(),
-				),
-				$labels,
-				$values
-			);
+			$values['timestamp'] = time();
 
 			// Current worker (Don't add to worker context)
 			if($context != CerberusContexts::CONTEXT_WORKER) {

@@ -997,6 +997,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$models = CerberusContexts::getModels(CerberusContexts::CONTEXT_TICKET, $ids);
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_TICKET, array('custom_'));
 				
+				// $tpl_builder->tokenize($broadcast_params['message']
+				
 				$is_queued = (isset($broadcast_params['is_queued']) && $broadcast_params['is_queued']) ? true : false;
 				
 				if(is_array($dicts))
@@ -1969,6 +1971,8 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 				break;
 				
+			// [TODO] This doesn't need to be virtual now
+			// [TODO] IN, NOT
 			case self::VIRTUAL_ORG_ID:
 				$org_id = $param->value;
 				
@@ -1977,6 +1981,8 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				);
 				break;
 				
+			// [TODO]
+			// [TODO] IN, NOT
 			case self::VIRTUAL_CONTACT_ID:
 				$contact_ids = is_array($param->value) ? $param->value : array($param->value);
 				$contact_ids = DevblocksPlatform::sanitizeArray($contact_ids, 'int');
@@ -1992,6 +1998,8 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 				break;
 				
+			// [TODO]
+			// [TODO] IN, NOT
 			case self::VIRTUAL_PARTICIPANT_ID:
 				$participant_ids = is_array($param->value) ? $param->value : array($param->value);
 				$participant_ids = DevblocksPlatform::sanitizeArray($participant_ids, 'int');
@@ -2007,6 +2015,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				);
 				break;
 			
+			// [TODO] Array
 			case self::VIRTUAL_GROUPS_OF_WORKER:
 				if(null == ($member = DAO_Worker::get($param->value)))
 					break;
@@ -2498,6 +2507,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 
 	function getData() {
+		// [TODO] Only return IDs here
 		$objects = DAO_Ticket::search(
 			$this->view_columns,
 			$this->getParams(),
@@ -3603,6 +3613,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			// [TODO] Handle NOT
+			// [TODO] And on messages
 			case SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME:
 				$strings_or = array();
 
@@ -3672,6 +3684,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				echo sprintf("In <b>%s</b>'s groups", DevblocksPlatform::strEscapeHtml($worker_name));
 				break;
 				
+			// [TODO] Handle long multiple value strings
 			case SearchFields_Ticket::VIRTUAL_ORG_ID:
 				$sep = ' or ';
 				$strings = array();
@@ -3688,6 +3701,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				echo sprintf("Org is %s", implode($sep, $strings));
 				break;
 			
+			// [TODO] Handle long multiple value strings
 			case SearchFields_Ticket::VIRTUAL_CONTACT_ID:
 				$sep = ' or ';
 				$strings = array();
@@ -3704,6 +3718,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				echo sprintf("Contact is %s", implode($sep, $strings));
 				break;
 			
+			// [TODO] Handle long multiple value strings
 			case SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID:
 				$sep = ' or ';
 				$strings = array();

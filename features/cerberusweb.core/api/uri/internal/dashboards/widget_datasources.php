@@ -96,12 +96,6 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		@$metric_func = $params['metric_func'];
 		@$metric_field = $fields[$params['metric_field']];
 
-		// If we're subtotalling on a custom field, make sure it's joined
-		
-		if(!$view->hasParam($metric_field->token, $view->getParams())) {
-			$view->addParam(new DevblocksSearchCriteria($metric_field->token, DevblocksSearchCriteria::OPER_TRUE), $metric_field->token);
-		}
-
 		// Build the query
 		
 		$query_parts = $dao_class::getSearchQueryComponents(

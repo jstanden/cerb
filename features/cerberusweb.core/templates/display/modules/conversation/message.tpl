@@ -201,6 +201,8 @@ $(function() {
 var $msg = $('#{$message->id}t');
 var $actions = $('#{$message->id}act');
 
+// [TODO] Reload events
+// [TODO] Listeners for peek changes
 $msg.find('.cerb-peek-trigger').cerbPeekTrigger();
 
 // Edit
@@ -252,6 +254,7 @@ $actions
 {/if}
 
 <script type="text/javascript">
+	// [TODO] Let's see if we can phase this out
 	function C4_ReloadMessageOnSave(msgid, expanded) {
 		if(null==expanded)
 			expanded=false;
