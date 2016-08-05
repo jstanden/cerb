@@ -20,9 +20,9 @@
 <form id="customize{$view->id}" name="customize{$view->id}" action="#" onsubmit="return false;" style="display:none;"></form>
 <form id="viewForm{$view->id}" name="viewForm{$view->id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="view_id" value="{$view->id}">
-<input type="hidden" name="c" value="mail">
+<input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="drafts">
+<input type="hidden" name="section" value="draft">
 <input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -65,7 +65,7 @@
 				
 				{if !$result.m_is_queued}
 					{if $result.m_type=="mail.compose"}
-						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id=0&view_id={$view->id}&draft_id={$result.m_id}',null,false,'650');" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
+						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id=0&view_id={$view->id}&draft_id={$result.m_id}',null,false,'80%');" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
 					{elseif $result.m_type=="ticket.reply"}
 						<a href="{devblocks_url}c=profiles&type=ticket&id={$result.m_ticket_id}{/devblocks_url}#draft{$result.m_id}" class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</a>
 					{elseif $result.m_type=="ticket.forward"}
@@ -74,7 +74,7 @@
 				{else}
 					<b class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</b>
 				{/if}
-				{if $active_worker->is_superuser||$result.m_worker_id==$active_worker->id}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=mail&a=handleSectionAction&section=drafts&action=showDraftsPeek&view_id={$view->id}&id={$result.m_id}', null, false, '500');"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
+				{if $active_worker->is_superuser||$result.m_worker_id==$active_worker->id}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=draft&action=showDraftsPeek&view_id={$view->id}&id={$result.m_id}', null, false, '50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -146,7 +146,7 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
-		<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=mail&a=handleSectionAction&section=drafts&action=showDraftsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span></a> bulk update</button>
+		<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=draft&action=showDraftsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span></a> bulk update</button>
 	</div>
 	{/if}
 </div>

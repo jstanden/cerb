@@ -15,8 +15,7 @@
 |	http://cerb.io	    http://webgroup.media
 ***********************************************************************/
 
-// [TODO] This could just be a sub-controller
-class PageSection_MailDrafts extends Extension_PageSection {
+class PageSection_ProfilesDraft extends Extension_PageSection {
 	function render() {
 	}
 	

@@ -2856,34 +2856,6 @@
 		
 		<!-- [TODO] Phase this out -->
 		<extension point="cerberusweb.page">
-			<id>core.page.mail</id>
-			<name>Mail Page</name>
-			<class>
-				<file>api/uri/mail.php</file>
-				<name>Page_Mail</name>
-			</class>
-			<params>
-				<param key="uri" value="mail" />
-				<param key="menutitle" value="common.mail" />
-			</params>
-		</extension>
-		
-			<!-- Mail Page Sections -->
-			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.mail.drafts</id>
-				<name>Drafts Section</name>
-				<class>
-					<file>api/uri/mail/drafts.php</file>
-					<name>PageSection_MailDrafts</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.mail" />
-					<param key="uri" value="drafts" />
-				</params>
-			</extension>
-			
-		<extension point="cerberusweb.page">
 			<id>core.page.tickets</id>
 			<name>Tickets Page</name>
 			<class>
@@ -3524,6 +3496,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="contact" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.draft</id>
+				<name>Draft Section</name>
+				<class>
+					<file>api/uri/profiles/draft.php</file>
+					<name>PageSection_ProfilesDraft</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="draft" />
 				</params>
 			</extension>
 

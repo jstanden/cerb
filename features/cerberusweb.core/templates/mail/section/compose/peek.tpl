@@ -534,7 +534,7 @@
 			genericAjaxPost(
 				'frmComposePeek{$random}',
 				null,
-				'c=mail&a=handleSectionAction&section=drafts&action=saveDraft&type=compose',
+				'c=profiles&a=handleSectionAction&section=draft&action=saveDraft&type=compose',
 				function(json) { 
 					var obj = $.parseJSON(json);
 					

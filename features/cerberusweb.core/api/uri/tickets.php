@@ -388,9 +388,8 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 
 		if(!empty($draft_id)) {
-			// [TODO] This could probably be done better
-			$drafts_ext = DevblocksPlatform::getExtension('core.page.mail.drafts', true, true);
-			/* @var $drafts_ext PageSection_MailDrafts */
+			$drafts_ext = DevblocksPlatform::getExtension('core.page.profiles.draft', true, true);
+			/* @var $drafts_ext PageSection_ProfilesDraft */
 			if(false === $drafts_ext->saveDraft()) {
 				DAO_MailQueue::delete($draft_id);
 				$draft_id = null;
