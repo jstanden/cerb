@@ -236,11 +236,18 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$do = array();
 		
 		// Do: Status
-		if(0 != strlen($status))
-			$do['status'] = $status;
+		if(0 != strlen($status)) {
+			if('deleted' == $status && !($active_worker && $active_worker->hasPriv('crm.opp.actions.delete'))) {
+				// Do nothing if we don't have delete permission
+			} else {
+				$do['status'] = $status;
+			}
+		}
+		
 		// Do: Closed Date
 		if(0 != strlen($closed_date))
 			@$do['closed_date'] = intval(strtotime($closed_date));
+		
 		// Do: Worker
 		if(0 != strlen($worker_id))
 			$do['worker_id'] = $worker_id;

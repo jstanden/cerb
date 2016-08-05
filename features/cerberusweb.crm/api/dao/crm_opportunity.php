@@ -104,8 +104,6 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$do = $update->actions;
 		$ids = $update->context_ids;
 
@@ -143,8 +141,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 							break;
 							
 						case 'deleted':
-							if($active_worker && $active_worker->hasPriv('crm.opp.actions.delete'))
-								$deleted = true;
+							$deleted = true;
 							break;
 					}
 					break;
@@ -183,7 +180,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 				C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_OPPORTUNITY, $do['broadcast'], $ids, 'email_address');
 			
 		} else {
-			DAO_CrmOpportunity::delete($batch_ids);
+			DAO_CrmOpportunity::delete($ids);
 		}
 		
 		$update->markCompleted();
