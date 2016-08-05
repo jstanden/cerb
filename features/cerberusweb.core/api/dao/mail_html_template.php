@@ -1111,7 +1111,9 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		$worker_token_labels = array();
 		$worker_token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
-		$tpl->assign('worker_token_labels', $worker_token_labels);
+		
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($worker_token_labels);
+		$tpl->assign('placeholders', $placeholders);
 		
 		// Template
 		
