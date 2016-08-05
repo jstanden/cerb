@@ -301,6 +301,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine {
 	const ID = 'devblocks.search.engine.elasticsearch';
 	const READ_TIMEOUT_MS = 5000;
+	const WRITE_TIMEOUT_MS = 20000;
 	
 	private $_config = array();
 	
@@ -624,19 +625,24 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids) {
 		@$base_url = $this->_config['base_url'];
 		@$index = $this->_config['index'];
-		@$ns = $schema->getNamespace();
+		@$type = $schema->getNamespace();
 		
-		/*
+		if(empty($base_url) || empty($index) || empty($type))
+			return false;
+		
 		if(!is_array($ids))
-			$ids = array($ids);
-			
+			return false;
+		
 		foreach($ids as $id) {
-			$result = mysqli_query($this->db, sprintf("DELETE FROM %s WHERE id = %d",
-				$this->escapeNamespace($index_rt),
+			$url = sprintf("%s/%s/%s/%d",
+				$base_url,
+				urlencode($index),
+				urlencode($type),
 				$id
-			));
+			);
+			
+			$this->_execute('DELETE', $url, array(), DevblocksSearchEngineElasticSearch::WRITE_TIMEOUT_MS);
 		}
-		*/
 		
 		return true;
 	}
@@ -873,6 +879,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	
 	private function _getStopWords() {
 		// InnoDB stop words
+		// [TODO] Make this configurable
 		$words = array(
 			'a',
 			'about',
@@ -936,6 +943,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			$words = $this->removeStopWords($words);
 			
 			// Remove min/max sizes
+			// [TODO] Make this configurable
 			$words = array_filter($words, function($word) {
 				if(strlen($word) < 3 || strlen($word) > 83)
 					return false;
@@ -967,6 +975,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				return false;
 		
 		// Remove 4 byte characters
+		// [TODO] Move to Devblocks?
 		$content = preg_replace('%(?:
           \xF0[\x90-\xBF][\x80-\xBF]{2}
         | [\xF1-\xF3][\x80-\xBF]{3}
