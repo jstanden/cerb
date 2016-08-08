@@ -76,6 +76,7 @@
 			<td width="0%" nowrap="nowrap" valign="middle"><b>{'common.language'|devblocks_translate}:</b></td>
 			<td width="100%">
 				<select name="language">
+					<option value=""></option>
 					{foreach from=$languages key=lang_code item=lang_name}
 					<option value="{$lang_code}" {if $model->language==$lang_code}selected="selected"{/if}>{$lang_name}</option>
 					{/foreach}
@@ -87,6 +88,7 @@
 			<td width="0%" nowrap="nowrap" valign="middle"><b>{'common.timezone'|devblocks_translate}:</b></td>
 			<td width="100%">
 				<select name="timezone">
+					<option value=""></option>
 					{foreach from=$timezones item=timezone}
 					<option value="{$timezone}" {if $model->timezone==$timezone}selected="selected"{/if}>{$timezone}</option>
 					{/foreach}
