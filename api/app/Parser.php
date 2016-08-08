@@ -1582,7 +1582,7 @@ class CerberusParser {
 			if(!is_string($v))
 				return;
 			
-			$v = self::fixQuotePrintableString($v);
+			$v = CerberusParser::fixQuotePrintableString($v);
 		});
 		
 		return $input;
@@ -1608,7 +1608,7 @@ class CerberusParser {
 					if(empty($charset))
 						$charset = 'auto';
 
-					$out .= self::convertEncoding($part->text, $charset);
+					$out .= CerberusParser::convertEncoding($part->text, $charset);
 					
 				} catch(Exception $e) {}
 			}
