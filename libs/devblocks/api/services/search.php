@@ -543,8 +543,13 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			}
 			
 			$cache->save($ids, $cache_key, array(), 300, $is_only_cached_for_request);
-		}
 			
+			// Store the search info in a request registry for later use
+			$meta_key = 'search_' . sha1($query);
+			$meta = array('engine' => 'elasticsearch', 'query' => $query, 'took_ms' => $took_ms, 'results' => $results_hits, 'total' => $total_hits);
+			DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
+		}
+		
 		// With fewer results, use the more efficient IN(...)
 		if($results_hits <= 1000) {
 			// Keep $ids
@@ -564,11 +569,6 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			
 			$ids = $temp_table;
 		}
-		
-		// Store the search info in a request registry for later use
-		$meta_key = 'search_' . sha1($query);
-		$meta = array('engine' => 'elasticsearch', 'query' => $query, 'took_ms' => $took_ms, 'results' => $results_hits, 'total' => $total_hits);
-		DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
 		
 		return $ids;
 	}
