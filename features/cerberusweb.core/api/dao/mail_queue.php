@@ -933,6 +933,10 @@ class Context_Draft extends Extension_DevblocksContext {
 		return 'SearchFields_MailQueue';
 	}
 	
+	function getViewClass() {
+		return 'View_MailQueue';
+	}
+	
 	function getMeta($context_id) {
 		if(null == ($draft = DAO_MailQueue::get($context_id)))
 			return false;
