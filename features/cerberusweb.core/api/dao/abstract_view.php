@@ -397,11 +397,14 @@ abstract class C4_AbstractView {
 			}
 		}
 		
+		// [TODO] Remove this in PHP 5.4+
+		$view = $this;
+		
 		// Convert fields T_FIELD to DevblocksSearchCriteria
 		
-		array_walk_recursive($fields, function(&$v, $k) {
+		array_walk_recursive($fields, function(&$v, $k) use ($view) {
 			if($v instanceof DevblocksSearchCriteria) {
-				$param = $this->getParamFromQuickSearchFieldTokens($v->key, $v->tokens);
+				$param = $view->getParamFromQuickSearchFieldTokens($v->key, $v->tokens);
 				
 				if($param instanceof DevblocksSearchCriteria) {
 					$v = $param;
