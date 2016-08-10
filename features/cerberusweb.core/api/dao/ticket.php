@@ -3547,6 +3547,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$tpl->assign('opers', array(
 					'in' => 'is',
 					'not in' => 'is not',
+					DevblocksSearchCriteria::OPER_IN_OR_NULL => 'is nobody or',
 				));
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
