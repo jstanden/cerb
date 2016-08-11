@@ -571,11 +571,9 @@ class DevblocksSearchCriteria {
 			$active_worker = CerberusApplication::getActiveWorker();
 			$workers = DAO_Worker::getAllActive();
 				
-			if(!is_array($terms))
-				break;
-			
 			$worker_ids = array();
 			
+			if(is_array($terms))
 			foreach($terms as $term) {
 				if(is_numeric($term) && (empty($term) || isset($workers[$term]))) {
 					$worker_ids[intval($term)] = true;
@@ -647,11 +645,9 @@ class DevblocksSearchCriteria {
 			$active_worker = CerberusApplication::getActiveWorker();
 			$workers = DAO_Worker::getAllActive();
 				
-			if(!is_array($terms))
-				break;
-			
 			$worker_ids = array();
 			
+			if(is_array($terms))
 			foreach($terms as $term) {
 				if(is_numeric($term) && isset($workers[$term])) {
 					$worker_ids[intval($term)] = true;
