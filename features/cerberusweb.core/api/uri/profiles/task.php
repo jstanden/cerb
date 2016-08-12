@@ -134,7 +134,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
 		
 		try {
-			if(!empty($id) && !empty($delete)) { // delete
+			if(!empty($id) && !empty($do_delete)) { // delete
 				if(!$active_worker->hasPriv('core.tasks.actions.delete'))
 					throw new Exception_DevblocksAjaxValidationError("You don't have permission to delete this record.");
 				
