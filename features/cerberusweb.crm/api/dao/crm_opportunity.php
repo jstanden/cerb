@@ -685,6 +685,14 @@ class Model_CrmOpportunity {
 	public $closed_date;
 	public $is_won;
 	public $is_closed;
+	
+	/**
+	 * 
+	 * @return Model_Address
+	 */
+	function getPrimaryEmail() {
+		return DAO_Address::get($this->primary_email_id);
+	}
 };
 
 class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -1221,6 +1229,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		return array(
 			'status',
 			'email__label',
+			'amount',
 			'created',
 			'updated',
 		);
@@ -1423,36 +1432,73 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-		
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$tpl->assign('view_id', $view_id);
-		$tpl->assign('email', $email);
-		
-		if(!empty($context_id) && null != ($opp = DAO_CrmOpportunity::get($context_id))) {
-			$tpl->assign('opp', $opp);
-				
-			if(null != ($address = DAO_Address::get($opp->primary_email_id))) {
-				$tpl->assign('address', $address);
-			}
-		}
-		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY, false);
-		$tpl->assign('custom_fields', $custom_fields);
 		
 		if(!empty($context_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $context_id);
-			if(isset($custom_field_values[$opp->id]))
-				$tpl->assign('custom_field_values', $custom_field_values[$opp->id]);
+			$opp = DAO_CrmOpportunity::get($context_id);
+			$tpl->assign('opp', $opp);
 		}
-		
-		// Comments
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY, $context_id);
-		$comments = array_reverse($comments, true);
-		$tpl->assign('comments', $comments);
-		
-		$tpl->display('devblocks:cerberusweb.crm::crm/opps/peek.tpl');
+
+		if(empty($context_id) || $edit) {
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.crm::crm/opps/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_OPPORTUNITY, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				CerberusContexts::CONTEXT_OPPORTUNITY => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_OPPORTUNITY,
+							$context_id,
+							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_OPPORTUNITY, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_OPPORTUNITY)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_OPPORTUNITY, $opp, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.crm::crm/opps/peek.tpl');
+		}
 	}
 	
 	function importGetKeys() {

@@ -163,10 +163,10 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.crm::crm/opps/profile.tpl');
 	}
 	
-	function savePeekPopupAction() {
+	function savePeekJsonAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
-		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
 		@$amount = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0.00');
@@ -195,102 +195,124 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 			
 		// Worker
 		$active_worker = CerberusApplication::getActiveWorker();
-
-		// Save
-		if($do_delete) {
-			if(null != ($opp = DAO_CrmOpportunity::get($opp_id)) && $active_worker->hasPriv('crm.opp.actions.create')) {
-				DAO_CrmOpportunity::delete($opp_id);
-				$opp_id = null;
-			}
-			
-		} elseif(empty($opp_id)) {
-			// Check privs
-			if(!$active_worker->hasPriv('crm.opp.actions.create'))
-				return;
-			
-			// One opportunity per provided e-mail address
-			if(null == ($address = DAO_Address::get($email_id)))
-				return;
-				
-			$fields = array(
-				DAO_CrmOpportunity::NAME => $name,
-				DAO_CrmOpportunity::AMOUNT => $amount,
-				DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
-				DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
-				DAO_CrmOpportunity::UPDATED_DATE => time(),
-				DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
-				DAO_CrmOpportunity::IS_CLOSED => $is_closed,
-				DAO_CrmOpportunity::IS_WON => $is_won,
-			);
-			$opp_id = DAO_CrmOpportunity::create($fields);
-			
-			// Watchers
-			@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
-			if(!empty($add_watcher_ids))
-				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $add_watcher_ids);
-			
-			// Context Link (if given)
-			@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-			@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-			if(!empty($opp_id) && !empty($link_context) && !empty($link_context_id)) {
-				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $link_context, $link_context_id);
-			}
-			
-			// View marquee
-			if(!empty($opp_id) && !empty($view_id)) {
-				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
-			}
-			
-		} else {
-			if(empty($opp_id))
-				return;
-			
-			// Check privs
-			if(!$active_worker->hasPriv('crm.opp.actions.update_all'))
-				return;
-			
-			if(null == ($address = DAO_Address::get($email_id)))
-				return;
-
-			$fields = array(
-				DAO_CrmOpportunity::NAME => $name,
-				DAO_CrmOpportunity::AMOUNT => $amount,
-				DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
-				DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
-				DAO_CrmOpportunity::UPDATED_DATE => time(),
-				DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
-				DAO_CrmOpportunity::IS_CLOSED => $is_closed,
-				DAO_CrmOpportunity::IS_WON => $is_won,
-			);
-			
-			// Check privs
-			if(null != ($opp = DAO_CrmOpportunity::get($opp_id)) && $active_worker->hasPriv('crm.opp.actions.create')) {
-				DAO_CrmOpportunity::update($opp_id, $fields);
-			}
-		}
 		
-		if(!empty($opp_id)) {
-			// Custom fields
-			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $field_ids);
-			
-			// If we're adding a comment
-			if(!empty($comment)) {
-				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+
+		try {
+			if(!empty($id) && !empty($do_delete)) { // delete
+				// [TODO] Delete ACL
+				if(!$active_worker->hasPriv('crm.opp.actions.create'))
+					throw new Exception_DevblocksAjaxValidationError("You don't have permission to delete this record.");
 				
+				if(false == ($opp = DAO_CrmOpportunity::get($id)))
+					throw new Exception_DevblocksAjaxValidationError("Failed to delete the record.");
+				
+				DAO_CrmOpportunity::delete($id);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
+				
+			// Create/Edit
+			} else {
+				// Load the existing model
+				if($id && false == ($opp = DAO_CrmOpportunity::get($id)))
+					throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
+				
+				if(empty($name))
+					throw new Exception_DevblocksAjaxValidationError("'Title' is required", 'name');
+				
+				if(false == ($address = DAO_Address::get($email_id)))
+					throw new Exception_DevblocksAjaxValidationError("Invalid email address.");
+			
 				$fields = array(
-					DAO_Comment::CREATED => time(),
-					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_OPPORTUNITY,
-					DAO_Comment::CONTEXT_ID => $opp_id,
-					DAO_Comment::COMMENT => $comment,
-					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+					DAO_CrmOpportunity::NAME => $name,
+					DAO_CrmOpportunity::AMOUNT => $amount,
+					DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
+					DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
+					DAO_CrmOpportunity::UPDATED_DATE => time(),
+					DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
+					DAO_CrmOpportunity::IS_CLOSED => $is_closed,
+					DAO_CrmOpportunity::IS_WON => $is_won,
 				);
-				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+				
+				// Create
+				if(empty($id)) {
+					if(empty($id) && !$active_worker->hasPriv('crm.opp.actions.create'))
+						throw new Exception_DevblocksAjaxValidationError("You don't have permission to create this record.");
+					
+					$id = DAO_CrmOpportunity::create($fields);
+					
+					// Context Link (if given)
+					// [TODO]
+					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+					@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_OPPORTUNITY, $id, $link_context, $link_context_id);
+					}
+					
+					// View marquee
+					if(!empty($id) && !empty($view_id)) {
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_OPPORTUNITY, $id);
+					}
+					
+				// Update
+				} else {
+					if(empty($id) && !$active_worker->hasPriv('crm.opp.actions.update_all'))
+						throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
+					
+					DAO_CrmOpportunity::update($id, $fields);
+				}
+				
+				if($id) {
+					// Custom fields
+					@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_OPPORTUNITY, $id, $field_ids);
+					
+					// If we're adding a comment
+					if(!empty($comment)) {
+						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+						
+						$fields = array(
+							DAO_Comment::CREATED => time(),
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_OPPORTUNITY,
+							DAO_Comment::CONTEXT_ID => $id,
+							DAO_Comment::COMMENT => $comment,
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+						);
+						$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+					}
+				}
+			
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'label' => $name,
+					'view_id' => $view_id,
+				));
+				return;
 			}
+				
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			return;
 		}
 		
-		exit;
 	}
 	
 	function viewExploreAction() {

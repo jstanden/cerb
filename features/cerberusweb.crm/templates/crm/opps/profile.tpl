@@ -27,8 +27,8 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 		<!-- Edit -->
-		{if $active_worker->hasPriv('crm.opp.actions.update_all')}	
-		<button type="button" id="btnDisplayOppEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{if $active_worker->hasPriv('crm.opp.actions.update_all')}
+		<button type="button" id="btnDisplayOppEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_OPPORTUNITY}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
 	
@@ -109,13 +109,23 @@ $(function() {
 	
 	var tabs = $("#profileOppTabs").tabs(tabOptions);
 	
-	$('#btnDisplayOppEdit').bind('click', function() {
-		var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_OPPORTUNITY}&context_id={$page_context_id}',null,false,'50%');
-		$popup.one('opp_save', function(event) {
-			event.stopPropagation();
-			document.location.href = '{devblocks_url}c=profiles&a=opportunity&id={$page_context_id}-{$opp->name|devblocks_permalink}{/devblocks_url}';
-		});
-	})
+	// Edit
+	
+	$('#btnDisplayOppEdit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
+			document.location.reload();
+		})
+		.on('cerb-peek-deleted', function(e) {
+			document.location.href = '{devblocks_url}{/devblocks_url}';
+			
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+		;
 });
 
 {include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
