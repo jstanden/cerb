@@ -47,10 +47,17 @@
 	
 </fieldset>
 
+<div>
+	<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<span class="cerb-ajax-spinner" style="display:none;"></span>
+</div>
+
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frmConfigRecordType');
 	var $bubbles = $frm.find('ul.bubbles');
+	var $save_button = $frm.find('button.save');
+	var $spinner = $frm.find('span.cerb-ajax-spinner');
 	
 	var $placeholder_menu = $frm.find('ul.menu').menu({
 		select: function(event, ui) {
@@ -76,7 +83,6 @@ $(function() {
 			$bubble.append(label);
 			$bubble.append($a);
 			$bubbles.append($bubble);
-			$frm.trigger('cerb-persist');
 		}
 	});
 	
@@ -85,7 +91,6 @@ $(function() {
 		if($target.is('.glyphicons-circle-remove')) {
 			e.stopPropagation();
 			$target.closest('li').remove();
-			$frm.trigger('cerb-persist');
 		}
 	});
 	
@@ -100,15 +105,16 @@ $(function() {
 	$frm.find('ul.bubbles.sortable').sortable({
 		placeholder: 'ui-state-highlight',
 		items: 'li',
-		distance: 10,
-		stop: function(e, ui) {
-			$frm.trigger('cerb-persist');
-		}
+		distance: 10
 	});
 	
-	$frm.on('cerb-persist', function(e) {
-		e.stopPropagation();
+	$save_button.click(function() {
+		$save_button.attr('disabled','disabled');
+		$spinner.show();
+		
 		genericAjaxPost('frmConfigRecordType', '', null, function(json) {
+			$spinner.fadeOut();
+			$save_button.removeAttr('disabled');
 		});
 	});
 });
