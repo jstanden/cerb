@@ -307,6 +307,16 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 		return self::_getRandom('context_bulk_update');
 	}
 	
+	static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		$logger = DevblocksPlatform::getConsoleLog();
+		
+		// Keep rows for 1 week
+		$sql = "DELETE FROM context_bulk_update WHERE status_id = 2 AND created_at <= unix_timestamp() - 604800";
+		$db->ExecuteMaster($sql);
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' completed context_bulk_update records.');
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
