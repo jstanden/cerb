@@ -109,7 +109,7 @@
 	}
 
 	var $frm = $('#frmAddWidget{$workspace_tab->id} button.add_widget').click(function(e) {
-		var $popup = genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id=0&workspace_tab_id={$workspace_tab->id}',null,false,'500');
+		var $popup = genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id=0&workspace_tab_id={$workspace_tab->id}',null,false,'50%');
 		$popup.one('new_widget', function(e) {
 			if(null == e.widget_id)
 				return;

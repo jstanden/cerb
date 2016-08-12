@@ -10,8 +10,8 @@
 
 <div>
 	<b>{'common.status'|devblocks_translate|capitalize}:</b> 
-	<label><input type="radio" name="enabled" value="1" onclick="$('#pluginConfigTabs').fadeIn();$('#divCerbPluginOutput').show();" {if $plugin->enabled}checked="checked"{/if}>{'common.enabled'|devblocks_translate|capitalize}</label> 
-	<label><input type="radio" name="enabled" value="0" onclick="$('#pluginConfigTabs').fadeOut();$('#divCerbPluginOutput').hide();" {if !$plugin->enabled}checked="checked"{/if}>{'common.disabled'|devblocks_translate|capitalize}</label> 
+	<label><input type="radio" name="enabled" value="1" onclick="$('#pluginConfigTabs').fadeIn();$('#divCerbPluginOutput').show();" {if $plugin->enabled}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label> 
+	<label><input type="radio" name="enabled" value="0" onclick="$('#pluginConfigTabs').fadeOut();$('#divCerbPluginOutput').hide();" {if !$plugin->enabled}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label> 
 </div>
 
 {if !empty($config_exts)}

@@ -149,7 +149,7 @@ var timeTrackingTimerClass = function() {
 		
 		genericAjaxGet('','c=timetracking&a=pauseTimerJson', function(json) {
 			if(json.status) {
-				var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id=0&mins=' + json.total_mins,null,false,'500');
+				var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id=0&mins=' + json.total_mins,null,false,'50%');
 				$popup.one('dialogclose', function() {
 					$playBtn.show();
 					$stopBtn.show();

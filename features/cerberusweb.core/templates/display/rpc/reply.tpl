@@ -780,7 +780,7 @@
 					if(json.has_custom_placeholders) {
 						$textarea.focus();
 						
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'600');
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
 					
 						$popup_paste.bind('snippet_paste', function(event) {
 							if(null == event.text)

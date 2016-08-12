@@ -662,7 +662,7 @@ var cAjaxCalls = function() {
 		
 		$textarea.focus();
 		
-		var $chooser = genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'600');
+		var $chooser = genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'50%');
 		
 		$chooser.on('snippet_select', function(event) {
 			event.stopPropagation();
@@ -685,7 +685,7 @@ var cAjaxCalls = function() {
 				if(json.has_custom_placeholders) {
 					$textarea.focus();
 					
-					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'600');
+					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
 					
 					$popup_paste.bind('snippet_paste', function(event) {
 						if(null == event.text)

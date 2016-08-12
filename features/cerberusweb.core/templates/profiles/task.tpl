@@ -109,7 +109,7 @@ $(function() {
 	var tabs = $("#profileTaskTabs").tabs(tabOptions);
 
 	$('#btnDisplayTaskEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'500');
+		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}&edit=1',null,false,'50%');
 		$popup.one('task_save', function(event) {
 			event.stopPropagation();
 			document.location.href = '{devblocks_url}c=profiles&type=task&id={$page_context_id}{/devblocks_url}';

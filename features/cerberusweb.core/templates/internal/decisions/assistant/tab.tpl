@@ -84,7 +84,7 @@ $(function() {
 	
 	{if $is_writeable}
 	$('#frmTrigger{$tab_uniqid} BUTTON.add').click(function() {
-		var $popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&va_id={$va->id}{if isset($only_event_ids)}&only_event_ids={$only_event_ids}{/if}',null,false,'500');
+		var $popup = genericAjaxPopup('node_trigger','c=internal&a=showDecisionPopup&trigger_id=0&va_id={$va->id}{if isset($only_event_ids)}&only_event_ids={$only_event_ids}{/if}',null,false,'50%');
 		
 		$popup.one('trigger_create',function(event) {
 			if(null == event.event_point || null == event.trigger_id)

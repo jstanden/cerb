@@ -66,7 +66,7 @@
 			{elseif $column=="d_name"}
 			<td data-column="{$column}" style="padding:5px;">
 				<input type="checkbox" name="row_id[]" value="{$result.d_id}" style="display:none;">
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_profiles&action=showStorageProfilePeek&id={$result.d_id}&view_id={$view->id|escape:'url'}',null,false,'500');" class="subject">{$result.d_name}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_profiles&action=showStorageProfilePeek&id={$result.d_id}&view_id={$view->id|escape:'url'}',null,false,'50%');" class="subject">{$result.d_name}</a>
 			</td>
 			{else}
 			<td data-column="{$column}">{$result.$column}</td>

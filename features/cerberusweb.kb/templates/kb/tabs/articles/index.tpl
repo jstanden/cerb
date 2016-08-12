@@ -73,7 +73,7 @@
 $frm = $('#frmKbBrowseTab{$tab->id}');
 
 $frm.find('button.category_add').click(function(e) {
-	$popup = genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&root_id={$root_id}',null,false,'500');
+	$popup = genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&root_id={$root_id}',null,false,'50%');
 	
 	$popup.one('kb_category_save', function(e) {
 		category_id = 0;
@@ -87,7 +87,7 @@ $frm.find('button.category_add').click(function(e) {
 });
 
 $frm.find('button.category_edit').click(function(e) {
-	$popup = genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&id={$root_id}',null,false,'500');
+	$popup = genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&id={$root_id}',null,false,'50%');
 	
 	$popup.one('kb_category_save', function(e) {
 		category_id = 0;

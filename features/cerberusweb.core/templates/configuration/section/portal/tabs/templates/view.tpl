@@ -7,7 +7,7 @@
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
-			<a href="javascript:;" title="{'common.import'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showImportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'500');"><span class="glyphicons glyphicons-file-import"></span></a>
+			<a href="javascript:;" title="{'common.import'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showImportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'50%');"><span class="glyphicons glyphicons-file-import"></span></a>
 			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
 			<input type="checkbox" class="select-all">
 		</td>
@@ -60,7 +60,7 @@
 				<input type="checkbox" name="row_id[]" value="{$result.d_id}" style="display:none;">
 			</td>
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=getTemplatePeek&portal={$tool->code}&view_id={$view->id}&id={$result.d_id}',null,false,'600');" class="subject">{$result.d_path}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=getTemplatePeek&portal={$tool->code}&view_id={$view->id}&id={$result.d_id}',null,false,'50%');" class="subject">{$result.d_path}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
