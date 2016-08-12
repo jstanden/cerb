@@ -185,21 +185,6 @@
 			</params>
 		</extension>
 		
-		<!-- Pages -->
-		
-		<extension point="cerberusweb.page">
-			<id>crm.page.crm</id>
-			<name>CRM Page</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmPage</name>
-			</class>
-			<params>
-				<param key="uri" value="crm" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-
 		<!-- Org Tabs -->
 		
 		<extension point="cerberusweb.ui.context.profile.tab">

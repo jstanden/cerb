@@ -1310,7 +1310,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=crm&tab=opps&id=%d-%s",$opp->id, DevblocksPlatform::strToPermalink($opp->name)), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&what=opportunity&id=%d-%s",$opp->id, DevblocksPlatform::strToPermalink($opp->name)), true);
 			
 			// Lead
 			@$address_id = $opp->primary_email_id;

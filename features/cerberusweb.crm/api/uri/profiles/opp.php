@@ -163,6 +163,207 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.crm::crm/opps/profile.tpl');
 	}
 	
+	function savePeekPopupAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		@$opp_id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer',0);
+		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
+		@$amount = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0.00');
+		@$email_id = DevblocksPlatform::importGPC($_REQUEST['email_id'],'integer',0);
+		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+		@$created_date_str = DevblocksPlatform::importGPC($_REQUEST['created_date'],'string','');
+		@$closed_date_str = DevblocksPlatform::importGPC($_REQUEST['closed_date'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		
+		// State
+		$is_closed = (0==$status) ? 0 : 1;
+		$is_won = (1==$status) ? 1 : 0;
+		
+		// Strip currency formatting symbols
+		$amount = floatval(str_replace(array(',','$','¢','£','€'),'',$amount));
+		
+		// Dates
+		if(false === ($created_date = strtotime($created_date_str)))
+			$created_date = time();
+			
+		if(false === ($closed_date = strtotime($closed_date_str)))
+			$closed_date = ($is_closed) ? time() : 0;
+
+		if(!$is_closed)
+			$closed_date = 0;
+			
+		// Worker
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		// Save
+		if($do_delete) {
+			if(null != ($opp = DAO_CrmOpportunity::get($opp_id)) && $active_worker->hasPriv('crm.opp.actions.create')) {
+				DAO_CrmOpportunity::delete($opp_id);
+				$opp_id = null;
+			}
+			
+		} elseif(empty($opp_id)) {
+			// Check privs
+			if(!$active_worker->hasPriv('crm.opp.actions.create'))
+				return;
+			
+			// One opportunity per provided e-mail address
+			if(null == ($address = DAO_Address::get($email_id)))
+				return;
+				
+			$fields = array(
+				DAO_CrmOpportunity::NAME => $name,
+				DAO_CrmOpportunity::AMOUNT => $amount,
+				DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
+				DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
+				DAO_CrmOpportunity::UPDATED_DATE => time(),
+				DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
+				DAO_CrmOpportunity::IS_CLOSED => $is_closed,
+				DAO_CrmOpportunity::IS_WON => $is_won,
+			);
+			$opp_id = DAO_CrmOpportunity::create($fields);
+			
+			// Watchers
+			@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
+			if(!empty($add_watcher_ids))
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $add_watcher_ids);
+			
+			// Context Link (if given)
+			@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+			@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+			if(!empty($opp_id) && !empty($link_context) && !empty($link_context_id)) {
+				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $link_context, $link_context_id);
+			}
+			
+			// View marquee
+			if(!empty($opp_id) && !empty($view_id)) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id);
+			}
+			
+		} else {
+			if(empty($opp_id))
+				return;
+			
+			// Check privs
+			if(!$active_worker->hasPriv('crm.opp.actions.update_all'))
+				return;
+			
+			if(null == ($address = DAO_Address::get($email_id)))
+				return;
+
+			$fields = array(
+				DAO_CrmOpportunity::NAME => $name,
+				DAO_CrmOpportunity::AMOUNT => $amount,
+				DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
+				DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
+				DAO_CrmOpportunity::UPDATED_DATE => time(),
+				DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
+				DAO_CrmOpportunity::IS_CLOSED => $is_closed,
+				DAO_CrmOpportunity::IS_WON => $is_won,
+			);
+			
+			// Check privs
+			if(null != ($opp = DAO_CrmOpportunity::get($opp_id)) && $active_worker->hasPriv('crm.opp.actions.create')) {
+				DAO_CrmOpportunity::update($opp_id, $fields);
+			}
+		}
+		
+		if(!empty($opp_id)) {
+			// Custom fields
+			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_OPPORTUNITY, $opp_id, $field_ids);
+			
+			// If we're adding a comment
+			if(!empty($comment)) {
+				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+				
+				$fields = array(
+					DAO_Comment::CREATED => time(),
+					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_OPPORTUNITY,
+					DAO_Comment::CONTEXT_ID => $opp_id,
+					DAO_Comment::COMMENT => $comment,
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+				);
+				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+			}
+		}
+		
+		exit;
+	}
+	
+	function viewExploreAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time());
+		
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
+
+		// Page start
+		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
+		if(empty($explore_from)) {
+			$orig_pos = 1+($view->renderPage * $view->renderLimit);
+		} else {
+			$orig_pos = 1;
+		}
+
+		$view->renderPage = 0;
+		$view->renderLimit = 250;
+		$pos = 0;
+		
+		do {
+			$models = array();
+			list($results, $total) = $view->getData();
+
+			// Summary row
+			if(0==$view->renderPage) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'title' => $view->name,
+					'created' => time(),
+//					'worker_id' => $active_worker->id,
+					'total' => $total,
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=opportunity', true),
+//					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
+				);
+				$models[] = $model;
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			if(is_array($results))
+			foreach($results as $opp_id => $row) {
+				if($opp_id==$explore_from)
+					$orig_pos = $pos;
+				
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'id' => $row[SearchFields_CrmOpportunity::ID],
+					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&tab=opportunity&id=%d-%s", $row[SearchFields_CrmOpportunity::ID], DevblocksPlatform::strToPermalink($row[SearchFields_CrmOpportunity::NAME])), true),
+				);
+				$models[] = $model;
+			}
+			
+			DAO_ExplorerSet::createFromModels($models);
+			
+			$view->renderPage++;
+			
+		} while(!empty($results));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+	}
+	
 	function showBulkPopupAction() {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);

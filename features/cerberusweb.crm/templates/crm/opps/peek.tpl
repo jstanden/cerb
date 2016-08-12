@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formOppPeek" name="formOppPeek" onsubmit="return false;">
-<input type="hidden" name="c" value="crm">
-<input type="hidden" name="a" value="saveOppPanel">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="opportunity">
+<input type="hidden" name="action" value="savePeekPopup">
 <input type="hidden" name="opp_id" value="{$opp->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($link_context)}
