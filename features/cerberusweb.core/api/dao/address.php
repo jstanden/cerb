@@ -1881,6 +1881,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'string','');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id)) {
 			$email = '';
@@ -1901,7 +1902,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		
 		// Display
 		$tpl->assign('id', $context_id);
-		$tpl->assign('view_id', $view_id);
 		
 		if(empty($context_id) || $edit) {
 			if (!empty($org_id)) {

@@ -1096,7 +1096,6 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

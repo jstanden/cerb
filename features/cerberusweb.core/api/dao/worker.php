@@ -2757,11 +2757,10 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
 		$date = DevblocksPlatform::getDateService();
-		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
 		if(false == ($worker = DAO_Worker::get($context_id))) {

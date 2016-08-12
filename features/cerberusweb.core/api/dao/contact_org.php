@@ -1792,11 +1792,9 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
 		
 		$contact = DAO_ContactOrg::get($context_id);
-		
-		// View
-		$tpl->assign('view_id', $view_id);
 		
 		if(empty($context_id) || $edit) {
 			$tpl->assign('org', $contact);

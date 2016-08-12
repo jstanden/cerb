@@ -1157,7 +1157,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
-		
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id) && null != ($mailbox = DAO_Mailbox::get($context_id))) {

@@ -1351,6 +1351,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id)) {
 			$task = DAO_Task::get($context_id);

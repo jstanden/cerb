@@ -1820,10 +1820,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$translate = DevblocksPlatform::getTranslationService();
 		
+		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id) && null != ($group = DAO_Group::get($context_id))) {
