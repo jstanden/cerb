@@ -359,6 +359,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$view->setAutoPersist(false);
 		
 		// Org fields
+		@$status = DevblocksPlatform::importGPC($_POST['status'],'string','');
 		@$country = trim(DevblocksPlatform::importGPC($_POST['country'],'string',''));
 
 		// Scheduled behavior
@@ -367,6 +368,17 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
 		
 		$do = array();
+		
+		// Delete
+		if(strlen($status) > 0) {
+			switch($status) {
+				case 'deleted':
+					if($active_worker->hasPriv('core.addybook.org.actions.delete')) {
+						$do['delete'] = true;
+					}
+					break;
+			}
+		}
 		
 		// Do: Country
 		if(0 != strlen($country))

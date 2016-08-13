@@ -21,6 +21,18 @@
 	<legend>Set Fields</legend>
 	
 	<table cellspacing="0" cellpadding="2" width="100%">
+		{if $active_worker->hasPriv('core.addybook.org.actions.delete')}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
+			<td width="100%"><select name="status">
+				<option value=""></option>
+				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
+			</select>
+			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'status.deleted'|devblocks_translate|lower}</button>
+			</td>
+		</tr>
+		{/if}
+	
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'contact_org.country'|devblocks_translate|capitalize}:</td>
 			<td width="100%">

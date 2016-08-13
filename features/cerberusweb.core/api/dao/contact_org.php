@@ -121,10 +121,15 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		
 		$change_fields = array();
 		$custom_fields = array();
+		$deleted = false;
 
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
+				case 'delete':
+					$deleted = true;
+					break;
+				
 				case 'country':
 					$change_fields[DAO_ContactOrg::COUNTRY] = $v;
 					break;
@@ -138,25 +143,30 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			}
 		}
 		
-		// Fields
-		if(!empty($change_fields))
-			DAO_ContactOrg::update($ids, $change_fields);
-		
-		// Custom Fields
-		if(!empty($custom_fields))
-			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ORG, $custom_fields, $ids);
-		
-		// Scheduled behavior
-		if(isset($do['behavior']))
-			C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_ORG, $do['behavior'], $ids);
-		
-		// Watchers
-		if(isset($do['watchers']))
-			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_ORG, $do['watchers'], $ids);
-		
-		// Broadcast
-		if(isset($do['broadcast']))
-			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_ORG, $do['broadcast'], $ids, 'email_address');
+		if($deleted) {
+			DAO_ContactOrg::delete($ids);
+			
+		} else {
+			// Fields
+			if(!empty($change_fields))
+				DAO_ContactOrg::update($ids, $change_fields);
+			
+			// Custom Fields
+			if(!empty($custom_fields))
+				C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ORG, $custom_fields, $ids);
+			
+			// Scheduled behavior
+			if(isset($do['behavior']))
+				C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_ORG, $do['behavior'], $ids);
+			
+			// Watchers
+			if(isset($do['watchers']))
+				C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_ORG, $do['watchers'], $ids);
+			
+			// Broadcast
+			if(isset($do['broadcast']))
+				C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_ORG, $do['broadcast'], $ids, 'email_address');
+		}
 		
 		$update->markCompleted();
 		return true;
