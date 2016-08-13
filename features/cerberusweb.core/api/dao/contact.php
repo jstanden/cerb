@@ -98,10 +98,15 @@ class DAO_Contact extends Cerb_ORMHelper {
 		
 		$change_fields = array();
 		$custom_fields = array();
+		$deleted = false;
 
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
+				case 'delete':
+					$deleted = true;
+					break;
+				
 				case 'title':
 					$change_fields[DAO_Contact::TITLE] = $v;
 					break;
@@ -136,21 +141,26 @@ class DAO_Contact extends Cerb_ORMHelper {
 			}
 		}
 		
-		// Fields
-		if(!empty($change_fields))
-			DAO_Contact::update($ids, $change_fields);
-
-		// Custom Fields
-		if(!empty($custom_fields))
-			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_CONTACT, $custom_fields, $ids);
-		
-		// Watchers
-		if(isset($do['watchers']))
-			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_CONTACT, $do['watchers'], $ids);
-		
-		// Broadcast
-		if(isset($do['broadcast']))
-			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_CONTACT, $do['broadcast'], $ids, 'email_address');
+		if($deleted) {
+			DAO_Contact::delete($ids);
+			
+		} else {
+			// Fields
+			if(!empty($change_fields))
+				DAO_Contact::update($ids, $change_fields);
+	
+			// Custom Fields
+			if(!empty($custom_fields))
+				C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_CONTACT, $custom_fields, $ids);
+			
+			// Watchers
+			if(isset($do['watchers']))
+				C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_CONTACT, $do['watchers'], $ids);
+			
+			// Broadcast
+			if(isset($do['broadcast']))
+				C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_CONTACT, $do['broadcast'], $ids, 'email_address');
+		}
 		
 		$update->markCompleted();
 		return true;

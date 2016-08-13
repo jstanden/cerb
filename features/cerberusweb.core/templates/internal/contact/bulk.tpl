@@ -20,6 +20,7 @@
 <fieldset class="peek">
 	<legend>Set Fields</legend>
 	<table cellspacing="0" cellpadding="2" width="100%">
+
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.organization'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
@@ -99,6 +100,18 @@
 					<button type="button" class="chooser-abstract" data-field-name="do_watcher_remove_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="bubbles chooser-container" style="display:block;"></ul>
 				</div>
+			</td>
+		</tr>
+		{/if}
+		
+		{if $active_worker->is_superuser}
+		<tr>
+			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
+			<td width="100%"><select name="status">
+				<option value=""></option>
+				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
+			</select>
+			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'status.deleted'|devblocks_translate|lower}</button>
 			</td>
 		</tr>
 		{/if}
