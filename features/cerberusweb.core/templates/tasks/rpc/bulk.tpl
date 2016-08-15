@@ -20,48 +20,73 @@
 <fieldset class="peek">
 	<legend>Set Fields</legend>
 	<table cellspacing="0" cellpadding="2" width="100%">
+	
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'task.due_date'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="middle">
+				<label>
+					<input type="checkbox" name="actions[]" value="due">
+					{'task.due_date'|devblocks_translate|capitalize}:
+				</label>
+			</td>
 			<td width="100%">
-				<input type="text" name="due" size="35" value=""><button type="button" onclick="devblocksAjaxDateChooser(this.form.due,'#dateBulkTaskDue');"><span class="glyphicons glyphicons-calendar"></span></button>
-				<div id="dateBulkTaskDue"></div>
+				<div style="display:none;">
+					<input type="text" name="params[due]" size="35" value=""><button type="button" onclick="devblocksAjaxDateChooser(this.form.due,'#dateBulkTaskDue');"><span class="glyphicons glyphicons-calendar"></span></button>
+					<div id="dateBulkTaskDue"></div>
+				</div>
 			</td>
 		</tr>
+		
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="middle">
+				<label>
+					<input type="checkbox" name="actions[]" value="status">
+					{'common.status'|devblocks_translate|capitalize}:
+				</label>
+			</td>
 			<td width="100%">
-				<select name="status">
-					<option value=""></option>
-					<option value="0">{'status.open'|devblocks_translate}</option>
-					<option value="1">{'status.completed'|devblocks_translate}</option>
-					{if $active_worker->hasPriv('core.tasks.actions.delete')}
-					<option value="2">{'status.deleted'|devblocks_translate}</option>
-					{/if}
-				</select>
-				<button type="button" onclick="this.form.status.selectedIndex = 1;">{'status.open'|devblocks_translate|lower}</button>
-				<button type="button" onclick="this.form.status.selectedIndex = 2;">{'status.completed'|devblocks_translate|lower}</button>
-				{if $active_worker->hasPriv('core.tasks.actions.delete')}
-				<button type="button" onclick="this.form.status.selectedIndex = 3;">{'status.deleted'|devblocks_translate|lower}</button>
-				{/if}
+				<div style="display:none;">
+					<select name="params[status]">
+						<option value="0">{'status.open'|devblocks_translate}</option>
+						<option value="1">{'status.completed'|devblocks_translate}</option>
+						{if $active_worker->hasPriv('core.tasks.actions.delete')}
+						<option value="2">{'status.deleted'|devblocks_translate}</option>
+						{/if}
+					</select>
+				</div>
+			</td>
+		</tr>
+		
 			</td>
 		</tr>
 		
 		{if 1}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.owner'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="middle">
+				<label>
+					<input type="checkbox" name="actions[]" value="owner">
+					{'common.owner'|devblocks_translate|capitalize}:
+				</label>
+			</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="owner" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
+				<div style="display:none;">
+					<button type="button" class="chooser-abstract" data-field-name="params[owner]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+					<ul class="bubbles chooser-container"></ul>
+				</div>
 			</td>
 		</tr>
 		{/if}
 
 		{if $active_worker->hasPriv('core.watchers.assign')}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">Add watchers:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="top">
+				<label>
+					<input type="checkbox" name="actions[]" value="watchers_add">
+					Add watchers:
+				</label>
+			</td>
 			<td width="100%">
-				<div>
-					<button type="button" class="chooser-abstract" data-field-name="do_watcher_add_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+				<div style="display:none;">
+					<button type="button" class="chooser-abstract" data-field-name="params[watchers_add][]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="bubbles chooser-container" style="display:block;"></ul>
 				</div>
 			</td>
@@ -70,10 +95,15 @@
 		
 		{if $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">Remove watchers:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="top">
+				<label>
+					<input type="checkbox" name="actions[]" value="watchers_remove">
+					Remove watchers:
+				</label>
+			</td>
 			<td width="100%">
-				<div>
-					<button type="button" class="chooser-abstract" data-field-name="do_watcher_remove_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+				<div style="display:none;">
+					<button type="button" class="chooser-abstract" data-field-name="params[watchers_remove][]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="bubbles chooser-container" style="display:block;"></ul>
 				</div>
 			</td>
@@ -119,6 +149,13 @@ $(function() {
 				genericAjaxPopupClose($popup);
 			});
 		});
+		
+		// Checkboxes
+		
+		$popup.find('input:checkbox[name="actions[]"]').change(function() {
+			$(this).closest('td').next('td').find('> div').toggle();
+		});
+		
 	});
 });
 </script>

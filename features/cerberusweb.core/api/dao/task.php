@@ -178,6 +178,7 @@ class DAO_Task extends Cerb_ORMHelper {
 					if(substr($k,0,3)=="cf_") {
 						$custom_fields[substr($k,3)] = $v;
 					}
+					break;
 			}
 		}
 		

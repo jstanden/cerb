@@ -303,11 +303,10 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
-		// Task fields
-		@$due = trim(DevblocksPlatform::importGPC($_POST['due'],'string',''));
-		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
-		@$owner = trim(DevblocksPlatform::importGPC($_POST['owner'],'string',''));
-
+		// Actions
+		@$actions = DevblocksPlatform::importGPC($_POST['actions'],'array',array());
+		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
+		
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
 		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
@@ -316,26 +315,44 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		$do = array();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// Do: Due
-		if(0 != strlen($due))
-			$do['due'] = $due;
-			
-		// Do: Status
-		if(0 != strlen($status)) {
-			switch($status) {
-				case 2: // deleted
-					if($active_worker->hasPriv('core.tasks.actions.delete'))
-						$do['delete'] = true;
+		if(is_array($actions))
+		foreach($actions as $action) {
+			switch($action) {
+				case 'due':
+				case 'importance':
+				case 'owner':
+					if(isset($params[$action]))
+						$do[$action] = $params[$action];
 					break;
-				default:
-					$do['status'] = $status;
+					
+				case 'status':
+					if(isset($params[$action])) {
+						switch($params[$action]) {
+							case '2':
+								if($active_worker->hasPriv('core.tasks.actions.delete'))
+									$do['delete'] = true;
+									break;
+								break;
+								
+							default:
+								$do[$action] = $params[$action];
+								break;
+						}
+					}
+					break;
+					
+				case 'watchers_add':
+				case 'watchers_remove':
+					if(!isset($params[$action]))
+						break;
+						
+					if(!isset($do['watchers']))
+						$do['watchers'] = array();
+					
+					$do['watchers'][substr($action,9)] = $params[$action];
 					break;
 			}
 		}
-		
-		// Do: Owner
-		if(0 != strlen($owner))
-			$do['owner'] = intval($owner);
 		
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {
@@ -346,20 +363,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 			);
 		}
 		
-		// Watchers
-		$watcher_params = array();
-		
-		@$watcher_add_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_add_ids'],'array',array());
-		if(!empty($watcher_add_ids))
-			$watcher_params['add'] = $watcher_add_ids;
-			
-		@$watcher_remove_ids = DevblocksPlatform::importGPC($_REQUEST['do_watcher_remove_ids'],'array',array());
-		if(!empty($watcher_remove_ids))
-			$watcher_params['remove'] = $watcher_remove_ids;
-		
-		if(!empty($watcher_params))
-			$do['watchers'] = $watcher_params;
-			
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 
