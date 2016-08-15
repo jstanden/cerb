@@ -386,6 +386,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if(is_array($actions))
 		foreach($actions as $action) {
 			switch($action) {
+				case 'importance':
 				case 'move':
 				case 'org':
 				case 'owner':

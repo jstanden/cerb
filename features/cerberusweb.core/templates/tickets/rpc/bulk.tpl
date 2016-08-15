@@ -82,6 +82,25 @@
 			</td>
 		</tr>
 		
+		<tr>
+			<td width="0%" nowrap="nowrap" align="left" valign="middle">
+				<label>
+					<input type="checkbox" name="actions[]" value="importance">
+					{'common.importance'|devblocks_translate|capitalize}:
+				</label>
+			</td>
+			<td width="100%">
+				<div style="display:none;">
+					<div class="cerb-delta-slider-container">
+					<input type="hidden" name="params[importance]" value="50">
+						<div class="cerb-delta-slider cerb-slider-gray">
+							<span class="cerb-delta-slider-midpoint"></span>
+						</div>
+					</div>
+				</div>
+			</td>
+		</tr>
+		
 		{if $active_worker->hasPriv('core.ticket.actions.spam')}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="left" valign="top">
@@ -218,6 +237,39 @@ $(function() {
 		
 		$popup.find('input:checkbox[name="actions[]"]').change(function() {
 			$(this).closest('td').next('td').find('> div').toggle();
+		});
+		
+		// Slider
+		
+		$popup.find('div.cerb-delta-slider').each(function() {
+			var $this = $(this);
+			var $input = $this.siblings('input:hidden');
+			
+			$this.slider({
+				disabled: false,
+				value: 50,
+				min: 0,
+				max: 100,
+				step: 1,
+				range: 'min',
+				slide: function(event, ui) {
+					$this.removeClass('cerb-slider-gray cerb-slider-red cerb-slider-green');
+					
+					if(ui.value < 50) {
+						$this.addClass('cerb-slider-green');
+						$this.slider('option', 'range', 'min');
+					} else if(ui.value > 50) {
+						$this.addClass('cerb-slider-red');
+						$this.slider('option', 'range', 'max');
+					} else {
+						$this.addClass('cerb-slider-gray');
+						$this.slider('option', 'range', false);
+					}
+				},
+				stop: function(event, ui) {
+					$input.val(ui.value);
+				}
+			});
 		});
 		
 		// Move to
