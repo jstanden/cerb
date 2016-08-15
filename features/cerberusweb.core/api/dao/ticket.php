@@ -3161,12 +3161,17 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$bucket_ids = array();
 				
 				foreach($terms as $term) {
-					foreach($buckets as $bucket_id => $bucket) {
-						if(isset($bucket_ids[$bucket_id]))
-							continue;
+					if(is_numeric($term) && isset($buckets[$term])) {
+						$bucket_ids[intval($term)] = true;
 						
-						if(false !== stristr($bucket->name, $term)) {
-							$bucket_ids[$bucket_id] = true;
+					} else {
+						foreach($buckets as $bucket_id => $bucket) {
+							if(isset($bucket_ids[$bucket_id]))
+								continue;
+							
+							if(false !== stristr($bucket->name, $term)) {
+								$bucket_ids[$bucket_id] = true;
+							}
 						}
 					}
 				}
@@ -3196,12 +3201,17 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$group_ids = array();
 				
 				foreach($terms as $term) {
-					foreach($groups as $group_id => $group) {
-						if(isset($group_ids[$group_id]))
-							continue;
+					if(is_numeric($term) && isset($groups[$term])) {
+						$group_ids[intval($term)] = true;
 						
-						if(false !== stristr($group->name, $term)) {
-							$group_ids[$group_id] = true;
+					} else {
+						foreach($groups as $group_id => $group) {
+							if(isset($group_ids[$group_id]))
+								continue;
+							
+							if(false !== stristr($group->name, $term)) {
+								$group_ids[$group_id] = true;
+							}
 						}
 					}
 				}
