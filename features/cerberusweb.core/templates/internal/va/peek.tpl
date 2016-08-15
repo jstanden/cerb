@@ -1,4 +1,5 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmVirtualAttendantPeek">
+{$form_id = "frm{uniqid()}"}
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="virtual_attendant">
@@ -125,7 +126,7 @@
 {/if}
 
 <div class="buttons">
-	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmVirtualAttendantPeek','{$view_id}', false, 'virtual_attendant_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'{$form_id}','{$view_id}', false, 'virtual_attendant_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
@@ -138,14 +139,16 @@
 </form>
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $frm = $('#{$form_id}');
+	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{'Virtual Attendant'}");
+		$popup.dialog('option','title',"{'Virtual Attendant'}");
 		
 		$('#vaPeekTabs').tabs();
 		
-		$(this).find('select[name=owner]').change(function() {
+		$popup.find('select[name=owner]').change(function() {
 			var $this = $(this);
 			var $owner = $this.find('option:selected');
 			var owner_context = $owner.attr('context');
@@ -163,7 +166,7 @@
 			});
 		}).trigger('change');
 		
-		$(this).find('input:radio[name=allowed_events]').change(function() {
+		$popup.find('input:radio[name=allowed_events]').change(function() {
 			var $this = $(this);
 			var $frm = $this.closest('form');
 			var $events_container = $frm.find('div.va-events');
@@ -174,7 +177,7 @@
 				$events_container.show();
 		});
 		
-		$(this).find('input:radio[name=allowed_actions]').change(function() {
+		$popup.find('input:radio[name=allowed_actions]').change(function() {
 			var $this = $(this);
 			var $frm = $this.closest('form');
 			var $actions_container = $frm.find('div.va-actions');
@@ -194,5 +197,6 @@
 		// Focus
 		
 		$popup.find('input:text:first').focus();
-	} );
+	});
+});
 </script>
