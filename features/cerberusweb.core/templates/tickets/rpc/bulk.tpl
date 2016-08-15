@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formBatchUpdate" name="formBatchUpdate" onsubmit="return false;">
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="startBulkUpdateJson">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="ticket">
+<input type="hidden" name="action" value="startBulkUpdateJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="ids" value="{$ids}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -21,97 +23,129 @@
 	<table cellspacing="0" cellpadding="2" width="100%">
 		{if $active_worker->hasPriv('core.ticket.actions.move')}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">Move to:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="middle">
+				<label>
+					<input type="checkbox" name="actions[]" value="move">
+					Move to:
+				</label>
+			</td>
 			<td width="100%">
-				<select class="cerb-moveto-group">
-					<option></option>
-					{foreach from=$groups item=group}
-					<option value="{$group->id}">{$group->name}</option>
-					{/foreach}
-				</select>
-				<select class="cerb-moveto-bucket-options" style="display:none;">
-					{foreach from=$buckets item=bucket}
-					<option value="{$bucket->id}" data-group-id="{$bucket->group_id}">{$bucket->name}</option>
-					{/foreach}
-				</select>
-				<select name="do_move" class="cerb-moveto-bucket" style="display:none;">
-				</select>
+				<div style="display:none;">
+					<select name="params[move][group_id]" class="cerb-moveto-group">
+						<option></option>
+						{foreach from=$groups item=group}
+						<option value="{$group->id}">{$group->name}</option>
+						{/foreach}
+					</select>
+					<select class="cerb-moveto-bucket-options" style="display:none;">
+						{foreach from=$buckets item=bucket}
+						<option value="{$bucket->id}" data-group-id="{$bucket->group_id}">{$bucket->name}</option>
+						{/foreach}
+					</select>
+					<select name="params[move][bucket_id]" class="cerb-moveto-bucket" style="display:none;"></select>
+				</div>
 			</td>
 		</tr>
 		{/if}
 		
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">Status:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="top">
+				<label>
+					<input type="checkbox" name="actions[]" value="status">
+					{'common.status'|devblocks_translate|capitalize}:
+				</label>
+			</td>
 			<td width="100%" valign="top">
-				<select name="do_status" onchange="$val=$(this).val();$waiting=$('#bulk{$view_id}_waiting');if($val=={Model_Ticket::STATUS_WAITING} || $val=={Model_Ticket::STATUS_CLOSED}){ $waiting.show(); } else { $waiting.hide(); }">
-					<option value=""></option>
-					<option value="{Model_Ticket::STATUS_OPEN}">{'status.open'|devblocks_translate|capitalize}</option>
-					<option value="{Model_Ticket::STATUS_WAITING}">{'status.waiting.abbr'|devblocks_translate|capitalize}</option>
-					{if $active_worker->hasPriv('core.ticket.actions.close')}
-					<option value="{Model_Ticket::STATUS_CLOSED}">{'status.closed'|devblocks_translate|capitalize}</option>
-					{/if}
-					{if $active_worker->hasPriv('core.ticket.actions.delete')}
-					<option value="{Model_Ticket::STATUS_DELETED}">{'status.deleted'|devblocks_translate|capitalize}</option>
-					{/if}
-				</select>
-				<button type="button" onclick="$(this.form).find('select[name=do_status]').val('{Model_Ticket::STATUS_OPEN}').trigger('change');">{'status.open'|devblocks_translate|lower}</button>
-				<button type="button" onclick="$(this.form).find('select[name=do_status]').val('{Model_Ticket::STATUS_WAITING}').trigger('change');">{'status.waiting.abbr'|devblocks_translate|lower}</button>
-				{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" onclick="$(this.form).find('select[name=do_status]').val('{Model_Ticket::STATUS_CLOSED}').trigger('change');">{'status.closed'|devblocks_translate|lower}</button>{/if}
-				{if $active_worker->hasPriv('core.ticket.actions.delete')}<button type="button" onclick="$(this.form).find('select[name=do_status]').val('{Model_Ticket::STATUS_DELETED}').trigger('change');">{'status.deleted'|devblocks_translate|lower}</button>{/if}
-				
-				<div id="bulk{$view_id}_waiting" style="display:none;">
-					<b>{'display.reply.next.resume'|devblocks_translate}</b>
-					<br>
-					<i>{'display.reply.next.resume_eg'|devblocks_translate}</i>
-					<br> 
-					<input type="text" name="do_reopen" size="55" value="">
-					<br>
-					{'display.reply.next.resume_blank'|devblocks_translate}
-					<br>
+				<div style="display:none;">
+					<select name="params[status][status_id]" onchange="$val=$(this).val();$waiting=$('#bulk{$view_id}_waiting');if($val=={Model_Ticket::STATUS_WAITING} || $val=={Model_Ticket::STATUS_CLOSED}){ $waiting.show(); } else { $waiting.hide(); }">
+						<option value="{Model_Ticket::STATUS_OPEN}">{'status.open'|devblocks_translate|capitalize}</option>
+						<option value="{Model_Ticket::STATUS_WAITING}">{'status.waiting.abbr'|devblocks_translate|capitalize}</option>
+						{if $active_worker->hasPriv('core.ticket.actions.close')}
+						<option value="{Model_Ticket::STATUS_CLOSED}">{'status.closed'|devblocks_translate|capitalize}</option>
+						{/if}
+						{if $active_worker->hasPriv('core.ticket.actions.delete')}
+						<option value="{Model_Ticket::STATUS_DELETED}">{'status.deleted'|devblocks_translate|capitalize}</option>
+						{/if}
+					</select>
+					
+					<div id="bulk{$view_id}_waiting" style="display:none;">
+						<b>{'display.reply.next.resume'|devblocks_translate}</b>
+						<br>
+						<i>{'display.reply.next.resume_eg'|devblocks_translate}</i>
+						<br> 
+						<input type="text" name="params[status][reopen_at]" size="55" value="">
+						<br>
+						{'display.reply.next.resume_blank'|devblocks_translate}
+						<br>
+					</div>
 				</div>
 			</td>
 		</tr>
 		
 		{if $active_worker->hasPriv('core.ticket.actions.spam')}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">Spam:</td>
-			<td width="100%"><select name="do_spam">
-				<option value=""></option>
-				<option value="1">Report Spam</option>
-				<option value="0">Not Spam</option>
-			</select>
-			<button type="button" onclick="this.form.do_spam.selectedIndex = 1;">spam</button>
-			<button type="button" onclick="this.form.do_spam.selectedIndex = 2;">not spam</button>
+			<td width="0%" nowrap="nowrap" align="left" valign="top">
+				<label>
+					<input type="checkbox" name="actions[]" value="spam">
+					{'common.spam'|devblocks_translate|capitalize}:
+				</label>
+			</td>
+			<td width="100%">
+				<div style="display:none;">
+					<select name="params[spam]">
+						<option value="0">{'common.notspam'|devblocks_translate|capitalize}</option>
+						<option value="1">{'common.spam'|devblocks_translate|capitalize}</option>
+					</select>
+				</div>
 			</td>
 		</tr>
 		{/if}
 		
 		{if 1}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.owner'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="top">
+				<label>
+					<input type="checkbox" name="actions[]" value="owner">
+					{'common.owner'|devblocks_translate|capitalize}:
+				</label>
+			</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="do_owner" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
+				<div style="display:none;">
+					<button type="button" class="chooser-abstract" data-field-name="params[owner]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+					<ul class="bubbles chooser-container"></ul>
+				</div>
 			</td>
 		</tr>
 		{/if}
 		
 		{if 1}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.organization'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="top">
+				<label>
+					<input type="checkbox" name="actions[]" value="org">
+					{'common.organization'|devblocks_translate|capitalize}:
+				</label>
+			</td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="do_org" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="if-null" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container"></ul>
+				<div style="display:none;">
+					<button type="button" class="chooser-abstract" data-field-name="params[org]" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-query="" data-autocomplete="if-null" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+					<ul class="bubbles chooser-container"></ul>
+				</div>
 			</td>
 		</tr>
 		{/if}
 		
 		{if $active_worker->hasPriv('core.watchers.assign')}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">Add watchers:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="top">
+				<label>
+					<input type="checkbox" name="actions[]" value="watchers_add">
+					Add watchers:
+				</label>
+			</td>
 			<td width="100%">
-				<div>
-					<button type="button" class="chooser-abstract" data-field-name="do_watcher_add_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+				<div style="display:none;">
+					<button type="button" class="chooser-abstract" data-field-name="params[watchers_add][]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="bubbles chooser-container" style="display:block;"></ul>
 				</div>
 			</td>
@@ -120,10 +154,15 @@
 		
 		{if $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">Remove watchers:</td>
+			<td width="0%" nowrap="nowrap" align="left" valign="top">
+				<label>
+					<input type="checkbox" name="actions[]" value="watchers_remove">
+					Remove watchers:
+				</label>
+			</td>
 			<td width="100%">
-				<div>
-					<button type="button" class="chooser-abstract" data-field-name="do_watcher_remove_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+				<div style="display:none;">
+					<button type="button" class="chooser-abstract" data-field-name="params[watchers_remove][]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="bubbles chooser-container" style="display:block;"></ul>
 				</div>
 			</td>
@@ -173,6 +212,12 @@ $(function() {
 				
 				genericAjaxPopupClose($popup);
 			});
+		});
+		
+		// Checkboxes
+		
+		$popup.find('input:checkbox[name="actions[]"]').change(function() {
+			$(this).closest('td').next('td').find('> div').toggle();
 		});
 		
 		// Move to
