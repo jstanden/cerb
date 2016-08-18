@@ -998,7 +998,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$dir_htmlpurifier_cache = APP_TEMP_PATH . '/cache/htmlpurifier/';
 		
 		if(!is_dir($dir_htmlpurifier_cache)) {
-			mkdir($dir_htmlpurifier_cache, 0755);
+			mkdir($dir_htmlpurifier_cache, 0755, true);
 		}
 		
 		$config->set('Cache.SerializerPath', $dir_htmlpurifier_cache);
