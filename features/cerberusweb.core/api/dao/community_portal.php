@@ -23,6 +23,11 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	const CODE = 'code';
 	const EXTENSION_ID = 'extension_id';
 	
+	static function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::_CACHE_ALL);
+	}
+	
 	public static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -57,6 +62,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	
 	public static function update($id, $fields) {
 		self::_update($id, 'community_tool', $fields);
+		self::clearCache();
 	}
 	
 	/**
@@ -203,6 +209,8 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		$sql = "DELETE FROM community_tool_property WHERE tool_code NOT IN (SELECT code FROM community_tool)";
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
+		
+		self::clearCache();
 	}
 
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
