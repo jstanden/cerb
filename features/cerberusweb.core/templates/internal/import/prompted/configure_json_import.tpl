@@ -8,11 +8,11 @@
 <div style="margin-left:10px;margin-bottom:5px;">
 
 {if $import_field.type == 'S'}
-<input name="configure[{$import_seq}]" type="text">
+<input name="configure[{$import_seq}]" type="text" style="width:90%">
 {elseif $import_field.type == 'N'}
-<input name="configure[{$import_seq}]" type="text">
+<input name="configure[{$import_seq}]" type="text" style="width:90%">
 {elseif $import_field.type == 'E'}
-<input name="configure[{$import_seq}]" type="text">
+<input name="configure[{$import_seq}]" type="text" style="width:90%">
 {elseif $import_field.type == 'C'}
 <label><input name="configure[{$import_seq}]" type="radio" value="1"> {'common.yes'|devblocks_translate|capitalize}</label>
 <label><input name="configure[{$import_seq}]" type="radio" value="0"> {'common.no'|devblocks_translate|capitalize}</label>
