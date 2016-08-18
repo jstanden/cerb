@@ -2745,7 +2745,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		$cache = DevblocksPlatform::getCacheService();
 		
-		if(null !== ($cacher_extension_id = DevblocksPlatform::getPluginSetting('devblocks.core', 'cacher.extension_id', null))) {
+		if(false != ($cacher_extension_id = DevblocksPlatform::getPluginSetting('devblocks.core', 'cacher.extension_id', null))) {
 			$cacher_params = DevblocksPlatform::getPluginSetting('devblocks.core', 'cacher.params_json', array(), true);
 			$cache->setEngine($cacher_extension_id, $cacher_params);
 		}
