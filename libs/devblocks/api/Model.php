@@ -1417,8 +1417,6 @@ class DevblocksExtensionManifest {
 	var $class = '';
 	var $params = array();
 
-	function DevblocksExtensionManifest() {}
-	
 	/**
 	 * Creates and loads a usable extension from a manifest record.  The object returned
 	 * will be of type $class defined by the manifest.

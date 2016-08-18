@@ -16,7 +16,7 @@ class _DevblocksTemplateManager {
 	 *
 	 * @private
 	 */
-	private function _DevblocksTemplateManager() {}
+	private function __construct() {}
 	
 	/**
 	 * Returns an instance of the Smarty Template Engine

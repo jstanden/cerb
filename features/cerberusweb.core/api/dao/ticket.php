@@ -41,8 +41,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const ELAPSED_RESPONSE_FIRST = 'elapsed_response_first';
 	const ELAPSED_RESOLUTION_FIRST = 'elapsed_resolution_first';
 	
-	private function DAO_Ticket() {}
-	
 	/**
 	 * Enter description here...
 	 *
@@ -2301,8 +2299,6 @@ class Model_Ticket {
 	private $_group = null;
 	private $_bucket = null;
 
-	function Model_Ticket() {}
-	
 	function getStatusText() {
 		$translate = DevblocksPlatform::getTranslationService();
 		

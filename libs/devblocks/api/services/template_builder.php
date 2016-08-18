@@ -3,7 +3,7 @@ class _DevblocksTemplateBuilder {
 	private $_twig = null;
 	private $_errors = array();
 	
-	private function _DevblocksTemplateBuilder() {
+	private function __construct() {
 		$this->_twig = new Twig_Environment(new Twig_Loader_String(), array(
 			'cache' => false,
 			'debug' => false,

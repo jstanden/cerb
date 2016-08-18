@@ -705,8 +705,6 @@ class Model_Message {
 	private $_sender_object = null;
 	private $_headers_raw = null;
 
-	function Model_Message() {}
-
 	function getContent(&$fp=null) {
 		if(empty($this->storage_extension) || empty($this->storage_key))
 			return '';

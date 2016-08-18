@@ -12,7 +12,7 @@ class _DevblocksSessionManager {
 	/**
 	 * @private
 	 */
-	private function _DevblocksSessionManager() {}
+	private function __construct() {}
 	
 	/**
 	 * Returns an instance of the session manager

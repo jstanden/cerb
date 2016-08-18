@@ -19,7 +19,6 @@
  * Bayesian Anti-Spam DAO
  */
 class DAO_Bayes {
-	private function DAO_Bayes() {}
 	
 	/**
 	 * @return CerberusWord[]

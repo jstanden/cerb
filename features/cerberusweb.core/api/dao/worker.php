@@ -16,8 +16,6 @@
 ***********************************************************************/
 
 class DAO_Worker extends Cerb_ORMHelper {
-	private function DAO_Worker() {}
-	
 	const CACHE_ALL = 'ch_workers';
 	
 	const AT_MENTION_NAME = 'at_mention_name';
