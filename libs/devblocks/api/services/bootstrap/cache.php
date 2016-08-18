@@ -516,6 +516,7 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 			$ttl = 86400; // 1 day (any value is needed for LRU)
 
 		$this->_set($cache_key, $data, $ttl);
+		return true;
 	}
 	
 	function load($key) {
@@ -640,6 +641,7 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 			$ttl = 86400; // 1 day (any value is needed for LRU)
 			
 		$this->_driver->setex($cache_key, $ttl, serialize($data));
+		return true;
 	}
 	
 	function load($key) {

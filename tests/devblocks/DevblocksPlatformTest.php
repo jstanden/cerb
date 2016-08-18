@@ -875,25 +875,25 @@ END;
 		
 		// Convert unordered list
 		$html = '<ul><li>one</li><li>two</li><li>three</li></ul>';
-		$expected = "- one\n- two\n- three\n\n\n";
+		$expected = "- one\n\n- two\n\n- three\n\n\n";
 		$actual = DevblocksPlatform::stripHTML($html, true, false);
 		$this->assertEquals($expected, $actual);
 		
 		// Convert ordered list
 		$html = '<ol><li>one</li><li>two</li><li>three</li></ol>';
-		$expected = "1. one\n2. two\n3. three\n\n\n";
+		$expected = "1. one\n\n2. two\n\n3. three\n\n\n";
 		$actual = DevblocksPlatform::stripHTML($html, true, false);
 		$this->assertEquals($expected, $actual);
 		
 		// Convert nested lists
 		$html = '<ol><li><ul><li>red</li><li>green</li></ul></li><li><ul><li>blue</li><li>orange</li></ul></li><li><ul><li>yellow</li><li>purple</li></ul></li></ol>';
-		$expected = "- red\n- green\n\n- blue\n- orange\n\n- yellow\n- purple\n\n\n";
+		$expected = "1. - red\n\n- green\n\n2. - blue\n\n- orange\n\n3. - yellow\n\n- purple\n\n\n";
 		$actual = DevblocksPlatform::stripHTML($html, true, false);
 		$this->assertEquals($expected, $actual);
 		
 		// Convert nested lists
 		$html = '<ol><li>one<ul><li>red</li><li>green</li></ul></li><li>two<ul><li>blue</li><li>orange</li></ul></li><li>three<ul><li>yellow</li><li>purple</li></ul></li></ol>';
-		$expected = "1. one\n- red\n- green\n\n2. two\n- blue\n- orange\n\n3. three\n- yellow\n- purple\n\n\n";
+		$expected = "1. one\n- red\n\n- green\n\n2. two\n- blue\n\n- orange\n\n3. three\n- yellow\n\n- purple\n\n\n";
 		$actual = DevblocksPlatform::stripHTML($html, true, false);
 		$this->assertEquals($expected, $actual);
 		
