@@ -2233,7 +2233,10 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			if(null == ($ticket = DAO_Ticket::get($message->ticket_id)))
 				throw new Exception();
 			
-			return $worker->isGroupMember($ticket->group_id);
+			if(null == ($group = $ticket->getGroup()))
+				throw new Exception();
+			
+			return !$group->is_private || $worker->isGroupMember($ticket->group_id);
 				
 		} catch (Exception $e) {
 			// Fail
