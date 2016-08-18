@@ -1059,7 +1059,6 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Buckets';
 		$view->addParams(array(
-//			SearchFields_Bucket::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Bucket::IS_DISABLED,'=',0),
 		), true);
 		$view->renderSortBy = SearchFields_Bucket::NAME;
 		$view->renderSortAsc = true;
@@ -1083,8 +1082,8 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				//new DevblocksSearchCriteria(SearchFields_Bucket::CONTEXT_LINK,'=',$context),
-				//new DevblocksSearchCriteria(SearchFields_Bucket::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_Bucket::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_Bucket::CONTEXT_LINK_ID,'=',$context_id),
 			);
 		}
 		
