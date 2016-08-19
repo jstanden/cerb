@@ -929,7 +929,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					break;
 					
 				case 'move':
-					if(!isset($v['group_id']) || isset($v['bucket_id']))
+					if(!isset($v['group_id']) || !isset($v['bucket_id']))
 						break;
 						
 					$change_fields[DAO_Ticket::GROUP_ID] = intval($v['group_id']);
