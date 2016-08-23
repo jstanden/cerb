@@ -112,7 +112,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		self::$_changed_contexts[$context] = array_merge(self::$_changed_contexts[$context], $context_ids);
 	}
 
-	static function shutdownTriggerChangedContextsEvents() {
+	static function flushTriggerChangedContextsEvents() {
 		$eventMgr = DevblocksPlatform::getEventService();
 
 		if(is_array(self::$_changed_contexts))

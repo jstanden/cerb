@@ -74,7 +74,7 @@
 			{elseif $column=="s_title"}
 			<td data-column="{$column}" context="{$result.s_context}" id="{$result.s_id}" has_custom_placeholders="{if !empty($custom_placeholders)}true{else}false{/if}">
 				<input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;">
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&view_id={$view->id}&id={$result.s_id}', null, false, '550');" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&view_id={$view->id}&id={$result.s_id}', null, false, '50%');" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
 			</td>
 			{elseif $column=="s_context"}
 			<td data-column="{$column}">

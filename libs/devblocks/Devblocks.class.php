@@ -2756,10 +2756,10 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	static function shutdown() {
 		// Trigger changed context events
-		Extension_DevblocksContext::shutdownTriggerChangedContextsEvents();
+		Extension_DevblocksContext::flushTriggerChangedContextsEvents();
 		
 		if(class_exists('CerberusContexts'))
-			CerberusContexts::shutdown();
+			CerberusContexts::flush();
 		
 		// Clean up any temporary files
 		while(null != ($tmpfile = array_pop(self::$_tmp_files))) {

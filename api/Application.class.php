@@ -1974,7 +1974,7 @@ class CerberusContexts {
 		return $models;
 	}
 
-	static function shutdown() {
+	static function flush() {
 		if(empty(self::$_context_checkpoints))
 			return;
 
@@ -2003,6 +2003,7 @@ class CerberusContexts {
 			}
 		}
 
+		self::$_context_checkpoints = array();
 	}
 };
 
