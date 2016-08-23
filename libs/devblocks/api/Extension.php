@@ -92,6 +92,13 @@ interface IDevblocksContextAutocomplete {
 	function autocomplete($term);
 }
 
+class DevblocksPlaceholderMenuItem {
+	var $label = null;
+	var $key = null;
+	var $l = null;
+	var $children = array();
+}
+
 abstract class Extension_DevblocksContext extends DevblocksExtension {
 	static $_changed_contexts = array();
 
@@ -289,25 +296,23 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	}
 	
 	static function getPlaceholderTree($labels) {
-		$keys = array();
+		$keys = new DevblocksPlaceholderMenuItem();
 		
 		// Tokenize the placeholders
 		foreach($labels as $k => &$label) {
 			$label = trim($label);
 			
-			if('_label' == $k || '_label' == substr($k, -6)) {
-				$label = !empty($label) ? ($label.' (Record)') : '(Record)';
-			}
 			
 			$parts = explode(' ', $label);
 			
-			$ptr =& $keys;
+			$ptr =& $keys->children;
 			
 			while($part = array_shift($parts)) {
-				if(!isset($ptr[$part]))
-					$ptr[$part] = array();
+				if(!isset($ptr[$part])) {
+					$ptr[$part] = new DevblocksPlaceholderMenuItem();
+				}
 				
-				$ptr =& $ptr[''.$part];
+				$ptr =& $ptr[''.$part]->children;
 			}
 		}
 		
@@ -316,26 +321,20 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 			if(is_null($stack))
 				$stack = array();
 			
-			$len = count($node);
-			
 			if(!empty($node_key))
 				array_push($stack, ''.$node_key);
+
+			$label = implode(' ', $stack);
 			
-			switch($len) {
-				case 0:
-					$o = new stdClass();
-					$o->label = implode(' ', $stack);
-					$o->key = array_search($o->label, $labels);
-					$o->l = $node_key;
-					$node = $o;
-					break;
-					
-				default:
-					if(is_array($node))
-					foreach($node as $k => &$n) {
-						$forward_recurse($n, $k, $stack);
-					}
-					break;
+			if(false != ($key = array_search($label, $labels))) {
+				$node->label = $label;
+				$node->key = $key;
+				$node->l = $node_key;
+			}
+			
+			if(is_array($node->children))
+			foreach($node->children as $k => &$n) {
+				$forward_recurse($n, $k, $stack);
 			}
 			
 			array_pop($stack);
@@ -345,18 +344,18 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		
 		$condense = function(&$node, $key=null, &$parent=null) use (&$condense) {
 			// If this node has exactly one child
-			if(is_array($node) && 1 == count($node) && $parent) {
-				reset($node);
+			if(is_array($node->children) && 1 == count($node->children) && $parent) {
+				reset($node->children);
 				
 				// Replace the current node with its only child
-				$k = key($node);
-				$n = array_pop($node);
+				$k = key($node->children);
+				$n = array_pop($node->children);
 				if(is_object($n))
 					$n->l = $key . ' ' . $n->l;
 				
 				// Deconstruct our parent
-				$keys = array_keys($parent);
-				$vals = array_values($parent);
+				$keys = array_keys($parent->children);
+				$vals = array_values($parent->children);
 				
 				// Replace this node's key and value in the parent
 				$idx = array_search($key, $keys);
@@ -364,17 +363,17 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 				$vals[$idx] = $n;
 				
 				// Reconstruct the parent
-				$parent = array_combine($keys, $vals);
+				$parent->children = array_combine($keys, $vals);
 			}
 			
 			// If this node still has children, recurse into them
-			if(is_array($node))
-			foreach($node as $k => &$n)
+			if(is_array($node->children))
+			foreach($node->children as $k => &$n)
 				$condense($n, $k, $node);
 		};
 		$condense($keys);
 		
-		return $keys;
+		return $keys->children;
 	}
 
 	function authorize($context_id, Model_Worker $worker) {

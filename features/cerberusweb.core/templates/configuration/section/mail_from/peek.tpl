@@ -6,6 +6,27 @@
 <input type="hidden" name="id" value="{$address->address_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
+{$types = $values._types}
+{function tree level=0}
+	{foreach from=$keys item=data key=idx}
+		{$type = $types.{$data->key}}
+		{if is_array($data->children) && !empty($data->children)}
+			<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
+				{if $data->key}
+					<div style="font-weight:bold;">{$data->l|capitalize}</div>
+				{else}
+					<div>{$idx|capitalize}</div>
+				{/if}
+				<ul>
+					{tree keys=$data->children level=$level+1}
+				</ul>
+			</li>
+		{elseif $data->key}
+			<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+		{/if}
+	{/foreach}
+{/function}
+
 <fieldset class="peek">
 	<legend>Send worker replies as:</legend>
 	
@@ -31,23 +52,6 @@
 			<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divFromTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
 			<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 			
-			{$types = $values._types}
-			{function tree level=0}
-				{foreach from=$keys item=data key=idx}
-					{if is_array($data)}
-						<li>
-							<div>{$idx|capitalize}</div>
-							<ul>
-								{tree keys=$data level=$level+1}
-							</ul>
-						</li>
-					{else}
-						{$type = $types.{$data->key}}
-						<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
-					{/if}
-				{/foreach}
-			{/function}
-			
 			<ul class="menu" style="width:150px;">
 			{tree keys=$placeholders}
 			</ul>
@@ -66,23 +70,6 @@
 	<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id=0',function(txt) { $('#frmAddyOutgoingPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
-	
-	{$types = $values._types}
-	{function tree level=0}
-		{foreach from=$keys item=data key=idx}
-			{if is_array($data)}
-				<li>
-					<div>{$idx|capitalize}</div>
-					<ul>
-						{tree keys=$data level=$level+1}
-					</ul>
-				</li>
-			{else}
-				{$type = $types.{$data->key}}
-				<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
-			{/if}
-		{/foreach}
-	{/function}
 	
 	<ul class="menu" style="width:150px;">
 	{tree keys=$placeholders}

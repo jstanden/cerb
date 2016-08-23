@@ -63,15 +63,19 @@
 	{$types = $values._types}
 	{function tree level=0}
 		{foreach from=$keys item=data key=idx}
-			{if is_array($data)}
-				<li>
-					<div>{$idx|capitalize}</div>
+			{$type = $types.{$data->key}}
+			{if is_array($data->children) && !empty($data->children)}
+				<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
+					{if $data->key}
+						<div style="font-weight:bold;">{$data->l|capitalize}</div>
+					{else}
+						<div>{$idx|capitalize}</div>
+					{/if}
 					<ul>
-						{tree keys=$data level=$level+1}
+						{tree keys=$data->children level=$level+1}
 					</ul>
 				</li>
-			{else}
-				{$type = $types.{$data->key}}
+			{elseif $data->key}
 				<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
 			{/if}
 		{/foreach}

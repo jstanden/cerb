@@ -25,14 +25,18 @@
 				
 				{function tree level=0}
 					{foreach from=$keys item=data key=idx}
-						{if is_array($data)}
-							<li>
-								<div>{$idx|capitalize}</div>
+						{if is_array($data->children) && !empty($data->children)}
+							<li {if $data->key}data-token="{$data->key}" data-label="{$data->label}"{/if}>
+								{if $data->key}
+									<div style="font-weight:bold;">{$data->l|capitalize}</div>
+								{else}
+									<div>{$idx|capitalize}</div>
+								{/if}
 								<ul>
-									{tree keys=$data level=$level+1}
+									{tree keys=$data->children level=$level+1}
 								</ul>
 							</li>
-						{else}
+						{elseif $data->key}
 							<li data-token="{$data->key}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
 						{/if}
 					{/foreach}

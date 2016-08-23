@@ -1,5 +1,26 @@
 {$form_id = "frmBucketPeek{uniqid()}"}
 
+{$types = $values._types}
+{function tree level=0}
+	{foreach from=$keys item=data key=idx}
+		{$type = $types.{$data->key}}
+		{if is_array($data->children) && !empty($data->children)}
+			<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
+				{if $data->key}
+					<div style="font-weight:bold;">{$data->l|capitalize}</div>
+				{else}
+					<div>{$idx|capitalize}</div>
+				{/if}
+				<ul>
+					{tree keys=$data->children level=$level+1}
+				</ul>
+			</li>
+		{elseif $data->key}
+			<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+		{/if}
+	{/foreach}
+{/function}
+
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
@@ -64,23 +85,6 @@
 			<button type="button" onclick="genericAjaxPost('{$form_id}','{$bucket_from_tester_id}','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_personal');">{'common.test'|devblocks_translate|capitalize}</button>
 			<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 			
-			{$types = $values._types}
-			{function tree level=0}
-				{foreach from=$keys item=data key=idx}
-					{if is_array($data)}
-						<li>
-							<div>{$idx|capitalize}</div>
-							<ul>
-								{tree keys=$data level=$level+1}
-							</ul>
-						</li>
-					{else}
-						{$type = $types.{$data->key}}
-						<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
-					{/if}
-				{/foreach}
-			{/function}
-			
 			<ul class="menu" style="width:150px;">
 			{tree keys=$placeholders}
 			</ul>
@@ -98,23 +102,6 @@
 		<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
 		<button type="button" onclick="genericAjaxPost('{$form_id}','{$bucket_sig_tester_id}','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
 		<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
-		
-		{$types = $values._types}
-		{function tree level=0}
-			{foreach from=$keys item=data key=idx}
-				{if is_array($data)}
-					<li>
-						<div>{$idx|capitalize}</div>
-						<ul>
-							{tree keys=$data level=$level+1}
-						</ul>
-					</li>
-				{else}
-					{$type = $types.{$data->key}}
-					<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
-				{/if}
-			{/foreach}
-		{/function}
 		
 		<ul class="menu" style="width:150px;">
 		{tree keys=$placeholders}
