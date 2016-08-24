@@ -2018,7 +2018,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
-			case '_placeholder_number':
+			case SearchFields_Message::TICKET_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -2148,6 +2148,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::TICKET_MASK:
 			case SearchFields_Message::TICKET_SUBJECT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
+				break;
+				
+			case SearchFields_Message::TICKET_ID:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
 			case SearchFields_Message::RESPONSE_TIME:
