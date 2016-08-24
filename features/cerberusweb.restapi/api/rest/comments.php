@@ -203,9 +203,9 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 		);
 
 		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_POST['context'], 'integer', 0);
-		@$owner_context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
-		@$owner_context_id = DevblocksPlatform::importGPC($_POST['context'], 'integer', 0);
+		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
+		@$owner_context = DevblocksPlatform::importGPC($_POST['owner_context'], 'string', '');
+		@$owner_context_id = DevblocksPlatform::importGPC($_POST['owner_context_id'], 'integer', 0);
 		@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_id'], 'array', array()), 'int');
 
 		$fields = array();
