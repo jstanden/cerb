@@ -1832,6 +1832,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const VIRTUAL_PARTICIPANT_ID = '*_participant_id';
 	const VIRTUAL_STATUS = '*_status';
 	const VIRTUAL_WATCHERS = '*_workers';
+	const VIRTUAL_WORKER_REPLIED = '*_worker_replied';
 	
 	const VIRTUAL_RECOMMENDATIONS = '*_recommendations';
 	
@@ -2151,6 +2152,16 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
+				
+			case self::VIRTUAL_WORKER_REPLIED:
+				$ids = is_array($param->value) ? $param->value : array($param->value);
+				$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
+				
+				return sprintf("%s IN (SELECT DISTINCT ticket_id FROM message WHERE ticket_id = %s AND worker_id IN (%s))",
+					self::getPrimaryKey(),
+					self::getPrimaryKey(),
+					implode(',', $ids)
+				);
 				break;
 				
 			default:
@@ -2237,6 +2248,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS, '*', 'recommendations', $translate->_('common.recommended'), null, false),
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('common.status'), null, false),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
+			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, '*', 'worker_replied', null, null, false),
 				
 			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT => new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'), 'FT', false),
@@ -2496,6 +2508,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS,
 			SearchFields_Ticket::TICKET_STATUS_ID,
 			SearchFields_Ticket::VIRTUAL_WATCHERS,
+			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED,
 		));
 		
 		$this->addParamsHidden(array(
@@ -2507,6 +2520,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_CONTACT_ID,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
+			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED,
 		));
 		
 		$this->doResetCriteria();
@@ -3084,6 +3098,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_WATCHERS),
 				),
+			'worker.replied' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_WORKER_REPLIED),
+				),
 		);
 		
 		// Add searchable custom fields
@@ -3403,6 +3422,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_Ticket::VIRTUAL_WATCHERS, $tokens);
 				break;
+				
+			case 'worker.replied':
+				$search_fields = SearchFields_Ticket::getFields();
+				return DevblocksSearchCriteria::getWorkerParamFromTokens(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, $tokens, $search_fields[SearchFields_Ticket::VIRTUAL_WORKER_REPLIED]);
+				break;
 		}
 		
 		$search_fields = $this->getQuickSearchFields();
@@ -3596,6 +3620,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
+			case SearchFields_Ticket::VIRTUAL_WORKER_REPLIED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
@@ -3686,6 +3711,29 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_WORKER_REPLIED:
+				$strings_or = array();
+				$workers = DAO_Worker::getAll();
+				
+				if(is_array($param->value)) {
+					foreach($param->value as $param_value) {
+						if(isset($workers[$param_value]))
+						$strings_or[] = sprintf("<b>%s</b>",
+							DevblocksPlatform::strEscapeHtml($workers[$param_value]->getName())
+						);
+					}
+				} else {
+					if(isset($workers[$param->value]))
+					$strings_or[] = sprintf("<b>%s</b>",
+						DevblocksPlatform::strEscapeHtml($workers[$param->value]->getName())
+					);
+				}
+				
+				echo sprintf("Reply by %s",
+					implode(' or ', $strings_or)
+				);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
@@ -4044,6 +4092,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
+			case SearchFields_Ticket::VIRTUAL_WORKER_REPLIED:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field, $oper, $worker_ids);
 				break;
