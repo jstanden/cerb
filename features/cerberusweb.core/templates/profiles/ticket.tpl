@@ -22,11 +22,11 @@
 
 <div style="clear:both;"></div>
 
-{assign var=ticket_group_id value=$ticket->group_id}
-{assign var=ticket_group value=$groups.$ticket_group_id}
-{assign var=ticket_bucket_id value=$ticket->bucket_id}
-{assign var=ticket_group_bucket_set value=$group_buckets.$ticket_group_id}
-{assign var=ticket_bucket value=$ticket_group_bucket_set.$ticket_bucket_id}
+{$ticket_group_id = $ticket->group_id}
+{$ticket_group = $groups.$ticket_group_id}
+{$ticket_bucket_id = $ticket->bucket_id}
+{$ticket_group_bucket_set = $group_buckets.$ticket_group_id}
+{$ticket_bucket = $ticket_group_bucket_set.$ticket_bucket_id}
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-top:5px;margin-bottom:5px;">

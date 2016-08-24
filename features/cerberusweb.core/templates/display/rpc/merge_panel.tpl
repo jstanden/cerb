@@ -4,8 +4,10 @@
 <input type="hidden" name="src_ticket_id" value="{$ticket_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<b>Merge with tickets:</b><br>
-<button type="button" class="chooser_ticket"><span class="glyphicons glyphicons-search"></span></button>
+<b>Merge with tickets:</b>
+
+<button type="button" class="chooser-abstract" data-field-name="dst_ticket_id[]" data-context="{CerberusContexts::CONTEXT_TICKET}" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+<ul class="bubbles chooser-container" style="display:block;"></ul>
 <br>
 <br>
 
@@ -22,9 +24,7 @@ $(function() {
 		$popup.dialog('option', 'resizable', false);
 		$popup.dialog('option', 'minHeight', 50);
 		
-		$('#frmDisplayMerge button.chooser_ticket').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.ticket','dst_ticket_id', { autocomplete: true} );
-		});
+		$popup.find('.chooser-abstract').cerbChooserTrigger();
 		
 		$popup.find('input:text:first').focus();
 	});
