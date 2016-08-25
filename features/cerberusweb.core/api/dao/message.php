@@ -2492,6 +2492,32 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				$values['headers'] = $headers;
 				break;
 				
+			case 'attachments':
+				$results = DAO_AttachmentLink::getLinksAndAttachments($context, $context_id);
+				$links = array();
+				
+				if(isset($results['links']) && is_array($results['links']))
+				foreach($results['links'] as $link) {
+					$attachment_id = $link->attachment_id;
+					@$attachment = $results['attachments'][$attachment_id];
+					
+					if(!$attachment_id || !$attachment)
+						continue;
+					
+					$object = array(
+						'id' => $attachment_id,
+						'guid' => $link->guid,
+						'file_name' => $attachment->display_name,
+						'file_size' => $attachment->storage_size,
+						'file_type' => $attachment->mime_type,
+						'file_hash' => $attachment->storage_sha1hash,
+					);
+					$links[] = $object;
+				}
+				
+				$values['attachments'] = $links;
+				break;
+				
 			default:
 				if(substr($token,0,7) == 'custom_') {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
