@@ -1530,9 +1530,11 @@ class DevblocksEventHelper {
 		
 		// Placeholder
 		
-		$out .= sprintf(">>> Save links to placeholder named:\n  {{%s}}\n",
-			$var
-		);
+		if(!empty($var)) {
+			$out .= sprintf(">>> Save links to placeholder named:\n  {{%s}}\n",
+				$var
+			);
+		}
 		
 		// Save to variable
 		
