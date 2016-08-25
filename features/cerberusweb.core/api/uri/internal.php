@@ -2305,7 +2305,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('view', $view);
 
 		$context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true);
-		$tpl->assign('tokens', $context_ext->getDefaultProperties());
+		$tpl->assign('tokens', $context_ext->getCardProperties());
 		
 		$labels = array();
 		$values = array();
