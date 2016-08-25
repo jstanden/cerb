@@ -1257,6 +1257,32 @@ class Context_Comment extends Extension_DevblocksContext {
 		}
 		
 		switch($token) {
+			case 'attachments':
+				$results = DAO_AttachmentLink::getLinksAndAttachments($context, $context_id);
+				$links = array();
+				
+				if(isset($results['links']) && is_array($results['links']))
+				foreach($results['links'] as $link) {
+					$attachment_id = $link->attachment_id;
+					@$attachment = $results['attachments'][$attachment_id];
+					
+					if(!$attachment_id || !$attachment)
+						continue;
+					
+					$object = array(
+						'id' => $attachment_id,
+						'guid' => $link->guid,
+						'file_name' => $attachment->display_name,
+						'file_size' => $attachment->storage_size,
+						'file_type' => $attachment->mime_type,
+						'file_hash' => $attachment->storage_sha1hash,
+					);
+					$links[] = $object;
+				}
+				
+				$values['attachments'] = $links;
+				break;
+			
 			case 'record_type':
 				$context_ext = $dictionary['context'];
 				
