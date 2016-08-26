@@ -950,18 +950,19 @@ class CerberusContexts {
 			default:
 				// Migrated
 
-				if(null != ($ctx = Extension_DevblocksContext::get($context))) {
+				if(false != ($ctx = Extension_DevblocksContext::get($context))) {
 					// If blank, check the cache for a prebuilt context object
 					if(is_null($context_object)) {
 						$cache = DevblocksPlatform::getCacheService();
 
-						$hash = md5(serialize(array($context, $prefix, $nested)));
+						$hash = md5(json_encode(array($context, $prefix, $nested)));
 						$cache_key = sprintf("cerb:ctx:%s", $hash);
 
 						// Cache hit
 						if(null !== ($data = $cache->load($cache_key, false, true))) {
 							$loaded_labels = $data['labels'];
 							$loaded_values = $data['values'];
+							unset($data);
 
 						// Cache miss
 						} else {
@@ -989,7 +990,7 @@ class CerberusContexts {
 							if(is_numeric($hash_context_id))
 								$hash_context_id = intval($hash_context_id);
 
-							$hash = md5(serialize(array($context, $hash_context_id, $prefix, $nested)));
+							$hash = md5(json_encode(array($context, $hash_context_id, $prefix, $nested)));
 
 							if(isset(self::$_cache_loads[$hash])) {
 								$values = self::$_cache_loads[$hash];

@@ -10,5 +10,5 @@
 <br>
 
 {foreach from=$condition.options item=opt}
-<label><input type="checkbox" name="{$namePrefix}[values][]" value="{$opt}" {if in_array($opt,$params.values)}checked="checked"{/if}> {$opt}</label><br>
+<label><input type="checkbox" name="{$namePrefix}[values][]" value="{$opt}" {if is_array($params.values) && in_array($opt,$params.values)}checked="checked"{/if}> {$opt}</label><br>
 {/foreach}

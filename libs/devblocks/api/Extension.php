@@ -92,7 +92,7 @@ interface IDevblocksContextAutocomplete {
 	function autocomplete($term);
 }
 
-class DevblocksPlaceholderMenuItem {
+class DevblocksMenuItemPlaceholder {
 	var $label = null;
 	var $key = null;
 	var $l = null;
@@ -288,7 +288,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 
 		if(!isset($contexts[$context])) {
 			if(null == ($ext = DevblocksPlatform::getExtension($context, true)))
-				return;
+				return null;
 
 			$contexts[$context] = $ext;
 			return $ext;
@@ -296,7 +296,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	}
 	
 	static function getPlaceholderTree($labels) {
-		$keys = new DevblocksPlaceholderMenuItem();
+		$keys = new DevblocksMenuItemPlaceholder();
 		
 		// Tokenize the placeholders
 		foreach($labels as $k => &$label) {
@@ -309,7 +309,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 			
 			while($part = array_shift($parts)) {
 				if(!isset($ptr[$part])) {
-					$ptr[$part] = new DevblocksPlaceholderMenuItem();
+					$ptr[$part] = new DevblocksMenuItemPlaceholder();
 				}
 				
 				$ptr =& $ptr[''.$part]->children;
