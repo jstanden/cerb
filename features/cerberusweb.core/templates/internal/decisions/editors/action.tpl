@@ -362,8 +362,6 @@ $(function() {
 						})
 						;
 					
-					$act_menu.find('input:text:first').focus().select();
-		
 					$frm.find('input[name=seq]').val(1+seq);
 				});
 				

@@ -330,8 +330,6 @@ $(function() {
 						$(this).removeClass('unbound');
 					});
 					
-					$menu.find('input:text:first').focus().select();
-	
 					// [TODO] This can take too long to increment when packets are arriving quickly
 					$frmDecAdd.find('input[name=seq]').val(1+seq);
 				});
