@@ -955,7 +955,11 @@ class CerberusContexts {
 					if(is_null($context_object)) {
 						$cache = DevblocksPlatform::getCacheService();
 
-						$hash = md5(json_encode(array($context, $prefix, $nested)));
+						$stack = CerberusContexts::getStack();
+						array_pop($stack);
+						
+						// Hash with the parent we're loading from
+						$hash = md5(json_encode(array($context, end($stack), $prefix)));
 						$cache_key = sprintf("cerb:ctx:%s", $hash);
 
 						// Cache hit
@@ -968,7 +972,7 @@ class CerberusContexts {
 						} else {
 							$loaded_labels = array();
 							$loaded_values = array();
-							$ctx->getContext($context_object, $loaded_labels, $loaded_values, $prefix);
+							$ctx->getContext(null, $loaded_labels, $loaded_values, $prefix);
 
 							$cache->save(array('labels' => $loaded_labels, 'values' => $loaded_values), $cache_key, array(), 0, true);
 						}
