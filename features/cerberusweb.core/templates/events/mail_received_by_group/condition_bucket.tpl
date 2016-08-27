@@ -5,5 +5,5 @@
 <br>
 
 {foreach from=$buckets item=bucket key=bucket_id}
-<label><input type="checkbox" name="{$namePrefix}[bucket_ids][]" value="{$bucket_id}" {if in_array($bucket_id,$params.bucket_ids)}checked="checked"{/if}> {$bucket->name}</label><br>
+<label><input type="checkbox" name="{$namePrefix}[bucket_ids][]" value="{$bucket_id}" {if is_array($params.bucket_ids) && in_array($bucket_id, $params.bucket_ids)}checked="checked"{/if}> {$bucket->name}</label><br>
 {/foreach}

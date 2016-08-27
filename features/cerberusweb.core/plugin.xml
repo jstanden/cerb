@@ -2401,7 +2401,7 @@
 				<name>VaAction_HttpRequest</name>
 			</class>
 			<params>
-				<param key="label" value="Execute an HTTP request" />
+				<param key="label" value="Execute HTTP request" />
 				<param key="events">
 					<value>
 						<data key="*" />

@@ -5,6 +5,6 @@
 <br>
 
 {foreach from=$groups item=group key=group_id}
-	<label><input type="checkbox" name="{$namePrefix}[group_id][]" value="{$group_id}" {if in_array($group_id,$params.group_id)}checked="checked"{/if}> {$group->name}</label><br>
+	<label><input type="checkbox" name="{$namePrefix}[group_id][]" value="{$group_id}" {if is_array($params.group_id) && in_array($group_id, $params.group_id)}checked="checked"{/if}> {$group->name}</label><br>
 {/foreach}
 

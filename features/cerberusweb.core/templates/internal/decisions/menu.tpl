@@ -5,9 +5,9 @@
 		<li><a href="javascript:;" onclick="genericAjaxPopup('export_behavior','c=internal&a=showBehaviorExportPopup&trigger_id={$trigger_id}',null,false,'50%');">Export Behavior</a></li>
 		<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionReorderPopup&trigger_id={$trigger_id}',null,false,'50%');">Reorder</a></li>
 	{else}
-		<li><a href="javascript:;" onclick="genericAjaxPopup('node_{$node->node_type}{$node->id}','c=internal&a=showDecisionPopup&id={$node->id}',null,false,'50%');">Edit</a></li>
+		<li><a href="javascript:;" onclick="genericAjaxPopup('node_{$node->node_type}{$node->id}','c=internal&a=showDecisionPopup&id={$node->id}',null,false,'50%');">{'common.edit'|devblocks_translate|capitalize}</a></li>
 		{if $node->node_type != 'action'}<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionReorderPopup&id={$node->id}',null,false,'50%');">Reorder</a></li>{/if}
-		{*<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionMovePopup&id={$node->id}',null,true,'50%');">Move</a></li>*}
+		{*<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showDecisionMovePopup&id={$node->id}',null,true,'50%');">{'common.move'|devblocks_translate|capitalize}</a></li>*}
 	{/if}
 
 	{if $node->node_type != 'action'}

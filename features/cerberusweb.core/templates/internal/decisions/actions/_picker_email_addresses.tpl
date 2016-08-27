@@ -10,7 +10,7 @@
 {capture name=vars_addy}
 {foreach from=$trigger->variables item=var key=var_key}
 {if $var.type == "ctx_{CerberusContexts::CONTEXT_ADDRESS}"}
-<li><label><input type="checkbox" name="{$namePrefix}[from_vars][]" value="{$var_key}" {if in_array($var_key, $params.from_vars)}checked="checked"{/if}> {$var.label}</label></li>
+<li><label><input type="checkbox" name="{$namePrefix}[from_vars][]" value="{$var_key}" {if is_array($params.from_vars) && in_array($var_key, $params.from_vars)}checked="checked"{/if}> {$var.label}</label></li>
 {/if}
 {/foreach}
 {/capture}

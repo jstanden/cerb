@@ -20,7 +20,7 @@
 	
 	<div class="buckets">
 		{foreach from=$buckets_by_group.{$selected_group_id} item=bucket key=bucket_id}
-		<label><input type="checkbox" name="{$namePrefix}[bucket_id][]" value="{$bucket_id}" {if in_array($bucket_id,$params.bucket_id)}checked="checked"{/if}> {$bucket->name}</label><br>
+		<label><input type="checkbox" name="{$namePrefix}[bucket_id][]" value="{$bucket_id}" {if is_array($params.bucket_id) && in_array($bucket_id, $params.bucket_id)}checked="checked"{/if}> {$bucket->name}</label><br>
 		{/foreach}
 	</div>
 </div>
