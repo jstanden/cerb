@@ -3550,8 +3550,20 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'action':
-				if(null != ($evt = $trigger->getEvent()))
-					$tpl->assign('actions', $evt->getActions($trigger));
+				if(null != ($evt = $trigger->getEvent())) {
+					$actions = $evt->getActions($trigger);
+					$tpl->assign('actions', $actions);
+					
+					// [TODO] Cache this
+					$map = array();
+					array_walk($actions, function($v, $k) use (&$map) {
+						if(is_array($v) && isset($v['label']))
+							$map[$k] = $v['label'];
+					});
+					
+					$actions_menu = Extension_DevblocksContext::getPlaceholderTree($map);
+					$tpl->assign('actions_menu', $actions_menu);
+				}
 					
 				// Workers
 				$tpl->assign('workers', DAO_Worker::getAll());

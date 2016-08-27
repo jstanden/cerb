@@ -217,6 +217,11 @@
 				<seg>Access denied.</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.action">
+			<tuv xml:lang="en_US">
+				<seg>Action</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.actions">
 			<tuv xml:lang="en_US">
 				<seg>Actions</seg>

@@ -83,18 +83,33 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
-	<legend>Add Action</legend>
+	<legend>{'common.actions'|devblocks_translate|capitalize}</legend>
 
-	<button type="button" class="action cerb-popupmenu-trigger">Add Action &#x25be;</button>
+	<button type="button" class="action cerb-popupmenu-trigger">{'common.action'|devblocks_translate|capitalize} &#x25be;</button>
 
-	<ul class="cerb-popupmenu" style="border:0;">
-		<li style="background:none;">
-			<input type="text" size="16" class="input_search filter">
-		</li>
-		{foreach from=$actions item=action key=token}
-		<li><a href="javascript:;" token="{$token}">{$action.label}</a></li>
+	{function menu level=0}
+		{foreach from=$keys item=data key=idx}
+			{if is_array($data->children) && !empty($data->children)}
+				<li {if $data->key}data-token="{$data->key}" data-label="{$data->label}"{/if}>
+					{if $data->key}
+						<div style="font-weight:bold;">{$data->l|capitalize}</div>
+					{else}
+						<div>{$idx|capitalize}</div>
+					{/if}
+					<ul>
+						{menu keys=$data->children level=$level+1}
+					</ul>
+				</li>
+			{elseif $data->key}
+				<li data-token="{$data->key}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+			{/if}
 		{/foreach}
+	{/function}
+	
+	<ul class="actions-menu" style="width:150px;display:none;">
+	{menu keys=$actions_menu}
 	</ul>
+
 </fieldset>
 </form>
 
@@ -279,112 +294,80 @@ $(function() {
 		// Action menu
 		
 		var $frm = $('#frmDecisionActionAdd{$id}');
-		var $act_menu_trigger = $frm.find('button.action.cerb-popupmenu-trigger');
-		var $act_menu = $frm.find('ul.cerb-popupmenu');
-		$act_menu_trigger.data('menu', $act_menu);
-		
-		$act_menu_trigger
-			.click(
-				function(e) {
-					$act_menu = $(this).data('menu');
-					
-					if($act_menu.is(':visible')) {
-						$act_menu.hide();
-						return;
-					}
-					
-					$act_menu
-						.show()
-						.find('> li input:text')
-						.focus()
-						.select()
-						;
-				}
-			);
+		var $actions_menu_trigger = $frm.find('button.action.cerb-popupmenu-trigger');
+		var $actions_menu = $frm.find('ul.actions-menu');
 
-		$act_menu.find('> li > input.filter').keyup(
-			function(e) {
-				var term = $(this).val().toLowerCase();
-				$act_menu = $(this).closest('ul.cerb-popupmenu');
-				$act_menu.find('> li a').each(function(e) {
-					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
-						$(this).parent().show();
-					} else {
-						$(this).parent().hide();
-					}
-				});
-			}
-		);
-	
-		$act_menu.find('> li').click(function(e) {
-			e.stopPropagation();
-			if(!$(e.target).is('li'))
-				return;
-	
-			$(this).find('a').trigger('click');
+		$actions_menu_trigger.click(function() {
+			$actions_menu.toggle();
 		});
-	
-		$act_menu.find('> li > a').click(function() {
-			var token = $(this).attr('token');
-			var $frmDecAdd = $('#frmDecisionActionAdd{$id}');
-			$frmDecAdd.find('input[name=action]').val(token);
-			var $this = $(this);
-			
-			genericAjaxPost('frmDecisionActionAdd{$id}','','c=internal&a=doDecisionAddAction',function(html) {
-				var $ul = $('#frmDecisionAction{$id}Action DIV.actions');
+		
+		$actions_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
 				
-				var seq = parseInt($frmDecAdd.find('input[name=seq]').val());
-				if(null == seq)
-					seq = 0;
-	
-				var $container = $('<fieldset/>').attr('id','action' + seq);
-				$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a> ' + $this.text() + '</legend>');
-				$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
-				$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
-				$ul.append($container);
-	
-				var $html = $('<div/>').html(html);
-				$container.append($html);
+				if(undefined == token || undefined == label)
+					return;
 				
-				$html.find('BUTTON.chooser_group.unbound').each(function() {
-					ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
-					$(this).removeClass('unbound');
+				$frm.find('input[name=action]').val(token);
+				
+				genericAjaxPost('frmDecisionActionAdd{$id}','','c=internal&a=doDecisionAddAction',function(html) {
+					var $ul = $('#frmDecisionAction{$id}Action DIV.actions');
+					
+					var seq = parseInt($frm.find('input[name=seq]').val());
+					if(null == seq)
+						seq = 0;
+		
+					var $container = $('<fieldset/>').attr('id','action' + seq);
+					$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a> ' + label + '</legend>');
+					$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
+					$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
+					$ul.append($container);
+		
+					var $html = $('<div/>').html(html);
+					$container.append($html);
+					
+					$html.find('BUTTON.chooser_group.unbound').each(function() {
+						ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
+						$(this).removeClass('unbound');
+					});
+					
+					$html.find('BUTTON.chooser_worker.unbound').each(function() {
+						ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
+						$(this).removeClass('unbound');
+					});
+					$html.find('BUTTON.chooser_notify_workers.unbound').each(function() {
+						ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
+						$(this).removeClass('unbound');
+					});
+					
+					$html.find(':text.placeholders, textarea.placeholders')
+						.atwho({
+							{literal}at: '{%',{/literal}
+							limit: 20,
+							{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+							{literal}insertTpl: '${name}',{/literal}
+							data: atwho_twig_commands,
+							suffix: ''
+						})
+						.atwho({
+							{literal}at: '|',{/literal}
+							limit: 20,
+							startWithSpace: false,
+							searchKey: "content",
+							{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
+							{literal}insertTpl: '|${name}',{/literal}
+							data: atwho_twig_modifiers,
+							suffix: ''
+						})
+						;
+					
+					$act_menu.find('input:text:first').focus().select();
+		
+					$frm.find('input[name=seq]').val(1+seq);
 				});
 				
-				$html.find('BUTTON.chooser_worker.unbound').each(function() {
-					ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
-					$(this).removeClass('unbound');
-				});
-				$html.find('BUTTON.chooser_notify_workers.unbound').each(function() {
-					ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
-					$(this).removeClass('unbound');
-				});
-				
-				$html.find(':text.placeholders, textarea.placeholders')
-					.atwho({
-						{literal}at: '{%',{/literal}
-						limit: 20,
-						{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
-						{literal}insertTpl: '${name}',{/literal}
-						data: atwho_twig_commands,
-						suffix: ''
-					})
-					.atwho({
-						{literal}at: '|',{/literal}
-						limit: 20,
-						startWithSpace: false,
-						searchKey: "content",
-						{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
-						{literal}insertTpl: '|${name}',{/literal}
-						data: atwho_twig_modifiers,
-						suffix: ''
-					})
-					;
-				
-				$act_menu.find('input:text:first').focus().select();
-	
-				$frmDecAdd.find('input[name=seq]').val(1+seq);
-			});
+			}
 		});
 		
 	}); // popup_open
