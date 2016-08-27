@@ -407,6 +407,16 @@
 				<seg>comments</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.condition">
+			<tuv xml:lang="en_US">
+				<seg>condition</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.conditions">
+			<tuv xml:lang="en_US">
+				<seg>conditions</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.contact">
 			<tuv xml:lang="en_US">
 				<seg>contact</seg>

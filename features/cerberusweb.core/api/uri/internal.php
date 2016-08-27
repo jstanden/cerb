@@ -3521,8 +3521,20 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'outcome':
-				if(null != ($evt = $trigger->getEvent()))
-					$tpl->assign('conditions', $evt->getConditions($trigger));
+				if(null != ($evt = $trigger->getEvent())) {
+					$conditions = $evt->getConditions($trigger);
+					$tpl->assign('conditions', $conditions);
+					
+					// [TODO] Cache this
+					$map = array();
+					array_walk($conditions, function($v, $k) use (&$map) {
+						if(is_array($v) && isset($v['label']))
+							$map[$k] = $v['label'];
+					});
+					
+					$conditions_menu = Extension_DevblocksContext::getPlaceholderTree($map);
+					$tpl->assign('conditions_menu', $conditions_menu);
+				}
 				
 				// Action labels
 				$labels = $evt->getLabels($trigger);

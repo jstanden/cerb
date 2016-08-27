@@ -95,18 +95,34 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
-	<legend>Add Condition</legend>
+	<legend>{'common.conditions'|devblocks_translate|capitalize}</legend>
 
-	<button type="button" class="condition cerb-popupmenu-trigger">Add Condition &#x25be;</button>
+	<button type="button" class="condition cerb-popupmenu-trigger">{'common.condition'|devblocks_translate|capitalize} &#x25be;</button>
 	<button type="button" class="group">Add Group</button>
-	<ul class="cerb-popupmenu" style="border:0;">
-		<li style="background:none;">
-			<input type="text" size="16" class="input_search filter">
-		</li>
-		{foreach from=$conditions key=token item=condition}
-		<li><a href="javascript:;" token="{$token}">{$condition.label}</a></li>
+	
+	{function menu level=0}
+		{foreach from=$keys item=data key=idx}
+			{if is_array($data->children) && !empty($data->children)}
+				<li {if $data->key}data-token="{$data->key}" data-label="{$data->label}"{/if}>
+					{if $data->key}
+						<div style="font-weight:bold;">{$data->l|capitalize}</div>
+					{else}
+						<div>{$idx|capitalize}</div>
+					{/if}
+					<ul>
+						{menu keys=$data->children level=$level+1}
+					</ul>
+				</li>
+			{elseif $data->key}
+				<li data-token="{$data->key}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+			{/if}
 		{/foreach}
+	{/function}
+	
+	<ul class="conditions-menu" style="width:150px;display:none;">
+	{menu keys=$conditions_menu}
 	</ul>
+	
 </fieldset>
 </form>
 
@@ -270,88 +286,57 @@ $(function() {
 		
 		// Quick insert condition menu
 
-		var $menu_trigger = $frmAdd.find('button.condition.cerb-popupmenu-trigger');
-		var $menu = $frmAdd.find('ul.cerb-popupmenu');
-		$menu_trigger.data('menu', $menu);
+		var $conditions_menu_trigger = $frmAdd.find('button.condition.cerb-popupmenu-trigger');
+		var $conditions_menu = $frmAdd.find('ul.conditions-menu');
 
-		$menu_trigger
-			.click(
-				function(e) {
-					var $menu = $(this).data('menu');
-
-					if($menu.is(':visible')) {
-						$menu.hide();
-						return;
-					}
-					
-					$menu
-						.show()
-						.find('> li input:text')
-						.focus()
-						.select()
-						;
-				}
-			)
-		;
-
-		$menu.find('> li > input.filter').keyup(
-			function(e) {
-				var term = $(this).val().toLowerCase();
-				var $menu = $(this).closest('ul.cerb-popupmenu');
-				$menu.find('> li a').each(function(e) {
-					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
-						$(this).parent().show();
-					} else {
-						$(this).parent().hide();
-					}
-				});
-			}
-		);
-
-		$menu.find('> li').click(function(e) {
-			e.stopPropagation();
-			if(!$(e.target).is('li'))
-				return;
-
-			$(this).find('a').trigger('click');
+		$conditions_menu_trigger.click(function() {
+			$conditions_menu.toggle();
 		});
-
-		$menu.find('> li > a').click(function() {
-			var token = $(this).attr('token');
-			var $frmDecAdd = $('#frmDecisionOutcomeAdd{$id}');
-			$frmDecAdd.find('input[name=condition]').val(token);
-			var $this = $(this);
-			
-			genericAjaxPost('frmDecisionOutcomeAdd{$id}','','c=internal&a=doDecisionAddCondition',function(html) {
-				var $ul = $('#frmDecisionOutcome{$id} UL.rules:last');
+		
+		$conditions_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
 				
-				var seq = parseInt($frmDecAdd.find('input[name=seq]').val());
-				if(null == seq)
-					seq = 0;
-
-				var $html = $('<div style="margin-left:20px;"/>').html(html);
+				if(undefined == token || undefined == label)
+					return;
 				
-				var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition'+seq);
-				$container.append($('<input type="hidden" name="nodes[]">').attr('value', seq));
-				$container.append($('<input type="hidden">').attr('name', 'condition'+seq+'[condition]').attr('value',token));
-				$container.append($('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>'));
-				$container.append('&nbsp;');
-				$container.append($('<b style="cursor:move;"/>').text($this.text()));
-				$container.append('&nbsp;');
-
-				$ul.append($container);
-				$container.append($html);
-
-				$html.find('BUTTON.chooser_worker.unbound').each(function() {
-					ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });
-					$(this).removeClass('unbound');
+				var $frmDecAdd = $('#frmDecisionOutcomeAdd{$id}');
+				$frmDecAdd.find('input[name=condition]').val(token);
+				
+				genericAjaxPost('frmDecisionOutcomeAdd{$id}','','c=internal&a=doDecisionAddCondition',function(html) {
+					var $ul = $('#frmDecisionOutcome{$id} UL.rules:last');
+					
+					var seq = parseInt($frmDecAdd.find('input[name=seq]').val());
+					if(null == seq)
+						seq = 0;
+	
+					var $html = $('<div style="margin-left:20px;"/>').html(html);
+					
+					var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition'+seq);
+					$container.append($('<input type="hidden" name="nodes[]">').attr('value', seq));
+					$container.append($('<input type="hidden">').attr('name', 'condition'+seq+'[condition]').attr('value',token));
+					$container.append($('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>'));
+					$container.append('&nbsp;');
+					$container.append($('<b style="cursor:move;"/>').text(label));
+					$container.append('&nbsp;');
+					$container.hide();
+	
+					$ul.append($container);
+					$container.append($html).fadeIn();
+	
+					$html.find('BUTTON.chooser_worker.unbound').each(function() {
+						ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });
+						$(this).removeClass('unbound');
+					});
+					
+					$menu.find('input:text:first').focus().select();
+	
+					// [TODO] This can take too long to increment when packets are arriving quickly
+					$frmDecAdd.find('input[name=seq]').val(1+seq);
 				});
 				
-				$menu.find('input:text:first').focus().select();
-
-				// [TODO] This can take too long to increment when packets are arriving quickly
-				$frmDecAdd.find('input[name=seq]').val(1+seq);
-			});
+			}
 		});
 
 	}); // end popup_open
