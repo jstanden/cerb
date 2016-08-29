@@ -1516,7 +1516,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 		if(is_array($trigger->variables))
 		foreach($trigger->variables as $key => $var) {
-			$actions[$key] = array('label' => '(Set variable: ' . $var['label'] . ')');
+			$actions[$key] = array('label' => 'Set (variable) ' . $var['label']);
 		}
 
 		$va = $trigger->getVirtualAttendant();
@@ -2338,7 +2338,7 @@ class DevblocksHttpRequest extends DevblocksHttpIO {
 	/**
 	 * @param array $path
 	 */
-	function __construct($path, $query=array(), $method=null) {
+	function __construct($path=array(), $query=array(), $method=null) {
 		parent::__construct($path, $query);
 		$this->method = $method;
 	}
