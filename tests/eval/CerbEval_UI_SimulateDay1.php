@@ -36,6 +36,9 @@ class CerbEval_UI_SimulateDay1 extends PHPUnit_Extensions_SeleniumTestCase {
 		if(!copy($path_to_source, $path_to_message))
 			$this->assertTrue(false, "Failed copying message '" . $filename . '" into storage/mail/new/');
 		
+		if(!chmod($path_to_message, 0664))
+			$this->assertTrue(false, "Failed chmod on message '" . $filename . '"');
+		
 		if($and_parse)
 			$this->_runTestCase('scheduler/RunParser.htm');
 	}
