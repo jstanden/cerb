@@ -14,7 +14,7 @@ $(function() {
 		$chooser.one('chooser_save', function(event) {
 			if(typeof event.values == "object" && event.values.length > 0) {
 				var context_id = event.values[0];
-				genericAjaxPopup('simulate_behavior', 'c=internal&a=showBehaviorSimulatorPopup&trigger_id={$trigger->id}&context_id=' + context_id, 'reuse', false, '500');
+				genericAjaxPopup('simulate_behavior', 'c=internal&a=showBehaviorSimulatorPopup&trigger_id={$trigger->id}&context_id=' + context_id, 'reuse', false, '50%');
 			}
 		});
 	});
