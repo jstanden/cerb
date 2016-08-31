@@ -46,6 +46,14 @@
 				<name>Context_ExampleObject</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="example object" value="singular" />
+						<data key="example objects" value="plural" />
+						<data key="example obj" value="singular short" />
+						<data key="example objs" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="example" />
 				<param key="dao_class" value="DAO_ExampleObject" />
 				<param key="view_class" value="View_ExampleObject" />

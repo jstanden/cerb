@@ -988,6 +988,14 @@
 				<name>Context_Application</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="application" value="singular" />
+						<data key="applications" value="plural" />
+						<data key="app" value="singular short" />
+						<data key="apps" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="app" />
 				<param key="dao_class" value="" />
 				<param key="view_class" value="" />
@@ -1012,6 +1020,14 @@
 				<name>Context_Attachment</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="attachment" value="singular" />
+						<data key="attachments" value="plural" />
+						<data key="file" value="singular short" />
+						<data key="files" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="attachment" />
 				<param key="dao_class" value="DAO_Attachment" />
 				<param key="view_class" value="" />
@@ -1037,6 +1053,14 @@
 				<name>Context_AttachmentLink</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="attachment link" value="singular" />
+						<data key="attachment links" value="plural" />
+						<data key="file link" value="singular short" />
+						<data key="file links" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="attachment_link" />
 				<param key="dao_class" value="DAO_AttachmentLink" />
 				<param key="view_class" value="View_AttachmentLink" />
@@ -1061,6 +1085,14 @@
 				<name>Context_Contact</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="contact" value="singular" />
+						<data key="contacts" value="plural" />
+						<data key="person" value="singular short" />
+						<data key="people" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="contact" />
 				<param key="dao_class" value="DAO_Contact" />
 				<param key="view_class" value="View_Contact" />
@@ -1086,6 +1118,16 @@
 				<name>Context_CustomField</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="custom field" value="singular" />
+						<data key="custom fields" value="plural" />
+						<data key="field" value="singular short" />
+						<data key="fields" value="plural short" />
+						<data key="cfield" value="singular short" />
+						<data key="cfields" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="custom_field" />
 				<param key="dao_class" value="DAO_CustomField" />
 				<param key="view_class" value="" />
@@ -1110,6 +1152,18 @@
 				<name>Context_Address</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="email address" value="singular" />
+						<data key="email addresses" value="plural" />
+						<data key="address" value="singular short" />
+						<data key="addresses" value="plural short" />
+						<data key="sender" value="singular short" />
+						<data key="senders" value="plural short" />
+						<data key="addy" value="singular short" />
+						<data key="addys" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="address" />
 				<param key="dao_class" value="DAO_Address" />
 				<param key="view_class" value="View_Address" />
@@ -1136,6 +1190,12 @@
 				<name>Context_Bucket</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="bucket" value="singular" />
+						<data key="buckets" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="bucket" />
 				<param key="dao_class" value="DAO_Bucket" />
 				<param key="view_class" value="View_Bucket" />
@@ -1160,6 +1220,12 @@
 				<name>Context_Calendar</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="calendar" value="singular" />
+						<data key="calendars" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="calendar" />
 				<param key="dao_class" value="DAO_Calendar" />
 				<param key="view_class" value="View_Calendar" />
@@ -1185,6 +1251,14 @@
 				<name>Context_CalendarEvent</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="calendar event" value="singular" />
+						<data key="calendar events" value="plural" />
+						<data key="event" value="singular short" />
+						<data key="events" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="calendar_event" />
 				<param key="dao_class" value="DAO_CalendarEvent" />
 				<param key="view_class" value="View_CalendarEvent" />
@@ -1212,6 +1286,14 @@
 				<name>Context_CalendarRecurringProfile</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="calendar recurring event" value="singular" />
+						<data key="calendar recurring events" value="plural" />
+						<data key="recurring event" value="singular short" />
+						<data key="recurring events" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="calendar_recurring_event" />
 				<param key="dao_class" value="DAO_CalendarRecurringProfile" />
 				<param key="view_class" value="View_CalendarRecurringProfile" />
@@ -1237,6 +1319,12 @@
 				<name>Context_Comment</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="comment" value="singular" />
+						<data key="comments" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="comment" />
 				<param key="dao_class" value="DAO_Comment" />
 				<param key="view_class" value="View_Comment" />
@@ -1257,6 +1345,14 @@
 				<name>Context_CustomFieldset</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="custom fieldset" value="singular" />
+						<data key="custom fieldsets" value="plural" />
+						<data key="fieldset" value="singular short" />
+						<data key="fieldsets" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="custom_fieldset" />
 				<param key="dao_class" value="DAO_CustomFieldset" />
 				<param key="view_class" value="View_CustomFieldset" />
@@ -1279,6 +1375,16 @@
 				<name>Context_ContextActivityLog</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="activity log" value="singular" />
+						<data key="activity logs" value="plural" />
+						<data key="log" value="singular short" />
+						<data key="logs" value="plural short" />
+						<data key="audit log" value="singular" />
+						<data key="audit logs" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="activity_log" />
 				<param key="dao_class" value="DAO_ContextActivityLog" />
 				<param key="view_class" value="View_ContextActivityLog" />
@@ -1300,6 +1406,12 @@
 				<name>Context_Draft</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="draft" value="singular" />
+						<data key="drafts" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="draft" />
 				<param key="dao_class" value="DAO_MailQueue" />
 				<param key="view_class" value="View_MailQueue" />
@@ -1323,6 +1435,14 @@
 				<name>Context_FileBundle</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="file bundle" value="singular" />
+						<data key="file bundles" value="plural" />
+						<data key="bundle" value="singular short" />
+						<data key="bundles" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="file_bundle" />
 				<param key="dao_class" value="DAO_FileBundle" />
 				<param key="view_class" value="View_FileBundle" />
@@ -1347,6 +1467,14 @@
 				<name>Context_MailHtmlTemplate</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="html template" value="singular" />
+						<data key="html templates" value="plural" />
+						<data key="mail template" value="singular" />
+						<data key="mail templates" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="html_template" />
 				<param key="dao_class" value="DAO_MailHtmlTemplate" />
 				<param key="view_class" value="View_MailHtmlTemplate" />
@@ -1373,6 +1501,14 @@
 				<name>Context_Group</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="group" value="singular" />
+						<data key="groups" value="plural" />
+						<data key="team" value="singular" />
+						<data key="teams" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="group" />
 				<param key="dao_class" value="DAO_Group" />
 				<param key="view_class" value="View_Group" />
@@ -1397,6 +1533,14 @@
 				<name>Context_MailTransport</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="mail transport" value="singular" />
+						<data key="mail transports" value="plural" />
+						<data key="transport" value="singular short" />
+						<data key="transports" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="mail_transport" />
 				<param key="dao_class" value="DAO_MailTransport" />
 				<param key="view_class" value="View_MailTransport" />
@@ -1423,6 +1567,16 @@
 				<name>Context_Message</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="message" value="singular" />
+						<data key="messages" value="plural" />
+						<data key="msg" value="singular short" />
+						<data key="msgs" value="plural short" />
+						<data key="email" value="singular short" />
+						<data key="emails" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="message" />
 				<param key="dao_class" value="DAO_Message" />
 				<param key="view_class" value="View_Message" />
@@ -1447,6 +1601,12 @@
 				<name>Context_Notification</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="notification" value="singular" />
+						<data key="notifications" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="notification" />
 				<param key="dao_class" value="DAO_Notification" />
 				<param key="view_class" value="View_Notification" />
@@ -1468,6 +1628,18 @@
 				<name>Context_Org</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="organization" value="singular" />
+						<data key="organizations" value="plural" />
+						<data key="org" value="singular short" />
+						<data key="orgs" value="plural short" />
+						<data key="account" value="singular" />
+						<data key="accounts" value="plural" />
+						<data key="company" value="singular" />
+						<data key="companies" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="org" />
 				<param key="dao_class" value="DAO_ContactOrg" />
 				<param key="view_class" value="View_ContactOrg" />
@@ -1493,6 +1665,12 @@
 				<name>Context_Mailbox</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="mailbox" value="singular" />
+						<data key="mailboxes" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="mailbox" />
 				<param key="dao_class" value="DAO_Mailbox" />
 				<param key="view_class" value="View_Mailbox" />
@@ -1519,6 +1697,12 @@
 				<name>Context_Skill</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="skill" value="singular" />
+						<data key="skills" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="skill" />
 				<param key="dao_class" value="DAO_Skill" />
 				<param key="view_class" value="View_Skill" />
@@ -1545,6 +1729,14 @@
 				<name>Context_Skillset</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="skillset" value="singular" />
+						<data key="skillsets" value="plural" />
+						<data key="skill set" value="singular" />
+						<data key="skill sets" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="skillset" />
 				<param key="dao_class" value="DAO_Skillset" />
 				<param key="view_class" value="View_Skillset" />
@@ -1571,6 +1763,12 @@
 				<name>Context_Snippet</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="snippet" value="singular" />
+						<data key="snippets" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="snippet" />
 				<param key="dao_class" value="DAO_Snippet" />
 				<param key="view_class" value="View_Snippet" />
@@ -1595,6 +1793,12 @@
 				<name>Context_Task</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="task" value="singular" />
+						<data key="tasks" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="task" />
 				<param key="dao_class" value="DAO_Task" />
 				<param key="view_class" value="View_Task" />
@@ -1620,6 +1824,12 @@
 				<name>Context_Ticket</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="ticket" value="singular" />
+						<data key="tickets" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="ticket" />
 				<param key="dao_class" value="DAO_Ticket" />
 				<param key="view_class" value="View_Ticket" />
@@ -1646,6 +1856,16 @@
 				<name>Context_VirtualAttendant</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="virtual attendant" value="singular" />
+						<data key="virtual attendants" value="plural" />
+						<data key="va" value="singular short" />
+						<data key="vas" value="plural short" />
+						<data key="virtual agent" value="singular" />
+						<data key="virtual agents" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="virtual_attendant" />
 				<param key="dao_class" value="DAO_VirtualAttendant" />
 				<param key="view_class" value="View_VirtualAttendant" />
@@ -1670,6 +1890,21 @@
 				<name>Context_Worker</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="worker" value="singular" />
+						<data key="workers" value="plural" />
+						<data key="employee" value="singular" />
+						<data key="employees" value="plural" />
+						<data key="agent" value="singular" />
+						<data key="agents" value="plural" />
+						<data key="staff" value="plural" />
+						<data key="staff member" value="singular" />
+						<data key="staff members" value="plural" />
+						<data key="team member" value="singular" />
+						<data key="team members" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="worker" />
 				<param key="dao_class" value="DAO_Worker" />
 				<param key="view_class" value="View_Worker" />
@@ -1696,6 +1931,12 @@
 				<name>Context_WorkerRole</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="role" value="singular" />
+						<data key="roles" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="role" />
 				<param key="dao_class" value="DAO_WorkerRole" />
 				<param key="view_class" value="View_WorkerRole" />
@@ -1720,6 +1961,14 @@
 				<name>Context_WorkspacePage</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="workspace page" value="singular" />
+						<data key="workspace pages" value="plural" />
+						<data key="page" value="singular short" />
+						<data key="pages" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="workspace_page" />
 				<param key="dao_class" value="DAO_WorkspacePage" />
 				<param key="view_class" value="View_WorkspacePage" />
@@ -1743,6 +1992,14 @@
 				<name>Context_WorkspaceTab</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="workspace tab" value="singular" />
+						<data key="workspace tabs" value="plural" />
+						<data key="tab" value="singular short" />
+						<data key="tabs" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="workspace_tab" />
 				<param key="dao_class" value="DAO_WorkspaceTab" />
 				<param key="view_class" value="View_WorkspaceTab" />
@@ -1766,6 +2023,14 @@
 				<name>Context_WorkspaceWidget</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="workspace widget" value="singular" />
+						<data key="workspace widgets" value="plural" />
+						<data key="widget" value="singular short" />
+						<data key="widgets" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="workspace_widget" />
 				<param key="dao_class" value="DAO_WorkspaceWidget" />
 				<param key="view_class" value="View_WorkspaceWidget" />

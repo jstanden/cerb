@@ -941,6 +941,14 @@ foreach($fields as $field_name => $field_type) {
 				<name>Context_<?php echo $class_name; ?></name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="<?php echo $table_name; ?>" value="singular" />
+						<data key="<?php echo $table_name; ?>" value="plural" />
+						<data key="<?php echo $table_name; ?>" value="singular short" />
+						<data key="<?php echo $table_name; ?>" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="<?php echo $table_name; ?>" />
 				<param key="dao_class" value="DAO_<?php echo $class_name; ?>" />
 				<param key="view_class" value="View_<?php echo $class_name;?>" />

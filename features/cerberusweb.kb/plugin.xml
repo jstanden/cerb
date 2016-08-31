@@ -104,6 +104,17 @@
 				<name>Context_KbArticle</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="knowledgebase article" value="singular" />
+						<data key="knowledgebase articles" value="plural" />
+						<data key="article" value="singular short" />
+						<data key="articles" value="plural short" />
+						<data key="kb" value="singular short" />
+						<data key="kb article" value="singular short" />
+						<data key="kb articles" value="plural short" />
+					</value>
+				</param>
 				<param key="alias" value="kb_article" />
 				<param key="dao_class" value="DAO_KbArticle" />
 				<param key="view_class" value="View_KbArticle" />
@@ -128,6 +139,16 @@
 				<name>Context_KbCategory</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="knowledgebase category" value="singular" />
+						<data key="knowledgebase categories" value="plural" />
+						<data key="kb category" value="singular short" />
+						<data key="kb categories" value="plural short" />
+						<data key="kb cat" value="singular short" />
+						<data key="kb cats" value="singular short" />
+					</value>
+				</param>
 				<param key="alias" value="kb_category" />
 				<param key="dao_class" value="DAO_KbCategory" />
 				<param key="view_class" value="View_KbCategory" />

@@ -81,6 +81,17 @@
 				<name>Context_TimeTracking</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="time tracking entry" value="singular" />
+						<data key="time tracking entries" value="plural" />
+						<data key="time entry" value="singular short" />
+						<data key="time entries" value="plural short" />
+						<data key="time tracking" value="singular" />
+						<data key="time slip" value="singular" />
+						<data key="time slips" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="time_entry" />
 				<param key="dao_class" value="DAO_TimeTrackingEntry" />
 				<param key="view_class" value="View_TimeTracking" />

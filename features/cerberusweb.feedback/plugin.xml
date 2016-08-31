@@ -57,6 +57,12 @@
 				<name>Context_Feedback</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="feedback" value="singular" />
+						<data key="feedbacks" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="feedback" />
 				<param key="dao_class" value="DAO_FeedbackEntry" />
 				<param key="view_class" value="View_FeedbackEntry" />
