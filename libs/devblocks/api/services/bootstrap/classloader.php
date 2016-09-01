@@ -144,6 +144,9 @@ class _DevblocksClassLoadManager {
 			'DevblocksNeuralNetwork',
 			'DevblocksNeuralNetworkNode',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/oauth.php', array(
+			'_DevblocksOAuthService',
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/openid.php', array(
 			'_DevblocksOpenIDManager',
 		));

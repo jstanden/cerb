@@ -2325,6 +2325,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * @return _DevblocksOAuthService
+	 */
+	static function getOAuthService($consumer_key, $consumer_secret) {
+		return new _DevblocksOAuthService($consumer_key, $consumer_secret);
+	}
+	
+	/**
 	 * @return _DevblocksOpenIDManager
 	 */
 	static function getOpenIDService() {
