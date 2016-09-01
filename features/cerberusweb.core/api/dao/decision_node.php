@@ -50,6 +50,21 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 		return $id;
 	}
 	
+	static function duplicate($id, $new_parent_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("INSERT INTO decision_node (parent_id, trigger_id, node_type, title, pos, params_json) ".
+			"SELECT %d, trigger_id, node_type, title, pos, params_json FROM decision_node WHERE id = %d",
+			$new_parent_id,
+			$id
+		);
+		
+		$db->ExecuteMaster($sql);
+		$id = $db->LastInsertId();
+		
+		return $id;
+	}
+	
 	static function update($ids, $fields) {
 		parent::_update($ids, 'decision_node', $fields);
 		self::clearCache();

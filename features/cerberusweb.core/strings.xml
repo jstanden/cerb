@@ -557,6 +557,11 @@
 				<seg>due</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.duplicate">
+			<tuv xml:lang="en_US">
+				<seg>duplicate</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.edit">
 			<tuv xml:lang="en_US">
 				<seg>edit</seg>

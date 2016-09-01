@@ -3353,6 +3353,33 @@ class ChInternalController extends DevblocksControllerExtension {
 		exit;
 	}
 	
+	function doDecisionNodeDuplicateAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		
+		if(false == ($node = DAO_DecisionNode::get($id)))
+			return false;
+		
+		if(false == ($trigger = DAO_TriggerEvent::get($node->trigger_id)))
+			return false;
+		
+		$data = $trigger->getDecisionTreeData();
+		$tree =& $data['tree'];
+		$nodes =& $data['nodes'];
+		
+		$recursive_duplicate = function($node_id, $new_parent_id) use ($tree, $nodes, &$recursive_duplicate) {
+			$new_node_id = DAO_DecisionNode::duplicate($node_id, $new_parent_id);
+			
+			// Recurse into children
+			if(is_array($tree[$node_id]))
+			foreach($tree[$node_id] as $child_id)
+				$recursive_duplicate($child_id, $new_node_id);
+		};
+		
+		$recursive_duplicate($id, $node->parent_id);
+		
+		DAO_DecisionNode::clearCache();
+	}
+	
 	function showDecisionMovePopupAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		
