@@ -574,22 +574,37 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function filter_bytes_pretty($string, $precision='0') {
+		if(!is_string($string))
+			return '';
+		
 		return DevblocksPlatform::strPrettyBytes($string, $precision);
 	}
 	
 	function filter_date_pretty($string, $is_delta=false) {
+		if(!is_string($string))
+			return '';
+		
 		return DevblocksPlatform::strPrettyTime($string, $is_delta);
 	}
 	
 	function filter_json_pretty($string) {
+		if(!is_string($string))
+			return '';
+		
 		return DevblocksPlatform::strFormatJson($string);
 	}
 	
 	function filter_md5($string) {
+		if(!is_string($string))
+			return '';
+		
 		return md5($string);
 	}
 	
 	function filter_nlp_parse($string, $patterns) {
+		if(!is_string($string))
+			return '';
+		
 		if(!is_array($patterns))
 			$patterns = array($patterns);
 		
@@ -608,6 +623,9 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function filter_regexp($string, $pattern, $group = 0) {
+		if(!is_string($string))
+			return '';
+		
 		$matches = array();
 		@preg_match($pattern, $string, $matches);
 		
@@ -621,14 +639,23 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function filter_secs_pretty($string, $precision=0) {
+		if(!is_string($string))
+			return '';
+		
 		return DevblocksPlatform::strSecsToString($string, $precision);
 	}
 	
 	function filter_split_crlf($string) {
+		if(!is_string($string))
+			return '';
+		
 		return DevblocksPlatform::parseCrlfString($string);
 	}
 	
 	function filter_split_csv($string) {
+		if(!is_string($string))
+			return '';
+		
 		return DevblocksPlatform::parseCsvString($string);
 	}
 	
@@ -642,6 +669,9 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	 *
 	 */
 	function filter_truncate($value, $length = 30, $preserve = false, $separator = '...') {
+		if(!is_string($value))
+			return '';
+		
 		if (mb_strlen($value, LANG_CHARSET_CODE) > $length) {
 			if ($preserve) {
 				if (false !== ($breakpoint = mb_strpos($value, ' ', $length, LANG_CHARSET_CODE))) {

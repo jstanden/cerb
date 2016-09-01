@@ -1073,11 +1073,6 @@
 				<seg>filters</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.fnr">
-			<tuv xml:lang="nl_NL">
-				<seg>fetch &amp;amp; retrieve</seg>
-			</tuv>
-		</tu>
 		<tu tuid="common.group">
 			<tuv xml:lang="nl_NL">
 				<seg>Groep</seg>

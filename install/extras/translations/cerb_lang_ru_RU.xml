@@ -1073,11 +1073,6 @@
 				<seg>фильтры</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.fnr">
-			<tuv xml:lang="ru_RU">
-				<seg>загрузить &amp; показать</seg>
-			</tuv>
-		</tu>
 		<tu tuid="common.group">
 			<tuv xml:lang="ru_RU">
 				<seg>Группа</seg>

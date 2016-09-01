@@ -1319,6 +1319,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 </form>
 
 <script type="text/javascript">
+$(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open', function(event,ui) {
@@ -1345,6 +1346,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			limit: 10
 		});
 	});
+});
 </script>
 </textarea>
 
@@ -1486,7 +1488,7 @@ $field_prefix = strtolower(substr($table_name,0,1));
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
 		{*
-		{if $active_worker->hasPriv('calls.actions.update_all')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=<?php echo $table_name; ?>&action=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv('calls.actions.update_all')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&amp;section=<?php echo $table_name; ?>&action=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		*}
 	</div>
 	{/if}
@@ -1499,48 +1501,50 @@ $field_prefix = strtolower(substr($table_name,0,1));
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$frm = $('#viewForm{$view->id}');
-
-{if $pref_keyboard_shortcuts}
-$frm.bind('keyboard_shortcut',function(event) {
-	$view_actions = $('#{$view->id}_actions');
+$(function() {
+	var $frm = $('#viewForm{$view->id}');
 	
-	hotkey_activated = true;
-
-	switch(event.keypress_event.which) {
-		{*
-		case 98: // (b) bulk update
-			$btn = $view_actions.find('button.action-bulkupdate');
+	{if $pref_keyboard_shortcuts}
+	$frm.bind('keyboard_shortcut',function(event) {
+		$view_actions = $('#{$view->id}_actions');
 		
-			if(event.indirect) {
-				$btn.select().focus();
-				
-			} else {
-				$btn.click();
-			}
-			break;
-		*}
-		
-		case 101: // (e) explore
-			$btn = $view_actions.find('button.action-explore');
-		
-			if(event.indirect) {
-				$btn.select().focus();
-				
-			} else {
-				$btn.click();
-			}
-			break;
+		hotkey_activated = true;
+	
+		switch(event.keypress_event.which) {
+			{*
+			case 98: // (b) bulk update
+				$btn = $view_actions.find('button.action-bulkupdate');
 			
-		default:
-			hotkey_activated = false;
-			break;
-	}
-
-	if(hotkey_activated)
-		event.preventDefault();
+				if(event.indirect) {
+					$btn.select().focus();
+					
+				} else {
+					$btn.click();
+				}
+				break;
+			*}
+			
+			case 101: // (e) explore
+				$btn = $view_actions.find('button.action-explore');
+			
+				if(event.indirect) {
+					$btn.select().focus();
+					
+				} else {
+					$btn.click();
+				}
+				break;
+				
+			default:
+				hotkey_activated = false;
+				break;
+		}
+	
+		if(hotkey_activated)
+			event.preventDefault();
+	});
+	{/if}
 });
-{/if}
 </script>
 </textarea>
 
@@ -1934,55 +1938,57 @@ $(function() {
 });
 </script>
 
-<script type="text/javascript">
 {if $pref_keyboard_shortcuts}
-$(document).keypress(function(event) {
-	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
-		return;
+<script type="text/javascript">
+$(function() {
+	$(document).keypress(function(event) {
+		if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
+			return;
+		
+		if($(event.target).is(':input'))
+			return;
 	
-	if($(event.target).is(':input'))
-		return;
-
-	hotkey_activated = true;
-	
-	switch(event.which) {
-		case 49:  // (1) tab cycle
-		case 50:  // (2) tab cycle
-		case 51:  // (3) tab cycle
-		case 52:  // (4) tab cycle
-		case 53:  // (5) tab cycle
-		case 54:  // (6) tab cycle
-		case 55:  // (7) tab cycle
-		case 56:  // (8) tab cycle
-		case 57:  // (9) tab cycle
-		case 58:  // (0) tab cycle
-			try {
-				idx = event.which-49;
-				$tabs = $("#<?php echo $table_name; ?>Tabs").tabs();
-				$tabs.tabs('option', 'active', idx);
-			} catch(ex) { }
-			break;
-		case 101:  // (E) edit
-			try {
-				$('#btnDisplay<?php echo $class_name; ?>Edit').click();
-			} catch(ex) { }
-			break;
-		case 109:  // (M) macros
-			try {
-				$('#btnDisplayMacros').click();
-			} catch(ex) { }
-			break;
-		default:
-			// We didn't find any obvious keys, try other codes
-			hotkey_activated = false;
-			break;
-	}
-	
-	if(hotkey_activated)
-		event.preventDefault();
+		hotkey_activated = true;
+		
+		switch(event.which) {
+			case 49:  // (1) tab cycle
+			case 50:  // (2) tab cycle
+			case 51:  // (3) tab cycle
+			case 52:  // (4) tab cycle
+			case 53:  // (5) tab cycle
+			case 54:  // (6) tab cycle
+			case 55:  // (7) tab cycle
+			case 56:  // (8) tab cycle
+			case 57:  // (9) tab cycle
+			case 58:  // (0) tab cycle
+				try {
+					idx = event.which-49;
+					$tabs = $("#<?php echo $table_name; ?>Tabs").tabs();
+					$tabs.tabs('option', 'active', idx);
+				} catch(ex) { }
+				break;
+			case 101:  // (E) edit
+				try {
+					$('#btnDisplay<?php echo $class_name; ?>Edit').click();
+				} catch(ex) { }
+				break;
+			case 109:  // (M) macros
+				try {
+					$('#btnDisplayMacros').click();
+				} catch(ex) { }
+				break;
+			default:
+				// We didn't find any obvious keys, try other codes
+				hotkey_activated = false;
+				break;
+		}
+		
+		if(hotkey_activated)
+			event.preventDefault();
+	});
 });
-{/if}
 </script>
+{/if}
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_common_scripts.tpl"}
 </textarea>

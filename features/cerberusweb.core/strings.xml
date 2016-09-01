@@ -657,14 +657,14 @@
 				<seg>filters</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.fnr">
-			<tuv xml:lang="en_US">
-				<seg>fetch &amp; retrieve</seg>
-			</tuv>
-		</tu>
 		<tu tuid="common.for">
 			<tuv xml:lang="en_US">
 				<seg>for</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.format">
+			<tuv xml:lang="en_US">
+				<seg>format</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.gender">

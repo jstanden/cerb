@@ -1,4 +1,4 @@
-<b>API URL:</b>
+<b>{'common.url'|devblocks_translate|upper}:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	{$verbs = [get,post,put,delete]}
 	<select name="{$namePrefix}[http_verb]" class="cerb-httprequest-verb">

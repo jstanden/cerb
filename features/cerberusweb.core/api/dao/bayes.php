@@ -965,11 +965,11 @@ class CerberusBayes {
 		$ngood = max($stats['nonspam'],1);
 		$nbad = max($stats['spam'],1);
 		
-		$g = intval($word->nonspam * 1);
+		$g = intval($word->nonspam);
 		$b = intval($word->spam);
 
 		// [JAS]: If less than 5 occurrences total
-		if(($g*1 + $b) < 5) {
+		if(($g + $b) < 5) {
 			$prob = self::PROBABILITY_UNKNOWN;
 			
 		} else {

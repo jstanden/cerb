@@ -14,7 +14,7 @@
 		{if $behavior->virtual_attendant_id == $va->id}
 			<li class="item item-behavior">
 				<div style="margin-left:20px;">
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&context={$context}&context_id={$context_id}&macro={$behavior->id}&return_url={$return_url|escape:'url'}',$(this).closest('ul').get(),false,'600');$(this).closest('ul.cerb-popupmenu').hide();">
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&context={$context}&context_id={$context_id}&macro={$behavior->id}&return_url={$return_url|escape:'url'}',$(this).closest('ul').get(),false,'50%');$(this).closest('ul.cerb-popupmenu').hide();">
 						{if !empty($behavior->title)}
 							{$behavior->title}
 						{else}

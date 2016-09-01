@@ -1073,11 +1073,6 @@
 				<seg>filtros</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.fnr">
-			<tuv xml:lang="es_ES">
-				<seg>buscar y recuperar</seg>
-			</tuv>
-		</tu>
 		<tu tuid="common.group">
 			<tuv xml:lang="es_ES">
 				<seg>Grupo</seg>

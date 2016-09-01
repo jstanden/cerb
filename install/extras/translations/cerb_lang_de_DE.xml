@@ -1078,11 +1078,6 @@
 				<seg>Filter</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.fnr">
-			<tuv xml:lang="de_DE">
-				<seg>Suchen &amp; Abfragen</seg>
-			</tuv>
-		</tu>
 		<tu tuid="common.group">
 			<tuv xml:lang="de_DE">
 				<seg>Gruppe</seg>

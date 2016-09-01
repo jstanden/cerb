@@ -57,7 +57,7 @@ class Plugin_RestAPI {
 				$array['results'] = $filtered_results;
 			}
 			
-			header("Content-type: text/javascript; charset=utf-8");
+			header("Content-type: application/json; charset=utf-8");
 			echo json_encode($array);
 			
 		} elseif ('xml' == $format) {

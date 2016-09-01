@@ -68,7 +68,7 @@
 			</class>
 			<params>
 				<param key="uri" value="api" />
-				<param key="title" value="webapi.common.api_credentials" />
+				<param key="title" value="Cerb API" />
 			</params>
 		</extension>
 

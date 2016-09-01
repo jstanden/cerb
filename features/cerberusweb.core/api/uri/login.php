@@ -306,7 +306,7 @@ class ChSignInPage extends CerberusPageExtension {
 		$session->setVisit($visit);
 		
 		// Generate a CSRF token for the session
-		$_SESSION['csrf_token'] = CerberusApplication::generatePassword(256);
+		$_SESSION['csrf_token'] = CerberusApplication::generatePassword(128);
 		
 		if(isset($_SESSION['login_post_url'])) {
 			$redirect_path = explode('/', $_SESSION['login_post_url']);
