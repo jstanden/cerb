@@ -26,5 +26,6 @@
 </table>
 <br>
 
+{if $active_worker}{include file="devblocks:cerberusweb.core::console/bot_notification.tpl"}{/if}
 </body>
 </html>

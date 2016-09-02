@@ -57,6 +57,194 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 	
+	// [TODO] Move this
+	
+	function openBotChatChannelAction() {
+		@$channel = DevblocksPlatform::importGPC($_REQUEST['channel'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->display('devblocks:cerberusweb.core::console/window.tpl');
+	}
+	
+	function consoleSendMessageAction() {
+		@$message = DevblocksPlatform::importGPC($_REQUEST['message'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$actions = array();
+		
+		if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			return;
+		
+		$event_model = new Model_DevblocksEvent(
+			Event_PrivateMessageReceivedByBot::ID,
+			array(
+				'worker_id' => $active_worker->id,
+				'message' => $message,
+				'actions' => &$actions,
+			)
+		);
+		
+		if(false == ($event = Extension_DevblocksEvent::get($event_model->id, true)))
+			return;
+			
+		$event->setEvent($event_model, $trigger);
+			
+		@$resume = json_decode(file_get_contents(APP_TEMP_PATH . '/behavior_state.json'), true);
+		
+		// Are we resuming a scope?
+		if($resume && is_array($resume) && isset($resume['dict']) && isset($resume['path'])) {
+			$values = $event->getValues();
+			$values = array_replace($values, $resume['dict']);
+			//$values = array_merge($event->getValues(), $resume['dict']);
+			//$values['message'] = $message;
+			//$values['_actions'] =& $actions;
+			
+			$dict = new DevblocksDictionaryDelegate($values);
+			
+			if(false == ($result = $trigger->resumeDecisionTree($dict, false, $event, $resume['path'])))
+				return;
+			
+		} else {
+			//Event_PrivateMessageReceivedByBot::trigger($active_worker->id, $message, $actions);
+			
+			$values = $event->getValues();
+			
+			$dict = new DevblocksDictionaryDelegate($values);
+			
+			if(false == ($result = $trigger->runDecisionTree($dict, false, $event)))
+				return;
+		}
+
+		$values = $dict->getDictionary(null, false);
+		$values = array_diff_key($values, $event->getValues());
+		$result['dict'] = $values;
+		
+		if($result['exit_state'] == 'SUSPEND') {
+			// Keep everything as it is
+		} else {
+			// Start the tree over
+			$result['path'] = [];
+		}
+		
+		// [TODO] Put this into the cache
+		// [TODO] Locking?
+		//var_dump($result);
+		
+		//var_dump($actions);
+		//var_dump($result);
+				continue;
+			
+			$bot->name = 'Cerb';
+			
+			switch(@$params['_action']) {
+				case 'emote':
+					if(false == ($emote = @$params['emote']))
+						break;
+					
+					$tpl->assign('actor', $bot->name);
+					$tpl->assign('emote', $emote);
+					$tpl->display('devblocks:cerberusweb.core::console/emote.tpl');
+					break;
+				
+				case 'message.send':
+					if(false == ($msg = @$params['message']))
+						break;
+						
+					$tpl->assign('actor', $bot->name);
+					$tpl->assign('message', $msg);
+					$tpl->assign('format', @$params['format']);
+					$tpl->display('devblocks:cerberusweb.core::console/message.tpl');
+					break;
+					
+				case 'worklist.open':
+					$context = @$params['context'] ?: null;
+					$q = @$params['q'] ?: null;
+					
+					if(!$context || false == ($context_ext = Extension_DevblocksContext::get($context)))
+						break;
+					
+					// Open popup
+					$tpl->assign('context', $context_ext->id);
+					$tpl->assign('q', $q);
+					$tpl->display('devblocks:cerberusweb.core::console/commands/search_worklist.tpl');
+					break;
+			}
+		}
+		
+		/*
+				case 'check_calendar':
+					@$contact = $entities['contact'][0];
+					
+					// [TODO] Get contacts by first/last/@mention
+					//var_dump($contact);
+					
+					@$datetime = $entities['datetime'][0];
+					
+					//var_dump($datetime);
+					
+					@$datetime_granularity = $datetime['grain']; // day, week, month
+					
+					@$availability = $entities['cerb_availability'][0];
+					
+					if(empty($active_worker->calendar_id) || false == ($calendar = DAO_Calendar::get($active_worker->calendar_id))) {
+						$msg = sprintf("You don't have a calendar set up, so I'm not sure.");
+						$tpl->assign('message', $msg);
+						$tpl->display('devblocks:cerberusweb.core::console/message.tpl');
+						return;
+					}
+					
+					if($datetime['type'] == 'interval') {
+						// [TODO] This could start/stop at specific hours to?
+						if(isset($datetime['from']))
+							@$datetime_from = strtotime('today', strtotime($datetime['from']['value']));
+						else
+							@$datetime_from = strtotime('today', time());
+							
+						if(isset($datetime['to']))
+							@$datetime_to = strtotime('23:59:59', strtotime($datetime['to']['value']));
+						else
+							@$datetime_to = strtotime('today', time());
+						
+					} else {
+						switch($datetime_granularity) {
+							case 'week':
+								//var_dump($datetime);
+								@$datetime_from = strtotime('Monday this week', strtotime($datetime['value']));
+								//var_dump(array(strtotime($datetime['value']), $datetime_from));
+								@$datetime_to = strtotime('+6 days 23:59:59', $datetime_from);
+								break;
+								
+							case 'month':
+								@$datetime_from = strtotime('First day of this month', strtotime($datetime['value']));
+								@$datetime_to = strtotime('Last day of this month 23:59:59', $datetime_from);
+								break;
+								
+							case 'day':
+							default:
+								@$datetime_from = strtotime('today', strtotime($datetime['value']));
+								@$datetime_to = strtotime('23:59:59', $datetime_from);
+								break;
+						}
+					}
+					
+					//var_dump(array($datetime_from, $datetime_to));
+					
+					$events = $calendar->getEvents($datetime_from, $datetime_to);
+					$availability = $calendar->computeAvailability($datetime_from, $datetime_to, $events);
+					$availability->occludeCalendarEvents($events);
+					
+					//var_dump($events);
+					
+					$tpl->assign('days', $events);
+					$tpl->display('devblocks:cerberusweb.core::console/commands/events.tpl');
+					break;
+				*/
+	}
+	
 	// Post
 	function doStopTourAction() {
 		$worker = CerberusApplication::getActiveWorker();
