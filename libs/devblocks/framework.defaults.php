@@ -135,11 +135,3 @@ if(!defined('DEVELOPMENT_MODE_ALLOW_CSRF'))
 
 @date_default_timezone_set(date_default_timezone_get());
 @ignore_user_abort(true);
-
-if(version_compare(PHP_VERSION, '5.4.0', '<')) {
-	@ini_set('magic_quotes_gpc', 0);
-	@ini_set('magic_quotes_runtime', 0);
-	
-	if(function_exists('set_magic_quotes_runtime'))
-		@set_magic_quotes_runtime(0);
-}

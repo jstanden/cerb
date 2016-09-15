@@ -12,7 +12,6 @@ class _DevblocksOpenIDManager {
 	
 	public function discover($url) {
 		$num_redirects = 0;
-		$is_safemode = !(ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off'));
 		
 		do {
 			$repeat = false;
@@ -58,16 +57,6 @@ class _DevblocksOpenIDManager {
 			
 			// Scan headers
 			foreach($headers as $header) {
-				// Safemode specific behavior
-				if($is_safemode) {
-					if(preg_match("/^Location:.*?/i", $header)) {
-						$out = explode(':', $header, 2);
-						$url = isset($out[1]) ? trim($out[1]) : null;
-						$repeat = true;
-						break;
-					}
-				}
-				
 				// Check the headers for an 'X-XRDS-Location'
 				if(preg_match("/^X-XRDS-Location:.*?/i", $header)) {
 					$out = explode(':', $header, 2);

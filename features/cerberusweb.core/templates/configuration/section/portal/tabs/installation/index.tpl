@@ -165,7 +165,7 @@ class DevblocksProxy {
 						"%s\r\n",
 						$boundary,
 						$k.'[]',
-						(get_magic_quotes_gpc() ? stripslashes($vv) : $vv)
+						$vv
 					);
 				}
 			} else {
@@ -175,7 +175,7 @@ class DevblocksProxy {
 					"%s\r\n",
 					$boundary,
 					$k,
-					(get_magic_quotes_gpc() ? stripslashes($v) : $v)
+					$v
 				);
 			}
 		}
@@ -227,7 +227,7 @@ class DevblocksProxy {
 	function _getFingerprint() {
 		// Create a local cookie for this user to pass to Devblocks
 		if(isset($_COOKIE['GroupLoginPassport'])) {
-			$cookie = get_magic_quotes_gpc() ? stripslashes($_COOKIE['GroupLoginPassport']) : $_COOKIE['GroupLoginPassport'];
+			$cookie = $_COOKIE['GroupLoginPassport'];
 			$fingerprint = unserialize($cookie);
 		} else {
 			$fingerprint = array('browser'=>@$_SERVER['HTTP_USER_AGENT'], 'ip'=>@$_SERVER['REMOTE_ADDR'], 'local_sessid' => session_id(), 'started' => time());

@@ -15,9 +15,9 @@
 |	http://cerb.io	    http://webgroup.media
 ***********************************************************************/
 
-if(version_compare(PHP_VERSION, "5.3", "<")) {
+if(version_compare(PHP_VERSION, "5.5", "<")) {
 	header('Status: 500');
-	die("Cerb requires PHP 5.3 or later.");
+	die("Cerb requires PHP 5.5 or later.");
 }
 
 if(!extension_loaded('mysqli')) {
@@ -130,7 +130,7 @@ switch($step) {
 		$fails = 0;
 		
 		// PHP Version
-		if(version_compare(PHP_VERSION,"5.3") >=0) {
+		if(version_compare(PHP_VERSION,"5.5") >=0) {
 			$results['php_version'] = PHP_VERSION;
 		} else {
 			$results['php_version'] = false;
@@ -277,6 +277,14 @@ switch($step) {
 			$results['ext_json'] = true;
 		} else {
 			$results['ext_json'] = false;
+			$fails++;
+		}
+		
+		// Extension: OpenSSL
+		if(extension_loaded("openssl")) {
+			$results['ext_openssl'] = true;
+		} else {
+			$results['ext_openssl'] = false;
 			$fails++;
 		}
 		
@@ -1042,7 +1050,5 @@ EOF;
 }
 
 // [TODO] Check apache rewrite (somehow)
-
-// [TODO] Check if safe_mode is disabled, and if so set our php.ini overrides in the framework.config.php rewrite
 
 $tpl->display('base.tpl');

@@ -3,7 +3,7 @@
 <form action="index.php" method="POST">
 <b>PHP Version... </b> 
 {if !$results.php_version}
-	<span class="bad">Failed!  PHP 5.3 or later is required.</span>
+	<span class="bad">Failed!  PHP 5.5 or later is required.</span>
 {else}
 	<span class="good">Passed! (PHP {$results.php_version})</span>
 {/if}
@@ -121,6 +121,15 @@
 <b>PHP Extension (JSON)... </b> 
 {if !$results.ext_json}
 	<span class="bad">Error! PHP must have the 'JSON' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
+<b>PHP Extension (OpenSSL)... </b> 
+{if !$results.ext_openssl}
+	<span class="bad">Error! PHP must have the 'openssl' extension enabled.</span>
 {else}
 	<span class="good">Passed!</span>
 {/if}

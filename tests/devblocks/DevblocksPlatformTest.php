@@ -862,19 +862,28 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testStrFormatJson() {
+		
 		$expected = <<< END
 [
-  {
-    "name":"Jeff",
-    "title":"Software Architect",
-    "org":"Webgroup Media LLC"
-  }
+    {
+        "name": "Jeff",
+        "title": "Software Architect",
+        "org": "Webgroup Media LLC"
+    }
 ]
 END;
 		
-		$actual = DevblocksPlatform::strFormatJson(json_encode(array(
+		// Test array input
+		
+		$actual = DevblocksPlatform::strFormatJson(array(
 			array('name'=>'Jeff','title'=>'Software Architect','org'=>'Webgroup Media LLC'),
-		)));
+		));
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Test string input
+		
+		$actual = DevblocksPlatform::strFormatJson('[{"name":"Jeff","title":"Software Architect","org":"Webgroup Media LLC"}]');
 		
 		$this->assertEquals($expected, $actual);
 	}

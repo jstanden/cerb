@@ -548,29 +548,14 @@ class Model_CalendarRecurringProfile {
 				}
 				
 				if($passed) {
-					// This is a B.S. workaround for a PHP bug
-					// If we can do things the right way
-					if(version_compare(PHP_VERSION, '5.3.6', '>=')) {
-						$timezone = new DateTimeZone($this->tz);
-						$datetime = new DateTime(date('Y-m-d', $day), $timezone);
-						
-						$datetime->modify($this->event_start ?: 'midnight');
-						$event_start_local = $datetime->getTimestamp();
-						
-						$datetime->modify($this->event_end ?: 'midnight');
-						$event_end_local = $datetime->getTimestamp();
-						
-					// If we have to hack around the PHP bug with DateTime::modify($absolute_time)
-					} else {
-						$datetime_date = date('Y-m-d', $day);
-						$previous_timezone = DevblocksPlatform::getTimezone();
-						DevblocksPlatform::setTimezone($this->tz);
-						$datetime = strtotime($datetime_date);
-						
-						@$event_start_local = strtotime($this->event_start ?: 'midnight', $datetime);
-						@$event_end_local = strtotime($this->event_end ?: 'midnight', $datetime);
-						DevblocksPlatform::setTimezone($previous_timezone);
-					}
+					$timezone = new DateTimeZone($this->tz);
+					$datetime = new DateTime(date('Y-m-d', $day), $timezone);
+					
+					$datetime->modify($this->event_start ?: 'midnight');
+					$event_start_local = $datetime->getTimestamp();
+					
+					$datetime->modify($this->event_end ?: 'midnight');
+					$event_end_local = $datetime->getTimestamp();
 					
 					// If the generated event starts before the recurring event begins, skip
 					if($this->recur_start && $event_start_local < $this->recur_start)

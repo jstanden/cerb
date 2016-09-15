@@ -44,7 +44,7 @@ $results = array();
 $fails = 0;
 
 // PHP Version
-if(version_compare(PHP_VERSION,"5.3") >=0) {
+if(version_compare(PHP_VERSION,"5.5") >=0) {
 	$results['php_version'] = PHP_VERSION;
 } else {
 	$results['php_version'] = false;
@@ -172,6 +172,14 @@ if(extension_loaded("json")) {
 	$fails++;
 }
 
+// Extension: OpenSSL
+if(extension_loaded("openssl")) {
+	$results['ext_openssl'] = true;
+} else {
+	$results['ext_openssl'] = false;
+	$fails++;
+}
+
 // Extension: DOM
 if(extension_loaded("dom")) {
 	$results['ext_dom'] = true;
@@ -200,7 +208,7 @@ if($fails) {
 	echo "The following problems prevent you from running Cerb:<span class='fail'><ul>";
 	
 	if(!$results['php_version'])
-		echo '<li>Cerb requires PHP 5.3 or later. Your server PHP version is '.PHP_VERSION.'.</li>';
+		echo '<li>Cerb requires PHP 5.5 or later. Your server PHP version is '.PHP_VERSION.'.</li>';
 
 	if(!$results['file_uploads'])
 		echo '<li>file_uploads is disabled in your php.ini file. Please enable it.</li>';
@@ -252,6 +260,9 @@ if($fails) {
 
 	if(!$results['ext_json'])
 		echo "<li>The 'JSON' PHP extension is required.  Please enable it.</li>";
+	
+	if(!$results['ext_openssl'])
+		echo "<li>The 'openssl' PHP extension is required.  Please enable it.</li>";
 		
 	echo "</ul></span><br>Please correct these issues and try again.<br>";
 	

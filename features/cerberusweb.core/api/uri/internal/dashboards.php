@@ -656,7 +656,7 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 			);
 		}
 		
-		return DevblocksPlatform::strFormatJson(json_encode($results));
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };
 
@@ -838,7 +838,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 			),
 		);
 		
-		return DevblocksPlatform::strFormatJson(json_encode($results));
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };
 
@@ -961,7 +961,7 @@ class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWo
 			),
 		);
 		
-		return DevblocksPlatform::strFormatJson(json_encode($results));
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };
 
@@ -1111,7 +1111,7 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 			),
 		);
 		
-		return DevblocksPlatform::strFormatJson(json_encode($results));
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };
 
@@ -1218,7 +1218,7 @@ class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICe
 			),
 		);
 		
-		return DevblocksPlatform::strFormatJson(json_encode($results));
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };
 
@@ -1472,7 +1472,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 			}
 		}
 		
-		return DevblocksPlatform::strFormatJson(json_encode($results));
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };
 
@@ -1718,7 +1718,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 			);
 		}
 		
-		return DevblocksPlatform::strFormatJson(json_encode($results));
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };
 
@@ -1889,7 +1889,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		$export_data['widget']['count'] = count($results);
 		$export_data['widget']['results'] = $results;
 			
-		return DevblocksPlatform::strFormatJson(json_encode($export_data));
+		return DevblocksPlatform::strFormatJson($export_data);
 	}
 	
 	private function _exportDataAsCSV(Model_WorkspaceWidget $widget, $view) {
@@ -2196,7 +2196,7 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 			);
 		}
 		
-		return DevblocksPlatform::strFormatJson(json_encode($results));
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };
 
@@ -2411,6 +2411,6 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 			}
 		}
 		
-		return DevblocksPlatform::strFormatJson(json_encode($results));
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };

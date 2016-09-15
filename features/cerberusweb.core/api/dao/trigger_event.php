@@ -915,7 +915,7 @@ class Model_TriggerEvent {
 		if(!empty($ptrs[0]['nodes']))
 			$array['behavior']['nodes'] = $ptrs[0]['nodes'];
 		
-		return DevblocksPlatform::strFormatJson(json_encode($array));
+		return DevblocksPlatform::strFormatJson($array);
 	}
 };
 

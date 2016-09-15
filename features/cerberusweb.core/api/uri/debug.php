@@ -218,7 +218,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[php.ini] file_uploads: %s\n".
 					"[php.ini] upload_max_filesize: %s\n".
 					"[php.ini] post_max_size: %s\n".
-					"[php.ini] safe_mode: %s\n".
 					"\n".
 					"[PHP:Extension] MySQL: %s\n".
 					"[PHP:Extension] MailParse: %s\n".
@@ -260,7 +259,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 					ini_get('file_uploads'),
 					ini_get('upload_max_filesize'),
 					ini_get('post_max_size'),
-					ini_get('safe_mode'),
 					(extension_loaded("mysql") ? 'YES' : 'NO'),
 					(extension_loaded("mailparse") ? 'YES' : 'NO'),
 					(extension_loaded("curl") ? 'YES' : 'NO'),
@@ -374,7 +372,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					}
 				}
 				
-				echo DevblocksPlatform::strFormatJson(json_encode($output));
+				echo DevblocksPlatform::strFormatJson($output);
 				break;
 				
 			default:

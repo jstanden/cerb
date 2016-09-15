@@ -286,9 +286,9 @@ class CerberusApplication extends DevblocksApplication {
 		// Requirements
 
 		// PHP Version
-		if(version_compare(PHP_VERSION,"5.3") >=0) {
+		if(version_compare(PHP_VERSION,"5.5") >=0) {
 		} else {
-			$errors[] = sprintf("Cerb %s requires PHP 5.3 or later. Your server PHP version is %s",
+			$errors[] = sprintf("Cerb %s requires PHP 5.5 or later. Your server PHP version is %s",
 				APP_VERSION,
 				PHP_VERSION
 			);
@@ -394,6 +394,12 @@ class CerberusApplication extends DevblocksApplication {
 		} else {
 			$errors[] = "The 'JSON' PHP extension is required.  Please enable it.";
 		}
+		
+		// Extension: OpenSSL
+		if(extension_loaded("openssl")) {
+		} else {
+			$errors[] = "The 'openssl' PHP extension is required.  Please enable it.";
+		}
 
 		return $errors;
 	}
@@ -405,7 +411,7 @@ class CerberusApplication extends DevblocksApplication {
 
 		// Read in plugin information from the filesystem to the database
 		DevblocksPlatform::readPlugins();
-
+		
 		// Clean up missing plugins
 		DAO_Platform::cleanupPluginTables();
 		DAO_Platform::maint();
@@ -440,7 +446,7 @@ class CerberusApplication extends DevblocksApplication {
 				$plugin_patches[$p->id] = $p->getPatches();
 			}
 		}
-
+		
 		$core_patches = $plugin_patches['cerberusweb.core'];
 		unset($plugin_patches['cerberusweb.core']);
 
