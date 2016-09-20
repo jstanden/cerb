@@ -344,6 +344,20 @@ class _DevblocksDatabaseManager {
 		return "'".mysqli_real_escape_string($this->_slave_db, $string)."'";
 	}
 	
+	function qstrArray($array) {
+		$results = array();
+
+		if(is_array($array))
+		foreach($array as $string) {
+			if(!is_string($string))
+				continue;
+			
+			$results[] = "'".mysqli_real_escape_string($this->_slave_db, $string)."'";
+		}
+		
+		return $results;
+	}
+	
 	/**
 	 * Defaults to slave
 	 * 
