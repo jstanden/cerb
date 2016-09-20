@@ -692,6 +692,16 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		// Clear their task assignments
+		$sql = sprintf("UPDATE task SET owner_id = 0 WHERE owner_id = %d", $id);
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
+		
+		// Clear their ticket assignments
+		$sql = sprintf("UPDATE ticket SET owner_id = 0 WHERE owner_id = %d", $id);
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
+		
 		$sql = sprintf("DELETE FROM worker WHERE id = %d", $id);
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;

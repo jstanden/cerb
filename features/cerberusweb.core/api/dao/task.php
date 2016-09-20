@@ -361,6 +361,12 @@ class DAO_Task extends Cerb_ORMHelper {
 	}
 	
 	public static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Fix missing owners
+		$sql = "UPDATE task SET owner_id = 0 WHERE owner_id != 0 AND owner_id NOT IN (SELECT id FROM worker)";
+		$db->ExecuteMaster($sql);
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
 		$eventMgr->trigger(
