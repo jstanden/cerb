@@ -97,9 +97,9 @@
 		</li>
 		<li>
 			<div>
-				<a href="javascript:;" class="menu">{'common.virtual_attendants'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<a href="javascript:;" class="menu">{'common.bots'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
-					<li><a href="{devblocks_url}c=config&a=attendants{/devblocks_url}">{'common.search'|devblocks_translate|capitalize}</a></li>
+					<li><a href="{devblocks_url}c=config&a=bots{/devblocks_url}">{'common.search'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=scheduled_behavior{/devblocks_url}">Scheduled Behavior</a></li>
 				
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.va')}

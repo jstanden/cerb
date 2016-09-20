@@ -1,5 +1,5 @@
 {if !empty($macros)}
-<button type="button" class="split-left" onclick="$(this).next('button').click();" title="{'common.virtual_attendants'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (M){/if}"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button><!--  
+<button type="button" class="split-left" onclick="$(this).next('button').click();" title="{'common.bots'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (M){/if}"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button><!--  
 --><button type="button" class="split-right" id="btnDisplayMacros"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 <ul class="cerb-popupmenu cerb-float" id="menuDisplayMacros">
 	<li style="background:none;">

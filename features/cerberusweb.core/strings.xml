@@ -1558,14 +1558,14 @@
 				<seg>Record URL</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.virtual_attendant">
+		<tu tuid="common.bot">
 			<tuv xml:lang="en_US">
-				<seg>Virtual Attendant</seg>
+				<seg>bot</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.virtual_attendants">
+		<tu tuid="common.bots">
 			<tuv xml:lang="en_US">
-				<seg>Virtual Attendants</seg>
+				<seg>bots</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.watch">

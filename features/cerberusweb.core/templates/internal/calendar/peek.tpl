@@ -38,7 +38,7 @@
 				{/if}
 				
 				{if $model->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && isset($virtual_attendants.{$model->owner_context_id})}
-				<b>{$virtual_attendants.{$model->owner_context_id}->name}</b> ({'common.virtual_attendant'|devblocks_translate|capitalize})
+				<b>{$virtual_attendants.{$model->owner_context_id}->name}</b> ({'common.bot'|devblocks_translate|capitalize})
 				{/if}
 				
 				{if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}
@@ -79,7 +79,7 @@
 				
 				{foreach from=$virtual_attendants item=va key=va_id}
 					{if $va->isWriteableByActor($active_worker)}
-					<option value="v_{$va_id}" {if $model->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && $va_id==$model->owner_context_id}selected="selected"{/if}>{'common.virtual_attendant'|devblocks_translate|capitalize}: {$va->name}</option>
+					<option value="v_{$va_id}" {if $model->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && $va_id==$model->owner_context_id}selected="selected"{/if}>{'common.bot'|devblocks_translate|capitalize}: {$va->name}</option>
 					{/if}
 				{/foreach}
 			</select>

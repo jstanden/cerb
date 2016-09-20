@@ -133,7 +133,7 @@
 
 		{if $active_worker->is_superuser || $worker->id == $active_worker->id}
 		{$tabs[] = 'attendants'}
-		<li data-alias="attendants"><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantsTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.virtual_attendants'|devblocks_translate|capitalize}</a></li>
+		<li data-alias="attendants"><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantsTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.bots'|devblocks_translate|capitalize}</a></li>
 		{/if}
 		
 		{if $active_worker->is_superuser || $worker->id == $active_worker->id}

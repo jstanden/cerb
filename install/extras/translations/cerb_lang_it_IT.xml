@@ -1703,12 +1703,12 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="common.virtual_attendant">
+		<tu tuid="common.bot">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="common.virtual_attendants">
+		<tu tuid="common.bots">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

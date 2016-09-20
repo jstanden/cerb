@@ -463,7 +463,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 			self::REPEAT_JSON => new DevblocksSearchField(self::REPEAT_JSON, 'context_scheduled_behavior', 'repeat_json', $translate->_('dao.context_scheduled_behavior.repeat_json'), null, false),
 			
 			self::BEHAVIOR_NAME => new DevblocksSearchField(self::BEHAVIOR_NAME, 'trigger_event', 'title', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::BEHAVIOR_VIRTUAL_ATTENDANT_ID => new DevblocksSearchField(self::BEHAVIOR_VIRTUAL_ATTENDANT_ID, 'trigger_event', 'virtual_attendant_id', $translate->_('common.virtual_attendant'), null, true),
+			self::BEHAVIOR_VIRTUAL_ATTENDANT_ID => new DevblocksSearchField(self::BEHAVIOR_VIRTUAL_ATTENDANT_ID, 'trigger_event', 'virtual_attendant_id', $translate->_('common.bot'), null, true),
 
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target'), null, false),
 		);
