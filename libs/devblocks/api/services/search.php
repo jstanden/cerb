@@ -369,13 +369,14 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		
 		// [TODO] Paging
 		
-		$url = sprintf("%s/%s/%s/_search?q=%s&_source=false&size=%d&df=%s&default_operator=AND",
+		$url = sprintf("%s/%s/%s/_search?q=%s&_source=false&size=%d&df=%s&default_operator=AND&filter_path=%s",
 			$base_url,
 			urlencode($index),
 			urlencode($type),
 			urlencode($query),
 			$limit,
-			urlencode($df)
+			urlencode($df),
+			urlencode('took,hits.total,hits.hits._id')
 		);
 		
 		if(false == ($json = $this->_execute('GET', $url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))
