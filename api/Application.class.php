@@ -1330,6 +1330,9 @@ class CerberusContexts {
 				break;
 
 			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				if(false == ($va = DAO_VirtualAttendant::get($owner_context_id)))
+					return false;
+				
 				switch(get_class($actor)) {
 					case 'Model_WorkerRole':
 					case 'Model_Group':
