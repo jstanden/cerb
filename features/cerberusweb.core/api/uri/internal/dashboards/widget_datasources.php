@@ -185,7 +185,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 			return;
 
 		if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
-			continue;
+			return;
 			
 		$data = array();
 		
