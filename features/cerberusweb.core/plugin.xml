@@ -1276,8 +1276,6 @@
 			</params>
 		</extension>
 		
-		<!-- Contexts -->
-		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.calendar_event.recurring</id>
 			<name>Calendar Recurring Event</name>
@@ -1381,6 +1379,8 @@
 						<data key="activity logs" value="plural" />
 						<data key="log" value="singular short" />
 						<data key="logs" value="plural short" />
+						<data key="activity" value="singular short" />
+						<data key="activities" value="plural short" />
 						<data key="audit log" value="singular" />
 						<data key="audit logs" value="plural" />
 					</value>
@@ -1828,6 +1828,11 @@
 					<value>
 						<data key="ticket" value="singular" />
 						<data key="tickets" value="plural" />
+						<data key="mail" value="singular plural short" />
+						<data key="conversation" value="singular" />
+						<data key="conversations" value="plural" />
+						<data key="convo" value="singular short" />
+						<data key="convos" value="plural short" />
 					</value>
 				</param>
 				<param key="alias" value="ticket" />
@@ -1858,6 +1863,8 @@
 			<params>
 				<param key="names">
 					<value>
+						<data key="bot" value="singular short" />
+						<data key="bots" value="plural short" />
 						<data key="virtual attendant" value="singular" />
 						<data key="virtual attendants" value="plural" />
 						<data key="va" value="singular short" />
@@ -2045,7 +2052,7 @@
 				</param>
 			</params>
 		</extension>
-
+		
 		<!-- Event Triggers -->
 		
 		<extension point="devblocks.event">
