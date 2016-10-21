@@ -159,6 +159,8 @@ var atwho_twig_modifiers = [
 	{ name: "trim", content: "Trim whitespace or given characters from the ends of text" },
 	{ name: "truncate(10)", content: "Truncate text" },
 	{ name: "url_encode", content: "Encode an array or text for use in a URL" },
+	{ name: "url_decode", content: "Decode URL escaped text" },
+	{ name: "url_decode('json')", content: "Decode URL escaped parameters to JSON" },
 ];
 
 $.fn.cerbDateInputHelper = function(options) {

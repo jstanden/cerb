@@ -572,6 +572,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			'split_crlf' => new Twig_Filter_Method($this, 'filter_split_crlf'),
 			'split_csv' => new Twig_Filter_Method($this, 'filter_split_csv'),
 			'truncate' => new Twig_Filter_Method($this, 'filter_truncate'),
+			'url_decode' => new Twig_Filter_Method($this, 'filter_url_decode'),
 		);
 	}
 	
@@ -670,6 +671,23 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return mb_substr($value, 0, $length, LANG_CHARSET_CODE) . $separator;
 		}
 		return $value;
+	}
+	
+	function filter_url_decode($string, $as='') {
+		if(!is_string($string))
+			return '';
+		
+		switch(strtolower($as)) {
+			case 'json':
+				$array = array();
+				@parse_str($string, $array);
+				return json_encode($array);
+				break;
+			
+			default:
+				return rawurldecode($string);
+				break;
+		}
 	}
 };
 endif;
