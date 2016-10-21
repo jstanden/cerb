@@ -469,7 +469,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	function function_dict_set($var, $path, $val) {
 		if(empty($var))
-			$var = new stdClass();
+			$var = is_array($var) ? array() : new stdClass();
 		
 		$parts = explode('.', $path);
 		$ptr =& $var;
