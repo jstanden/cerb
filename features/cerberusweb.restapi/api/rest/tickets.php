@@ -518,9 +518,6 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		
 		$properties = array();
 		
-		if(empty($to))
-			$this->error(self::ERRNO_CUSTOM, "The 'to' parameter is required");
-		
 		if(empty($subject))
 			$this->error(self::ERRNO_CUSTOM, "The 'subject' parameter is required");
 		
