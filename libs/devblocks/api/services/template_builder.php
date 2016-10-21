@@ -252,6 +252,8 @@ class DevblocksDictionaryDelegate {
 		if(!$with_meta) {
 			unset($dict['_labels']);
 			unset($dict['_types']);
+			unset($dict['__simulator_output']);
+			unset($dict['__trigger']);
 		}
 		
 		// Convert any nested dictionaries to arrays

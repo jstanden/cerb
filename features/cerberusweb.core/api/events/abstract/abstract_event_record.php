@@ -53,7 +53,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 				'old_model' => $old_model,
 				'new_model' => $new_model,
 				'actor' => CerberusContexts::getCurrentActor(),
-				'_trigger' => $trigger,
+				'__trigger' => $trigger,
 			)
 		);
 	}

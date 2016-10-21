@@ -1892,8 +1892,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$all_actions = $this->getActions($trigger);
 			$log = EventListener_Triggers::getNodeLog();
 
-			if(!isset($dict->_simulator_output) || !is_array($dict->_simulator_output))
-				$dict->_simulator_output = array();
+			if(!isset($dict->__simulator_output) || !is_array($dict->__simulator_output))
+				$dict->__simulator_output = array();
 
 			$node_id = array_pop($log);
 
@@ -1904,9 +1904,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					'content' => $out,
 				);
 
-				$previous_output = $dict->_simulator_output;
+				$previous_output = $dict->__simulator_output;
 				$previous_output[] = $output;
-				$dict->_simulator_output = $previous_output;
+				$dict->__simulator_output = $previous_output;
 				unset($out);
 			}
 		}

@@ -729,7 +729,7 @@ class Model_TriggerEvent {
 			$event = $this->getEvent();
 		
 		// Add a convenience pointer
-		$dict->_trigger = $this;
+		$dict->__trigger = $this;
 		
 		$this->_recurseRunTree($event, $nodes, $tree, 0, $dict, $path, $dry_run);
 		

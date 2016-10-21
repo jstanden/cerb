@@ -781,7 +781,7 @@ class DevblocksEventHelper {
 		$out = '';
 		
 		if(!empty($link_to)) {
-			$trigger = $dict->_trigger;
+			$trigger = $dict->__trigger;
 			$event = $trigger->getEvent();
 			
 			$on_result = DevblocksEventHelper::onContexts($link_to, $event->getValuesContexts($trigger), $dict);
@@ -806,7 +806,7 @@ class DevblocksEventHelper {
 		@$link_to = DevblocksPlatform::importVar($params['link_to'],'array',array());
 		
 		if(!empty($link_to)) {
-			$trigger = $dict->_trigger;
+			$trigger = $dict->__trigger;
 			$event = $trigger->getEvent();
 			
 			$on_result = DevblocksEventHelper::onContexts($link_to, $event->getValuesContexts($trigger), $dict);
@@ -823,7 +823,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateRecordSetVariable($params, $dict) {
-		@$trigger = $dict->_trigger;
+		@$trigger = $dict->__trigger;
 		@$object_var = $params['object_var'];
 		$out = '';
 		
@@ -837,7 +837,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateRecordSetVariable($context, $context_id, $params, &$dict) {
-		@$trigger = $dict->_trigger;
+		@$trigger = $dict->__trigger;
 		@$object_var = $params['object_var'];
 		
 		if($object_var && $trigger && isset($trigger->variables[$object_var])) {
@@ -1498,7 +1498,7 @@ class DevblocksEventHelper {
 		
 		$out = '';
 		
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 
 		if(false == ($context_ext = Extension_DevblocksContext::get($links_context)))
 			return;
@@ -1557,7 +1557,7 @@ class DevblocksEventHelper {
 		@$var = DevblocksPlatform::importVar($params['var'],'string','');
 		@$behavior_var = DevblocksPlatform::importVar($params['behavior_var'],'string','');
 		
-		if(false == ($trigger = $dict->_trigger))
+		if(false == ($trigger = $dict->__trigger))
 			return;
 
 		if(false == ($context_ext = Extension_DevblocksContext::get($links_context)))
@@ -1673,7 +1673,7 @@ class DevblocksEventHelper {
 		@$var = $params['var'];
 		@$run_in_simulator = $params['run_in_simulator'];
 
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		
 		if(empty($behavior_id)) {
 			return "[ERROR] No behavior is selected. Skipping...";
@@ -1774,9 +1774,8 @@ class DevblocksEventHelper {
 						
 						// Merge simulator output
 
-						if(isset($on_object->_simulator_output) && is_array($on_object->_simulator_output))
-						foreach($on_object->_simulator_output as $simulator_entry) {
-							//$dict->_simulator_output[] = $simulator_entry;
+						if(isset($on_object->__simulator_output) && is_array($on_object->__simulator_output))
+						foreach($on_object->__simulator_output as $simulator_entry) {
 							$out .= sprintf("\n%s",
 								str_replace('>>>', '>>>>', $simulator_entry['content'])
 							);
@@ -1841,7 +1840,7 @@ class DevblocksEventHelper {
 		@$on = DevblocksPlatform::importVar($params['on'],'string','');
 		
 		if(!empty($on)) {
-			$trigger = $dict->_trigger;
+			$trigger = $dict->__trigger;
 			$event = $trigger->getEvent();
 			
 			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
@@ -1925,7 +1924,7 @@ class DevblocksEventHelper {
 		@$run_date = $params['run_date'];
 		@$on_dupe = $params['on_dupe'];
 
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		
 		if(empty($behavior_id)) {
 			return "[ERROR] No behavior is selected. Skipping...";
@@ -2070,7 +2069,7 @@ class DevblocksEventHelper {
 		@$on = DevblocksPlatform::importVar($params['on'],'string','');
 		
 		if(!empty($on)) {
-			$trigger = $dict->_trigger;
+			$trigger = $dict->__trigger;
 			$event = $trigger->getEvent();
 			
 			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
@@ -2200,7 +2199,7 @@ class DevblocksEventHelper {
 		@$on = DevblocksPlatform::importVar($params['on'],'string','');
 		
 		if(!empty($on)) {
-			$trigger = $dict->_trigger;
+			$trigger = $dict->__trigger;
 			$event = $trigger->getEvent();
 			
 			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
@@ -2231,7 +2230,7 @@ class DevblocksEventHelper {
 		@$on = DevblocksPlatform::importVar($params['on'],'string','');
 		
 		if(!empty($on)) {
-			$trigger = $dict->_trigger;
+			$trigger = $dict->__trigger;
 			$event = $trigger->getEvent();
 			
 			$on_result = DevblocksEventHelper::onContexts($on, $event->getValuesContexts($trigger), $dict);
@@ -2274,7 +2273,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateCalendarEvent($params, DevblocksDictionaryDelegate $dict) {
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		$calendars = array();
@@ -2396,7 +2395,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateCalendarEvent($params, DevblocksDictionaryDelegate $dict) {
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 
 		$calendars = array();
@@ -2511,7 +2510,7 @@ class DevblocksEventHelper {
 		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		// Translate message tokens
@@ -2568,7 +2567,7 @@ class DevblocksEventHelper {
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 
 		// Event
-		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
+		$trigger = $dict->__trigger; /* @var $trigger Model_TriggerEvent */
 		$event = $trigger->getEvent();
 
 		// Translate message tokens
@@ -2740,7 +2739,7 @@ class DevblocksEventHelper {
 		
 		// Event
 
-		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
+		$trigger = $dict->__trigger; /* @var $trigger Model_TriggerEvent */
 		$event = $trigger->getEvent();
 		
 		// On
@@ -2775,7 +2774,7 @@ class DevblocksEventHelper {
 
 		// Event
 
-		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
+		$trigger = $dict->__trigger; /* @var $trigger Model_TriggerEvent */
 		$event = $trigger->getEvent();
 
 		// Pull org record
@@ -2959,7 +2958,7 @@ class DevblocksEventHelper {
 		
 		// Event
 		
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		// Recipients
@@ -3007,7 +3006,7 @@ class DevblocksEventHelper {
 		
 		// Event
 		
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		// Action
@@ -3051,7 +3050,7 @@ class DevblocksEventHelper {
 		
 		// Event
 		
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		// Recipients
@@ -3099,7 +3098,7 @@ class DevblocksEventHelper {
 		
 		// Event
 		
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		// Action
@@ -3135,7 +3134,7 @@ class DevblocksEventHelper {
 
 		// Event
 		
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		// Watchers
@@ -3186,7 +3185,7 @@ class DevblocksEventHelper {
 
 		// Event
 		
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		// On: Are we watching something else?
@@ -3225,7 +3224,7 @@ class DevblocksEventHelper {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $dict);
 
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		$out = sprintf(">>> Sending a notification:\n".
@@ -3279,7 +3278,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateNotification($params, DevblocksDictionaryDelegate $dict, $default_on=null) {
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		// Notifications
@@ -3412,7 +3411,7 @@ class DevblocksEventHelper {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $dict);
 
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		$out = sprintf(">>> Creating a message sticky note:\n".
@@ -3460,7 +3459,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateMessageStickyNote($params, DevblocksDictionaryDelegate $dict, $default_on=null) {
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		// Notifications
@@ -3534,7 +3533,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateTask($params, DevblocksDictionaryDelegate $dict, $default_on) {
-		@$trigger = $dict->_trigger;
+		@$trigger = $dict->__trigger;
 		
 		$due_date = $params['due_date'];
 
@@ -3614,7 +3613,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateTask($params, DevblocksDictionaryDelegate $dict, $default_on) {
-		@$trigger = $dict->_trigger;
+		@$trigger = $dict->__trigger;
 
 		$due_date = $params['due_date'];
 
@@ -3694,7 +3693,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateTicket($params, DevblocksDictionaryDelegate $dict) {
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		
 		@$group_id = $params['group_id'];
 		
@@ -3817,6 +3816,7 @@ class DevblocksEventHelper {
 		$from_address = $from->mailbox . '@' . $from->host;
 		$message->headers['from'] = $from_address;
 
+		// [TODO] Fix this
 		$message->body = sprintf(
 			"(... This message was manually created by a virtual attendant on behalf of the requesters ...)\r\n"
 		);
@@ -3897,7 +3897,7 @@ class DevblocksEventHelper {
 
 		// [TODO] Format (HTML template)
 		
-		@$trigger = $dict->_trigger;
+		@$trigger = $dict->__trigger;
 		@$to_vars = @$params['to_var'];
 		$to = array();
 
@@ -4037,7 +4037,7 @@ class DevblocksEventHelper {
 	static function runActionSendEmail($params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		
-		@$trigger = $dict->_trigger;
+		@$trigger = $dict->__trigger;
 		@$to_vars = @$params['to_var'];
 		$to = array();
 		
@@ -4290,7 +4290,7 @@ class DevblocksEventHelper {
 		
 		// Convert relay list to email addresses
 		
-		$trigger = $dict->_trigger; /* @var $trigger Model_TriggerEvent */
+		$trigger = $dict->__trigger; /* @var $trigger Model_TriggerEvent */
 		
 		if(is_array($relay_list))
 		foreach($relay_list as $to) {
@@ -4656,7 +4656,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionSetListVariable($token, $context, $params, DevblocksDictionaryDelegate $dict) {
-		$trigger = $dict->_trigger;
+		$trigger = $dict->__trigger;
 		
 		if(null == ($view = DevblocksEventHelper::getViewFromAbstractJson($token, $params, $trigger, $context)))
 			return;
