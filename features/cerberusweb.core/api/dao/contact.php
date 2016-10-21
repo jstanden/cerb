@@ -947,6 +947,16 @@ class Model_Contact {
 		return DAO_ContactOrg::get($this->org_id);
 	}
 	
+	function getOrgAsString() {
+		if(empty($this->org_id))
+			return null;
+		
+		if(false == ($org = DAO_ContactOrg::get($this->org_id)))
+			return null;
+		
+		return $org->name;
+	}
+	
 	// Primary
 	function getEmail() {
 		if(empty($this->primary_email_id))
