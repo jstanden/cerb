@@ -689,5 +689,15 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 				break;
 		}
 	}
+	
+	public function getTests() {
+		return array(
+			new Twig_SimpleTest('numeric', [$this, 'test_numeric']),
+		);
+	}
+	
+	function test_numeric($value) {
+		return is_numeric($value);
+	}
 };
 endif;
