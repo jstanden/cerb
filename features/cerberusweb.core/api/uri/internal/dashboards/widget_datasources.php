@@ -227,17 +227,26 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 			}
 			
 			@$yaxis_func = $params['yaxis_func'];
-			@$yaxis_field = $fields[$params['yaxis_field']];
-				
-			if(empty($yaxis_field)) {
-				$yaxis_func = 'count';
-				
-			} else {
-				// If we're subtotalling on a custom field, make sure it's joined
-				if(!$view->hasParam($yaxis_field->token, $view->getParams())) {
-					$view->addParam(new DevblocksSearchCriteria($yaxis_field->token, DevblocksSearchCriteria::OPER_TRUE));
-					$params_changed = true;
-				}
+			$yaxis_field = null;
+			
+			switch($yaxis_func) {
+				case 'count':
+					break;
+					
+				default:
+					@$yaxis_field = $fields[$params['yaxis_field']];
+					
+					if(empty($yaxis_field)) {
+						$yaxis_func = 'count';
+						
+					} else {
+						// If we're subtotalling on a custom field, make sure it's joined
+						if(!$view->hasParam($yaxis_field->token, $view->getParams())) {
+							$view->addParam(new DevblocksSearchCriteria($yaxis_field->token, DevblocksSearchCriteria::OPER_TRUE));
+							$params_changed = true;
+						}
+					}
+					break;
 			}
 			
 			if($params_changed) {
