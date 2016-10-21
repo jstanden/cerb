@@ -625,6 +625,9 @@ class CerberusParser {
 	}
 	
 	static private function _recurseMimeParts($part, &$results) {
+		if(!($part instanceof MimeMessage))
+			return false;
+		
 		if(!is_array($results))
 			$results = array();
 		
@@ -673,6 +676,9 @@ class CerberusParser {
 	 * @return CerberusParserMessage
 	 */
 	static private function _parseMime($mm) {
+		if(!($mm instanceof MimeMessage))
+			return false;
+		
 		$message = new CerberusParserMessage();
 		@$message->encoding = $mm->data['charset'];
 		@$message->body_encoding = $message->encoding; // default
