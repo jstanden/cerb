@@ -210,7 +210,6 @@ class ChPageController extends DevblocksControllerExtension {
 	}
 };
 
-if(class_exists('Extension_DevblocksEventAction')):
 class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -261,7 +260,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 				"\n",
 				$response_placeholder
 		);
-
+		
 		// If set to run in simulator as well
 		if($run_in_simulator) {
 			$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers, $options);
@@ -306,7 +305,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		}
 
-		switch($verb) {
+		switch(strtolower($verb)) {
 			case 'get':
 				break;
 				
@@ -382,9 +381,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		);
 	}
 };
-endif;
 
-if(class_exists('Extension_DevblocksEventAction')):
 class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -507,7 +504,6 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 	}
 	
 };
-endif;
 
 class Cerb_SwiftPlugin_TransportExceptionLogger implements Swift_Events_TransportExceptionListener {
 	private $_lastError = null;

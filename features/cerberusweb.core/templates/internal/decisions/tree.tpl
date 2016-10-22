@@ -3,7 +3,6 @@
 		{if $trigger->is_private}<span class="glyphicons glyphicons-lock"></span> {/if}{$trigger->title}{if $trigger->is_disabled}<span title="{'common.disabled'|devblocks_translate|capitalize}">*</span>{/if}
 	</legend>
 	
-	{* [TODO] Use cache!! *}
 	{$tree_data = $trigger->getDecisionTreeData()}
 	{$tree_nodes = $tree_data.nodes}
 	{$tree_hier = $tree_data.tree}
@@ -26,6 +25,8 @@
 
 {if $is_writeable}
 <script type="text/javascript">
+$(function() {
+	
 $('#decisionTree{$trigger->id} DIV.node').draggable({
 	revert:"invalid",
 	revertDuration:250,
@@ -119,6 +120,8 @@ $('#decisionTree{$trigger->id} DIV.node.outcome').droppable({
 		genericAjaxGet('','c=internal&a=reparentNode&child_id=' + child_id + '&parent_id=' + parent_id);
 		return true;
 	}
+});
+
 });
 </script>
 {/if}
