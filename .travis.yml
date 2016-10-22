@@ -1,5 +1,10 @@
 language: php
 
+services:
+        - mysql
+        - memcached
+        - redis
+
 php:
         - 5.3
         - 5.4
