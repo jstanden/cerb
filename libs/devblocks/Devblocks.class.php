@@ -476,13 +476,15 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function strToRegExp($arg, $is_partial=false) {
+	static function strToRegExp($arg, $is_partial=false, $escape=true, $wrap=true) {
 		$arg = str_replace(array('*'),array('__WILD__'),$arg);
 		
-		return sprintf("/%s%s%s/i",
+		return sprintf("%s%s%s%s%s",
+			($wrap ? '/' : ''),
 			($is_partial ? '' : '^'),
-			str_replace(array('__WILD__','/'),array('.*?','\/'),preg_quote($arg)),
-			($is_partial ? '' : '$')
+			str_replace(array('__WILD__','/'),array('(.*?)','\/'), $escape ? preg_quote($arg) : $arg),
+			($is_partial ? '' : '$'),
+			($wrap ? '/i' : '')
 		);
 	}
 	
