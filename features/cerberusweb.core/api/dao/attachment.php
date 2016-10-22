@@ -153,19 +153,40 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		
 		// Delete attachments where links=0 and created > 1h
 		// This also cleans up temporary attachment uploads from the file chooser.
-		$db->ExecuteMaster("CREATE TEMPORARY TABLE _tmp_maint_attachment (PRIMARY KEY (id)) SELECT id, updated FROM attachment");
-		$db->ExecuteMaster("DELETE FROM _tmp_maint_attachment WHERE id IN (SELECT attachment_id FROM attachment_link)");
-		$db->ExecuteMaster("DELETE FROM _tmp_maint_attachment WHERE updated >= UNIX_TIMESTAMP() - 86400 AND updated != 2147483647");
-		$rs = $db->ExecuteMaster("SELECT SQL_CALC_FOUND_ROWS id FROM _tmp_maint_attachment");
-		$count = $db->GetOneMaster("SELECT FOUND_ROWS();");
-
+		// If any of these queries fail, we need to stop immediately
+		
+		if(false === $db->ExecuteMaster("CREATE TEMPORARY TABLE _tmp_maint_attachment (PRIMARY KEY (id)) SELECT id, updated FROM attachment")) {
+			$logger->error('[Maint] Failed to create temporary table for purging attachments.');
+			return false;
+		}
+		
+		if(false === $db->ExecuteMaster("DELETE FROM _tmp_maint_attachment WHERE id IN (SELECT attachment_id FROM attachment_link)")) {
+			$logger->error('[Maint] Failed to remove valid attachment links from temporary table.');
+			return false;
+		}
+		
+		if(false === $db->ExecuteMaster("DELETE FROM _tmp_maint_attachment WHERE updated >= UNIX_TIMESTAMP() - 86400 AND updated != 2147483647")) {
+			$logger->error('[Maint] Failed to remove recent attachments from temporary table.');
+			return false;
+		}
+		
+		if(false === ($rs = $db->ExecuteMaster("SELECT SQL_CALC_FOUND_ROWS id FROM _tmp_maint_attachment")) || !($rs instanceof mysqli_result)) {
+			$logger->error('[Maint] Failed to iterate attachments from temporary table.');
+			return false;
+		}
+		
+		if(false === ($count = $db->GetOneMaster("SELECT FOUND_ROWS()"))) {
+			$logger->error('[Maint] Failed to count attachments from temporary table.');
+			return false;
+		}
+		
 		if(!empty($count)) {
 			while($row = mysqli_fetch_row($rs)) {
 				DAO_Attachment::delete($row[0]);
 			}
 			mysqli_free_result($rs);
 		}
-
+		
 		$db->ExecuteMaster("DROP TABLE _tmp_maint_attachment");
 		
 		$logger->info('[Maint] Purged ' . $count . ' attachment records.');
