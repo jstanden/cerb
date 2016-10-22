@@ -467,6 +467,21 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 
 		return intval($count) + 1;
 	}
+	
+	static public function getNextPosByParent($trigger_id, $parent_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$count = $db->GetOneMaster(sprintf("SELECT MAX(pos) FROM decision_node ".
+			"WHERE trigger_id = %d AND parent_id = %d",
+			$trigger_id,
+			$parent_id
+		));
+
+		if(is_null($count))
+			return 0;
+
+		return intval($count) + 1;
+	}
 };
 
 class SearchFields_TriggerEvent extends DevblocksSearchFields {
@@ -556,6 +571,10 @@ class Model_TriggerEvent {
 	
 	public function getVirtualAttendant() {
 		return DAO_VirtualAttendant::get($this->virtual_attendant_id);
+	}
+	
+	public function getNextPosByParent($parent_id) {
+		return DAO_TriggerEvent::getNextPosByParent($this->id, $parent_id);
 	}
 	
 	public function formatVariable($var, $value) {

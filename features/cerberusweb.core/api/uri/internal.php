@@ -4186,12 +4186,15 @@ class ChInternalController extends DevblocksControllerExtension {
 					return false;
 			}
 			
+			$pos = $trigger->getNextPosByParent($parent_id);
+			
 			$id = DAO_DecisionNode::create(array(
 				DAO_DecisionNode::TITLE => $title,
 				DAO_DecisionNode::PARENT_ID => $parent_id,
 				DAO_DecisionNode::TRIGGER_ID => $trigger_id,
 				DAO_DecisionNode::NODE_TYPE => $type,
 				DAO_DecisionNode::STATUS_ID => $status_id,
+				DAO_DecisionNode::POS => $pos,
 				DAO_DecisionNode::PARAMS_JSON => '',
 			));
 			
