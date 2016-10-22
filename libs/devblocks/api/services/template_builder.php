@@ -414,15 +414,15 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getFunctions() {
 		return array(
-			'array_diff' => new Twig_Function_Method($this, 'function_array_diff'),
-			'dict_set' => new Twig_Function_Method($this, 'function_dict_set'),
-			'json_decode' => new Twig_Function_Method($this, 'function_json_decode'),
-			'jsonpath_set' => new Twig_Function_Method($this, 'function_jsonpath_set'),
-			'regexp_match_all' => new Twig_Function_Method($this, 'function_regexp_match_all'),
-			'xml_decode' => new Twig_Function_Method($this, 'function_xml_decode'),
-			'xml_encode' => new Twig_Function_Method($this, 'function_xml_encode'),
-			'xml_xpath_ns' => new Twig_Function_Method($this, 'function_xml_xpath_ns'),
-			'xml_xpath' => new Twig_Function_Method($this, 'function_xml_xpath'),
+			new Twig_SimpleFunction('array_diff', [$this, 'function_array_diff']),
+			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
+			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
+			new Twig_SimpleFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
+			new Twig_SimpleFunction('regexp_match_all', [$this, 'function_regexp_match_all']),
+			new Twig_SimpleFunction('xml_decode', [$this, 'function_xml_decode']),
+			new Twig_SimpleFunction('xml_encode', [$this, 'function_xml_encode']),
+			new Twig_SimpleFunction('xml_xpath_ns', [$this, 'function_xml_xpath_ns']),
+			new Twig_SimpleFunction('xml_xpath', [$this, 'function_xml_xpath']),
 		);
 	}
 	
