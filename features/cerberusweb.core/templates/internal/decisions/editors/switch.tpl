@@ -7,17 +7,26 @@
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
-<input type="text" name="title" value="{$model->title}" style="width:100%;"><br>
-<br>
-
 <fieldset>
 	<legend>Determine an outcome based on multiple choices</legend>
 	
-	A decision will evaluate multiple choices and choose the first outcome that satisfies all conditions. 
+	A <b>decision</b> will evaluate multiple choices and choose the first outcome that satisfies all conditions. 
 	Each outcome may use different conditions.  For example, you can use a decision to choose from a list: language, 
 	time of day, day of week, service level, etc.
 </fieldset>
+
+<b>{'common.title'|devblocks_translate|capitalize}:</b>
+<div style="margin:0px 0px 10px 10px;">
+	<input type="text" name="title" value="{$model->title}" style="width:100%;" autocomplete="off" spellcheck="false">
+</div>
+
+<b>{'common.status'|devblocks_translate|capitalize}:</b>
+<div style="margin:0px 0px 10px 10px;">
+	<label><input type="radio" name="status_id" value="0" {if !$model->status_id}checked="checked"{/if}> Live</label>
+	<label><input type="radio" name="status_id" value="2" {if 2 == $model->status_id}checked="checked"{/if}> Simulator only</label>
+	<label><input type="radio" name="status_id" value="1" {if 1 == $model->status_id}checked="checked"{/if}> Disabled</label>
+</div>
+
 </form>
 
 {if isset($id)}
@@ -39,8 +48,8 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('node_switch{$id}');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"{if empty($id)}New {/if}Decision");
-		$(this).find('input:text').first().focus();
+		$popup.dialog('option','title',"{if empty($id)}New {/if}Decision");
+		$popup.find('input:text').first().focus();
 	});
 });
 </script>

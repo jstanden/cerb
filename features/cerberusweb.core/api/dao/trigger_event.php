@@ -744,6 +744,19 @@ class Model_TriggerEvent {
 		// If these conditions match...
 		if(!empty($node_id) && isset($nodes[$node_id])) {
 			$logger->info($nodes[$node_id]->node_type . ' :: ' . $nodes[$node_id]->title . ' (' . $node_id . ')');
+			switch($nodes[$node_id]->status_id) {
+				// Disabled
+				case 1:
+					return;
+					break;
+					
+				// Simulator only
+				case 2:
+					if(!$dry_run)
+						return;
+					break;
+			}
+			
 			
 			// Handle the node type
 			switch($nodes[$node_id]->node_type) {

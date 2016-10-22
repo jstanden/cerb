@@ -7,9 +7,17 @@
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
-<input type="text" name="title" value="{$model->title}" style="width:100%;"><br>
-<br>
+<b>{'common.title'|devblocks_translate|capitalize}:</b>
+<div style="margin:0px 0px 10px 10px;">
+	<input type="text" name="title" value="{$model->title}" style="width:100%;" autocomplete="off" spellcheck="false">
+</div>
+
+<b>{'common.status'|devblocks_translate|capitalize}:</b>
+<div style="margin:0px 0px 10px 10px;">
+	<label><input type="radio" name="status_id" value="0" {if !$model->status_id}checked="checked"{/if}> Live</label>
+	<label><input type="radio" name="status_id" value="2" {if 2 == $model->status_id}checked="checked"{/if}> Simulator only</label>
+	<label><input type="radio" name="status_id" value="1" {if 1 == $model->status_id}checked="checked"{/if}> Disabled</label>
+</div>
 
 {$seq = 0}
 

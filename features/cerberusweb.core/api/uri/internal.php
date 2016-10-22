@@ -4138,6 +4138,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	function saveDecisionPopupAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
+		@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer', 0);
 
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -4161,11 +4162,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(!$va->isWriteableByActor($active_worker))
 					return false;
 				
-				// Title changed
-				if(0 != strcmp($model->title, $title) && !empty($title))
-					DAO_DecisionNode::update($id, array(
-						DAO_DecisionNode::TITLE => $title,
-					));
+				DAO_DecisionNode::update($id, array(
+					DAO_DecisionNode::TITLE => $title,
+					DAO_DecisionNode::STATUS_ID => $status_id,
+				));
 			}
 			
 		} elseif(isset($_REQUEST['parent_id'])) { // Create
@@ -4191,6 +4191,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_DecisionNode::PARENT_ID => $parent_id,
 				DAO_DecisionNode::TRIGGER_ID => $trigger_id,
 				DAO_DecisionNode::NODE_TYPE => $type,
+				DAO_DecisionNode::STATUS_ID => $status_id,
 				DAO_DecisionNode::PARAMS_JSON => '',
 			));
 			

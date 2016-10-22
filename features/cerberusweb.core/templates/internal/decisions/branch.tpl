@@ -1,7 +1,7 @@
 {$node = $nodes[$node_id]}
 
 {* Label *}
-<div class="node {$node->node_type}">
+<div class="node {$node->node_type}" {if $node->status_id}style="opacity:0.5;"{/if}>
 	<input type="hidden" name="node_id" value="{$node_id}">
 
 	{if $node->node_type == 'switch'}

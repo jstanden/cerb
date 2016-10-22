@@ -25,6 +25,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	const TITLE = 'title';
 	const PARAMS_JSON = 'params_json';
 	const POS = 'pos';
+	const STATUS_ID = 'status_id';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -53,8 +54,8 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	static function duplicate($id, $new_parent_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = sprintf("INSERT INTO decision_node (parent_id, trigger_id, node_type, title, pos, params_json) ".
-			"SELECT %d, trigger_id, node_type, title, pos, params_json FROM decision_node WHERE id = %d",
+		$sql = sprintf("INSERT INTO decision_node (parent_id, trigger_id, node_type, title, pos, status_id, params_json) ".
+			"SELECT %d, trigger_id, node_type, title, pos, status_id, params_json FROM decision_node WHERE id = %d",
 			$new_parent_id,
 			$id
 		);
@@ -151,7 +152,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, parent_id, trigger_id, node_type, title, params_json, pos ".
+		$sql = "SELECT id, parent_id, trigger_id, node_type, title, status_id, params_json, pos ".
 			"FROM decision_node ".
 			$where_sql.
 			$sort_sql.
@@ -184,6 +185,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 			$object->trigger_id = intval($row['trigger_id']);
 			$object->node_type = $row['node_type'];
 			$object->title = $row['title'];
+			$object->status_id = intval($row['status_id']);
 			$object->pos = intval($row['pos']);
 			
 			$object->params_json = $row['params_json'];
@@ -268,6 +270,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 			"decision_node.trigger_id as %s, ".
 			"decision_node.node_type as %s, ".
 			"decision_node.title as %s, ".
+			"decision_node.status_id as %s, ".
 			"decision_node.pos as %s, ".
 			"decision_node.params_json as %s ",
 				SearchFields_DecisionNode::ID,
@@ -275,6 +278,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 				SearchFields_DecisionNode::TRIGGER_ID,
 				SearchFields_DecisionNode::NODE_TYPE,
 				SearchFields_DecisionNode::TITLE,
+				SearchFields_DecisionNode::STATUS_ID,
 				SearchFields_DecisionNode::POS,
 				SearchFields_DecisionNode::PARAMS_JSON
 			);
@@ -378,6 +382,7 @@ class SearchFields_DecisionNode extends DevblocksSearchFields {
 	const TRIGGER_ID = 'd_trigger_id';
 	const NODE_TYPE = 'd_node_type';
 	const TITLE = 'd_title';
+	const STATUS_ID = 'd_status_id';
 	const POS = 'd_pos';
 	const PARAMS_JSON = 'd_params_json';
 	
@@ -423,6 +428,7 @@ class SearchFields_DecisionNode extends DevblocksSearchFields {
 			self::TRIGGER_ID => new DevblocksSearchField(self::TRIGGER_ID, 'decision_node', 'trigger_id', $translate->_('dao.decision_node.trigger_id'), null, true),
 			self::NODE_TYPE => new DevblocksSearchField(self::NODE_TYPE, 'decision_node', 'node_type', $translate->_('dao.decision_node.node_type'), null, true),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'decision_node', 'title', $translate->_('common.title'), null, true),
+			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'decision_node', 'status_id', $translate->_('common.status'), null, true),
 			self::POS => new DevblocksSearchField(self::POS, 'decision_node', 'pos', $translate->_('common.order'), null, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'decision_node', 'params_json', $translate->_('dao.decision_node.params'), null, false),
 		);
@@ -440,6 +446,7 @@ class Model_DecisionNode {
 	public $trigger_id;
 	public $node_type;
 	public $title;
+	public $status_id;
 	public $pos;
 	public $params_json;
 	public $params;
@@ -459,6 +466,7 @@ class View_DecisionNode extends C4_AbstractView {
 
 		$this->view_columns = array(
 			SearchFields_DecisionNode::TITLE,
+			SearchFields_DecisionNode::STATUS_ID,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -528,6 +536,7 @@ class View_DecisionNode extends C4_AbstractView {
 			case SearchFields_DecisionNode::TRIGGER_ID:
 			case SearchFields_DecisionNode::NODE_TYPE:
 			case SearchFields_DecisionNode::TITLE:
+			case SearchFields_DecisionNode::STATUS_ID:
 			case SearchFields_DecisionNode::POS:
 			case SearchFields_DecisionNode::PARAMS_JSON:
 			case 'placeholder_string':
@@ -580,6 +589,7 @@ class View_DecisionNode extends C4_AbstractView {
 			case SearchFields_DecisionNode::TRIGGER_ID:
 			case SearchFields_DecisionNode::NODE_TYPE:
 			case SearchFields_DecisionNode::TITLE:
+			case SearchFields_DecisionNode::STATUS_ID:
 			case SearchFields_DecisionNode::POS:
 			case SearchFields_DecisionNode::PARAMS_JSON:
 			case 'placeholder_string':

@@ -11,7 +11,7 @@
 
 <div>
 	<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
-	<input type="text" name="title" value="{$trigger->title}" style="width:100%;"><br>
+	<input type="text" name="title" value="{$trigger->title}" style="width:100%;" autocomplete="off" spellcheck="false"><br>
 </div>
 
 <div style="margin-top:10px;">
