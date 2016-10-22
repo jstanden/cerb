@@ -632,7 +632,7 @@ abstract class DevblocksEngine {
 		// Security: CSRF
 		
 		// If we are running a controller action with an active session...
-		if(!in_array($controller_uri, array('portal')) && (isset($_REQUEST['c']) || isset($_REQUEST['a']))) {
+		if(!in_array($controller_uri, array('oauth', 'portal')) && (isset($_REQUEST['c']) || isset($_REQUEST['a']))) {
 			
 			// ...and we're not in DEVELOPMENT_MODE
 			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {

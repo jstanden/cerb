@@ -787,3 +787,60 @@ abstract class Extension_UsermeetTool extends DevblocksExtension implements Devb
 	}
 	
 };
+
+abstract class Extension_ServiceProvider extends DevblocksExtension {
+	const POINT = 'cerb.service.provider';
+	
+	static $_registry = array();
+	
+	/**
+	 * @return DevblocksExtensionManifest[]|Extension_ServiceProvider[]
+	 */
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+		
+		return $exts;
+	}
+
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_ServiceProvider) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
+	protected function _renderPopupAuthForm() {
+		if(!($this instanceof IServiceProvider_Popup))
+			return false;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$session = DevblocksPlatform::getSessionService();
+		$settings = DevblocksPlatform::getPluginSettingsService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$visit = $session->getVisit();
+		
+		$tpl->assign('ext', $this);
+		$tpl->assign('active_worker', $active_worker);
+		$tpl->assign('settings', $settings);
+		$tpl->assign('session', $_SESSION);
+		$tpl->assign('visit', $visit);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/connected_account/popup_shell.tpl');
+	}
+	
+	abstract function renderPopup();
+};

@@ -210,13 +210,123 @@ class ChPageController extends DevblocksControllerExtension {
 	}
 };
 
+interface IServiceProvider_HttpRequestSigner {
+	function authenticateHttpRequest(Model_ConnectedAccount $account, &$ch, &$verb, &$url, &$body, &$headers);
+}
+
+interface IServiceProvider_OAuth {
+	function oauthCallback();
+}
+
+interface IServiceProvider_Popup {
+	function renderAuthForm();
+	function saveAuthFormAndReturnJson();
+}
+
+class ServiceProvider_Cerb extends Extension_ServiceProvider implements IServiceProvider_Popup, IServiceProvider_HttpRequestSigner {
+	const ID = 'core.service.provider.cerb';
+	
+	function renderPopup() {
+		$this->_renderPopupAuthForm();
+	}
+	
+	function renderAuthForm() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		$tpl->assign('view_id', $view_id);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/connected_account/providers/cerb.tpl');
+	}
+	
+	function saveAuthFormAndReturnJson() {
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!isset($params['base_url']) || empty($params['base_url']))
+			return json_encode(array('status' => false, 'error' => "The 'Base URL' is required."));
+		
+		if(!isset($params['access_key']) || empty($params['access_key']))
+			return json_encode(array('status' => false, 'error' => "The 'Access Key' is required."));
+		
+		if(!isset($params['secret_key']) || empty($params['secret_key']))
+			return json_encode(array('status' => false, 'error' => "The 'Secret Key' is required."));
+		
+		// Test the credentials
+		$cerb = new WgmCerb_API($params['base_url'], $params['access_key'], $params['secret_key']);
+		
+		$json = $cerb->get('workers/me.json');
+		
+		if(!is_array($json) || !isset($json['__status']))
+			return json_encode(array('status' => false, 'error' => "Unable to connect to the API. Please check your URL."));
+		
+		if($json['__status'] == 'error')
+			return json_encode(array('status' => false, 'error' => $json['message']));
+		
+		$id = DAO_ConnectedAccount::create(array(
+			DAO_ConnectedAccount::NAME => sprintf('Cerb API: %s (%s)', $json['full_name'], $params['access_key']),
+			DAO_ConnectedAccount::EXTENSION_ID => ServiceProvider_Cerb::ID,
+			DAO_ConnectedAccount::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+			DAO_ConnectedAccount::OWNER_CONTEXT_ID => $active_worker->id,
+		));
+		
+		DAO_ConnectedAccount::setAndEncryptParams($id, $params);
+		
+		return json_encode(array('status' => true, 'id' => $id));
+	}
+	
+	function authenticateHttpRequest(Model_ConnectedAccount $account, &$ch, &$verb, &$url, &$body, &$headers) {
+		$credentials = $account->decryptParams();
+		
+		if(
+			!isset($credentials['base_url'])
+			|| !isset($credentials['access_key'])
+			|| !isset($credentials['secret_key'])
+			|| !is_array($headers)
+		)
+			return false;
+		
+		$http_date = gmdate(DATE_RFC822);
+		$found_date = false;
+		
+		foreach($headers as $header) {
+			list($k, $v) = explode(':', $header, 2);
+			
+			if(0 == strcasecmp($k, 'Date')) {
+				$http_date = ltrim($v);
+				$found_date = true;
+				break;
+			}
+		}
+		
+		// Add a Date: header if one didn't exist
+		if(!$found_date)
+			$headers[] = 'Date: ' . $http_date;
+		
+		$cerb = new WgmCerb_API($credentials['base_url'], $credentials['access_key'], $credentials['secret_key']);
+		
+		if(false == ($signature = $cerb->signHttpRequest($url, $verb, $http_date, $body)))
+			return false;
+		
+		$headers[] = 'Cerb-Auth: ' . $signature;
+		return true;
+	}
+}
+
 class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
+		
+		$connected_accounts = DAO_ConnectedAccount::getReadableByActor($trigger->getBot());
+		$tpl->assign('connected_accounts', $connected_accounts);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_http_request.tpl');
 	}
@@ -230,6 +340,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
 		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
+		@$auth = $params['auth'];
 		@$options = $params['options'] ?: array();
 		@$run_in_simulator = $params['run_in_simulator'];
 		@$response_placeholder = $params['response_placeholder'];
@@ -251,6 +362,18 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			(in_array($http_verb, array('post','put')) ? ("\n" . $http_body. "\n") : "")
 		);
 		
+		switch($auth) {
+			case 'connected_account':
+				@$connected_account_id = $params['auth_connected_account_id'];
+				if(false != ($connected_account = DAO_ConnectedAccount::get($connected_account_id))) {
+					if(!Context_ConnectedAccount::isReadableByActor($connected_account, $trigger->getBot()))
+						return "[ERROR] This behavior is attempting to use an unauthorized connected account.";
+					
+					$out .= sprintf(">>> Authenticating with %s\n\n", $connected_account->name);
+				}
+				break;
+		}
+		
 		$out .= sprintf(">>> Saving response to {{%1\$s}}\n".
 				" * {{%1\$s.content_type}}\n".
 				" * {{%1\$s.body}}\n".
@@ -263,8 +386,9 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		// If set to run in simulator as well
 		if($run_in_simulator) {
-			$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers, $options);
-			$dict->$response_placeholder = $response;
+			$this->run($token, $trigger, $params, $dict);
+			
+			$response = $dict->$response_placeholder;
 			
 			if(isset($response['error']) && !empty($response['error'])) {
 				$out .= sprintf(">>> Error in response:\n%s\n", $response['error']);
@@ -281,6 +405,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
 		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
+		@$auth = $params['auth'];
 		@$options = $params['options'] ?: array();
 		@$response_placeholder = $params['response_placeholder'];
 		
@@ -289,6 +414,13 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		if(empty($response_placeholder))
 			return false;
+		
+		$connected_account_id = 0;
+		
+		if($auth == 'connected_account') {
+			$options['connected_account_id'] = @intval($params['auth_connected_account_id']);
+			$options['trigger'] = $trigger;
+		}
 		
 		$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers, $options);
 		$dict->$response_placeholder = $response;
@@ -324,9 +456,19 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
 				break;
 		}
+
+		if(isset($options['connected_account_id']) && $options['connected_account_id']) {
+			if(false == ($connected_account = DAO_ConnectedAccount::get($options['connected_account_id'])))
+				return false;
+			
+			if(false == $connected_account->authenticateHttpRequest($ch, $verb, $url, $body, $headers, CerberusContexts::getCurrentActor()))
+				return false;
+		}
 		
 		if(!empty($headers))
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		
+		curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 		
 		// [TODO] User-level option to follow redirects
 		
@@ -334,14 +476,20 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		$info = curl_getinfo($ch);
 		
-		$error = curl_error($ch);
-
+		$content_type = null;
+		$content_charset = null;
+		$error = null;
+		
 		if(curl_errno($ch)) {
+			$error = curl_error($ch);
 			
-		} else {
+		} elseif (isset($info['content_type'])) {
+			// Split content_type + charset in the header
+			@list($content_type, $content_charset) = explode(';', strtolower($info['content_type']));
+			
 			// Auto-convert the response body based on the type
 			if(!(isset($options['raw_response_body']) && $options['raw_response_body'])) {
-				switch(@$info['content_type']) {
+				switch($content_type) {
 					case 'application/json':
 						@$out = json_decode($out, true);
 						break;
@@ -349,6 +497,11 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 					case 'application/octet-stream':
 					case 'application/pdf':
 					case 'application/zip':
+						@$out = base64_encode($out);
+						break;
+						
+					case 'audio/mpeg':
+					case 'audio/ogg':
 						@$out = base64_encode($out);
 						break;
 					
@@ -359,6 +512,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 						@$out = base64_encode($out);
 						break;
 						
+					case 'text/csv':
 					case 'text/html':
 					case 'text/plain':
 					case 'text/xml':
@@ -374,7 +528,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		curl_close($ch);
 		
 		return array(
-			'content_type' => $info['content_type'],
+			'content_type' => $content_type,
 			'body' => $out,
 			'info' => $info,
 			'error' => $error,

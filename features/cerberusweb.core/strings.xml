@@ -217,6 +217,16 @@
 				<seg>Access denied.</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.account">
+			<tuv xml:lang="en_US">
+				<seg>account</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.accounts">
+			<tuv xml:lang="en_US">
+				<seg>accounts</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.action">
 			<tuv xml:lang="en_US">
 				<seg>Action</seg>
@@ -440,6 +450,16 @@
 		<tu tuid="common.conditions">
 			<tuv xml:lang="en_US">
 				<seg>conditions</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.connected_account">
+			<tuv xml:lang="en_US">
+				<seg>connected account</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.connected_accounts">
+			<tuv xml:lang="en_US">
+				<seg>connected accounts</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.contact">
@@ -1375,6 +1395,26 @@
 		<tu tuid="common.security">
 			<tuv xml:lang="en_US">
 				<seg>security</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.service">
+			<tuv xml:lang="en_US">
+				<seg>service</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.service.provider">
+			<tuv xml:lang="en_US">
+				<seg>service provider</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.service.providers">
+			<tuv xml:lang="en_US">
+				<seg>service providers</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.services">
+			<tuv xml:lang="en_US">
+				<seg>services</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.session">

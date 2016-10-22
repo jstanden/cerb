@@ -882,6 +882,7 @@ class CerberusContexts {
 	const CONTEXT_CALENDAR_EVENT_RECURRING = 'cerberusweb.contexts.calendar_event.recurring';
 	const CONTEXT_CALL = 'cerberusweb.contexts.call';
 	const CONTEXT_COMMENT = 'cerberusweb.contexts.comment';
+	const CONTEXT_CONNECTED_ACCOUNT = 'cerberusweb.contexts.connected_account';
 	const CONTEXT_CONTACT = 'cerberusweb.contexts.contact';
 	const CONTEXT_CONTEXT_AVATAR = 'cerberusweb.contexts.context.avatar';
 	const CONTEXT_CUSTOM_FIELD = 'cerberusweb.contexts.custom_field';

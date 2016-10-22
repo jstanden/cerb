@@ -75,6 +75,9 @@
 			<class name="ChTaskSource_Ticket" />
 			<class name="CerbMailTransport_Null" />
 			<class name="CerbMailTransport_Smtp" />
+			<class name="IServiceProvider_HttpRequestSigner" />
+			<class name="IServiceProvider_OAuth" />
+			<class name="IServiceProvider_Popup" />
 		</file>
 		
 		<file path="api/dao/abstract_view.php">
@@ -227,6 +230,13 @@
 			<class name="DAO_ContextBulkUpdate" />
 			<class name="Model_ContextBulkUpdate" />
 			<class name="SearchFields_ContextBulkUpdate" />
+		</file>
+		
+		<file path="api/dao/connected_account.php">
+			<class name="DAO_ConnectedAccount" />
+			<class name="Model_ConnectedAccount" />
+			<class name="SearchFields_ConnectedAccount" />
+			<class name="View_ConnectedAccount" />
 		</file>
 		
 		<file path="api/dao/context_link.php">
@@ -1079,6 +1089,38 @@
 						<data key="workspace" />
 					</value>
 					-->
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.connected_account</id>
+			<name>Connected Account</name>
+			<class>
+				<file>api/dao/connected_account.php</file>
+				<name>Context_ConnectedAccount</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="connected account" value="singular" />
+						<data key="connected accounts" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="connected_account" />
+				<param key="dao_class" value="DAO_ConnectedAccount" />
+				<param key="view_class" value="View_ConnectedAccount" />
+				<param key="options">
+					<value>
+						<data key="custom_fields" />
+						<!--
+						<data key="create" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+						-->
+					</value>
 				</param>
 			</params>
 		</extension>
@@ -2694,6 +2736,25 @@
 			</params>
 		</extension>
 
+		<!-- Connected Services -->
+		
+		<extension point="cerb.service.provider">
+			<id>core.service.provider.cerb</id>
+			<name>Cerb</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>ServiceProvider_Cerb</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<!-- VA Actions -->
 		
 		<extension point="devblocks.event.action">
@@ -2919,6 +2980,18 @@
 			</class>
 			<params>
 				<param key="uri" value="cron" />
+			</params>
+		</extension>
+
+		<extension point="devblocks.controller">
+			<id>core.controller.oauth</id>
+			<name>OAuth Controller</name>
+			<class>
+				<file>api/uri/oauth.php</file>
+				<name>Controller_OAuth</name>
+			</class>
+			<params>
+				<param key="uri" value="oauth" />
 			</params>
 		</extension>
 
@@ -3303,6 +3376,19 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="cards" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.connected_accounts</id>
+				<name>Connected Accounts Section</name>
+				<class>
+					<file>api/uri/config/connected_accounts.php</file>
+					<name>PageSection_SetupConnectedAccounts</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="connected_accounts" />
 				</params>
 			</extension>
 			
@@ -3802,6 +3888,19 @@
 				</params>
 			</extension>
 
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.connected_account</id>
+				<name>Connected Account Section</name>
+				<class>
+					<file>api/uri/profiles/connected_account.php</file>
+					<name>PageSection_ProfilesConnectedAccount</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="connected_account" />
+				</params>
+			</extension>
+			
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.contact</id>
 				<name>Contact Section</name>

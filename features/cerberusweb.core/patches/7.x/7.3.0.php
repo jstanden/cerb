@@ -4,6 +4,126 @@ $logger = DevblocksPlatform::getConsoleLog();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Add `connected_account` table
+
+if(!isset($tables['connected_account'])) {
+	$sql = sprintf("
+	CREATE TABLE `connected_account` (
+		id int unsigned auto_increment,
+		name varchar(255) not null default '',
+		extension_id varchar(255) not null default '',
+		owner_context varchar(255) not null default '',
+		owner_context_id int unsigned not null default 0,
+		params_json text,
+		created_at int unsigned not null default 0,
+		updated_at int unsigned not null default 0,
+		primary key (id),
+		index (extension_id),
+		index owner (owner_context, owner_context_id)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['connected_account'] = 'connected_account';
+}
+
+// ===========================================================================
+// Add `classifier` table
+
+if(!isset($tables['classifier'])) {
+	$sql = sprintf("
+	CREATE TABLE `classifier` (
+		id int unsigned auto_increment,
+		name varchar(255) not null default '',
+		owner_context varchar(255) not null default '',
+		owner_context_id int unsigned not null default 0,
+		created_at int unsigned not null default 0,
+		updated_at int unsigned not null default 0,
+		dictionary_size int unsigned not null default 0,
+		params_json text,
+		primary key (id),
+		index owner (owner_context, owner_context_id)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['classifier'] = 'classifier';
+}
+
+// ===========================================================================
+// Add `classifier_class` table
+if(!isset($tables['classifier_class'])) {
+	$sql = sprintf("
+	CREATE TABLE `classifier_class` (
+		id int unsigned auto_increment,
+		classifier_id int unsigned not null default 0,
+		name varchar(255) not null default '',
+		attribs_json text,
+		dictionary_size int unsigned not null default 0,
+		training_count int unsigned not null default 0,
+		updated_at int unsigned not null default 0,
+		primary key (id),
+		index (classifier_id)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['classifier_class'] = 'classifier_class';
+}
+
+// ===========================================================================
+// Add `classifier_ngram` table
+
+if(!isset($tables['classifier_ngram'])) {
+	$sql = sprintf("
+	CREATE TABLE `classifier_ngram` (
+		id int unsigned auto_increment,
+		token varchar(255) not null default '',
+		n tinyint unsigned not null default 0,
+		primary key (id),
+		unique (token)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['classifier_ngram'] = 'classifier_ngram';
+}
+
+if(!isset($tables['classifier_ngram_to_class'])) {
+	$sql = sprintf("
+	CREATE TABLE `classifier_ngram_to_class` (
+		token_id int unsigned not null default 0,
+		class_id int unsigned not null default 0,
+		training_count int unsigned not null default 0,
+		primary key (token_id, classifier_id)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['classifier_ngram_to_class'] = 'classifier_ngram_to_class';
+}
+
+// ===========================================================================
+// Add `classifier_training_example` table
+
+if(!isset($tables['classifier_training_example'])) {
+	$sql = sprintf("
+	CREATE TABLE `classifier_training_example` (
+		id int unsigned auto_increment,
+		classifier_id int unsigned not null default 0,
+		trained_class_id int unsigned not null default 0,
+		expression varchar(255) not null default '',
+		created_at int unsigned not null default 0,
+		primary key (id),
+		index (classifier_id),
+		index (trained_class_id)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['classifier_training_example'] = 'classifier_training_example';
+}
+
 // Modify `decision_node` to add 'subroutine' and 'loop' types
 // Add `status_id` field to nodes
 
