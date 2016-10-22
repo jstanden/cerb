@@ -670,8 +670,19 @@ class Model_TriggerEvent {
 		return $this->_nodes;
 	}
 	
-	public function getNodes() {
-		return $this->_getNodes();
+	public function getNodes($of_type=null) {
+		$nodes = $this->_getNodes();
+		
+		if($of_type) {
+			$nodes = array_filter($nodes, function($node) use ($of_type) {
+				if($of_type == $node->node_type)
+					return true;
+				
+				return false;
+			});
+		}
+		
+		return $nodes;
 	}
 	
 	public function getDecisionTreeData() {
