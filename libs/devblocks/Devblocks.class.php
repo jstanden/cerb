@@ -2329,8 +2329,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * @return _DevblocksOAuthService
 	 */
-	static function getOAuthService($consumer_key, $consumer_secret) {
-		return new _DevblocksOAuthService($consumer_key, $consumer_secret);
+	static function getOAuthService($consumer_key, $consumer_secret, $signature_method='HMAC-SHA1') {
+		return new _DevblocksOAuthService($consumer_key, $consumer_secret, $signature_method);
 	}
 	
 	/**
