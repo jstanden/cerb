@@ -19,6 +19,10 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testRequirements() {
+		// Version
+		$actual = version_compare(PHP_VERSION, "5.5", ">=");
+		$this->assertEquals(true, $actual, sprintf('Cerb requires a PHP version of 5.5+, currently %s', PHP_VERSION));
+
 		// File Uploads
 		$ini_file_uploads = ini_get("file_uploads");
 		$actual = ($ini_file_uploads == 1 || strcasecmp($ini_file_uploads,"on")==0);
