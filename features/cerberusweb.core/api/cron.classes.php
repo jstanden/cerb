@@ -717,7 +717,7 @@ class ImportCron extends CerberusCronPageExtension {
 				$iIsOutgoing = (integer) $eMessage->is_outgoing;
 				
 				$eHeaders =& $eMessage->headers; /* @var $eHeaders SimpleXMLElement */
-				$rawHeaders = (string) $eHeaders;
+				$rawHeaders = trim((string) $eHeaders);
 				
 				// If we only have itemized headers, convert them back into raw
 				if(empty($rawHeaders)) {
