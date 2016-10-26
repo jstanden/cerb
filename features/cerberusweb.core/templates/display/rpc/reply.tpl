@@ -304,10 +304,14 @@
 							<ul class="bubbles chooser-container">
 									{if $draft && $draft->params.owner_id}
 										{$owner = $workers.{$draft->params.owner_id}}
+										{if $owner}
 										<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
+										{/if}
 									{elseif $ticket->owner_id}
 										{$owner = $workers.{$ticket->owner_id}}
+										{if $owner}
 										<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
+										{/if}
 									{/if}
 							</ul>
 						</td>
