@@ -18,6 +18,43 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		parent::__construct($name, $data, $dataName);
 	}
 	
+	public function testRequirements() {
+		// File Uploads
+		$ini_file_uploads = ini_get("file_uploads");
+		$actual = ($ini_file_uploads == 1 || strcasecmp($ini_file_uploads,"on")==0);
+		$this->assertEquals(true, $actual, 'In php.ini, file_uploads is not enabled.');
+		
+		// Memory Limit
+		$expected = 16777216;
+		$ini_memory_limit = ini_get("memory_limit");
+		$actual = DevblocksPlatform::parseBytesString($ini_memory_limit ?: PHP_INT_MAX);
+		$this->assertGreaterThanOrEqual($expected, $actual, 'Cerb requires a memory_limit in php.ini of at least 16MB');
+		
+		// Required extensions
+		$required_extensions = array(
+			'ctype',
+			'curl',
+			'dom',
+			'gd',
+			'imap',
+			'json',
+			'mailparse',
+			'mbstring',
+			'mysqli',
+			'openssl',
+			'pcre',
+			'session',
+			'simplexml',
+			'spl',
+			'xml',
+		);
+		
+		foreach($required_extensions as $extension) {
+			$actual = extension_loaded($extension);
+			$this->assertEquals(true, $actual, sprintf('The %s extension is required.', $extension));
+		}
+	}
+	
 	public function testCompareStrings() {
 		// Equals
 		$actual = DevblocksPlatform::compareStrings('foo', 'foo', 'is');
@@ -1046,17 +1083,17 @@ END;
 	
 	public function testStrToRegexp() {
 		// Prefix
-		$expected = '/^prefix.*?$/i';
+		$expected = '/^prefix(.*?)$/i';
 		$actual = DevblocksPlatform::strToRegExp('prefix*');
 		$this->assertEquals($expected, $actual);
 		
 		// Suffix
-		$expected = '/^.*?suffix$/i';
+		$expected = '/^(.*?)suffix$/i';
 		$actual = DevblocksPlatform::strToRegExp('*suffix');
 		$this->assertEquals($expected, $actual);
 		
 		// Partial
-		$expected = '/^.*?partial.*?$/i';
+		$expected = '/^(.*?)partial(.*?)$/i';
 		$actual = DevblocksPlatform::strToRegExp('*partial*');
 		$this->assertEquals($expected, $actual);
 	}
