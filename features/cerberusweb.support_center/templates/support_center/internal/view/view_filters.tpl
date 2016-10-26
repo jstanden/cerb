@@ -7,9 +7,10 @@
 			{$fields = $view->getFields()}
 			{$params = $view->getEditableParams()}
 			{foreach from=$params item=param key=param_key}
-			{if isset($fields.$param_key) && !empty($fields.$param_key->db_label)}
+			{$field = $fields.{$param->field}}
+			{if isset($field) && !empty($field->db_label)}
 			<li>
-				<label><input type="checkbox" name="filters[]" value="{$param_key}"> {$fields.$param_key->db_label|capitalize} is <b>{$view->renderCriteriaParam($param)}</b></label> 
+				<label><input type="checkbox" name="filters[]" value="{$param_key}"> {$field->db_label|capitalize} is <b>{$view->renderCriteriaParam($param)}</b></label> 
 			</li>
 			{/if}
 			{/foreach}

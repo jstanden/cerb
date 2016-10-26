@@ -756,7 +756,7 @@ class UmScAbstractViewLoader {
 
 	static protected function _init() {
 		$umsession = ChPortalHelper::getSession();
-		self::$views = $umsession->getProperty(self::VISIT_ABSTRACTVIEWS,array());
+		self::$views = $umsession->getProperty(self::VISIT_ABSTRACTVIEWS, array());
 	}
 
 	/**
@@ -764,7 +764,9 @@ class UmScAbstractViewLoader {
 	 * @return boolean
 	 */
 	static function exists($view_label) {
-		if(is_null(self::$views)) self::_init();
+		if(is_null(self::$views))
+			self::_init();
+		
 		return isset(self::$views[$view_label]);
 	}
 

@@ -559,7 +559,13 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		}
 
 		if(!empty($criteria)) {
-			$this->addParam($criteria);
+			$param_key = null;
+			$results = ($this->findParam($criteria->field, $this->getEditableParams()));
+			
+			if(!empty($results))
+				$param_key = key($results);
+			
+			$this->addParam($criteria, $param_key);
 			$this->renderPage = 0;
 		}
 	}
