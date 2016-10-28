@@ -739,10 +739,14 @@ class Model_TriggerEvent {
 	}
 	
 	public function runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event=null) {
+		return $this->_runDecisionTree($dict, $dry_run, $event);
+	}
+	
+	private function _runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event, array $replay=array()) {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
-		$path = array();
-
+		$path = [];
+		
 		// Lazy load the event if necessary (otherwise reuse a passed scope)
 		if(is_null($event))
 			$event = $this->getEvent();
@@ -750,19 +754,19 @@ class Model_TriggerEvent {
 		// Add a convenience pointer
 		$dict->__trigger = $this;
 		
-		$this->_recurseRunTree($event, $nodes, $tree, 0, $dict, $path, $dry_run);
+		$this->_recurseRunTree($event, $nodes, $tree, 0, $dict, $path, $replay, $dry_run);
 		
-		return $path;
+		return [
+			'path' => $path,
+			'exit_state' => $exit_state,
+		];
 	}
 	
-	private function _recurseRunTree($event, $nodes, $tree, $node_id, DevblocksDictionaryDelegate $dict, &$path, $dry_run=false) {
+	private function _recurseRunTree($event, $nodes, $tree, $node_id, DevblocksDictionaryDelegate $dict, &$path, &$replay, $dry_run=false) {
 		$logger = DevblocksPlatform::getConsoleLog("Attendant");
-		// Does our current node pass?
 		$pass = true;
 		
-		// If these conditions match...
 		if(!empty($node_id) && isset($nodes[$node_id])) {
-			$logger->info($nodes[$node_id]->node_type . ' :: ' . $nodes[$node_id]->title . ' (' . $node_id . ')');
 			switch($nodes[$node_id]->status_id) {
 				// Disabled
 				case 1:
@@ -776,6 +780,9 @@ class Model_TriggerEvent {
 					break;
 			}
 			
+			// If these conditions match...
+			if(empty($replay_id))
+				$logger->info('ENTER ' . $nodes[$node_id]->node_type . ' :: ' . $nodes[$node_id]->title . ' (' . $node_id . ')');
 			
 			// Handle the node type
 			switch($nodes[$node_id]->node_type) {
@@ -824,9 +831,6 @@ class Model_TriggerEvent {
 					break;
 					
 				case 'action':
-					$pass = true;
-					EventListener_Triggers::logNode($node_id);
-					
 					// Run all the actions
 					if(is_array(@$nodes[$node_id]->params['actions']))
 					foreach($nodes[$node_id]->params['actions'] as $params) {
@@ -848,42 +852,60 @@ class Model_TriggerEvent {
 		}
 		
 		if($pass)
-			$path[$node_id] = $pass;
+			$path[] = $node_id;
 
 		$switch = false;
-		foreach($tree[$node_id] as $child_id) {
-			// Then continue navigating down the tree...
-			$parent_type = empty($node_id) ? 'outcome' : $nodes[$node_id]->node_type;
-			$child_type = $nodes[$child_id]->node_type;
-			
-			switch($child_type) {
-				// Always run all actions
-				case 'action':
-					if($pass)
-						$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $dry_run);
+		$loop = false;
+		
+		do {
 					break;
+			foreach($tree[$node_id] as $child_id) {
+				// Then continue navigating down the tree...
+				$parent_type = empty($node_id) ? 'trigger' : $nodes[$node_id]->node_type;
+				$child_type = $nodes[$child_id]->node_type;
+				
 					
-				default:
-					switch($parent_type) {
-						case 'outcome':
-							if($pass)
-								$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $dry_run);
-							break;
+					if($replay_child_id != $child_id)
+						continue;
+				}
+				
+				switch($child_type) {
+					// Always run all actions
+					case 'action':
+						if($pass) {
+							$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $replay, $dry_run);
 							
-						case 'switch':
-							// Only run the first successful child outcome
-							if($pass && !$switch)
-								if($this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $dry_run))
-									$switch = true;
-							break;
-							
-						case 'action':
-							// No children
-							break;
-					}
-					break;
+						}
+						break;
+						
+					default:
+						switch($parent_type) {
+							case 'trigger':
+								if($pass)
+									$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $replay, $dry_run);
+								break;
+								
+							case 'outcome':
+								if($pass)
+									$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $replay, $dry_run);
+								break;
+								
+							case 'switch':
+								// Only run the first successful child outcome
+								if($pass && !$switch)
+									if($this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $replay, $dry_run))
+										$switch = true;
+								break;
+								
+							case 'action':
+								// No children
+								break;
+						}
+						break;
+				}
 			}
-		}
+			
+		} while($loop);
 		
 		return $pass;
 	}

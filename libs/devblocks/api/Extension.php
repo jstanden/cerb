@@ -976,10 +976,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		
 		$conditions = array(
 			'_calendar_availability' => array('label' => 'Calendar availability', 'type' => ''),
-			'_month_of_year' => array('label' => 'Calendar month of year', 'type' => ''),
-			'_day_of_week' => array('label' => 'Calendar day of week', 'type' => ''),
-			'_time_of_day' => array('label' => 'Calendar time of day', 'type' => ''),
 			'_custom_script' => array('label' => 'Custom script', 'type' => ''),
+			'_day_of_week' => array('label' => 'Calendar day of week', 'type' => ''),
+			'_month_of_year' => array('label' => 'Calendar month of year', 'type' => ''),
+			'_time_of_day' => array('label' => 'Calendar time of day', 'type' => ''),
 		);
 		$custom = $this->getConditionExtensions($trigger);
 
@@ -1045,7 +1045,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			case '_day_of_week':
 				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_day_of_week.tpl');
 				break;
-
+				
 			case '_time_of_day':
 				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_time_of_day.tpl');
 				break;

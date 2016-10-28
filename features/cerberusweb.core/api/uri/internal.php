@@ -3813,9 +3813,9 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$behavior_data = $trigger->getDecisionTreeData();
 		$tpl->assign('behavior_data', $behavior_data);
-
-		$behavior_path = $trigger->runDecisionTree($dict, true, $ext_event);
-		$tpl->assign('behavior_path', $behavior_path);
+		
+		$result = $trigger->runDecisionTree($dict, true, $ext_event);
+		$tpl->assign('behavior_path', $result['path']);
 		
 		if($dict->exists('__simulator_output'))
 			$tpl->assign('simulator_output', $dict->__simulator_output);
