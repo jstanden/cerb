@@ -252,9 +252,13 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
+
+		if(!is_array($ids))
+			$ids = array($ids);
 		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
+			
 		if(empty($ids))
 			return;
 		
@@ -276,6 +280,24 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		);
 		
 		return true;
+	}
+	
+	static function deleteByOwner($owner_context, $owner_context_ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(!is_array($owner_context_ids))
+			$owner_context_ids = array($owner_context_ids);
+		
+		$owner_context_ids = DevblocksPlatform::sanitizeArray($owner_context_ids, 'integer');
+		
+		$snippets = DAO_Snippet::getWhere(sprintf("owner_context = %s AND owner_context_id IN (%s)",
+			$db->qstr($owner_context),
+			implode(',', $owner_context_ids)
+		));
+		
+		if(is_array($snippets)) {
+			DAO_Snippet::delete(array_keys($snippets));
+		}
 	}
 	
 	public static function random() {
