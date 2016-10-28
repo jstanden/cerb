@@ -14,6 +14,17 @@
 	{$dict->$k|number_format}
 {elseif $types.$k == Model_CustomField::TYPE_DROPDOWN}
 	{$dict->$k}
+{elseif $types.$k == Model_CustomField::TYPE_WORKER}
+	{$worker_id = $dict->$k}
+	{$worker = DAO_Worker::get($worker_id)}
+	{if $worker}
+		<ul class="bubbles">
+		<li class="bubble-gray">
+			<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker_id}{/devblocks_url}?v={$worker->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;">
+			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker_id}">{$worker->getName()}</a>
+		</li>
+		</ul>
+	{/if}
 {elseif $types.$k == 'context_url'}
 	{if substr($k,-6) == '_label'}
 		{$k_prefix = substr($k,0,strlen($k)-6)}
