@@ -14,7 +14,7 @@
 	{if $node->node_type != 'action'}
 		<li><hr></li>
 
-		{if $node->node_type == 'outcome' || empty($node)}
+		{if !$node || in_array($node->node_type, ['subroutine','outcome','loop'])}
 		<li><a href="javascript:;" onclick="genericAjaxPopup('node_switch','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=switch',null,false,'50%');">Add Decision</a></li>
 		{/if}
 		
@@ -22,8 +22,13 @@
 		<li><a href="javascript:;" onclick="genericAjaxPopup('node_outcome','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=outcome',null,false,'50%');">Add Outcome</a></li>
 		{/if}
 		
-		{if $node->node_type == 'outcome' || empty($node)}
+		{if !$node || in_array($node->node_type, ['subroutine','outcome','loop'])}
 		<li><a href="javascript:;" onclick="genericAjaxPopup('node_action','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=action',null,false,'50%');">Add Actions</a></li>
 		{/if}
+		
+		{if !$node}
+		<li><a href="javascript:;" onclick="genericAjaxPopup('node_subroutine','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=subroutine',null,false,'50%');">Add Subroutine</a></li>
+		{/if}
+
 	{/if}
 </ul>

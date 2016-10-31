@@ -4,7 +4,14 @@
 
 {* Label *}
 <div class="node {$node->node_type}">
-	{if $node->node_type == 'switch'}
+	{if $node->node_type == 'subroutine'}
+		<div class="badge badge-lightgray" style="margin:2px;">
+			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(50,50,50);">
+				{$node->title}
+			</a>
+		</div>
+
+	{elseif $node->node_type == 'switch'}
 		<div class="badge badge-lightgray" style="margin:2px;">
 			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(68,154,220);">
 				{$node->title}

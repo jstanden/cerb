@@ -1503,6 +1503,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			'_exit' => array('label' => 'Behavior exit'),
 			'_get_links' => array('label' => 'Get links'),
 			'_run_behavior' => array('label' => 'Behavior run'),
+			'_run_subroutine' => array('label' => 'Behavior call subroutine'),
 			'_schedule_behavior' => array('label' => 'Behavior schedule'),
 			'_set_custom_var' => array('label' => 'Set custom placeholder'),
 			'_set_custom_var_snippet' => array('label' => 'Set custom placeholder using a snippet'),
@@ -1605,7 +1606,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 					DevblocksEventHelper::renderActionScheduleBehavior($trigger);
 					break;
-
+					
+				case '_run_subroutine':
+					$subroutines = $trigger->getNodes('subroutine');
+					$tpl->assign('subroutines', $subroutines);
+					
+					$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_run_subroutine.tpl');
+					break;
+					
 				case '_unschedule_behavior':
 					DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
 					break;
@@ -1716,6 +1724,18 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					return DevblocksEventHelper::simulateActionScheduleBehavior($params, $dict);
 					break;
 
+				case '_run_subroutine':
+					@$subroutine_id = $params['subroutine'];
+					
+					if(false == (@$subroutine_node = DAO_DecisionNode::get($subroutine_id)))
+						return;
+					
+					return sprintf(">>> Running subroutine: %s (#%d)\n",
+						$subroutine_node->title,
+						$subroutine_id
+					);
+					break;
+					
 				case '_unschedule_behavior':
 					return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
 					break;
@@ -1870,6 +1890,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						DevblocksEventHelper::runActionRunBehavior($params, $dict);
 					break;
 
+				case '_run_subroutine':
+					@$state = $params['subroutine'];
+					$dict->__goto = $state;
+					
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					break;
+					
 				case '_schedule_behavior':
 					if($dry_run)
 						$out = $this->simulateAction($token, $trigger, $params, $dict);

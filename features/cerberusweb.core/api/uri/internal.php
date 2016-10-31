@@ -3549,6 +3549,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		// Template
 		switch($type) {
+			case 'subroutine':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/subroutine.tpl');
+				break;
+				
 			case 'switch':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/switch.tpl');
 				break;
@@ -4333,6 +4337,10 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Type-specific properties
 		switch($type) {
+			case 'subroutine':
+				// Nothing
+				break;
+				
 			case 'switch':
 				// Nothing
 				break;

@@ -816,6 +816,14 @@ class Model_TriggerEvent {
 			
 			// Handle the node type
 			switch($nodes[$node_id]->node_type) {
+				case 'subroutine':
+					if($replay_id)
+						break;
+					
+					$pass = true;
+					$dict->__goto = $node_id;
+					break;
+					
 				case 'outcome':
 					if($replay_id)
 						break;
@@ -875,13 +883,28 @@ class Model_TriggerEvent {
 						
 						$action = $params['action'];
 						
-						$event->runAction($action, $this, $params, $dict, $dry_run);
+						if(!$replay_id || $action == '_run_subroutine')
+							$event->runAction($action, $this, $params, $dict, $dry_run);
+						
 						if(isset($dict->__exit)) {
 							$path[] = $node_id;
 							$path[] = ('suspend' == $dict->__exit) ? 'SUSPEND' : 'STOP';
 							return;
 						}
 						
+						switch($action) {
+							case '_run_subroutine':
+								if($dict->__goto) {
+									$path[] = $node_id;
+									
+									@$new_state = intval($dict->__goto);
+									unset($dict->__goto);
+									
+									$this->_recurseRunTree($event, $nodes, $tree, $new_state, $dict, $path, $replay, $dry_run);
+									return;
+								}
+								break;
+						}
 					}
 					break;
 			}
@@ -926,9 +949,18 @@ class Model_TriggerEvent {
 						}
 						break;
 						
+					case 'subroutine':
+						// Don't automatically run subroutines
+						break;
+						
 					default:
 						switch($parent_type) {
 							case 'trigger':
+								if($pass)
+									$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $replay, $dry_run);
+								break;
+								
+							case 'subroutine':
 								if($pass)
 									$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $replay, $dry_run);
 								break;
