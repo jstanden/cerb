@@ -13,6 +13,8 @@ php:
         - 7.0
 
 before_script:
+        - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then pecl install mailparse; fi
+        - if [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then pecl install mailparse-2.1.6; fi
         - echo 'upload_tmp_dir = "/tmp"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
 script: phpunit --configuration tests/phpunit.cerb.platform.xml
