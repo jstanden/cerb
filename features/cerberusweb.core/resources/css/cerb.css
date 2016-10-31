@@ -1106,7 +1106,9 @@ DIV.badge A {
   color: white;
 }
 DIV.badge.selected {
-  border: 2px dashed;
+  border: 1px dashed;
+  background: none;
+  background-color: rgb(255, 250, 160);
 }
 
 DIV.badge-lightgray {

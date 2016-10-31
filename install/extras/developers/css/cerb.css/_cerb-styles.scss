@@ -1058,7 +1058,9 @@ DIV.badge {
 	}
 
 	&.selected {
-		border:2px dashed;
+		border:1px dashed;
+		background: none;
+		background-color: rgb(255, 250, 160);
 	}
 }
 
