@@ -742,6 +742,10 @@ class Model_TriggerEvent {
 		return $this->_runDecisionTree($dict, $dry_run, $event);
 	}
 	
+	public function resumeDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event, array $replay) {
+		return $this->_runDecisionTree($dict, $dry_run, $event, $replay);
+	}
+	
 	private function _runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event, array $replay=array()) {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
@@ -777,6 +781,19 @@ class Model_TriggerEvent {
 		if(false !== in_array(end($path) ?: '', ['STOP','SUSPEND']))
 			return;
 		
+		$replay_id = null;
+		
+		if(is_array($replay) && !empty($replay)) {
+			$replay_id = array_shift($replay);
+			reset($replay);
+			
+			$node_id = $replay_id;
+			EventListener_Triggers::logNode($node_id);
+			
+			if(!empty($node_id))
+				$logger->info('REPLAY ' . $nodes[$node_id]->node_type . ' :: ' . $nodes[$node_id]->title . ' (' . $node_id . ')');
+		}
+		
 		$pass = true;
 		
 		if(!empty($node_id) && isset($nodes[$node_id])) {
@@ -800,6 +817,9 @@ class Model_TriggerEvent {
 			// Handle the node type
 			switch($nodes[$node_id]->node_type) {
 				case 'outcome':
+					if($replay_id)
+						break;
+					
 					@$cond_groups = $nodes[$node_id]->params['groups'];
 					
 					if(is_array($cond_groups))
@@ -839,6 +859,9 @@ class Model_TriggerEvent {
 					break;
 					
 				case 'switch':
+					if($replay_id)
+						break;
+					
 					$pass = true;
 					EventListener_Triggers::logNode($node_id);
 					break;
@@ -863,7 +886,7 @@ class Model_TriggerEvent {
 					break;
 			}
 			
-			if($nodes[$node_id]->node_type == 'outcome') {
+			if($nodes[$node_id]->node_type == 'outcome' && !$replay_id) {
 				$logger->info('');
 				$logger->info($pass ? 'Using this outcome.' : 'Skipping this outcome.');
 			}
@@ -883,6 +906,9 @@ class Model_TriggerEvent {
 				$parent_type = empty($node_id) ? 'trigger' : $nodes[$node_id]->node_type;
 				$child_type = $nodes[$child_id]->node_type;
 				
+				if(!empty($replay)) {
+					reset($replay);
+					$replay_child_id = current($replay);
 					
 					if($replay_child_id != $child_id)
 						continue;
