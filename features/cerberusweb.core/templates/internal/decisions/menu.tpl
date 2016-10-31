@@ -24,6 +24,7 @@
 		
 		{if !$node || in_array($node->node_type, ['subroutine','outcome','loop'])}
 		<li><a href="javascript:;" onclick="genericAjaxPopup('node_action','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=action',null,false,'50%');">Add Actions</a></li>
+		<li><a href="javascript:;" onclick="genericAjaxPopup('node_loop','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=loop',null,false,'50%');">Add Loop</a></li>
 		{/if}
 		
 		{if !$node}

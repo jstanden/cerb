@@ -824,6 +824,32 @@ class Model_TriggerEvent {
 					$dict->__goto = $node_id;
 					break;
 					
+				case 'loop':
+					@$foreach_json = $nodes[$node_id]->params['foreach_json'];
+					@$as_placeholder = $nodes[$node_id]->params['as_placeholder'];
+					
+					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					
+					if(empty($foreach_json) || empty($as_placeholder)) {
+						$pass = false;
+						break;
+					}
+					
+					if(false == ($json = json_decode($tpl_builder->build($foreach_json, $dict), true)) || !is_array($json)) {
+						$pass = false;
+						break;
+					}
+					
+					$as_placeholder_stack = $as_placeholder . '__stack';
+					$dict->$as_placeholder_stack = $json;
+					
+					if($replay_id)
+						break;
+					
+					$pass = true;
+					EventListener_Triggers::logNode($node_id);
+					break;
+					
 				case 'outcome':
 					if($replay_id)
 						break;
@@ -923,7 +949,24 @@ class Model_TriggerEvent {
 		$loop = false;
 		
 		do {
+			if($node_id && 'loop' == $nodes[$node_id]->node_type) {
+				@$as_placeholder = $nodes[$node_id]->params['as_placeholder'];
+				@$as_placeholder_key = $as_placeholder . '__key';
+				@$as_placeholder_stack = $as_placeholder . '__stack';
+				
+				if(is_array($dict->$as_placeholder_stack) && !empty($dict->$as_placeholder_stack)) {
+					$dict->$as_placeholder_key = key($dict->$as_placeholder_stack);
+					$dict->$as_placeholder = current($dict->$as_placeholder_stack);
+					array_shift($dict->$as_placeholder_stack);
+					$loop = true;
+				} else {
+					unset($dict->$as_placeholder);
+					unset($dict->$as_placeholder_key);
+					unset($dict->$as_placeholder_stack);
 					break;
+				}
+			}
+			
 			foreach($tree[$node_id] as $child_id) {
 				// Then continue navigating down the tree...
 				$parent_type = empty($node_id) ? 'trigger' : $nodes[$node_id]->node_type;
@@ -961,6 +1004,11 @@ class Model_TriggerEvent {
 								break;
 								
 							case 'subroutine':
+								if($pass)
+									$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $replay, $dry_run);
+								break;
+								
+							case 'loop':
 								if($pass)
 									$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $replay, $dry_run);
 								break;

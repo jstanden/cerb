@@ -3557,6 +3557,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/switch.tpl');
 				break;
 				
+			case 'loop':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/loop.tpl');
+				break;
+				
 			case 'outcome':
 				if(null != ($evt = $trigger->getEvent())) {
 					$conditions = $evt->getConditions($trigger);
@@ -4343,6 +4347,13 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 			case 'switch':
 				// Nothing
+				break;
+				
+			case 'loop':
+				@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',array());
+				DAO_DecisionNode::update($id, array(
+					DAO_DecisionNode::PARAMS_JSON => json_encode($params),
+				));
 				break;
 				
 			case 'outcome':

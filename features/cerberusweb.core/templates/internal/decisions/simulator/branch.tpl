@@ -17,6 +17,13 @@
 				{$node->title}
 			</a>
 		</div>
+		
+	{elseif $node->node_type == 'loop'}
+		<div class="badge badge-lightgray" style="margin:2px;">
+			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(100,100,100);">
+				<span style="font-weight:normal;">&#x27f3;</span> {$node->title}
+			</a>
+		</div>
 	
 	{elseif $node->node_type == 'outcome'}
 		<div class="badge badge-lightgray">
