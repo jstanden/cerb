@@ -80,20 +80,21 @@ namespace Cerb\Impex\Exporters {
 				while($stmt->fetch()) {
 					if(0 == $count++ % 2000) {
 						$dir = sprintf(CerbImpex::getOption('output_dir') . '03-orgs-%06d/', ++$bins);
-						mkdir($dir, 0700, true);
+						if(!file_exists($dir))
+							mkdir($dir, 0700, true);
 					}
 					
 					$doc = simplexml_load_string('<organization/>');
-					$doc->addChild('name', $name);
-					$doc->addChild('street', $street);
-					$doc->addChild('city', $city);
-					$doc->addChild('province', $province);
-					$doc->addChild('postal', $postal);
-					$doc->addChild('country', $country);
-					$doc->addChild('phone', $phone);
-					$doc->addChild('website', $website);
-					$doc->addChild('created', $created);
-					$doc->addChild('updated', $updated);
+					$doc->name = $name;
+					$doc->street = $street;
+					$doc->city = $city;
+					$doc->province = $province;
+					$doc->postal = $postal;
+					$doc->country = $country;
+					$doc->phone = $phone;
+					$doc->website = $website;
+					$doc->created = $created;
+					$doc->updated -> $updated;
 					
 					$doc->asXML(sprintf("%s%09d.xml", $dir, $id));
 				}
@@ -147,7 +148,8 @@ SQL;
 				while($stmt->fetch()) {
 					if(0 == $count++ % 2000) {
 						$dir = sprintf(CerbImpex::getOption('output_dir') . '02-tickets-%06d/', ++$bins);
-						mkdir($dir, 0700, true);
+						if(!file_exists($dir))
+							mkdir($dir, 0700, true);
 					}
 					
 					$doc = simplexml_load_string('<ticket/>');
