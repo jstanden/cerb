@@ -13,10 +13,48 @@
 		{foreach from=$children item=child}
 		<div class="item" style="margin:2px;">
 			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>
-			<div class="badge badge-lightgray">
-				<input type="hidden" name="child_id[]" value="{$child->id}">
-				<b>{$child->title}</b> 
-			</div>
+			
+			{if $child->node_type == 'subroutine'}
+				<div class="badge badge-lightgray">
+					<input type="hidden" name="child_id[]" value="{$child->id}">
+					<span style="text-decoration:none;font-weight:bold;color:rgb(50,50,50);" node_id="{$child->id}" trigger_id="{$trigger_id}">
+						<span style="font-weight:normal;"></span> {$child->title}{if $is_writeable} &#x25be;{/if}
+					</span>
+				</div>
+				
+			{elseif $child->node_type == 'switch'}
+				<div class="badge badge-lightgray">
+					<input type="hidden" name="child_id[]" value="{$child->id}">
+					<span style="text-decoration:none;font-weight:bold;color:rgb(68,154,220);" node_id="{$child->id}" trigger_id="{$trigger_id}">
+						{*<span style="font-weight:normal;font-size:1.2em;">&#x22d4;</span> *}{$child->title}{if $is_writeable} &#x25be;{/if}
+					</span>
+				</div>
+				
+			{elseif $child->node_type == 'loop'}
+				<div class="badge badge-lightgray">
+					<input type="hidden" name="child_id[]" value="{$child->id}">
+					<span style="text-decoration:none;font-weight:bold;color:rgb(100,100,100);" node_id="{$child->id}" trigger_id="{$trigger_id}">
+						<span style="font-weight:normal;">&#x27f3;</span> {$child->title}{if $is_writeable} &#x25be;{/if}
+					</span>
+				</div>
+			
+			{elseif $child->node_type == 'outcome'}
+				<div class="badge badge-lightgray">
+					<input type="hidden" name="child_id[]" value="{$child->id}">
+					<span style="text-decoration:none;font-weight:bold;{if preg_match('#^yes($|,| )#i',$child->title)}color:rgb(0,150,0);{elseif preg_match('#^no($|,| )#i',$child->title)}color:rgb(150,0,0);{/if}" node_id="{$child->id}" trigger_id="{$trigger_id}">
+						{$child->title}{if $is_writeable} &#x25be;{/if}
+					</span>
+				</div>
+			
+			{elseif $child->node_type == 'action'}
+				<div class="badge badge-lightgray">
+					<input type="hidden" name="child_id[]" value="{$child->id}">
+					<span style="text-decoration:none;font-weight:normal;font-style:italic;" node_id="{$child->id}" trigger_id="{$trigger_id}">
+						{$child->title}{if $is_writeable} &#x25be;{/if}
+					</span>
+				</div>
+				
+			{/if}
 		</div>
 		{/foreach}
 	</div>
