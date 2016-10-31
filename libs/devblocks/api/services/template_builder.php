@@ -254,6 +254,7 @@ class DevblocksDictionaryDelegate {
 			unset($dict['_types']);
 			unset($dict['__simulator_output']);
 			unset($dict['__trigger']);
+			unset($dict['__exit']);
 		}
 		
 		// Convert any nested dictionaries to arrays

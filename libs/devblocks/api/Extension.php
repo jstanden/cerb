@@ -1500,6 +1500,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
 		$actions = array(
 			'_create_calendar_event' => array('label' => 'Create calendar event'),
+			'_exit' => array('label' => 'Behavior exit'),
 			'_get_links' => array('label' => 'Get links'),
 			'_run_behavior' => array('label' => 'Behavior run'),
 			'_schedule_behavior' => array('label' => 'Behavior schedule'),
@@ -1566,6 +1567,15 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			switch($token) {
 				case '_create_calendar_event':
 					DevblocksEventHelper::renderActionCreateCalendarEvent($trigger);
+					break;
+					
+				case '_exit':
+					@$options = $this->manifest->params['options'][0];
+					
+					if(is_array($options) && isset($options['resumable']))
+						$tpl->assign('is_resumable', true);
+					
+					return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_exit.tpl');
 					break;
 
 				case '_get_links':
@@ -1663,6 +1673,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					return DevblocksEventHelper::simulateActionCreateCalendarEvent($params, $dict);
 					break;
 
+				case '_exit':
+					@$mode = (isset($params['mode']) && $params['mode'] == 'suspend') ? 'suspend' : 'stop';
+					
+					return sprintf(">>> %s the behavior\n",
+						($mode == 'suspend' ? 'Suspending' : 'Exiting')
+					);
+					break;
+				
 				case '_get_links':
 					return DevblocksEventHelper::simulateActionGetLinks($params, $dict);
 					break;
@@ -1740,6 +1758,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					else
 						DevblocksEventHelper::runActionCreateCalendarEvent($params, $dict);
 
+					break;
+					
+				case '_exit':
+					@$mode = (isset($params['mode']) && $params['mode'] == 'suspend') ? 'suspend' : 'stop';
+					$dict->__exit = $mode;
+
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
 					break;
 
 				case '_get_links':

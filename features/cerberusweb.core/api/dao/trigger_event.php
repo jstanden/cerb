@@ -756,6 +756,14 @@ class Model_TriggerEvent {
 		
 		$this->_recurseRunTree($event, $nodes, $tree, 0, $dict, $path, $replay, $dry_run);
 		
+		$result = end($path) ?: '';
+		$exit_state = 'STOP';
+		
+		if($result === 'SUSPEND') {
+			array_pop($path);
+			$exit_state = 'SUSPEND';
+		}
+		
 		return [
 			'path' => $path,
 			'exit_state' => $exit_state,
@@ -764,6 +772,11 @@ class Model_TriggerEvent {
 	
 	private function _recurseRunTree($event, $nodes, $tree, $node_id, DevblocksDictionaryDelegate $dict, &$path, &$replay, $dry_run=false) {
 		$logger = DevblocksPlatform::getConsoleLog("Attendant");
+
+		// Did the last action request that we exit early?
+		if(false !== in_array(end($path) ?: '', ['STOP','SUSPEND']))
+			return;
+		
 		$pass = true;
 		
 		if(!empty($node_id) && isset($nodes[$node_id])) {
@@ -840,6 +853,12 @@ class Model_TriggerEvent {
 						$action = $params['action'];
 						
 						$event->runAction($action, $this, $params, $dict, $dry_run);
+						if(isset($dict->__exit)) {
+							$path[] = $node_id;
+							$path[] = ('suspend' == $dict->__exit) ? 'SUSPEND' : 'STOP';
+							return;
+						}
+						
 					}
 					break;
 			}
@@ -875,6 +894,9 @@ class Model_TriggerEvent {
 						if($pass) {
 							$this->_recurseRunTree($event, $nodes, $tree, $child_id, $dict, $path, $replay, $dry_run);
 							
+							// If one of the actions said to stop...
+							if(true === in_array(end($path) ?: '', ['STOP','SUSPEND']))
+								return;
 						}
 						break;
 						
