@@ -295,6 +295,105 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		}
 	}
 	
+	static function getOwnerTree(array $contexts=['app','bot','group','role','worker']) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$bots = DAO_VirtualAttendant::getAll();
+		$groups = DAO_Group::getAll();
+		$roles = DAO_WorkerRole::getAll();
+		$workers = DAO_Worker::getAllActive();
+
+		$owners = [];
+
+		if(in_array('worker', $contexts)) {
+			$item = new DevblocksMenuItemPlaceholder();
+			$item->label = 'Me';
+			$item->l = 'Me';
+			$item->key = CerberusContexts::CONTEXT_WORKER . ':' . $active_worker->id;
+			
+			$owners['Me'] = $item;
+		}
+		
+		// Apps
+		
+		if(in_array('app', $contexts)) {
+			$apps_menu = new DevblocksMenuItemPlaceholder();
+			
+			$item = new DevblocksMenuItemPlaceholder();
+			$item->label = 'Cerb';
+			$item->l = 'Cerb';
+			$item->key = CerberusContexts::CONTEXT_APPLICATION . ':' . 0;
+			$apps_menu->children[$item->l] = $item;
+			
+			$owners['App'] = $apps_menu;
+		}
+		
+		// Bots
+		
+		if(in_array('bot', $contexts)) {
+			$bots_menu = new DevblocksMenuItemPlaceholder();
+			
+			foreach($bots as $bot) {
+				$item = new DevblocksMenuItemPlaceholder();
+				$item->label = $bot->name;
+				$item->l = $bot->name;
+				$item->key = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT . ':' . $bot->id;
+				$bots_menu->children[$item->l] = $item;
+			}
+			
+			$owners['Bot'] = $bots_menu;
+		}
+		
+		// Groups
+		
+		if(in_array('group', $contexts)) {
+			$groups_menu = new DevblocksMenuItemPlaceholder();
+			
+			foreach($groups as $group) {
+				$item = new DevblocksMenuItemPlaceholder();
+				$item->label = $group->name;
+				$item->l = $item->label;
+				$item->key = CerberusContexts::CONTEXT_GROUP . ':' . $group->id;
+				$groups_menu->children[$item->l] = $item;
+			}
+			
+			$owners['Group'] = $groups_menu;
+		}
+		
+		// Roles
+		
+		if(in_array('role', $contexts)) {
+			$roles_menu = new DevblocksMenuItemPlaceholder();
+			
+			foreach($roles as $role) {
+				$item = new DevblocksMenuItemPlaceholder();
+				$item->label = $role->name;
+				$item->l = $item->label;
+				$item->key = CerberusContexts::CONTEXT_ROLE . ':' . $role->id;
+				$roles_menu->children[$item->l] = $item;
+			}
+			
+			$owners['Role'] = $roles_menu;
+		}
+		
+		// Workers
+		
+		if(in_array('worker', $contexts)) {
+			$workers_menu = new DevblocksMenuItemPlaceholder();
+			
+			foreach($workers as $worker) {
+				$item = new DevblocksMenuItemPlaceholder();
+				$item->label = $worker->getName();
+				$item->l = $item->label;
+				$item->key = CerberusContexts::CONTEXT_WORKER . ':' . $worker->id;
+				$workers_menu->children[$item->l] = $item;
+			}
+			
+			$owners['Worker'] = $workers_menu;
+		}
+		
+		return $owners;
+	}
+	
 	static function getPlaceholderTree($labels) {
 		$keys = new DevblocksMenuItemPlaceholder();
 		

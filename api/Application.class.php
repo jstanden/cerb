@@ -1211,58 +1211,6 @@ class CerberusContexts {
 		return $actor;
 	}
 
-	public static function getAvailableOwners(Model_Worker $as_worker) {
-		$roles = DAO_WorkerRole::getAll();
-		$workers = DAO_Worker::getAll();
-		$groups = DAO_Group::getAll();
-
-		$owners = array(
-			array(
-				'label' => 'Application: Cerb',
-				'context' => CerberusContexts::CONTEXT_APPLICATION,
-				'context_id' => 0,
-			),
-		);
-
-		if(is_array($groups))
-		foreach($groups as $k => $group) { /* @var $group Model_Group */
-			if($as_worker->is_superuser || $as_worker->isGroupManager($k)) {
-				$owners[] = array(
-					'label' => 'Group: ' . $group->name,
-					'context' => CerberusContexts::CONTEXT_GROUP,
-					'context_id' => $group->id,
-				);
-			}
-		}
-
-		if(is_array($roles))
-		foreach($roles as $k => $role) { /* @var $role Model_WorkerRole */
-			if($as_worker->is_superuser) {
-				$owners[] = array(
-					'label' => 'Role: ' . $role->name,
-					'context' => CerberusContexts::CONTEXT_ROLE,
-					'context_id' => $role->id,
-				);
-			}
-		}
-
-		if($as_worker->is_superuser)
-		if(is_array($workers))
-		foreach($workers as $worker) { /* @var $worker Model_Worker */
-			if(!$worker->is_disabled)
-				$owners[] = array(
-					'label' => 'Worker: ' . $worker->getName(),
-					'context' => CerberusContexts::CONTEXT_WORKER,
-					'context_id' => $worker->id,
-				);
-		}
-
-		// Sort
-		DevblocksPlatform::sortObjects($owners, '[label]', true);
-
-		return $owners;
-	}
-
 	public static function isReadableByActor($owner_context, $owner_context_id, $actor) {
 		if(false == ($actor = CerberusContexts::polymorphActor($actor)))
 			return false;
@@ -2072,7 +2020,7 @@ class Context_Application extends Extension_DevblocksContext {
 		// Polymorph
 		if(is_numeric($object)) {
 			$object = new Model_Application();
-			$object->name = 'Application';
+			$object->name = 'Cerb';
 
  		} elseif($object instanceof Model_Application) {
 			// It's what we want already.
@@ -2109,8 +2057,8 @@ class Context_Application extends Extension_DevblocksContext {
 		// Worker token values
 		if(null != $object) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = 'Application';
-			$token_values['name'] = 'Application';
+			$token_values['_label'] = 'Cerb';
+			$token_values['name'] = 'Cerb';
 		}
 
 		return true;
