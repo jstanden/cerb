@@ -3212,11 +3212,11 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.virtual_attendants</id>
-				<name>Virtual Attendants Section</name>
+				<id>core.page.setup.bots</id>
+				<name>Bots Section</name>
 				<class>
-					<file>api/uri/config/attendants.php</file>
-					<name>PageSection_SetupAttendants</name>
+					<file>api/uri/config/bots.php</file>
+					<name>PageSection_SetupBots</name>
 				</class>
 				<params>
 					<param key="page_id" value="core.page.configuration" />

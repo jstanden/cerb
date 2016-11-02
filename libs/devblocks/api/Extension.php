@@ -132,8 +132,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	}
 
 	/**
-	 * @param unknown_type $as_instances
-	 * @param unknown_type $with_options
+	 * @param boolean $as_instances
+	 * @param boolean $with_options
 	 * @return Extension_DevblocksContext[]
 	 */
 	public static function getAll($as_instances=false, $with_options=null) {
@@ -273,7 +273,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 
 	/**
 	 * Lazy loader + cache
-	 * @param unknown_type $context
+	 * @param string $context
 	 * @return Extension_DevblocksContext
 	 */
 	public static function get($context) {

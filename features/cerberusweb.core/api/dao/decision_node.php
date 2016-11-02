@@ -430,7 +430,7 @@ class SearchFields_DecisionNode extends DevblocksSearchFields {
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'decision_node', 'title', $translate->_('common.title'), null, true),
 			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'decision_node', 'status_id', $translate->_('common.status'), null, true),
 			self::POS => new DevblocksSearchField(self::POS, 'decision_node', 'pos', $translate->_('common.order'), null, true),
-			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'decision_node', 'params_json', $translate->_('dao.decision_node.params'), null, false),
+			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'decision_node', 'params_json', $translate->_('common.params'), null, false),
 		);
 		
 		// Sort by label (translation-conscious)

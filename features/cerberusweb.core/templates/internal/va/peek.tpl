@@ -100,7 +100,7 @@
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 	
 	<div>
-		Are you sure you want to delete this virtual attendant and all of its behaviors?
+		Are you sure you want to delete this bot and all of its behaviors?
 	</div>
 	
 	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
@@ -127,7 +127,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{'Virtual Attendant'}");
+		$popup.dialog('option','title',"{'common.bot'|devblocks_translate|capitalize|escape:'javascript'}");
 		$popup.css('overflow', 'inherit');
 		
 		var $events_container = $popup.find('div.va-events');

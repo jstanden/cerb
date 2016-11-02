@@ -1087,6 +1087,16 @@
 				<seg>OK</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.param">
+			<tuv xml:lang="en_US">
+				<seg>param</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.params">
+			<tuv xml:lang="en_US">
+				<seg>params</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.participant">
 			<tuv xml:lang="en_US">
 				<seg>participant</seg>
@@ -1386,6 +1396,11 @@
 		<tu tuid="common.skillsets">
 			<tuv xml:lang="en_US">
 				<seg>skillsets</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.snippet">
+			<tuv xml:lang="en_US">
+				<seg>snippet</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.snippets">
@@ -1740,11 +1755,6 @@
 		<tu tuid="dao.decision_node.node_type">
 			<tuv xml:lang="en_US">
 				<seg>Node Type</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.decision_node.params">
-			<tuv xml:lang="en_US">
-				<seg>Params</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dao.decision_node.parent_id">
@@ -3015,11 +3025,6 @@ For example: http://www.cerbweb.com/support/</seg>
 		<tu tuid="mail_queue.is_queued">
 			<tuv xml:lang="en_US">
 				<seg>Is Queued</seg>
-			</tuv>
-		</tu>
-		<tu tuid="mail_queue.params_json">
-			<tuv xml:lang="en_US">
-				<seg>Parameters</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail_queue.queue_delivery_date">

@@ -2063,11 +2063,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.decision_node.params">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="dao.decision_node.parent_id">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -3184,11 +3179,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="mail_queue.is_queued">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="mail_queue.params_json">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

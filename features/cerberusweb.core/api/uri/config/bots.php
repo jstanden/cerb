@@ -15,7 +15,7 @@
 |	http://cerb.io	    http://webgroup.media
 ***********************************************************************/
 
-class PageSection_SetupAttendants extends Extension_PageSection {
+class PageSection_SetupBots extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
@@ -41,6 +41,6 @@ class PageSection_SetupAttendants extends Extension_PageSection {
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/attendants/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/bots/index.tpl');
 	}
 };

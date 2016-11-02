@@ -658,7 +658,7 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		$this->name = $translate->_('Virtual Attendants');
+		$this->name = mb_convert_case($translate->_('common.bots'), MB_CASE_TITLE);
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_VirtualAttendant::ID;
 		$this->renderSortAsc = true;

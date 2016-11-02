@@ -1393,6 +1393,16 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.param">
+			<tuv xml:lang="es_ES">
+				<seg>Parámetro</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.params">
+			<tuv xml:lang="es_ES">
+				<seg>Parámetros</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.password">
 			<tuv xml:lang="es_ES">
 				<seg>contraseña</seg>
@@ -2059,11 +2069,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="dao.decision_node.node_type">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.decision_node.params">
 			<tuv xml:lang="es_ES">
 				<seg/>
 			</tuv>
@@ -3186,11 +3191,6 @@
 		<tu tuid="mail_queue.is_queued">
 			<tuv xml:lang="es_ES">
 				<seg>Esta Encolado</seg>
-			</tuv>
-		</tu>
-		<tu tuid="mail_queue.params_json">
-			<tuv xml:lang="es_ES">
-				<seg>Parámetros</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail_queue.queue_delivery_date">

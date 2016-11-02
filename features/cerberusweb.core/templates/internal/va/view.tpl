@@ -99,10 +99,10 @@
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.v_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 				{/if}
 			</td>
-			{elseif $column == "v_created_at" || $column == "v_updated_at"}
-				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
+			{elseif in_array($column, ["v_created_at", "v_updated_at"])}
+				<td data-column="{$column}">
 					{if !empty($result.$column)}
-						{$result.$column|devblocks_prettytime}&nbsp;
+						<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 					{/if}
 				</td>
 			{elseif $column == "v_is_disabled"}

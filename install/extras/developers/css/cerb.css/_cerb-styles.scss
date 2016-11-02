@@ -998,14 +998,6 @@ UL.bubbles {
 				color:rgb(0,0,0);
 			}
 		
-			IMG.cerb-avatar {
-				height:16px;
-				width:16px;
-				margin-right:3px;
-				@include border-radius(16px);
-				vertical-align:middle;
-			}
-			
 			.glyphicons-circle-remove {
 				cursor: pointer;
 				position: absolute;
@@ -1021,6 +1013,16 @@ UL.bubbles {
 			}
 		}
 	}
+}
+
+// Avatars
+
+IMG.cerb-avatar {
+	height:16px;
+	width:16px;
+	margin-right:3px;
+	@include border-radius(16px);
+	vertical-align:middle;
 }
 
 // Badges

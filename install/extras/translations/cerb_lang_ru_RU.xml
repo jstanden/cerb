@@ -1393,6 +1393,11 @@
 				<seg>владелец</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.params">
+			<tuv xml:lang="ru_RU">
+				<seg>Параметры</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.password">
 			<tuv xml:lang="ru_RU">
 				<seg>пароль</seg>
@@ -2059,11 +2064,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="dao.decision_node.node_type">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.decision_node.params">
 			<tuv xml:lang="ru_RU">
 				<seg/>
 			</tuv>
@@ -3186,11 +3186,6 @@
 		<tu tuid="mail_queue.is_queued">
 			<tuv xml:lang="ru_RU">
 				<seg>В очереди</seg>
-			</tuv>
-		</tu>
-		<tu tuid="mail_queue.params_json">
-			<tuv xml:lang="ru_RU">
-				<seg>Параметры</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail_queue.queue_delivery_date">

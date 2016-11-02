@@ -1393,6 +1393,16 @@
 				<seg>dono</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.param">
+			<tuv xml:lang="pt_PT">
+				<seg>Parâmetro</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.params">
+			<tuv xml:lang="pt_PT">
+				<seg>Parâmetros</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.password">
 			<tuv xml:lang="pt_PT">
 				<seg>password</seg>
@@ -2061,11 +2071,6 @@
 		<tu tuid="dao.decision_node.node_type">
 			<tuv xml:lang="pt_PT">
 				<seg>Tipo de Nó</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.decision_node.params">
-			<tuv xml:lang="pt_PT">
-				<seg>Parâmetros</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dao.decision_node.parent_id">
@@ -3186,11 +3191,6 @@
 		<tu tuid="mail_queue.is_queued">
 			<tuv xml:lang="pt_PT">
 				<seg>Está em Fila</seg>
-			</tuv>
-		</tu>
-		<tu tuid="mail_queue.params_json">
-			<tuv xml:lang="pt_PT">
-				<seg>parâmetros</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail_queue.queue_delivery_date">

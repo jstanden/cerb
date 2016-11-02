@@ -198,16 +198,11 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('{$layer}');
 	
 	$popup.one('popup_open',function(event,ui) {
+		$popup.dialog('option','title', '{'common.snippet'|devblocks_translate|capitalize|escape:'javascript'}');
 		$popup.css('overflow', 'inherit');
 
 		var $textarea = $popup.find('textarea[name=content]');
 		
-		{if empty($snippet->id)}
-		$popup.dialog('option','title', 'Create Snippet');
-		{else}
-		$popup.dialog('option','title', 'Modify Snippet');
-		{/if}
-
 		var $owners_menu = $popup.find('ul.owners-menu');
 		var $ul = $owners_menu.siblings('ul.chooser-container');
 		

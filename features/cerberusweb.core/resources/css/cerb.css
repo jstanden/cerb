@@ -975,7 +975,16 @@ DIV.bubble.bubble-blue {
 DIV.bubble.bubble-blue A {
   color: #3273b9;
 }
-
+IMG.cerb-avatar {
+  height: 16px;
+  width: 16px;
+  margin-right: 3px;
+  -webkit-border-radius: 16px;
+  -moz-border-radius: 16px;
+  -ms-border-radius: 16px;
+  border-radius: 16px;
+  vertical-align: middle;
+}
 UL.bubbles {
   display: inline;
   margin: 0px;
@@ -1048,16 +1057,6 @@ UL.bubbles.chooser-container LI {
 }
 UL.bubbles.chooser-container LI A {
   color: black;
-}
-UL.bubbles.chooser-container LI IMG.cerb-avatar {
-  height: 16px;
-  width: 16px;
-  margin-right: 3px;
-  -webkit-border-radius: 16px;
-  -moz-border-radius: 16px;
-  -ms-border-radius: 16px;
-  border-radius: 16px;
-  vertical-align: middle;
 }
 UL.bubbles.chooser-container LI .glyphicons-circle-remove {
   cursor: pointer;

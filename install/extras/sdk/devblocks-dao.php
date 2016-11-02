@@ -143,12 +143,12 @@ foreach($fields as $field_name => $field_type) {
 	/**
 	 *
 	 * @param bool $nocache
-	 * @return Model_<?php echo $class_name,"\n"; ?>[]
+	 * @return Model_<?php echo $class_name; ?>[]
 	 */
 	static function getAll($nocache=false) {
 		//$cache = DevblocksPlatform::getCacheService();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
-			$objects = self::getWhere(null, DAO_<?php echo $class_name,"\n"; ?>::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			$objects = self::getWhere(null, DAO_<?php echo $class_name; ?>::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
 			//if(!is_array($objects))
 			//	return false;
@@ -161,7 +161,7 @@ foreach($fields as $field_name => $field_type) {
 
 	/**
 	 * @param integer $id
-	 * @return Model_<?php echo $class_name,"\n"; ?>
+	 * @return Model_<?php echo $class_name; ?>
 	 */
 	static function get($id) {
 		if(empty($id))
@@ -181,7 +181,7 @@ foreach($fields as $field_name => $field_type) {
 	/**
 	 * 
 	 * @param array $ids
-	 * @return Model_<?php echo $class_name,"\n"; ?>[]
+	 * @return Model_<?php echo $class_name; ?>[]
 	 */
 	static function getIds($ids) {
 		if(!is_array($ids))
@@ -1261,7 +1261,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
 			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;">
+				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus>
 			</td>
 		</tr>
 		
@@ -1332,13 +1332,11 @@ $(function() {
 	$popup.one('popup_open', function(event,ui) {
 		var $textarea = $(this).find('textarea[name=comment]');
 		
-		$(this).dialog('option','title',"{'<?php echo $object_name; ?>'|escape:'javascript' nofilter}");
+		$popup.dialog('option','title',"{'<?php echo $object_name; ?>'|escape:'javascript' nofilter}");
 		
-		$(this).find('button.chooser_watcher').each(function() {
+		$popup.find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
-		
-		$(this).find('input:text:first').focus();
 		
 		// @mentions
 		
@@ -1453,10 +1451,10 @@ $field_prefix = strtolower(substr($table_name,0,1));
 				<a href="{devblocks_url}c=profiles&type=<?php echo $table_name; ?>&id={$result.<?php echo $field_prefix; ?>_id}-{$result.<?php echo $field_prefix; ?>_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.<?php echo $field_prefix; ?>_name}</a>
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.<?php echo $field_prefix; ?>_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
-			{elseif $column == "<?php echo $field_prefix; ?>_updated_at"}
-				<td title="{$result.$column|devblocks_date}">
+			{elseif in_array($column, ["<?php echo $field_prefix; ?>_updated_at"])}
+				<td>
 					{if !empty($result.$column)}
-						{$result.$column|devblocks_prettytime}&amp;nbsp;
+						<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 					{/if}
 				</td>
 			{else}
@@ -1604,7 +1602,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
-		@array_shift($stack); // <?php echo $table_name, "\n"; ?>
+		@array_shift($stack); // <?php echo $table_name; ?>
 		$id = array_shift($stack); // 123
 
 		@$id = intval($id);
