@@ -25,24 +25,7 @@
 				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td width="99%">
-				<select name="owner">
-					<option value="{CerberusContexts::CONTEXT_APPLICATION}:0"  context="{CerberusContexts::CONTEXT_APPLICATION}" {if $model->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
-
-					{foreach from=$roles item=role key=role_id}
-						<option value="{CerberusContexts::CONTEXT_ROLE}:{$role_id}"  context="{CerberusContexts::CONTEXT_ROLE}" {if $model->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$model->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
-					{/foreach}
-					
-					{foreach from=$groups item=group key=group_id}
-						<option value="{CerberusContexts::CONTEXT_GROUP}:{$group_id}"  context="{CerberusContexts::CONTEXT_GROUP}" {if $model->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$model->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
-					{/foreach}
-					
-					{foreach from=$workers item=worker key=worker_id}
-						{$is_selected = $model->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$model->owner_context_id}
-						{if $is_selected || !$worker->is_disabled}
-						<option value="{CerberusContexts::CONTEXT_WORKER}:{$worker_id}"  context="{CerberusContexts::CONTEXT_WORKER}" {if $is_selected}selected="selected"{/if}>Worker: {$worker->getName()}</option>
-						{/if}
-					{/foreach}
-				</select>
+				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
 			</td>
 		</tr>
 		
@@ -89,9 +72,9 @@
 		<label><input type="radio" name="allowed_events" value="deny" {if $model->params.events.mode == 'deny'}checked="checked"{/if}> Deny only these:</label>
 	</div>
 	
-	<div style="margin:3px 0px 0px 10px;{if empty($model->params.events.mode) || $model->params.events.mode == 'all'}display:none;{/if}" class="va-events">
+	<div style="margin:3px 0px 0px 10px;{if !in_array($model->params.events.mode,['allow','deny'])}display:none;{/if}" class="va-events">
 		{foreach from=$event_extensions item=event_ext key=event_ext_id}
-			<label contexts="{if isset($event_ext->params['contexts'][0])}{$event_ext->params['contexts'][0]|array_keys|implode:' '}{/if}"><input type="checkbox" name="itemized_events[]" value="{$event_ext_id}" {if is_array($model->params.events.items) && in_array($event_ext_id, $model->params.events.items)}checked="checked"{/if}> {$event_ext->name}<br></label>
+			<label style="{if !isset($event_ext->params['contexts'][0][$model->owner_context])}display:none;{/if}" contexts="{if isset($event_ext->params['contexts'][0])}{$event_ext->params['contexts'][0]|array_keys|implode:' '}{/if}"><input type="checkbox" name="itemized_events[]" value="{$event_ext_id}" {if is_array($model->params.events.items) && in_array($event_ext_id, $model->params.events.items)}checked="checked"{/if}> {$event_ext->name}<br></label>
 		{/foreach}
 	</div>
 </fieldset>
@@ -145,26 +128,64 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'Virtual Attendant'}");
+		$popup.css('overflow', 'inherit');
 		
-		$('#vaPeekTabs').tabs();
+		var $events_container = $popup.find('div.va-events');
+		var $events = $events_container.find('label');
 		
-		$popup.find('select[name=owner]').change(function() {
-			var $this = $(this);
-			var $owner = $this.find('option:selected');
-			var owner_context = $owner.attr('context');
-			var $frm = $this.closest('form');
-			var $events_container = $frm.find('div.va-events');
-			var $events = $events_container.find('label');
+		var $owners_menu = $popup.find('ul.owners-menu');
+		var $ul = $owners_menu.siblings('ul.chooser-container');
+		
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+		
+		$ul.on('bubble-remove', function(e, ui) {
+			e.stopPropagation();
+			$(e.target).closest('li').remove();
+			$ul.hide();
+			$owners_menu.show();
 			
 			$events.each(function() {
-				var contexts = $(this).attr('contexts').split(' ');
-				
-				if($.inArray(owner_context, contexts) != -1)
-					$(this).show();
-				else
-					$(this).hide();
+				$(this).hide();
 			});
-		}).trigger('change');
+		});
+		
+		$owners_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
+				
+				if(undefined == token || undefined == label)
+					return;
+				
+				$owners_menu.hide();
+				
+				// Build bubble
+				
+				var context_data = token.split(':');
+				var $li = $('<li/>');
+				var $label = $('<a href="javascript:;" class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
+				$label.cerbPeekTrigger().appendTo($li);
+				var $hidden = $('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
+				ui.item.find('img.cerb-avatar').clone().prependTo($li);
+				var $a = $('<a href="javascript:;" onclick="$(this).trigger(\'bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				
+				$ul.find('> *').remove();
+				$ul.append($li);
+				$ul.show();
+				
+				// Contextual events
+				$events.each(function() {
+					var contexts = $(this).attr('contexts').split(' ');
+					
+					if($.inArray(context_data[0], contexts) != -1)
+						$(this).show();
+					else
+						$(this).hide();
+				});
+			}
+		});
+		
+		$('#vaPeekTabs').tabs();
 		
 		$popup.find('input:radio[name=allowed_events]').change(function() {
 			var $this = $(this);

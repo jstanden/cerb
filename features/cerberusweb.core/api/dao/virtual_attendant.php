@@ -1316,16 +1316,9 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		}
 
-		// Owners
-		
-		$roles = DAO_WorkerRole::getAll();
-		$tpl->assign('roles', $roles);
-		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
+		// Owner
+		$owners_menu = Extension_DevblocksContext::getOwnerTree(['app','group','role','worker']);
+		$tpl->assign('owners_menu', $owners_menu);
 		
 		// VA Extensions
 		

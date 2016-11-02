@@ -121,17 +121,12 @@
 					{if !is_null($owner_context_ext)}
 						{$meta = $owner_context_ext->getMeta($owner_context_id)}
 						{if !empty($meta)}
-							{if $meta.permalink}
-								<a href="{$meta.permalink}">
-								{$meta.name}
-								({$owner_context_ext->manifest->name})
-								</a>
+							<img src="{devblocks_url}c=avatars&context={$owner_context_ext->id}&context_id={$owner_context_id}{/devblocks_url}?v={$result.c_updated_at}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
+							{if $owner_context_id} 
+							<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$owner_context}" data-context-id="{$owner_context_id}">{$meta.name}</a>
 							{else}
-								{$meta.name}
-								({$owner_context_ext->manifest->name})
+							{$meta.name}
 							{/if}
-						{else}
-							{$owner_context_ext->manifest->name}
 						{/if}
 					{/if}
 				</td>
