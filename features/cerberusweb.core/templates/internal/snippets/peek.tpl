@@ -38,45 +38,7 @@
 				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td width="99%">
-				<select name="owner">
-					{if !empty($snippet->id)}
-						<option value=""> - transfer - </option>
-					{/if}
-					
-					<option value="{CerberusContexts::CONTEXT_WORKER}:{$active_worker->id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$snippet->owner_context_id}selected="selected"{/if}>me</option>
-
-					{if $active_worker->is_superuser}
-					<option value="{CerberusContexts::CONTEXT_APPLICATION}:0"  context="{CerberusContexts::CONTEXT_APPLICATION}" {if $snippet->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
-					{/if}
-
-					{if !empty($owner_roles)}
-					{foreach from=$owner_roles item=role key=role_id}
-						<option value="{CerberusContexts::CONTEXT_ROLE}:{$role_id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$snippet->owner_context_id}selected="selected"{/if}>Role: {$role->name}</option>
-					{/foreach}
-					{/if}
-					
-					{if !empty($owner_groups)}
-					{foreach from=$owner_groups item=group key=group_id}
-						<option value="{CerberusContexts::CONTEXT_GROUP}:{$group_id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$snippet->owner_context_id}selected="selected"{/if}>Group: {$group->name}</option>
-					{/foreach}
-					{/if}
-					
-					{if $active_worker->is_superuser}
-					{foreach from=$workers item=worker key=worker_id}
-						{if empty($worker->is_disabled)}
-						<option value="{CerberusContexts::CONTEXT_WORKER}:{$worker_id}" {if $snippet->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$snippet->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>Worker: {$worker->getName()}</option>
-						{/if}
-					{/foreach}
-					{/if}
-				</select>
-				
-				{if !empty($snippet->id)}
-					{$context = Extension_DevblocksContext::get($snippet->owner_context)}
-					{if !empty($context)}
-						{$meta = $context->getMeta({$snippet->owner_context_id})}
-						<div class="bubble"><b>{$meta.name}</b> ({$context->manifest->name})</div>
-					{/if}
-				{/if}
+				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl" model=$snippet}
 			</td>
 		</tr>
 	</table>
@@ -236,6 +198,8 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('{$layer}');
 	
 	$popup.one('popup_open',function(event,ui) {
+		$popup.css('overflow', 'inherit');
+
 		var $textarea = $popup.find('textarea[name=content]');
 		
 		{if empty($snippet->id)}
@@ -244,6 +208,44 @@ $(function() {
 		$popup.dialog('option','title', 'Modify Snippet');
 		{/if}
 
+		var $owners_menu = $popup.find('ul.owners-menu');
+		var $ul = $owners_menu.siblings('ul.chooser-container');
+		
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+		
+		$ul.on('bubble-remove', function(e, ui) {
+			e.stopPropagation();
+			$(e.target).closest('li').remove();
+			$ul.hide();
+			$owners_menu.show();
+		});
+		
+		$owners_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
+				
+				if(undefined == token || undefined == label)
+					return;
+				
+				$owners_menu.hide();
+				
+				// Build bubble
+				
+				var context_data = token.split(':');
+				var $li = $('<li/>');
+				var $label = $('<a href="javascript:;" class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
+				$label.cerbPeekTrigger().appendTo($li);
+				var $hidden = $('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
+				ui.item.find('img.cerb-avatar').clone().prependTo($li);
+				var $a = $('<a href="javascript:;" onclick="$(this).trigger(\'bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				
+				$ul.find('> *').remove();
+				$ul.append($li);
+				$ul.show();
+			}
+		});
+		
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formSnippetsPeek', 'view{$view_id}', null, function() {
 				genericAjaxPopupClose($popup);

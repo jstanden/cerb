@@ -1287,6 +1287,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		$contexts = Extension_DevblocksContext::getAll(false);
 		$tpl->assign('contexts', $contexts);
 
+		// Owner
+		$owners_menu = Extension_DevblocksContext::getOwnerTree();
+		$tpl->assign('owners_menu', $owners_menu);
+		
 		// Custom fields
 		
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SNIPPET, false);
