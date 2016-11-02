@@ -47,10 +47,17 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				break;
 		}
 		
-		// Look up the context extension
-		if(empty($alias) || false == ($avatar_context_mft = Extension_DevblocksContext::getByAlias($alias, false)))
-			$this->_renderDefaultAvatar();
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$avatar_context_mft = null;
 
+		// Allow full context extension IDs
+		if(isset($contexts[$alias]))
+			$avatar_context_mft = $contexts[$alias];
+		
+		// Look up the context extension
+		if(empty($alias) || (empty($avatar_context_mft) && false == ($avatar_context_mft = Extension_DevblocksContext::getByAlias($alias, false))))
+			$this->_renderDefaultAvatar();
+		
 		// Look up the avatar record
 		if(false != ($avatar = DAO_ContextAvatar::getByContext($avatar_context_mft->id, $avatar_context_id))) {
 			$this->_renderAvatar($avatar);
