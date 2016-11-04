@@ -31,12 +31,15 @@
 		{$k_context = $k_prefix|cat:"_context"}
 		{$k_id = $k_prefix|cat:"id"}
 		{$k_label = $k_prefix|cat:"_label"}
-		{if $dict->$k_context && $dict->$k_id}
+		{if $dict->$k_context}
 			<ul class="bubbles">
 				<li class="bubble-gray">
 					{$k_alias = ''}
 					{$k_updated = 0}
-					{if $dict->$k_context == "{CerberusContexts::CONTEXT_ADDRESS}"}
+					{if $dict->$k_context == "{CerberusContexts::CONTEXT_APPLICATION}"}
+						{$k_alias = 'app'}
+						{$k_updated = $k_prefix|cat:"updated"}
+					{elseif $dict->$k_context == "{CerberusContexts::CONTEXT_ADDRESS}"}
 						{$k_alias = 'address'}
 						{$k_updated = $k_prefix|cat:"updated"}
 					{elseif $dict->$k_context == "{CerberusContexts::CONTEXT_CONTACT}"}

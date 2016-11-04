@@ -34,12 +34,12 @@
 	{$link_context_ext = Extension_DevblocksContext::get($v.params.context)}
 	{if $link_context_ext}
 		{$link_meta = $link_context_ext->getMeta($v.value)}
-		
 		{if $link_meta}
 			<ul class="bubbles">
 			<li class="bubble-gray">
-			{if $link_meta.permalink}
-				{if $link_context_ext->id == CerberusContexts::CONTEXT_WORKER}
+				{if $link_context_ext->id == CerberusContexts::CONTEXT_APPLICATION}
+				<img src="{devblocks_url}c=avatars&context=app&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_WORKER}
 				<img src="{devblocks_url}c=avatars&context=worker&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
 				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_CONTACT}
 				<img src="{devblocks_url}c=avatars&context=contact&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
@@ -50,10 +50,12 @@
 				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_GROUP}
 				<img src="{devblocks_url}c=avatars&context=group&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
 				{/if}
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{$v.params.context}" data-context-id="{$v.value}">{$link_meta.name}</a>
-			{else}
-				{$link_meta.name}
-			{/if}
+				
+				{if $link_meta.permalink}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$v.params.context}" data-context-id="{$v.value}">{$link_meta.name}</a>
+				{else}
+					{$link_meta.name}
+				{/if}
 			</li>
 			</ul>
 		{/if}
