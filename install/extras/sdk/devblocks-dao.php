@@ -1261,7 +1261,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
 			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus>
+				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 			</td>
 		</tr>
 		
@@ -1602,7 +1602,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
-		@array_shift($stack); // <?php echo $table_name; ?>
+		@array_shift($stack); // <?php echo $table_name; ?> 
 		$id = array_shift($stack); // 123
 
 		@$id = intval($id);
@@ -1662,7 +1662,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 					DAO_ContextLink::getContextLinkCounts(
 						'<?php echo $ctx_ext_id; ?>',
 						$<?php echo $table_name; ?>->id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
 		);
@@ -1910,11 +1910,10 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 
 <div id="<?php echo $table_name; ?>Tabs">
 	<ul>
-		{$tabs = [activity,comments,links]}
+		{$tabs = [activity,comments]}
 
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.activity_log'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextLinks&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.links')} <div class="tab-badge">{DAO_ContextLink::count($page_context, $page_context_id)|default:0}</div></a></li>
 
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
