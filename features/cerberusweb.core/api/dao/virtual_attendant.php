@@ -1286,17 +1286,13 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!$active_worker || !$active_worker->is_superuser)
-			return;
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
-		if(!empty($context_id) && null != ($virtual_attendant = DAO_VirtualAttendant::get($context_id))) {
-			$tpl->assign('model', $virtual_attendant);
-			
+		$context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!empty($context_id) && false != ($model = DAO_VirtualAttendant::get($context_id))) {
 		} else {
 			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
 			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
@@ -1304,88 +1300,86 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			$model = new Model_VirtualAttendant();
 			$model->owner_context = $owner_context;
 			$model->owner_context_id = $owner_context_id;
-			$tpl->assign('model', $model);
 		}
 		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, false);
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		if(!empty($context_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $context_id);
+		if(empty($context_id) || $edit) {
+			if(!$active_worker || !$active_worker->is_superuser)
+				return;
+			
+			if(isset($model))
+				$tpl->assign('model', $model);
+			
+			// Custom Fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
-		}
-
-		// Owner
-		$owners_menu = Extension_DevblocksContext::getOwnerTree(['app','group','role','worker']);
-		$tpl->assign('owners_menu', $owners_menu);
-		
-		// VA Extensions
-		
-		$event_extensions = DevblocksPlatform::getExtensions('devblocks.event', false);
-		DevblocksPlatform::sortObjects($event_extensions, 'name');
-		$tpl->assign('event_extensions', $event_extensions);
-		
-		$action_extensions = DevblocksPlatform::getExtensions('devblocks.event.action', false);
-		DevblocksPlatform::sortObjects($action_extensions, 'params->[label]');
-		$tpl->assign('action_extensions', $action_extensions);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/va/peek.tpl');
-	}
-	
-	/*
-	function importGetKeys() {
-		// [TODO] Translate
-	
-		$keys = array(
-			'name' => array(
-				'label' => 'Name',
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'param' => SearchFields_VirtualAttendant::NAME,
-				'required' => true,
-			),
-			'updated_at' => array(
-				'label' => 'Updated Date',
-				'type' => Model_CustomField::TYPE_DATE,
-				'param' => SearchFields_VirtualAttendant::UPDATED_AT,
-			),
-		);
-	
-		$fields = SearchFields_VirtualAttendant::getFields();
-		self::_getImportCustomFields($fields, $keys);
-	
-		DevblocksPlatform::sortObjects($keys, '[label]', true);
-	
-		return $keys;
-	}
-	
-	function importKeyValue($key, $value) {
-		switch($key) {
-		}
-	
-		return $value;
-	}
-	
-	function importSaveObject(array $fields, array $custom_fields, array $meta) {
-		// If new...
-		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
-			// Make sure we have a name
-			if(!isset($fields[DAO_VirtualAttendant::NAME])) {
-				$fields[DAO_VirtualAttendant::NAME] = 'New ' . $this->manifest->name;
-			}
-	
-			// Create
-			$meta['object_id'] = DAO_VirtualAttendant::create($fields);
-	
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// Owner
+			$owners_menu = Extension_DevblocksContext::getOwnerTree(['app','group','role','worker']);
+			$tpl->assign('owners_menu', $owners_menu);
+			
+			// VA Events
+			$event_extensions = DevblocksPlatform::getExtensions('devblocks.event', false);
+			DevblocksPlatform::sortObjects($event_extensions, 'name');
+			$tpl->assign('event_extensions', $event_extensions);
+			
+			// VA actions
+			$action_extensions = DevblocksPlatform::getExtensions('devblocks.event.action', false);
+			DevblocksPlatform::sortObjects($action_extensions, 'params->[label]');
+			$tpl->assign('action_extensions', $action_extensions);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/va/peek_edit.tpl');
+			
 		} else {
-			// Update
-			DAO_VirtualAttendant::update($meta['object_id'], $fields);
-		}
-	
-		// Custom fields
-		if(!empty($custom_fields) && !empty($meta['object_id'])) {
-			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
+			// Counts
+			$activity_counts = array(
+				'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/va/peek.tpl');
 		}
 	}
-	*/
 };

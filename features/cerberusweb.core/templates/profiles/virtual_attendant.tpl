@@ -24,7 +24,9 @@
 			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 			
 			<!-- Edit -->
-			{if $active_worker->is_superuser}<button type="button" id="btnDisplayVirtualAttendantEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>{/if}
+			{if $active_worker->is_superuser}
+				<button type="button" id="btnDisplayVirtualAttendantEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			{/if}
 		</form>
 		
 		{if $pref_keyboard_shortcuts}
@@ -114,14 +116,24 @@ $(function() {
 	
 	var tabs = $("#profileVaTabs").tabs(tabOptions);
 	
-	$('#btnDisplayVirtualAttendantEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
-		$popup.one('virtual_attendant_save', function(event) {
-			event.stopPropagation();
+	// Edit
+	
+	$('#btnDisplayVirtualAttendantEdit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
 			document.location.reload();
-		});
-	});
-
+		})
+		.on('cerb-peek-deleted', function(e) {
+			document.location.href = '{devblocks_url}{/devblocks_url}';
+			
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+		;
+	
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>

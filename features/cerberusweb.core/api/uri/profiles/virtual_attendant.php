@@ -138,10 +138,9 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::profiles/virtual_attendant.tpl');
 	}
 	
-	function savePeekAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		
+	function savePeekJsonAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -151,100 +150,139 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		
 		// Model
 		
-		if(!empty($id) && !empty($do_delete)) { // Delete
-			DAO_VirtualAttendant::delete($id);
-			
-		} else {
-			@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-			@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
-			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
-			@$allowed_events = DevblocksPlatform::importGPC($_REQUEST['allowed_events'], 'string', '');
-			@$itemized_events = DevblocksPlatform::importGPC($_REQUEST['itemized_events'], 'array', array());
-			@$allowed_actions = DevblocksPlatform::importGPC($_REQUEST['allowed_actions'], 'string', '');
-			@$itemized_actions = DevblocksPlatform::importGPC($_REQUEST['itemized_actions'], 'array', array());
-			
-			// Owner
+		header('Content-Type: application/json; charset=utf-8');
 		
-			$owner_ctx = '';
-			@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
-			
-			// Make sure we're given a valid ctx
-			
-			switch($owner_ctx) {
-				case CerberusContexts::CONTEXT_APPLICATION:
-				case CerberusContexts::CONTEXT_ROLE:
-				case CerberusContexts::CONTEXT_GROUP:
-				case CerberusContexts::CONTEXT_WORKER:
-					break;
-					
-				default:
-					$owner_ctx = null;
-			}
-			
-			if(empty($owner_ctx))
-				return false;
-			
-			// Permissions
-			
-			$params = array(
-				'events' => array(
-					'mode' => $allowed_events,
-					'items' => $itemized_events,
-				),
-				'actions' => array(
-					'mode' => $allowed_actions,
-					'items' => $itemized_actions,
-				),
-			);
-			
-			// Create or update
-			
-			if(empty($id)) { // New
-				$fields = array(
-					DAO_VirtualAttendant::CREATED_AT => time(),
-					DAO_VirtualAttendant::UPDATED_AT => time(),
-					DAO_VirtualAttendant::NAME => $name,
-					DAO_VirtualAttendant::IS_DISABLED => $is_disabled,
-					DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
-					DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
-					DAO_VirtualAttendant::PARAMS_JSON => json_encode($params),
-				);
+		try {
+			if(!empty($id) && !empty($do_delete)) { // Delete
+				DAO_VirtualAttendant::delete($id);
 				
-				if(false == ($id = DAO_VirtualAttendant::create($fields)))
-					return false;
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
 				
-				// Context Link (if given)
-				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $link_context, $link_context_id);
+			} else {
+				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
+				@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
+				@$allowed_events = DevblocksPlatform::importGPC($_REQUEST['allowed_events'], 'string', '');
+				@$itemized_events = DevblocksPlatform::importGPC($_REQUEST['itemized_events'], 'array', array());
+				@$allowed_actions = DevblocksPlatform::importGPC($_REQUEST['allowed_actions'], 'string', '');
+				@$itemized_actions = DevblocksPlatform::importGPC($_REQUEST['itemized_actions'], 'array', array());
+				
+				$is_disabled = DevblocksPlatform::intClamp($is_disabled, 0, 1);
+				
+				if(empty($name))
+					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
+				
+				// Owner
+			
+				$owner_ctx = '';
+				@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+				
+				// Make sure we're given a valid ctx
+				
+				switch($owner_ctx) {
+					case CerberusContexts::CONTEXT_APPLICATION:
+					case CerberusContexts::CONTEXT_ROLE:
+					case CerberusContexts::CONTEXT_GROUP:
+					case CerberusContexts::CONTEXT_WORKER:
+						break;
+						
+					default:
+						$owner_ctx = null;
 				}
 				
-				if(!empty($view_id) && !empty($id))
-					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id);
+				if(empty($owner_ctx))
+					throw new Exception_DevblocksAjaxValidationError("A valid 'Owner' is required.");
 				
-			} else { // Edit
-				$fields = array(
-					DAO_VirtualAttendant::UPDATED_AT => time(),
-					DAO_VirtualAttendant::NAME => $name,
-					DAO_VirtualAttendant::IS_DISABLED => $is_disabled,
-					DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
-					DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
-					DAO_VirtualAttendant::PARAMS_JSON => json_encode($params),
+				// Permissions
+				
+				$params = array(
+					'events' => array(
+						'mode' => $allowed_events,
+						'items' => $itemized_events,
+					),
+					'actions' => array(
+						'mode' => $allowed_actions,
+						'items' => $itemized_actions,
+					),
 				);
-				DAO_VirtualAttendant::update($id, $fields);
 				
-			}
-
-			if($id) {
-				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $field_ids);
+				// Create or update
 				
-				// Avatar image
-				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
-				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $avatar_image);
+				if(empty($id)) { // New
+					$fields = array(
+						DAO_VirtualAttendant::CREATED_AT => time(),
+						DAO_VirtualAttendant::UPDATED_AT => time(),
+						DAO_VirtualAttendant::NAME => $name,
+						DAO_VirtualAttendant::IS_DISABLED => $is_disabled,
+						DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
+						DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
+						DAO_VirtualAttendant::PARAMS_JSON => json_encode($params),
+					);
+					
+					if(false == ($id = DAO_VirtualAttendant::create($fields)))
+						throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
+					
+					// Context Link (if given)
+					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
+					@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
+						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $link_context, $link_context_id);
+					}
+					
+					if(!empty($view_id) && !empty($id))
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id);
+					
+				} else { // Edit
+					$fields = array(
+						DAO_VirtualAttendant::UPDATED_AT => time(),
+						DAO_VirtualAttendant::NAME => $name,
+						DAO_VirtualAttendant::IS_DISABLED => $is_disabled,
+						DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
+						DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
+						DAO_VirtualAttendant::PARAMS_JSON => json_encode($params),
+					);
+					DAO_VirtualAttendant::update($id, $fields);
+					
+				}
+	
+				if($id) {
+					// Custom fields
+					@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $field_ids);
+					
+					// Avatar image
+					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $avatar_image);
+				}
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'label' => $name,
+					'view_id' => $view_id,
+				));
+				return;
 			}
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			return;
 		}
 	}
 	
