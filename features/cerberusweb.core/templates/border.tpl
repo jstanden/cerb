@@ -34,13 +34,7 @@
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me{/devblocks_url}">{'header.my_profile'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=preferences{/devblocks_url}">{'common.settings'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=search&w=notification{/devblocks_url}?q=worker:me%20isRead:n">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
-				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=calendar{/devblocks_url}">{'common.calendar'|devblocks_translate|lower}</a></li>
-				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=availability{/devblocks_url}">{'common.availability'|devblocks_translate|lower}</a></li>
-				{if DAO_Skill::count()}<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=skills{/devblocks_url}">{'common.skills'|devblocks_translate|lower}</a></li>{/if}
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=activity{/devblocks_url}">{'common.activity_log'|devblocks_translate|lower}</a></li>
-				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=attendants{/devblocks_url}">{'common.bots'|devblocks_translate|lower}</a></li>
-				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=links{/devblocks_url}">{'watchlist'|devblocks_translate|lower}</a></li>
-				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=snippets{/devblocks_url}">{'common.snippets'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{'header.signoff'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=login&a=signout&w=all{/devblocks_url}">{'header.signoff.all.my'|devblocks_translate|lower}</a></li>
 			</ul>
