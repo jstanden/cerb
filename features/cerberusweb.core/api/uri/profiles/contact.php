@@ -136,6 +136,22 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
+			CerberusContexts::CONTEXT_ADDRESS => array(
+				$contact->primary_email_id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_ADDRESS,
+						$contact->primary_email_id,
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			),
+			CerberusContexts::CONTEXT_ORG => array(
+				$contact->org_id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_ORG,
+						$contact->org_id,
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			),
 		);
 		
 		$tpl->assign('properties_links', $properties_links);
