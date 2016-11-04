@@ -148,7 +148,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_ContextLink::getContextLinkCounts(
 						CerberusContexts::CONTEXT_WORKER,
 						$worker->id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
 		);

@@ -150,7 +150,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 					DAO_ContextLink::getContextLinkCounts(
 						CerberusContexts::CONTEXT_MAILBOX,
 						$mailbox->id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
 		);

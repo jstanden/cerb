@@ -1400,7 +1400,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 						DAO_ContextLink::getContextLinkCounts(
 							CerberusContexts::CONTEXT_TASK,
 							$context_id,
-							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 						),
 				),
 			);

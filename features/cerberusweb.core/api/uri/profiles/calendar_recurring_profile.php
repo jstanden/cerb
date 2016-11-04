@@ -121,7 +121,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 					DAO_ContextLink::getContextLinkCounts(
 						CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING,
 						$calendar_recurring_profile->id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
 		);
@@ -132,7 +132,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 					DAO_ContextLink::getContextLinkCounts(
 						CerberusContexts::CONTEXT_CALENDAR,
 						$calendar_recurring_profile->calendar_id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			);
 		}

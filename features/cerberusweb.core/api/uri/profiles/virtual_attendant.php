@@ -97,18 +97,18 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 					DAO_ContextLink::getContextLinkCounts(
 						CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
 						$virtual_attendant->id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
 		);
 		
-		if(isset($virtual_attendant->owner_context)) {
+		if(isset($virtual_attendant->owner_context) && $virtual_attendant->owner_context != CerberusContexts::CONTEXT_APPLICATION) {
 			$properties_links[$virtual_attendant->owner_context] = array(
 				$virtual_attendant->owner_context_id => 
 					DAO_ContextLink::getContextLinkCounts(
 						$virtual_attendant->owner_context,
 						$virtual_attendant->owner_context_id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			);
 		}

@@ -1935,7 +1935,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 						DAO_ContextLink::getContextLinkCounts(
 							CerberusContexts::CONTEXT_ADDRESS,
 							$context_id,
-							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 						),
 				),
 			);

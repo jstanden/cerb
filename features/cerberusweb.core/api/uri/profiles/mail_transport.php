@@ -96,7 +96,7 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 					DAO_ContextLink::getContextLinkCounts(
 						'cerberusweb.contexts.mail.transport',
 						$mail_transport->id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
 		);

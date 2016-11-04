@@ -1181,7 +1181,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 						DAO_ContextLink::getContextLinkCounts(
 							CerberusContexts::CONTEXT_BUCKET,
 							$context_id,
-							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 						),
 				),
 			);

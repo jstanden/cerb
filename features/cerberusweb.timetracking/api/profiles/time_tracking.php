@@ -89,21 +89,10 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 					DAO_ContextLink::getContextLinkCounts(
 						CerberusContexts::CONTEXT_TIMETRACKING,
 						$time_entry->id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
 		);
-		
-		if(isset($time_entry->worker_id)) {
-			$properties_links[CerberusContexts::CONTEXT_WORKER] = array(
-				$time_entry->worker_id => 
-					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_WORKER,
-						$time_entry->worker_id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			);
-		}
 		
 		$tpl->assign('properties_links', $properties_links);
 		

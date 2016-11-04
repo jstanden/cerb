@@ -1901,7 +1901,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 						DAO_ContextLink::getContextLinkCounts(
 							CerberusContexts::CONTEXT_CONTACT,
 							$context_id,
-							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 						),
 				),
 			);

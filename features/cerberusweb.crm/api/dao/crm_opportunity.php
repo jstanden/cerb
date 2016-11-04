@@ -1475,7 +1475,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 						DAO_ContextLink::getContextLinkCounts(
 							CerberusContexts::CONTEXT_OPPORTUNITY,
 							$context_id,
-							array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 						),
 				),
 			);

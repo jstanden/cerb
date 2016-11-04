@@ -48,13 +48,13 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		// Properties
 			
 		$properties = array();
-			
+		
 		$properties['updated'] = array(
 			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $mail_html_template->updated_at,
 		);
-			
+		
 	
 		// Custom Fields
 
@@ -79,21 +79,10 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 					DAO_ContextLink::getContextLinkCounts(
 						CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE,
 						$mail_html_template->id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
 		);
-		
-		if(isset($mail_html_template->owner_context)) {
-			$properties_links[$mail_html_template->owner_context] = array(
-				$mail_html_template->owner_context_id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$mail_html_template->owner_context,
-						$mail_html_template->owner_context_id,
-						array(CerberusContexts::CONTEXT_WORKER, CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			);
-		}
 		
 		$tpl->assign('properties_links', $properties_links);
 		
