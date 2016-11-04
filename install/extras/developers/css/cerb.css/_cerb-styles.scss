@@ -1150,6 +1150,10 @@ FIELDSET.properties {
 
 	LEGEND {
 		color:rgb(50,50,50);
+		
+		A {
+			color:inherit;
+		}
 	}
 
 	DIV.property {
@@ -1200,6 +1204,10 @@ FIELDSET.peek {
 
 	LEGEND {
 		color:$green;
+		
+		A {
+			color:inherit;
+		}
 	}
 }
 
@@ -1267,13 +1275,6 @@ DIV.cerb-popupmenu {
 	
 	@include box-shadow-trbl(0px, 0px, 15px, 0px, rgb(175,175,175));
 	
-	&.cerb-float {
-		position: absolute;
-		z-index: 2500;
-		float: left;
-		border: 0;
-	}
-	
 	> div.cerb-popupmenu-item {
 		padding:2px;
 		font-weight:normal;
@@ -1315,13 +1316,6 @@ UL.cerb-popupmenu {
 
 	@include box-shadow-trbl(0px, 0px, 15px, 0px, rgb(175,175,175));
 
-	&.cerb-float {
-		position: absolute;
-		z-index: 2500;
-		float: left;
-		border: 0;
-	}
-
 	> LI {
 		padding:2px;
 		font-weight:normal;
@@ -1350,6 +1344,15 @@ UL.cerb-popupmenu {
 			}
 		}
 	}
+}
+
+// Utilities
+
+.cerb-float {
+	position: absolute;
+	z-index: 2500;
+	float: left;
+	border: 0;
 }
 
 // Subpage

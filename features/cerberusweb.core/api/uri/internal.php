@@ -124,40 +124,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 	}
 	
-	// Contexts
-
-	function showTabContextLinksAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string');
-
-		$tpl = DevblocksPlatform::getTemplateService();
-		$visit = CerberusApplication::getVisit();
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-
-		// Context Links
-
-		$contexts = DAO_ContextLink::getDistinctContexts($context, $context_id);
-		$all_contexts = Extension_DevblocksContext::getAll(false);
-		
-		// Only valid extensions
-		$contexts = array_intersect($contexts, array_keys($all_contexts));
-		
-		$contexts = array_diff($contexts, array(
-			CerberusContexts::CONTEXT_CUSTOM_FIELDSET, // hide custom fieldset
-			CerberusContexts::CONTEXT_WORKER, // hide workers
-		));
-		
-		$tpl->assign('contexts', $contexts);
-		
-		$tpl->display('devblocks:cerberusweb.core::context_links/tab.tpl');
-		
-		unset($contexts);
-	}
-
 	function initConnectionsViewAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
@@ -597,11 +563,38 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(false != ($view = $to_context_extension->getView($context, $context_id, null, $view_id))) {
 			$tpl = DevblocksPlatform::getTemplateService();
 			$tpl->assign('from_context_extension', $from_context_extension);
+			$tpl->assign('from_context_id', $context_id);
 			$tpl->assign('to_context_extension', $to_context_extension);
 			$tpl->assign('view', $view);
 			$tpl->display('devblocks:cerberusweb.core::internal/profiles/profile_links_popup.tpl');
-			$tpl->clearAssign('view');
 		}
+	}
+	
+	function getLinkCountsJsonAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
+		
+		$contexts = Extension_DevblocksContext::getAll(false);
+		
+		$counts = DAO_ContextLink::getContextLinkCounts($context, $context_id, [CerberusContexts::CONTEXT_CUSTOM_FIELDSET]);
+		$results = [];
+		
+		foreach($counts as $ext_id => $count) {
+			if(false == (@$context = $contexts[$ext_id]))
+				continue;
+			
+			$results[] = [
+				'context' => $ext_id,
+				'label' => $context->name,
+				'count' => $count,
+			];
+		}
+		
+		DevblocksPlatform::sortObjects($results, '[label]');
+		$results = array_values($results);
+		
+		header('Content-Type: application/json; charset=utf-8');
+		echo json_encode($results);
 	}
 	
 	/*
@@ -1044,9 +1037,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		foreach($context_ids as $context_id)
 			DAO_ContextLink::setLink($context, $context_id, $from_context, $from_context_id);
 
-		echo json_encode(array(
-			'links_count' => DAO_ContextLink::count($from_context, $from_context_id),
-		));
+		echo json_encode(true);
 	}
 
 	function contextDeleteLinksJsonAction() {
@@ -1061,9 +1052,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		foreach($context_ids as $context_id)
 			DAO_ContextLink::deleteLink($context, $context_id, $from_context, $from_context_id);
 		
-		echo json_encode(array(
-			'links_count' => DAO_ContextLink::count($from_context, $from_context_id),
-		));
+		echo json_encode(true);
 	}
 	
 	// Notifications

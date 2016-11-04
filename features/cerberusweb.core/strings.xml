@@ -1057,6 +1057,11 @@
 				<seg>location</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.log">
+			<tuv xml:lang="en_US">
+				<seg>log</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.next">
 			<tuv xml:lang="en_US">
 				<seg>next</seg>

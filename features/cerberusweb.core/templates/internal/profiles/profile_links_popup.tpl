@@ -12,9 +12,64 @@ $(function() {
 
 		var on_refresh = function() {
 			var $worklist = $popup.find('TABLE.worklist');
+			var $worklist_actions = $popup.find('#{$view->id}_actions');
 
 			$worklist.css('background','none');
 			$worklist.css('background-color','rgb(100,100,100)');
+			
+			var $button = $('<button type="button" />')
+				.text('Unlink')
+				.hide()
+				.click(function(e) {
+					e.stopPropagation();
+					var $view = $('#view{$view->id}');
+					
+					// Get checked row IDs
+					var $rows = $view.find('input:checkbox:checked');
+					var ids = $rows.map(function() {
+						return $(this).val();
+					}).get();
+					
+					// Ajax unlink
+					
+					var $data = [ 
+						'c=internal',
+						'a=contextDeleteLinksJson',
+						'from_context={$from_context_extension->id}',
+						'from_context_id={$from_context_id}', 
+						'context={$to_context_extension->id}'
+					];
+					
+					for(idx in ids) {
+						if(null != ids[idx] && ids[idx] > 0) {
+							$data.push('context_id[]='+ids[idx]);
+						}
+					}
+					
+					var options = { };
+					options.async = false;	
+					options.type = 'POST';
+					options.data = $data.join('&');
+					options.url = DevblocksAppPath+'ajax.php',
+					options.cache = false;
+					options.success = function(json) {
+						// Refresh the popup's worklist
+						$view.find('table.worklist span.glyphicons-refresh').closest('a').click();
+						
+						// Tell the parent
+						$popup.trigger('links_save');
+					};
+					
+					if(null == options.headers)
+						options.headers = {};
+				
+					options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
+					
+					$.ajax(options);
+					
+				})
+				.prependTo($worklist_actions)
+				;
 		}
 		
 		on_refresh();

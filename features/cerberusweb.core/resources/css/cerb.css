@@ -1195,6 +1195,9 @@ FIELDSET.properties {
 FIELDSET.properties LEGEND {
   color: #323232;
 }
+FIELDSET.properties LEGEND A {
+  color:inherit;
+}
 FIELDSET.properties DIV.property {
   width: 32%;
   padding-right: 1%;
@@ -1238,7 +1241,9 @@ FIELDSET.peek {
 FIELDSET.peek LEGEND {
   color: #007800;
 }
-
+FIELDSET.peek LEGEND A {
+  color:inherit;
+}
 FIELDSET.peek-noborder {
   background: none;
   border-width: 0;
@@ -1295,7 +1300,7 @@ DIV.cerb-popupmenu {
   -webkit-box-shadow: 0px 0px 15px 0px #afafaf;
   box-shadow: 0px 0px 15px 0px #afafaf;
 }
-DIV.cerb-popupmenu.cerb-float {
+.cerb-float {
   position: absolute;
   z-index: 2500;
   float: left;
@@ -1337,12 +1342,6 @@ UL.cerb-popupmenu {
   -moz-box-shadow: 0px 0px 15px 0px #afafaf;
   -webkit-box-shadow: 0px 0px 15px 0px #afafaf;
   box-shadow: 0px 0px 15px 0px #afafaf;
-}
-UL.cerb-popupmenu.cerb-float {
-  position: absolute;
-  z-index: 2500;
-  float: left;
-  border: 0;
 }
 UL.cerb-popupmenu > LI {
   padding: 2px;
