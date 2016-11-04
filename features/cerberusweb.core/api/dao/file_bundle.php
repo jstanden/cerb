@@ -1225,8 +1225,8 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 
 		// Ownership
 
-		$available_owners = CerberusContexts::getAvailableOwners($active_worker);
-		$tpl->assign('available_owners', $available_owners);
+		$owners_menu = Extension_DevblocksContext::getOwnerTree(['app','group','role','worker']);
+		$tpl->assign('owners_menu', $owners_menu);
 		
 		// Attachments
 		

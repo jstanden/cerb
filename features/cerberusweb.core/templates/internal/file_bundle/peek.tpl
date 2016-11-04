@@ -15,7 +15,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
 			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;">
+				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 			</td>
 		</tr>
 		
@@ -31,26 +31,10 @@
 				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td width="99%">
-				<select name="owner">
-					{if !empty($model->id) && !empty($model->owner_context)}
-						<option value=""> - transfer - </option>
-					{/if}
-					
-					{foreach from=$available_owners item=owner_meta}
-					<option value="{$owner_meta.context}:{$owner_meta.context_id}" {if $model->owner_context == $owner_meta.context && $model->owner_context_id == $owner_meta.context_id}selected="selected"{/if}>{$owner_meta.label}</option>
-					{/foreach}
-				</select>
-				
-				{if !empty($model->id)}
-					{$context = Extension_DevblocksContext::get($model->owner_context)}
-					{if !empty($context)}
-						{$meta = $context->getMeta({$model->owner_context_id})}
-						<div class="bubble"><b>{$meta.name}</b> ({$context->manifest->name})</div>
-					{/if}
-				{/if}
+				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
 			</td>
 		</tr>
-	</table>		
+	</table>
 	
 </fieldset>
 
@@ -116,13 +100,52 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open', function(event,ui) {
-		var $textarea = $(this).find('textarea[name=comment]');
+		$popup.dialog('option','title',"{'File Bundle'|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
+
+		var $textarea = $popup.find('textarea[name=comment]');
 		
-		$(this).dialog('option','title',"{'File Bundle'|escape:'javascript' nofilter}");
-		
-		$(this).find('input:text:first').focus();
-		
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+
 		$textarea.autosize();
+		
+		// Owner
+		
+		var $owners_menu = $popup.find('fieldset:first ul.owners-menu');
+		var $ul = $owners_menu.siblings('ul.chooser-container');
+		
+		$ul.on('bubble-remove', function(e, ui) {
+			e.stopPropagation();
+			$(e.target).closest('li').remove();
+			$ul.hide();
+			$owners_menu.show();
+		});
+		
+		$owners_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
+				
+				if(undefined == token || undefined == label)
+					return;
+				
+				$owners_menu.hide();
+				
+				// Build bubble
+				
+				var context_data = token.split(':');
+				var $li = $('<li/>');
+				var $label = $('<a href="javascript:;" class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
+				$label.cerbPeekTrigger().appendTo($li);
+				var $hidden = $('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
+				ui.item.find('img.cerb-avatar').clone().prependTo($li);
+				var $a = $('<a href="javascript:;" onclick="$(this).trigger(\'bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				
+				$ul.find('> *').remove();
+				$ul.append($li);
+				$ul.show();
+			}
+		});
 		
 		// Attachments
 		
