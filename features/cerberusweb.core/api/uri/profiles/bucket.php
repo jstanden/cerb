@@ -94,6 +94,14 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
+			CerberusContexts::CONTEXT_GROUP => array(
+				$bucket->group_id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_GROUP,
+						$bucket->group_id,
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			),
 		);
 		
 		$tpl->assign('properties_links', $properties_links);
