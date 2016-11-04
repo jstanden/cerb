@@ -51,15 +51,7 @@
 	<div style="margin-left:15px;">
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
-			{if $k == '_owner'}
-				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-				{$meta = $virtual_attendant->getOwnerMeta()}
-				
-				{if $meta.permalink}
-					<a href="{$meta.permalink}">{$meta.name}</a> ({$meta.context_ext->manifest->name})
-				{else}
-					{$meta.name} ({$meta.context_ext->manifest->name})
-				{/if}
+			{if $k == '__'}
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 			{/if}

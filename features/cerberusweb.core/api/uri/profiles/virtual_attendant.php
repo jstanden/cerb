@@ -50,10 +50,13 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 			
 		$properties = array();
 		
-		$properties['_owner'] = array(
+		$properties['owner'] = array(
 			'label' => mb_ucfirst($translate->_('common.owner')),
-			'type' => null,
-			'value' => null,
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $virtual_attendant->owner_context_id,
+			'params' => [
+				'context' => $virtual_attendant->owner_context,
+			],
 		);
 		
 		$properties['is_disabled'] = array(
