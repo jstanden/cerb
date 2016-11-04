@@ -40,7 +40,7 @@
 	</div>
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/peek/peek_links.tpl" links=$links}
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id links_label="{'common.links'|devblocks_translate|capitalize}"}
 
 <fieldset class="peek cerb-peek-timeline" style="margin:5px 0px 0px 0px;">
 	<div class="cerb-peek-timeline-preview" style="margin:0px 5px;">
@@ -57,6 +57,7 @@ $(function() {
 	$popup.one('popup_open',function(event,ui) {
 		// Title
 		$popup.dialog('option','title', '{'common.message'|devblocks_translate|escape:'javascript' nofilter}');
+		$popup.css('overflow', 'inherit');
 		
 		// Properties grid
 		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
