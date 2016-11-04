@@ -1856,7 +1856,7 @@
 		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.virtual.attendant</id>
-			<name>Virtual Attendant</name>
+			<name>Bot</name>
 			<class>
 				<file>api/dao/virtual_attendant.php</file>
 				<name>Context_VirtualAttendant</name>
@@ -3930,7 +3930,7 @@
 			
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.virtual_attendant</id>
-				<name>Virtual Attendant Section</name>
+				<name>Bot Section</name>
 				<class>
 					<file>api/uri/profiles/virtual_attendant.php</file>
 					<name>PageSection_ProfilesVirtualAttendant</name>
@@ -4307,7 +4307,7 @@
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.virtual_attendant.scheduled_behavior</id>
-			<name>Virtual Attendant Scheduled Behavior</name>
+			<name>Bot Scheduled Behavior</name>
 			<class>
 				<file>api/cron.classes.php</file>
 				<name>Cron_VirtualAttendantScheduledBehavior</name>
