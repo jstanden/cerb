@@ -18,7 +18,7 @@
 	{$worker_id = $dict->$k}
 	{$worker = DAO_Worker::get($worker_id)}
 	{if $worker}
-		<ul class="bubbles">
+		<ul class="bubbles" style="margin-right:5px;">
 		<li class="bubble-gray">
 			<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker_id}{/devblocks_url}?v={$worker->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;">
 			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker_id}">{$worker->getName()}</a>
@@ -32,7 +32,7 @@
 		{$k_id = $k_prefix|cat:"id"}
 		{$k_label = $k_prefix|cat:"_label"}
 		{if $dict->$k_context}
-			<ul class="bubbles">
+			<ul class="bubbles" style="margin-right:5px;">
 				<li class="bubble-gray">
 					{$k_alias = ''}
 					{$k_updated = 0}

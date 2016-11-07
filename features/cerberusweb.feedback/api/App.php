@@ -1044,13 +1044,6 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		// Custom field saves
 		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 		DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_FEEDBACK, $id, $field_ids);
-		
-		// Context Link (if given)
-		@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-		@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-		if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-			DAO_ContextLink::setLink(CerberusContexts::CONTEXT_FEEDBACK, $id, $link_context, $link_context_id);
-		}
 	}
 	
 	function showBulkPanelAction() {

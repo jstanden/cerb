@@ -72,17 +72,17 @@ class PageSection_SetupMailSmtp extends Extension_PageSection {
 				throw new Exception_DevblocksAjaxError($error);
 			
 		} catch(Exception_DevblocksAjaxError $e) {
-			header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+			header('Content-Type: application/json; charset=utf-8');
 			echo json_encode(array('status'=>false, 'error'=>$e->getMessage()));
 			return;
 			
 		} catch(Exception $e) {
-			header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+			header('Content-Type: application/json; charset=utf-8');
 			echo json_encode(array('status'=>false, 'error'=>'A problem occurred. Please check your settings and try again.'));
 			return;
 		}
 		
-		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		header('Content-Type: application/json; charset=utf-8');
 		echo json_encode(array('status'=>true));
 	}
 	
@@ -113,13 +113,6 @@ class PageSection_SetupMailSmtp extends Extension_PageSection {
 			
 			if(empty($id)) { // New
 				$id = DAO_MailTransport::create($fields);
-				
-				// Context Link (if given)
-				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-					DAO_ContextLink::setLink('cerberusweb.contexts.mail.transport', $id, $link_context, $link_context_id);
-				}
 				
 				if(!empty($view_id) && !empty($id))
 					C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.mail.transport', $id);

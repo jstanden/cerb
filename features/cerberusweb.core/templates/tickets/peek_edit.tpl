@@ -6,10 +6,6 @@
 <input type="hidden" name="a" value="savePeekJson">
 <input type="hidden" name="id" value="{$ticket->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
-{if !empty($link_context)}
-<input type="hidden" name="link_context" value="{$link_context}">
-<input type="hidden" name="link_context_id" value="{$link_context_id}">
-{/if}
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek" style="margin-bottom:0;">

@@ -181,7 +181,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
 		

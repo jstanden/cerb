@@ -94,7 +94,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 			case 'status':
 				@$db = DevblocksPlatform::getDatabaseService();
 
-				header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+				header('Content-Type: application/json; charset=utf-8');
 
 				$tickets_by_status = array();
 				

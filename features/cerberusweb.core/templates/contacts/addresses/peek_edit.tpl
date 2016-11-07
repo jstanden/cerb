@@ -5,10 +5,6 @@
 <input type="hidden" name="section" value="address">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="id" value="{$address->id}">
-{if !empty($link_context)}
-<input type="hidden" name="link_context" value="{$link_context}">
-<input type="hidden" name="link_context_id" value="{$link_context_id}">
-{/if}
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 

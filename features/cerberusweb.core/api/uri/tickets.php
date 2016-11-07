@@ -234,7 +234,7 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
 			@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
@@ -504,14 +504,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			DAO_WorkerPref::set($active_worker->id, 'compose.group_id', $group_id);
 			DAO_WorkerPref::set($active_worker->id, 'compose.bucket_id', $bucket_id);
 
-			// Context Link (if given)
-			
-			@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-			@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-			if(!empty($ticket_id) && !empty($link_context) && !empty($link_context_id)) {
-				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_TICKET, $ticket_id, $link_context, $link_context_id);
-			}
-			
 			// View marquee
 			
 			if(!empty($ticket_id) && !empty($view_id)) {

@@ -135,7 +135,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
 			if(!($active_worker->is_superuser || $active_worker->isGroupManager($group_id)))

@@ -161,13 +161,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 
-		// Handle context links
-		
-		@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-		@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-		$tpl->assign('link_context', $link_context);
-		$tpl->assign('link_context_id', $link_context_id);
-
 		// Template
 		
 		$context_ext->renderPeekPopup($context_id, $view_id, $edit);

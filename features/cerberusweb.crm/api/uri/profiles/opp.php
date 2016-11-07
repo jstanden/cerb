@@ -196,7 +196,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		// Worker
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		header('Content-Type: application/json; charset=utf-8');
 
 		try {
 			if(!empty($id) && !empty($do_delete)) { // delete
@@ -245,14 +245,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError("You don't have permission to create this record.");
 					
 					$id = DAO_CrmOpportunity::create($fields);
-					
-					// Context Link (if given)
-					// [TODO]
-					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-					@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_OPPORTUNITY, $id, $link_context, $link_context_id);
-					}
 					
 					// View marquee
 					if(!empty($id) && !empty($view_id)) {

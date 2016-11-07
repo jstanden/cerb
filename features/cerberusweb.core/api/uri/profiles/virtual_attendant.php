@@ -227,13 +227,6 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 					if(false == ($id = DAO_VirtualAttendant::create($fields)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
 					
-					// Context Link (if given)
-					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-					@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $link_context, $link_context_id);
-					}
-					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id);
 					

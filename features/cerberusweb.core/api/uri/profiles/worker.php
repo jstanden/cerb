@@ -187,7 +187,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
 			if(!$active_worker || !$active_worker->is_superuser)

@@ -11,10 +11,6 @@
 {if !empty($event->calendar_id)}
 <input type="hidden" name="calendar_id" value="{$event->calendar_id}">
 {/if}
-{if !empty($link_context)}
-<input type="hidden" name="link_context" value="{$link_context}">
-<input type="hidden" name="link_context_id" value="{$link_context_id}">
-{/if}
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">

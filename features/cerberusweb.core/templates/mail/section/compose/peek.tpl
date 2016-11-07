@@ -6,13 +6,6 @@
 <input type="hidden" name="a" value="saveComposePeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="draft_id" value="{$draft->id}">
-{if !empty($link_context)}
-<input type="hidden" name="link_context" value="{$link_context}">
-<input type="hidden" name="link_context_id" value="{$link_context_id}">
-{elseif !empty($draft->params.link_context)}
-<input type="hidden" name="link_context" value="{$draft->params.link_context}">
-<input type="hidden" name="link_context_id" value="{$draft->params.link_context_id}">
-{/if}
 <input type="hidden" name="format" value="{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}parsedown{/if}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 

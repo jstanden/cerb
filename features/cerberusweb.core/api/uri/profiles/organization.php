@@ -172,7 +172,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
 		
@@ -227,13 +227,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 						@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
 						if(!empty($add_watcher_ids))
 							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ORG, $id, $add_watcher_ids);
-						
-						// Context Link (if given)
-						@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-						@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-						if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-							DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ORG, $id, $link_context, $link_context_id);
-						}
 						
 						// View marquee
 						if(!empty($id) && !empty($view_id)) {

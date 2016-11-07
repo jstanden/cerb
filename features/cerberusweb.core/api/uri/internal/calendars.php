@@ -164,7 +164,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
+		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
 		
@@ -238,13 +238,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 					@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
 					if(!empty($add_watcher_ids))
 						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CALENDAR, $id, $add_watcher_ids);
-					
-					// Context Link (if given)
-					@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-					@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-					if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_CALENDAR, $id, $link_context, $link_context_id);
-					}
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR, $id);
@@ -366,13 +359,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		if(empty($event_id)) {
 			$fields[DAO_CalendarEvent::CALENDAR_ID] = $calendar_id;
 			$event_id = DAO_CalendarEvent::create($fields);
-			
-			// Context Link (if given)
-			@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-			@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
-			if(!empty($event_id) && !empty($link_context) && !empty($link_context_id)) {
-				DAO_ContextLink::setLink(CerberusContexts::CONTEXT_CALENDAR_EVENT, $event_id, $link_context, $link_context_id);
-			}
 			
 			// View marquee
 			if(!empty($event_id) && !empty($view_id)) {
