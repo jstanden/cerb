@@ -98,7 +98,7 @@
 							Insert: 
 							<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
 							<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent{$random}'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="glyphicons glyphicons-search"></span></button>
-							<button type="button" onclick="var txt = encodeURIComponent($('#divComposeContent{$random}').selection('get')); genericAjaxPopup('add_snippet','c=internal&a=showSnippetsPeek&id=0&owner_context={CerberusContexts::CONTEXT_WORKER}&owner_context_id={$active_worker->id}&context=&text=' + txt,null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></button>
+							<button type="button" onclick="var txt = encodeURIComponent($('#divComposeContent{$random}').selection('get')); genericAjaxPopup('add_snippet','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_SNIPPET}&context_id=0&edit=1&text=' + txt,null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></button>
 						</div>
 					</fieldset>
 				</div>

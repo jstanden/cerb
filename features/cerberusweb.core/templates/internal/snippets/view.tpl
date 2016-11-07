@@ -10,7 +10,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->hasPriv('core.snippets.actions.create')}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&id=0&owner_context={$owner_context}&owner_context_id={$owner_context_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
+			{if $active_worker->hasPriv('core.snippets.actions.create')}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
@@ -74,7 +74,8 @@
 			{elseif $column=="s_title"}
 			<td data-column="{$column}" context="{$result.s_context}" id="{$result.s_id}" has_custom_placeholders="{if !empty($custom_placeholders)}true{else}false{/if}">
 				<input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;">
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetsPeek&view_id={$view->id}&id={$result.s_id}', null, false, '50%');" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
+				<a href="{devblocks_url}c=profiles&type=snippet&id={$result.s_id}-{$result.$column|devblocks_permalink}{/devblocks_url}" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.s_id}" data-width="50%"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif $column=="s_context"}
 			<td data-column="{$column}">
