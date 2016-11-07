@@ -3905,6 +3905,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.snippet</id>
+				<name>Snippet Section</name>
+				<class>
+					<file>api/uri/profiles/snippet.php</file>
+					<name>PageSection_ProfilesSnippet</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="snippet" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.task</id>
 				<name>Task Section</name>
 				<class>

@@ -1304,7 +1304,16 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Snippet extends Extension_DevblocksContext implements IDevblocksContextAutocomplete {
+class Context_Snippet extends Extension_DevblocksContext implements IDevblocksContextAutocomplete, IDevblocksContextProfile, IDevblocksContextPeek {
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=snippet&id='.$context_id, true);
+		return $url;
+	}
+	
 	function getRandom() {
 		return DAO_Snippet::random();
 	}

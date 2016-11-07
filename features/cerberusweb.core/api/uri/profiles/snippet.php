@@ -16,6 +16,191 @@
 ***********************************************************************/
 
 class PageSection_ProfilesSnippet extends Extension_PageSection {
+	function render() {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$visit = CerberusApplication::getVisit();
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+		@array_shift($stack); // profiles
+		@array_shift($stack); // snippet 
+		$id = array_shift($stack); // 123
+
+		@$id = intval($id);
+		
+		if(null == ($snippet = DAO_Snippet::get($id)))
+			return;
+		
+		$tpl->assign('snippet', $snippet);
+	
+		// Tab persistence
+		
+		$point = 'profiles.snippet.tab';
+		$tpl->assign('point', $point);
+		
+		if(null == (@$tab_selected = $stack[0])) {
+			$tab_selected = $visit->get($point, '');
+		}
+		$tpl->assign('tab_selected', $tab_selected);
+	
+		// Properties
+			
+		$properties = array();
+			
+		$properties['owner'] = array(
+			'label' => mb_ucfirst($translate->_('common.owner')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $snippet->owner_context_id,
+			'params' => [
+				'context' => $snippet->owner_context,
+			]
+		);
+		
+		$properties['context'] = array(
+			'label' => mb_ucfirst($translate->_('common.context')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $snippet->context,
+		);
+		
+		$properties['total_uses'] = array(
+			'label' => mb_ucfirst($translate->_('dao.snippet.total_uses')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $snippet->total_uses,
+		);
+		
+		$properties['updated'] = array(
+			'label' => mb_ucfirst($translate->_('common.updated')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $snippet->updated_at,
+		);
+	
+		// Custom Fields
+
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SNIPPET, $snippet->id)) or array();
+		$tpl->assign('custom_field_values', $values);
+		
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_SNIPPET, $values);
+		
+		if(!empty($properties_cfields))
+			$properties = array_merge($properties, $properties_cfields);
+		
+		// Custom Fieldsets
+
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_SNIPPET, $snippet->id, $values);
+		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+		
+		// Link counts
+		
+		$properties_links = array(
+			CerberusContexts::CONTEXT_SNIPPET => array(
+				$snippet->id => 
+					DAO_ContextLink::getContextLinkCounts(
+						CerberusContexts::CONTEXT_SNIPPET,
+						$snippet->id,
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			),
+		);
+		
+		$tpl->assign('properties_links', $properties_links);
+		
+		// Properties
+		
+		$tpl->assign('properties', $properties);
+			
+		// Macros
+		
+		/*
+		$macros = DAO_TriggerEvent::getReadableByActor(
+			$active_worker,
+			'event.macro.snippet'
+		);
+		$tpl->assign('macros', $macros);
+		*/
+
+		// Tabs
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_SNIPPET);
+		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// Template
+		$tpl->display('devblocks:cerberusweb.core::internal/snippets/profile.tpl');
+	}
+	
+	function viewExploreAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time());
+		
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
+
+		// Page start
+		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
+		if(empty($explore_from)) {
+			$orig_pos = 1+($view->renderPage * $view->renderLimit);
+		} else {
+			$orig_pos = 1;
+		}
+
+		$view->renderPage = 0;
+		$view->renderLimit = 250;
+		$pos = 0;
+		
+		do {
+			$models = array();
+			list($results, $total) = $view->getData();
+
+			// Summary row
+			if(0==$view->renderPage) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'title' => $view->name,
+					'created' => time(),
+//					'worker_id' => $active_worker->id,
+					'total' => $total,
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=snippet', true),
+					'toolbar_extension_id' => 'cerberusweb.contexts.snippet.explore.toolbar',
+				);
+				$models[] = $model;
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			if(is_array($results))
+			foreach($results as $opp_id => $row) {
+				if($opp_id==$explore_from)
+					$orig_pos = $pos;
+				
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=snippet&id=%d-%s", $row[SearchFields_Snippet::ID], DevblocksPlatform::strToPermalink($row[SearchFields_Snippet::NAME])), true);
+				
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'id' => $row[SearchFields_Snippet::ID],
+					'url' => $url,
+				);
+				$models[] = $model;
+			}
+			
+			DAO_ExplorerSet::createFromModels($models);
+			
+			$view->renderPage++;
+			
+		} while(!empty($results));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+	}
+	
 	function showSnippetsPeekToolbarAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$form_id = DevblocksPlatform::importGPC($_REQUEST['form_id'],'string','');
