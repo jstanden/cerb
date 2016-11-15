@@ -876,6 +876,7 @@ class CerberusContexts {
 	const CONTEXT_ASSET = 'cerberusweb.contexts.asset';
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_ATTACHMENT_LINK = 'cerberusweb.contexts.attachment_link';
+	const CONTEXT_BEHAVIOR = 'cerberusweb.contexts.behavior';
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
 	const CONTEXT_CALENDAR = 'cerberusweb.contexts.calendar';
 	const CONTEXT_CALENDAR_EVENT = 'cerberusweb.contexts.calendar_event';

@@ -1476,3 +1476,304 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 	}
 };
 
+class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	function getRandom() {
+		return DAO_TriggerEvent::random();
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=trigger_event&id='.$context_id, true);
+		return $url;
+	}
+	
+	function getMeta($context_id) {
+		$trigger_event = DAO_TriggerEvent::get($context_id);
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		$url = $this->profileGetUrl($context_id);
+		$friendly = DevblocksPlatform::strToPermalink($trigger_event->title);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
+		
+		return array(
+			'id' => $trigger_event->id,
+			'name' => $trigger_event->title,
+			'permalink' => $url,
+			'updated' => $trigger_event->updated_at,
+		);
+	}
+	
+	function getDefaultProperties() {
+		return array(
+			'updated_at',
+		);
+	}
+	
+	function getContext($trigger_event, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Trigger Event:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BEHAVIOR);
+
+		// Polymorph
+		if(is_numeric($trigger_event)) {
+			$trigger_event = DAO_TriggerEvent::get($trigger_event);
+		} elseif($trigger_event instanceof Model_TriggerEvent) {
+			// It's what we want already.
+		} elseif(is_array($trigger_event)) {
+			$trigger_event = Cerb_ORMHelper::recastArrayToModel($trigger_event, 'Model_TriggerEvent');
+		} else {
+			$trigger_event = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'_label' => $prefix,
+			'id' => $prefix.$translate->_('common.id'),
+			'name' => $prefix.$translate->_('common.name'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated_at' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
+		);
+		
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
+		// Custom field/fieldset token types
+		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_types))
+			$token_types = array_merge($token_types, $custom_field_types);
+		
+		// Token values
+		$token_values = array();
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_BEHAVIOR;
+		$token_values['_types'] = $token_types;
+		
+		$token_values['bot__context'] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+		
+		if($trigger_event) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $trigger_event->title;
+			$token_values['event_point'] = $trigger_event->event_point;
+			$token_values['id'] = $trigger_event->id;
+			$token_values['is_disabled'] = $trigger_event->is_disabled;
+			$token_values['is_private'] = $trigger_event->is_private;
+			$token_values['name'] = $trigger_event->title;
+			$token_values['updated_at'] = $trigger_event->updated_at;
+			
+			$token_values['bot_id'] = $trigger_event->virtual_attendant_id;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($trigger_event, $token_values);
+			
+			// URL
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=behavior&id=%d-%s",$trigger_event->id, DevblocksPlatform::strToPermalink($trigger_event->title)), true);
+		}
+		
+		return true;
+	}
+
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_BEHAVIOR;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = array();
+		
+		if(!$is_loaded) {
+			$labels = array();
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+		}
+		
+		switch($token) {
+			case 'watchers':
+				$watchers = array(
+					$token => CerberusContexts::getWatchers($context, $context_id, true),
+				);
+				$values = array_merge($values, $watchers);
+				break;
+				
+			default:
+				if(substr($token,0,7) == 'custom_') {
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}
+	
+	function getChooserView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+	
+		// View
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Behavior';
+		/*
+		$view->addParams(array(
+			SearchFields_TriggerEvent::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_TriggerEvent::UPDATED_AT,'=',0),
+		), true);
+		*/
+		$view->renderSortBy = SearchFields_TriggerEvent::TITLE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
+		
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Behavior';
+		
+		$params_req = array();
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_TriggerEvent::CONTEXT_LINK,'=',$context),
+				new DevblocksSearchCriteria(SearchFields_TriggerEvent::CONTEXT_LINK_ID,'=',$context_id),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+		
+		if(!empty($context_id)) {
+			$model = DAO_TriggerEvent::get($context_id);
+			$tpl->assign('model', $model);
+		}
+		
+		if(empty($context_id) || $edit) {
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BEHAVIOR, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_BEHAVIOR, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			$bots = DAO_VirtualAttendant::getAll();
+			$tpl->assign('bots', $bots);
+			
+			if(!empty($model)) {
+				$ext = DevblocksPlatform::getExtension($model->event_point, false);
+				$tpl->assign('ext', $ext);
+				
+				if(isset($bots[$model->virtual_attendant_id]))
+					$tpl->assign('bot', $bots[$model->virtual_attendant_id]);
+			}
+			
+			// Check view for defaults by filter
+			if(false != ($view = C4_AbstractViewLoader::getView($view_id))) {
+				$filters = $view->findParam(SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID, $view->getParams());
+				
+				if(false != ($filter = array_shift($filters))) {
+					$bot_id = is_array($filter->value) ? array_shift($filter->value) : $filter->value;
+					
+					if(false !== ($bot = $bots[$bot_id])) {
+						$tpl->assign('bot', $bot);
+						
+						$events = Extension_DevblocksEvent::getByContext($bot->owner_context, false);
+			
+						// Filter the available events by VA
+						$events = $bot->filterEventsByAllowed($events);
+						
+						$tpl->assign('events', $events);
+					}
+				}
+			}
+			
+			// Contexts that can show up in VA vars
+			$list_contexts = Extension_DevblocksContext::getAll(false, 'va_variable');
+			$tpl->assign('list_contexts', $list_contexts);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/va/behavior/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_BEHAVIOR, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				CerberusContexts::CONTEXT_BEHAVIOR => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							CerberusContexts::CONTEXT_BEHAVIOR,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_BEHAVIOR, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BEHAVIOR)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/va/behavior/peek.tpl');
+		}
+		
+	}
+};

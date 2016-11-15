@@ -434,6 +434,7 @@
 		</file>
 		
 		<file path="api/dao/trigger_event.php">
+			<class name="Context_TriggerEvent" />
 			<class name="DAO_TriggerEvent" />
 			<class name="Model_TriggerEvent" />
 			<class name="SearchFields_TriggerEvent" />
@@ -2013,6 +2014,39 @@
 					</value>
 				</param>
 				<param key="context_expand_export" value="group_,bucket_,owner_,latest_message_sender_" />
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.behavior</id>
+			<name>Behavior</name>
+			<class>
+				<file>api/dao/trigger_event.php</file>
+				<name>Context_TriggerEvent</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="behavior" value="singular" />
+						<data key="behaviors" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="behavior" />
+				<param key="dao_class" value="DAO_TriggerEvent" />
+				<param key="view_class" value="View_TriggerEvent" />
+				<param key="options">
+					<value>
+						<!--
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="find" />
+						<data key="snippets" />
+						-->
+						<data key="cards" />
+						<data key="workspace" />
+						<data key="va_variable" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
