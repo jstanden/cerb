@@ -49,6 +49,10 @@
 	
 	<div style="clear:both;"></div>
 	
+	<div style="margin-top:5px;">
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="bot.id:{$dict->id}"><div class="badge-count">{$activity_counts.behaviors|default:0}</div> {'common.behaviors'|devblocks_translate|capitalize}</button>
+	</div>
+
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}

@@ -287,6 +287,14 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 	}
 	
+	static public function countByBot($bot_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetOneSlave(sprintf("SELECT count(*) FROM trigger_event ".
+			"WHERE virtual_attendant_id = %d",
+			$bot_id
+		));
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids))
 			$ids = array($ids);
