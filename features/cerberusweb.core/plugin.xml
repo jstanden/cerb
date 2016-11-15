@@ -4289,6 +4289,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.behavior</id>
+				<name>Behavior Section</name>
+				<class>
+					<file>api/uri/profiles/behavior.php</file>
+					<name>PageSection_ProfilesBehavior</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="behavior" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.virtual_attendant</id>
 				<name>Bot Section</name>
 				<class>
