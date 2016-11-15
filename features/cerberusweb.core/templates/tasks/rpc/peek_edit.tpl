@@ -13,14 +13,14 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="1%" nowrap="nowrap" align="right">{'common.title'|devblocks_translate|capitalize}: </td>
+			<td width="1%" nowrap="nowrap">{'common.title'|devblocks_translate|capitalize}: </td>
 			<td width="99%">
 				<input type="text" name="title" style="width:98%;" value="{$task->title}" autofocus="autofocus">
 			</td>
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap" align="right" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
+			<td width="1%" nowrap="nowrap" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
 			<td width="99%">
 				<label><input type="radio" name="completed" value="0" {if empty($task->is_completed)}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
 				<label><input type="radio" name="completed" value="1" {if $task->is_completed}checked="checked"{/if}> {'status.completed'|devblocks_translate|capitalize}</label>
@@ -28,7 +28,7 @@
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap" align="right" valign="top">{'task.due_date'|devblocks_translate|capitalize}: </td>
+			<td width="1%" nowrap="nowrap" valign="top">{'task.due_date'|devblocks_translate|capitalize}: </td>
 			<td width="99%">
 				<input type="text" name="due_date" size="45" class="input_date" value="{if !empty($task->due_date)}{$task->due_date|devblocks_date}{/if}">
 			</td>
@@ -36,9 +36,9 @@
 		
 		{* Importance *}
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.importance'|devblocks_translate|capitalize}: </td>
+			<td width="0%" nowrap="nowrap" valign="middle">{'common.importance'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
-				<div class="cerb-delta-slider-container">
+				<div class="cerb-delta-slider-container" style="margin-left:10px;">
 				<input type="hidden" name="importance" value="{$task->importance|default:0}">
 					<div class="cerb-delta-slider {if $task->importance < 50}cerb-slider-green{elseif $task->importance > 50}cerb-slider-red{else}cerb-slider-gray{/if}">
 						<span class="cerb-delta-slider-midpoint"></span>
@@ -49,7 +49,7 @@
 		
 		{* Owner *}
 		<tr>
-			<td width="1%" nowrap="nowrap" align="right" valign="middle">{'common.owner'|devblocks_translate|capitalize}:</td>
+			<td width="1%" nowrap="nowrap" valign="middle">{'common.owner'|devblocks_translate|capitalize}: </td>
 			<td width="99%" valign="top">
 					<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
 					
