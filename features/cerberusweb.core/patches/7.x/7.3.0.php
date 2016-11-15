@@ -22,6 +22,21 @@ if(!isset($columns['status_id']))
 	$db->ExecuteMaster("ALTER TABLE decision_node ADD COLUMN status_id tinyint(1) unsigned not null default 0");
 
 // ===========================================================================
+// Modify `trigger_event` to add 'updated_at'
+
+if(!isset($tables['trigger_event'])) {
+	$logger->error("The 'trigger_event' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('trigger_event');
+
+if(!isset($columns['updated_at'])) {
+	$db->ExecuteMaster("ALTER TABLE trigger_event ADD COLUMN updated_at int unsigned not null default 0");
+	$db->ExecuteMaster("UPDATE trigger_event SET updated_at = UNIX_TIMESTAMP()");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

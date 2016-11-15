@@ -25,11 +25,15 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const EVENT_POINT = 'event_point';
 	const VIRTUAL_ATTENDANT_ID = 'virtual_attendant_id';
 	const POS = 'pos';
+	const UPDATED_AT = 'updated_at';
 	const EVENT_PARAMS_JSON = 'event_params_json';
 	const VARIABLES_JSON = 'variables_json';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
 		
 		$sql = "INSERT INTO trigger_event () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -219,13 +223,13 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, is_private, event_point, virtual_attendant_id, pos, event_params_json, variables_json ".
+		$sql = "SELECT id, title, is_disabled, is_private, event_point, virtual_attendant_id, pos, event_params_json, updated_at, variables_json ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
 			$limit_sql
 		;
-
+		
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
@@ -254,6 +258,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$object->event_point = $row['event_point'];
 			$object->virtual_attendant_id = $row['virtual_attendant_id'];
 			$object->pos = intval($row['pos']);
+			$object->updated_at = intval($row['updated_at']);
 			$object->event_params = @json_decode($row['event_params_json'], true);
 			$object->variables = @json_decode($row['variables_json'], true);
 			$objects[$object->id] = $object;
@@ -283,7 +288,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = array($ids);
+		
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(empty($ids))
@@ -332,12 +339,14 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			"trigger_event.is_disabled as %s, ".
 			"trigger_event.is_private as %s, ".
 			"trigger_event.virtual_attendant_id as %s, ".
+			"trigger_event.updated_at as %s, ".
 			"trigger_event.event_point as %s ",
 				SearchFields_TriggerEvent::ID,
 				SearchFields_TriggerEvent::TITLE,
 				SearchFields_TriggerEvent::IS_DISABLED,
 				SearchFields_TriggerEvent::IS_PRIVATE,
 				SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
+				SearchFields_TriggerEvent::UPDATED_AT,
 				SearchFields_TriggerEvent::EVENT_POINT
 			);
 			
@@ -491,6 +500,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	const IS_PRIVATE = 't_is_private';
 	const VIRTUAL_ATTENDANT_ID = 't_virtual_attendant_id';
 	const EVENT_POINT = 't_event_point';
+	const UPDATED_AT = 't_updated_at';
 	
 	static private $_fields = null;
 	
@@ -536,6 +546,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'trigger_event', 'is_private', $translate->_('dao.trigger_event.is_private'), null, true),
 			self::VIRTUAL_ATTENDANT_ID => new DevblocksSearchField(self::VIRTUAL_ATTENDANT_ID, 'trigger_event', 'virtual_attendant_id', $translate->_('common.bot'), null, true),
 			self::EVENT_POINT => new DevblocksSearchField(self::EVENT_POINT, 'trigger_event', 'event_point', $translate->_('common.event'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'trigger_event', 'updated_at', $translate->_('common.updated'), null, true),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -553,6 +564,7 @@ class Model_TriggerEvent {
 	public $event_point;
 	public $virtual_attendant_id;
 	public $pos;
+	public $updated_at;
 	public $event_params = array();
 	public $variables = array();
 	
@@ -1182,7 +1194,8 @@ class View_TriggerEvent extends C4_AbstractView {
 			case SearchFields_TriggerEvent::IS_PRIVATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
-			case 'placeholder_date':
+				
+			case SearchFields_TriggerEvent::UPDATED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			/*
@@ -1227,7 +1240,7 @@ class View_TriggerEvent extends C4_AbstractView {
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_TriggerEvent::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
