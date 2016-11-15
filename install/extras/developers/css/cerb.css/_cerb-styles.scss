@@ -1553,3 +1553,106 @@ DIV.emailBodyHtml {
 		}
 	}
 }
+
+.cerb-expression-editor {
+
+	UL.expression-toolbar {
+		width: 250px;
+		border: 0;
+		
+		LI {
+			color: black;
+			
+			&.ui-state-focus {
+				color: inherit;
+				border-color: rgba(200,200,200,0.5);
+				background-color: rgba(128,128,128,0.1);
+			}
+			
+			&.ui-menu-item {
+				background-color: rgb(255,255,255);
+			}
+			
+			&.ui-menu-item:hover {
+				background-color: rgb(240,240,240);
+				border-color: rgb(240,240,240);
+			}
+		}
+	}
+	
+	.expression {
+		&:focus {
+			outline: none;
+		}
+		
+		SPAN {
+			color: black;
+			font-weight:bold;
+			border-radius:10px;
+			padding:0px 6px;
+			background-color:rgb(220,220,220);
+			
+			&.default {
+				font-weight: normal;
+				background-color:rgb(220,220,220);
+			}
+			&.alias {
+				background-color:rgb(220,220,220);
+			}
+			&.avail {
+				background-color:rgb(220,220,220);
+			}
+			&.contact {
+				color:rgb(0,120,0);
+				background-color:rgb(235,255,205);
+			}
+			&.contact_method {
+				background-color:rgb(220,220,220);
+			}
+			&.context {
+				background-color:rgb(220,220,220);
+			}
+			&.date {
+				color:rgb(68,147,224);
+				background-color:rgb(217,239,255);
+			}
+			&.duration {
+				color: rgb(188, 121, 20);
+				background-color: rgb(255, 228, 16);
+				//background-color: rgb(252, 255, 15);
+			}
+			&.entity {
+				background-color:rgb(220,220,220);
+			}
+			&.event {
+				background-color:rgb(220,220,220);
+			}
+			&.number {
+				background-color:rgb(220,220,220);
+			}
+			&.org {
+				background-color:rgb(220,220,220);
+			}
+			&.phone {
+				background-color:rgb(220,220,220);
+			}
+			&.place {
+				background-color:rgb(220,220,220);
+			}
+			&.remind {
+				background-color:rgb(220,220,220);
+			}
+			&.status {
+				background-color:rgb(220,220,220);
+			}
+			&.time {
+				color:rgb(255,128,0);
+				background-color:rgb(253,238,193);
+			}
+			&.worker {
+				color: rgb(169,63,255);
+				background-color: rgb(233,217,255);
+			}
+		}
+	}
+}

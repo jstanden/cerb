@@ -2205,6 +2205,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * @return _DevblocksBayesClassifierService
+	 */
+	static function getBayesClassifierService() {
+		return _DevblocksBayesClassifierService::getInstance();
+	}
+	
+	/**
 	 * @return DevblocksNeuralNetwork
 	 */
 	static function getNeuralNetwork($inputs, $hiddens, $outputs, $learning_rate) {

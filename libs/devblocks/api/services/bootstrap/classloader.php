@@ -120,6 +120,9 @@ class _DevblocksClassLoadManager {
 	}
 	
 	private function _initServices() {
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/bayes_classifier.php', array(
+			'_DevblocksBayesClassifierService',
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/database.php', array(
 			'_DevblocksDatabaseManager',
 		));

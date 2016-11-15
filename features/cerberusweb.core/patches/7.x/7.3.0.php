@@ -56,12 +56,12 @@ if(!isset($tables['classifier_class'])) {
 	$sql = sprintf("
 	CREATE TABLE `classifier_class` (
 		id int unsigned auto_increment,
-		classifier_id int unsigned not null default 0,
 		name varchar(255) not null default '',
-		attribs_json text,
-		dictionary_size int unsigned not null default 0,
+		classifier_id int unsigned not null default 0,
 		training_count int unsigned not null default 0,
+		dictionary_size int unsigned not null default 0,
 		updated_at int unsigned not null default 0,
+		attribs_json text,
 		primary key (id),
 		index (classifier_id)
 	) ENGINE=%s;
@@ -95,7 +95,7 @@ if(!isset($tables['classifier_ngram_to_class'])) {
 		token_id int unsigned not null default 0,
 		class_id int unsigned not null default 0,
 		training_count int unsigned not null default 0,
-		primary key (token_id, classifier_id)
+		primary key (token_id, class_id)
 	) ENGINE=%s;
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
@@ -104,24 +104,24 @@ if(!isset($tables['classifier_ngram_to_class'])) {
 }
 
 // ===========================================================================
-// Add `classifier_training_example` table
+// Add `classifier_example` table
 
-if(!isset($tables['classifier_training_example'])) {
+if(!isset($tables['classifier_example'])) {
 	$sql = sprintf("
-	CREATE TABLE `classifier_training_example` (
+	CREATE TABLE `classifier_example` (
 		id int unsigned auto_increment,
 		classifier_id int unsigned not null default 0,
-		trained_class_id int unsigned not null default 0,
-		expression varchar(255) not null default '',
-		created_at int unsigned not null default 0,
+		class_id int unsigned not null default 0,
+		expression text,
+		updated_at int unsigned not null default 0,
 		primary key (id),
 		index (classifier_id),
-		index (trained_class_id)
+		index (class_id)
 	) ENGINE=%s;
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 
-	$tables['classifier_training_example'] = 'classifier_training_example';
+	$tables['classifier_example'] = 'classifier_example';
 }
 
 // Modify `decision_node` to add 'subroutine' and 'loop' types

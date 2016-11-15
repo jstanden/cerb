@@ -881,6 +881,9 @@ class CerberusContexts {
 	const CONTEXT_CALENDAR_EVENT = 'cerberusweb.contexts.calendar_event';
 	const CONTEXT_CALENDAR_EVENT_RECURRING = 'cerberusweb.contexts.calendar_event.recurring';
 	const CONTEXT_CALL = 'cerberusweb.contexts.call';
+	const CONTEXT_CLASSIFIER = 'cerberusweb.contexts.classifier';
+	const CONTEXT_CLASSIFIER_CLASS = 'cerberusweb.contexts.classifier.class';
+	const CONTEXT_CLASSIFIER_EXAMPLE = 'cerberusweb.contexts.classifier.example';
 	const CONTEXT_COMMENT = 'cerberusweb.contexts.comment';
 	const CONTEXT_CONNECTED_ACCOUNT = 'cerberusweb.contexts.connected_account';
 	const CONTEXT_CONTACT = 'cerberusweb.contexts.contact';

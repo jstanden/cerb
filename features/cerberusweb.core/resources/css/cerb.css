@@ -1521,6 +1521,96 @@ DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtm
   color: initial;
 }
 
+.cerb-expression-editor UL.expression-toolbar {
+  width: 250px;
+  border: 0;
+}
+.cerb-expression-editor UL.expression-toolbar LI {
+  color: black;
+}
+.cerb-expression-editor UL.expression-toolbar LI.ui-state-focus {
+  color: inherit;
+  border-color: rgba(200, 200, 200, 0.5);
+  background-color: rgba(128, 128, 128, 0.1);
+}
+.cerb-expression-editor UL.expression-toolbar LI.ui-menu-item {
+  background-color: white;
+}
+.cerb-expression-editor UL.expression-toolbar LI.ui-menu-item:hover {
+  background-color: #f0f0f0;
+  border-color: #f0f0f0;
+}
+.cerb-expression-editor .expression:focus {
+  outline: none;
+}
+.cerb-expression-editor .expression SPAN {
+  color: black;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 0px 6px;
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.default {
+  font-weight: normal;
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.alias {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.avail {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.contact {
+  color: #007800;
+  background-color: #ebffcd;
+}
+.cerb-expression-editor .expression SPAN.contact_method {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.context {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.date {
+  color: #4493e0;
+  background-color: #d9efff;
+}
+.cerb-expression-editor .expression SPAN.duration {
+  color: #bc7914;
+  background-color: #ffe410;
+}
+.cerb-expression-editor .expression SPAN.entity {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.event {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.number {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.org {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.phone {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.place {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.remind {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.status {
+  background-color: gainsboro;
+}
+.cerb-expression-editor .expression SPAN.time {
+  color: #ff8000;
+  background-color: #fdeec1;
+}
+.cerb-expression-editor .expression SPAN.worker {
+  color: #a93fff;
+  background-color: #e9d9ff;
+}
+
 /* jQueryUI (Redmond theme) */
 .ui-widget,
 .ui-widget input,

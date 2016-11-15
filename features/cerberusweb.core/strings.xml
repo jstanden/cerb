@@ -417,6 +417,26 @@
 				<seg>choose</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.classifier">
+			<tuv xml:lang="en_US">
+				<seg>classifier</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.classifier.classification">
+			<tuv xml:lang="en_US">
+				<seg>classification</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.classifier.classifications">
+			<tuv xml:lang="en_US">
+				<seg>classifications</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.classifiers">
+			<tuv xml:lang="en_US">
+				<seg>classifiers</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.clear">
 			<tuv xml:lang="en_US">
 				<seg>clear</seg>
@@ -450,6 +470,11 @@
 		<tu tuid="common.conditions">
 			<tuv xml:lang="en_US">
 				<seg>conditions</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.confidence">
+			<tuv xml:lang="en_US">
+				<seg>confidence</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.connected_account">
@@ -630,6 +655,16 @@
 		<tu tuid="common.enabled">
 			<tuv xml:lang="en_US">
 				<seg>Enabled</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.entity">
+			<tuv xml:lang="en_US">
+				<seg>entity</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.entities">
+			<tuv xml:lang="en_US">
+				<seg>entities</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.error">
@@ -1578,6 +1613,16 @@
 				<seg>total</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.train">
+			<tuv xml:lang="en_US">
+				<seg>train</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.training">
+			<tuv xml:lang="en_US">
+				<seg>training</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.type">
 			<tuv xml:lang="en_US">
 				<seg>Type</seg>
@@ -1818,6 +1863,24 @@
 			<tuv xml:lang="en_US">
 				<seg>Version</seg>
 			</tuv>
+		</tu>
+		
+		<!-- Classifier -->
+		
+		<tu tuid='dao.classifier.dictionary_size'>
+			<tuv xml:lang="en_US"><seg>Dictionary Size</seg></tuv>
+		</tu>
+		
+		<!-- Classifier Class -->
+		
+		<tu tuid='dao.classifier_class.training_count'>
+			<tuv xml:lang="en_US"><seg>Training Count</seg></tuv>
+		</tu>
+		
+		<!-- ClassifierExample -->
+		
+		<tu tuid='dao.classifier_example.expression'>
+			<tuv xml:lang="en_US"><seg>Expression</seg></tuv>
 		</tu>
 
 		<!-- DecisionNode -->

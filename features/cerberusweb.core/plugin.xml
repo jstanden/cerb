@@ -168,6 +168,30 @@
 			<class name="View_CerbPlugin" />
 		</file>
 		
+		<file path="api/dao/classifier.php">
+			<class name="Context_Classifier" />
+			<class name="DAO_Classifier" />
+			<class name="Model_Classifier" />
+			<class name="SearchFields_Classifier" />
+			<class name="View_Classifier" />
+		</file>
+		
+		<file path="api/dao/classifier_class.php">
+			<class name="Context_ClassifierClass" />
+			<class name="DAO_ClassifierClass" />
+			<class name="Model_ClassifierClass" />
+			<class name="SearchFields_ClassifierClass" />
+			<class name="View_ClassifierClass" />
+		</file>
+		
+		<file path="api/dao/classifier_example.php">
+			<class name="Context_ClassifierExample" />
+			<class name="DAO_ClassifierExample" />
+			<class name="Model_ClassifierExample" />
+			<class name="SearchFields_ClassifierExample" />
+			<class name="View_ClassifierExample" />
+		</file>
+		
 		<file path="api/dao/comment.php">
 			<class name="Context_Comment" />
 			<class name="DAO_Comment" />
@@ -1153,6 +1177,97 @@
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.classifier</id>
+			<name>Classifier</name>
+			<class>
+				<file>api/dao/classifier.php</file>
+				<name>Context_Classifier</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="classifier" value="singular" />
+						<data key="classifiers" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="classifier" />
+				<param key="dao_class" value="DAO_Classifier" />
+				<param key="view_class" value="View_Classifier" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.classifier.class</id>
+			<name>Classifier Classification</name>
+			<class>
+				<file>api/dao/classifier_class.php</file>
+				<name>Context_ClassifierClass</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="classification" value="singular" />
+						<data key="classifications" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="classifier_class" />
+				<param key="dao_class" value="DAO_ClassifierClass" />
+				<param key="view_class" value="View_ClassifierClass" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.classifier.example</id>
+			<name>Classifier Example</name>
+			<class>
+				<file>api/dao/classifier_example.php</file>
+				<name>Context_ClassifierExample</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="classifier example" value="singular" />
+						<data key="classifier examples" value="plural" />
+						<data key="example" value="singular short" />
+						<data key="examples" value="plural short" />
+					</value>
+				</param>
+				<param key="alias" value="classifier_example" />
+				<param key="dao_class" value="DAO_ClassifierExample" />
+				<param key="view_class" value="View_ClassifierExample" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="va_variable" />
+						<data key="workspace" />
+						<!--
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="find" />
+						<data key="snippets" />
+						-->
 					</value>
 				</param>
 			</params>
@@ -3328,6 +3443,19 @@
 			</extension>
 		
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.classifiers</id>
+				<name>Classifiers Section</name>
+				<class>
+					<file>api/uri/config/classifiers.php</file>
+					<name>PageSection_SetupClassifiers</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="classifiers" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.avatars</id>
 				<name>Avatars Section</name>
 				<class>
@@ -3885,6 +4013,45 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="calendar_recurring_profile" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.classifier</id>
+				<name>Classifier Section</name>
+				<class>
+					<file>api/uri/profiles/classifier.php</file>
+					<name>PageSection_ProfilesClassifier</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="classifier" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.classifier_class</id>
+				<name>Classifier Class Section</name>
+				<class>
+					<file>api/uri/profiles/classifier_class.php</file>
+					<name>PageSection_ProfilesClassifierClass</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="classifier_class" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.classifier.example</id>
+				<name>Classifier Example Section</name>
+				<class>
+					<file>api/uri/profiles/classifier_example.php</file>
+					<name>PageSection_ProfilesClassifierExample</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="classifier_example" />
 				</params>
 			</extension>
 
