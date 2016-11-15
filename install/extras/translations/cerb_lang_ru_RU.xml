@@ -2243,16 +2243,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.trigger_event.owner_context">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.trigger_event.owner_context_id">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="dao.twitter_account.last_synced_at">
 			<tuv xml:lang="ru_RU">
 				<seg/>

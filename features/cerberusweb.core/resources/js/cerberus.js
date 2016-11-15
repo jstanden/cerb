@@ -1049,8 +1049,6 @@ var ajax = new cAjaxCalls();
 							$ul.trigger(evt);
 						}
 					}
-					
-					$trigger.trigger('cerb-chooser-saved');
 				});
 			});
 			
@@ -1091,7 +1089,7 @@ var ajax = new cAjaxCalls();
 							alias = 'org';
 						} else if(context == "cerberusweb.contexts.worker") {
 							alias = 'worker';
-						} else if(context == "cerberusweb.contexts.virtual_attendant") {
+						} else if(context == "cerberusweb.contexts.virtual.attendant") {
 							alias = 'va';
 						}
 						

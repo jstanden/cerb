@@ -234,7 +234,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		$url_path = $url_parts['path'];
 		$url_query = $this->_sortQueryString($_SERVER['QUERY_STRING']);
 		$string_to_sign_prefix = "$verb\n$header_date\n$url_path\n$url_query\n$this->_payload";
-
+		
 		if(!$this->_validateRfcDate($header_date)) {
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid timestamp)"));
 		}
@@ -622,7 +622,10 @@ abstract class Extension_RestController extends DevblocksExtension {
 						unset($filters[$key]);
 					}
 				}
-				$params[$field] = new DevblocksSearchCriteria($field, $filter[1], $filter[2]);
+				
+				if(!empty($field)) {
+					$params[$field] = new DevblocksSearchCriteria($field, $filter[1], $filter[2]);
+				}
 			}
 		}
 		return $params;

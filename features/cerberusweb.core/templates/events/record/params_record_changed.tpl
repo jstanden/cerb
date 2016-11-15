@@ -1,11 +1,10 @@
-<b>Record Type:</b>
+<fieldset style="margin-top:5px;">
+	<b>Record Type:</b>
+	<br>
 
-<div style="margin-left:10px;">
-
-<select name="event_params[context]">
-	{foreach from=$contexts item=context}
-	<option value="{$context->id}" {if $trigger->event_params.context==$context->id}selected="selected"{/if}>{$context->name}</option>
-	{/foreach}
-</select>
-
-</div>
+	<select name="event_params[context]">
+		{foreach from=$contexts item=context}
+		<option value="{$context->id}" {if $trigger->event_params.context==$context->id}selected="selected"{/if}>{$context->name}</option>
+		{/foreach}
+	</select>
+</fieldset>

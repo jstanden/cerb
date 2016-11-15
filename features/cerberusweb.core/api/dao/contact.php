@@ -540,7 +540,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 			$where_sql.
 			($has_multiple_values ? 'GROUP BY contact.id ' : '').
 			$sort_sql;
-			
+		
 		if($limit > 0) {
 			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
 				return false;

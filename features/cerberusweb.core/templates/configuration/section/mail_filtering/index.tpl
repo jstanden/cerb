@@ -19,14 +19,14 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div class="help-box" style="padding:5px;border:0;">
-	<h1 style="margin-bottom:5px;text-align:left;">Create a global Virtual Attendant</h1>
+	<h1 style="margin-bottom:5px;text-align:left;">Create a global bot</h1>
 	
 	<p>
-		Only global Virtual Attendants are capable of filtering inbound mail.  You currently don't have one.
+		Only global bots are capable of filtering inbound mail. You currently don't have one.
 	</p>
 	
 	<p>
-		<b>Would you like Cerb to automatically create your first global Virtual Attendant now?</b>
+		<b>Would you like Cerb to automatically create your first global bot now?</b>
 		
 		<div style="margin-left:15px;">
 			<button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Yes</button>

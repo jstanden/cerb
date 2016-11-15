@@ -22,14 +22,6 @@ class PageSection_SetupBots extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'bots');
 		
-		// Context
-		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer','');
-		
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-
 		$view_id = 'setup_virtual_attendants';
 		
 		$view = C4_AbstractViewLoader::getView($view_id);

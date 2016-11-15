@@ -16,6 +16,8 @@
 		</h1>
 		
 		<div style="margin-top:5px;">
+			{*<button type="button" class="" onclick="genericAjaxPopup('va','c=internal&a=openBotChatChannel', null, false, '300');"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button>*}
+			
 			{if !empty($dict->id)}
 				{$object_recommendations = DAO_ContextRecommendation::getByContexts($peek_context, array($dict->id))}
 				{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$peek_context context_id=$dict->id full=true recommend_group_id=$dict->group_id recommend_bucket_id=$dict->bucket_id}

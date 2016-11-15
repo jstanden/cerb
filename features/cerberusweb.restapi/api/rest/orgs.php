@@ -64,7 +64,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 
 		$id = array_shift($stack);
 
-		if(null == ($task = DAO_ContactOrg::get($id)))
+		if(null == ($org = DAO_ContactOrg::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid organization ID %d", $id));
 
 		DAO_ContactOrg::delete($id);

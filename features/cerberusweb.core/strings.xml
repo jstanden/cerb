@@ -302,6 +302,21 @@
 				<seg>Behavior</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.behaviors">
+			<tuv xml:lang="en_US">
+				<seg>Behaviors</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.bot">
+			<tuv xml:lang="en_US">
+				<seg>bot</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.bots">
+			<tuv xml:lang="en_US">
+				<seg>bots</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.broadcast">
 			<tuv xml:lang="en_US">
 				<seg>Broadcast</seg>
@@ -320,6 +335,11 @@
 		<tu tuid="common.buckets">
 			<tuv xml:lang="en_US">
 				<seg>Buckets</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.builder">
+			<tuv xml:lang="en_US">
+				<seg>builder</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.bulk_update">
@@ -565,6 +585,11 @@
 		<tu tuid="common.edit">
 			<tuv xml:lang="en_US">
 				<seg>edit</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.editor">
+			<tuv xml:lang="en_US">
+				<seg>editor</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.email">
@@ -1583,14 +1608,14 @@
 				<seg>Record URL</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.bot">
+		<tu tuid="common.variable">
 			<tuv xml:lang="en_US">
-				<seg>bot</seg>
+				<seg>variable</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.bots">
+		<tu tuid="common.variables">
 			<tuv xml:lang="en_US">
-				<seg>bots</seg>
+				<seg>variables</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.watch">
@@ -1864,14 +1889,9 @@
 				<seg>Is Disabled</seg>
 			</tuv>
 		</tu>
-		<tu tuid="dao.trigger_event.owner_context">
+		<tu tuid="dao.trigger_event.is_private">
 			<tuv xml:lang="en_US">
-				<seg>Owner Context</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.trigger_event.owner_context_id">
-			<tuv xml:lang="en_US">
-				<seg>Owner Context Id</seg>
+				<seg>Is Private</seg>
 			</tuv>
 		</tu>
 
