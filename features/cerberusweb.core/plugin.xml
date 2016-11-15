@@ -697,10 +697,6 @@
 			<class name="View_MailParseFail" />
 		</file>
 		
-		<file path="api/uri/internal/virtual_attendants.php">
-			<class name="Subcontroller_Internal_VirtualAttendants" />
-		</file>
-		
 		<file path="api/uri/portal.php">
 			<class name="ChPortalHelper" />
 		</file>

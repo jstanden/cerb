@@ -105,17 +105,6 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 			),
 		);
 		
-		if(isset($virtual_attendant->owner_context) && $virtual_attendant->owner_context != CerberusContexts::CONTEXT_APPLICATION) {
-			$properties_links[$virtual_attendant->owner_context] = array(
-				$virtual_attendant->owner_context_id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$virtual_attendant->owner_context,
-						$virtual_attendant->owner_context_id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			);
-		}
-		
 		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
@@ -277,6 +266,78 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 			));
 			return;
 		}
+	}
+	
+	function showBehaviorsTabAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		if(empty($id))
+			return;
+		
+		if(null == ($va = DAO_VirtualAttendant::get($id)))
+			return;
+		
+		$defaults = C4_AbstractViewModel::loadFromClass('View_TriggerEvent');
+		$defaults->id = 'bot_behaviors';
+		$defaults->is_ephemeral = false;
+		$defaults->view_columns = [
+			SearchFields_TriggerEvent::EVENT_POINT,
+			SearchFields_TriggerEvent::UPDATED_AT,
+			SearchFields_TriggerEvent::IS_DISABLED,
+			SearchFields_TriggerEvent::IS_PRIVATE,
+		];
+		$defaults->renderSortBy = SearchFields_TriggerEvent::TITLE;
+		$defaults->renderSortAsc = true;
+		
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		$view->addParamsRequired([
+			new DevblocksSearchCriteria(SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID, '=', $va->id),
+		], true);
+		$tpl->assign('view', $view);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+	}
+	
+	function showScheduledBehaviorsTabAction() {
+		@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer',0);
+		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::getTemplateService();
+
+		// Admins can see all owners at once
+		if(empty($va_id) && !$active_worker->is_superuser)
+			return;
+
+		// [TODO] ACL
+
+		$defaults = C4_AbstractViewModel::loadFromClass('View_ContextScheduledBehavior');
+		$defaults->id = 'va_schedbeh_' . $va_id;
+		$defaults->is_ephemeral = true;
+		
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+
+		if(empty($va_id) && $active_worker->is_superuser) {
+			$view->addParamsRequired(array(), true);
+			
+		} else {
+			$view->addParamsRequired(array(
+				'_privs' => array(
+					DevblocksSearchCriteria::GROUP_AND,
+					new DevblocksSearchCriteria(SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID, '=', $va_id),
+				)
+			), true);
+		}
+		
+		$tpl->assign('view', $view);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
 	function viewExploreAction() {

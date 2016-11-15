@@ -1,5 +1,13 @@
+{if $view instanceof IAbstractView_QuickSearch}
+<div style="float:right;">
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
+</div>
+{/if}
+
 <div style="float:left;">
 	<h2>Scheduled Behavior</h2>
 </div>
 
-{Subcontroller_Internal_VirtualAttendants::showScheduledBehaviorAction()}
+<div style="clear:both;"></div>
+
+{include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}

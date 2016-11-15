@@ -3223,49 +3223,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function showAttendantBehaviorsTabAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		if(empty($id))
-			return;
-		
-		if(null == ($va = DAO_VirtualAttendant::get($id)))
-			return;
-
-		$tpl->assign('va', $va);
-
-		// Security check
-
-		if(!$va->isReadableByActor($active_worker))
-			return;
-		
-		// Events
-		
-		$events = Extension_DevblocksEvent::getByContext($va->owner_context, false);
-		$tpl->assign('events', $events);
-		
-		$triggers = DAO_TriggerEvent::getByVirtualAttendant($va, null, true, 'pos');
-		$tpl->assign('triggers', $triggers);
-		
-		$triggers_by_event = array();
-		
-		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
-			if(!isset($triggers_by_event[$trigger->event_point]))
-				$triggers_by_event[$trigger->event_point] = array();
-			
-			$triggers_by_event[$trigger->event_point][$trigger->id] = $trigger;
-		}
-
-		$tpl->assign('triggers_by_event', $triggers_by_event);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/tab.tpl');
-	}
-
 	function reparentNodeAction() {
 		@$child_id = DevblocksPlatform::importGPC($_REQUEST['child_id'],'integer', 0);
 		@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
@@ -3293,16 +3250,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_DecisionNode::POS => $pos++,
 			));
 		}
-		
-		exit;
-	}
-	
-	function reorderTriggersAction() {
-		@$trigger_ids = DevblocksPlatform::importGPC($_REQUEST['trigger_id'], 'array', array());
-		
-		$trigger_ids = DevblocksPlatform::sanitizeArray($trigger_ids, 'integer');
-
-		DAO_TriggerEvent::setTriggersOrder($trigger_ids);
 		
 		exit;
 	}
@@ -3428,7 +3375,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	function showDecisionPopupAction() {
 		@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer', 0);
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$only_event_ids = DevblocksPlatform::importGPC($_REQUEST['only_event_ids'],'string', '');
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
@@ -3468,22 +3414,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				// Filter the available events by VA
 				$events = $va->filterEventsByAllowed($events);
 				
-				// Are we filtering the available events?
-				if(!empty($only_event_ids)) {
-					$only_event_ids = DevblocksPlatform::parseCsvString($only_event_ids,false,'string');
-					
-					if(is_array($events))
-					foreach($events as $event_id => $event) {
-						if(!in_array($event_id, $only_event_ids))
-							unset($events[$event_id]);
-					}
-				}
-				
 				$tpl->assign('events', $events);
 				
 			} else {
-				if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-				}
+				$trigger = DAO_TriggerEvent::get($trigger_id);
 			}
 			
 		}
@@ -3575,19 +3509,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 				// Template
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/action.tpl');
-				break;
-				
-			case 'trigger':
-				if(!empty($trigger)) {
-					$ext = DevblocksPlatform::getExtension($trigger->event_point, false);
-					$tpl->assign('ext', $ext);
-				}
-				
-				// Contexts that can show up in VA vars
-				$list_contexts = Extension_DevblocksContext::getAll(false, 'va_variable');
-				$tpl->assign('list_contexts', $list_contexts);
-				
-				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/trigger.tpl');
 				break;
 		}
 		
@@ -3810,180 +3731,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/_export.tpl');
 	}
 	
-	function saveBehaviorImportJsonAction() {
-		@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
-		@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer', 0);
-		@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', array());
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		header('Content-type: application/json');
-		
-		$trigger_id = null;
-		
-		try {
-			if(empty($import_json))
-				throw new Exception("Import JSON not provided.");
-			
-			if(
-				false == ($json = json_decode($import_json, true))
-				|| !isset($json['behavior'])
-				|| !isset($json['behavior']['event']['key'])
-			) {
-				throw new Exception("Import JSON is an invalid format.");
-			}
-
-			@$event_point = $json['behavior']['event']['key'];
-			
-			if(
-				// [TODO] We should have an Extension_DevblocksEvent::get($id) method
-				false == ($event = DevblocksPlatform::getExtension($event_point, true))
-				|| !($event instanceof Extension_DevblocksEvent)
-			) {
-				throw new Exception("Invalid event in the provided behavior.");
-			}
-			
-			// Verify the event can be owned by this context
-			
-			if(false == ($va = DAO_VirtualAttendant::get($va_id))) {
-				throw new Exception("Invalid Virtual Attendant as import destination.");
-			}
-			
-			// Verify that the VA is allowed to make these events
-			
-			if(!$va->isWriteableByActor($active_worker))
-				throw new Exception("You don't have access to modify this Virtual Attendant.");
-			
-			// Verify that the active worker has access to make events for this context
-			
-			if(!$va->canUseEvent($event_point))
-				throw new Exception("This Virtual Attendant can't make behaviors for this event.");
-			
-			if(
-				!isset($event->manifest->params['contexts'])
-				|| !isset($event->manifest->params['contexts'][0])
-				|| !is_array($event->manifest->params['contexts'][0])
-				|| !in_array($va->owner_context, array_keys($event->manifest->params['contexts'][0]))
-			) {
-				throw new Exception("Unable to bind event to this owner.");
-			}
-			
-			// Allow prompted configuration of the VA behavior import
-			
-			@$configure_fields = $json['behavior']['configure'];
-			
-			// Are there configurable fields in this import file?
-			if(is_array($configure_fields) && !empty($configure_fields)) {
-				// If the worker has provided the configuration, make the changes to JSON array
-				if(!empty($configure)) {
-					foreach($configure_fields as $config_field_idx => $config_field) {
-						if(!isset($config_field['path']))
-							continue;
-						
-						if(!isset($configure[$config_field_idx]))
-							continue;
-						
-						$ptr =& DevblocksPlatform::jsonGetPointerFromPath($json, $config_field['path']);
-						$ptr = $configure[$config_field_idx];
-					}
-					
-				// If the worker hasn't been prompted, do that now
-				} else {
-					$tpl = DevblocksPlatform::getTemplateService();
-					$tpl->assign('import_json', $import_json);
-					$tpl->assign('import_fields', $configure_fields);
-					$config_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/prompted/configure_json_import.tpl');
-					
-					echo json_encode(array(
-						'config_html' => $config_html,
-					));
-					return;
-				}
-			}
-			
-			// Create behavior record
-			// [TODO] We need to sanitize this data
-			
-			$fields = array(
-				DAO_TriggerEvent::TITLE => $json['behavior']['title'],
-				DAO_TriggerEvent::EVENT_POINT => $event_point,
-				DAO_TriggerEvent::IS_PRIVATE => @$json['behavior']['is_private'] ? 1 : 0,
-				DAO_TriggerEvent::VARIABLES_JSON => isset($json['behavior']['variables']) ? json_encode($json['behavior']['variables']) : '',
-				DAO_TriggerEvent::EVENT_PARAMS_JSON => isset($json['behavior']['event']['params']) ? json_encode($json['behavior']['event']['params']) : '',
-				DAO_TriggerEvent::VIRTUAL_ATTENDANT_ID => $va->id,
-				DAO_TriggerEvent::POS => DAO_TriggerEvent::getNextPosByVirtualAttendantAndEvent($va->id, $event_point),
-				DAO_TriggerEvent::IS_DISABLED => 1, // default to disabled until successfully imported
-			);
-			
-			$trigger_id = DAO_TriggerEvent::create($fields);
-			
-			// Create records for all child nodes and link them to the proper parents
-
-			if(isset($json['behavior']['nodes']))
-			if(false == $this->_recursiveImportDecisionNodes($json['behavior']['nodes'], $trigger_id, 0))
-				throw new Exception("Failed to import nodes");
-			
-			// Enable the new behavior since we've succeeded
-			
-			DAO_TriggerEvent::update($trigger_id, array(
-				DAO_TriggerEvent::IS_DISABLED => @$json['behavior']['is_disabled'] ? 1 : 0,
-			));
-			
-			echo json_encode(array(
-				'success' => true,
-				'trigger_id' => $trigger_id,
-				'event_point' => $event_point,
-			));
-			return;
-			
-		} catch (Exception $e) {
-			if(!empty($trigger_id))
-				DAO_TriggerEvent::delete($trigger_id);
-			
-			echo json_encode(array(
-				'success' => false,
-				'error' => $e->getMessage()
-			));
-			return;
-		}
-	}
-	
-	private function _recursiveImportDecisionNodes($nodes, $trigger_id, $parent_id) {
-		if(!is_array($nodes) || empty($nodes))
-			return;
-		
-		$pos = 0;
-		
-		// [TODO] We need to sanitize this data
-		foreach($nodes as $node) {
-			//var_dump($node);
-			
-			if(
-				!isset($node['type'])
-				|| !isset($node['title'])
-				|| !in_array($node['type'], array('switch','outcome','action'))
-			)
-				return false;
-			
-			$fields = array(
-				DAO_DecisionNode::NODE_TYPE => $node['type'],
-				DAO_DecisionNode::TITLE => $node['title'],
-				DAO_DecisionNode::PARENT_ID => $parent_id,
-				DAO_DecisionNode::TRIGGER_ID => $trigger_id,
-				DAO_DecisionNode::POS => $pos++,
-				DAO_DecisionNode::PARAMS_JSON => isset($node['params']) ? json_encode($node['params']) : '',
-			);
-			
-			$node_id = DAO_DecisionNode::create($fields);
-			
-			if(isset($node['nodes']) && is_array($node['nodes']))
-				if(false == ($result = $this->_recursiveImportDecisionNodes($node['nodes'], $trigger_id, $node_id)))
-					return false;
-		}
-		
-		return true;
-	}
-	
 	function showBehaviorParamsAction() {
 		@$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
@@ -4162,135 +3909,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			if(false == $id)
 				return false;
-			
-		} elseif(isset($_REQUEST['trigger_id'])) { // Trigger
-			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
-			@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
-			@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'integer', 0);
-			@$event_params = DevblocksPlatform::importGPC($_REQUEST['event_params'],'array', array());
-			@$json = DevblocksPlatform::importGPC($_REQUEST['json'],'integer', 0);
-
-			// Variables
-
-			@$var_idxs = DevblocksPlatform::importGPC($_REQUEST['var'],'array',array());
-			@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_key'],'array',array());
-			@$var_types = DevblocksPlatform::importGPC($_REQUEST['var_type'],'array',array());
-			@$var_labels = DevblocksPlatform::importGPC($_REQUEST['var_label'],'array',array());
-			@$var_is_private = DevblocksPlatform::importGPC($_REQUEST['var_is_private'],'array',array());
-			
-			$variables = array();
-			
-			if(is_array($var_labels))
-			foreach($var_labels as $idx => $v) {
-				if(empty($var_labels[$idx]))
-					continue;
-				
-				$var_name = 'var_' . DevblocksPlatform::strAlphaNum(DevblocksPlatform::strToPermalink($v,'_'),'_');
-				$key = strtolower(!empty($var_keys[$idx]) ? $var_keys[$idx] : $var_name);
-				
-				// Variable params
-				@$var_idx = $var_idxs[$idx];
-				$var_params = isset($_REQUEST['var_params'.$var_idx]) ? DevblocksPlatform::importGPC($_REQUEST['var_params'.$var_idx],'array',array()) : array();
-				
-				$variables[$key] = array(
-					'key' => $key,
-					'label' => $v,
-					'type' => $var_types[$idx],
-					'is_private' => $var_is_private[$idx],
-					'params' => $var_params,
-				);
-			}
-			
-			// Create trigger
-			if(empty($trigger_id)) {
-				@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer', 0);
-				@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
-				
-				// Make sure the extension is valid
-				
-				if(null == ($ext = DevblocksPlatform::getExtension($event_point, false)))
-					return false;
-
-				// Verify permissions
-
-				if(false == ($va = DAO_VirtualAttendant::get($va_id)))
-					return false;
-				
-				if(empty($va) || !$va->isWriteableByActor($active_worker))
-					return false;
-				
-				if(!$va->canUseEvent($event_point))
-					return false;
-				
-				// Only macros can decide to be private or not
-				
-				if(!isset($ext->params['macro_context']))
-					$is_private = 0;
-				
-				$type = 'trigger';
-				
-				$pos = DAO_TriggerEvent::getNextPosByVirtualAttendantAndEvent($va_id, $event_point);
-				
-				// DAO
-					
-				$trigger_id = DAO_TriggerEvent::create(array(
-					DAO_TriggerEvent::VIRTUAL_ATTENDANT_ID => $va_id,
-					DAO_TriggerEvent::EVENT_POINT => $event_point,
-					DAO_TriggerEvent::TITLE => $title,
-					DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
-					DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
-					DAO_TriggerEvent::POS => $pos,
-					DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
-					DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),
-				));
-				
-				if($json) {
-					header("Content-Type: text/json;");
-					echo json_encode(array(
-						'trigger_id' => $trigger_id,
-						'event_point' => $event_point,
-					));
-					exit;
-				}
-				
-			// Update trigger
-			} else {
-				if(false !== ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-					$type = 'trigger';
-
-					// Security
-		
-					if(false == ($va = $trigger->getVirtualAttendant()))
-						return false;
-					
-					if(!$va->isWriteableByActor($active_worker))
-						return false;
-
-					// Fields
-					
-					if(empty($title))
-						if(null != ($ext = DevblocksPlatform::getExtension($trigger->event_point, false)))
-							$title = $ext->name;
-					
-					// Handle deletes
-					if(is_array($trigger->variables))
-					foreach($trigger->variables as $var => $data) {
-						if(!isset($variables[$var])) {
-							DAO_DecisionNode::deleteTriggerVar($trigger->id, $var);
-						}
-					}
-					
-					DAO_TriggerEvent::update($trigger->id, array(
-						DAO_TriggerEvent::TITLE => $title,
-						DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
-						DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
-						DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
-						DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),
-					));
-				}
-			}
-			
 		}
 
 		// Type-specific properties
@@ -4350,9 +3968,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_DecisionNode::update($id, array(
 					DAO_DecisionNode::PARAMS_JSON => json_encode($params),
 				));
-				break;
-				
-			case 'trigger':
 				break;
 		}
 	}
@@ -4568,12 +4183,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('success', $success);
 		$tpl->assign('output', $output);
 		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
-	}
-	
-	// Scheduled Behavior
-	
-	function showScheduledBehaviorTabAction() {
-		Subcontroller_Internal_VirtualAttendants::showScheduledBehaviorAction();
 	}
 	
 	// Utils

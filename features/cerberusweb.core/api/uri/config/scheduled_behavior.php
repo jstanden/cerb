@@ -22,6 +22,16 @@ class PageSection_SetupScheduledBehavior extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'scheduled_behavior');
 		
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		$defaults = C4_AbstractViewModel::loadFromClass('View_ContextScheduledBehavior');
+		$defaults->id = 'setup_scheduled_behavior';
+		
+		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+		$view->addParamsRequired(array(), true);
+		$tpl->assign('view', $view);
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/scheduled_behavior/index.tpl');
 	}
 };

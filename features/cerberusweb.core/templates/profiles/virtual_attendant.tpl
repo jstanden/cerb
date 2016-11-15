@@ -80,10 +80,19 @@
 
 <div id="profileVaTabs">
 	<ul>
-		{$tabs = [behaviors,behavior]}
+		{$tabs = []}
 
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantBehaviorsTab&id={$page_context_id}&point={$point}{/devblocks_url}">Behaviors</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showScheduledBehaviorTab&point={$point}&va_id={$page_context_id}{/devblocks_url}">Scheduled Behaviors</a></li>
+		{$tabs[] = 'behaviors'}
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=virtual_attendant&action=showBehaviorsTab&id={$page_context_id}&point={$point}{/devblocks_url}">{'common.behaviors'|devblocks_translate|capitalize}</a></li>
+		
+		{$tabs[] = 'activity'}
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=both&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
+		
+		{$tabs[] = 'classifiers'}
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=virtual_attendant&action=showClassifiersTab&id={$page_context_id}&point={$point}{/devblocks_url}">{'common.classifiers'|devblocks_translate|capitalize}</a></li>
+		
+		{$tabs[] = 'behavior'}
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=virtual_attendant&action=showScheduledBehaviorsTab&point={$point}&va_id={$page_context_id}{/devblocks_url}">Scheduled Behaviors</a></li>
 		
 		{if $virtual_attendant->isWriteableByActor($active_worker)}
 		{$tabs[] = 'custom_fieldsets'}
@@ -95,9 +104,6 @@
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=calendars&action=showCalendarsTab&context={$page_context}&context_id={$page_context_id}&point={$point}{/devblocks_url}">{'common.calendars'|devblocks_translate|capitalize}</a></li>
 		{/if}
 
-		{$tabs[] = 'activity'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=both&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
-		
 		{$tabs[] = 'comments'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
 		
