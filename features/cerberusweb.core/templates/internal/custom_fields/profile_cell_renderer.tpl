@@ -39,6 +39,8 @@
 			<li class="bubble-gray">
 				{if $link_context_ext->id == CerberusContexts::CONTEXT_APPLICATION}
 				<img src="{devblocks_url}c=avatars&context=app&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
+				<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
 				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_WORKER}
 				<img src="{devblocks_url}c=avatars&context=worker&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
 				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_CONTACT}
