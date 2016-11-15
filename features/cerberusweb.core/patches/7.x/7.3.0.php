@@ -37,6 +37,21 @@ if(!isset($columns['updated_at'])) {
 }
 
 // ===========================================================================
+// Fix `contact.location` (was varchar and default=0)
+
+if(!isset($tables['contact'])) {
+	$logger->error("The 'contact' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('contact');
+
+if(isset($columns['location']) && 0 == strcasecmp('0', $columns['location']['default'])) {
+	$db->ExecuteMaster("ALTER TABLE contact MODIFY COLUMN location varchar(255) not null default ''");
+	$db->ExecuteMaster("UPDATE contact SET location = '' WHERE location = '0'");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
