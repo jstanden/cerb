@@ -87,6 +87,24 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		parent::_updateWhere('virtual_attendant', $fields, $where);
 	}
 	
+	static function autocomplete($term) {
+		$params = array(
+			SearchFields_VirtualAttendant::NAME => new DevblocksSearchCriteria(SearchFields_VirtualAttendant::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'*'),
+		);
+		
+		list($results, $null) = DAO_VirtualAttendant::search(
+			array(),
+			$params,
+			25,
+			0,
+			SearchFields_VirtualAttendant::NAME,
+			true,
+			false
+		);
+		
+		return DAO_VirtualAttendant::getIds(array_keys($results));
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -1032,9 +1050,38 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 	}
 };
 
-class Context_VirtualAttendant extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_VirtualAttendant extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
 	function getRandom() {
 		return DAO_VirtualAttendant::random();
+	}
+	
+	function autocomplete($term) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		$list = array();
+		
+		$models = DAO_VirtualAttendant::autocomplete($term);
+		
+		if(stristr('none',$term) || stristr('empty',$term)) {
+			$empty = new stdClass();
+			$empty->label = '(no bot)';
+			$empty->value = '0';
+			$empty->meta = array('desc' => 'Clear the bot');
+			$list[] = $empty;
+		}
+		
+		if(is_array($models))
+		foreach($models as $bot_id => $bot){
+			$entry = new stdClass();
+			$entry->label = $bot->name;
+			$entry->value = sprintf("%d", $bot_id);
+			$entry->icon = $url_writer->write('c=avatars&type=virtual_attendant&id=' . $bot->id, true) . '?v=' . $bot->updated_at;
+			
+			$meta = array();
+			$entry->meta = $meta;
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function profileGetUrl($context_id) {

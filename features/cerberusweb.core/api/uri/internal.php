@@ -1358,7 +1358,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	// Autocomplete
-
+	
 	function autocompleteAction() {
 		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
@@ -1377,7 +1377,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			if($context_ext instanceof IDevblocksContextAutocomplete)
 				$list = $context_ext->autocomplete($term);
 		}
-
+		
 		echo sprintf("%s%s%s",
 			!empty($callback) ? ($callback.'(') : '',
 			json_encode($list),
