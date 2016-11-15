@@ -57,11 +57,14 @@ class _DevblocksOAuthService {
 		
 		ksort($oauth_headers);
 		
-		$auth_header = 'OAuth ' . rawurldecode(urldecode(implode(',', array_map(function($v,$k) {
+		$auth_header = 'OAuth ' . rawurldecode(implode(', ', array_map(function($v,$k) {
 			return $k . '="' . rawurlencode($v) . '"'; 
-		}, $oauth_headers, array_keys($oauth_headers)))));
+		}, $oauth_headers, array_keys($oauth_headers))));
 		
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: ' . $auth_header));
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			'Authorization: ' . $auth_header,
+			'User-Agent: Cerb ' . APP_VERSION,
+		));
 		
 		if(false == ($out = DevblocksPlatform::curlExec($ch))) {
 			error_log(sprintf("cURL error: %s", curl_error($ch)));
@@ -140,13 +143,14 @@ class _DevblocksOAuthService {
 		
 		ksort($oauth_headers);
 		
-		$auth_header = 'OAuth ' . rawurldecode(implode(',', array_map(function($v,$k) {
+		$auth_header = 'OAuth ' . rawurldecode(implode(', ', array_map(function($v,$k) {
 			return $k . '="' . rawurlencode($v) . '"'; 
 		}, $oauth_headers, array_keys($oauth_headers))));
 		
 		$http_headers = array(
 			'Authorization: ' . $auth_header,
 			'Content-Type: application/x-www-form-urlencoded',
+			'User-Agent: Cerb ' . APP_VERSION,
 		);
 		
 		if(!empty($accept))
@@ -347,7 +351,7 @@ class _DevblocksOAuthService {
 		
 		ksort($oauth_headers);
 		
-		$auth_header = 'OAuth ' . rawurldecode(implode(',', array_map(function($v, $k) {
+		$auth_header = 'OAuth ' . rawurldecode(implode(', ', array_map(function($v, $k) {
 			return $k . '="' . rawurlencode($v) . '"'; 
 		}, $oauth_headers, array_keys($oauth_headers))));
 		
@@ -419,7 +423,7 @@ class _DevblocksOAuthService {
 		
 		ksort($oauth_headers);
 		
-		$auth_header = 'OAuth ' . rawurldecode(implode(',', array_map(function($v,$k) {
+		$auth_header = 'OAuth ' . rawurldecode(implode(', ', array_map(function($v,$k) {
 			return $k . '="' . rawurlencode($v) . '"'; 
 		}, $oauth_headers, array_keys($oauth_headers))));
 		
