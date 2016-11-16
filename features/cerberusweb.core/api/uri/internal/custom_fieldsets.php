@@ -63,33 +63,10 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		$link_contexts = Extension_DevblocksContext::getAll(false, array('workspace'));
 		$tpl->assign('link_contexts', $link_contexts);
 		
-		// Owners
+		// Owner
 		
-		$roles = DAO_WorkerRole::getAll();
-		$tpl->assign('roles', $roles);
-		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-
-		$virtual_attendants = DAO_VirtualAttendant::getAll();
-		$tpl->assign('virtual_attendants', $virtual_attendants);
-		
-		$owner_groups = array();
-		foreach($groups as $k => $v) {
-			if($active_worker->is_superuser || $active_worker->isGroupManager($k))
-				$owner_groups[$k] = $v;
-		}
-		$tpl->assign('owner_groups', $owner_groups);
-		
-		$owner_roles = array();
-		foreach($roles as $k => $v) { /* @var $v Model_WorkerRole */
-			if($active_worker->is_superuser)
-				$owner_roles[$k] = $v;
-		}
-		$tpl->assign('owner_roles', $owner_roles);
+		$owners_menu = Extension_DevblocksContext::getOwnerTree();
+		$tpl->assign('owners_menu', $owners_menu);
 
 		// Template
 		
@@ -104,7 +81,7 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		@$custom_fieldset_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
+		@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'integer', 0);
 		
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'], 'array', array());
@@ -134,28 +111,23 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		
 		// Owner
 		
-		$owner_ctx = '';
-		@list($owner_ctx_code, $owner_ctx_id) = explode('_', $owner, 2);
-		
-		switch(strtolower($owner_ctx_code)) {
-			case 'w':
-				$owner_ctx = CerberusContexts::CONTEXT_WORKER;
+		@list($owner_context, $owner_context_id) = explode(':', $owner);
+	
+		switch($owner_context) {
+			case CerberusContexts::CONTEXT_APPLICATION:
+			case CerberusContexts::CONTEXT_ROLE:
+			case CerberusContexts::CONTEXT_GROUP:
+			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+			case CerberusContexts::CONTEXT_WORKER:
 				break;
-			case 'g':
-				$owner_ctx = CerberusContexts::CONTEXT_GROUP;
-				break;
-			case 'r':
-				$owner_ctx = CerberusContexts::CONTEXT_ROLE;
-				break;
-			case 'v':
-				$owner_ctx = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
-				break;
-			case 'a':
-				$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
+				
+			default:
+				$owner_context = null;
+				$owner_context_id = null;
 				break;
 		}
 		
-		if(empty($owner_ctx))
+		if(empty($owner_context))
 			return;
 		
 		// Create field set
@@ -163,8 +135,8 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 			$fields = array(
 				DAO_CustomFieldset::NAME => $name,
 				DAO_CustomFieldset::CONTEXT => $context,
-				DAO_CustomFieldset::OWNER_CONTEXT => $owner_ctx,
-				DAO_CustomFieldset::OWNER_CONTEXT_ID => $owner_ctx_id,
+				DAO_CustomFieldset::OWNER_CONTEXT => $owner_context,
+				DAO_CustomFieldset::OWNER_CONTEXT_ID => $owner_context_id,
 			);
 			$custom_fieldset_id = DAO_CustomFieldset::create($fields);
 			
@@ -177,8 +149,8 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		} else {
 			$fields = array(
 				DAO_CustomFieldset::NAME => $name,
-				DAO_CustomFieldset::OWNER_CONTEXT => $owner_ctx,
-				DAO_CustomFieldset::OWNER_CONTEXT_ID => $owner_ctx_id,
+				DAO_CustomFieldset::OWNER_CONTEXT => $owner_context,
+				DAO_CustomFieldset::OWNER_CONTEXT_ID => $owner_context_id,
 			);
 			DAO_CustomFieldset::update($custom_fieldset_id, $fields);
 			

@@ -52,70 +52,7 @@
 				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td width="99%">
-				{if $is_writeable}
-				<select name="owner">
-					{if !empty($custom_fieldset->id)}
-						<option value=""> - transfer - </option>
-					{/if}
-					
-					<option value="w_{$active_worker->id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && $active_worker->id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.me'|devblocks_translate|lower}</option>
-
-					<option value="a_0" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_APPLICATION}selected="selected"{/if}>Application: Cerb</option>
-
-					{if !empty($owner_roles)}
-					{foreach from=$owner_roles item=role key=role_id}
-						<option value="r_{$role_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_ROLE && $role_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.role'|devblocks_translate|capitalize}: {$role->name}</option>
-					{/foreach}
-					{/if}
-					
-					{if !empty($owner_groups)}
-					{foreach from=$owner_groups item=group key=group_id}
-						<option value="g_{$group_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_GROUP && $group_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.group'|devblocks_translate|capitalize}: {$group->name}</option>
-					{/foreach}
-					{/if}
-					
-					{if $active_worker->is_superuser}
-					{foreach from=$workers item=worker key=worker_id}
-						{if !$worker->is_disabled}
-						<option value="w_{$worker_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && $worker_id==$custom_fieldset->owner_context_id && $active_worker->id != $worker_id}selected="selected"{/if}>{'common.worker'|devblocks_translate|capitalize}: {$worker->getName()}</option>
-						{/if}
-					{/foreach}
-					{/if}
-					
-					{foreach from=$virtual_attendants item=va key=va_id}
-						{if $va->isWriteableByActor($active_worker)}
-						<option value="v_{$va_id}" {if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && $va_id==$custom_fieldset->owner_context_id}selected="selected"{/if}>{'common.bot'|devblocks_translate|capitalize}: {$va->name}</option>
-						{/if}
-					{/foreach}
-				</select>
-				{/if}
-				
-				{if !empty($custom_fieldset->id)}
-				<ul class="bubbles">
-					<li>
-					
-					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_ROLE && isset($roles.{$custom_fieldset->owner_context_id})}
-					<b>{$roles.{$custom_fieldset->owner_context_id}->name}</b> ({'common.role'|devblocks_translate|capitalize})
-					{/if}
-					
-					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_GROUP && isset($groups.{$custom_fieldset->owner_context_id})}
-					<b>{$groups.{$custom_fieldset->owner_context_id}->name}</b> ({'common.group'|devblocks_translate|capitalize})
-					{/if}
-					
-					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_WORKER && isset($workers.{$custom_fieldset->owner_context_id})}
-					<b>{$workers.{$custom_fieldset->owner_context_id}->getName()}</b> ({'common.worker'|devblocks_translate|capitalize})
-					{/if}
-					
-					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT && isset($virtual_attendants.{$custom_fieldset->owner_context_id})}
-					<b>{$virtual_attendants.{$custom_fieldset->owner_context_id}->name}</b> ({'common.bot'|devblocks_translate|capitalize})
-					{/if}
-					
-					{if $custom_fieldset->owner_context==CerberusContexts::CONTEXT_APPLICATION}
-					<b>Application</b>
-					{/if}
-					</li>
-				</ul>
-				{/if}
+				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl" model=$custom_fieldset}
 			</td>
 		</tr>
 	</table>
@@ -222,21 +159,59 @@ $(function() {
 	
 	$popup.one('popup_open',function(event,ui) {
 		var $popup = genericAjaxPopupFetch('{$layer}');
-		var $this = $(this);
+		$popup.css('overflow', 'inherit');
 		
 		{if empty($custom_fieldset->id)}
-		$this.dialog('option','title', 'Create Custom Fieldset');
+		$popup.dialog('option','title', 'Create Custom Fieldset');
 		{else}
-		$this.dialog('option','title', 'Modify Custom Fieldset');
+		$popup.dialog('option','title', 'Modify Custom Fieldset');
 		{/if}
 
 		{if $is_writeable}
-		$this.find('input:text:first').focus().select();
+		$popup.find('input:text:first').focus().select();
 		{else}
-		$this.find('input,select,textarea').attr('disabled','disabled');
+		$popup.find('input,select,textarea').attr('disabled','disabled');
 		{/if}
 		
-		$this.find('fieldset.cfields button.add').click(function() {
+		// Owners
+		
+		var $owners_menu = $popup.find('ul.owners-menu');
+		var $ul = $owners_menu.siblings('ul.chooser-container');
+		
+		$ul.on('bubble-remove', function(e, ui) {
+			e.stopPropagation();
+			$(e.target).closest('li').remove();
+			$ul.hide();
+			$owners_menu.show();
+		});
+		
+		$owners_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
+				
+				if(undefined == token || undefined == label)
+					return;
+				
+				$owners_menu.hide();
+				
+				// Build bubble
+				
+				var context_data = token.split(':');
+				var $li = $('<li/>');
+				var $label = $('<a href="javascript:;" class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
+				$label.cerbPeekTrigger().appendTo($li);
+				var $hidden = $('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
+				ui.item.find('img.cerb-avatar').clone().prependTo($li);
+				var $a = $('<a href="javascript:;" onclick="$(this).trigger(\'bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				
+				$ul.find('> *').remove();
+				$ul.append($li);
+				$ul.show();
+			}
+		});
+		
+		$popup.find('fieldset.cfields button.add').click(function() {
 			var $parent = $(this).closest('tr');
 			var $template = $parent.siblings('.cfields-add-template');
 			var $tr = $template.clone();
@@ -267,7 +242,7 @@ $(function() {
 			
 		});
 		
-		$this.find('fieldset.cfields table').sortable({ 
+		$popup.find('fieldset.cfields table').sortable({ 
 			items:'TR.sortable',
 			helper: 'original',
 			forceHelperSize: true,
@@ -275,7 +250,7 @@ $(function() {
 		});
 		
 		// Custom field deletion
-		$this.find('fieldset.cfields table').on('click', 'span.delete', function() {
+		$popup.find('fieldset.cfields table').on('click', 'span.delete', function() {
 			var $tr = $(this).closest('tr');
 			
 			// Check if the row is being deleted, and if so, undelete
