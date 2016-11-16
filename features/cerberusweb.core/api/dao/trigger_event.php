@@ -1149,7 +1149,6 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_TriggerEvent::EVENT_POINT,
 			SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
 			SearchFields_TriggerEvent::UPDATED_AT,
-			SearchFields_TriggerEvent::IS_DISABLED,
 			SearchFields_TriggerEvent::IS_PRIVATE,
 		);
 		$this->addColumnsHidden(array(
@@ -1510,13 +1509,16 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	
 	function getDefaultProperties() {
 		return array(
+			'bot__label',
 			'updated_at',
+			'is_disabled',
+			'is_private',
 		);
 	}
 	
 	function getContext($trigger_event, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
-			$prefix = 'Trigger Event:';
+			$prefix = 'Behavior:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BEHAVIOR);
@@ -1535,7 +1537,11 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'event_point' => $prefix.$translate->_('common.event'),
+			'event_point_name' => $prefix.$translate->_('common.event'),
 			'id' => $prefix.$translate->_('common.id'),
+			'is_disabled' => $prefix.$translate->_('dao.trigger_event.is_disabled'),
+			'is_private' => $prefix.$translate->_('dao.trigger_event.is_private'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -1544,7 +1550,11 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'event_point' => Model_CustomField::TYPE_SINGLE_LINE,
+			'event_point_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
+			'is_private' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -1578,6 +1588,10 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			
 			$token_values['bot_id'] = $trigger_event->virtual_attendant_id;
 			
+			if(false !== ($event = $trigger_event->getEvent())) {
+				$token_values['event_point_name'] = $event->manifest->name;
+			}
+			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($trigger_event, $token_values);
 			
@@ -1585,6 +1599,20 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=behavior&id=%d-%s",$trigger_event->id, DevblocksPlatform::strToPermalink($trigger_event->title)), true);
 		}
+		
+		// Bot
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, null, $merge_token_labels, $merge_token_values, '', true);
+
+			CerberusContexts::merge(
+				'bot_',
+				$prefix.'Bot:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
 		
 		return true;
 	}
@@ -1768,6 +1796,16 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
+			
+			if(false == ($event = $model->getEvent()))
+				return;
+			
+			if(false == ($va = $model->getVirtualAttendant()))
+				return;
+			
+			$tpl->assign('behavior', $model);
+			$tpl->assign('event', $event->manifest);
+			$tpl->assign('va', $va);
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);

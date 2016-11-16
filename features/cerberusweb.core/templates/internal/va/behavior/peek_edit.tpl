@@ -51,7 +51,7 @@
 		</tbody>
 		
 		<tbody class="behavior-build">
-			<tr class="behavior-event" style="display:none;">
+			<tr class="behavior-event">
 				<td width="1%" valign="top" nowrap="nowrap"><b>{'common.event'|devblocks_translate|capitalize}:</b></td>
 				<td width="99%">
 					{if empty($ext)}

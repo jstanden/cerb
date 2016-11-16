@@ -7,7 +7,7 @@
 	{include file="devblocks:cerberusweb.core::internal/decisions/tree.tpl" trigger=$behavior event=$event is_writeable=$is_writeable}
 </form>
 
-<div id="nodeMenu{$tab_uniqid}" style="display:none;position:absolute;z-index:5;"></div>
+<div id="nodeMenu{$tab_uniqid}" style="display:none;position:absolute;z-index:50000;"></div>
 
 <script type="text/javascript">
 {if $is_writeable}
