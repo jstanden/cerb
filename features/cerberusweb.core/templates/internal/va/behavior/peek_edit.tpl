@@ -194,7 +194,7 @@ $(function() {
 			}
 		};
 		
-		$popup.find('button.submit').click({ done: checkForConfigForm }, Devblocks.callbackPeekEditSave);
+		$popup.find('button.submit').click({ after: checkForConfigForm }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
 		$popup.find('fieldset.behavior-variables')

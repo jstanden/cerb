@@ -157,7 +157,12 @@ function DevblocksClass() {
 		var $popup = genericAjaxPopupFind($button);
 		var $frm = $popup.find('form').first();
 		var $status = $popup.find('div.status');
-		var is_delete = (e.data && e.data.mode == 'delete');
+		var options = e.data;
+		var is_delete = (options && options.mode == 'delete');
+		
+		if(options && options.before && typeof options.before == 'function') {
+			options.before(e, $frm);
+		}
 		
 		if(!($popup instanceof jQuery))
 			return false;
@@ -179,6 +184,10 @@ function DevblocksClass() {
 		genericAjaxPost($frm, '', '', function(e) {
 			if(!(typeof e == 'object'))
 				return;
+			
+			if(options && options.after && typeof options.after == 'function') {
+				options.after(e);
+			}
 			
 			if(e.status) {
 				var event;
