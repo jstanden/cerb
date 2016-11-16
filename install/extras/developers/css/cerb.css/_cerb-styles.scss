@@ -646,6 +646,16 @@ TABLE.worklistBody {
 			}
 		}
 	}
+	
+	tbody {
+		&.disabled {
+			color: rgb(167,167,167);
+			
+			A {
+				color: rgb(167,167,167);
+			}
+		}
+	}
 }
 
 // Calendar

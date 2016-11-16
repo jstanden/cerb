@@ -73,7 +73,7 @@
 	{else}
 		{$tableRowClass = "odd"}
 	{/if}
-	<tbody style="cursor:pointer;">
+	<tbody style="cursor:pointer;" class="{if $result.t_is_disabled}disabled{/if}">
 		<tr class="{$tableRowClass}">
 			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.t_id}

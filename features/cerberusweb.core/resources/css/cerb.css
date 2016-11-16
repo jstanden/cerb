@@ -709,6 +709,12 @@ TABLE.worklistBody TR.selected {
 TABLE.worklistBody TR.selected.hover {
   background-color: #ffffc8 !important;
 }
+TABLE.worklistBody tbody.disabled {
+  color: #a7a7a7;
+}
+TABLE.worklistBody tbody.disabled A {
+  color: #a7a7a7;
+}
 
 TABLE.calendar {
   width: 98%;
@@ -975,16 +981,7 @@ DIV.bubble.bubble-blue {
 DIV.bubble.bubble-blue A {
   color: #3273b9;
 }
-IMG.cerb-avatar {
-  height: 16px;
-  width: 16px;
-  margin-right: 3px;
-  -webkit-border-radius: 16px;
-  -moz-border-radius: 16px;
-  -ms-border-radius: 16px;
-  border-radius: 16px;
-  vertical-align: middle;
-}
+
 UL.bubbles {
   display: inline;
   margin: 0px;
@@ -1069,6 +1066,17 @@ UL.bubbles.chooser-container LI:hover .glyphicons-circle-remove {
   visibility: visible;
 }
 
+IMG.cerb-avatar {
+  height: 16px;
+  width: 16px;
+  margin-right: 3px;
+  -webkit-border-radius: 16px;
+  -moz-border-radius: 16px;
+  -ms-border-radius: 16px;
+  border-radius: 16px;
+  vertical-align: middle;
+}
+
 DIV.badge-count {
   font-size: 12px;
   padding: 0px 5px;
@@ -1107,7 +1115,7 @@ DIV.badge A {
 DIV.badge.selected {
   border: 1px dashed;
   background: none;
-  background-color: rgb(255, 250, 160);
+  background-color: #fffaa0;
 }
 
 DIV.badge-lightgray {
@@ -1196,7 +1204,7 @@ FIELDSET.properties LEGEND {
   color: #323232;
 }
 FIELDSET.properties LEGEND A {
-  color:inherit;
+  color: inherit;
 }
 FIELDSET.properties DIV.property {
   width: 32%;
@@ -1242,8 +1250,9 @@ FIELDSET.peek LEGEND {
   color: #007800;
 }
 FIELDSET.peek LEGEND A {
-  color:inherit;
+  color: inherit;
 }
+
 FIELDSET.peek-noborder {
   background: none;
   border-width: 0;
@@ -1299,12 +1308,6 @@ DIV.cerb-popupmenu {
   -moz-box-shadow: 0px 0px 15px 0px #afafaf;
   -webkit-box-shadow: 0px 0px 15px 0px #afafaf;
   box-shadow: 0px 0px 15px 0px #afafaf;
-}
-.cerb-float {
-  position: absolute;
-  z-index: 2500;
-  float: left;
-  border: 0;
 }
 DIV.cerb-popupmenu > div.cerb-popupmenu-item {
   padding: 2px;
@@ -1366,6 +1369,13 @@ UL.cerb-popupmenu > LI:hover {
 }
 UL.cerb-popupmenu > LI:hover A {
   color: white;
+}
+
+.cerb-float {
+  position: absolute;
+  z-index: 2500;
+  float: left;
+  border: 0;
 }
 
 .cerb-subpage > H2 {
