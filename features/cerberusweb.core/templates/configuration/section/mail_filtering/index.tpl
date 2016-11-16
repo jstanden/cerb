@@ -1,37 +1,13 @@
-<h2>Mail Filtering</h2>
-{$only_event_ids = 'event.mail.received.app'}
-
-{$has_atleast_one = false}
-{foreach from=$vas item=va key=va_id}
-	{$has_atleast_one = true}
-	<h3 style="font-size:150%;margin-bottom:5px;">{$va->name}</h3>
-	<div style="margin-left:10px;">
-	{include file="devblocks:cerberusweb.core::internal/decisions/assistant/tab.tpl" triggers_by_event=$va->behaviors}
-	</div>
-{/foreach}
-
-{if !$has_atleast_one}
-<form action="{devblocks_url}{/devblocks_url}" method="POST">
-<input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="mail_filtering">
-<input type="hidden" name="action" value="createDefaultVa">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-
-<div class="help-box" style="padding:5px;border:0;">
-	<h1 style="margin-bottom:5px;text-align:left;">Create a global bot</h1>
-	
-	<p>
-		Only global bots are capable of filtering inbound mail. You currently don't have one.
-	</p>
-	
-	<p>
-		<b>Would you like Cerb to automatically create your first global bot now?</b>
-		
-		<div style="margin-left:15px;">
-			<button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Yes</button>
-		</div>
-	</p>
+{if $view instanceof IAbstractView_QuickSearch}
+<div style="float:right;">
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
 </div>
-</form>
 {/if}
+
+<div style="float:left;">
+	<h2>Mail Filtering</h2>
+</div>
+
+<div style="clear:both;"></div>
+
+{include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
