@@ -73,7 +73,7 @@
 	{else}
 		{$tableRowClass = "odd"}
 	{/if}
-	<tbody style="cursor:pointer;">
+	<tbody style="cursor:pointer;" class="{if $result.v_is_disabled}disabled{/if}">
 	
 		{if !$view->options.disable_watchers}
 		<tr class="{$tableRowClass}">
@@ -92,7 +92,6 @@
 				<input type="checkbox" name="row_id[]" value="{$result.v_id}" style="display:none;">
 				<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$result.v_id}{/devblocks_url}?v={$result.v_updated_at}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
 				<a href="{devblocks_url}c=profiles&type=virtual_attendant&id={$result.v_id}-{$result.v_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.v_name}</a>
-				{if $result.v_is_disabled}<span class="tag tag-gray" style="margin-left:3px;">{'common.disabled'|devblocks_translate|lower}</span> {/if}
 				
 				{* If the current worker can edit this VA, allow peek *}
 				{if $active_worker->is_superuser}
