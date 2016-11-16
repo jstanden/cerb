@@ -1081,30 +1081,6 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		}
 		*/
 		
-		// Owners
-		$roles = DAO_WorkerRole::getAll();
-		$tpl->assign('roles', $roles);
-		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-
-		$owner_groups = array();
-		foreach($groups as $k => $v) {
-			if($active_worker->is_superuser || $active_worker->isGroupManager($k))
-				$owner_groups[$k] = $v;
-		}
-		$tpl->assign('owner_groups', $owner_groups);
-		
-		$owner_roles = array();
-		foreach($roles as $k => $v) { /* @var $v Model_WorkerRole */
-			if($active_worker->is_superuser)
-				$owner_roles[$k] = $v;
-		}
-		$tpl->assign('owner_roles', $owner_roles);
-		
 		// Tokens
 		
 		$worker_token_labels = array();
@@ -1118,60 +1094,4 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_html/peek.tpl');
 	}
-	
-	/*
-	function importGetKeys() {
-		// [TODO] Translate
-	
-		$keys = array(
-			'name' => array(
-				'label' => 'Name',
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'param' => SearchFields_MailHtmlTemplate::NAME,
-				'required' => true,
-			),
-			'updated_at' => array(
-				'label' => 'Updated Date',
-				'type' => Model_CustomField::TYPE_DATE,
-				'param' => SearchFields_MailHtmlTemplate::UPDATED_AT,
-			),
-		);
-	
-		$fields = SearchFields_MailHtmlTemplate::getFields();
-		self::_getImportCustomFields($fields, $keys);
-	
-		DevblocksPlatform::sortObjects($keys, '[label]', true);
-	
-		return $keys;
-	}
-	
-	function importKeyValue($key, $value) {
-		switch($key) {
-		}
-	
-		return $value;
-	}
-	
-	function importSaveObject(array $fields, array $custom_fields, array $meta) {
-		// If new...
-		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
-			// Make sure we have a name
-			if(!isset($fields[DAO_MailHtmlTemplate::NAME])) {
-				$fields[DAO_MailHtmlTemplate::NAME] = 'New ' . $this->manifest->name;
-			}
-	
-			// Create
-			$meta['object_id'] = DAO_MailHtmlTemplate::create($fields);
-	
-		} else {
-			// Update
-			DAO_MailHtmlTemplate::update($meta['object_id'], $fields);
-		}
-	
-		// Custom fields
-		if(!empty($custom_fields) && !empty($meta['object_id'])) {
-			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
-		}
-	}
-	*/
 };
