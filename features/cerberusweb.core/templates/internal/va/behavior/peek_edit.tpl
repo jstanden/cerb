@@ -130,6 +130,15 @@
 	</div>
 </fieldset>
 
+{if !empty($custom_fields)}
+<fieldset class="peek">
+	<legend>{'common.custom_fields'|devblocks_translate}</legend>
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+</fieldset>
+{/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_BEHAVIOR context_id=$model->id}
+
 {if isset($model->id)}
 <fieldset class="delete" style="display:none;">
 	<legend>Delete this trigger?</legend>

@@ -520,7 +520,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('trigger_event.id', self::ID),
+			CerberusContexts::CONTEXT_BEHAVIOR => new DevblocksSearchFieldContextKeys('trigger_event.id', self::ID),
 			CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT => new DevblocksSearchFieldContextKeys('trigger_event.virtual_attendant_id', self::VIRTUAL_ATTENDANT_ID),
 		);
 	}
@@ -569,6 +569,12 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
 		
+		// Custom Fields
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
+		
+		if(!empty($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
+
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
@@ -1706,17 +1712,20 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
+		$context = CerberusContexts::CONTEXT_BEHAVIOR;
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(!empty($context_id)) {
 			$model = DAO_TriggerEvent::get($context_id);
 			$tpl->assign('model', $model);
 		}
 		
 		if(empty($context_id) || $edit) {
-			// Custom fields
-			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BEHAVIOR, false);
+			// Custom Fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
 	
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_BEHAVIOR, $context_id);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 			

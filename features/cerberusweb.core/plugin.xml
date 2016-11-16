@@ -2034,11 +2034,11 @@
 					<value>
 						<!--
 						<data key="create" />
-						<data key="custom_fields" />
 						<data key="find" />
 						<data key="snippets" />
 						-->
 						<data key="cards" />
+						<data key="custom_fields" />
 						<data key="workspace" />
 						<data key="va_variable" />
 					</value>
