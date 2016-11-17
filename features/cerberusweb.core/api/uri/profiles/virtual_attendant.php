@@ -28,6 +28,7 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		@array_shift($stack); // virtual_attendant
 		$id = array_shift($stack); // 123
 
+		$context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
 		@$id = intval($id);
 		
 		if(null == ($virtual_attendant = DAO_VirtualAttendant::get($id))) {
@@ -79,26 +80,36 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $virtual_attendant->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $virtual_attendant->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $virtual_attendant->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $virtual_attendant->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+		
+		// Counts
+		
+		$owner_counts = array(
+			'behaviors' => DAO_TriggerEvent::countByBot($virtual_attendant->id),
+			'calendars' => DAO_Calendar::count($context, $virtual_attendant->id),
+			'classifiers' => DAO_Classifier::countByBot($virtual_attendant->id),
+			'comments' => DAO_Comment::count($context, $virtual_attendant->id),
+		);
+		$tpl->assign('owner_counts', $owner_counts);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT => array(
+			$context => array(
 				$virtual_attendant->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+						$context,
 						$virtual_attendant->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -266,40 +277,6 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 			));
 			return;
 		}
-	}
-	
-	function showBehaviorsTabAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
-
-		if(empty($id))
-			return;
-		
-		if(null == ($va = DAO_VirtualAttendant::get($id)))
-			return;
-		
-		$defaults = C4_AbstractViewModel::loadFromClass('View_TriggerEvent');
-		$defaults->id = 'bot_behaviors';
-		$defaults->is_ephemeral = false;
-		$defaults->view_columns = [
-			SearchFields_TriggerEvent::EVENT_POINT,
-			SearchFields_TriggerEvent::UPDATED_AT,
-			SearchFields_TriggerEvent::IS_DISABLED,
-			SearchFields_TriggerEvent::IS_PRIVATE,
-		];
-		$defaults->renderSortBy = SearchFields_TriggerEvent::TITLE;
-		$defaults->renderSortAsc = true;
-		
-		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
-		$view->addParamsRequired([
-			new DevblocksSearchCriteria(SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID, '=', $va->id),
-		], true);
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
 	function showScheduledBehaviorsTabAction() {

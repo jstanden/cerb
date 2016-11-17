@@ -48,22 +48,33 @@
 <div style="clear:both;"></div>
 
 <fieldset class="properties" style="margin-top:5px;">
-	<legend>{'Virtual Attendant'|devblocks_translate|capitalize}</legend>
+	<legend>{'common.bot'|devblocks_translate|capitalize}</legend>
 
 	<div style="margin-left:15px;">
-	{foreach from=$properties item=v key=k name=props}
-		<div class="property">
-			{if $k == '__'}
-			{else}
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == '__'}
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+				<br clear="all">
 			{/if}
+		{/foreach}
+		<br clear="all">
+		
+		{$is_writeable = $virtual_attendant->isWriteableByActor($active_worker)}
+		
+		<div style="margin-top:5px;">
+			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="bot.id:{$page_context_id}"><div class="badge-count">{$owner_counts.behaviors|default:0}</div> {'common.behaviors'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-query="owner.bot.id:{$page_context_id}"><div class="badge-count">{$owner_counts.calendars|default:0}</div> {'common.calendars'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-query="owner.bot.id:{$page_context_id}"><div class="badge-count">{$owner_counts.classifiers|default:0}</div> {'common.classifiers'|devblocks_translate|capitalize}</button>
+			{*<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-query="owner.bot.id:{$page_context_id}"><div class="badge-count">{$owner_counts.comments|default:0}</div> {'common.comments'|devblocks_translate|capitalize}</button>*}
+			{if $is_writeable}<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-query="owner.bot.id:{$page_context_id}"><div class="badge-count">{$owner_counts.custom_fieldsets|default:0}</div> {'common.custom_fieldsets'|devblocks_translate|capitalize}</button>{/if}
 		</div>
-		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-			<br clear="all">
-		{/if}
-	{/foreach}
-	<br clear="all">
 	</div>
+	
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
@@ -82,28 +93,12 @@
 	<ul>
 		{$tabs = []}
 
-		{$tabs[] = 'behaviors'}
-		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=virtual_attendant&action=showBehaviorsTab&id={$page_context_id}&point={$point}{/devblocks_url}">{'common.behaviors'|devblocks_translate|capitalize}</a></li>
-		
 		{$tabs[] = 'activity'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=both&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
-		
-		{$tabs[] = 'classifiers'}
-		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=virtual_attendant&action=showClassifiersTab&id={$page_context_id}&point={$point}{/devblocks_url}">{'common.classifiers'|devblocks_translate|capitalize}</a></li>
 		
 		{$tabs[] = 'behavior'}
 		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=virtual_attendant&action=showScheduledBehaviorsTab&point={$point}&va_id={$page_context_id}{/devblocks_url}">Scheduled Behaviors</a></li>
 		
-		{if $virtual_attendant->isWriteableByActor($active_worker)}
-		{$tabs[] = 'custom_fieldsets'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=custom_fieldsets&action=showTabCustomFieldsets&context={$page_context}&context_id={$page_context_id}&point={$point}{/devblocks_url}">{'common.custom_fieldsets'|devblocks_translate|capitalize}</a></li>
-		{/if}
-
-		{if $virtual_attendant->isWriteableByActor($active_worker)}
-		{$tabs[] = 'calendars'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=calendars&action=showCalendarsTab&context={$page_context}&context_id={$page_context_id}&point={$point}{/devblocks_url}">{'common.calendars'|devblocks_translate|capitalize}</a></li>
-		{/if}
-
 		{$tabs[] = 'comments'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
 		
