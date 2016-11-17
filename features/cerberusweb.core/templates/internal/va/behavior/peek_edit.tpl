@@ -82,6 +82,13 @@
 				</td>
 			</tr>
 			
+			<tr>
+				<td width="1%" nowrap="nowrap"><b>{'common.priority'|devblocks_translate|capitalize}:</b></td>
+				<td width="99%">
+					<input type="text" name="priority" value="{$model->priority|default:50}" placeholder="50" maxlength="2" style="width:50px" autocomplete="off" spellcheck="false">
+				</td>
+			</tr>
+			
 			<tr style="margin-top:10px;">
 				<td width="1%" nowrap="nowrap"><b>Visibility:</b></td>
 				<td width="99%">

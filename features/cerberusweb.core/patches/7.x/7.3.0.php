@@ -156,6 +156,11 @@ if(!isset($columns['updated_at'])) {
 	$db->ExecuteMaster("UPDATE trigger_event SET updated_at = UNIX_TIMESTAMP()");
 }
 
+if(isset($columns['pos'])) {
+	$db->ExecuteMaster("ALTER TABLE trigger_event CHANGE COLUMN pos priority int unsigned not null default 0");
+	$db->ExecuteMaster("UPDATE trigger_event SET priority = priority + 1");
+}
+
 // ===========================================================================
 // Fix `contact.location` (was varchar and default=0)
 

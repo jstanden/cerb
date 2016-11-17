@@ -1262,6 +1262,11 @@
 				<seg>Print</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.priority">
+			<tuv xml:lang="en_US">
+				<seg>priority</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.private">
 			<tuv xml:lang="en_US">
 				<seg>private</seg>

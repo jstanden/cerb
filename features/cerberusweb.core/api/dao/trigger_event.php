@@ -24,7 +24,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const IS_PRIVATE = 'is_private';
 	const EVENT_POINT = 'event_point';
 	const VIRTUAL_ATTENDANT_ID = 'virtual_attendant_id';
-	const POS = 'pos';
+	const PRIORITY = 'priority';
 	const UPDATED_AT = 'updated_at';
 	const EVENT_PARAMS_JSON = 'event_params_json';
 	const VARIABLES_JSON = 'variables_json';
@@ -64,7 +64,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		if($nocache || null === ($behaviors = $cache->load(self::CACHE_ALL))) {
 			$behaviors = self::getWhere(
 				null,
-				DAO_TriggerEvent::POS,
+				DAO_TriggerEvent::PRIORITY,
 				true,
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
@@ -167,7 +167,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		
 		switch($sort_by) {
 			case 'title':
-			case 'pos':
+			case 'priority':
 				break;
 				
 			default:
@@ -185,7 +185,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$behaviors = array();
 
 		foreach($vas as $va) { /* @var $va Model_VirtualAttendant */
-			$va_behaviors = $va->getBehaviors($event_id, $with_disabled, 'pos');
+			$va_behaviors = $va->getBehaviors($event_id, $with_disabled, 'priority');
 			
 			if(!empty($va_behaviors))
 				$behaviors += $va_behaviors;
@@ -217,13 +217,13 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_TriggerEvent[]
 	 */
-	static function getWhere($where=null, $sortBy=DAO_TriggerEvent::POS, $sortAsc=true, $limit=null, $options=null) {
+	static function getWhere($where=null, $sortBy=DAO_TriggerEvent::PRIORITY, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, is_private, event_point, virtual_attendant_id, pos, event_params_json, updated_at, variables_json ".
+		$sql = "SELECT id, title, is_disabled, is_private, event_point, virtual_attendant_id, priority, event_params_json, updated_at, variables_json ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
@@ -255,9 +255,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$object->title = $row['title'];
 			$object->is_disabled = intval($row['is_disabled']);
 			$object->is_private = intval($row['is_private']);
+			$object->priority = intval($row['priority']);
 			$object->event_point = $row['event_point'];
 			$object->virtual_attendant_id = $row['virtual_attendant_id'];
-			$object->pos = intval($row['pos']);
 			$object->updated_at = intval($row['updated_at']);
 			$object->event_params = @json_decode($row['event_params_json'], true);
 			$object->variables = @json_decode($row['variables_json'], true);
@@ -346,6 +346,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			"trigger_event.title as %s, ".
 			"trigger_event.is_disabled as %s, ".
 			"trigger_event.is_private as %s, ".
+			"trigger_event.priority as %s, ".
 			"trigger_event.virtual_attendant_id as %s, ".
 			"trigger_event.updated_at as %s, ".
 			"trigger_event.event_point as %s ",
@@ -353,6 +354,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 				SearchFields_TriggerEvent::TITLE,
 				SearchFields_TriggerEvent::IS_DISABLED,
 				SearchFields_TriggerEvent::IS_PRIVATE,
+				SearchFields_TriggerEvent::PRIORITY,
 				SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
 				SearchFields_TriggerEvent::UPDATED_AT,
 				SearchFields_TriggerEvent::EVENT_POINT
@@ -450,41 +452,6 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$cache->remove(self::CACHE_ALL);
 	}
 	
-	static public function setTriggersOrder($trigger_ids) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		// No point in sorting fewer than two triggers
-		if(count($trigger_ids) < 2)
-			return;
-		
-		foreach($trigger_ids as $pos => $trigger_id) {
-			if(empty($trigger_id))
-				continue;
-			
-			$db->ExecuteMaster(sprintf("UPDATE trigger_event SET pos = %d WHERE id = %d",
-				$pos,
-				$trigger_id
-			));
-		}
-		
-		self::clearCache();
-	}
-	
-	static public function getNextPosByVirtualAttendantAndEvent($va_id, $event_point) {
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$count = $db->GetOneMaster(sprintf("SELECT MAX(pos) FROM trigger_event ".
-			"WHERE virtual_attendant_id = %d AND event_point = %s",
-			$va_id,
-			$db->qstr($event_point)
-		));
-
-		if(is_null($count))
-			return 0;
-
-		return intval($count) + 1;
-	}
-	
 	static public function getNextPosByParent($trigger_id, $parent_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 
@@ -506,6 +473,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	const TITLE = 't_title';
 	const IS_DISABLED = 't_is_disabled';
 	const IS_PRIVATE = 't_is_private';
+	const PRIORITY = 't_priority';
 	const VIRTUAL_ATTENDANT_ID = 't_virtual_attendant_id';
 	const EVENT_POINT = 't_event_point';
 	const UPDATED_AT = 't_updated_at';
@@ -562,6 +530,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'trigger_event', 'title', $translate->_('common.title'), null, true),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'trigger_event', 'is_disabled', $translate->_('dao.trigger_event.is_disabled'), null, true),
 			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'trigger_event', 'is_private', $translate->_('dao.trigger_event.is_private'), null, true),
+			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'trigger_event', 'priority', $translate->_('common.priority'), null, true),
 			self::VIRTUAL_ATTENDANT_ID => new DevblocksSearchField(self::VIRTUAL_ATTENDANT_ID, 'trigger_event', 'virtual_attendant_id', $translate->_('common.bot'), null, true),
 			self::EVENT_POINT => new DevblocksSearchField(self::EVENT_POINT, 'trigger_event', 'event_point', $translate->_('common.event'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'trigger_event', 'updated_at', $translate->_('common.updated'), null, true),
@@ -587,9 +556,9 @@ class Model_TriggerEvent {
 	public $title;
 	public $is_disabled;
 	public $is_private;
+	public $priority;
 	public $event_point;
 	public $virtual_attendant_id;
-	public $pos;
 	public $updated_at;
 	public $event_params = array();
 	public $variables = array();
@@ -1148,14 +1117,14 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		$this->id = self::DEFAULT_ID;
 		$this->name = mb_ucfirst($translate->_('common.behaviors'));
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_TriggerEvent::ID;
+		$this->renderSortBy = SearchFields_TriggerEvent::PRIORITY;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
 			SearchFields_TriggerEvent::EVENT_POINT,
 			SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
+			SearchFields_TriggerEvent::PRIORITY,
 			SearchFields_TriggerEvent::UPDATED_AT,
-			SearchFields_TriggerEvent::IS_PRIVATE,
 		);
 		$this->addColumnsHidden(array(
 		));
@@ -1204,6 +1173,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				case SearchFields_TriggerEvent::EVENT_POINT:
 				case SearchFields_TriggerEvent::IS_DISABLED:
 				case SearchFields_TriggerEvent::IS_PRIVATE:
+				case SearchFields_TriggerEvent::PRIORITY:
 				case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
 					$pass = true;
 					break;
@@ -1246,6 +1216,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 			case SearchFields_TriggerEvent::IS_PRIVATE:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
+				
+			case SearchFields_TriggerEvent::PRIORITY:
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
+				break;
 
 			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
 				$bots = DAO_VirtualAttendant::getAll();
@@ -1287,6 +1261,11 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_TriggerEvent::IS_DISABLED),
+				),
+			'priority' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_TriggerEvent::PRIORITY),
 				),
 			'private' => 
 				array(
@@ -1365,6 +1344,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_TriggerEvent::ID:
+			case SearchFields_TriggerEvent::PRIORITY:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -1448,6 +1428,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_TriggerEvent::ID:
+			case SearchFields_TriggerEvent::PRIORITY:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -1516,9 +1497,9 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	function getDefaultProperties() {
 		return array(
 			'bot__label',
+			'priority',
 			'updated_at',
 			'is_disabled',
-			'is_private',
 		);
 	}
 	
@@ -1549,6 +1530,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			'is_disabled' => $prefix.$translate->_('dao.trigger_event.is_disabled'),
 			'is_private' => $prefix.$translate->_('dao.trigger_event.is_private'),
 			'name' => $prefix.$translate->_('common.name'),
+			'priority' => $prefix.$translate->_('common.priority'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1562,6 +1544,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
 			'is_private' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'priority' => Model_CustomField::TYPE_NUMBER,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1590,6 +1573,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$token_values['is_disabled'] = $trigger_event->is_disabled;
 			$token_values['is_private'] = $trigger_event->is_private;
 			$token_values['name'] = $trigger_event->title;
+			$token_values['priority'] = $trigger_event->priority;
 			$token_values['updated_at'] = $trigger_event->updated_at;
 			
 			$token_values['bot_id'] = $trigger_event->virtual_attendant_id;
@@ -1675,8 +1659,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			SearchFields_TriggerEvent::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_TriggerEvent::UPDATED_AT,'=',0),
 		), true);
 		*/
-		$view->renderSortBy = SearchFields_TriggerEvent::TITLE;
-		$view->renderSortAsc = false;
+		$view->renderSortBy = SearchFields_TriggerEvent::PRIORITY;
+		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
