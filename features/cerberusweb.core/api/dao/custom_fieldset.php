@@ -802,6 +802,16 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CustomFieldset::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'owner.bot' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array(),
+				),
+			'owner.bot.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array(),
+				),
 		);
 		
 		// Add is_sortable
@@ -817,6 +827,38 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'owner.bot':
+				$bots = DAO_VirtualAttendant::getAll();
+				$param = DevblocksSearchCriteria::getTextParamFromTokens($field, $tokens);
+				$param->field = SearchFields_CustomFieldset::VIRTUAL_OWNER;
+				$param->operator = DevblocksSearchCriteria::OPER_IN;
+				$vals = is_array($param->value) ? $param->value : [$param->value];
+				$param->value = [];
+				
+				foreach($vals as $v) {
+					foreach($bots as $bot) {
+						if(stristr($bot->name, $v))
+							$param->value[] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT . ':' . $bot->id;
+					}
+				}
+				
+				return $param;
+				break;
+			
+			case 'owner.bot.id':
+				$param = DevblocksSearchCriteria::getNumberParamFromTokens($field, $tokens);
+				$param->field = SearchFields_CustomFieldset::VIRTUAL_OWNER;
+				$param->operator = DevblocksSearchCriteria::OPER_IN;
+				$vals = is_array($param->value) ? $param->value : [$param->value];
+				$param->value = [];
+				
+				foreach($vals as $v) {
+					$param->value[] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT . ':' . $v;
+				}
+				
+				return $param;
+				break;
+				
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
