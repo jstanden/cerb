@@ -227,6 +227,15 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		return self::_getRandom('calendar');
 	}
 	
+	static public function count($owner_context, $owner_context_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetOneSlave(sprintf("SELECT count(*) FROM calendar ".
+			"WHERE owner_context = %s AND owner_context_id = %d",
+			$db->qstr($owner_context),
+			$owner_context_id
+		));
+	}
+	
 	static function deleteByContext($context, $context_ids) {
 		$calendars = DAO_Calendar::getByContext($context, $context_ids);
 		
@@ -1060,6 +1069,16 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Calendar::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'owner.bot' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array(),
+				),
+			'owner.bot.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array(),
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -1089,6 +1108,38 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'owner.bot':
+				$bots = DAO_VirtualAttendant::getAll();
+				$param = DevblocksSearchCriteria::getTextParamFromTokens($field, $tokens);
+				$param->field = SearchFields_Calendar::VIRTUAL_OWNER;
+				$param->operator = DevblocksSearchCriteria::OPER_IN;
+				$vals = is_array($param->value) ? $param->value : [$param->value];
+				$param->value = [];
+				
+				foreach($vals as $v) {
+					foreach($bots as $bot) {
+						if(stristr($bot->name, $v))
+							$param->value[] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT . ':' . $bot->id;
+					}
+				}
+				
+				return $param;
+				break;
+			
+			case 'owner.bot.id':
+				$param = DevblocksSearchCriteria::getNumberParamFromTokens($field, $tokens);
+				$param->field = SearchFields_Calendar::VIRTUAL_OWNER;
+				$param->operator = DevblocksSearchCriteria::OPER_IN;
+				$vals = is_array($param->value) ? $param->value : [$param->value];
+				$param->value = [];
+				
+				foreach($vals as $v) {
+					$param->value[] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT . ':' . $v;
+				}
+				
+				return $param;
+				break;
+				
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
