@@ -563,17 +563,17 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getFilters() {
 		return array(
-			'bytes_pretty' => new Twig_Filter_Method($this, 'filter_bytes_pretty'),
-			'date_pretty' => new Twig_Filter_Method($this, 'filter_date_pretty'),
-			'json_pretty' => new Twig_Filter_Method($this, 'filter_json_pretty'),
-			'md5' => new Twig_Filter_Method($this, 'filter_md5'),
-			'parse_emails' => new Twig_Filter_Method($this, 'filter_parse_emails'),
-			'regexp' => new Twig_Filter_Method($this, 'filter_regexp'),
-			'secs_pretty' => new Twig_Filter_Method($this, 'filter_secs_pretty'),
-			'split_crlf' => new Twig_Filter_Method($this, 'filter_split_crlf'),
-			'split_csv' => new Twig_Filter_Method($this, 'filter_split_csv'),
-			'truncate' => new Twig_Filter_Method($this, 'filter_truncate'),
-			'url_decode' => new Twig_Filter_Method($this, 'filter_url_decode'),
+			new Twig_SimpleFilter('bytes_pretty', [$this, 'filter_bytes_pretty']),
+			new Twig_SimpleFilter('date_pretty', [$this, 'filter_date_pretty']),
+			new Twig_SimpleFilter('json_pretty', [$this, 'filter_json_pretty']),
+			new Twig_SimpleFilter('md5', [$this, 'filter_md5']),
+			new Twig_SimpleFilter('parse_emails', [$this, 'filter_parse_emails']),
+			new Twig_SimpleFilter('regexp', [$this, 'filter_regexp']),
+			new Twig_SimpleFilter('secs_pretty', [$this, 'filter_secs_pretty']),
+			new Twig_SimpleFilter('split_crlf', [$this, 'filter_split_crlf']),
+			new Twig_SimpleFilter('split_csv', [$this, 'filter_split_csv']),
+			new Twig_SimpleFilter('truncate', [$this, 'filter_truncate']),
+			new Twig_SimpleFilter('url_decode', [$this, 'filter_url_decode']),
 		);
 	}
 	
