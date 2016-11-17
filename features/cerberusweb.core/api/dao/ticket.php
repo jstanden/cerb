@@ -3048,7 +3048,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'participant' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Ticket::REQUESTER_ADDRESS, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'options' => array('param_key' => SearchFields_Ticket::REQUESTER_ADDRESS),
 				),
 			'participant.id' =>
 				array(
@@ -3074,7 +3074,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'sender' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Ticket::TICKET_FIRST_WROTE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_FIRST_WROTE),
 				),
 			'spam.score' =>
 				array(
