@@ -11,25 +11,29 @@
 		{$behavior = DAO_TriggerEvent::get($v->behavior_id)}
 		{if $behavior}
 		<tr {if !$expanded && $smarty.foreach.behaviors.iteration > 5}style="display:none;"{/if}>
-			<td valign="top" align="right" width="1%" nowrap="nowrap">
-				<div class="badge badge-lightgray" title="{$v->run_date|devblocks_date}">
+			<td valign="middle" align="right" width="1%" nowrap="nowrap">
+				<abbr title="{$v->run_date|devblocks_date}">
 					{if $v->run_date < time()}
 						now
 					{else}
 						{$v->run_date|devblocks_prettytime}
 					{/if}
-				</div>
+				</abbr>
 			</td>
-			<td valign="top" align="right" width="1%" nowrap="nowrap">
+			<td valign="middle" align="right" width="1%" nowrap="nowrap">
 				{$va = $behavior->getVirtualAttendant()}
 				
 				{if $va}
-					{$owner_meta = $va->getOwnerMeta()}
-					<a href="{devblocks_url}c=profiles&w=virtual_attendant&id={$va->id}-{$va->name|devblocks_permalink}{/devblocks_url}" title="{$owner_meta.name} ({$owner_meta.context_ext->manifest->name})">{$va->name}</a>
+					<ul class="bubbles">
+						<li>
+							<img src="{devblocks_url}c=avatars&context=bot&context_id={$va->id}{/devblocks_url}?v={$va->updated_at}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+							<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}" data-context-id="{$va->id}">{$va->name}</a>
+						</li>
+					</ul>
 				{/if}
 			</td>
-			<td valign="top" width="99%">
-				<a href="javascript:;" onclick="$popup=genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&job_id={$k}',this,false,'500');var $container=$(this).closest('fieldset').parent();$popup.one('behavior_save',function(e) { genericAjaxGet($container, 'c=internal&a=renderContextScheduledBehavior&context={$context}&context_id={$context_id}'); });" style="font-weight:bold;">{$trigger_events.{$v->behavior_id}->title}</a>
+			<td valign="middle" width="98%">
+				<a href="javascript:;" onclick="$popup=genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&job_id={$k}',null,false,'50%');var $container=$(this).closest('fieldset').parent();$popup.one('behavior_save',function(e) { genericAjaxGet($container, 'c=internal&a=renderContextScheduledBehavior&context={$context}&context_id={$context_id}'); });" style="font-weight:bold;">{$trigger_events.{$v->behavior_id}->title}</a>
 			</td>
 		</tr>
 		{/if}

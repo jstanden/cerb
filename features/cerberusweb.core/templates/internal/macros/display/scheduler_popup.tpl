@@ -14,13 +14,15 @@
 {/if}
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<b>Behavior:</b><br>
+<b>{'common.behavior'|devblocks_translate|capitalize}:</b><br>
 {if !empty($macro->title)}
-	{$macro->title}
+	<ul class="bubbles">
+		<li><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$macro->id}">{$macro->title}</a></li>
+	</ul>
 {else}
 	{$event = DevblocksPlatform::getExtension($macro->event_point, false)}
 	{$event->name}
-{/if}	
+{/if}
 <br>
 <br>
 
@@ -193,11 +195,12 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open', function(event,ui) {
-		var $this = $(this);
-		var $frm = $this.find('form');
+		var $frm = $popup.find('form:first');
 		
-		$this.dialog('option','title',"Schedule Behavior");
-		$this.find('input:text').first().select();
+		$popup.dialog('option','title',"Schedule Behavior");
+		$popup.find('input:text').first().select();
+		
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		
 		// Repeat freq
 		
