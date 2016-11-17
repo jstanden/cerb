@@ -146,6 +146,7 @@ var atwho_twig_modifiers = [
 	{ name: "nl2br", content: "Convert newlines to HTML breaks" },
 	{ name: "nlp_parse(patterns)", content: "Parse natural language with patterns" },
 	{ name: "number_format(2, '.', ',')", content: "Format a number" },
+	{ name: "parse_emails", content: "Parse a delimited list of email addresses in text to an array of objects" },
 	{ name: "regexp", content: "Match a regular expression" },
 	{ name: "replace('this', 'that')", content: "Replace text" },
 	{ name: "reverse", content: "Reverse an array or text" },

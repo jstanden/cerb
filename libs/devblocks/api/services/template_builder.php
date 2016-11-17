@@ -565,6 +565,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			'json_pretty' => new Twig_Filter_Method($this, 'filter_json_pretty'),
 			'md5' => new Twig_Filter_Method($this, 'filter_md5'),
 			'nlp_parse' => new Twig_Filter_Method($this, 'filter_nlp_parse'),
+			'parse_emails' => new Twig_Filter_Method($this, 'filter_parse_emails'),
 			'regexp' => new Twig_Filter_Method($this, 'filter_regexp'),
 			'secs_pretty' => new Twig_Filter_Method($this, 'filter_secs_pretty'),
 			'split_crlf' => new Twig_Filter_Method($this, 'filter_split_crlf'),
@@ -620,6 +621,14 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		}
 		 
 		return null;
+	}
+	
+	function filter_parse_emails($string) {
+		if(!is_string($string))
+			return '';
+		
+		$results = CerberusMail::parseRfcAddresses($string);
+		return $results;
 	}
 	
 	function filter_regexp($string, $pattern, $group = 0) {
