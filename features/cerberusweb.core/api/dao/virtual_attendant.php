@@ -1390,7 +1390,8 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			// Counts
 			$activity_counts = array(
 				'behaviors' => DAO_TriggerEvent::countByBot($context_id),
-				'comments' => DAO_Comment::count($context, $context_id),
+				'classifiers' => DAO_Classifier::countByBot($context_id),
+				//'comments' => DAO_Comment::count($context, $context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
