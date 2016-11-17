@@ -1304,7 +1304,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 	
 	<div>
-		Are you sure you want to delete this <?php echo strtolower($object_name); ?>?
+		Are you sure you want to permanently delete this <?php echo strtolower($object_name); ?>?
 	</div>
 	
 	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>

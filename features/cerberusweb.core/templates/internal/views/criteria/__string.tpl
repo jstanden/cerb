@@ -13,7 +13,7 @@
 
 <b>{'search.value'|devblocks_translate|capitalize}:</b><br>
 <blockquote style="margin:5px;">
-	<input type="text" name="value" value="{$param->value}" style="width:100%;"><br>
+	<input type="text" name="value" value="{if is_string($param->value)}{$param->value}{/if}" style="width:100%;"><br>
 	<i>{'search.string.examples'|devblocks_translate|escape|nl2br nofilter}</i>
 </blockquote>
 

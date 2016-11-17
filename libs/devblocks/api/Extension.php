@@ -316,15 +316,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		// Apps
 		
 		if(in_array('app', $contexts)) {
-			$apps_menu = new DevblocksMenuItemPlaceholder();
-			
 			$item = new DevblocksMenuItemPlaceholder();
 			$item->label = 'Cerb';
 			$item->l = 'Cerb';
 			$item->key = CerberusContexts::CONTEXT_APPLICATION . ':' . 0;
-			$apps_menu->children[$item->l] = $item;
-			
-			$owners['App'] = $apps_menu;
+			$owners['App'] = $item;
 		}
 		
 		// Bots

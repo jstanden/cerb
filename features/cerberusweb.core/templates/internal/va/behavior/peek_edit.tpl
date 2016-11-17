@@ -148,7 +148,7 @@
 
 {if isset($model->id)}
 <fieldset class="delete" style="display:none;">
-	<legend>Delete this trigger?</legend>
+	<legend>Delete this behavior?</legend>
 	<p>Are you sure you want to permanently delete this behavior and all of its effects?</p>
 	
 	<button type="button" class="delete red"></span> {'common.yes'|devblocks_translate|capitalize}</button>
