@@ -228,6 +228,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		@$http_verb = $params['http_verb'];
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
+		@$http_cert = $tpl_builder->build($params['http_cert'], $dict);
 		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
 		@$options = $params['options'] ?: array();
@@ -243,6 +244,12 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(empty($response_placeholder))
 			return "[ERROR] No result placeholder given.";
 		
+		if(!empty($http_cert)) {
+			if(!file_exists($http_cert)) {
+				return "[ERROR] HTTPS client certificate file not found: $http_cert";
+			}
+		}
+
 		// Output
 		$out = sprintf(">>> Sending HTTP request:\n%s %s\n%s%s\n",
 			mb_convert_case($http_verb, MB_CASE_UPPER),
@@ -263,7 +270,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		// If set to run in simulator as well
 		if($run_in_simulator) {
-			$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers, $options);
+			$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers, $options, $http_cert);
 			$dict->$response_placeholder = $response;
 			
 			if(isset($response['error']) && !empty($response['error'])) {
@@ -279,6 +286,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 
 		@$http_verb = $params['http_verb'];
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
+		@$http_cert = $tpl_builder->build($params['http_cert'], $dict);
 		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
 		@$options = $params['options'] ?: array();
@@ -290,16 +298,30 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(empty($response_placeholder))
 			return false;
 		
-		$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers, $options);
+		if(!empty($http_cert)) {
+			if(!file_exists($http_cert)) {
+				return "[ERROR] HTTPS client certificate file not found: $http_cert";
+			}
+		}
+
+		$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers, $options, $http_cert);
 		$dict->$response_placeholder = $response;
 	}
 	
-	private function _execute($verb='get', $url, $params=array(), $body=null, $headers=array(), $options=array()) {
+	private function _execute($verb='get', $url, $params=array(), $body=null, $headers=array(), $options=array(), $http_cert=null) {
 		if(!empty($params) && is_array($params))
 			$url .= '?' . http_build_query($params);
 		
 		$ch = DevblocksPlatform::curlInit($url);
 		
+		// explicitly set the SSL Cert to null when no http_cert passed, so that the underlying
+		// extension flushes its cache.
+		if(empty($http_cert)){
+			curl_setopt($ch, CURLOPT_SSLCERT, null);
+		} else {
+			curl_setopt($ch, CURLOPT_SSLCERT, $http_cert);
+		}
+
 		if(isset($options['ignore_ssl_validation']) && $options['ignore_ssl_validation']) {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
