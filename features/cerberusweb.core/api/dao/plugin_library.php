@@ -624,8 +624,6 @@ class Search_PluginLibrary extends Extension_DevblocksSearchSchema {
 				
 				if(false === ($engine->index($this, $id, $doc)))
 					return false;
-				
-				flush();
 			}
 		}
 		

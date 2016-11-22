@@ -712,8 +712,6 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 				}
 			}
 			
-			flush();
-			
 			// Record our index every batch
 			if(!empty($id))
 				$this->setParam('last_indexed_id', $id);

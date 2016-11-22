@@ -884,8 +884,6 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 				
 				if(false == $this->_indexDictionary($dict, $engine))
 					return false;
-				
-				flush();
 			}
 		}
 		

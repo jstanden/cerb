@@ -960,8 +960,6 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 					return false;
 			}
 			
-			flush();
-			
 			// Record our index every batch
 			if(!empty($id))
 				DAO_DevblocksExtensionPropertyStore::put(self::ID, 'last_indexed_id', $id);

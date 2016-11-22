@@ -870,8 +870,6 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 				
 				if(false == $this->_indexDictionary($dict, $engine))
 					return false;
-				
-				flush();
 			}
 		}
 		
