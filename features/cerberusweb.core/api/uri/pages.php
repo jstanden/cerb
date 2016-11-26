@@ -314,7 +314,7 @@ class Page_Custom extends CerberusPageExtension {
 			$view->renderLimit = 10;
 			$view->view_columns = array(
 				SearchFields_Ticket::BUCKET_RESPONSIBILITY,
-				SearchFields_Ticket::TICKET_LAST_WROTE,
+				SearchFields_Ticket::TICKET_LAST_WROTE_ID,
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
 				SearchFields_Ticket::TICKET_GROUP_ID,
 				SearchFields_Ticket::TICKET_BUCKET_ID,
