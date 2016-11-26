@@ -362,6 +362,23 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $strings;
 	}
 	
+	static function objectToArray($object) {
+		return json_decode(json_encode($object), true);
+	}
+	
+	static function objectsToArrays($objects) {
+		$arrays = [];
+		
+		foreach($objects as $key => $object) {
+			if(!is_object($object))
+				continue;
+			
+			$arrays[$key] = self::objectToArray($object);
+		}
+		
+		return $arrays;
+	}
+	
 	/**
 	 * 
 	 * @param integer $version
