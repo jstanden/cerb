@@ -80,7 +80,7 @@ class PageSection_SetupMailFailed extends Extension_PageSection {
 			// If the extension isn't .msg, abort.
 			if(false == ($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
 				throw new Exception("File not valid.");
-
+			
 			// Display the raw message using the envelope encoding
 			if(false !== ($mime = new MimeMessage('file', $full_path)) && isset($mime->data['charset'])) {
 				$message_encoding = $mime->data['charset'];
@@ -90,8 +90,6 @@ class PageSection_SetupMailFailed extends Extension_PageSection {
 			
 		} catch (Exception $e) {
 		}
-		
-		exit;
 	}
 	
 	function parseMessageJsonAction() {
