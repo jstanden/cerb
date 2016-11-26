@@ -779,13 +779,25 @@ abstract class C4_AbstractView {
 		
 		$values = is_array($param->value) ? $param->value : array($param->value);
 		
+		if(is_callable($label_map))
+			$label_map = $label_map($values);
+		
 		foreach($values as $v) {
 			$strings[] = sprintf("<b>%s</b>",
 				DevblocksPlatform::strEscapeHtml((isset($label_map[$v]) ? $label_map[$v] : $v))
 			);
 		}
 		
-		echo implode(' or ', $strings);
+		$list_of_strings = implode(' or ', $strings);
+		
+		if(count($strings) > 2) {
+			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d values)</abbr>",
+				strip_tags($list_of_strings),
+				count($strings)
+			);
+		}
+		
+		echo $list_of_strings;
 	}
 	
 	protected function _renderCriteriaParamBoolean($param) {
@@ -1618,12 +1630,16 @@ abstract class C4_AbstractView {
 		$counts = array();
 		$results = $this->_getSubtotalDataForColumn($context, $field_key);
 		
+		if(is_callable($label_map)) {
+			$label_map = $label_map(array_column($results, 'label'));
+		}
+		
 		foreach($results as $result) {
 			$label = $result['label'];
 			$key = $label;
 			$hits = $result['hits'];
 
-			if(isset($label_map[$result['label']]))
+			if(is_array($label_map) && isset($label_map[$result['label']]))
 				$label = $label_map[$result['label']];
 			
 			// Null strings
