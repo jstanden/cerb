@@ -526,7 +526,7 @@ if(isset($columns['render_subtotals_clickable'])) {
 // Clean up custom field values
 
 // Find checkboxes with dupe values set (nuke dupe NO's first)
-$results = $db->GetArrayMaster("select field_id, count(context_id) as hits, context_id from custom_field_numbervalue where field_id IN (select id from custom_field where type = 'C') group by context_id having hits > 1 order by hits desc");
+$results = $db->GetArrayMaster("select field_id, count(context_id) as hits, context_id from custom_field_numbervalue where field_id IN (select id from custom_field where type = 'C') group by context_id, field_id having count(context_id) > 1 order by hits desc");
 if(is_array($results))
 foreach($results as $row) {
 	$db->ExecuteMaster(sprintf("DELETE FROM custom_field_numbervalue WHERE field_id=%d AND context_id=%d AND field_value=0 LIMIT %d",
@@ -537,7 +537,7 @@ foreach($results as $row) {
 }
 
 // Find checkboxes with dupe values set (nuke any dupes)
-$results = $db->GetArrayMaster("select field_id, count(context_id) as hits, context_id from custom_field_numbervalue where field_id IN (select id from custom_field where type = 'C') and field_value=0 group by context_id having hits > 1 order by hits desc");
+$results = $db->GetArrayMaster("select field_id, count(context_id) as hits, context_id from custom_field_numbervalue where field_id IN (select id from custom_field where type = 'C') and field_value=0 group by context_id, field_id having count(context_id) > 1 order by hits desc");
 if(is_array($results))
 foreach($results as $row) {
 	$db->ExecuteMaster(sprintf("DELETE FROM custom_field_numbervalue WHERE field_id=%d AND context_id=%d LIMIT %d",

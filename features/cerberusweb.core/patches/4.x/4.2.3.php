@@ -26,7 +26,7 @@ if(isset($tables['bayes_words'])) {
 	$db->ExecuteMaster("DELETE FROM bayes_words WHERE spam=0 AND nonspam=0");
 
 	// Flatten duplicates
-	$rs = $db->ExecuteMaster("SELECT count(id) AS hits, SUM(spam) AS spam, SUM(nonspam) AS nonspam, LOWER(word) AS word FROM bayes_words GROUP BY LOWER(word) HAVING hits > 1");
+	$rs = $db->ExecuteMaster("SELECT count(id) AS hits, SUM(spam) AS spam, SUM(nonspam) AS nonspam, LOWER(word) AS word FROM bayes_words GROUP BY LOWER(word) HAVING count(id) > 1");
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$word = $row['word'];
