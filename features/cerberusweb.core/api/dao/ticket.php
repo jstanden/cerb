@@ -3146,8 +3146,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				),
 			'sender' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Ticket::TICKET_FIRST_WROTE),
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_FIRST_WROTE_ID),
 				),
 			'spam.score' =>
 				array(
@@ -3451,6 +3451,18 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				$field_key = SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST;
 				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
+				break;
+				
+			case 'sender':
+				$field_key = SearchFields_Ticket::TICKET_FIRST_WROTE_ID;
+				
+				$oper = null;
+				$value = null;
+				$tokens = CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
+				
+				$oper = DevblocksSearchCriteria::OPER_IN;
+				$value = DAO_Address::autocomplete($value, 'ids');
+				return  new DevblocksSearchCriteria($field_key, $oper, $value);
 				break;
 				
 			case 'spam.training':
