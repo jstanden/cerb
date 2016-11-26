@@ -76,6 +76,20 @@
 	{if !$view->options.disable_watchers}{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}{/if}
 	{$ticket_drafts = DAO_MailQueue::getDraftsByTicketIds(array_keys($data))} 
 	
+	{* Bulk lazy load first wrote *}
+	{$object_first_wrotes = []}
+	{if in_array(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, $view->view_columns)}
+		{$first_wrote_ids = DevblocksPlatform::extractArrayValues($results, 't_first_wrote_address_id')}
+		{$object_first_wrotes = DAO_Address::getIds($first_wrote_ids)}
+	{/if}
+	
+	{* Bulk lazy load last wrote *}
+	{$object_last_wrotes = []}
+	{if in_array(SearchFields_Ticket::TICKET_LAST_WROTE_ID, $view->view_columns)}
+		{$last_wrote_ids = DevblocksPlatform::extractArrayValues($results, 't_last_wrote_address_id')}
+		{$object_last_wrotes = DAO_Address::getIds($last_wrote_ids)}
+	{/if}
+	
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -154,10 +168,20 @@
 			{else}
 			{/if}
 			</td>
-		{elseif $column=="t_first_wrote"}
-		<td data-column="{$column}"><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_first_wrote_address_id}" data-is-local="{if isset($sender_addresses.{$result.t_first_wrote_address_id})}true{/if}" title="{$result.t_first_wrote}">{$result.t_first_wrote|truncate:45:'...':true:true}</a></td>
-		{elseif $column=="t_last_wrote"}
-		<td data-column="{$column}"><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}" data-is-local="{if isset($sender_addresses.{$result.t_last_wrote_address_id})}true{/if}" title="{$result.t_last_wrote}">{$result.t_last_wrote|truncate:45:'...':true:true}</a></td>
+		{elseif $column=="t_first_wrote_address_id"}
+			{$first_wrote = $object_first_wrotes.{$result.$column}}
+			<td data-column="{$column}">
+				{if $first_wrote}
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_first_wrote_address_id}" data-is-local="{if isset($sender_addresses.{$result.t_first_wrote_address_id})}true{/if}" title="{$first_wrote->getNameWithEmail()}">{$first_wrote->getNameWithEmail()|truncate:45:'...':true:true}</a>
+				{/if}
+			</td>
+		{elseif $column=="t_last_wrote_address_id"}
+			{$last_wrote = $object_last_wrotes.{$result.$column}}
+			<td data-column="{$column}">
+				{if $last_wrote}
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}" data-is-local="{if isset($sender_addresses.{$result.t_last_wrote_address_id})}true{/if}" title="{$last_wrote->getNameWithEmail()}">{$last_wrote->getNameWithEmail()|truncate:45:'...':true:true}</a>
+				{/if}
+			</td>
 		{elseif $column=="t_created_date" || $column=="t_updated_date" || $column=="t_reopen_at" || $column=="t_closed_at"}
 		<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 		{elseif $column=="t_elapsed_response_first" || $column=="t_elapsed_resolution_first"}
