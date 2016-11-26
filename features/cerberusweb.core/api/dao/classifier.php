@@ -179,6 +179,16 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		return $entities;
 	}
 
+	static function getReadableByActor($actor_context, $actor_context_id) {
+		$classifiers = self::getAll();
+		
+		$classifiers = array_filter($classifiers, function($classifier) use ($actor_context, $actor_context_id) {
+			return CerberusContexts::isReadableByActor($classifier->owner_context, $classifier->owner_context_id, array($actor_context, $actor_context_id));
+		});
+		
+		return $classifiers;
+	}
+
 	/**
 	 * @param integer $id
 	 * @return Model_Classifier

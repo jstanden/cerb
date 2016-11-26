@@ -2873,6 +2873,23 @@
 		<!-- VA Actions -->
 		
 		<extension point="devblocks.event.action">
+			<id>core.va.action.classifier_prediction</id>
+			<name>Classifier Prediction</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>VaAction_ClassifierPrediction</name>
+			</class>
+			<params>
+				<param key="label" value="Execute classifier prediction" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event.action">
 			<id>core.va.action.http_request</id>
 			<name>HTTP Request</name>
 			<class>

@@ -659,6 +659,77 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 	
 };
 
+class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
+	const ID = 'core.va.action.classifier_prediction';
+	
+	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('params', $params);
+		
+		$classifiers = DAO_Classifier::getReadableByActor(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id);
+		$tpl->assign('classifiers', $classifiers);
+		
+		if(!is_null($seq))
+			$tpl->assign('namePrefix', 'action'.$seq);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_classifier_prediction.tpl');
+	}
+	
+	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$classifier_id = $params['classifier_id'];
+		@$content = $tpl_builder->build($params['content'], $dict);
+		@$object_placeholder = $params['object_placeholder'] ?: '_prediction';
+
+		if(false == ($classifier = DAO_Classifier::get($classifier_id)))
+			return "[ERROR] The configured classifier does not exist.";
+		
+		if(empty($content))
+			return "[ERROR] Content is required.";
+		
+		$out = sprintf(">>> Making a classifier prediction (%s):\n%s\n", $classifier_id, $content);
+		
+		// Set placeholder with object meta
+		
+		if(!empty($object_placeholder)) {
+			$out .= sprintf("\n>>> Saving result to {{%1\$s}}\n".
+				" * {{%1\$s.classification}}\n".
+				" * {{%1\$s.confidence}}\n".
+				" * {{%1\$s.params}}\n".
+				"\n",
+				$object_placeholder
+			);
+		}
+		
+		$this->run($token, $trigger, $params, $dict);
+		
+		// [TODO] Append raw output?
+		
+		return $out;
+	}
+	
+	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$classifier_id = $params['classifier_id'];
+		@$content = $tpl_builder->build($params['content'], $dict);
+		@$object_placeholder = $params['object_placeholder'] ?: '_prediction';
+		
+		$bayes = DevblocksPlatform::getBayesClassifierService();
+		
+		if(false === ($result = $bayes::predict($content, $classifier_id)))
+			return;
+		
+		// Set placeholder with object meta
+		
+		if(!empty($object_placeholder)) {
+			$dict->$object_placeholder = $result['prediction'];
+		}
+	}
+	
+};
+
 class Cerb_SwiftPlugin_TransportExceptionLogger implements Swift_Events_TransportExceptionListener {
 	private $_lastError = null;
 	
