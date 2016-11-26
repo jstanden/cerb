@@ -60,6 +60,7 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('modifier','devblocks_prettytime', array('_DevblocksTemplateManager', 'modifier_devblocks_prettytime'));
 			$instance->registerPlugin('modifier','devblocks_prettybytes', array('_DevblocksTemplateManager', 'modifier_devblocks_prettybytes'));
 			$instance->registerPlugin('modifier','devblocks_prettysecs', array('_DevblocksTemplateManager', 'modifier_devblocks_prettysecs'));
+			$instance->registerPlugin('modifier','devblocks_rangy_deserialize', array('_DevblocksTemplateManager', 'modifier_devblocks_rangy_deserialize'));
 			$instance->registerPlugin('modifier','devblocks_translate', array('_DevblocksTemplateManager', 'modifier_devblocks_translate'));
 			
 			$instance->registerResource('devblocks', new _DevblocksSmartyTemplateResource());
@@ -126,6 +127,16 @@ class _DevblocksTemplateManager {
 			self::$_instance_sandbox = $instance;
 		}
 		return self::$_instance_sandbox;
+	}
+	
+	static function modifier_devblocks_rangy_deserialize($string) {
+		$callback = function(array $matches) {
+			return sprintf('<span class="%s">%s</span>',
+				DevblocksPlatform::strEscapeHtml($matches[1]),
+				DevblocksPlatform::strEscapeHtml($matches[2])
+			);
+		};
+		return preg_replace_callback('#\\{\{(.*?)\:(.*?)\}\}#', $callback, $string);
 	}
 
 	static function modifier_devblocks_translate($string) {
