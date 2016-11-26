@@ -446,6 +446,25 @@ abstract class DevblocksEngine {
 		return $ip;
 	}
 	
+	static function getHostname() {
+		$app_hostname = APP_HOSTNAME;
+		
+		if(!empty($app_hostname))
+			return $app_hostname;
+		
+		$host = @$_SERVER['HTTP_HOST'];
+		
+		if(!empty($host))
+			return $host;
+			
+		$server_name = @$_SERVER['SERVER_NAME'];
+		
+		if(!empty($server_name))
+			return $server_name;
+		
+		return 'localhost';
+	}
+	
 	static function getWebPath() {
 		$location = "";
 

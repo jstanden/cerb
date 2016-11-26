@@ -621,13 +621,11 @@ class CerberusApplication extends DevblocksApplication {
 	 * @test CerberusApplicationTest
 	 */
 	static function generateMessageId() {
-		$host = @$_SERVER['HTTP_HOST'];
-		$server_name = @$_SERVER['SERVER_NAME'] ?: 'localhost';
+		$hostname = DevblocksPlatform::getHostname();
 
 		$id_left = md5(getmypid().'.'.time().'.'.uniqid(mt_rand(), true));
-		$id_right = $host ?: $server_name;
 		
-		$message_id = sprintf('<%s@%s>', $id_left, $id_right);
+		$message_id = sprintf('<%s@%s>', $id_left, $hostname);
 		return $message_id;
 	}
 

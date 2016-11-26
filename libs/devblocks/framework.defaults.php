@@ -47,6 +47,9 @@ if(!defined('APP_DB_OPT_CONNECTION_RECONNECTS'))
 if(!defined('APP_DB_OPT_CONNECTION_RECONNECTS_WAIT_MS'))
 	define('APP_DB_OPT_CONNECTION_RECONNECTS_WAIT_MS', 1000);
 
+if(!defined('APP_HOSTNAME'))
+	define('APP_HOSTNAME', '');
+	
 if(!defined('DEVBLOCKS_LANGUAGE'))
 	define('DEVBLOCKS_LANGUAGE','en');
 
