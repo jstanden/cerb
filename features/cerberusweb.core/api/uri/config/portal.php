@@ -167,7 +167,10 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		
 		// Clear compiled template
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->clearCompiledTemplate(sprintf("devblocks:%s:%s:%s", $template->plugin_id, $template->tag, $template->path), APP_BUILD);
+		$tpl_sandbox = DevblocksPlatform::getTemplateSandboxService();
+		$hash_key = sprintf("devblocks:%s:%s:%s", $template->plugin_id, $template->tag, $template->path);
+		$tpl->clearCompiledTemplate($hash_key, APP_BUILD);
+		$tpl_sandbox->clearCompiledTemplate($hash_key, null);
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id)))
 			$view->render();

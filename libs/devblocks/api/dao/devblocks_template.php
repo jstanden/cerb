@@ -198,6 +198,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 		
 		$db = DevblocksPlatform::getDatabaseService();
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_sandbox = DevblocksPlatform::getTemplateSandboxService();
 		
 		if(empty($ids))
 			return;
@@ -211,7 +212,9 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 		
 		// Clear templates_c compile cache with the models
 		foreach($templates as $template) { /* @var $template Model_DevblocksTemplate */
-			$tpl->clearCompiledTemplate(sprintf("devblocks:%s:%s:%s", $template->plugin_id, $template->tag, $template->path));
+			$hash_key = sprintf("devblocks:%s:%s:%s", $template->plugin_id, $template->tag, $template->path);
+			$tpl->clearCompiledTemplate($hash_key, APP_BUILD);
+			$tpl_sandbox->clearCompiledTemplate($hash_key, null);
 		}
 		
 		return true;
@@ -325,6 +328,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	static function importXmlFile($filename, $tag) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl_sandbox = DevblocksPlatform::getTemplateSandboxService();
 
 		if(!file_exists($filename) && empty($tag))
 			return;
@@ -366,7 +370,9 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 				
 			}
 			
-			$tpl->clearCompiledTemplate(sprintf("devblocks:%s:%s:%s", $plugin_id, $tag, $path));
+			$hash_key = sprintf("devblocks:%s:%s:%s", $template->plugin_id, $template->tag, $template->path);
+			$tpl->clearCompiledTemplate($hash_key, APP_BUILD);
+			$tpl_sandbox->clearCompiledTemplate($hash_key, null);
 		}
 		
 		unset($xml);
