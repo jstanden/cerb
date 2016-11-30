@@ -48,7 +48,7 @@ class ChReportVirtualAttendantUsage extends Extension_Report {
 			"FROM trigger_event_history ".
 			"INNER JOIN trigger_event ON (trigger_event_history.trigger_id=trigger_event.id) ".
 			"WHERE trigger_event_history.ts_day BETWEEN %d AND %d ".
-			"GROUP BY trigger_event.id ",
+			"GROUP BY trigger_event.id, trigger_event.title, trigger_event.virtual_attendant_id, trigger_event.event_point ",
 			$start_time,
 			$end_time
 		);

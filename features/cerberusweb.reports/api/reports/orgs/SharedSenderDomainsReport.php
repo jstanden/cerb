@@ -26,7 +26,7 @@ class ChReportOrgSharedEmailDomains extends Extension_Report {
 			"INNER JOIN contact_org o ON (a.contact_org_id=o.id) ".
 			"WHERE a.contact_org_id != 0 ".
 			"GROUP BY domain ".
-			"HAVING num_orgs > 1 ".
+			"HAVING count(DISTINCT a.contact_org_id) > 1 ".
 			"ORDER BY num_orgs desc ".
 			"LIMIT 0,100"
 		);

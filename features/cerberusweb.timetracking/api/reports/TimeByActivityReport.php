@@ -146,7 +146,7 @@ class ChReportTimeSpentActivity extends Extension_Report {
 			"AND log_date > %d ".
 			"AND log_date <= %d ".
 			"%s ".
-			"GROUP BY activity_id, date_plot ".
+			"GROUP BY tta.id, tta.name, date_plot ".
 			"ORDER BY activity_name ASC ",
 			$date_group,
 			$start_time,

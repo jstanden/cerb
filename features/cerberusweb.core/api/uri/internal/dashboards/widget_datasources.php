@@ -439,15 +439,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 						case '_id':
 							$order_by = null;
 							$group_by = sprintf("GROUP BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
-								
-							if(isset($fields[$view->renderSortBy])) {
-								$order_by = sprintf("ORDER BY %s.%s %s",
-									$fields[$view->renderSortBy]->db_table,
-									$fields[$view->renderSortBy]->db_column,
-									($view->renderSortAsc) ? 'ASC' : 'DESC'
-								);
-							}
-								
+							
 							if(empty($order_by))
 								$order_by = sprintf("ORDER BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
 							
@@ -462,8 +454,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 							$order_by = 'ORDER BY xaxis ASC';
 							break;
 					}
-						
-						
+					
 					switch($yaxis_func) {
 						case 'sum':
 							$select_func = sprintf("SUM(%s.%s)",

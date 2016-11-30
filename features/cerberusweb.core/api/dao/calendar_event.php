@@ -277,7 +277,6 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		
 		switch($param_key) {
 			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
-				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 		}

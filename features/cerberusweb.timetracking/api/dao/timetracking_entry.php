@@ -515,7 +515,6 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		switch($param_key) {
 			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
-				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 

@@ -51,7 +51,7 @@ class ChReportSnippetPopularity extends Extension_Report {
 			"INNER JOIN snippet ON (snippet_use_history.snippet_id=snippet.id) ".
 			"WHERE snippet_use_history.ts_day BETWEEN %d AND %d ".
 			"%s ".
-			"GROUP BY snippet_use_history.snippet_id ".
+			"GROUP BY snippet.id, snippet.title ".
 			"ORDER BY snippet_uses %%s ".
 			"%s",
 			$start_time,

@@ -127,7 +127,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			"AND log_date <= %d ".
 			"%s ".
 			"%s ".
-			"GROUP BY contact_org.id, date_plot ",
+			"GROUP BY contact_org.id, contact_org.name, date_plot ",
 			$date_group,
 			$start_time,
 			$end_time,

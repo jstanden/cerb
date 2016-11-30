@@ -462,7 +462,6 @@ class DAO_Task extends Cerb_ORMHelper {
 		
 		switch($param_key) {
 			case SearchFields_Task::VIRTUAL_CONTEXT_LINK:
-				$args['has_multiple_values'] = true;
 				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
 				

@@ -41,7 +41,7 @@ class ChReportNewTickets extends Extension_Report {
 		
 		// Year shortcuts
 		$years = array();
-		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year having year <= date_format(now(),'%Y') ORDER BY year desc limit 0,10";
+		$sql = "SELECT date_format(from_unixtime(created_date),'%Y') as year FROM ticket WHERE created_date > 0 GROUP BY year ORDER BY year desc limit 0,10";
 		$rs = $db->ExecuteSlave($sql);
 		
 		if(!($rs instanceof mysqli_result))

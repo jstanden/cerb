@@ -1887,7 +1887,7 @@ abstract class C4_AbstractView {
 			);
 			
 		} else {
-			$sql = sprintf("SELECT from_context AS link_from_context, from_context_id AS link_from_context_id, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) AND from_context = %s GROUP BY from_context_id ORDER BY hits DESC LIMIT 0,250 ",
+			$sql = sprintf("SELECT from_context AS link_from_context, from_context_id AS link_from_context_id, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) AND from_context = %s GROUP BY from_context, from_context_id ORDER BY hits DESC LIMIT 0,250 ",
 				$db->qstr($context),
 				(
 					sprintf("SELECT %s.id ", $query_parts['primary_table']).
@@ -2043,7 +2043,7 @@ abstract class C4_AbstractView {
 			);
 			
 		} else {
-			$sql = sprintf("SELECT %s AS context_field, %s AS context_id_field, count(*) AS hits %s %s GROUP BY context_id_field ORDER BY hits DESC ",
+			$sql = sprintf("SELECT %s AS context_field, %s AS context_id_field, count(*) AS hits %s %s GROUP BY context_field, context_id_field ORDER BY hits DESC ",
 				$db->escape($context_field),
 				$db->escape($context_id_field),
 				$join_sql,
