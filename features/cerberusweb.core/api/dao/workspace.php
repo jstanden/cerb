@@ -266,7 +266,6 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
-			'has_multiple_values' => false,
 			'sort' => $sort_sql,
 		);
 	}
@@ -292,7 +291,6 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
-		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 
 		// Virtuals
@@ -301,7 +299,6 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			'join_sql' => &$join_sql,
 			'where_sql' => &$where_sql,
 			'tables' => &$tables,
-			'has_multiple_values' => &$has_multiple_values
 		);
 		
 		array_walk_recursive(
@@ -314,7 +311,6 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			$select_sql.
 			$join_sql.
 			$where_sql.
-			($has_multiple_values ? 'GROUP BY workspace_page.id ' : '').
 			$sort_sql;
 
 		if($limit > 0) {
@@ -342,7 +338,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			// We can skip counting if we have a less-than-full single page
 			if(!(0 == $page && $total < $limit)) {
 				$count_sql =
-					($has_multiple_values ? "SELECT COUNT(DISTINCT workspace_page.id) " : "SELECT COUNT(workspace_page.id) ").
+					"SELECT COUNT(workspace_page.id) ".
 					$join_sql.
 					$where_sql;
 				$total = $db->GetOneSlave($count_sql);
@@ -367,7 +363,6 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 					break;
 				
 				$wheres = array();
-				$args['has_multiple_values'] = true;
 					
 				foreach($param->value as $owner_context) {
 					@list($context, $context_id) = explode(':', $owner_context);
@@ -619,7 +614,6 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
-			'has_multiple_values' => false,
 			'sort' => $sort_sql,
 		);
 	}
@@ -645,14 +639,12 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
-		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 		
 		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
-			($has_multiple_values ? 'GROUP BY workspace_tab.id ' : '').
 			$sort_sql;
 			
 		if($limit > 0) {
@@ -680,7 +672,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			// We can skip counting if we have a less-than-full single page
 			if(!(0 == $page && $total < $limit)) {
 				$count_sql =
-					($has_multiple_values ? "SELECT COUNT(DISTINCT workspace_tab.id) " : "SELECT COUNT(workspace_tab.id) ").
+					"SELECT COUNT(workspace_tab.id) ".
 					$join_sql.
 					$where_sql;
 				$total = $db->GetOneSlave($count_sql);

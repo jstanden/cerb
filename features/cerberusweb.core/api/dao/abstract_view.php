@@ -149,14 +149,12 @@ abstract class C4_AbstractView {
 		);
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
-		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = sprintf("ORDER BY RAND() LIMIT %d ", $size);
 		
 		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
-			($has_multiple_values ? sprintf("GROUP BY %s.id ", $query_parts['primary_table']) : '').
 			$sort_sql;
 
 		$rs = $db->ExecuteSlave($sql);

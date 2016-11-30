@@ -289,8 +289,6 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			"INNER JOIN trigger_event ON (context_scheduled_behavior.behavior_id=trigger_event.id) "
 			;
 
-		$has_multiple_values = false; // [TODO] Temporary when custom fields disabled
-
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
@@ -301,7 +299,6 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
-			'has_multiple_values' => $has_multiple_values,
 			'sort' => $sort_sql,
 		);
 	}
@@ -327,14 +324,12 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
-		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
 
 		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
-			($has_multiple_values ? 'GROUP BY context_scheduled_behavior.id ' : '').
 			$sort_sql
 			;
 			
@@ -363,7 +358,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			// We can skip counting if we have a less-than-full single page
 			if(!(0 == $page && $total < $limit)) {
 				$count_sql =
-					($has_multiple_values ? "SELECT COUNT(DISTINCT context_scheduled_behavior.id) " : "SELECT COUNT(context_scheduled_behavior.id) ").
+					"SELECT COUNT(context_scheduled_behavior.id) ".
 					$join_sql.
 					$where_sql;
 				$total = $db->GetOneSlave($count_sql);
