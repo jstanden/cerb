@@ -9,24 +9,7 @@
 
 	<div style="float:right;">
 		<span style="margin-right:10px;">
-			{if !empty($create_contexts)}
-			<div style="display:inline-block;margin-left:10px;">
-				{if count($create_contexts) > 1}
-				<button type="button" class="reply split-left" onclick="$(this).next('button.split-right').click();"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> </button><!--
-				--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
-				<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
-					{foreach from=$create_contexts item=create_context}
-					<li><a href="javascript:;" class="create-event" context="{$create_context->id}">{$create_context->name}</a></li>
-					{/foreach}
-				</ul>
-				{else}
-				{$create_context = reset($create_contexts)}
-				<button type="button" class="create-event" context="{$create_context->id}"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span></button>
-				{/if}
-			</div>
-			{/if}
-		
-			<button type="button" class="calendar-edit"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		</span>
 		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');">&lt;</button>
 		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=&year=');">Today</button>
@@ -60,7 +43,7 @@
 					<b>{$day.timestamp|devblocks_date:'M d Y'}</b>
 					{foreach from=$calendar_events.{$day.timestamp} item=event}
 						<div class="bubble-popup-event" link="{$event.link}" style="border-radius:5px;padding:3px;margin-bottom:2px;{if $event.color}background-color:{$event.color}{/if}">
-							<a href="javascript:;" style="color:rgb(0,0,0);">{$event.label}</a>
+							<a href="javascript:;" class="cerb-peek-trigger" data-context="{$event.context}" data-context-id="{$event.context_id}">{$event.label}</a>
 						</div>
 					{/foreach}
 					</div>
@@ -87,8 +70,6 @@ $(function() {
 		timeout:0,
 		over:function() {
 			var $this = $(this);
-			$this.addClass('hover');
-			
 			var $window = $(window);
 			
 			var $tooltip = $this.find('DIV.bubble-popup');
@@ -120,63 +101,19 @@ $(function() {
 	
 	var $frm = $('#frm{$guid}');
 	
-	$frm.find('button.calendar-edit').click(function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR}&context_id={$calendar->id}',null,false,'50%');
-		$popup.one('calendar_save', function(event) {
-			event.stopPropagation();
-	
-			var month = (event.month) ? event.month : '{$calendar_properties.month}';
-			var year = (event.year) ? event.year : '{$calendar_properties.year}';
+	$widget.find('.cerb-peek-trigger')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved cerb-peek-deleted', function(e) {
+			var month = (e.month) ? e.month : '{$calendar_properties.month}';
+			var year = (e.year) ? e.year : '{$calendar_properties.year}';
 			
 			genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=' + month + '&year=' + year);
-		});
-	});
-	
-	var $openEvtPopupEvent = function(e) {
-		e.stopPropagation();
-		
-		var $this = $(this);
-		var link = '';
-		
-		if($this.is('.create-event')) {
-			$this.closest('div').find('ul.cerb-popupmenu').hide();
-			context = $this.attr('context');
-			link = 'ctx://' + context + ':0';
-		
-		} else if($this.is('DIV.bubble-popup-event')) {
-			link = $this.attr('link');
-		}
-		
-		if(link.substring(0,6) == 'ctx://') {
-			var context_parts = link.substring(6).split(':');
-			var context = context_parts[0];
-			var context_id = context_parts[1];
-			
-			var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'50%');
-			
-			$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
-				var month = (event.month) ? event.month : '{$calendar_properties.month}';
-				var year = (event.year) ? event.year : '{$calendar_properties.year}';
-				
-				genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=' + month + '&year=' + year);
-			
-				event.stopPropagation();
-			});
-			
-		} else {
-			// [TODO] Regular link
-		}
-	}
-	
-	{if !empty($create_contexts)}
-	$frm.find('ul.cerb-popupmenu > li').click(function(e) {
-		e.stopPropagation();
-		$(this).find('a.create-event').click();
-	});
-	
-	$frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
-	{/if}
-	
-	$calendar.find('TR.week DIV.bubble-popup-event').click($openEvtPopupEvent);
+			event.stopPropagation();
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+		;
 });
 </script>

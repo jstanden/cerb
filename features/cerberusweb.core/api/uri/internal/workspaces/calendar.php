@@ -52,16 +52,9 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 			// Template scope
 			$tpl->assign('calendar', $calendar);
 			$tpl->assign('calendar_events', $calendar_events);
-			
-			// Contexts (for creating events)
-	
-			if(CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)) {
-				$create_contexts = $calendar->getCreateContexts();
-				$tpl->assign('create_contexts', $create_contexts);
-			}
 		}
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/calendar/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
 	}
 	
 	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {

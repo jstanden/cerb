@@ -50,13 +50,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		$tpl->assign('calendar_events', $calendar_events);
 		$tpl->assign('calendar_properties', $calendar_properties);
 		
-		// Contexts (for creating events)
-
-		if(CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)) {
-			$create_contexts = $calendar->getCreateContexts();
-			$tpl->assign('create_contexts', $create_contexts);
-		}
-		
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
@@ -97,13 +90,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			
 			$tpl->assign('calendar', $calendar);
 			$tpl->assign('calendar_events', $calendar_events);
-			
-			// Contexts (for creating events)
-
-			if(CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)) {
-				$create_contexts = $calendar->getCreateContexts();
-				$tpl->assign('create_contexts', $create_contexts);
-			}
 			
 		} else {
 			$calendars = DAO_Calendar::getOwnedByWorker($active_worker);

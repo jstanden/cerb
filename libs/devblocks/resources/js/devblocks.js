@@ -199,10 +199,9 @@ function DevblocksClass() {
 				}
 				
 				// Meta fields
-				if(e.id)
-					event.context_id = e.id;
-				if(e.label)
-					event.context_label = e.label;
+				for(k in e) {
+					event[k] = e[k];
+				}
 				
 				// Reload the associated view (underlying helper)
 				if(e.view_id)

@@ -46,25 +46,10 @@
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
 		{if !empty($calendar)}
-			{if !empty($create_contexts)}
-			<div style="display:inline-block;margin-left:10px;">
-				{if count($create_contexts) > 1}
-				<button type="button" class="reply split-left" onclick="$(this).next('button.split-right').click();"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> </button><!--
-				--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
-				<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
-					{foreach from=$create_contexts item=create_context}
-					<li><a href="javascript:;" class="create-event" context="{$create_context->id}">{$create_context->name}</a></li>
-					{/foreach}
-				</ul>
-				{else}
-				{$create_context = reset($create_contexts)}
-				<button type="button" class="create-event" context="{$create_context->id}"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span></button>
-				{/if}
-			</div>
-			{/if}
-			
 			<span style="margin-left:10px;">
-				Availability based on <a href="{devblocks_url}c=profiles&what=calendar&id={$calendar->id}-{$calendar->name|devblocks_permalink}{/devblocks_url}" style="font-weight:bold;">{$calendar->name}</a>
+				<ul class="bubbles">
+					<li><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
+				</ul> 
 			</span>
 		{else}
 			{if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
@@ -143,50 +128,8 @@ $(function() {
 	var $frm = $('#frm{$guid}');
 	var $tab = $frm.closest('div.ui-tabs-panel');
 	
-	var $openEvtPopupEvent = function(e) {
-		e.stopPropagation();
-		
-		var $this = $(this);
-		var link = '';
-		
-		if($this.is('.create-event')) {
-			$this.closest('div').find('ul.cerb-popupmenu').hide();
-			var context = $this.attr('context');
-			link = 'ctx://' + context + ':0';
-		
-		} else if($this.is('div.event')) {
-			//link = $this.attr('link');
-			return;
-		}
-		
-		if(link.substring(0,6) == 'ctx://') {
-			var context_parts = link.substring(6).split(':');
-			var context = context_parts[0];
-			var context_id = context_parts[1];
-			
-			var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context=' + context + '&context_id=' + context_id  + '&calendar_id={$calendar->id}',null,false,'50%');
-			
-			$popup.one('popup_saved calendar_event_save calendar_event_delete', function(event) {
-				var month = (event.month) ? event.month : '{$calendar_properties.month}';
-				var year = (event.year) ? event.year : '{$calendar_properties.year}';
-				
-				genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month=' + month + '&year=' + year);
-				event.stopPropagation();
-			});
-			
-		} else {
-			// [TODO] Regular link
-		}
-	}
-	
-	{if !empty($create_contexts)}
-	$frm.find('ul.cerb-popupmenu > li').click(function(e) {
-		e.stopPropagation();
-		e.preventDefault();
-		$(this).find('a.create-event').click();
-	});
-	
-	$frm.find('button.create-event, a.create-event').click($openEvtPopupEvent);
-	{/if}
+	$frm.find('.cerb-peek-trigger')
+		.cerbPeekTrigger()
+		;
 });
 </script>

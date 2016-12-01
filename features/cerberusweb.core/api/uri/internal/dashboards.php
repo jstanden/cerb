@@ -680,13 +680,6 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
 		
-		// Contexts (for creating events)
-
-		if(CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)) {
-			$create_contexts = $calendar->getCreateContexts();
-			$tpl->assign('create_contexts', $create_contexts);
-		}
-		
 		// Template scope
 		
 		$tpl->assign('calendar', $calendar);
