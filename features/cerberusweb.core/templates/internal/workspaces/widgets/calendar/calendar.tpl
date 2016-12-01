@@ -44,7 +44,11 @@
 	{foreach from=$week item=day name=days}
 		<td class="{if $calendar_properties.today == $day.timestamp}today{/if}{if $day.is_padding} inactive{/if}{if $smarty.foreach.days.last} cellborder_r{/if}{if $smarty.foreach.weeks.last} cellborder_b{/if}" style="cursor:pointer;">
 			<div class="day_header">
+				{if $calendar->params.manual_disabled}
 				{$day.dom}
+				{else}
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context-id="0" data-edit="calendar.id:{$calendar->id} start:{$day.timestamp}">{$day.dom}</a>
+				{/if}
 			</div>
 			<div style="text-align:center;">
 				{if $calendar_events.{$day.timestamp}}

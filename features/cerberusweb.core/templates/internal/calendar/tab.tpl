@@ -45,10 +45,18 @@
 	{foreach from=$week item=day name=days}
 		<td class="{if $calendar_properties.today == $day.timestamp}today{/if}{if $day.is_padding} inactive{/if}{if $smarty.foreach.days.last} cellborder_r{/if}{if $smarty.foreach.weeks.last} cellborder_b{/if}">
 			<div class="day_header">
-				{if $calendar_properties.today == $day.timestamp}
-				<a href="javascript:;" onclick="">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
+				{if $calendar->params.manual_disabled}
+					{if $calendar_properties.today == $day.timestamp}
+					<a href="javascript:;">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
+					{else}
+					<a href="javascript:;">{$day.dom}</a>
+					{/if}
 				{else}
-				<a href="javascript:;" onclick="">{$day.dom}</a>
+					{if $calendar_properties.today == $day.timestamp}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context="0" data-edit="calendar.id:{$calendar->id} start:{$day.timestamp}">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
+					{else}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context="0" data-edit="calendar.id:{$calendar->id} start:{$day.timestamp}">{$day.dom}</a>
+					{/if}
 				{/if}
 			</div>
 			<div class="day_contents">
