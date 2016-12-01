@@ -159,7 +159,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar_recurring_profile/profile.tpl');
 	}
 	
-	function savePeekPopupJsonAction() {
+	function savePeekJsonAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
 		$default_tz = DevblocksPlatform::getTimezone();
@@ -180,59 +180,88 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 		
 		header("Content-type: application/json");
 		
-		if(empty($calendar_id))
-			return;
-		
-		if(!empty($id) && !empty($do_delete)) { // Delete
-			DAO_CalendarRecurringProfile::delete($id);
-			
-			echo json_encode(array(
-				'action' => 'delete',
-			));
-			
-		} else {
-			if(empty($id)) { // New
-				$fields = array(
-					DAO_CalendarRecurringProfile::CALENDAR_ID => $calendar_id,
-					DAO_CalendarRecurringProfile::EVENT_NAME => $event_name,
-					DAO_CalendarRecurringProfile::EVENT_START => $event_start ?: 'midnight',
-					DAO_CalendarRecurringProfile::EVENT_END => $event_end ?: '',
-					DAO_CalendarRecurringProfile::TZ => $tz,
-					DAO_CalendarRecurringProfile::RECUR_START => $recur_start,
-					DAO_CalendarRecurringProfile::RECUR_END => $recur_end,
-					DAO_CalendarRecurringProfile::IS_AVAILABLE => $is_available ? 1 : 0,
-					DAO_CalendarRecurringProfile::PATTERNS => $patterns,
-				);
+		try {
+			if(!empty($id) && !empty($do_delete)) { // Delete
+				// [TODO] ACL
+				DAO_CalendarRecurringProfile::delete($id);
 				
-				if(false == ($id = DAO_CalendarRecurringProfile::create($fields)))
-					return false;
+				echo json_encode(array(
+					'status' => true,
+					'id' => intval($id),
+					'view_id' => $view_id,
+					'action' => 'delete',
+				));
+				return;
 				
-				if(!empty($view_id) && !empty($id))
-					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $id);
+			} else {
+				if(empty($event_name))
+					throw new Exception_DevblocksAjaxValidationError("The 'Name:' field is required.", 'event_name');
 				
-			} else { // Edit
-				$fields = array(
-					DAO_CalendarRecurringProfile::EVENT_NAME => $event_name,
-					DAO_CalendarRecurringProfile::EVENT_START => $event_start ?: 'midnight',
-					DAO_CalendarRecurringProfile::EVENT_END => $event_end ?: '',
-					DAO_CalendarRecurringProfile::TZ => $tz,
-					DAO_CalendarRecurringProfile::RECUR_START => $recur_start,
-					DAO_CalendarRecurringProfile::RECUR_END => $recur_end,
-					DAO_CalendarRecurringProfile::IS_AVAILABLE => $is_available ? 1 : 0,
-					DAO_CalendarRecurringProfile::PATTERNS => $patterns,
-				);
-				DAO_CalendarRecurringProfile::update($id, $fields);
+				if(empty($calendar_id))
+					throw new Exception_DevblocksAjaxValidationError("The 'Calendar:' field is required.", 'calendar_id');
 				
+				if(empty($id)) { // New
+					$fields = array(
+						DAO_CalendarRecurringProfile::CALENDAR_ID => $calendar_id,
+						DAO_CalendarRecurringProfile::EVENT_NAME => $event_name,
+						DAO_CalendarRecurringProfile::EVENT_START => $event_start ?: 'midnight',
+						DAO_CalendarRecurringProfile::EVENT_END => $event_end ?: '',
+						DAO_CalendarRecurringProfile::TZ => $tz,
+						DAO_CalendarRecurringProfile::RECUR_START => $recur_start,
+						DAO_CalendarRecurringProfile::RECUR_END => $recur_end,
+						DAO_CalendarRecurringProfile::IS_AVAILABLE => $is_available ? 1 : 0,
+						DAO_CalendarRecurringProfile::PATTERNS => $patterns,
+					);
+					
+					if(false == ($id = DAO_CalendarRecurringProfile::create($fields)))
+						return false;
+					
+					if(!empty($view_id) && !empty($id))
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $id);
+					
+				} else { // Edit
+					$fields = array(
+						DAO_CalendarRecurringProfile::EVENT_NAME => $event_name,
+						DAO_CalendarRecurringProfile::EVENT_START => $event_start ?: 'midnight',
+						DAO_CalendarRecurringProfile::EVENT_END => $event_end ?: '',
+						DAO_CalendarRecurringProfile::TZ => $tz,
+						DAO_CalendarRecurringProfile::RECUR_START => $recur_start,
+						DAO_CalendarRecurringProfile::RECUR_END => $recur_end,
+						DAO_CalendarRecurringProfile::IS_AVAILABLE => $is_available ? 1 : 0,
+						DAO_CalendarRecurringProfile::PATTERNS => $patterns,
+					);
+					DAO_CalendarRecurringProfile::update($id, $fields);
+					
+				}
+	
+				// Custom fields
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $id, $field_ids);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => intval($id),
+					'label' => $event_name,
+					'view_id' => $view_id,
+					'action' => 'modify',
+					'month' => intval(date('m', time())),
+					'year' => intval(date('Y', time())),
+				));
+				return;
 			}
-
-			// Custom fields
-			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $id, $field_ids);
-			
+				
+		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(
-				'action' => 'modify',
-				'month' => intval(date('m', time())),
-				'year' => intval(date('Y', time())),
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
 			));
 			return;
 		}

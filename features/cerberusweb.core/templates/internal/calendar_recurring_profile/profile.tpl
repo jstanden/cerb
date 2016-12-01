@@ -26,7 +26,9 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
 		<!-- Edit -->
-		<button type="button" id="btnDisplayCalendarRecurringProfileEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{if $calendar_recurring_profile->isWriteableByActor($active_worker)}
+		<button type="button" id="btnDisplayCalendarRecurringProfileEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{/if}
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -40,7 +42,7 @@
 </div>
 
 <fieldset class="properties">
-	<legend>{'Calendar Recurring Profile'|devblocks_translate|capitalize}</legend>
+	<legend>{'common.calendar.event.recurring'|devblocks_translate|capitalize}</legend>
 
 	<div style="margin-left:15px;">
 	{foreach from=$properties item=v key=k name=props}
@@ -92,13 +94,24 @@ $(function() {
 	
 	var tabs = $("#calendar_recurring_profileTabs").tabs(tabOptions);
 	
-	$('#btnDisplayCalendarRecurringProfileEdit').bind('click', function() {
-		var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
-		$popup.one('calendar_event_save', function(event) {
-			event.stopPropagation();
+	// Edit
+	{if $calendar_recurring_profile->isWriteableByActor($active_worker)}
+	$('#btnDisplayCalendarRecurringProfileEdit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
 			document.location.reload();
-		});
-	});
+		})
+		.on('cerb-peek-deleted', function(e) {
+			document.location.href = '{devblocks_url}{/devblocks_url}';
+			
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+		;
+	{/if}
 
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });

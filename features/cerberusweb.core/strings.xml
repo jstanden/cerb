@@ -392,9 +392,19 @@
 				<seg>Calendar Event</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.calendar.event.recurring">
+			<tuv xml:lang="en_US">
+				<seg>Calendar Recurring Event</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.calendar.events">
 			<tuv xml:lang="en_US">
 				<seg>Calendar Events</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.calendar.events.recurring">
+			<tuv xml:lang="en_US">
+				<seg>Calendar Recurring Events</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.calendars">
@@ -687,9 +697,19 @@
 				<seg>event</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.event.recurring">
+			<tuv xml:lang="en_US">
+				<seg>recurring event</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.events">
 			<tuv xml:lang="en_US">
 				<seg>events</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.events.recurring">
+			<tuv xml:lang="en_US">
+				<seg>recurring events</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.example">
