@@ -1,154 +1,127 @@
-{$page_context = CerberusContexts::CONTEXT_CALENDAR_EVENT}
-{$page_context_id = $event->id}
+{$div_id = "peek{uniqid()}"}
+{$peek_context = CerberusContexts::CONTEXT_CALENDAR_EVENT}
 
-<form action="#" method="POST" id="frmCalEvtPeek" name="frmCalEvtPeek" onsubmit="return false;" class="calendar_popup">
-<input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="saveCalendarEventPopupJson">
-<input type="hidden" name="event_id" value="{$event->id}">
-{if !empty($view_id)}
-<input type="hidden" name="view_id" value="{$view_id}">
-{/if}
-{if !empty($event->calendar_id)}
-<input type="hidden" name="calendar_id" value="{$event->calendar_id}">
-{/if}
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-
-<table cellpadding="0" cellspacing="2" border="0" width="98%">
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.name'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<input type="text" name="name" value="{$event->name}" style="width:98%;">
-		</td>
-	</tr>
-	{if empty($event->calendar_id) && !empty($calendars)}
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.calendar'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<select name="calendar_id">
-				{foreach from=$calendars item=calendar key=calendar_id}
-				<option value="{$calendar_id}">{$calendar->name}</option>
-				{/foreach}
-			</select>
-		</td>
-	</tr>
-	{/if}
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">When: </td>
-		<td width="100%">
-			<div>
-				<input type="text" name="date_start" value="{$event->date_start|devblocks_date:'M d Y h:ia'}" size="32">
-				 until 
-				<input type="text" name="date_end" value="{$event->date_end|devblocks_date:'M d Y h:ia'}" size="32">
-			</div>
+<div id="{$div_id}">
+	
+	<div style="float:left;">
+		<h1 style="color:inherit;">
+			{$dict->_label}
+		</h1>
+		
+		<div style="margin-top:5px;">
+			{if !empty($dict->id)}
+				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
+			{/if}
 			
-			<i>(e.g. "tomorrow 5pm", "+2 hours", "2011-04-27 5:00pm", "8am", "August 15", "next Thursday")</i>
-		</td>
-	</tr>
-	<tr>
-		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.status'|devblocks_translate|capitalize}: </td>
-		<td width="100%">
-			<label><input type="radio" name="is_available" value="1" {if empty($event) || $event->is_available}checked="checked"{/if}> Available</label>
-			<label><input type="radio" name="is_available" value="0" {if !empty($event) && empty($event->is_available)}checked="checked"{/if}> Busy</label>
-		</td>
-	</tr>
-</table>
-<br>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_CALENDAR_EVENT context_id=$event->id}
-
-<div>
-{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
+			{if CerberusContexts::isWriteableByActor($dict->calendar_owner__context, $dict->calendar_owner_context_id, $active_worker)}
+			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			{/if}
+			
+			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="cerb-peek-comments-add" data-context="{$peek_context}" data-context-id="{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+		</div>
+	</div>
 </div>
 
-{if !empty($event->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to delete this event?
-	</div>
-	
-	<button type="button" class="delete"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
-</fieldset>
-{/if}
+<div style="clear:both;padding-top:10px;"></div>
 
-{* [TODO] If the worker can edit this calendar *}
-{if 1}
-	<div class="buttons">
-		<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
-		{if !empty($event->id)}
-		<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>
-		{/if}
+<fieldset class="peek">
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+	
+	<div class="cerb-properties-grid" data-column-width="100">
+	
+		{$labels = $dict->_labels}
+		{$types = $dict->_types}
+		{foreach from=$properties item=k name=props}
+			{if $dict->$k}
+			<div>
+			{if $k == ''}
+			{elseif $k == 'importance'}
+				<label>{$labels.$k}</label>
+				<div style="display:inline-block;margin-top:5px;width:75px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
+					<div style="position:relative;top:-1px;margin-left:-5px;left:{$dict->importance}%;width:10px;height:10px;border-radius:10px;background-color:{if $dict->importance < 50}rgb(0,200,0);{elseif $dict->importance > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
+				</div>
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+			{/if}
+			</div>
+			{/if}
+		{/foreach}
 		
-		{if !empty($event->id)}
-		<div style="float:right"><a href="{devblocks_url}c=profiles&type=calendar_event&id={$event->name|devblocks_permalink}-{$event->id}{/devblocks_url}">view full record</a></div>
-		{/if}
-		
-		<br clear="all">
 	</div>
-{/if}
-</form>
+	
+	<div style="clear:both;"></div>
+	
+</fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}
+
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#frmCalEvtPeek');
+	var $div = $('#{$div_id}');
+	var $popup = genericAjaxPopupFind($div);
+	var $layer = $popup.attr('data-layer');
 	
-	$popup.one('popup_open',function(event,ui) {
-		var $this = $(this);
-		var $frm = $this.find('form');
-		
-		// Title
-		
-		$this.dialog('option','title', 'Calendar Event');
-		$('#frmCalEvtPeek :input:text:first').focus();
-		
-		// Save button
-		
-		$frm.find('button.save').click(function() {
-			genericAjaxPost('frmCalEvtPeek','','c=internal&a=handleSectionAction&section=calendars&action=saveCalendarEventPopupJson',function(json) {
-				var $popup = genericAjaxPopupFind('#frmCalEvtPeek');
-				if(null != $popup) {
-					var $layer = $popup.prop('id').substring(5);
-					
-					var $event = jQuery.Event('calendar_event_save');
-					if(json.month)
-						$event.month = json.month;
-					if(json.year)
-						$event.year = json.year;
-					
-					genericAjaxPopupClose($layer, $event);
-					
-					{if !empty($view_id)}
-					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
-					{/if}
-				}
-			});
-		});
-		
-		$frm.find('button.delete').click(function() {
-			genericAjaxPost('frmCalEvtPeek','','c=internal&a=handleSectionAction&section=calendars&action=saveCalendarEventPopupJson&do_delete=1',function(json) {
-				var $popup = genericAjaxPopupFind('#frmCalEvtPeek');
-				if(null != $popup) {
-					var $layer = $popup.prop('id').substring(5);
+	var $timeline = {$timeline_json|default:'{}' nofilter};
 
-					var $event = jQuery.Event('calendar_event_delete');
-					
-					genericAjaxPopupClose($layer, $event);
-					
-					{if !empty($view_id)}
-					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
-					{/if}
-				}
-			});
+	$popup.one('popup_open',function(event,ui) {
+		$popup.dialog('option','title', "{'common.calendar.event'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
+		
+		// Properties grid
+		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
+		
+		// Edit button
+		$popup.find('button.cerb-peek-edit')
+			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
+			.on('cerb-peek-saved', function(e) {
+				e.type = 'peek_saved';
+				$popup.trigger(e);
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			.on('cerb-peek-deleted', function(e) {
+				e.type = 'peek_deleted';
+				$popup.trigger(e);
+				genericAjaxPopupClose($layer);
+			})
+			;
+		
+		// Comments
+		$popup.find('button.cerb-peek-comments-add')
+			.cerbCommentTrigger()
+			.on('cerb-comment-saved', function() {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			;
+		
+		// Peeks
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
+		
+		// Searches
+		$popup.find('.cerb-search-trigger')
+			.cerbSearchTrigger()
+			;
+		
+		// Menus
+		$popup.find('ul.cerb-menu').menu();
+		
+		// View profile
+		$popup.find('.cerb-peek-profile').click(function(e) {
+			if(e.metaKey) {
+				window.open('{devblocks_url}c=profiles&type=calendar_event&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				
+			} else {
+				document.location='{devblocks_url}c=profiles&type=calendar_event&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
+			}
 		});
+		
+		// Timeline
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
 	});
 });
 </script>

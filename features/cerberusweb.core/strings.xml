@@ -387,6 +387,16 @@
 				<seg>Calendar</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.calendar.event">
+			<tuv xml:lang="en_US">
+				<seg>Calendar Event</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.calendar.events">
+			<tuv xml:lang="en_US">
+				<seg>Calendar Events</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.calendars">
 			<tuv xml:lang="en_US">
 				<seg>Calendars</seg>
@@ -675,6 +685,11 @@
 		<tu tuid="common.event">
 			<tuv xml:lang="en_US">
 				<seg>event</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.events">
+			<tuv xml:lang="en_US">
+				<seg>events</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.example">

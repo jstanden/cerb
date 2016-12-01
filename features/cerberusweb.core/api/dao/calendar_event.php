@@ -173,6 +173,14 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		return self::_getRandom('calendar_event');
 	}
 	
+	static function countByCalendar($calendar_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetOneSlave(sprintf("SELECT count(id) FROM calendar_event ".
+			"WHERE calendar_id = %d",
+			$calendar_id
+		));
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::getDatabaseService();
@@ -436,6 +444,25 @@ class Model_CalendarEvent {
 	public $is_available;
 	public $date_start;
 	public $date_end;
+	
+	private $_calendar_model = null;
+	
+	/**
+	 * @return Model_Calendar
+	 */
+	function getCalendar() {
+		if(is_null($this->_calendar_model))
+			$this->_calendar_model = DAO_Calendar::get($this->calendar_id);
+			
+		return $this->_calendar_model;
+	}
+	
+	function isWriteableByActor($actor) {
+		if(false == ($calendar = $this->getCalendar()))
+			return false;
+			
+		return CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $actor);
+	}
 };
 
 class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -1095,44 +1122,116 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		$view->renderTemplate = 'context';
 		return $view;
 	}
-
+	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
-		// [TODO] Check calendar+event ownership
+		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
 		
 		if(!empty($context_id)) {
-			if(null != ($event = DAO_CalendarEvent::get($context_id))) {  /* @var $event Model_CalendarEvent */
-				$tpl->assign('event', $event);
-				
-				$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CALENDAR_EVENT, false);
-				$tpl->assign('custom_fields', $custom_fields);
-				
-				$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CALENDAR_EVENT, $context_id);
-				if(isset($custom_field_values[$context_id]))
-					$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
-			}
+			$model = DAO_CalendarEvent::get($context_id);
 		}
 		
-		if(empty($context_id) || is_null($event)) {
-			@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['calendar_id'],'integer');
+		if(empty($context_id) || $edit) {
+			if(empty($context_id)) {
+				$model = new Model_CalendarEvent();
 			
-			$event = new Model_CalendarEvent();
-			$event->id = 0;
-			$event->calendar_id = $calendar_id;
-			$event->is_available = 0;
-			$tpl->assign('event', $event);
-			
-			if(empty($calendar_id)) {
-				$active_worker = CerberusApplication::getActiveWorker();
-				$calendars = DAO_Calendar::getWriteableByActor($active_worker);
-				$tpl->assign('calendars', $calendars);
+				if($view_id && false != ($view = C4_AbstractViewLoader::getView($view_id))) {
+					switch(get_class($view)) {
+						case 'View_CalendarEvent':
+							$filters = $view->findParam(SearchFields_CalendarEvent::CALENDAR_ID, $view->getParams());
+							
+							if(!empty($filters)) {
+								$filter = array_shift($filters);
+								if(is_numeric($filter->value))
+									$model->calendar_id = $filter->value;
+							}
+							break;
+					}
+				}
+				
+				if(!empty($edit)) {
+					$tokens = explode(' ', trim($edit));
+					
+					foreach($tokens as $token) {
+						@list($k,$v) = explode(':', $token);
+						
+						if(empty($k) || empty($v))
+							continue;
+						
+						switch($k) {
+							case 'calendar.id':
+								$model->calendar_id = intval($v);
+								break;
+								
+							case 'start':
+								$model->date_start = intval($v);
+								break;
+						}
+					}
+				}
 			}
 			
-			$tpl->assign('workers', DAO_Worker::getAllActive());
+			$tpl->assign('model', $model);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/calendar_event/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/calendar_event/peek.tpl');
 		}
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar_event/peek.tpl');
 	}
 };

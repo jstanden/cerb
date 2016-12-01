@@ -13,7 +13,7 @@
 <div style="clear:both;"></div>
 
 <fieldset class="properties">
-	<legend>Calendar Event</legend>
+	<legend>{'common.calendar.event'|devblocks_translate|capitalize}</legend>
 	{if !empty($properties)}
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
@@ -45,8 +45,9 @@
 			{/if}
 		{/if}
 	
-		{if $active_worker->is_superuser}
-			<button type="button" id="btnProfileEventEdit"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		<!-- Edit -->
+		{if $event->isWriteableByActor($active_worker)}
+		<button type="button" id="btnProfileEventEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
 	
@@ -97,14 +98,23 @@ $(function() {
 	
 	var tabs = $("#profileCalendarEventTabs").tabs(tabOptions);
 
-	{if $active_worker->is_superuser}
-	$('#btnProfileEventEdit').bind('click', function() {
-		$popup = genericAjaxPopup('event','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CALENDAR_EVENT}&context_id={$event->id}',null,false,'50%');
-		$popup.one('calendar_event_save', function(event) {
-			event.stopPropagation();
+	// Edit
+	{if $event->isWriteableByActor($active_worker)}
+	$('#btnProfileEventEdit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
 			document.location.reload();
-		});
-	});
+		})
+		.on('cerb-peek-deleted', function(e) {
+			document.location.href = '{devblocks_url}{/devblocks_url}';
+			
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+		;
 	{/if}
 	
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
