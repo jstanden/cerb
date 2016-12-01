@@ -672,7 +672,7 @@ class Model_Calendar {
 			$ts_pointer = strtotime('midnight', $row['date_start']);
 			$day_range = array();
 			
-			while($ts_pointer < $row['date_end']) {
+			while($ts_pointer <= $row['date_end']) {
 				$day_range[] = $ts_pointer;
 				$ts_pointer = strtotime('tomorrow', $ts_pointer);
 			}
