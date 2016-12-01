@@ -28,7 +28,9 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
 		<!-- Edit -->
+		{if CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)}
 		<button type="button" id="btnDisplayCalendarEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{/if}
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -45,20 +47,25 @@
 	<legend>{'Calendar'|devblocks_translate|capitalize}</legend>
 
 	<div style="margin-left:15px;">
-	{foreach from=$properties item=v key=k name=props}
-		<div class="property">
-			{if $k == '...'}
-				<b>{'...'|devblocks_translate|capitalize}:</b>
-				...
-			{else}
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+		{foreach from=$properties item=v key=k name=props}
+			<div class="property">
+				{if $k == '...'}
+					<b>{'...'|devblocks_translate|capitalize}:</b>
+					...
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				{/if}
+			</div>
+			{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
+				<br clear="all">
 			{/if}
+		{/foreach}
+		<br clear="all">
+	
+		<div style="margin-top:5px;">
+			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-query="calendar.id:{$page_context_id}"><div class="badge-count">{$counts.events|default:0}</div> {'common.events'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-query="calendar.id:{$page_context_id}"><div class="badge-count">{$counts.events_recurring|default:0}</div> {'common.events.recurring'|devblocks_translate|capitalize}</button>
 		</div>
-		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-			<br clear="all">
-		{/if}
-	{/foreach}
-	<br clear="all">
 	</div>
 </fieldset>
 

@@ -773,6 +773,11 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::CALENDAR_ID),
 				),
+			'calendar.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::CALENDAR_ID),
+				),
 			'id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,

@@ -1692,7 +1692,9 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		} else {
 			// Counts
 			$activity_counts = array(
-				'comments' => DAO_Comment::count($context, $context_id),
+				//'comments' => DAO_Comment::count($context, $context_id),
+				'events' => DAO_CalendarEvent::countByCalendar($context_id),
+				'events_recurring' => DAO_CalendarRecurringProfile::countByCalendar($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			

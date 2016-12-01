@@ -49,12 +49,6 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 			
 		$properties = array();
 			
-		$properties['name'] = array(
-			'label' => mb_ucfirst($translate->_('common.name')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $calendar->name,
-		);
-		
 		$properties['owner'] = array(
 			'label' => mb_ucfirst($translate->_('common.owner')),
 			'type' => Model_CustomField::TYPE_LINK,
@@ -67,7 +61,6 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $calendar->updated_at,
 		);
-			
 	
 		// Custom Fields
 
@@ -83,6 +76,14 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_CALENDAR, $calendar->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+		
+		// Counts
+		
+		$counts = array(
+			'events' => DAO_CalendarEvent::countByCalendar($calendar->id),
+			'events_recurring' => DAO_CalendarRecurringProfile::countByCalendar($calendar->id),
+		);
+		$tpl->assign('counts', $counts);
 		
 		// Link counts
 		
