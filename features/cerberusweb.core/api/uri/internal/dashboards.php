@@ -677,7 +677,8 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 			return;
 		}
 		
-		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
+		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
+		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
 		
 		// Template scope
