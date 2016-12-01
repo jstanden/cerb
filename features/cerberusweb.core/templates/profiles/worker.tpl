@@ -65,7 +65,7 @@
 <div style="clear:both;padding-top:5px;"></div>
 
 <fieldset class="properties">
-	<legend>Worker</legend>
+	<legend>{'common.worker'|devblocks_translate|capitalize}</legend>
 	
 	<div style="margin-left:15px;">
 	
@@ -89,7 +89,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
 
-{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties=$properties_links}
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties=$properties_links links_label="{'common.watching'|devblocks_translate|capitalize}"}
 
 <div>
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
