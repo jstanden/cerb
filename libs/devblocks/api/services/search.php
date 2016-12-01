@@ -782,7 +782,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 
 		// The max desired results (blank for unlimited)
 		@$max_results = intval($limit) ?: intval($this->_config['max_results']) ?: 1000;
-		@$max_results = DevblocksPlatform::intClamp($max_results, 1, 1000);
+		@$max_results = DevblocksPlatform::intClamp($max_results, 1, 10000);
 		
 		// Randomly named temporary table
 		$temp_table = sprintf("_search_%s", uniqid());
