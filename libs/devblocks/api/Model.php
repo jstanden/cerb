@@ -714,6 +714,43 @@ class DevblocksSearchCriteria {
 		return $param;
 	}
 	
+	public static function getContextLinksParamFromTokens($field_key, $tokens) {
+		// Is this a nested subquery?
+		if(substr($field_key,0,6) == 'links.') {
+			@list($null, $alias) = explode('.', $field_key);
+			
+			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
+			
+			$param = new DevblocksSearchCriteria(
+				'*_context_link',
+				DevblocksSearchCriteria::OPER_CUSTOM,
+				sprintf('%s:%s', $alias, $query)
+			);
+			return $param;
+			
+		} else {
+			$aliases = Extension_DevblocksContext::getAliasesForAllContexts();
+			$link_contexts = array();
+			
+			$oper = null;
+			$value = null;
+			CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
+			
+			if(is_array($value))
+			foreach($value as $alias) {
+				if(isset($aliases[$alias]))
+					$link_contexts[$aliases[$alias]] = true;
+			}
+			
+			$param = new DevblocksSearchCriteria(
+				'*_context_link',
+				DevblocksSearchCriteria::OPER_IN,
+				array_keys($link_contexts)
+			);
+			return $param;
+		}
+	}
+	
 	public static function getWatcherParamFromTokens($field_key, $tokens) {
 		$oper = self::OPER_IN;
 		$not = false;
