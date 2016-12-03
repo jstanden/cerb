@@ -265,10 +265,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 		$join_sql =
 			"FROM feedback_entry f ".
 			"LEFT JOIN address a ON (f.quote_address_id=a.id) ".
-		
-			// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.feedback' AND context_link.to_context_id = f.id) " : " ")
-		;
+			'';
 
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -403,11 +400,9 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 	
 	const ADDRESS_EMAIL = 'a_email';
 	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
-	
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
 	static private $_fields = null;
 	
@@ -425,7 +420,11 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
-			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_FEEDBACK, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_FEEDBACK, self::getPrimaryKey());
 				break;
 				
@@ -467,11 +466,9 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 			
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', $translate->_('feedback_entry.quote_address'), Model_CustomField::TYPE_SINGLE_LINE, true),
 
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', mb_convert_case($translate->_('common.watchers'), MB_CASE_TITLE), 'WS', false),
-			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 		);
 		
 		// Custom fields with fieldsets
@@ -510,6 +507,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		$this->addColumnsHidden(array(
 			SearchFields_FeedbackEntry::ID,
 			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
+			SearchFields_FeedbackEntry::VIRTUAL_CONTEXT_LINK,
 			SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET,
 			SearchFields_FeedbackEntry::VIRTUAL_WATCHERS,
 		));
@@ -683,6 +681,10 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_FEEDBACK, $fields, null);
@@ -737,6 +739,9 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				break;
 				
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -800,6 +805,12 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
 
+			case SearchFields_FeedbackEntry::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+				
 			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
 				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_FEEDBACK);
 				break;
@@ -823,6 +834,10 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_FeedbackEntry::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+			
 			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
 				break;
@@ -895,6 +910,11 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
+				break;
+				
+			case SearchFields_FeedbackEntry::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
@@ -1143,8 +1163,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 				SearchFields_FeedbackEntry::ID,
 			),
 			array(
-				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::CONTEXT_LINK,'=',$from_context),
-				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::CONTEXT_LINK_ID,'=',$from_context_id),
+				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			),
 			-1,
 			0,
@@ -1382,8 +1401,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		

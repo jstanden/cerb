@@ -234,11 +234,7 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 				SearchFields_ExampleObject::CREATED
 			);
 			
-		$join_sql = "FROM example_object ".
-		
-		// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = example_object.id) ", Cerb_ORMHelper::qstr(Context_ExampleObject::ID)) : " ")
-			;
+		$join_sql = "FROM example_object ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -327,9 +323,6 @@ class SearchFields_ExampleObject extends DevblocksSearchFields {
 	const NAME = 'e_name';
 	const CREATED = 'e_created';
 	
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
-	
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private $_fields = null;
@@ -381,9 +374,6 @@ class SearchFields_ExampleObject extends DevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'example_object', 'name', $translate->_('common.name'), null, true),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'example_object', 'created', $translate->_('common.created'), null, true),
 			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
-			
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), null, false),
 		);
 		
@@ -425,15 +415,11 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 		
 		$this->addColumnsHidden(array(
 			SearchFields_ExampleObject::ID,
-			SearchFields_ExampleObject::CONTEXT_LINK,
-			SearchFields_ExampleObject::CONTEXT_LINK_ID,
 			SearchFields_ExampleObject::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(
 			SearchFields_ExampleObject::ID,
-			SearchFields_ExampleObject::CONTEXT_LINK,
-			SearchFields_ExampleObject::CONTEXT_LINK_ID,
 		));
 		
 		$this->doResetCriteria();
@@ -547,6 +533,10 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 				),
 		);
 
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		//$fields = self::_appendFieldsFromQuickSearchContext('cerberusweb.contexts.example_object', $fields, null);
@@ -565,6 +555,9 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -856,8 +849,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_ExampleObject::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_ExampleObject::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(Context_ExampleObject::ID,'in',array($context.':'.$context_id)),
 			);
 		}
 		

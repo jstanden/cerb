@@ -412,11 +412,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		);
 
 		$join_sql =
-			"FROM task t ".
-
-			// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.task' AND context_link.to_context_id = t.id) " : " ")
-			;
+			"FROM task t ";
 
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -459,10 +455,6 @@ class DAO_Task extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_Task::VIRTUAL_CONTEXT_LINK:
-				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-				
 			case SearchFields_Task::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
@@ -547,9 +539,6 @@ class SearchFields_Task extends DevblocksSearchFields {
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
-	
 	// Comment Content
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	
@@ -569,6 +558,10 @@ class SearchFields_Task extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TASK, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_TASK, self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -616,9 +609,6 @@ class SearchFields_Task extends DevblocksSearchFields {
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
-				
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		);
 		
@@ -679,8 +669,6 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		
 		$this->addColumnsHidden(array(
 			SearchFields_Task::ID,
-			SearchFields_Task::CONTEXT_LINK,
-			SearchFields_Task::CONTEXT_LINK_ID,
 			SearchFields_Task::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Task::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Task::VIRTUAL_HAS_FIELDSET,
@@ -689,8 +677,6 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		
 		$this->addParamsHidden(array(
 			SearchFields_Task::ID,
-			SearchFields_Task::CONTEXT_LINK,
-			SearchFields_Task::CONTEXT_LINK_ID,
 		));
 		
 		$this->addParamsDefault(array(
@@ -863,6 +849,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_TASK, $fields, null);
@@ -894,6 +884,9 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -1345,8 +1338,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Task::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_Task::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_Task::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		

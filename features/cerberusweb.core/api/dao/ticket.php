@@ -1648,8 +1648,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"FROM ticket t ".
 			// Dynamic table joins
 			(isset($tables['msg']) ? "INNER JOIN message msg ON (msg.ticket_id=t.id) " : " ").
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.ticket' AND context_link.to_context_id = t.id) " : " ")
-			;
+			'';
 		
 		if(isset($tables['wtb'])) {
 			if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
@@ -1708,10 +1707,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
-				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-				
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
@@ -1875,10 +1870,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	const FULLTEXT_MESSAGE_CONTENT = 'ftmc_content';
 	const FULLTEXT_NOTE_CONTENT = 'ftnc_content';
-	
-	// Context Links
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
 	
 	// Virtuals
 	const VIRTUAL_ATTACHMENT_NAME = '*_attachment_name';
@@ -2074,7 +2065,10 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				return sprintf("(t.id IN (SELECT DISTINCT r.ticket_id FROM requester r INNER JOIN address a ON (a.id=r.address_id) WHERE a.contact_id IN (%s)))",
 					$contact_ids_string
 				);
+				break;
 				
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 				break;
 				
 			// [TODO]
@@ -2314,9 +2308,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			
 			SearchFields_Ticket::SENDER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::SENDER_ADDRESS, 'a1', 'email', null, null, true),
 
-			SearchFields_Ticket::CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			SearchFields_Ticket::CONTEXT_LINK_ID => new DevblocksSearchField(SearchFields_Ticket::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
-			
 			SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME, '*', 'attachment_name', $translate->_('message.search.attachment_name'), null, false),
 			SearchFields_Ticket::VIRTUAL_CONTACT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTACT_ID, '*', 'contact_id', null, null, false), // contact ID
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -2569,8 +2560,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		);
 		
 		$this->addColumnsHidden(array(
-			SearchFields_Ticket::CONTEXT_LINK,
-			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
 			SearchFields_Ticket::FULLTEXT_NOTE_CONTENT,
@@ -2594,8 +2583,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		));
 		
 		$this->addParamsHidden(array(
-			SearchFields_Ticket::CONTEXT_LINK,
-			SearchFields_Ticket::CONTEXT_LINK_ID,
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::TICKET_STATUS_ID,
@@ -3200,6 +3187,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_TICKET, $fields, null);
@@ -3538,6 +3529,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case 'worker.replied':
 				$search_fields = SearchFields_Ticket::getFields();
 				return DevblocksSearchCriteria::getWorkerParamFromTokens(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, $tokens, $search_fields[SearchFields_Ticket::VIRTUAL_WORKER_REPLIED]);
+				break;
+				
+			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				break;
 		}
 		
@@ -4932,8 +4929,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Ticket::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_Ticket::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		

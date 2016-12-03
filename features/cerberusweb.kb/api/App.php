@@ -1053,8 +1053,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				//new DevblocksSearchCriteria(SearchFields_KbCategory::CONTEXT_LINK,'=',$context),
-				//new DevblocksSearchCriteria(SearchFields_KbCategory::CONTEXT_LINK_ID,'=',$context_id),
+				//new DevblocksSearchCriteria(SearchFields_KbCategory::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		

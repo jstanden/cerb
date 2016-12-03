@@ -300,9 +300,7 @@ foreach($fields as $field_name => $field_type) {
 ?>
 			);
 			
-		$join_sql = "FROM <?php echo $table_name; ?> ".
-			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = <?php echo $table_name; ?>.id) ", Cerb_ORMHelper::qstr('<?php echo $ctx_ext_id; ?>')) : " ").
-			'';
+		$join_sql = "FROM <?php echo $table_name; ?> ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -343,10 +341,6 @@ foreach($fields as $field_name => $field_type) {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK:
-				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-		
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
@@ -438,9 +432,6 @@ foreach($fields as $field_name => $field_type) {
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
-	
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
@@ -456,6 +447,10 @@ foreach($fields as $field_name => $field_type) {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, '<?php echo $ctx_ext_id; ?>', self::getPrimaryKey());
+				break;
+				
 			/*
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, '', self::getPrimaryKey());
@@ -505,9 +500,6 @@ foreach($fields as $field_name => $field_type) {
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
-			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 		);
 		
 		// Custom Fields
@@ -709,6 +701,10 @@ foreach($fields as $field_name => $field_type) {
 		);
 		*/
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext('<?php echo $ctx_ext_id; ?>', $fields, null);
@@ -727,6 +723,9 @@ foreach($fields as $field_name => $field_type) {
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -1144,8 +1143,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_<?php echo $class_name; ?>::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_<?php echo $class_name; ?>::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		

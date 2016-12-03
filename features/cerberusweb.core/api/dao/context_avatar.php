@@ -317,7 +317,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 			new Model_DevblocksEvent(
 				'context.delete',
 				array(
-					'context' => 'cerberusweb.contexts.context.avatar',
+					'context' => CerberusContexts::CONTEXT_CONTEXT_AVATAR,
 					'context_ids' => $ids
 				)
 			)
@@ -389,9 +389,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 				SearchFields_ContextAvatar::STORAGE_PROFILE_ID
 			);
 			
-		$join_sql = "FROM context_avatar ".
-			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = context_avatar.id) ", Cerb_ORMHelper::qstr('cerberusweb.contexts.context.avatar')) : " ").
-			'';
+		$join_sql = "FROM context_avatar ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -425,17 +423,13 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 			
-		$from_context = 'cerberusweb.contexts.context.avatar';
+		$from_context = CerberusContexts::CONTEXT_CONTEXT_AVATAR;
 		$from_index = 'context_avatar.id';
 		
 		$param_key = $param->field;
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_ContextAvatar::VIRTUAL_CONTEXT_LINK:
-				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-		
 			case SearchFields_ContextAvatar::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
@@ -526,9 +520,6 @@ class SearchFields_ContextAvatar extends DevblocksSearchFields {
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
-	
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
@@ -543,6 +534,10 @@ class SearchFields_ContextAvatar extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CONTEXT_AVATAR, self::getPrimaryKey());
+				break;
+				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_CONTEXT_AVATAR, self::getPrimaryKey());
 				break;
@@ -588,9 +583,6 @@ class SearchFields_ContextAvatar extends DevblocksSearchFields {
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
-			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 		);
 		
 		// Custom Fields

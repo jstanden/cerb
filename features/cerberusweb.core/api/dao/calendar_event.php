@@ -241,9 +241,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 				SearchFields_CalendarEvent::DATE_END
 			);
 			
-		$join_sql = "FROM calendar_event ".
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.calendar_event' AND context_link.to_context_id = calendar_event.id) " : " ")
-			;
+		$join_sql = "FROM calendar_event ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -256,12 +254,6 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 		
-		array_walk_recursive(
-			$params,
-			array('DAO_CalendarEvent', '_translateVirtualParameters'),
-			$args
-		);
-		
 		return array(
 			'primary_table' => 'calendar_event',
 			'select' => $select_sql,
@@ -269,23 +261,6 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 			'where' => $where_sql,
 			'sort' => $sort_sql,
 		);
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$from_context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
-		$from_index = 'calendar_event.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
-				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-		}
 	}
 	
 	/**
@@ -368,10 +343,6 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 	// Virtuals
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	
-	// Context Links
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
-	
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
@@ -386,10 +357,18 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		if('cf_' == substr($param->field, 0, 3)) {
-			return self::_getWhereSQLFromCustomFields($param);
-		} else {
-			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		switch($param->field) {
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CALENDAR_EVENT, self::getPrimaryKey());
+				break;
+				
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
 		}
 	}
 	
@@ -418,9 +397,6 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 			self::DATE_END => new DevblocksSearchField(self::DATE_END, 'calendar_event', 'date_end', $translate->_('dao.calendar_event.date_end'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-				
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 		);
 		
 		// Custom fields with fieldsets
@@ -486,15 +462,11 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		
 		$this->addColumnsHidden(array(
 			SearchFields_CalendarEvent::ID,
-			SearchFields_CalendarEvent::CONTEXT_LINK,
-			SearchFields_CalendarEvent::CONTEXT_LINK_ID,
 			SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK,
 		));
 		
 		$this->addParamsHidden(array(
 			SearchFields_CalendarEvent::ID,
-			SearchFields_CalendarEvent::CONTEXT_LINK,
-			SearchFields_CalendarEvent::CONTEXT_LINK_ID,
 		));
 		
 		$this->doResetCriteria();
@@ -650,6 +622,10 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_CALENDAR_EVENT, $fields, null);
@@ -722,6 +698,9 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				break;
 				
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -1117,8 +1096,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_CalendarEvent::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_CalendarEvent::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		

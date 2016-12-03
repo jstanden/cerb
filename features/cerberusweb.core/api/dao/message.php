@@ -1748,6 +1748,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_MESSAGE, $fields, null);
@@ -1938,6 +1942,9 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 			
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+					
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;

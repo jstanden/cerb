@@ -424,10 +424,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			"FROM crm_opportunity o ".
 			"INNER JOIN address a ON (a.id = o.primary_email_id) ".
 			"LEFT JOIN contact_org org ON (org.id = a.contact_org_id) ".
-			
-			// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.opportunity' AND context_link.to_context_id = o.id) " : " ")
-			;
+			'';
 			
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -470,10 +467,6 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK:
-				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-			
 			case SearchFields_CrmOpportunity::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
@@ -560,10 +553,6 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	const EMAIL_NUM_SPAM = 'a_num_spam';
 	const EMAIL_NUM_NONSPAM = 'a_num_nonspam';
 
-	// Context Links
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
-	
 	// Comment Content
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 
@@ -590,6 +579,10 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_OPPORTUNITY, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_OPPORTUNITY, self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -641,9 +634,6 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 			self::CLOSED_DATE => new DevblocksSearchField(self::CLOSED_DATE, 'o', 'closed_date', $translate->_('crm.opportunity.closed_date'), Model_CustomField::TYPE_DATE, true),
 			self::IS_WON => new DevblocksSearchField(self::IS_WON, 'o', 'is_won', $translate->_('crm.opportunity.is_won'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'o', 'is_closed', $translate->_('crm.opportunity.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
-			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -711,8 +701,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_CrmOpportunity::ID,
 			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 			SearchFields_CrmOpportunity::ORG_ID,
-			SearchFields_CrmOpportunity::CONTEXT_LINK,
-			SearchFields_CrmOpportunity::CONTEXT_LINK_ID,
 			SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK,
 			SearchFields_CrmOpportunity::VIRTUAL_HAS_FIELDSET,
@@ -726,8 +714,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_CrmOpportunity::ID,
 			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 			SearchFields_CrmOpportunity::ORG_ID,
-			SearchFields_CrmOpportunity::CONTEXT_LINK,
-			SearchFields_CrmOpportunity::CONTEXT_LINK_ID,
 		));
 		
 		$this->doResetCriteria();
@@ -931,6 +917,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_OPPORTUNITY, $fields, null);
@@ -962,6 +952,9 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -1420,8 +1413,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_CrmOpportunity::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		

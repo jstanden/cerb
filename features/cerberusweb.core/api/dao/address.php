@@ -464,10 +464,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$join_sql =
 			"FROM address a ".
 			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) ".
-		
-			// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.address' AND context_link.to_context_id = a.id) " : " ")
-			;
+			'';
 
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -510,10 +507,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_Address::VIRTUAL_CONTEXT_LINK:
-				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-				
 			case SearchFields_Address::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
@@ -640,10 +633,6 @@ class SearchFields_Address extends DevblocksSearchFields {
 	const VIRTUAL_TICKET_ID = '*_ticket_id';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
-	// Context Links
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
-	
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
@@ -678,6 +667,10 @@ class SearchFields_Address extends DevblocksSearchFields {
 				
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -732,9 +725,6 @@ class SearchFields_Address extends DevblocksSearchFields {
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_TICKET_ID => new DevblocksSearchField(self::VIRTUAL_TICKET_ID, '*', 'ticket_id', $translate->_('common.ticket'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
-			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 		);
 		
 		// Fulltext indexes
@@ -1007,8 +997,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		$this->addColumnsHidden(array(
 			SearchFields_Address::CONTACT_ORG_ID,
-			SearchFields_Address::CONTEXT_LINK,
-			SearchFields_Address::CONTEXT_LINK_ID,
 			SearchFields_Address::FULLTEXT_ADDRESS,
 			SearchFields_Address::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Address::VIRTUAL_CONTEXT_LINK,
@@ -1020,8 +1008,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$this->addParamsHidden(array(
 			SearchFields_Address::CONTACT_ORG_ID,
 			SearchFields_Address::ID,
-			SearchFields_Address::CONTEXT_LINK,
-			SearchFields_Address::CONTEXT_LINK_ID,
 			SearchFields_Address::VIRTUAL_TICKET_ID,
 		));
 	}
@@ -1207,6 +1193,10 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_ADDRESS, $fields, null);
@@ -1273,6 +1263,9 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -1505,8 +1498,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				SearchFields_Address::ID,
 			),
 			array(
-				new DevblocksSearchCriteria(SearchFields_Address::CONTEXT_LINK,'=',$from_context),
-				new DevblocksSearchCriteria(SearchFields_Address::CONTEXT_LINK_ID,'=',$from_context_id),
+				new DevblocksSearchCriteria(SearchFields_Address::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			),
 			-1,
 			0,
@@ -1857,8 +1849,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Address::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_Address::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_Address::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		

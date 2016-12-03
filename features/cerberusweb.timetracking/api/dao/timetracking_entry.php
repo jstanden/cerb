@@ -466,11 +466,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		);
 		
 		$join_sql =
-			"FROM timetracking_entry tt ".
-		
-			// [JAS]: Dynamic table joins
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.timetracking' AND context_link.to_context_id = tt.id) " : " ")
-			;
+			"FROM timetracking_entry tt ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -512,10 +508,6 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$param_key = $param->field;
 		settype($param_key, 'string');
 		switch($param_key) {
-			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
-				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-
 			case SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
@@ -632,10 +624,6 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 	const ACTIVITY_ID = 'tt_activity_id';
 	const IS_CLOSED = 'tt_is_closed';
 	
-	// Context Links
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
-	
 	// Comment Content
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 
@@ -661,6 +649,10 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TIMETRACKING, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_TIMETRACKING, self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -700,9 +692,6 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'tt', 'worker_id', $translate->_('timetracking_entry.worker_id'), Model_CustomField::TYPE_WORKER, true),
 			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id'), null, true),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'tt', 'is_closed', $translate->_('common.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
-			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -747,8 +736,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		
 		$this->addColumnsHidden(array(
 			SearchFields_TimeTrackingEntry::ID,
-			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
-			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
 			SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK,
 			SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET,
@@ -757,8 +744,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		
 		$this->addParamsHidden(array(
 			SearchFields_TimeTrackingEntry::ID,
-			SearchFields_TimeTrackingEntry::CONTEXT_LINK,
-			SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,
 		));
 		
 		$this->addParamsDefault(array(
@@ -945,6 +930,10 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_TIMETRACKING, $fields, null);
@@ -984,12 +973,15 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				$field_key = SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS;
 				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
 				break;
-			
+
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS, $tokens);
 				break;
 				
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -1483,8 +1475,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 

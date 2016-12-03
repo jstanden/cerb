@@ -639,12 +639,8 @@ class DAO_Group extends Cerb_ORMHelper {
 				SearchFields_Group::UPDATED
 			);
 			
-		$join_sql = "FROM worker_group g ".
+		$join_sql = "FROM worker_group g ";
 
-		// Dynamic joins
-		(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.group' AND context_link.to_context_id = g.id) " : " ")
-		;
-		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
@@ -684,10 +680,6 @@ class DAO_Group extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
-				self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-				
 			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
@@ -773,9 +765,6 @@ class SearchFields_Group extends DevblocksSearchFields {
 	const IS_PRIVATE = 'g_is_private';
 	const UPDATED = 'g_updated';
 	
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
-	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_MEMBER_ID = '*_member_id';
@@ -793,10 +782,18 @@ class SearchFields_Group extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		if('cf_' == substr($param->field, 0, 3)) {
-			return self::_getWhereSQLFromCustomFields($param);
-		} else {
-			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		switch($param->field) {
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_GROUP, self::getPrimaryKey());
+				break;
+				
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
 		}
 	}
 	
@@ -824,9 +821,6 @@ class SearchFields_Group extends DevblocksSearchFields {
 			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'g', 'is_private', $translate->_('common.private'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'g', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
-				
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_MEMBER_ID => new DevblocksSearchField(self::VIRTUAL_MEMBER_ID, '*', 'member_id', $translate->_('common.member'), null, false),
@@ -1218,6 +1212,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_GROUP, $fields, null);
@@ -1236,6 +1234,9 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -1803,8 +1804,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Group::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_Group::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_Group::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		

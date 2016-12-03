@@ -344,9 +344,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			$select_sql .= sprintf(", (SELECT SUM(uses) FROM snippet_use_history WHERE worker_id=%d AND snippet_id=snippet.id) AS %s ", $active_worker->id, SearchFields_Snippet::USE_HISTORY_MINE);
 		}
 		
-		$join_sql = " FROM snippet ".
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.snippet' AND context_link.to_context_id = snippet.id) " : " ")
-		;
+		$join_sql = " FROM snippet ";
 		
 		$where_sql = ''.
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -388,11 +386,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
-				if(is_array($args) && isset($args['join_sql']) && isset($args['where_sql']))
-					self::_searchComponentsVirtualContextLinks($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-				
 			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
 				if(is_array($args) && isset($args['join_sql']) && isset($args['where_sql']))
 					self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
@@ -513,9 +506,6 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 	
 	const USE_HISTORY_MINE = 'suh_my_uses';
 	
-	const CONTEXT_LINK = 'cl_context_from';
-	const CONTEXT_LINK_ID = 'cl_context_from_id';
-	
 	// Fulltexts
 	const FULLTEXT_SNIPPET = 'ft_snippet';
 	
@@ -538,6 +528,10 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_SNIPPET, self::getPrimaryKey());
+				break;
+				
 			case SearchFields_Snippet::FULLTEXT_SNIPPET:
 				return self::_getWhereSQLFromFulltextField($param, Search_Snippet::ID, self::getPrimaryKey());
 				break;
@@ -580,9 +574,6 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'snippet', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::USE_HISTORY_MINE => new DevblocksSearchField(self::USE_HISTORY_MINE, 'snippet_use_history', 'uses', $translate->_('dao.snippet_use_history.uses.mine'), Model_CustomField::TYPE_NUMBER, true),
-			
-			self::CONTEXT_LINK => new DevblocksSearchField(self::CONTEXT_LINK, 'context_link', 'from_context', null, null, false),
-			self::CONTEXT_LINK_ID => new DevblocksSearchField(self::CONTEXT_LINK_ID, 'context_link', 'from_context_id', null, null, false),
 			
 			self::FULLTEXT_SNIPPET => new DevblocksSearchField(self::FULLTEXT_SNIPPET, 'ft', 'snippet', $translate->_('common.search.fulltext'), 'FT', false),
 				
@@ -846,8 +837,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		);
 		
 		$this->addColumnsHidden(array(
-			SearchFields_Snippet::CONTEXT_LINK,
-			SearchFields_Snippet::CONTEXT_LINK_ID,
 			SearchFields_Snippet::ID,
 			SearchFields_Snippet::CONTENT,
 			SearchFields_Snippet::OWNER_CONTEXT,
@@ -858,8 +847,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		));
 		
 		$this->addParamsHidden(array(
-			SearchFields_Snippet::CONTEXT_LINK,
-			SearchFields_Snippet::CONTEXT_LINK_ID,
 			SearchFields_Snippet::ID,
 			SearchFields_Snippet::OWNER_CONTEXT,
 			SearchFields_Snippet::OWNER_CONTEXT_ID,
@@ -1018,6 +1005,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_SNIPPET, $fields, null);
@@ -1079,6 +1070,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -1599,8 +1593,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_Snippet::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		
