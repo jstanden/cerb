@@ -1156,8 +1156,8 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="contact" value="singular" />
-						<data key="contacts" value="plural" />
+						<data key="contact" value="singular short" />
+						<data key="contacts" value="plural short" />
 						<data key="person" value="singular short" />
 						<data key="people" value="plural short" />
 					</value>
@@ -1986,8 +1986,8 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="ticket" value="singular" />
-						<data key="tickets" value="plural" />
+						<data key="ticket" value="singular short" />
+						<data key="tickets" value="plural short" />
 						<data key="mail" value="singular plural short" />
 						<data key="conversation" value="singular" />
 						<data key="conversations" value="plural" />

@@ -130,6 +130,105 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		}
 	}
 	
+	static function _getWhereSQLFromContextLinksField(DevblocksSearchCriteria $param, $from_context, $pkey) {
+		
+		// Handle nested quick search filters first
+		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			@list($alias, $query) = explode(':', $param->value, 2);
+			
+			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
+				return;
+			
+			$view = $ext->getSearchView(uniqid());
+			$view->is_ephemeral = true;
+			$view->setAutoPersist(false);
+			$view->addParamsWithQuickSearch($query, true);
+			
+			$params = $view->getParams();
+			
+			if(false == ($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
+				return;
+			
+			if(false == ($search_class = $ext->getSearchClass()) || !class_exists($search_class))
+				return;
+			
+			if(false == ($primary_key = $search_class::getPrimaryKey()))
+				return;
+			
+			$query_parts = $dao_class::getSearchQueryComponents(array(), $params);
+			
+			$query_parts['select'] = sprintf("SELECT %s ", $primary_key);
+			
+			$sql = 
+				$query_parts['select']
+				. $query_parts['join']
+				. $query_parts['where']
+				. $query_parts['sort']
+				;
+			
+			return sprintf("%s IN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s AND to_context_id IN (%s)) ",
+				$pkey,
+				Cerb_ORMHelper::qstr($from_context),
+				Cerb_ORMHelper::qstr($ext->id),
+				$sql
+			);
+		}
+		
+		if($param->operator != DevblocksSearchCriteria::OPER_TRUE) {
+			if(empty($param->value) || !is_array($param->value))
+				$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
+		}
+		
+		$where_contexts = array();
+		
+		if(is_array($param->value))
+		foreach($param->value as $context_data) {
+			@list($context, $context_id) = explode(':', $context_data, 2);
+	
+			if(empty($context))
+				return;
+			
+			if(!isset($where_contexts[$context]))
+				$where_contexts[$context] = array();
+			
+			if($context_id)
+				$where_contexts[$context][] = $context_id;
+		}
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_TRUE:
+				break;
+	
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				/*
+				$where_sql .= sprintf("AND (SELECT count(*) FROM context_link WHERE context_link.to_context=%s AND context_link.to_context_id=%s) = 0 ",
+					self::qstr($to_context),
+					$to_index
+				);
+				*/
+				break;
+	
+			case DevblocksSearchCriteria::OPER_IN:
+				$where_sqls = array();
+				
+				foreach($where_contexts as $context => $ids) {
+					$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
+					
+					$where_sqls[] = sprintf("%s IN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s %s) ",
+						$pkey,
+						Cerb_ORMHelper::qstr($from_context),
+						Cerb_ORMHelper::qstr($context),
+						(!empty($ids) ? (sprintf("AND to_context_id IN (%s)", implode(',', $ids))) : '')
+					);
+				}
+				
+				if(!empty($where_sqls))
+					return sprintf('(%s)', implode(' OR ', $where_sqls));
+				
+				break;
+		}
+	}
+	
 	static function _getWhereSQLFromWatchersField(DevblocksSearchCriteria $param, $from_context, $pkey) {
 		$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
 		

@@ -395,19 +395,17 @@ abstract class C4_AbstractView {
 			}
 		}
 		
-		// [TODO] Remove this in PHP 5.4+
-		$view = $this;
-		
 		// Convert fields T_FIELD to DevblocksSearchCriteria
 		
-		array_walk_recursive($fields, function(&$v, $k) use ($view) {
+		array_walk_recursive($fields, function(&$v, $k) use (&$fields) {
 			if($v instanceof DevblocksSearchCriteria) {
-				$param = $view->getParamFromQuickSearchFieldTokens($v->key, $v->tokens);
+				$param = $this->getParamFromQuickSearchFieldTokens($v->key, $v->tokens);
 				
 				if($param instanceof DevblocksSearchCriteria) {
 					$v = $param;
 				} else {
-					$v = new DevblocksSearchCriteria('_unknown', DevblocksSearchCriteria::OPER_FALSE);
+					//$v = new DevblocksSearchCriteria('_unknown', DevblocksSearchCriteria::OPER_FALSE);
+					unset($fields[$k]);
 				}
 			}
 		});
@@ -865,6 +863,20 @@ abstract class C4_AbstractView {
 	protected function _renderVirtualContextLinks($param, $label_singular='Link', $label_plural='Links') {
 		$strings = array();
 		
+		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			@list($alias, $query) = explode(':', $param->value, 2);
+			
+			if(empty($alias) || (false == ($mft = Extension_DevblocksContext::getByAlias($alias, false))))
+				return;
+			
+			$aliases = Extension_DevblocksContext::getAliasesForContext($mft);
+			$alias = !empty($aliases['plural_short']) ? $aliases['plural_short'] : $aliases['plural'];
+			
+			echo sprintf("Linked to %s <b>%s</b>", DevblocksPlatform::strEscapeHtml($alias), DevblocksPlatform::strEscapeHtml($query));
+			return;
+		}
+		
+		if(is_array($param->value))
 		foreach($param->value as $context_data) {
 			@list($context, $context_id) = explode(':',$context_data);
 			

@@ -34,43 +34,45 @@
 </div>
 
 <script type="text/javascript">
-$("#container_{$random}").find('select.chooser').change(function(e) {
-	var $this = $(this);
-	var $val = $this.val();
-	
-	if($val.length > 0) {
-		var $popup = genericAjaxPopup("chooser{$random}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
+$(function() {
+	$("#container_{$random}").find('select.chooser').change(function(e) {
+		var $this = $(this);
+		var $val = $this.val();
 		
-		$popup.one('popup_close',function(event) {
-			event.stopPropagation();
-			var $container = $('#container_{$random}');
-			var $chooser = $container.find('select.chooser');
-			$chooser.val('');
-		});
-		
-		$popup.one('chooser_save',function(event) {
-			event.stopPropagation();
+		if($val.length > 0) {
+			var $popup = genericAjaxPopup("chooser{$random}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
 			
-			var $container = $("#container_{$random}");
-			var $chooser = $container.find('select.chooser');
-			var $ul = $container.find('ul.chooser-container');
-			var $context_name = $chooser.find(':selected').text();
-			var $context = $chooser.val();
+			$popup.one('popup_close',function(event) {
+				event.stopPropagation();
+				var $container = $('#container_{$random}');
+				var $chooser = $container.find('select.chooser');
+				$chooser.val('');
+			});
 			
-			for(i in event.labels) {
-				// Look for dupes
-				if(0 == $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
-					var $li = $('<li/>').append($('<b/>').text(event.labels[i]));
-					$li.append($('<span>').text('(' + $context_name + ')').prepend('&nbsp;'));
-					$li.append($('<input type="hidden" name="context_link[]">').attr('value',$context + ':' + event.values[i]));
-					$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
-					
-					$ul.append($li);
+			$popup.one('chooser_save',function(event) {
+				event.stopPropagation();
+				
+				var $container = $("#container_{$random}");
+				var $chooser = $container.find('select.chooser');
+				var $ul = $container.find('ul.chooser-container');
+				var $context_name = $chooser.find(':selected').text();
+				var $context = $chooser.val();
+				
+				for(i in event.labels) {
+					// Look for dupes
+					if(0 == $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
+						var $li = $('<li/>').append($('<b/>').text(event.labels[i]));
+						$li.append($('<span>').text('(' + $context_name + ')').prepend('&nbsp;'));
+						$li.append($('<input type="hidden" name="context_link[]">').attr('value',$context + ':' + event.values[i]));
+						$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
+						
+						$ul.append($li);
+					}
 				}
-			}
-			
-			$chooser.val('');
-		});
-	}
+				
+				$chooser.val('');
+			});
+		}
+	});
 });
 </script>
