@@ -34,23 +34,27 @@
 	{$link_context_ext = Extension_DevblocksContext::get($v.params.context)}
 	{if $link_context_ext}
 		{$link_meta = $link_context_ext->getMeta($v.value)}
-		{if $link_meta}
+		{if $link_meta && ($link_context_ext->id == CerberusContexts::CONTEXT_APPLICATION || $v.value)}
 			<ul class="bubbles">
 			<li class="bubble-gray">
 				{if $link_context_ext->id == CerberusContexts::CONTEXT_APPLICATION}
 				<img src="{devblocks_url}c=avatars&context=app&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
-				<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_WORKER}
-				<img src="{devblocks_url}c=avatars&context=worker&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_CONTACT}
-				<img src="{devblocks_url}c=avatars&context=contact&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_ORG}
-				<img src="{devblocks_url}c=avatars&context=org&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_ADDRESS}
-				<img src="{devblocks_url}c=avatars&context=address&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-				{elseif $link_context_ext->id == CerberusContexts::CONTEXT_GROUP}
-				<img src="{devblocks_url}c=avatars&context=group&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+				{else}
+					{if $v.value}
+						{if $link_context_ext->id == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
+						<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+						{elseif $link_context_ext->id == CerberusContexts::CONTEXT_WORKER}
+						<img src="{devblocks_url}c=avatars&context=worker&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+						{elseif $link_context_ext->id == CerberusContexts::CONTEXT_CONTACT}
+						<img src="{devblocks_url}c=avatars&context=contact&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+						{elseif $link_context_ext->id == CerberusContexts::CONTEXT_ORG}
+						<img src="{devblocks_url}c=avatars&context=org&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+						{elseif $link_context_ext->id == CerberusContexts::CONTEXT_ADDRESS}
+						<img src="{devblocks_url}c=avatars&context=address&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+						{elseif $link_context_ext->id == CerberusContexts::CONTEXT_GROUP}
+						<img src="{devblocks_url}c=avatars&context=group&context_id={$v.value}{/devblocks_url}?v={$link_meta.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+						{/if}
+					{/if}
 				{/if}
 				
 				{if $link_meta.permalink}
