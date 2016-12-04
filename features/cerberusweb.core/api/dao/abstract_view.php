@@ -1584,6 +1584,65 @@ abstract class C4_AbstractView {
 		);
 	}
 	
+	function getQuickSearchMenu() {
+		if(!$this instanceof IAbstractView_QuickSearch)
+			return;
+		
+		$menu = array();
+		
+		// Operators
+		
+		$oper_menu = new DevblocksMenuItemPlaceholder();
+		
+		$item = new DevblocksMenuItemPlaceholder();
+		$item->label = 'AND';
+		$item->l = 'AND';
+		$item->key = 'AND';
+		$oper_menu->children['AND'] = $item;
+		
+		$item = new DevblocksMenuItemPlaceholder();
+		$item->label = 'OR';
+		$item->l = 'OR';
+		$item->key = 'OR';
+		$oper_menu->children['OR'] = $item;
+		
+		$menu['(operators)'] = $oper_menu;
+		
+		// Fields
+		
+		$fields_menu = new DevblocksMenuItemPlaceholder();
+		$search_fields = $this->getQuickSearchFields();
+		
+		if(!empty($search_fields)) {
+			$labels = array_keys($search_fields);
+			$keys = array_map(function($field) {
+				return $field.':';
+			}, $labels);
+			
+			$tree = Extension_DevblocksContext::getPlaceholderTree(array_combine($keys, $labels), '.', '.');
+			
+			foreach($tree as $k => $v)
+				$menu[$k] = $v;
+		}
+		
+		// Placeholders
+		
+		$placeholders_menu = new DevblocksMenuItemPlaceholder();
+		$labels = $this->getPlaceholderLabels();
+		
+		if(!empty($labels)) {
+			$keys = array_map(function($key) {
+				return '{{' . $key . '}}';
+			}, array_keys($labels));
+			
+			$labels = array_combine($keys, array_column($labels, 'label'));
+			$placeholders_menu->children = Extension_DevblocksContext::getPlaceholderTree($labels, ' ', '_');
+			$menu['(placeholders)'] = $placeholders_menu;
+		}
+		
+		return $menu;
+	}
+	
 	function renderSubtotals() {
 		if(!$this instanceof IAbstractView_Subtotals)
 			return;
@@ -2767,12 +2826,18 @@ interface IAbstractView_Subtotals {
 };
 
 class CerbQuickSearchLexer {
-	private static function _recurse($token, $key, $callback) {
+	private static function _recurse($token, $key, $node_callback, $after_children_callback=null) {
+		if(!is_callable($node_callback))
+			return;
+		
 		if(empty($key) || $token->type == $key)
-			$callback($token);
+			$node_callback($token);
 		
 		foreach($token->children as $child)
-			self::_recurse($child, $key, $callback);
+			self::_recurse($child, $key, $node_callback, $after_children_callback);
+		
+		if(is_callable($after_children_callback))
+			$after_children_callback($token);
 	}
 	
 	static function buildParams($token, &$parent) {
@@ -3140,6 +3205,68 @@ class CerbQuickSearchLexer {
 		}
 		
 		return true;
+	}
+	
+	static function getTokensAsQuery($tokens) {
+		$string = null;
+		
+		$node_callback = function($token) use (&$string) {
+			switch($token->type) {
+				case 'T_GROUP':
+					$string .= '(';
+					break;
+					
+				case 'T_ARRAY':
+					$string .= '[' . implode(',', $token->value) . ']';
+					break;
+					
+				case 'T_QUOTED_TEXT':
+					$string .= '"' . $token->value;
+					break;
+					
+				case 'T_TEXT':
+					$string .= $token->value;
+					break;
+					
+				case 'T_FIELD':
+					switch($token->value) {
+						case 'text':
+							break;
+							
+						default:
+							$string .= $token->value . ':';
+							break;
+					}
+					break;
+			}
+		};
+		
+		$after_children_callback = function($token) use (&$string) {
+			switch($token->type) {
+				case 'T_GROUP':
+					$string = rtrim($string) . ')';
+					break;
+					
+				case 'T_ARRAY':
+					break;
+					
+				case 'T_QUOTED_TEXT':
+					$string .= '"';
+					break;
+					
+				case 'T_TEXT':
+					break;
+					
+				case 'T_FIELD':
+					$string .= ' ';
+					break;
+			}
+		};
+		
+		if(is_array($tokens) && isset($tokens[0]))
+			self::_recurse($tokens[0], null, $node_callback, $after_children_callback);
+		
+		return $string;
 	}
 	
 	static function getHumanTimeTokensAsNumbers($tokens, $interval=1) {

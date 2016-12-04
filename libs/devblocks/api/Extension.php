@@ -390,14 +390,14 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return $owners;
 	}
 	
-	static function getPlaceholderTree($labels) {
+	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ') {
 		$keys = new DevblocksMenuItemPlaceholder();
 		
 		// Tokenize the placeholders
 		foreach($labels as $k => &$label) {
 			$label = trim($label);
 			
-			$parts = explode(' ', $label);
+			$parts = explode($label_separator, $label);
 			
 			$ptr =& $keys->children;
 			
@@ -411,14 +411,14 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		}
 		
 		// Convert the flat tokens into a tree
-		$forward_recurse = function(&$node, $node_key, &$stack=null) use (&$keys, &$forward_recurse, &$labels) {
+		$forward_recurse = function(&$node, $node_key, &$stack=null) use (&$keys, &$forward_recurse, &$labels, $label_separator) {
 			if(is_null($stack))
 				$stack = array();
 			
 			if(!empty($node_key))
 				array_push($stack, ''.$node_key);
 
-			$label = implode(' ', $stack);
+			$label = implode($label_separator, $stack);
 			
 			if(false != ($key = array_search($label, $labels))) {
 				$node->label = $label;
@@ -436,7 +436,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		
 		$forward_recurse($keys, '');
 		
-		$condense = function(&$node, $key=null, &$parent=null) use (&$condense) {
+		$condense = function(&$node, $key=null, &$parent=null) use (&$condense, $label_separator, $key_separator) {
 			// If this node has exactly one child
 			if(is_array($node->children) && 1 == count($node->children) && $parent && is_null($node->label)) {
 				reset($node->children);
@@ -445,7 +445,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 				$k = key($node->children);
 				$n = array_pop($node->children);
 				if(is_object($n))
-					$n->l = $key . ' ' . $n->l;
+					$n->l = $key . $label_separator . $n->l;
 				
 				// Deconstruct our parent
 				$keys = array_keys($parent->children);
@@ -453,7 +453,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 				
 				// Replace this node's key and value in the parent
 				$idx = array_search($key, $keys);
-				$keys[$idx] = $key.' '.$k;
+				$keys[$idx] = $key.$key_separator.$k;
 				$vals[$idx] = $n;
 				
 				// Reconstruct the parent
@@ -495,6 +495,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return $properties;
 	}
 
+	/*
+	 * @return Cerb_ORMHelper
+	 */
 	function getDaoClass() {
 		$class = str_replace('Context_','DAO_', get_called_class());
 		
@@ -504,6 +507,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return $class;
 	}
 	
+	/*
+	 * @return DevblocksSearchFields
+	 */
 	function getSearchClass() {
 		$class = str_replace('Context_','SearchFields_', get_called_class());
 		
