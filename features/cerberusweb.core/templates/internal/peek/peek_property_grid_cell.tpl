@@ -75,6 +75,8 @@
 	<a href="tel:{$dict->$k}">{$dict->$k}</a>
 {elseif $types.$k == 'size_bytes'}
 	{$dict->$k|devblocks_prettybytes}
+{elseif $types.$k == 'time_mins'}
+	{{$dict->$k*60}|devblocks_prettysecs:2}
 {elseif $types.$k == 'time_secs'}
 	{$dict->$k|devblocks_prettysecs:2}
 {else}
