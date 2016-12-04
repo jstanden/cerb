@@ -1,152 +1,128 @@
-{if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
+{$div_id = "peek{uniqid()}"}
+{$peek_context = CerberusContexts::CONTEXT_TIMETRACKING}
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTimeEntry">
-<input type="hidden" name="c" value="timetracking">
-<input type="hidden" name="a" value="saveEntry">
-<input type="hidden" name="view_id" value="{$view_id}">
-{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
-{if !empty($link_context)}
-<input type="hidden" name="link_context" value="{$link_context}">
-<input type="hidden" name="link_context_id" value="{$link_context_id}">
-{/if}
-<input type="hidden" name="do_delete" value="0">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
-	<table cellpadding="2" cellspacing="0" width="100%">
-		{if !empty($model->worker_id) && isset($workers.{$model->worker_id})}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.worker'|devblocks_translate|capitalize}</b>:</td>
-			<td width="100%">
-				{$workers.{$model->worker_id}->getName()}
-			</td>
-		</tr>
-		{/if}
-		{if !empty($activities)}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'timetracking.ui.entry_panel.activity'|devblocks_translate}</b>:</td>
-			<td width="100%">
-				<select name="activity_id">
-					<option value=""></option>
-					{foreach from=$activities item=activity}
-					<option value="{$activity->id}" {if $model->activity_id==$activity->id}selected{/if}>{$activity->name}</option>
-					{/foreach}
-				</select>
-			</td>
-		</tr>
-		{/if}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'timetracking.ui.entry_panel.time_spent'|devblocks_translate}</b>:</td>
-			<td width="100%">
-				<input type="text" name="time_actual_mins" size="5" value="{$model->time_actual_mins}"> {'timetracking.ui.entry_panel.mins'|devblocks_translate}
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'timetracking_entry.log_date'|devblocks_translate|capitalize}</b>:</td>
-			<td width="100%">
-				<input type="text" name="log_date" size="64" class="input_date" value="{$model->log_date|devblocks_date}"> 
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.status'|devblocks_translate|capitalize}</b>:</td>
-			<td width="100%">
-				<label><input type="radio" name="is_closed" value="0" {if !$model->is_closed}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="is_closed" value="1" {if $model->is_closed}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>
-			</td>
-		</tr>
+<div id="{$div_id}">
+	
+	<div style="float:left;">
+		<h1 style="color:inherit;">
+			{$dict->_label}
+		</h1>
 		
-		{* Watchers *}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				{if empty($model->id)}
-					<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
-					<ul class="chooser-container bubbles" style="display:block;"></ul>
-				{else}
-					{$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TIMETRACKING, array($model->id), CerberusContexts::CONTEXT_WORKER)}
-					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=CerberusContexts::CONTEXT_TIMETRACKING context_id=$model->id full=true}
-				{/if}
-			</td>
-		</tr>
-
-	</table>
-</fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TIMETRACKING context_id=$model->id}
-
-{* Comments *}
-{include file="devblocks:cerberusweb.core::internal/peek/peek_comments_pager.tpl" comments=$comments}
-
-<fieldset class="peek">
-	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="2" cols="45" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
-</fieldset>
-
-{if $model->context && $model->context_id}
-<input type="hidden" name="context" value="{$model->context}">
-<input type="hidden" name="context_id" value="{$model->context_id}">
-{/if}
-
-{if ($active_worker->hasPriv('timetracking.actions.create') && (empty($model->id) || $active_worker->id==$model->worker_id))
-	|| $active_worker->hasPriv('timetracking.actions.update_all')}
-	{if empty($model->id)}
-		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'timetracking.ui.entry_panel.save_finish'|devblocks_translate}</button>
-		<button type="button" onclick="timeTrackingTimer.play();genericAjaxPopupClose('peek');"><span class="glyphicons glyphicons-play" style="color:rgb(0,180,0);"></span> {'timetracking.ui.entry_panel.resume'|devblocks_translate}</button>
-		<button type="button" onclick="timeTrackingTimer.finish();genericAjaxPopupClose('peek');"><span class="glyphicons glyphicons-stop" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
-	{else}
-		<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="if(confirm('Permanently delete this time tracking entry?')) { this.form.do_delete.value='1'; genericAjaxPopupPostCloseReloadView(null,'frmTimeEntry','{$view_id}',false,'timetracking_delete'); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>
-	{/if}
-{else}
-	<div class="error">You do not have permission to modify this record.</div>
-{/if}
-
-{if !empty($model->id)}
-<div style="float:right;">
-	<a href="{devblocks_url}c=profiles&type=time_tracking&id={$model->id}{/devblocks_url}">view full record</a>
+		<div style="margin-top:5px;">
+			{if !empty($dict->id)}
+				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
+			{/if}
+		
+			{if $active_worker->id == $dict->worker_id || $active_worker->hasPriv('timetracking.actions.update_all')}
+			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			{/if}
+			
+			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="cerb-peek-comments-add" data-context="{$peek_context}" data-context-id="{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+		</div>
+	</div>
 </div>
-<br clear="all">
-{/if}
-</form>
+
+<div style="clear:both;padding-top:10px;"></div>
+
+<fieldset class="peek">
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+	
+	<div class="cerb-properties-grid" data-column-width="100">
+	
+		{$labels = $dict->_labels}
+		{$types = $dict->_types}
+		{foreach from=$properties item=k name=props}
+			{if $dict->$k}
+			<div>
+			{if $k == ''}
+			{elseif $k == 'importance'}
+				<label>{$labels.$k}</label>
+				<div style="display:inline-block;margin-top:5px;width:75px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
+					<div style="position:relative;top:-1px;margin-left:-5px;left:{$dict->importance}%;width:10px;height:10px;border-radius:10px;background-color:{if $dict->importance < 50}rgb(0,200,0);{elseif $dict->importance > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
+				</div>
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+			{/if}
+			</div>
+			{/if}
+		{/foreach}
+	</div>
+	
+	<div style="clear:both;"></div>
+	
+	{*
+	<div style="margin-top:5px;">
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TIMETRACKING}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events|default:0}</div> {'common.events'|devblocks_translate|capitalize}</button>
+	</div>
+	*}
+	
+</fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}
+
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $div = $('#{$div_id}');
+	var $popup = genericAjaxPopupFind($div);
+	var $layer = $popup.attr('data-layer');
 	
-	$popup.one('popup_open',function(event,ui) {
-		var $frm = $('#frmTimeEntry');
-		var $textarea = $(this).find('textarea[name=comment]');
-		
-		$(this).dialog('option','title',"{'timetracking.ui.timetracking'|devblocks_translate|escape:'javascript' nofilter}");
-		
-		$(this).find('button.chooser_watcher').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
-		});
-		
-		$frm.find('> fieldset:first input.input_date').cerbDateInputHelper();
-		
-		$frm.find('button.chooser_worker').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
-		});
-		
-		// @mentions
-		
-		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
+	var $timeline = {$timeline_json|default:'{}' nofilter};
 
-		$textarea.atwho({
-			at: '@',
-			{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-			{literal}insertTpl: '@${at_mention}',{/literal}
-			data: atwho_workers,
-			searchKey: '_index',
-			limit: 10
+	$popup.one('popup_open',function(event,ui) {
+		$popup.dialog('option','title', "{'timetracking.ui.timetracking'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
+		
+		// Properties grid
+		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
+		
+		// Edit button
+		$popup.find('button.cerb-peek-edit')
+			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
+			.on('cerb-peek-saved', function(e) {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			.on('cerb-peek-deleted', function(e) {
+				genericAjaxPopupClose($layer);
+			})
+			;
+		
+		// Comments
+		$popup.find('button.cerb-peek-comments-add')
+			.cerbCommentTrigger()
+			.on('cerb-comment-saved', function() {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			;
+		
+		// Peeks
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
+		
+		// Searches
+		$popup.find('.cerb-search-trigger')
+			.cerbSearchTrigger()
+			;
+		
+		// Menus
+		$popup.find('ul.cerb-menu').menu();
+		
+		// View profile
+		$popup.find('.cerb-peek-profile').click(function(e) {
+			if(e.metaKey) {
+				window.open('{devblocks_url}c=profiles&type=time_tracking&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				
+			} else {
+				document.location='{devblocks_url}c=profiles&type=time_tracking&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
+			}
 		});
+		
+		// Timeline
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
 	});
+});
 </script>

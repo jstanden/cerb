@@ -687,7 +687,7 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'tt', 'id', $translate->_('common.id'), null, true),
-			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'tt', 'time_actual_mins', $translate->_('timetracking_entry.time_actual_mins'), Model_CustomField::TYPE_NUMBER, true),
+			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'tt', 'time_actual_mins', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
 			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'tt', 'log_date', $translate->_('timetracking_entry.log_date'), Model_CustomField::TYPE_DATE, true),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'tt', 'worker_id', $translate->_('timetracking_entry.worker_id'), Model_CustomField::TYPE_WORKER, true),
 			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id'), null, true),
@@ -1284,12 +1284,13 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		return $labels;
 	}
 	
+	// [TODO] Include the activity
+	// [TODO] 'time_mins' type (mins) doesn't render on cards/profiles properly
 	function getDefaultProperties() {
 		return array(
-			'log_date',
-			'mins',
-			'is_closed',
 			'worker__label',
+			'log_date',
+			'is_closed',
 		);
 	}
 	
@@ -1300,7 +1301,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING);
 		
-   		// Polymorph
+		// Polymorph
 		if(is_numeric($timeentry)) {
 			$timeentry = DAO_TimeTrackingEntry::get($timeentry);
 		} elseif($timeentry instanceof Model_TimeTrackingEntry) {
@@ -1317,7 +1318,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			'id' => $prefix.$translate->_('common.id'),
 			'is_closed' => $prefix.$translate->_('common.is_closed'),
 			'log_date' => $prefix.$translate->_('timetracking_entry.log_date'),
-			'mins' => $prefix.$translate->_('timetracking_entry.time_actual_mins'),
+			'mins' => $prefix.$translate->_('timetracking.ui.entry_panel.time_spent'),
 			'summary' => $prefix.$translate->_('common.summary'),
 				
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -1486,71 +1487,104 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$id = $context_id; // [TODO] Cleanup
-		
 		$tpl = DevblocksPlatform::getTemplateService();
-
 		$tpl->assign('view_id', $view_id);
 		
-		/*
-		 * This treats procedurally created model objects
-		 * the same as existing objects
-		 */
-		if(!empty($id)) { // Were we given a model ID to load?
-			if(null != ($model = DAO_TimeTrackingEntry::get($id)))
-				$tpl->assign('model', $model);
-			
-		} else {
-			$model = new Model_TimeTrackingEntry();
-			$model->log_date = time();
-
-			// Initial time
-			
-			@$total_mins = DevblocksPlatform::importGPC($_REQUEST['mins'],'integer',0);
-			$model->time_actual_mins = $total_mins;
-			
-			// If we're linking a context during creation
-			
-			@$link_context = strtolower($_SESSION['timetracking_context']);
-			@$link_context_id = intval($_SESSION['timetracking_context_id']);
-			
-			/* If the session was empty, don't set these since they may have been
-			 * previously set by the abstract context peek code.
-			 */
-			
-			if(!empty($link_context)) {
-				$tpl->assign('link_context', $link_context);
-				$tpl->assign('link_context_id', $link_context_id);
-			}
-			
-			// Template
-			
-			$tpl->assign('model', $model);
+		$context = CerberusContexts::CONTEXT_TIMETRACKING;
+		
+		if(!empty($context_id)) {
+			$model = DAO_TimeTrackingEntry::get($context_id);
 		}
 
-		/* @var $model Model_TimeTrackingEntry */
-		
-		// Activities
-		// [TODO] Cache
-		$activities = DAO_TimeTrackingActivity::getWhere();
-		$tpl->assign('activities', $activities);
-		
-		// Comments
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TIMETRACKING, $id);
-		$comments = array_reverse($comments, true);
-		$tpl->assign('comments', $comments);
-		
-		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING, false);
-		$tpl->assign('custom_fields', $custom_fields);
+		if(empty($context_id) || $edit) {
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// Activities
+			$activities = DAO_TimeTrackingActivity::getWhere();
+			$tpl->assign('activities', $activities);
+			
+			// Default model
+			if(!isset($model)) {
+				$model = new Model_TimeTrackingEntry();
+				$model->log_date = time();
+	
+				// Initial time
+				
+				@$total_mins = DevblocksPlatform::importGPC($_REQUEST['mins'],'integer',0);
+				$model->time_actual_mins = $total_mins;
+				
+				// If we're linking a context during creation
+				
+				@$link_context = strtolower($_SESSION['timetracking_context']);
+				@$link_context_id = intval($_SESSION['timetracking_context_id']);
+				
+				/* If the session was empty, don't set these since they may have been
+				 * previously set by the abstract context peek code.
+				 */
+				
+				if(!empty($link_context)) {
+					$tpl->assign('link_context', $link_context);
+					$tpl->assign('link_context_id', $link_context_id);
+				}
+			}
+			
+			$tpl->assign('model', $model);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
 
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TIMETRACKING, $id);
-		if(isset($custom_field_values[$id]))
-			$tpl->assign('custom_field_values', $custom_field_values[$id]);
-		
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('types', $types);
-		
-		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/peek.tpl');
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/peek.tpl');
+		}
 	}
 };

@@ -27,7 +27,7 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
 		
 		<!-- Edit -->
-		<button type="button" id="btnDisplayTimeEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		<button type="button" id="btnDisplayTimeEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -99,17 +99,23 @@ $(function() {
 	
 	var tabs = $("#profileTimeTrackingTabs").tabs(tabOptions);
 	
-	$('#btnDisplayTimeEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
-		$popup.one('timetracking_save', function(event) {
-			event.stopPropagation();
-			document.location.href = '{devblocks_url}c=profiles&type=time_tracking&id={$page_context_id}{/devblocks_url}';
-		});
-		$popup.one('timetracking_delete', function(event) {
-			event.stopPropagation();
-			document.location.href = '{devblocks_url}c=search&type=time_entry{/devblocks_url}';
-		});
-	});
+	// Edit
+	
+	$('#btnDisplayTimeEdit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
+			document.location.reload();
+		})
+		.on('cerb-peek-deleted', function(e) {
+			document.location.href = '{devblocks_url}{/devblocks_url}';
+			
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+		;
 	
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
