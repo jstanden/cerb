@@ -88,13 +88,18 @@
 				{$owner_context = $result.w_owner_context}
 				{$owner_context_id = $result.w_owner_context_id}
 				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
+				
 				<td data-column="{$column}">
 					{if !is_null($owner_context_ext)}
 						{$meta = $owner_context_ext->getMeta($owner_context_id)}
 						{if !empty($meta)}
-						{$meta.name} 
+							<img src="{devblocks_url}c=avatars&context={$owner_context_ext->id}&context_id={$owner_context_id}{/devblocks_url}?v={$meta.updated_at}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
+							{if $owner_context_id}
+							<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$owner_context}" data-context-id="{$owner_context_id}">{$meta.name}</a>
+							{else}
+							{$meta.name}
+							{/if}
 						{/if}
-						({$owner_context_ext->manifest->name})
 					{/if}
 				</td>
 			{else}

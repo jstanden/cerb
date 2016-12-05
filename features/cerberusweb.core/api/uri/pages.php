@@ -791,35 +791,16 @@ class Page_Custom extends CerberusPageExtension {
 			
 			$page_users = $page->getUsers();
 			$tpl->assign('page_users', $page_users);
-				
+			
+			$tpl->assign('workers', DAO_Worker::getAll());
+			
 			$tpl->assign('workspace_page', $page);
 		}
 	
-		// Owners
+		// Owner
+		$owners_menu = Extension_DevblocksContext::getOwnerTree();
+		$tpl->assign('owners_menu', $owners_menu);
 		
-		$roles = DAO_WorkerRole::getAll();
-		$tpl->assign('roles', $roles);
-	
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-	
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-	
-		$owner_groups = array();
-		foreach($groups as $k => $v) {
-			if($active_worker->is_superuser || $active_worker->isGroupManager($k))
-				$owner_groups[$k] = $v;
-		}
-		$tpl->assign('owner_groups', $owner_groups);
-	
-		$owner_roles = array();
-		foreach($roles as $k => $v) { /* @var $v Model_WorkerRole */
-			if($active_worker->is_superuser)
-				$owner_roles[$k] = $v;
-		}
-		$tpl->assign('owner_roles', $owner_roles);
-	
 		// Extensions
 		
 		$page_extensions = Extension_WorkspacePage::getAll(false);
