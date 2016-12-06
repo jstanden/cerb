@@ -414,7 +414,6 @@ abstract class C4_AbstractView {
 		$this->renderPage = 0;
 	}
 	
-	// [TODO] Test this
 	function _getSortFromQuickSearchQuery($sort_query) {
 		$sort_results = array(
 			'sort_by' => array(),
@@ -1584,6 +1583,7 @@ abstract class C4_AbstractView {
 		);
 	}
 	
+	// [TODO] Cache this?
 	function getQuickSearchMenu() {
 		if(!$this instanceof IAbstractView_QuickSearch)
 			return;

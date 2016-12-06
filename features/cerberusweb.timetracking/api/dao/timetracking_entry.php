@@ -1509,6 +1509,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			$tpl->assign('types', $types);
 			
 			// Activities
+			// [TODO] Cache w/ ::getAll()
 			$activities = DAO_TimeTrackingActivity::getWhere();
 			$tpl->assign('activities', $activities);
 			

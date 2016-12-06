@@ -323,6 +323,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			SearchFields_Message::ADDRESS_EMAIL
 		);
 		
+		// [TODO] Remove the address JOIN
 		$join_sql = "FROM message m ".
 			"INNER JOIN ticket t ON (m.ticket_id = t.id) ".
 			"INNER JOIN address a ON (m.address_id = a.id) "

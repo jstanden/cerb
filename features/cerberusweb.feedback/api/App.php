@@ -262,6 +262,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 				SearchFields_FeedbackEntry::ADDRESS_EMAIL
 			 );
 		
+		// [TODO] Get rid of this left join
 		$join_sql =
 			"FROM feedback_entry f ".
 			"LEFT JOIN address a ON (f.quote_address_id=a.id) ".

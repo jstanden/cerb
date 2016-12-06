@@ -461,6 +461,7 @@ class DAO_Address extends Cerb_ORMHelper {
 				SearchFields_Address::UPDATED
 			);
 		
+		// [TODO] Remove the ugly left join to orgs here, like ticket.{first,last}_wrote
 		$join_sql =
 			"FROM address a ".
 			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) ".

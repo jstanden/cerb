@@ -419,7 +419,8 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 				SearchFields_CrmOpportunity::IS_CLOSED,
 				SearchFields_CrmOpportunity::IS_WON
 			);
-			
+
+		// [TODO] Get rid of the left join
 		$join_sql =
 			"FROM crm_opportunity o ".
 			"INNER JOIN address a ON (a.id = o.primary_email_id) ".
