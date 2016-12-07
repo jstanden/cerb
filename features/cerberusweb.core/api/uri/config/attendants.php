@@ -20,7 +20,7 @@ class PageSection_SetupAttendants extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(ChConfigurationPage::ID, 'attendants');
+		$visit->set(ChConfigurationPage::ID, 'bots');
 		
 		// Context
 		
