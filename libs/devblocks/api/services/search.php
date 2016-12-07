@@ -529,7 +529,6 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		$is_only_cached_for_request = !$cache->isVolatile();
 		
 		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
-			$ids = array();
 			$json = $this->_getSearch($type, $query, $max_results);
 			
 			if(!$json || !is_array($json) || !is_array($json['hits']))
@@ -539,9 +538,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			@$total_hits = intval($json['hits']['total']);
 			@$results_hits = intval(count($json['hits']['hits']));
 			
-			foreach($json['hits']['hits'] as $hit) {
-				$ids[] = $hit['_id'];
-			}
+			$ids = array_column($json['hits']['hits'], '_id');
 			
 			$cache->save($ids, $cache_key, array(), 300, $is_only_cached_for_request);
 			
