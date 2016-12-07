@@ -830,6 +830,11 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Task::DUE_DATE),
 				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Task::ID),
+				),
 			'importance' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
