@@ -596,6 +596,11 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_CalendarEvent::DATE_END),
 				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_CalendarEvent::ID),
+				),
 			'name' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
