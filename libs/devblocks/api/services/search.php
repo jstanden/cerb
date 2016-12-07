@@ -552,7 +552,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		}
 		
 		// With fewer results, use the more efficient IN(...)
-		if($results_hits <= 1000) {
+		if(count($ids) <= 2000) {
 			// Keep $ids
 			
 		// Otherwise, populate a temporary table and return it
