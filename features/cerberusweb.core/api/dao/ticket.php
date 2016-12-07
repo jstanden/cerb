@@ -1960,7 +1960,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					return '0';
 				
 				} elseif(is_array($ids)) {
-					$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);
+					$from_ids = DAO_Comment::getContextIdsByContextAndIds(CerberusContexts::CONTEXT_MESSAGE, $ids);
 					
 					return sprintf('%s IN (SELECT ticket_id FROM message WHERE id IN (%s) AND ticket_id = %s)',
 						self::getPrimaryKey(),
