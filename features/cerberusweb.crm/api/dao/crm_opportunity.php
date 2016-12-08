@@ -893,6 +893,11 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::EMAIL_NUM_SPAM),
 				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_CrmOpportunity::ID),
+				),
 			'isClosed' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
