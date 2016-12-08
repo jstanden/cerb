@@ -792,6 +792,11 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CustomFieldset::CONTEXT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_CustomFieldset::ID),
+				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
