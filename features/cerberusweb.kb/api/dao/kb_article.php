@@ -1242,6 +1242,11 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT),
 				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_KbArticle::ID),
+				),
 			'title' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
