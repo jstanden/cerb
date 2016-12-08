@@ -1867,6 +1867,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_GROUPS),
 					'examples' => array_slice($group_names, 0, 15),
 				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Worker::ID),
+				),
 			'isAdmin' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
