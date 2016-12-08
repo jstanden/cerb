@@ -1625,6 +1625,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID),
 				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Message::ID),
+				),
 			'inGroupsOfWorker' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
