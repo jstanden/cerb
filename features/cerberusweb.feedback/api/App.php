@@ -653,6 +653,11 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_FeedbackEntry::ADDRESS_EMAIL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_FeedbackEntry::ID),
+				),
 			'mood' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
