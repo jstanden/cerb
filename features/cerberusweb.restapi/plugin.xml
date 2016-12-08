@@ -75,6 +75,18 @@
 		<!-- REST Controllers -->
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.activity_log</id>
+			<name>Activity Log</name>
+			<class>
+				<file>api/rest/activity_log.php</file>
+				<name>Rest_ActivityLog</name>
+			</class>
+			<params>
+				<param key="uri" value="activity_log" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.addresses</id>
 			<name>Addresses</name>
 			<class>
