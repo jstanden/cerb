@@ -1257,6 +1257,11 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_TriggerEvent::IS_DISABLED),
 				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_TriggerEvent::ID),
+				),
 			'priority' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
