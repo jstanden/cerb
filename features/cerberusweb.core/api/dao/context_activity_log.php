@@ -602,6 +602,11 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ContextActivityLog::ENTRY_JSON, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_ContextActivityLog::ID),
+				),
 		);
 		
 		// Add searchable custom fields
