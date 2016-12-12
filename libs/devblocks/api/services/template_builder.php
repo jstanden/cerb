@@ -91,6 +91,14 @@ class _DevblocksTemplateBuilder {
 		}
 	}
 	
+	function addFilter($name, $filter) {
+		return $this->_twig->addFilter($name, $function);
+	}
+	
+	function addFunction($name, $function) {
+		return $this->_twig->addFunction($name, $function);
+	}
+	
 	/**
 	 *
 	 * @param string $template
