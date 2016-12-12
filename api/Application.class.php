@@ -2375,7 +2375,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 
 		if(0==$db->Affected_Rows()) {
 			// Insert
-			$sql = sprintf("INSERT INTO devblocks_session (session_key, created, updated, refreshed_at, user_id, user_ip, user_agent, session_data) ".
+			$sql = sprintf("INSERT IGNORE INTO devblocks_session (session_key, created, updated, refreshed_at, user_id, user_ip, user_agent, session_data) ".
 				"VALUES (%s, %d, %d, %d, %d, %s, %s, %s)",
 				$db->qstr($id),
 				time(),
