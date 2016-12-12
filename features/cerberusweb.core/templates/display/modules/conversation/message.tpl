@@ -198,58 +198,60 @@ $(function() {
 {if $active_worker->hasPriv('core.display.actions.reply')}
 <script type="text/javascript">
 $(function() {
-var $msg = $('#{$message->id}t');
-var $actions = $('#{$message->id}act');
-
-// [TODO] Reload events
-// [TODO] Listeners for peek changes
-$msg.find('.cerb-peek-trigger').cerbPeekTrigger();
-
-// Edit
-
-$msg.find('button.edit')
-	.cerbPeekTrigger()
-	.on('cerb-peek-opened', function(e) {
-	})
-	.on('cerb-peek-saved', function(e) {
-		e.stopPropagation();
-		$('#btnMsgMax{$message->id}').click();
-	})
-	.on('cerb-peek-deleted', function(e) {
-		e.stopPropagation();
-		$('#{$message->id}t').remove();
-		
-	})
-	.on('cerb-peek-closed', function(e) {
-	})
+	var $msg = $('#{$message->id}t');
+	var $actions = $('#{$message->id}act');
+	
+	// [TODO] Reload events
+	// [TODO] Listeners for peek changes
+	$msg.find('.cerb-peek-trigger')
+		.cerbPeekTrigger()
+		;
+	
+	// Edit
+	
+	$msg.find('button.edit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
+			$('#btnMsgMax{$message->id}').click();
+		})
+		.on('cerb-peek-deleted', function(e) {
+			e.stopPropagation();
+			$('#{$message->id}t').remove();
+			
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+		;
+	
+	$actions
+		.find('ul.cerb-popupmenu')
+		.hover(
+			function(e) { }, 
+			function(e) { $(this).hide(); }
+		)
+		.find('> li')
+		.click(function(e) {
+			$(this).closest('ul.cerb-popupmenu').hide();
+	
+			e.stopPropagation();
+			if(!$(e.target).is('li'))
+			return;
+	
+			$(this).find('a').trigger('click');
+		})
 	;
-
-$actions
-	.find('ul.cerb-popupmenu')
-	.hover(
-		function(e) { }, 
-		function(e) { $(this).hide(); }
-	)
-	.find('> li')
-	.click(function(e) {
-		$(this).closest('ul.cerb-popupmenu').hide();
-
-		e.stopPropagation();
-		if(!$(e.target).is('li'))
-		return;
-
-		$(this).find('a').trigger('click');
-	})
-;
-
-$actions
-	.find('li a.relay')
-	.click(function() {
-		genericAjaxPopup('relay', 'c=display&a=showRelayMessagePopup&id={$message->id}', null, false, '650');
-	})
-	;
-
-});
+	
+	$actions
+		.find('li a.relay')
+		.click(function() {
+			genericAjaxPopup('relay', 'c=display&a=showRelayMessagePopup&id={$message->id}', null, false, '650');
+		})
+		;
+	
+	});
 </script>
 {/if}
 

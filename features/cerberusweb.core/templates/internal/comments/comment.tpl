@@ -8,8 +8,7 @@
 				(system)
 			{else}
 				{if $owner_meta.context_ext instanceof IDevblocksContextPeek} 
-				{* [TODO] Use peek triggers? *}
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$comment->owner_context}&context_id={$comment->owner_context_id}', null, false, '50%');">{$owner_meta.name}</a>
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{$comment->owner_context}" data-context-id="{$comment->owner_context_id}">{$owner_meta.name}</a>
 				{elseif !empty($owner_meta.permalink)} 
 				<a href="{$owner_meta.permalink}" target="_blank">{$owner_meta.name}</a>
 				{else}
@@ -51,15 +50,17 @@
 
 <script type="text/javascript">
 $(function() {
-	var $comment = $('#comment{$comment->id}');
-	
-	$comment.hover(
-		function() {
-			$(this).find('div.toolbar').show();
-		},
-		function() {
-			$(this).find('div.toolbar').hide();
-		}
-	);
+	var $comment = $('#comment{$comment->id}')
+		.hover(
+			function() {
+				$(this).find('div.toolbar').show();
+			},
+			function() {
+				$(this).find('div.toolbar').hide();
+			}
+		)
+		.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+		;
 });
 </script>

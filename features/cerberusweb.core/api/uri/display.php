@@ -99,6 +99,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('mail_reply_button', $mail_reply_button);
 			
 		$tpl->assign('expanded', (empty($hide) ? true : false));
+		$tpl->assign('is_refreshed', true);
 
 		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/message.tpl');
 	}

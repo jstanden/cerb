@@ -1,5 +1,5 @@
 <form action="#" style="margin:5px;">
-<button type="button" id="btnComment"><span class="glyphicons glyphicons-conversation"></span> Comment</button>
+<button type="button" id="btnComment"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 </form>
 
 {* Display Notes *}
