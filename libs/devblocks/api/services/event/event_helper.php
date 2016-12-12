@@ -4386,15 +4386,15 @@ class DevblocksEventHelper {
 		}
 
 		// Attachments
-		$attachment_data = array();
+		$attachments = array();
 		
 		if(isset($params['include_attachments']) && !empty($params['include_attachments'])) {
 			// If our main record is a comment, use those attachments instead
 			if($comment_id) {
-				$attachment_data = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_COMMENT, $comment_id);
+				$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_COMMENT, $comment_id);
 				
 			} elseif($message_id) {
-				$attachment_data = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $message_id);
+				$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message_id);
 			}
 		}
 		
@@ -4446,18 +4446,16 @@ class DevblocksEventHelper {
 				$mail->setBody($content);
 				
 				// Files
-				if(!empty($attachment_data) && isset($attachment_data['attachments']) && !empty($attachment_data['attachments'])) {
-					foreach($attachment_data['attachments'] as $file_id => $file) { /* @var $file Model_Attachment */
-						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
-							if(false !== $file->getFileContents($fp)) {
-								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
-								$attach->setFilename($file->display_name);
-								$mail->attach($attach);
-								fclose($fp);
-							}
+				if(!empty($attachments) && is_array($attachments)) {
+				foreach($attachments as $file_id => $file) { /* @var $file Model_Attachment */
+					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+						if(false !== $file->getFileContents($fp)) {
+							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
+							$attach->setFilename($file->display_name);
+							$mail->attach($attach);
+							fclose($fp);
 						}
 					}
-					
 				}
 				
 				$result = $mail_service->send($mail);

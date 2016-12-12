@@ -34,28 +34,21 @@
 	{/if}
 </fieldset>
 
-{if isset($attachments_map) && is_array($attachments_map)}
-	{$links = $attachments_map.links}
-	{$files = $attachments_map.attachments}
-	{if !empty($links) && !empty($files)}
+{if !empty($attachments)}
 	<fieldset>
-		<legend>{'common.attachments'|devblocks_translate}</legend>
+		<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
 		
 		<ul style="margin-top:0px;">
-			{foreach from=$links item=link}
-			{$attachment = $files.{$link->attachment_id}}
+			{foreach from=$attachments item=attachment}
 			<li>
-				<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$link->guid}&name={$attachment->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$attachment->display_name}</a>
-				( 
-					{$attachment->storage_size|devblocks_prettybytes}
-					- 
-					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if}
-				 )
+				<a href="{devblocks_url}c=ajax&a=downloadFile&id={$attachment->storage_sha1hash}&name={$attachment->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$attachment->display_name}</a>
+				({$attachment->storage_size|devblocks_prettybytes}
+				 - 
+				{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 			</li>
 			{/foreach}
 		</ul>
 	</fieldset>
-	{/if}
 {/if}
 
 </div>

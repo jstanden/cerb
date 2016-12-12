@@ -1012,7 +1012,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					'type' => $file_type,
 					'size' => $file_size,
 					'sha1_hash' => $sha1_hash,
-					'url' => $url_writer->write(sprintf("c=files&hash=%s&name=%s", $sha1_hash, urlencode($file_name)), true),
+					'url' => $url_writer->write(sprintf("c=files&id=%d&name=%s", $file_id, urlencode($file_name)), true),
 				);
 			}
 			
@@ -1036,7 +1036,7 @@ class ChInternalController extends DevblocksControllerExtension {
 						'type' => $attachment->mime_type,
 						'size' => $attachment->storage_size,
 						'sha1_hash' => $attachment->storage_sha1hash,
-						'url' => $url_writer->write(sprintf("c=files&hash=%s&name=%s", $attachment->storage_sha1hash, urlencode($attachment->display_name)), true),
+						'url' => $url_writer->write(sprintf("c=files&id=%d&name=%s", $attachment->id, urlencode($attachment->display_name)), true),
 					);
 				}
 			}
@@ -2376,7 +2376,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			unset($_SESSION['view_export_cursors'][$cursor_key]);
 			
 			$cursor['attachment_name'] = $file_name;
-			$cursor['attachment_url'] = $url_writer->write('c=files&a=' . $sha1_hash . '&name=' . $file_name);
+			$cursor['attachment_url'] = $url_writer->write('c=files&id=' . $id . '&name=' . $file_name);
 		}
 		
 		return $cursor;

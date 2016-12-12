@@ -109,26 +109,22 @@ blockquote a {
 	</div>
 	
 	<div id="htmlTemplateAttachments{$tabs_id}">
-		{$a_map = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $model->id)}
-		{$links = $a_map.links}
-		{$attachments = $a_map.attachments}
-		
-		<b>{'common.attachments'|devblocks_translate}:</b><br>
+		{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $model->id)}
+	
+		<b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
 		<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
 		<ul class="chooser-container bubbles cerb-attachments-container" style="display:block;">
-		{if !empty($links) && !empty($attachments)}
-			{foreach from=$links item=link name=links}
-			{$attachment = $attachments.{$link->attachment_id}}
-			{if !empty($attachment)}
-				<li>
-					{$attachment->display_name}
-					( {$attachment->storage_size|devblocks_prettybytes}	- 
-					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if}
-					 )
-					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
-				</li>
-			{/if}
+		{if !empty($attachments)}
+			{foreach from=$attachments item=attachment name=attachments}
+			<li>
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+					<b>{$attachment->display_name}</b>
+					({$attachment->storage_size|devblocks_prettybytes}	- 
+					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
+				</a>
+				<input type="hidden" name="file_ids[]" value="{$attachment->id}">
+				<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+			</li>
 			{/foreach}
 		{/if}
 		</ul>
@@ -181,6 +177,12 @@ $(function() {
 		
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+		
+		// Peek triggers
+		
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
 		
 		// Attachments
 		

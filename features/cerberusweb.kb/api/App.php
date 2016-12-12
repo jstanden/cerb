@@ -405,7 +405,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			// Files
 			@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array', array());
 			if(is_array($file_ids))
-				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $file_ids);
+				DAO_Attachment::setLinks(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $file_ids);
 		}
 		
 		// JSON

@@ -468,7 +468,7 @@ class Model_MailHtmlTemplate {
 	}
 	
 	function getAttachments() {
-		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $this->id);		
+		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $this->id);
 	}
 };
 

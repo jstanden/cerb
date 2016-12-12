@@ -579,7 +579,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		switch($field->type) {
 			case Model_CustomField::TYPE_FILE:
 			case Model_CustomField::TYPE_FILES:
-				DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
+				DAO_Attachment::setLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
 				break;
 		}
 		
@@ -619,9 +619,10 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		switch($field->type) {
 			case Model_CustomField::TYPE_FILE:
 			case Model_CustomField::TYPE_FILES:
-				$sql = sprintf("DELETE FROM attachment_link WHERE context = %s and context_id = %d AND attachment_id NOT IN (SELECT field_value FROM custom_field_numbervalue WHERE field_id = %d)",
+				$sql = sprintf("DELETE FROM context_link WHERE from_context = %s and from_context_id = %d AND to_context = %s AND to_context_id NOT IN (SELECT field_value FROM custom_field_numbervalue WHERE field_id = %d)",
 					$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELD),
 					$field_id,
+					$db->qstr(CerberusContexts::CONTEXT_ATTACHMENT),
 					$field_id
 				);
 				$db->ExecuteMaster($sql);

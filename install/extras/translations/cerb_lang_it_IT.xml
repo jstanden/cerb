@@ -618,11 +618,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="attachment.storage_size">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="calls.activity.tab">
 			<tuv xml:lang="it_IT">
 				<seg/>

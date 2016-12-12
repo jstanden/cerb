@@ -548,7 +548,7 @@ class CerberusMail {
 
 				// Link
 				if($file_id)
-					DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $message_id);
+					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $file_id);
 				
 				@unlink($file);
 			}
@@ -558,13 +558,13 @@ class CerberusMail {
 		if(isset($properties['link_forward_files']) && !empty($properties['link_forward_files'])) {
 			// Attachments
 			if(is_array($forward_files) && !empty($forward_files)) {
-				DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
+				DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
 			}
 		}
 		
 		// Link embedded files
 		if(isset($embedded_files) && is_array($embedded_files) && !empty($embedded_files)) {
-			DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
+			DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
 		}
 		
 		// Finalize ticket
@@ -1035,7 +1035,7 @@ class CerberusMail {
 
 					// Link
 					if($file_id)
-						DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $message_id);
+						DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $file_id);
 				}
 			}
 			
@@ -1043,13 +1043,13 @@ class CerberusMail {
 			if(isset($properties['link_forward_files']) && !empty($properties['link_forward_files'])) {
 				// Attachments
 				if(is_array($forward_files) && !empty($forward_files)) {
-					DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
+					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
 				}
 			}
 			
 			// Link embedded files
 			if(isset($embedded_files) && is_array($embedded_files) && !empty($embedded_files)) {
-				DAO_AttachmentLink::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
+				DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
 			}
 		}
 		
@@ -1208,8 +1208,8 @@ class CerberusMail {
 			$replyto = DAO_AddressOutgoing::getDefault();
 		}
 		
-		$attachment_data = ($include_attachments)
-			? DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_MESSAGE, $message->id)
+		$attachments = ($include_attachments)
+			? DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id)
 			: array()
 			;
 		
@@ -1276,18 +1276,17 @@ class CerberusMail {
 				$mail->setBody($content);
 				
 				// Files
-				if(!empty($attachment_data) && isset($attachment_data['attachments']) && !empty($attachment_data['attachments'])) {
-					foreach($attachment_data['attachments'] as $file_id => $file) { /* @var $file Model_Attachment */
-						//if('original_message.html' == $file->display_name)
-						//	continue;
-						
-						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
-							if(false !== $file->getFileContents($fp)) {
-								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
-								$attach->setFilename($file->display_name);
-								$mail->attach($attach);
-								fclose($fp);
-							}
+				if(!empty($attachments) && is_array($attachments))
+				foreach($attachments as $file_id => $file) { /* @var $file Model_Attachment */
+					//if('original_message.html' == $file->display_name)
+					//	continue;
+					
+					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
+						if(false !== $file->getFileContents($fp)) {
+							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
+							$attach->setFilename($file->display_name);
+							$mail->attach($attach);
+							fclose($fp);
 						}
 					}
 				}

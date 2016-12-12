@@ -151,63 +151,50 @@ class UmScAjaxController extends Extension_UmScController {
 		$umsession = ChPortalHelper::getSession();
 		$stack = $request->path;
 		
-		// Attachment ID + display name
-		@$guid = array_shift($stack);
+		// Attachment hash + display name
+		@$hash = array_shift($stack);
 		@$display_name = array_shift($stack);
 		
-		if(empty($guid) || empty($display_name))
+		if(empty($hash) || empty($display_name))
 			return;
-
-		// Attachment link
-		if(null == ($link = DAO_AttachmentLink::getByGUID($guid)))
+		
+		// Attachment
+		if(null == ($file_id = DAO_Attachment::getBySha1Hash($hash)))
 			return;
-
-		switch($link->context) {
-			case CerberusContexts::CONTEXT_MESSAGE:
-				if(null == ($active_contact = $umsession->getProperty('sc_login',null)))
-					return;
 		
-				// [TODO] API/model ::getAddresses()
-				$addresses = array();
-				if(!empty($active_contact) && !empty($active_contact->id)) {
-					$addresses = DAO_Address::getWhere(sprintf("%s = %d",
-						DAO_Address::CONTACT_ID,
-						$active_contact->id
-					));
-				}
-				
-				// Message
-				if(null == ($message = DAO_Message::get($link->context_id)))
-					return;
+		if(null == ($file = DAO_Attachment::get($file_id)))
+			return;
 		
-				// Requesters
-				if(null == ($requesters = DAO_Ticket::getRequestersByTicket($message->ticket_id)))
-					return;
+		$pass = false;
 		
-				// Security: Make sure the active user is a requester on the proper ticket
-				$authorized_addresses = array_intersect(array_keys($requesters), array_keys($addresses));
-				if(!is_array($authorized_addresses) || 0 == count($authorized_addresses))
-					return;
-				
-				break;
-				
-			case CerberusContexts::CONTEXT_KB_ARTICLE:
-				// Allow
-				break;
-				
-			default:
-				return;
-				break;
+		if(false == ($links = DAO_Attachment::getLinks($file_id)))
+			return;
+		
+		if(!$pass && isset($links[CerberusContexts::CONTEXT_KB_ARTICLE])) {
+			// [TODO] Compare KB links to this portal
+			$pass = true;
 		}
+		
+		if(!$pass && isset($links[CerberusContexts::CONTEXT_MESSAGE])) {
+			if(null == ($active_contact = $umsession->getProperty('sc_login',null))) /* @var $active_contact Model_Contact */
+				return;
+			
+			if(false == ($contact_emails = $active_contact->getEmails()))
+				return;
+			
+			$pass = DAO_Ticket::authorizeByParticipantsAndMessages(array_keys($contact_emails), $links[CerberusContexts::CONTEXT_MESSAGE]);
+		}
+		
+		if(!$pass)
+			return;
 
-		$attachment = $link->getAttachment();
-		$contents = $attachment->getFileContents();
+		$contents = $file->getFileContents();
 			
 		// Set headers
 		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT");
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 		header("Accept-Ranges: bytes");
-		header("Content-Type: " . $attachment->mime_type);
+		header("Content-Type: " . $file->mime_type);
 		header("Content-Length: " . strlen($contents));
 		
 		// Dump contents

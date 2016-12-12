@@ -526,7 +526,6 @@ class ParserFile {
 	public $mime_type = '';
 	public $file_size = 0;
 	public $parsed_attachment_id = 0;
-	public $parsed_attachment_guid = '';
 
 	function __destruct() {
 		if(file_exists($this->tmpname)) {
@@ -1347,12 +1346,12 @@ class CerberusParser {
 				// Link
 				if($file_id) {
 					$file->parsed_attachment_id = $file_id;
-					$file->parsed_attachment_guid = DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
+					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId(), $file_id);
 				}
 				
 				// Rewrite any inline content-id images in the HTML part
 				if(isset($file->info) && isset($file->info['content-id'])) {
-					$inline_cid_url = $url_writer->write('c=files&guid=' . $file->parsed_attachment_guid . '&name=' . urlencode($filename), true);
+					$inline_cid_url = $url_writer->write('c=files&id=' . $file_id . '&name=' . urlencode($filename), true);
 					$message->htmlbody = str_replace('cid:' . $file->info['content-id'], $inline_cid_url, $message->htmlbody);
 				}
 			}
@@ -1380,7 +1379,7 @@ class CerberusParser {
 			
 			// Link the HTML part to the message
 			if(!empty($file_id)) {
-				DAO_AttachmentLink::create($file_id, CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId());
+				DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId(), $file_id);
 				
 				// This built-in field is faster than searching for the HTML part again in the attachments
 				DAO_Message::update($message_id, array(

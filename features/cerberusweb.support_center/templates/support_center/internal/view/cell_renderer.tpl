@@ -28,22 +28,22 @@
 	<td data-column="{$column}"></td>
 {elseif $col->type==Model_CustomField::TYPE_FILE}
 	<td data-column="{$column}">
-	{*
+		{*
 		{$file_id = $result.$column}
 		{$file = DAO_Attachment::get($file_id)}
-		<a href="{devblocks_url}c=files&guid={$file->storage_sha1hash}&file={$file->display_name|escape:'url'}{/devblocks_url}" title="{$file->display_name}" target="_blank">{$file->storage_size|devblocks_prettybytes}</a>
-	*}
+		<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$file->storage_sha1hash}&name={$file->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$file->display_name}</a>
+		*}
 	</td>
 {elseif $col->type==Model_CustomField::TYPE_FILES}
 	<td data-column="{$column}">
-	{*
+		{*
 		{$file_ids = DevblocksPlatform::parseCrlfString($result.$column)}
 
 		{foreach from=$file_ids item=file_id name=files}
 			{$file = DAO_Attachment::get($file_id)}
-			<a href="{devblocks_url}c=files&guid={$file->storage_sha1hash}&file={$file->display_name|escape:'url'}{/devblocks_url}" title="{$file->display_name}" target="_blank">{$file->storage_size|devblocks_prettybytes}</a>{if !$smarty.foreach.files.last}, {/if}
+			<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$file->storage_sha1hash}&name={$file->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$file->display_name}</a>
 		{/foreach}
-	*}
+		*}
 	</td>
 {elseif $col->type==Model_CustomField::TYPE_WORKER}
 	<td data-column="{$column}">

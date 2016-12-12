@@ -618,11 +618,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="attachment.storage_size">
-			<tuv xml:lang="ru_RU">
-				<seg>Размер (байт)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="calls.activity.tab">
 			<tuv xml:lang="ru_RU">
 				<seg>Звонки</seg>
@@ -1565,7 +1560,7 @@
 		</tu>
 		<tu tuid="common.size">
 			<tuv xml:lang="ru_RU">
-				<seg/>
+				<seg>Размер</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.snippets">

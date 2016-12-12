@@ -22,16 +22,17 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'storage_attachments');
 		
-		$defaults = C4_AbstractViewModel::loadFromClass('View_AttachmentLink');
-		$defaults->id = View_AttachmentLink::DEFAULT_ID;
-		$defaults->name = 'Stored Objects';
+		$defaults = C4_AbstractViewModel::loadFromClass('View_Attachment');
+		$defaults->id = View_Attachment::DEFAULT_ID;
+		$defaults->name = 'Attachments';
 
-		$view = C4_AbstractViewLoader::getView(View_AttachmentLink::DEFAULT_ID, $defaults);
+		$view = C4_AbstractViewLoader::getView(View_Attachment::DEFAULT_ID, $defaults);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_attachments/index.tpl');
 	}
 	
+	/*
 	function showAttachmentsBulkPanelAction() {
 		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
@@ -85,7 +86,7 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 		
 		// If we have specific IDs, add a filter for those too
 		if(!empty($ids)) {
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_AttachmentLink::GUID, 'in', $ids));
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Attachment::ID, 'in', $ids));
 		}
 		
 		// Create batches
@@ -99,4 +100,5 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 		
 		return;
 	}
+	*/
 }

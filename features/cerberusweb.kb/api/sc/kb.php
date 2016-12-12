@@ -127,15 +127,6 @@ class UmScKbController extends Extension_UmScController {
 				$article = DAO_KbArticle::get($id);
 				$tpl->assign('article', $article);
 				
-				// Attachments
-				$attachments_map = DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_KB_ARTICLE, $id);
-				$attachments_id_to_guid = array();
-				
-				if(isset($attachments_map['links']))
-				foreach($attachments_map['links'] as $attachment_guid => $attachment_link) {
-					$attachments_id_to_guid[$attachment_link->attachment_id] = $attachment_guid;
-				}
-				
 				// Rewrite internal URLs to use the SC files controller
 				
 				$article_inline_attachment_ids = array();
@@ -175,8 +166,10 @@ class UmScKbController extends Extension_UmScController {
 						unset($attachments_map['attachments'][$attachment_link->attachment_id]);
 					}
 				}
+				// Attachments
 
-				$tpl->assign('attachments_map', $attachments_map);
+				$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $id);
+				$tpl->assign('attachments', $attachments);
 				
 				// Article list
 

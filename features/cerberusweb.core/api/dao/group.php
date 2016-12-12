@@ -114,6 +114,16 @@ class DAO_Group extends Cerb_ORMHelper {
 		return $names;
 	}
 	
+	static function getPublicGroups() {
+		$groups = self::getAll();
+		
+		$groups = array_filter($groups, function(Model_Group $group) {
+			return !$group->is_private;
+		});
+		
+		return $groups;
+	}
+	
 	static function getResponsibilities($group_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$responsibilities = array();

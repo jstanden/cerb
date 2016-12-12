@@ -147,30 +147,20 @@
 	<br>
 	
 	<div style="clear:both;">
-	
-	<div class="email">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</div>
-
+		<div class="email">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</div>
 	</div>
 	
 	{if isset($attachments.$message_id)}
 		<div style="margin-top:10px;">
 		<b>Attachments:</b><br>
 		<ul style="margin-top:0px;">
-		{foreach from=$attachments.$message_id item=map}
-			{$links = $map.links}
-			{$files = $map.attachments}
-			
-			{foreach from=$links item=link}
-			{$attachment = $files.{$link->attachment_id}}
-			<li>
-				<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$link->guid}&name={$attachment->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$attachment->display_name}</a>
-				( 
-					{$attachment->storage_size|devblocks_prettybytes}
-					- 
-					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if}
-				 )
-			</li>
-			{/foreach}
+		{foreach from=$attachments.$message_id item=attachment}
+		<li>
+			<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$attachment->storage_sha1hash}&name={$attachment->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$attachment->display_name}</a>
+			({$attachment->storage_size|devblocks_prettybytes}
+			 - 
+			{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
+		</li>
 		{/foreach}
 		</ul>
 		</div>

@@ -112,15 +112,10 @@
 		
 		<file path="api/dao/attachment.php">
 			<class name="Context_Attachment" />
-			<class name="Context_AttachmentLink" />
 			<class name="DAO_Attachment" />
-			<class name="DAO_AttachmentLink" />
 			<class name="Model_Attachment" />
-			<class name="Model_AttachmentLink" />
 			<class name="SearchFields_Attachment" />
-			<class name="SearchFields_AttachmentLink" />
 			<class name="Storage_Attachments" />
-			<class name="View_AttachmentLink" />
 		</file>
 		
 		<file path="api/dao/bayes.php">
@@ -1070,46 +1065,10 @@
 				<param key="view_class" value="" />
 				<param key="options">
 					<value>
-						<!--
-						<data key="create" />
 						<data key="find" />
-						<data key="snippets" />
 						<data key="workspace" />
-						-->
 						<data key="va_variable" />
 					</value>
-				</param>
-			</params>
-		</extension>
-		
-		<extension point="devblocks.context">
-			<id>cerberusweb.contexts.attachment_link</id>
-			<name>Attachment Link</name>
-			<class>
-				<file>api/dao/attachment.php</file>
-				<name>Context_AttachmentLink</name>
-			</class>
-			<params>
-				<param key="names">
-					<value>
-						<data key="attachment link" value="singular" />
-						<data key="attachment links" value="plural" />
-						<data key="file link" value="singular short" />
-						<data key="file links" value="plural short" />
-					</value>
-				</param>
-				<param key="alias" value="attachment_link" />
-				<param key="dao_class" value="DAO_AttachmentLink" />
-				<param key="view_class" value="View_AttachmentLink" />
-				<param key="options">
-					<!--
-					<value>
-						<data key="create" />
-						<data key="find" />
-						<data key="snippets" />
-						<data key="workspace" />
-					</value>
-					-->
 				</param>
 			</params>
 		</extension>

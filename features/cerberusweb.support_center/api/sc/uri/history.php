@@ -78,45 +78,12 @@ class UmScHistoryController extends Extension_UmScController {
 			
 			$messages = DAO_Message::getMessagesByTicket($ticket->id);
 			$messages = array_reverse($messages, true);
-			$attachments = array();
-			
-			// Attachments
-			if(is_array($messages) && !empty($messages)) {
-				// Populate attachments per message
-				foreach($messages as $message_id => $message) {
-					$map = $message->getLinksAndAttachments();
-					
-					if(!isset($map['links']) || empty($map['links'])
-						|| !isset($map['attachments']) || empty($map['attachments']))
-						continue;
-					
-					foreach($map['links'] as $link_id => $link) {
-						$file = $map['attachments'][$link->attachment_id];
-						
-						if(empty($file)) {
-							unset($map['links'][$link_id]);
-							continue;
-						}
-							
-						if(0 == strcasecmp('original_message.html', $file->display_name)) {
-							unset($map['links'][$link_id]);
-							unset($map['files'][$link->attachment_id]);
-							continue;
-						}
-					}
-					
-					if(!empty($map)) {
-						if(!isset($attachments[$message_id]))
-							$attachments[$message_id] = array();
-						
-						$attachments[$message_id][$link->guid] = $map;
-					}
-				}
-			}
 			
 			$tpl->assign('ticket', $ticket);
 			$tpl->assign('participants', $participants);
 			$tpl->assign('messages', $messages);
+			
+			$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, array_keys($messages), false);
 			$tpl->assign('attachments', $attachments);
 			
 			$badge_extensions = DevblocksPlatform::getExtensions('cerberusweb.support_center.message.badge', true);

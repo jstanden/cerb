@@ -739,7 +739,12 @@ var cAjaxCalls = function() {
 				// Add the labels
 				for(var idx in event.labels)
 					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
-						var $li = $('<li/>').text(event.labels[idx]);
+						var $label = $('<a href="javascript:;" class="cerb-peek-trigger" data-context="cerberusweb.contexts.attachment" />')
+							.attr('data-context-id', event.values[idx])
+							.text(event.labels[idx])
+							.cerbPeekTrigger()
+							;
+						var $li = $('<li/>').append($label);
 						var $hidden = $('<input type="hidden">').attr('name', field_name + (options.single ? '' : '[]')).attr('value', event.values[idx]).appendTo($li);
 						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
 						

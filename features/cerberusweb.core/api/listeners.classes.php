@@ -890,7 +890,6 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			return;
 		
 		// Core
-		DAO_AttachmentLink::removeAllByContext($context, $context_ids);
 		DAO_Calendar::deleteByContext($context, $context_ids);
 		DAO_Comment::deleteByContext($context, $context_ids);
 		DAO_ContextActivityLog::deleteByContext($context, $context_ids);
@@ -917,17 +916,6 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$context_index = $context_table . '.' . $context_key;
 		
 		$logger->info(sprintf("Running maintenance on context: %s", $context));
-		
-		// ===========================================================================
-		// Attachment links
-
-		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
-			$db->qstr($context),
-			$db->escape($context_index),
-			$db->escape($context_table)
-		));
-		if(null != ($deletes = $db->Affected_Rows()))
-			$logger->info(sprintf("Purged %d %s attachment links.", $deletes, $context));
 		
 		// ===========================================================================
 		// Comments

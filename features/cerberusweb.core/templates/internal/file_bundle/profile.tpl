@@ -65,7 +65,7 @@
 	<span>
 		<ul class="bubbles">
 			{foreach from=$attachments item=attachment}
-			<li><a href="{devblocks_url}c=files&guid={$attachment->storage_sha1hash}&name={$attachment->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$attachment->display_name} ({$attachment->storage_size|devblocks_prettybytes:1})</a></li>
+			<li><a href="{devblocks_url}c=files&id={$attachment->id}&name={$attachment->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$attachment->display_name} ({$attachment->storage_size|devblocks_prettybytes:1})</a></li>
 			{/foreach}
 		</ul>
 	</span>

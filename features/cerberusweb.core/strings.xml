@@ -292,9 +292,14 @@
 				<seg>Assigned</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.attachment">
+			<tuv xml:lang="en_US">
+				<seg>attachment</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.attachments">
 			<tuv xml:lang="en_US">
-				<seg>Attachments</seg>
+				<seg>attachments</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.available">
@@ -2405,11 +2410,6 @@
 		<tu tuid="attachment.storage_sha1hash">
 			<tuv xml:lang="en_US">
 				<seg>SHA-1 Hash</seg>
-			</tuv>
-		</tu>
-		<tu tuid="attachment.storage_size">
-			<tuv xml:lang="en_US">
-				<seg>Size (bytes)</seg>
 			</tuv>
 		</tu>
 

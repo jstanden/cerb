@@ -1,39 +1,17 @@
-{if empty($attachments_map) || !is_array($attachments_map)}
-{$attachments_map = DAO_AttachmentLink::getLinksAndAttachments($context, $context_id)}
-{/if}
-{$links = $attachments_map.links}
-{$attachments = $attachments_map.attachments}
-{$uniq_id = uniqid()}
+{$attachments = DAO_Attachment::getByContextIds($context, $context_id)}
 
-{if !empty($links) && !empty($attachments)}
-<div id="attachments{$uniq_id}" style="margin-bottom:15px;">
-<b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
-<ul style="margin-top:0px;margin-bottom:5px;">
-	{foreach from=$links item=link name=links}
-	{$attachment = $attachments.{$link->attachment_id}}
-	{if !empty($attachment)}
-		<li>
-			<a href="{devblocks_url}c=files&p={$link->guid}&name={$attachment->display_name|escape:'url'}{/devblocks_url}" target="_blank" style="font-weight:bold;color:rgb(50,120,50);">{$attachment->display_name}</a>
-			(  
-			{$attachment->storage_size|devblocks_prettybytes} 
+{if $attachments}
+<b>{'common.attachments'|devblocks_translate|capitalize}:</b>
+<ul class="bubbles" style="display:block;margin:5px 0px 15px 10px;">
+	{foreach from=$attachments item=attachment}
+	<li>
+		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+			<b>{$attachment->display_name}</b>
+			({$attachment->storage_size|devblocks_prettybytes} 
 			- 
-			{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if}
-			 )
-			 <span style="margin-left:10px;" class="download"><a href="{devblocks_url}c=files&p={$link->guid}&name={$attachment->display_name|escape:'url'}{/devblocks_url}?download=">download</a></span>
-		</li>
-	{/if}
+			{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
+		</a>
+	</li>
 	{/foreach}
 </ul>
-</div>
-
-<script type="text/javascript">
-$('#attachments{$uniq_id} ul li').hover(
-	function() {
-		$(this).find('span.download').show();
-	},
-	function() {
-		$(this).find('span.download').hide();
-	}
-);
-</script>
 {/if}

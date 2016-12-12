@@ -177,7 +177,7 @@ SQL;
 SELECT m.created_date, m.is_outgoing, 
 (SELECT headers FROM message_headers WHERE message_id = m.id) as headers,
 (SELECT data FROM storage_message_content WHERE chunk = 1 AND id = m.id) as content,
-(SELECT GROUP_CONCAT(attachment_id) FROM attachment_link WHERE context = 'cerberusweb.contexts.message' AND context_id = m.id) AS attachment_ids
+(SELECT GROUP_CONCAT(to_context_id) FROM context_link WHERE from_context = 'cerberusweb.contexts.message' AND from_context_id = m.id AND to_context = 'cerberusweb.contexts.attachment') AS attachment_ids
 FROM message m 
 WHERE ticket_id = $id
 SQL;

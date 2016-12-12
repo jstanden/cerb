@@ -15,7 +15,7 @@
 |	http://cerb.io	    http://webgroup.media
 ***********************************************************************/
 
-class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
+class PageSection_ProfilesAttachment extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
@@ -25,19 +25,22 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
-		@array_shift($stack); // mail_html_template
+		@array_shift($stack); // attachment 
 		$id = array_shift($stack); // 123
 
 		@$id = intval($id);
 		
-		if(null == ($mail_html_template = DAO_MailHtmlTemplate::get($id))) {
+		if(false == ($attachment = DAO_Attachment::get($id)))
 			return;
-		}
-		$tpl->assign('mail_html_template', $mail_html_template);
+		
+		$tpl->assign('attachment', $attachment);
 	
+		$guid = $attachment->isReadableByActor($active_worker);
+		$tpl->assign('guid', $guid);
+		
 		// Tab persistence
 		
-		$point = 'profiles.mail_html_template.tab';
+		$point = 'profiles.attachment.tab';
 		$tpl->assign('point', $point);
 		
 		if(null == (@$tab_selected = $stack[0])) {
@@ -48,37 +51,61 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		// Properties
 			
 		$properties = array();
+			
+		$properties['mime_type'] = array(
+			'label' => mb_ucfirst($translate->_('attachment.mime_type')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $attachment->mime_type,
+		);
 		
+		$properties['storage_size'] = array(
+			'label' => mb_ucfirst($translate->_('common.size')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => DevblocksPlatform::strPrettyBytes($attachment->storage_size),
+		);
+		
+		$properties['storage_extension'] = array(
+			'label' => mb_ucfirst($translate->_('attachment.storage_extension')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $attachment->storage_extension,
+		);
+		
+		$properties['storage_key'] = array(
+			'label' => mb_ucfirst($translate->_('attachment.storage_key')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $attachment->storage_key,
+		);
+			
 		$properties['updated'] = array(
 			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $mail_html_template->updated_at,
+			'value' => $attachment->updated,
 		);
-		
+			
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $mail_html_template->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ATTACHMENT, $attachment->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_ATTACHMENT, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $mail_html_template->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_ATTACHMENT, $attachment->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE => array(
-				$mail_html_template->id => 
+			CerberusContexts::CONTEXT_ATTACHMENT => array(
+				$attachment->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE,
-						$mail_html_template->id,
+						CerberusContexts::CONTEXT_ATTACHMENT,
+						$attachment->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
@@ -94,16 +121,16 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		
 		$macros = DAO_TriggerEvent::getReadableByActor(
 			$active_worker,
-			'event.macro.mail_html_template'
+			'event.macro.attachment'
 		);
 		$tpl->assign('macros', $macros);
 
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ATTACHMENT);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/mail_html_template.tpl');
+		$tpl->display('devblocks:cerberusweb.core::profiles/attachment.tpl');
 	}
 	
 	function savePeekJsonAction() {
@@ -117,11 +144,8 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			if(!$active_worker->is_superuser)
-				throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this record.");
-			
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				DAO_MailHtmlTemplate::delete($id);
+				DAO_Attachment::delete($id);
 				
 				echo json_encode(array(
 					'status' => true,
@@ -132,55 +156,43 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
-				@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'], 'string', '');
+				@$mime_type = DevblocksPlatform::importGPC($_REQUEST['mime_type'], 'string', 'application/octet-stream');
 				
 				if(empty($name))
 					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
-	
-				$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
-				$owner_ctx_id = 0;
-				
-				$fields = array(
-					DAO_MailHtmlTemplate::UPDATED_AT => time(),
-					DAO_MailHtmlTemplate::NAME => $name,
-					DAO_MailHtmlTemplate::OWNER_CONTEXT => $owner_ctx,
-					DAO_MailHtmlTemplate::OWNER_CONTEXT_ID => $owner_ctx_id,
-					DAO_MailHtmlTemplate::CONTENT => $content,
-					DAO_MailHtmlTemplate::SIGNATURE => $signature,
-				);
 				
 				if(empty($id)) { // New
-					if(false == ($id = DAO_MailHtmlTemplate::create($fields)))
-						return false;
+					$fields = array(
+						DAO_Attachment::DISPLAY_NAME => $name,
+						DAO_Attachment::MIME_TYPE => $mime_type,
+						DAO_Attachment::UPDATED => time(),
+					);
+					$id = DAO_Attachment::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id);
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ATTACHMENT, $id);
 					
 				} else { // Edit
-					DAO_MailHtmlTemplate::update($id, $fields);
-					
+					$fields = array(
+						DAO_Attachment::DISPLAY_NAME => $name,
+						DAO_Attachment::MIME_TYPE => $mime_type,
+						DAO_Attachment::UPDATED => time(),
+					);
+					DAO_Attachment::update($id, $fields);
 				}
-	
-				if($id) {
-					// Custom fields
-					@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $field_ids);
-					
-					// Files
-					@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array', array());
-					if(is_array($file_ids))
-						DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $file_ids);
-				}
+				
+				// Custom fields
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ATTACHMENT, $id, $field_ids);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'label' => $name,
+					'view_id' => $view_id,
+				));
+				return;
 			}
-			
-			echo json_encode(array(
-				'status' => true,
-				'id' => $id,
-				'label' => $name,
-				'view_id' => $view_id,
-			));
-			return;
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(
@@ -197,30 +209,6 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 			));
 			return;
 		}
-	}
-	
-	function getSignatureParsedownPreviewAction() {
-		@$signature = DevblocksPlatform::importGPC($_REQUEST['data'],'string', '');
-		
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		header('Content-Type: text/html; charset=' . LANG_CHARSET_CODE);
-		
-		// Token substitution
-		
-		$labels = array();
-		$values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $labels, $values, null, true, true);
-		$dict = new DevblocksDictionaryDelegate($values);
-		
-		$signature = $tpl_builder->build($signature, $dict);
-		
-		// Parsedown
-		
-		$output = DevblocksPlatform::parseMarkdown($signature);
-		
-		echo $output;
 	}
 	
 	function viewExploreAction() {
@@ -262,8 +250,8 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 					'created' => time(),
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=html_template', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.mail.html_template.explore.toolbar',
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=attachment', true),
+					'toolbar_extension_id' => 'cerberusweb.contexts.attachment.explore.toolbar',
 				);
 				$models[] = $model;
 				
@@ -275,13 +263,13 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=html_template&id=%d-%s", $row[SearchFields_MailHtmlTemplate::ID], DevblocksPlatform::strToPermalink($row[SearchFields_MailHtmlTemplate::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=attachment&id=%d-%s", $row[SearchFields_Attachment::ID], DevblocksPlatform::strToPermalink($row[SearchFields_Attachment::NAME])), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
 				$model->pos = $pos++;
 				$model->params = array(
-					'id' => $row[SearchFields_MailHtmlTemplate::ID],
+					'id' => $row[SearchFields_Attachment::ID],
 					'url' => $url,
 				);
 				$models[] = $model;

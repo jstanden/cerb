@@ -192,7 +192,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 			@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array:integer', array());
 			
 			if(is_array($file_ids))
-				DAO_AttachmentLink::setLinks(CerberusContexts::CONTEXT_FILE_BUNDLE, $id, $file_ids);
+				DAO_Attachment::setLinks(CerberusContexts::CONTEXT_FILE_BUNDLE, $id, $file_ids);
 			
 			// If we're adding a comment
 			

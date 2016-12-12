@@ -36,9 +36,8 @@ class DAO_Comment extends Cerb_ORMHelper {
 		 * Attachments
 		 */
 		
-		if(!empty($file_ids))
-		foreach($file_ids as $file_id) {
-			DAO_AttachmentLink::create(intval($file_id), CerberusContexts::CONTEXT_COMMENT, $id);
+		if(!empty($file_ids)) {
+			DAO_Attachment::setLinks(CerberusContexts::CONTEXT_COMMENT, $id, $file_ids);
 		}
 		
 		/*
@@ -738,8 +737,8 @@ class Model_Comment {
 		}
 	}
 	
-	function getLinksAndAttachments() {
-		return DAO_AttachmentLink::getLinksAndAttachments(CerberusContexts::CONTEXT_COMMENT, $this->id);
+	function getAttachments() {
+		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_COMMENT, $this->id);
 	}
 };
 
@@ -1248,29 +1247,20 @@ class Context_Comment extends Extension_DevblocksContext {
 		
 		switch($token) {
 			case 'attachments':
-				$results = DAO_AttachmentLink::getLinksAndAttachments($context, $context_id);
-				$links = array();
+				$results = DAO_Attachment::getByContextIds($context, $context_id);
+				$objects = [];
 				
-				if(isset($results['links']) && is_array($results['links']))
-				foreach($results['links'] as $link) {
-					$attachment_id = $link->attachment_id;
-					@$attachment = $results['attachments'][$attachment_id];
-					
-					if(!$attachment_id || !$attachment)
-						continue;
-					
-					$object = array(
+				foreach($results as $attachment_id => $attachment) {
+					$object = [
 						'id' => $attachment_id,
-						'guid' => $link->guid,
 						'file_name' => $attachment->display_name,
 						'file_size' => $attachment->storage_size,
 						'file_type' => $attachment->mime_type,
-						'file_hash' => $attachment->storage_sha1hash,
-					);
-					$links[] = $object;
+					];
+					$objects[$attachment_id] = $object;
 				}
 				
-				$values['attachments'] = $links;
+				$values['attachments'] = $objects;
 				break;
 			
 			case 'record_type':

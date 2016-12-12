@@ -50,7 +50,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	
 	private function _findAttachmentIdInContainer($id, $container) {
 		foreach($container['results'] as $result) {
-			if(is_array($result) && $result['attachment_id'] == $id)
+			if(is_array($result) && $result['id'] == $id)
 				return $result;
 		}
 		
@@ -58,14 +58,17 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 	
 	private function getId($id) {
-		// ACL
-//		$worker = CerberusApplication::getActiveWorker();
-//		if(!$worker->hasPriv('core.addybook'))
-//			$this->error(self::ERRNO_ACL);
-
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
+			$this->error(self::ERRNO_CUSTOM, "Can't load attachment context.");
+		
+		if(false == ($context_ext->authorize($id, $active_worker)))
+			$this->error(self::ERRNO_ACL, "Permission denied.");
 		
 		if(is_array($container) && isset($container['results'])) {
 			if(false != ($result = $this->_findAttachmentIdInContainer($id, $container))) {
@@ -78,23 +81,26 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 	}
 
 	private function getIdDownload($id) {
-		// ACL
-//		$worker = CerberusApplication::getActiveWorker();
-//		if(!$worker->hasPriv('core.addybook'))
-//			$this->error(self::ERRNO_ACL);
-
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
 		
 		if(
 			null == (@$result = $this->_findAttachmentIdInContainer($id, $container))
-			|| null == ($file = DAO_Attachment::get($result['attachment_id']))
+			|| null == ($file = DAO_Attachment::get($result['id']))
 		)
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid attachment id '%d'", $id));
 			
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
 			$this->error(self::ERRNO_CUSTOM, "Could not open a temporary file.");
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
+			$this->error(self::ERRNO_CUSTOM, "Can't load attachment context.");
+		
+		if(false == ($context_ext->authorize($file->id, $active_worker)))
+			$this->error(self::ERRNO_ACL, "Permission denied.");
 		
 		if(false === $file->getFileContents($fp))
 			$this->error(self::ERRNO_CUSTOM, "Error reading resource.");
@@ -130,25 +136,22 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'display_name' => SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME,
-				'mime_type' => SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
-				'storage_extension' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION,
+				'display_name' => SearchFields_Attachment::DISPLAY_NAME,
+				'mime_type' => SearchFields_Attachment::MIME_TYPE,
+				'storage_extension' => SearchFields_Attachment::STORAGE_EXTENSION,
 			);
 			
 		} else {
 			$tokens = array(
-				'context' => SearchFields_AttachmentLink::LINK_CONTEXT,
-				'context_id' => SearchFields_AttachmentLink::LINK_CONTEXT_ID,
-				'display_name' => SearchFields_AttachmentLink::ATTACHMENT_DISPLAY_NAME,
-				'guid' => SearchFields_AttachmentLink::GUID,
-				'id' => SearchFields_AttachmentLink::ID,
-				'mime_type' => SearchFields_AttachmentLink::ATTACHMENT_MIME_TYPE,
-				'sha1_hash' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SHA1HASH,
-				'size' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_SIZE,
-				'storage_extension' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_EXTENSION,
-				'storage_key' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_KEY,
-				'storage_profile_id' => SearchFields_AttachmentLink::ATTACHMENT_STORAGE_PROFILE_ID,
-				'updated' => SearchFields_AttachmentLink::ATTACHMENT_UPDATED,
+				'display_name' => SearchFields_Attachment::DISPLAY_NAME,
+				'id' => SearchFields_Attachment::ID,
+				'mime_type' => SearchFields_Attachment::MIME_TYPE,
+				'sha1_hash' => SearchFields_Attachment::STORAGE_SHA1HASH,
+				'size' => SearchFields_Attachment::STORAGE_SIZE,
+				'storage_extension' => SearchFields_Attachment::STORAGE_EXTENSION,
+				'storage_key' => SearchFields_Attachment::STORAGE_KEY,
+				'storage_profile_id' => SearchFields_Attachment::STORAGE_PROFILE_ID,
+				'updated' => SearchFields_Attachment::UPDATED,
 			);
 		}
 		
@@ -194,7 +197,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		// Search
 		
 		$view = $this->_getSearchView(
-			CerberusContexts::CONTEXT_ATTACHMENT_LINK,
+			CerberusContexts::CONTEXT_ATTACHMENT,
 			$params,
 			$limit,
 			$page,
@@ -226,13 +229,13 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		if($show_results) {
 			$objects = array();
 
-			$models = DAO_AttachmentLink::getByGUIDs(array_keys($results));
+			$models = DAO_Attachment::getIds(array_keys($results));
 			
 			unset($results);
 
 			if(is_array($models))
 			foreach($models as $id => $model) {
-				CerberusContexts::getContext(CerberusContexts::CONTEXT_ATTACHMENT_LINK, $model, $labels, $values, null, true);
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_ATTACHMENT, $model, $labels, $values, null, true);
 				
 				$objects[$id] = $values;
 			}
@@ -254,7 +257,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		return $container;
 		
 		// Search
-		list($results, $total) = DAO_AttachmentLink::search(
+		list($results, $total) = DAO_Attachment::search(
 			array(),
 			$params,
 			$limit,

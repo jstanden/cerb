@@ -41,6 +41,20 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const ELAPSED_RESPONSE_FIRST = 'elapsed_response_first';
 	const ELAPSED_RESOLUTION_FIRST = 'elapsed_resolution_first';
 	
+	static function authorizeByParticipantsAndMessages(array $participant_ids, array $message_ids) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($participant_ids) || empty($message_ids))
+			return false;
+		
+		$result = $db->GetOneSlave(sprintf("SELECT COUNT(t.id) from message m inner join ticket t on (t.id=m.ticket_id) inner join requester r on (r.ticket_id=t.id) where r.address_id in (%s) and m.id in (%s)",
+			implode(',', DevblocksPlatform::sanitizeArray($participant_ids, 'int')),
+			implode(',', DevblocksPlatform::sanitizeArray($message_ids, 'int'))
+		));
+		
+		return !empty($result);
+	}
+	
 	/**
 	 * Enter description here...
 	 *
@@ -1872,11 +1886,9 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const FULLTEXT_NOTE_CONTENT = 'ftnc_content';
 	
 	// Virtuals
-	const VIRTUAL_ATTACHMENT_NAME = '*_attachment_name';
 	const VIRTUAL_CONTACT_ID = '*_contact_id';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
-	const VIRTUAL_HAS_ATTACHMENTS = '*_has_attachments';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_ORG_ID = '*_org_id';
 	const VIRTUAL_PARTICIPANT_ID = '*_participant_id';
@@ -1909,69 +1921,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			$options = array();
 		
 		switch($param->field) {
-			case self::VIRTUAL_HAS_ATTACHMENTS:
-				return sprintf("%s %sIN (".
-					"SELECT message.ticket_id ".
-					"FROM attachment_link ".
-					"INNER JOIN message ON (attachment_link.context_id = message.id) ".
-					"WHERE context='cerberusweb.contexts.message' AND message.ticket_id = %s ".
-					")",
-					self::getPrimaryKey(),
-					!empty($param->value) ? '' : 'NOT ',
-					self::getPrimaryKey()
-				);
-				break;
-				
-			case self::VIRTUAL_ATTACHMENT_NAME:
-				$where = '0';
-				$values = array();
-				$not = false;
-				
-				if(is_array($param->value))
-				foreach($param->value as $value)
-					$values[] = Cerb_ORMHelper::qstr($value);
-				
-				switch($param->operator) {
-					case DevblocksSearchCriteria::OPER_IN:
-					case DevblocksSearchCriteria::OPER_NIN:
-						$not = ($param->operator == DevblocksSearchCriteria::OPER_NIN);
-						$wheres = sprintf('attachment.display_name IN (%s)',
-							implode(',', $values)
-						);
-						break;
-						
-					case DevblocksSearchCriteria::OPER_EQ:
-					case DevblocksSearchCriteria::OPER_NEQ:
-						$not = ($param->operator == DevblocksSearchCriteria::OPER_NEQ);
-						$wheres = sprintf('attachment.display_name = %s',
-							Cerb_ORMHelper::qstr($param->value)
-						);
-						break;
-						
-					case DevblocksSearchCriteria::OPER_LIKE:
-					case DevblocksSearchCriteria::OPER_NOT_LIKE:
-						$not = ($param->operator == DevblocksSearchCriteria::OPER_NOT_LIKE);
-						$wheres = sprintf('attachment.display_name LIKE %s',
-							Cerb_ORMHelper::qstr(str_replace('*','%',$param->value))
-						);
-						break;
-				}
-				
-				return sprintf("%s %sIN (".
-					"SELECT message.ticket_id ".
-					"FROM attachment_link ".
-					"INNER JOIN attachment ON (attachment.id=attachment_link.attachment_id) ".
-					"INNER JOIN message ON (attachment_link.context_id = message.id) ".
-					"WHERE context='cerberusweb.contexts.message' AND message.ticket_id = %s ".
-					"AND %s".
-					")",
-					self::getPrimaryKey(),
-					!empty($param->value) ? '' : 'NOT ',
-					self::getPrimaryKey(),
-					$wheres
-				);
-				break;
-			
 			case self::FULLTEXT_MESSAGE_CONTENT:
 				if(false == ($search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID)))
 					return null;
@@ -2308,11 +2257,9 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			
 			SearchFields_Ticket::SENDER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::SENDER_ADDRESS, 'a1', 'email', null, null, true),
 
-			SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME, '*', 'attachment_name', $translate->_('message.search.attachment_name'), null, false),
 			SearchFields_Ticket::VIRTUAL_CONTACT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTACT_ID, '*', 'contact_id', null, null, false), // contact ID
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
-			SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS, '*', 'has_attachments', $translate->_('message.search.has_attachments'), Model_CustomField::TYPE_CHECKBOX, false),
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_ID, '*', 'org_id', null, null, false), // org ID
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID, '*', 'participant_id', null, null, false), // participant ID
@@ -2567,11 +2514,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			SearchFields_Ticket::TICKET_ORG_ID,
-			SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME,
 			SearchFields_Ticket::VIRTUAL_CONTACT_ID,
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
-			SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS,
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
@@ -3005,26 +2950,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT),
 				),
-			'attachments.exist' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_BOOL,
-					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS),
-				),
-			'attachments.name' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME),
-					'examples' => array(
-						'*.html',
-						'(*.png OR *.jpg)',
-					),
-			),
 			'bucket' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_BUCKET_ID),
 					'examples' => array_slice($bucket_names, 0, 15),
-			),
+				),
 			'comments' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
@@ -3239,15 +3170,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
-			case 'attachments.name':
-				$field_key = SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME;
-				$oper = null;
-				$value = null;
-				
-				$param = DevblocksSearchCriteria::getTextParamFromTokens($field_key, $tokens);
-				return $param;
-				break;
-			
 			case 'bucket':
 				$field_key = SearchFields_Ticket::TICKET_BUCKET_ID;
 				$oper = null;
@@ -3634,7 +3556,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
 			case SearchFields_Ticket::ORG_NAME:
-			case SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 
@@ -3652,10 +3573,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST:
 			case SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__time_elapsed.tpl');
-				break;
-					
-			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 					
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
@@ -3770,52 +3687,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
-			// [TODO] Handle NOT
-			// [TODO] And on messages
-			case SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME:
-				$strings_or = array();
-
-				switch($param->operator) {
-					case DevblocksSearchCriteria::OPER_EQ:
-					case DevblocksSearchCriteria::OPER_IN:
-					case DevblocksSearchCriteria::OPER_LIKE:
-						$oper = 'is';
-						break;
-					case DevblocksSearchCriteria::OPER_NEQ:
-					case DevblocksSearchCriteria::OPER_NIN:
-					case DevblocksSearchCriteria::OPER_NOT_LIKE:
-						$oper = 'is not';
-						break;
-					default:
-						$oper = $param->operator;
-						break;
-				}
-				
-				if(is_array($param->value)) {
-					foreach($param->value as $param_value) {
-						$strings_or[] = sprintf("<b>%s</b>",
-							DevblocksPlatform::strEscapeHtml($param_value)
-						);
-					}
-				} else {
-					$strings_or[] = sprintf("<b>%s</b>",
-						DevblocksPlatform::strEscapeHtml($param->value)
-					);
-				}
-				
-				echo sprintf("Attachment name %s %s",
-					DevblocksPlatform::strEscapeHtml($oper),
-					implode(' or ', $strings_or)
-				);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
-				if($param->value)
-					echo "<b>Has</b> attachments";
-				else
-					echo "<b>Doesn't</b> have attachments";
-				break;
-			
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
@@ -4141,11 +4012,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 
-			case SearchFields_Ticket::VIRTUAL_HAS_ATTACHMENTS:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
 			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_IMPORTANCE:
 			case SearchFields_Ticket::TICKET_NUM_MESSAGES:
@@ -4222,10 +4088,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::TICKET_OWNER_ID:
 				$criteria = $this->_doSetCriteriaWorker($field, $oper);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_ATTACHMENT_NAME:
-				$criteria = new DevblocksSearchCriteria($field,$oper,explode(' OR ', $value));
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
