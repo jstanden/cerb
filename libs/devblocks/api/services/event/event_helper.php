@@ -2559,6 +2559,9 @@ class DevblocksEventHelper {
 			$out .= "\n";
 		}
 		
+		// Links
+		$out .= DevblocksEventHelper::simulateActionCreateRecordSetLinks($params, $dict);
+		
 		return rtrim($out);
 	}
 	
@@ -2597,9 +2600,12 @@ class DevblocksEventHelper {
 				$fields[DAO_Comment::CONTEXT] = $on_object->_context;
 				$fields[DAO_Comment::CONTEXT_ID] = $on_object->id;
 				$comment_id = DAO_Comment::create($fields, $notify_worker_ids);
+				
+				// Connection
+				DevblocksEventHelper::runActionCreateRecordSetLinks(CerberusContexts::CONTEXT_COMMENT, $comment_id, $params, $dict);
 			}
 		}
-			
+		
 		return $comment_id;
 	}
 	

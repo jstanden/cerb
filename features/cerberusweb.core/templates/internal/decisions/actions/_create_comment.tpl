@@ -21,7 +21,16 @@
 </div>
 </div>
 
+{if !empty($values_to_contexts)}
+<b>Link to:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_picker.tpl" param_name="link_to" values_to_contexts=$values_to_contexts}
+</div>
+{/if}
+
 <script type="text/javascript">
-$action = $('fieldset#{$namePrefix}');
-$action.find('textarea').autosize();
+$(function() {
+	var $action = $('fieldset#{$namePrefix}');
+	$action.find('textarea').autosize();
+});
 </script>
