@@ -3973,6 +3973,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.attachment</id>
+				<name>Attachment Section</name>
+				<class>
+					<file>api/uri/profiles/attachment.php</file>
+					<name>PageSection_ProfilesAttachment</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="attachment" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.bucket</id>
 				<name>Bucket Section</name>
 				<class>
