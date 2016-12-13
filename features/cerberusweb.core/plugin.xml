@@ -1066,6 +1066,7 @@
 				<param key="view_class" value="" />
 				<param key="options">
 					<value>
+						<data key="cards" />
 						<data key="find" />
 						<data key="workspace" />
 						<data key="va_variable" />
