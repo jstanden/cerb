@@ -84,8 +84,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, 'Message:Ticket:', true);
 
 			// Fill some custom values
-			if(!is_null($event_model)) {
-				$values['is_first'] = ($values['id'] == $ticket_values['initial_message_id']) ? 1 : 0;
+			if(!is_null($event_model) && isset($values['id']) && isset($ticket_values['initial_message_id'])) {
+				$values['is_first'] = (isset($ticket_values['initial_message_id']) && $values['id'] == $ticket_values['initial_message_id']) ? 1 : 0;
 			}
 		
 			if(isset($ticket_values['group_id']))

@@ -302,6 +302,11 @@
 				<seg>attachments</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.author">
+			<tuv xml:lang="en_US">
+				<seg>Author</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.available">
 			<tuv xml:lang="en_US">
 				<seg>Available</seg>
@@ -1897,11 +1902,6 @@
 		<tu tuid="dao.cerb_plugin.description">
 			<tuv xml:lang="en_US">
 				<seg>Description</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.cerb_plugin.author">
-			<tuv xml:lang="en_US">
-				<seg>Author</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dao.cerb_plugin.version">

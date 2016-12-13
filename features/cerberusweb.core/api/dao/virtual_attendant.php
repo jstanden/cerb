@@ -1087,7 +1087,9 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 	}
 	
 	function getMeta($context_id) {
-		$virtual_attendant = DAO_VirtualAttendant::get($context_id);
+		if(false == ($virtual_attendant = DAO_VirtualAttendant::get($context_id)))
+			return [];
+			
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		$url = $this->profileGetUrl($context_id);

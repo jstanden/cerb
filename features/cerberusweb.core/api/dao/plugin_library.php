@@ -492,7 +492,7 @@ class SearchFields_PluginLibrary extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'plugin_library', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::PLUGIN_ID => new DevblocksSearchField(self::PLUGIN_ID, 'plugin_library', 'plugin_id', $translate->_('dao.plugin_library.plugin_id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'plugin_library', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::AUTHOR => new DevblocksSearchField(self::AUTHOR, 'plugin_library', 'author', $translate->_('dao.cerb_plugin.author'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::AUTHOR => new DevblocksSearchField(self::AUTHOR, 'plugin_library', 'author', $translate->_('common.author'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'plugin_library', 'description', $translate->_('dao.cerb_plugin.description'), Model_CustomField::TYPE_MULTI_LINE, true),
 			self::LINK => new DevblocksSearchField(self::LINK, 'plugin_library', 'link', $translate->_('common.url'), Model_CustomField::TYPE_URL, true),
 			self::LATEST_VERSION => new DevblocksSearchField(self::LATEST_VERSION, 'plugin_library', 'latest_version', $translate->_('dao.cerb_plugin.version'), null, true),

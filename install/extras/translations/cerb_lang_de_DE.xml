@@ -773,6 +773,11 @@
 				<seg>Anlagen</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.author">
+			<tuv xml:lang="de_DE">
+				<seg/>
+			</tuv>
+		</tu>
 		<tu tuid="common.availability">
 			<tuv xml:lang="de_DE">
 				<seg>Verfügbarkeit</seg>
@@ -1949,11 +1954,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="dao.calendar_recurring_profile.tz">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.cerb_plugin.author">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>

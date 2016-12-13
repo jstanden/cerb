@@ -768,6 +768,11 @@
 				<seg>Вложения</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.author">
+			<tuv xml:lang="ru_RU">
+				<seg/>
+			</tuv>
+		</tu>
 		<tu tuid="common.availability">
 			<tuv xml:lang="ru_RU">
 				<seg/>
@@ -1949,11 +1954,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="dao.calendar_recurring_profile.tz">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.cerb_plugin.author">
 			<tuv xml:lang="ru_RU">
 				<seg/>
 			</tuv>

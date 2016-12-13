@@ -1,4 +1,4 @@
-{$view_context = 'cerberusweb.contexts.comment'}
+{$view_context = CerberusContexts::CONTEXT_COMMENT}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}

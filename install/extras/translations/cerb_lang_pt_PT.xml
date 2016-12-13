@@ -768,6 +768,11 @@
 				<seg>Anexos</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.author">
+			<tuv xml:lang="pt_PT">
+				<seg>Autor</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.availability">
 			<tuv xml:lang="pt_PT">
 				<seg/>
@@ -1956,11 +1961,6 @@
 		<tu tuid="dao.calendar_recurring_profile.tz">
 			<tuv xml:lang="pt_PT">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.cerb_plugin.author">
-			<tuv xml:lang="pt_PT">
-				<seg>Autor</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dao.cerb_plugin.description">
