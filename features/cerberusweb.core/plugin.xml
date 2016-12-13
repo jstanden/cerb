@@ -116,6 +116,7 @@
 			<class name="Model_Attachment" />
 			<class name="SearchFields_Attachment" />
 			<class name="Storage_Attachments" />
+			<class name="View_Attachment" />
 		</file>
 		
 		<file path="api/dao/bayes.php">
