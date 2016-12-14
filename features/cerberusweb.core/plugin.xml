@@ -1455,6 +1455,7 @@
 						<data key="create" />
 						<data key="custom_fields" />
 						<data key="find" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
