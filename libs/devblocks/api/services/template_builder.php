@@ -289,7 +289,7 @@ class DevblocksDictionaryDelegate {
 	public function scrubKeys($prefix) {
 		if(is_array($this->_dictionary))
 		foreach(array_keys($this->_dictionary) as $key) {
-			if($prefix == substr($key, 0, strlen($prefix)))
+			if(DevblocksPlatform::strStartsWith($key, $prefix))
 				unset($this->_dictionary[$key]);
 		}
 	}

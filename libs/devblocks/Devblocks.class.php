@@ -444,6 +444,28 @@ class DevblocksPlatform extends DevblocksEngine {
 		return implode('.', $parts);
 	}
 	
+	static function strStartsWith($string, $prefixes) {
+		if(!is_array($prefixes))
+			$prefixes = [$prefixes];
+		
+		foreach($prefixes as $prefix)
+			if(substr($string, 0, strlen($prefix)) == $prefix)
+				return true;
+		
+		return false;
+	}
+	
+	static function strEndsWith($string, $suffixes) {
+		if(!is_array($suffixes))
+			$suffixes = [$suffixes];
+		
+		foreach($suffixes as $suffix)
+			if(substr($string, -strlen($suffix)) == $suffix)
+				return true;
+		
+		return false;
+	}
+	
 	/**
 	 * 
 	 * @param string $version
