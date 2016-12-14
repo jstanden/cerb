@@ -58,9 +58,9 @@
 				{/if}
 				
 				{if $link_meta.permalink}
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$v.params.context}" data-context-id="{$v.value}">{$link_meta.name}</a>
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$v.params.context}" data-context-id="{$v.value}">{$link_meta.name|truncate:64}</a>
 				{else}
-					{$link_meta.name}
+					{$link_meta.name|truncate:64}
 				{/if}
 			</li>
 			</ul>
