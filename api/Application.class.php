@@ -1479,9 +1479,9 @@ class CerberusContexts {
 		// Load the translated version of the message
 
 		$entry['message'] = $translate->_($entry['message']);
-
+		
 		// Scrub desired tokens
-
+		
 		if(is_array($scrub_tokens) && !empty($scrub_tokens)) {
 			foreach($scrub_tokens as $token) {
 				// Scrub tokens and only preserve trailing whitespace
@@ -1490,8 +1490,28 @@ class CerberusContexts {
 		}
 		
 		// Variables
-
+		
 		$vars = $entry['variables'];
+		
+		// Do we need to translate any token variables/urls?
+		if(preg_match_all('#\{\{\'(.*?)\'.*?\}\}#', $entry['message'], $matches)) {
+			foreach(array_keys($matches[0]) as $idx) {
+				$new_key = uniqid('var_');
+				$entry['message'] = str_replace($matches[$idx], sprintf('{{%s}}', $new_key), $entry['message']);
+				
+				if(isset($vars[$matches[1][$idx]])) {
+					$vars[$new_key] = $vars[$matches[1][$idx]];
+					unset($vars[$matches[1][$idx]]);
+				} else {
+					$vars[$new_key] = DevblocksPlatform::translate($matches[1][$idx]);
+				}
+				
+				if(isset($entry['urls'][$matches[1][$idx]])) {
+					$entry['urls'][$new_key] = $entry['urls'][$matches[1][$idx]];
+					unset($entry['urls'][$matches[1][$idx]]);
+				}
+			}
+		}
 		
 		// Personalize variables
 		if($personalize && is_array($vars)) {
@@ -1521,7 +1541,6 @@ class CerberusContexts {
 				
 				$vars['actor'] = $actor_name;
 			}
-			
 		}
 
 		switch($format) {
@@ -1575,10 +1594,10 @@ class CerberusContexts {
 			default:
 				break;
 		}
-
+		
 		if(!is_array($vars))
 			$vars = array();
-
+		
 		return $tpl_builder->build($entry['message'], $vars);
 	}
 
