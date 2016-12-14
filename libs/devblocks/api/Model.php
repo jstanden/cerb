@@ -788,6 +788,43 @@ class DevblocksSearchCriteria {
 		return $param;
 	}
 	
+	public static function getVirtualContextParamFromTokens($field_key, $tokens, $prefix, $search_field_key) {
+		// Is this a nested subquery?
+		if(DevblocksPlatform::strStartsWith($field_key, $prefix.'.')) {
+			@list($null, $alias) = explode('.', $field_key);
+			
+			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
+			
+			$param = new DevblocksSearchCriteria(
+				$search_field_key,
+				DevblocksSearchCriteria::OPER_CUSTOM,
+				sprintf('%s:%s', $alias, $query)
+			);
+			return $param;
+			
+		} else {
+			$aliases = Extension_DevblocksContext::getAliasesForAllContexts();
+			$link_contexts = array();
+			
+			$oper = null;
+			$value = null;
+			CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
+			
+			if(is_array($value))
+			foreach($value as $alias) {
+				if(isset($aliases[$alias]))
+					$link_contexts[$aliases[$alias]] = true;
+			}
+			
+			$param = new DevblocksSearchCriteria(
+				$search_field_key,
+				DevblocksSearchCriteria::OPER_IN,
+				array_keys($link_contexts)
+			);
+			return $param;
+		}
+	}
+	
 	public static function getContextLinksParamFromTokens($field_key, $tokens) {
 		// Is this a nested subquery?
 		if(substr($field_key,0,6) == 'links.') {
