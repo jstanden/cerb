@@ -1,74 +1,108 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="internalCommentPopup" onsubmit="return false;">
-<input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="commentSavePopup">
-<input type="hidden" name="context" value="{$context}">
-<input type="hidden" name="context_id" value="{$context_id}">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+{$div_id = "peek{uniqid()}"}
+{$peek_context = 'cerberusweb.contexts.comment'}
+{$is_writeable = Context_Comment::isWriteableByActor($dict, $active_worker)}
 
-<b>Author:</b> {$active_worker->getName()}
-<div>
-	<textarea name="comment" rows="2" cols="60" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
-</div>
-<div>
-	<button type="button" onclick="ajax.chooserSnippet('snippets',$('#internalCommentPopup textarea[name=comment]'), { '{$context}':'{$context_id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
-</div>
-<br clear="all">
-
-<b>Attachments:</b><br>
-<div style="margin-left:20px;margin-bottom:1em;">
-	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
-	<ul class="chooser-container bubbles" style="display:block;"></ul>
+<div id="{$div_id}">
+	<div style="float:left;">
+		<div style="margin-top:5px;">
+			{if $is_writeable}
+			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			{/if}
+			
+			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+		</div>
+	</div>
 </div>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-</form>
+<div style="clear:both;padding-top:10px;"></div>
+
+<fieldset class="peek">
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+	
+	<div class="cerb-properties-grid" data-column-width="100">
+	
+		{$labels = $dict->_labels}
+		{$types = $dict->_types}
+		{foreach from=$properties item=k name=props}
+			{if $dict->$k}
+			<div>
+			{if $k == ''}
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+			{/if}
+			</div>
+			{/if}
+		{/foreach}
+	</div>
+	
+	<div style="clear:both;"></div>
+</fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}
+
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#internalCommentPopup');
+	var $div = $('#{$div_id}');
+	var $popup = genericAjaxPopupFind($div);
+	var $layer = $popup.attr('data-layer');
+	
+	var $timeline = {$timeline_json|default:'{}' nofilter};
 	
 	$popup.one('popup_open',function(event,ui) {
-		var $frm = $('#internalCommentPopup');
+		$popup.dialog('option','title', "{'comment'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
 		
-		$popup.dialog('option','title','Comment');
+		// Properties grid
+		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
-		$frm.find('button.submit').click(function() {
-			genericAjaxPost(
-				$frm,
-				null,
-				null,
-				function() {
-					$popup.trigger('comment_save');
-					genericAjaxPopupClose($popup);
-				},
-				{ 
-					async: false
-				}
-			);
-		});
-	
-		$frm.find('button.chooser_file').each(function() {
-			ajax.chooserFile(this,'file_ids');
-		});
-		
-		var $textarea = $frm.find('textarea');
-
-		// @ mentions
-		
-		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-		
-		$textarea
-			.autosize()
-			.focus()
-			.atwho({
-				at: '@',
-				{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-				{literal}insertTpl: '@${at_mention}',{/literal}
-				data: atwho_workers,
-				searchKey: '_index',
-				limit: 10
+		// Edit button
+		{if $is_writeable}
+		$popup.find('button.cerb-peek-edit')
+			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
+			.on('cerb-peek-saved', function(e) {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			.on('cerb-peek-deleted', function(e) {
+				genericAjaxPopupClose($layer);
 			})
 			;
+		{/if}
+		
+		// Comments
+		$popup.find('button.cerb-peek-comments-add')
+			.cerbCommentTrigger()
+			.on('cerb-comment-saved', function() {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			;
+		
+		// Peeks
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
+		
+		// Searches
+		$popup.find('.cerb-search-trigger')
+			.cerbSearchTrigger()
+			;
+		
+		// Menus
+		$popup.find('ul.cerb-menu').menu();
+		
+		// View profile
+		$popup.find('.cerb-peek-profile').click(function(e) {
+			if(e.metaKey) {
+				window.open('{devblocks_url}c=profiles&type=comment&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				
+			} else {
+				document.location='{devblocks_url}c=profiles&type=comment&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
+			}
+		});
+		
+		// Timeline
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
 	});
 });
 </script>

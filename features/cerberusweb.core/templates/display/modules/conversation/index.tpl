@@ -1,5 +1,5 @@
 <form style="margin:5px;">
-	{if $active_worker->hasPriv('core.display.actions.comment')}<button type="button" id="btnComment"><span class="glyphicons glyphicons-conversation"></span> Comment</button>{/if}
+	{if $active_worker->hasPriv('core.display.actions.comment')}<button type="button" id="btnComment" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="true"><span class="glyphicons glyphicons-conversation"></span> Comment</button>{/if}
 	{if !$expand_all}<button id="btnReadAll" title="{'display.shortcut.read_all'|devblocks_translate}" type="button" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><span class="glyphicons glyphicons-book-open"></span> {'display.button.read_all'|devblocks_translate|capitalize}</button>{/if} 
 </form>
 
@@ -112,15 +112,15 @@
 	});
 	{/if}
 
-	$('#btnComment').click(function(event) {
-		var $popup = genericAjaxPopup('comment', 'c=internal&a=commentShowPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$ticket->id}', null, false, '550');
-		$popup.one('comment_save', function(event) {
-			var $tabs = $('#btnComment').closest('div.ui-tabs');
-			if(0 != $tabs) {
-				$tabs.tabs('load', $tabs.tabs('option','active'));
-			}
-		});
-	});
+	$('#btnComment')
+		.cerbPeekTrigger()
+			.on('cerb-peek-saved', function() {
+				var $tabs = $('#btnComment').closest('div.ui-tabs');
+				if(0 != $tabs) {
+					$tabs.tabs('load', $tabs.tabs('option','active'));
+				}
+			})
+		;
 	
 	var displayReply = function(msgid, is_forward, draft_id, reply_mode, is_confirmed) {
 		var msgid = parseInt(msgid);

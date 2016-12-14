@@ -4260,41 +4260,4 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$tpl->display('devblocks:cerberusweb.core::internal/comments/peek.tpl');
 	}
-
-	function commentSavePopupAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
-		@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array());
-
-		$translate = DevblocksPlatform::getTranslationService();
-
-		// Worker is logged in
-		if(null === ($active_worker = CerberusApplication::getActiveWorker()))
-			return;
-
-		// [TODO] Validate context + ID
-		// [TODO] Validate ACL
-
-		// Form was filled in
-		if(empty($context) || empty($context_id) || empty($comment))
-			return;
-
-		$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-		
-		$fields = array(
-			DAO_Comment::CONTEXT => $context,
-			DAO_Comment::CONTEXT_ID => $context_id,
-			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-			DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-			DAO_Comment::COMMENT => $comment,
-			DAO_Comment::CREATED => time(),
-		);
-		$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids, $file_ids);
-	}
-
-	function commentDeleteAction() {
-		@$comment_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		DAO_Comment::delete($comment_id);
-	}
 };

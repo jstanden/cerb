@@ -1451,6 +1451,7 @@
 				<param key="view_class" value="View_Comment" />
 				<param key="options">
 					<value>
+						<data key="card" />
 						<data key="create" />
 						<data key="custom_fields" />
 						<data key="find" />

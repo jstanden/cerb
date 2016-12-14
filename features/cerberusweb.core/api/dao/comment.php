@@ -692,6 +692,25 @@ class Model_Comment {
 	function getAttachments() {
 		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_COMMENT, $this->id);
 	}
+	
+	function getTimeline($is_ascending=true) {
+		$timeline = [$this->id => $this];
+		
+		usort($timeline, function($a, $b) use ($is_ascending) {
+			$a_time = intval($a->created);
+			$b_time = intval($b->created);
+			
+			if($a_time > $b_time) {
+				return ($is_ascending) ? 1 : -1;
+			} else if ($a_time < $b_time) {
+				return ($is_ascending) ? -1 : 1;
+			} else {
+				return 0;
+			}
+		});
+		
+		return $timeline;
+	}
 };
 
 class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -1297,5 +1316,77 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		
 		$view->renderTemplate = 'context';
 		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+		
+		$context = CerberusContexts::CONTEXT_COMMENT;
+		
+		if(!empty($context_id)) {
+			$model = DAO_Comment::get($context_id);
+		}
+		
+		if(empty($context_id) || $edit) {
+			if(isset($model))
+				$tpl->assign('model', $model);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/comments/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			$timeline_json = Page_Profiles::getTimelineJson($model->getTimeline());
+			$tpl->assign('timeline_json', $timeline_json);
+			
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/comments/peek.tpl');
+		}
 	}
 };
