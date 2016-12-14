@@ -14,7 +14,44 @@ define('PLATFORM_BUILD', 2015101601);
  * @author Jeff Standen <jeff@webgroupmedia.com>
  */
 class DevblocksPlatform extends DevblocksEngine {
+	const TRANSLATE_NONE = 0;
+	const TRANSLATE_UCFIRST = 1;
+	const TRANSLATE_CAPITALIZE = 2;
+	const TRANSLATE_UPPER = 4;
+	const TRANSLATE_LOWER = 8;
+	
 	private function __construct() { return false; }
+	
+	static function translate($token, $format = DevblocksPlatform::TRANSLATE_NONE) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$string = $translate->_($token);
+		
+		switch($format) {
+			case self::TRANSLATE_UCFIRST:
+				return mb_ucfirst($string);
+				break;
+				
+			case self::TRANSLATE_CAPITALIZE:
+				return mb_convert_case($string, MB_CASE_TITLE);
+				break;
+				
+			case self::TRANSLATE_UPPER:
+				return mb_convert_case($string, MB_CASE_UPPER);
+				break;
+				
+			case self::TRANSLATE_LOWER:
+				return mb_convert_case($string, MB_CASE_LOWER);
+				break;
+				
+			default:
+				return $string;
+				break;
+		}
+	}
+	
+	static function translateCapitalized($token) {
+		return self::translate($token, DevblocksPlatform::TRANSLATE_CAPITALIZE);
+	}
 
 	static function installPluginZip($zip_filename) {
 		$plugin_path = APP_STORAGE_PATH . '/plugins/';
