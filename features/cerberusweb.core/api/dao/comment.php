@@ -322,12 +322,6 @@ class DAO_Comment extends Cerb_ORMHelper {
 			'where_sql' => &$where_sql,
 			'tables' => &$tables,
 		);
-	
-		array_walk_recursive(
-			$params,
-			array('DAO_Comment', '_translateVirtualParameters'),
-			$args
-		);
 		
 		$result = array(
 			'primary_table' => 'comment',
@@ -338,79 +332,6 @@ class DAO_Comment extends Cerb_ORMHelper {
 		);
 		
 		return $result;
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$from_context = CerberusContexts::CONTEXT_COMMENT;
-		$from_index = 'comment.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			case SearchFields_Comment::VIRTUAL_OWNER:
-				if(!is_array($param->value))
-					break;
-				
-				$wheres = array();
-					
-				foreach($param->value as $owner_context) {
-					@list($context, $context_id) = explode(':', $owner_context);
-					
-					if(empty($context))
-						continue;
-					
-					if(!empty($context_id)) {
-						$wheres[] = sprintf("(comment.owner_context = %s AND comment.owner_context_id = %d)",
-							Cerb_ORMHelper::qstr($context),
-							$context_id
-						);
-						
-					} else {
-						$wheres[] = sprintf("(comment.owner_context = %s)",
-							Cerb_ORMHelper::qstr($context)
-						);
-					}
-				}
-				
-				if(!empty($wheres))
-					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
-				
-				break;
-				
-			case SearchFields_Comment::VIRTUAL_TARGET:
-				if(!is_array($param->value))
-					break;
-				
-				$wheres = array();
-					
-				foreach($param->value as $owner_context) {
-					@list($context, $context_id) = explode(':', $owner_context);
-					
-					if(empty($context))
-						continue;
-					
-					if(!empty($context_id)) {
-						$wheres[] = sprintf("(comment.context = %s AND comment.context_id = %d)",
-							Cerb_ORMHelper::qstr($context),
-							$context_id
-						);
-						
-					} else {
-						$wheres[] = sprintf("(comment.context = %s)",
-							Cerb_ORMHelper::qstr($context)
-						);
-					}
-				}
-				
-				if(!empty($wheres))
-					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
-				
-				break;
-		}
 	}
 	
 	/**
@@ -516,6 +437,7 @@ class SearchFields_Comment extends DevblocksSearchFields {
 	
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
 	const VIRTUAL_TARGET = '*_target';
@@ -536,6 +458,18 @@ class SearchFields_Comment extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromFulltextField($param, Search_CommentContent::ID, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_COMMENT, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_OWNER:
+				return self::_getWhereSQLFromContextAndID($param, 'owner_context', 'owner_context_id');
+				break;
+				
+			case self::VIRTUAL_TARGET:
+				return self::_getWhereSQLFromContextAndID($param, 'context', 'context_id');
 				break;
 			
 			default:
@@ -572,7 +506,8 @@ class SearchFields_Comment extends DevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'comment', 'owner_context', null, null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'comment', 'owner_context_id', null, null, true),
 			self::COMMENT => new DevblocksSearchField(self::COMMENT, 'comment', 'comment', $translate->_('common.comment'), Model_CustomField::TYPE_MULTI_LINE, true),
-				
+			
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target'), null, false),
@@ -580,6 +515,12 @@ class SearchFields_Comment extends DevblocksSearchFields {
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 		);
 		
+		// Custom Fields
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
+		
+		if(!empty($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
+
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
@@ -746,27 +687,26 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 	const DEFAULT_ID = 'comment';
 
 	function __construct() {
-		$translate = DevblocksPlatform::getTranslationService();
-	
 		$this->id = self::DEFAULT_ID;
-		$this->name = mb_convert_case($translate->_('common.comments'), MB_CASE_TITLE);
+		$this->name = DevblocksPlatform::translate('common.comments', DevblocksPlatform::TRANSLATE_CAPITALIZE);
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_Comment::ID;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_Comment::VIRTUAL_OWNER,
-			SearchFields_Comment::VIRTUAL_TARGET,
 			SearchFields_Comment::CREATED,
+			SearchFields_Comment::VIRTUAL_TARGET,
 		);
-
+		
 		$this->addColumnsHidden(array(
 			SearchFields_Comment::COMMENT,
 			SearchFields_Comment::CONTEXT_ID,
 			SearchFields_Comment::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Comment::OWNER_CONTEXT,
 			SearchFields_Comment::OWNER_CONTEXT_ID,
+			SearchFields_Comment::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Comment::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Comment::VIRTUAL_OWNER,
 		));
 		
 		$this->addParamsHidden(array(
@@ -803,7 +743,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_Comment', $size);
 	}
-
+	
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
@@ -815,6 +755,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 			
 			switch($field_key) {
 				// Virtuals
+				case SearchFields_Comment::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Comment::VIRTUAL_HAS_FIELDSET:
 				case SearchFields_Comment::VIRTUAL_OWNER:
 				case SearchFields_Comment::VIRTUAL_TARGET:
@@ -844,6 +785,10 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 			return array();
 		
 		switch($column) {
+			case SearchFields_Comment::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
+				break;
+				
 			case SearchFields_Comment::VIRTUAL_HAS_FIELDSET:
 				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
@@ -855,14 +800,22 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Comment::VIRTUAL_TARGET:
 				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_Comment::CONTEXT, DAO_Comment::CONTEXT_ID, 'context_link[]');
 				break;
+				
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				}
+				
+				break;
 		}
 		
 		return $counts;
 	}
-	
+
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Comment::getFields();
-		
+	
 		$fields = array(
 			'text' => 
 				array(
@@ -874,22 +827,16 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Comment::FULLTEXT_COMMENT_CONTENT),
 				),
-			'context' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Comment::CONTEXT),
-				),
-			'context.id' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_Comment::CONTEXT_ID),
-				),
 			'created' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Comment::CREATED),
 				),
 		);
+		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
 		
 		// Add searchable custom fields
 		
@@ -924,6 +871,9 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
+				if($field == 'links' || DevblocksPlatform::strStartsWith($field, 'links.'))
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -938,6 +888,37 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
+		
+		// Data
+		$results = $this->getData();
+		$tpl->assign('results', $results);
+
+		// If we're displaying VIRTUAL_TARGET, bulk load the contexts
+		if(in_array(SearchFields_Comment::VIRTUAL_TARGET, $this->view_columns)) {
+			$targets = array();
+			
+			foreach($results[0] as $result) {
+				if(!isset($targets[$result[SearchFields_Comment::CONTEXT]]))
+					$targets[$result[SearchFields_Comment::CONTEXT]] = [];
+				
+				$targets[$result[SearchFields_Comment::CONTEXT]][$result[SearchFields_Comment::CONTEXT_ID]] = null;
+			}
+			
+			foreach($targets as $ctx => $ids) {
+				if(false == ($ext = Extension_DevblocksContext::get($ctx)))
+					continue;
+				
+				$models = $ext->getModelObjects(array_keys($ids));
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $ctx);
+				$targets[$ctx] = $dicts;
+			}
+			
+			$tpl->assign('targets', $targets);
+		}
+		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_COMMENT);
+		$tpl->assign('custom_fields', $custom_fields);
 
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/comments/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -948,12 +929,15 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
+			case SearchFields_Comment::CONTEXT:
 			case SearchFields_Comment::COMMENT:
 			case SearchFields_Comment::OWNER_CONTEXT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_Comment::ID:
+			case SearchFields_Comment::CONTEXT_ID:
+			case SearchFields_Comment::OWNER_CONTEXT_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -965,38 +949,14 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
-			case SearchFields_Comment::CONTEXT:
+			case SearchFields_Comment::VIRTUAL_CONTEXT_LINK:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
-				
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
-				break;
-				
-			case SearchFields_Comment::FULLTEXT_COMMENT_CONTENT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_HAS_FIELDSET:
 				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_COMMENT);
-				break;
-				
-			case SearchFields_Comment::VIRTUAL_OWNER:
-				$groups = DAO_Group::getAll();
-				$tpl->assign('groups', $groups);
-				
-				$roles = DAO_WorkerRole::getAll();
-				$tpl->assign('roles', $roles);
-				
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_owner.tpl');
-				break;
-				
-			case SearchFields_Comment::VIRTUAL_TARGET:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
 				break;
 				
 			default:
@@ -1027,16 +987,20 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_Comment::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+				
 			case SearchFields_Comment::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_OWNER:
-				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners');
+				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner is');
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_TARGET:
-				$this->_renderVirtualContextLinks($param, 'Target', 'Targets');
+				$this->_renderVirtualContextLinks($param, 'Target', 'Targets', 'On');
 				break;
 		}
 	}
@@ -1049,11 +1013,15 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$criteria = null;
 
 		switch($field) {
+			case SearchFields_Comment::CONTEXT:
 			case SearchFields_Comment::COMMENT:
+			case SearchFields_Comment::OWNER_CONTEXT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_Comment::ID:
+			case SearchFields_Comment::CONTEXT_ID:
+			case SearchFields_Comment::OWNER_CONTEXT_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -1066,30 +1034,14 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
-			case SearchFields_Comment::CONTEXT:
-			case SearchFields_Comment::OWNER_CONTEXT:
-				@$contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$contexts);
-				break;
-				
-			case SearchFields_Comment::FULLTEXT_COMMENT_CONTENT:
-				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
+			case SearchFields_Comment::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_HAS_FIELDSET:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
-			case SearchFields_Comment::VIRTUAL_OWNER:
-				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
-				break;
-				
-			case SearchFields_COMMENT::VIRTUAL_TARGET:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			default:
@@ -1107,7 +1059,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Comment extends Extension_DevblocksContext {
+class Context_Comment extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	function authorize($context_id, Model_Worker $worker) {
 		// Security
 		try {
@@ -1136,15 +1088,34 @@ class Context_Comment extends Extension_DevblocksContext {
 		return DAO_Comment::random();
 	}
 	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=comment&id='.$context_id, true);
+		return $url;
+	}
+	
 	function getMeta($context_id) {
-		//$comment = DAO_Comment::get($context_id);
+		$comment = DAO_Comment::get($context_id);
 		$url_writer = DevblocksPlatform::getUrlService();
 		
+		$url = $this->profileGetUrl($context_id);
+		
 		return array(
-			'id' => $context_id,
+			'id' => $comment->id,
 			'name' => '',
-			'permalink' => '',
-			'updated' => 0,
+			'permalink' => $url,
+			'updated' => $comment->created,
+		);
+	}
+	
+	function getDefaultProperties() {
+		return array(
+			'created',
+			'author__label',
+			'target__label',
 		);
 	}
 
@@ -1169,19 +1140,11 @@ class Context_Comment extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'id' => $prefix.$translate->_('common.id'),
-			'comment' => $prefix.$translate->_('common.content'),
-			'created' => $prefix.$translate->_('common.created'),
-			'owner_context' => $prefix.'Author Context',
-			'author_label' => $prefix.'Author Label',
-			'author_type' => $prefix.'Author Type',
-			'author_url' => $prefix.'Author URL',
-			'context' => $prefix.'Record Context',
-			'record_label' => $prefix.'Record Label',
-			'record_type' => $prefix.'Record Type Label',
-			'record_url' => $prefix.'Record URL',
-			//'record_watchers' => $prefix.'Record Watchers',
-			'record_watchers_emails' => $prefix.'Record Watchers Email List',
+			'id' => $prefix.DevblocksPlatform::translate('common.target'),
+			'comment' => $prefix.DevblocksPlatform::translate('common.content', DevblocksPlatform::TRANSLATE_CAPITALIZE),
+			'created' => $prefix.DevblocksPlatform::translate('common.created', DevblocksPlatform::TRANSLATE_CAPITALIZE),
+			'author__label' => $prefix.DevblocksPlatform::translate('common.author', DevblocksPlatform::TRANSLATE_CAPITALIZE),
+			'target__label' => $prefix.DevblocksPlatform::translate('common.target', DevblocksPlatform::TRANSLATE_CAPITALIZE),
 		);
 		
 		// Token types
@@ -1190,14 +1153,8 @@ class Context_Comment extends Extension_DevblocksContext {
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'comment' => Model_CustomField::TYPE_MULTI_LINE,
 			'created' => Model_CustomField::TYPE_DATE,
-			'owner_context' => Model_CustomField::TYPE_SINGLE_LINE,
-			'author_label' => Model_CustomField::TYPE_SINGLE_LINE,
-			'author_type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'author_url' => Model_CustomField::TYPE_URL,
-			'context' => Model_CustomField::TYPE_SINGLE_LINE,
-			'record_label' => Model_CustomField::TYPE_SINGLE_LINE,
-			'record_type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'record_url' => Model_CustomField::TYPE_URL,
+			'author__label' => 'context_url',
+			'target__label' => 'context_url',
 		);
 		
 		// Custom field/fieldset token labels
@@ -1214,13 +1171,11 @@ class Context_Comment extends Extension_DevblocksContext {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $comment->comment;
 			$token_values['id'] = $comment->id;
-			$token_values['context'] = $comment->context;
-			$token_values['context_id'] = $comment->context_id;
 			$token_values['created'] = $comment->created;
-			$token_values['owner_context'] = $comment->owner_context;
-			$token_values['owner_context_id'] = $comment->owner_context_id;
-			$token_values['record__context'] = $comment->context;
-			$token_values['record_id'] = $comment->context_id;
+			$token_values['author__context'] = $comment->owner_context;
+			$token_values['author_id'] = $comment->owner_context_id;
+			$token_values['target__context'] = $comment->context;
+			$token_values['target_id'] = $comment->context_id;
 			$token_values['comment'] = $comment->comment;
 			
 			// Custom fields
@@ -1263,63 +1218,6 @@ class Context_Comment extends Extension_DevblocksContext {
 				$values['attachments'] = $objects;
 				break;
 			
-			case 'record_type':
-				$context_ext = $dictionary['context'];
-				
-				if(null == ($ext = Extension_DevblocksContext::get($context_ext)))
-					break;
-				
-				$values['record_type'] = $ext->manifest->name;
-				break;
-				
-			case 'record_label':
-			case 'record_url':
-				if(null == ($ext = Extension_DevblocksContext::get($dictionary['context'])))
-					break;
-				
-				if(null == ($meta = $ext->getMeta($dictionary['context_id'])))
-					break;
-				
-				$values['record_label'] = $meta['name'];
-				$values['record_url'] = $meta['permalink'];
-				break;
-				
-			case 'record_watchers':
-			case 'record_watchers_emails':
-				$watchers = CerberusContexts::getWatchers($dictionary['context'], $dictionary['context_id']);
-				
-				$watchers_list = array();
-				
-				if(is_array($watchers))
-				foreach($watchers as $watcher) {
-					$watchers_list[] = $watcher->getEmailString();
-				}
-				
-				$values['record_watchers'] = $watchers;
-				$values['record_watchers_emails'] = implode(', ', $watchers_list);
-				break;
-				
-			case 'author_type':
-				$context_ext = $dictionary['owner_context'];
-				
-				if(null == ($ext = Extension_DevblocksContext::get($context_ext)))
-					break;
-				
-				$values['author_type'] = $ext->manifest->name;
-				break;
-				
-			case 'author_label':
-			case 'author_url':
-				if(null == ($ext = Extension_DevblocksContext::get($dictionary['owner_context'])))
-					break;
-				
-				if(null == ($meta = $ext->getMeta($dictionary['owner_context_id'])))
-					break;
-				
-				$values['author_label'] = $meta['name'];
-				$values['author_url'] = $meta['permalink'];
-				break;
-				
 			default:
 				if(substr($token,0,7) == 'custom_') {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
@@ -1332,28 +1230,24 @@ class Context_Comment extends Extension_DevblocksContext {
 	}
 	
 	function getChooserView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
-
-		$active_worker = CerberusApplication::getActiveWorker();
-		
+	
 		// View
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		
+
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Comments';
-//		$view->view_columns = array(
-//			SearchFields_Message::UPDATED_DATE,
-//		);
-		$view->addParams(array(
-//			SearchFields_Task::IS_COMPLETED => new DevblocksSearchCriteria(SearchFields_Task::IS_COMPLETED,'=',0),
-		), true);
+		$view->name = DevblocksPlatform::translate('common.comments', DevblocksPlatform::TRANSLATE_CAPITALIZE);
 		$view->renderSortBy = SearchFields_Comment::CREATED;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
+		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
+		
 		return $view;
 	}
 	
@@ -1362,27 +1256,19 @@ class Context_Comment extends Extension_DevblocksContext {
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
-		
+
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Comments';
+		$view->name = DevblocksPlatform::translate('common.comments', DevblocksPlatform::TRANSLATE_CAPITALIZE);
 		
 		$params_req = array();
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Comment::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_Comment::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_Comment::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		
 		$view->addParamsRequired($params_req, true);
-		
-//		$params = array();
-		
-//		if(isset($options['filter_open']))
-//			$params[] = new DevblocksSearchCriteria(SearchFields_Message::IS_COMPLETED,'=',0);
-
-//		$view->addParams($params, false);
 		
 		$view->renderTemplate = 'context';
 		return $view;

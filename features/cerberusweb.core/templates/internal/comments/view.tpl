@@ -1,6 +1,5 @@
 {$view_context = CerberusContexts::CONTEXT_COMMENT}
 {$view_fields = $view->getColumnsAvailable()}
-{$results = $view->getData()}
 {$total = $results[1]}
 {$data = $results[0]}
 
@@ -10,9 +9,11 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
+			{*<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>*}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
+			{*<a href="javascript:;" title="{$translate->_('common.import')|capitalize}" onclick="genericAjaxPopup('import','c=internal&a=showImportPopup&context={$view_context}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-file-import"></span></a>*}
 			<a href="javascript:;" title="{$translate->_('common.export')|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-file-export"></span></a>
 			<a href="javascript:;" title="{$translate->_('common.copy')|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-duplicate"></span></a>
 			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
@@ -67,51 +68,70 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}" style="padding:5px;">
+				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
+				
+				<div style="float:left;margin:0px 5px;">
+				{$owner_context = Extension_DevblocksContext::get($result.c_owner_context)}
+				{if $owner_context}
+					{$meta = $owner_context->getMeta($result.c_owner_context_id)}
+					{if $meta}
+						{if $owner_context->id == CerberusContexts::CONTEXT_APPLICATION}
+						<img src="{devblocks_url}c=avatars&context=app&context_id=0{/devblocks_url}?v={$smarty.const.APP_BUILD}" style="height:32px;width:32px;vertical-align:middle;border-radius:32px;">
+						{elseif $owner_context->id == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
+						<img src="{devblocks_url}c=avatars&context=bot&context_id={$meta.id}{/devblocks_url}?v={$meta.updated}" style="height:32px;width:32px;vertical-align:middle;border-radius:32px;">
+						{elseif $owner_context->id == CerberusContexts::CONTEXT_WORKER}
+						<img src="{devblocks_url}c=avatars&context=worker&context_id={$meta.id}{/devblocks_url}?v={$meta.updated}" style="height:32px;width:32px;vertical-align:middle;border-radius:32px;">
+						{elseif $owner_context->id == CerberusContexts::CONTEXT_CONTACT}
+						<img src="{devblocks_url}c=avatars&context=contact&context_id={$meta.id}{/devblocks_url}?v={$meta.updated}" style="height:32px;width:32px;vertical-align:middle;border-radius:32px;">
+						{elseif $owner_context->id == CerberusContexts::CONTEXT_ORG}
+						<img src="{devblocks_url}c=avatars&context=org&context_id={$meta.id}{/devblocks_url}?v={$meta.updated}" style="height:32px;width:32px;vertical-align:middle;border-radius:32px;">
+						{elseif $owner_context->id == CerberusContexts::CONTEXT_ADDRESS}
+						<img src="{devblocks_url}c=avatars&context=address&context_id={$meta.id}{/devblocks_url}?v={$meta.updated}" style="height:32px;width:32px;vertical-align:middle;border-radius:32px;">
+						{elseif $owner_context->id == CerberusContexts::CONTEXT_GROUP}
+						<img src="{devblocks_url}c=avatars&context=group&context_id={$meta.id}{/devblocks_url}?v={$meta.updated}" style="height:32px;width:32px;vertical-align:middle;border-radius:32px;">
+						{/if}
+					{/if}
+				{/if}
+				</div>
+				
+				<div>
+					<div style="margin-bottom:2px;">
+						{if $owner_context->id == CerberusContexts::CONTEXT_APPLICATION}
+						<b class="subject">{$meta.name}</b>
+						{else}
+						<a href="javascript:;" class="subject cerb-peek-trigger no-underline" data-context="{$result.c_owner_context}" data-context-id="{$result.c_owner_context_id}">{$meta.name}</a>
+						{/if}
+						<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+					</div>
+				
+					<div>
+						<pre class="emailbody">{$result.c_comment|trim|escape|devblocks_hyperlinks nofilter}</pre>
+					</div>
+				</div>
+			</td>
+		</tr>
+		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{elseif $column == "c_created"}
-				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
+			{elseif in_array($column, ["c_created"])}
+				<td>
 					{if !empty($result.$column)}
-						{$result.$column|devblocks_prettytime}&nbsp;
+						<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 					{/if}
 				</td>
-			{elseif $column == "*_owner"}
-				<td data-column="{$column}">
-					{$owner_context = Extension_DevblocksContext::get($result.c_owner_context)}
-					{if $owner_context}
-						{$owner_meta = $owner_context->getMeta($result.c_owner_context_id)}
-						{if $owner_meta.permalink}
-						<a class="subject" href="{$owner_meta.permalink}">{$owner_meta.name} ({$owner_context->manifest->name})</a>
-						{elseif $owner_meta.name}
-						{$owner_meta.name} ({$owner_context->manifest->name})
-						{/if}
+			{elseif in_array($column, ["*_target"])}
+				<td>
+					{$target = $targets.{$result.c_context}.{$result.c_context_id}}
+					{if $target}
+						<a href="javascript:;" class="cerb-peek-trigger" data-context="{$target->_context}" data-context-id="{$target->id}">{$target->_label|truncate:64}</a>
 					{/if}
 				</td>
-			{elseif $column == "*_target"}
-				<td data-column="{$column}">
-					{$target_context = Extension_DevblocksContext::get($result.c_context)}
-					{if $target_context}
-						{$target_meta = $target_context->getMeta($result.c_context_id)}
-						{if $target_meta.permalink}
-						<a class="subject" href="{$target_meta.permalink}">{$target_meta.name} ({$target_context->manifest->name})</a>
-						{elseif $target_meta.name}
-						{$target_meta.name} ({$target_context->manifest->name})
-						{/if}
-					{/if}
-				</td> 
 			{else}
 				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
-		</tr>
-		<tr class="{$tableRowClass}">
-			<td colspan="{$view->view_columns|count}">
-				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
-				<div style="margin:5px 5px 5px 10px;">
-				{$result.c_comment|truncate:255}
-				</div>
-			</td>
 		</tr>
 	</tbody>
 	{/foreach}
@@ -157,46 +177,48 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$frm = $('#viewForm{$view->id}');
-
-{if $pref_keyboard_shortcuts}
-$frm.bind('keyboard_shortcut',function(event) {
-	$view_actions = $('#{$view->id}_actions');
+$(function() {
+	var $frm = $('#viewForm{$view->id}');
 	
-	hotkey_activated = true;
-
-	switch(event.keypress_event.which) {
-		{*
-		case 98: // (b) bulk update
-			$btn = $view_actions.find('button.action-bulkupdate');
+	{if $pref_keyboard_shortcuts}
+	$frm.bind('keyboard_shortcut',function(event) {
+		$view_actions = $('#{$view->id}_actions');
 		
-			if(event.indirect) {
-				$btn.select().focus();
-				
-			} else {
-				$btn.click();
-			}
-			break;
-		*}
-		
-		case 101: // (e) explore
-			$btn = $view_actions.find('button.action-explore');
-		
-			if(event.indirect) {
-				$btn.select().focus();
-				
-			} else {
-				$btn.click();
-			}
-			break;
+		hotkey_activated = true;
+	
+		switch(event.keypress_event.which) {
+			{*
+			case 98: // (b) bulk update
+				$btn = $view_actions.find('button.action-bulkupdate');
 			
-		default:
-			hotkey_activated = false;
-			break;
-	}
-
-	if(hotkey_activated)
-		event.preventDefault();
+				if(event.indirect) {
+					$btn.select().focus();
+					
+				} else {
+					$btn.click();
+				}
+				break;
+			*}
+			
+			case 101: // (e) explore
+				$btn = $view_actions.find('button.action-explore');
+			
+				if(event.indirect) {
+					$btn.select().focus();
+					
+				} else {
+					$btn.click();
+				}
+				break;
+				
+			default:
+				hotkey_activated = false;
+				break;
+		}
+	
+		if(hotkey_activated)
+			event.preventDefault();
+	});
+	{/if}
 });
-{/if}
 </script>

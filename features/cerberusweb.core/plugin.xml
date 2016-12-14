@@ -1440,19 +1440,23 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="comment" value="singular" />
-						<data key="comments" value="plural" />
+						<data key="comment" value="singular short" />
+						<data key="comments" value="plural short" />
+						<data key="note" value="singular" />
+						<data key="notes" value="plural" />
 					</value>
 				</param>
 				<param key="alias" value="comment" />
 				<param key="dao_class" value="DAO_Comment" />
 				<param key="view_class" value="View_Comment" />
-				<!--
 				<param key="options">
 					<value>
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="find" />
+						<data key="workspace" />
 					</value>
 				</param>
-				-->
 			</params>
 		</extension>
 		
