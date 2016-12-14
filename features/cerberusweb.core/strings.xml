@@ -61,7 +61,7 @@
 		</tu>
 		<tu tuid="activities.comment.create">
 			<tuv xml:lang="en_US">
-				<seg>{{actor}} commented on {{object}} {{target}}: {{content}}</seg>
+				<seg>{{actor}} {{'common.commented'}} on {{object}} {{target}}</seg>
 			</tuv>
 		</tu>
 		<tu tuid="activities.connection.link">
@@ -485,6 +485,11 @@
 		<tu tuid="common.comment">
 			<tuv xml:lang="en_US">
 				<seg>comment</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.commented">
+			<tuv xml:lang="en_US">
+				<seg>commented</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.comments">

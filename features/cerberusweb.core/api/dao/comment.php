@@ -48,14 +48,14 @@ class DAO_Comment extends Cerb_ORMHelper {
 		$meta = $context->getMeta($fields[self::CONTEXT_ID]);
 		
 		$entry = array(
-			//{{actor}} commented on {{object}} {{target}}: {{content}}
+			//{{actor}} {{common.commented}} on {{object}} {{target}}
 			'message' => 'activities.comment.create',
 			'variables' => array(
 				'object' => mb_convert_case($context->manifest->name, MB_CASE_LOWER),
 				'target' => $meta['name'],
-				'content' => $fields[self::COMMENT],
 				),
 			'urls' => array(
+				'common.commented' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_COMMENT, $id),
 				'target' => sprintf("ctx://%s:%d", $fields[self::CONTEXT], $fields[self::CONTEXT_ID]),
 				)
 		);
