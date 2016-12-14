@@ -424,6 +424,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	public function getFunctions() {
 		return array(
 			new Twig_SimpleFunction('array_diff', [$this, 'function_array_diff']),
+			new Twig_SimpleFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
 			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
 			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
 			new Twig_SimpleFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
@@ -440,6 +441,15 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return;
 		
 		return array_diff($arr1, $arr2);
+	}
+	
+	function function_cerb_file_url($id) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		if(false == ($file = DAO_Attachment::get($id)))
+			return null;
+		
+		return $url_writer->write(sprintf('c=files&id=%d&name=%s', $id, rawurlencode($file->display_name)), true, true);
 	}
 	
 	function function_json_decode($str) {

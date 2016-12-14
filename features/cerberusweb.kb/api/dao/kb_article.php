@@ -723,13 +723,17 @@ class Model_KbArticle {
 		
 		switch($this->format) {
 			case self::FORMAT_HTML:
-				$html = $this->content;
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$html = $tpl_builder->build($this->content, array());
 				break;
+				
 			case self::FORMAT_PLAINTEXT:
 				$html = nl2br(DevblocksPlatform::strEscapeHtml($this->content));
 				break;
+				
 			case self::FORMAT_MARKDOWN:
-				$html = DevblocksPlatform::parseMarkdown($this->content);
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$html = DevblocksPlatform::parseMarkdown($tpl_builder->build($this->content, array()));
 				break;
 		}
 		
@@ -785,34 +789,6 @@ class Model_KbArticle {
 		unset($trails);
 		
 		return $breadcrumbs;
-	}
-	
-	function extractInternalURLsFromContent() {
-		$url_writer = DevblocksPlatform::getUrlService();
-		$img_baseurl = $url_writer->write('c=files', true, false);
-		$img_baseurl_parts = parse_url($img_baseurl);
-		
-		$results = array();
-		
-		// Extract URLs
-		$matches = array();
-			preg_match_all(
-				sprintf('#\"(https*://%s%s/(.*?))\"#i',
-				preg_quote($img_baseurl_parts['host']),
-				preg_quote($img_baseurl_parts['path'])
-			),
-			$this->content,
-			$matches
-		);
-
-		if(isset($matches[1]))
-		foreach($matches[1] as $idx => $replace_url) {
-			$results[$replace_url] = array(
-				'path' => $matches[2][$idx],
-			);
-		}
-		
-		return $results;
 	}
 };
 

@@ -282,6 +282,16 @@
 				<seg>anybody</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.article">
+			<tuv xml:lang="en_US">
+				<seg>article</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.articles">
+			<tuv xml:lang="en_US">
+				<seg>articles</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.assign">
 			<tuv xml:lang="en_US">
 				<seg>assign</seg>

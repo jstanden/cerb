@@ -1,4 +1,5 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmKbEditPanel" onsubmit="return false;">
+{$form_id = uniqid()}
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="kb.ajax">
 <input type="hidden" name="a" value="saveArticleEditPanel">
 <input type="hidden" name="id" value="{$article->id}">
@@ -15,7 +16,7 @@
 	
 	<div id="kbArticleEditor">
 		<b>Title:</b><br>
-		<input type="text" name="title" value="{$article->title}" style="width:99%;border:solid 1px rgb(180,180,180);"><br>
+		<input type="text" name="title" value="{$article->title}" style="width:99%;border:solid 1px rgb(180,180,180);" autofocus="autofocus"><br>
 		
 		<div>
 			<textarea id="content" name="content" style="width:99%;height:200px;border:solid 1px rgb(180,180,180);">{$article->content}</textarea>
@@ -83,48 +84,60 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $frm = $('#{$form_id}');
+	var $popup = genericAjaxPopupFind($frm);
 	var $content = $popup.find("#content");
 	
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','{'kb.common.knowledgebase_article'|devblocks_translate|escape:'javascript' nofilter}');
+		$popup.dialog('option','title','{'kb.common.knowledgebase_article'|devblocks_translate|escape:'javascript' nofilter}');
+		
 		$("#kbArticleTabs").tabs();
-		$('#frmKbEditPanel :input:text:first').focus().select();
+		
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
 		
 		var $attachments_container = $popup.find('UL.cerb-attachments-container');
 		
 		var markitupHTMLSettings = $.extend(true, { }, markitupHTMLDefaults);
 		var markitupMarkdownSettings = $.extend(true, { }, markitupMarkdownDefaults);
-		
+
 		markitupMarkdownSettings.markupSet.splice(
 			10,
 			0,
 			{ name:'Upload an Image', openWith: 
 				function(markItUp) {
-					var $chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
+					var $chooser = genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
 					
 					$chooser.one('chooser_save', function(event) {
 						if(!event.response || 0 == event.response)
 							return;
 						
-						$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
+						{literal}$content.insertAtCursor("![inline-image]({{cerb_file_url(" + event.response[0].id + ",'" + event.response[0].name + "')}})");{/literal}
 
 						// Add an attachment link
 						
 						if(0 == $attachments_container.find('input:hidden[value=' + event.response[0].id + ']').length) {
 							var $li = $('<li/>');
-							$li.text(event.response[0].name + ' ( ' + event.response[0].size + ' bytes - ' + event.response[0].type + ' )');
+
+							var $a = $('<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" />')
+								.attr('data-context-id', event.response[0].id)
+								.text(event.response[0].name + ' (' + event.response[0].size + ' bytes - ' + event.response[0].type + ')')
+								.appendTo($li)
+								.cerbPeekTrigger()
+								;
 							
 							var $hidden = $('<input type="hidden" name="file_ids[]">')
 								.val(event.response[0].id)
 								.appendTo($li)
 								;
 							
-							var $a = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-							$a.click(function() {
-								$(this).parent().remove();
-							});
-							$a.appendTo($li);
+							var $remove = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>')
+								.click(function() {
+									$(this).parent().remove();
+								})
+								.appendTo($li)
+								;
 							
 							$attachments_container.append($li);
 						}
@@ -146,27 +159,32 @@ $(function() {
 						if(!event.response || 0 == event.response)
 							return;
 						
-						$content.insertAtCursor("<img src=\"" + event.response[0].url + "\" alt=\"\">");
+						{literal}$content.insertAtCursor("<img src=\"{{cerb_file_url(" + event.response[0].id + ",'" + event.response[0].name + "')}}\" alt=\"\">");{/literal}
 						
 						// Add an attachment link
 						
-						if(0 == $attachments_container.find('input:hidden[value=' + event.response[0].id + ']').length) {
-							var $li = $('<li/>');
-							$li.text(event.response[0].name + ' ( ' + event.response[0].size + ' bytes - ' + event.response[0].type + ' )');
-							
-							var $hidden = $('<input type="hidden" name="file_ids[]" value="">')
-								.val(event.response[0].id)
-								.appendTo($li)
-								;
-							
-							var $a = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-							$a.click(function() {
+						var $li = $('<li/>');
+
+						var $a = $('<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" />')
+							.attr('data-context-id', event.response[0].id)
+							.text(event.response[0].name + ' (' + event.response[0].size + ' bytes - ' + event.response[0].type + ')')
+							.appendTo($li)
+							.cerbPeekTrigger()
+							;
+						
+						var $hidden = $('<input type="hidden" name="file_ids[]">')
+							.val(event.response[0].id)
+							.appendTo($li)
+							;
+						
+						var $remove = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>')
+							.click(function() {
 								$(this).parent().remove();
-							});
-							$a.appendTo($li);
-							
-							$attachments_container.append($li);
-						}
+							})
+							.appendTo($li)
+							;
+						
+						$attachments_container.append($li);
 					});
 				},
 				key: 'U',
@@ -174,13 +192,23 @@ $(function() {
 			}
 		);
 		
+		delete markitupHTMLSettings.previewParserPath;
+		delete markitupHTMLSettings.previewTemplatePath;
+		delete markitupHTMLSettings.previewInWindow;
+
+		markitupHTMLSettings.previewParserPath = DevblocksAppPath + 'ajax.php?c=profiles&a=handleSectionAction&section=kb&action=getEditorHtmlPreview&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
+		
+		delete markitupMarkdownSettings.previewParserPath;
+		delete markitupMarkdownSettings.previewTemplatePath;
+		delete markitupMarkdownSettings.previewInWindow;
+		
+		markitupMarkdownSettings.previewParserPath = DevblocksAppPath + 'ajax.php?c=profiles&a=handleSectionAction&section=kb&action=getEditorParsedownPreview&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
+		
 		{if 1==$article->format}
 		$content.markItUp(markitupHTMLSettings);
 		{else}
 		$content.markItUp(markitupMarkdownSettings);
 		{/if}
-
-		$frm = $('#frmKbEditPanel');
 
 		$frm.find('input[name=format]').bind('click', function(event) {
 			$content.markItUpRemove();
@@ -192,7 +220,7 @@ $(function() {
 		} );
 		
 		$('#btnKbArticleEditSave').bind('click', function() {
-			genericAjaxPost('frmKbEditPanel', '', '', function(json) {
+			genericAjaxPost($frm, '', '', function(json) {
 				genericAjaxPopupClose($popup, 'article_save');
 				{if !empty($view_id)}
 				genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');

@@ -127,45 +127,21 @@ class UmScKbController extends Extension_UmScController {
 				$article = DAO_KbArticle::get($id);
 				$tpl->assign('article', $article);
 				
-				// Rewrite internal URLs to use the SC files controller
+				// Template overrides
 				
-				$article_inline_attachment_ids = array();
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				
-				$url_writer = DevblocksPlatform::getUrlService();
-
-				$internal_urls = $article->extractInternalURLsFromContent();
+				$function_cerb_file_url = new Twig_SimpleFunction('cerb_file_url', function ($id) {
+					$url_writer = DevblocksPlatform::getUrlService();
+					
+					if(false == ($file = DAO_Attachment::get($id)))
+						return null;
+					
+					return $url_writer->write(sprintf('c=ajax&a=downloadFile&hash=%s&name=%s', rawurlencode($file->storage_sha1hash), rawurlencode($file->display_name)), true, true);
+				});
 				
-				if(is_array($internal_urls)) {
-					$attachments = $attachments_map['attachments'];
-
-					foreach($internal_urls as $replace_url => $replace_data) {
-						@list($attachment_sha1hash, $attachment_name) = explode('/', $replace_data['path'], 2);
-
-						if(40 != strlen($attachment_sha1hash))
-							continue;
-						
-						if(is_array($attachments))
-						foreach($attachments as $attachment_id => $attachment_model) {
-							if($attachment_sha1hash == $attachment_model->storage_sha1hash) {
-								$article_inline_attachment_ids[] = $attachment_id;
-								
-								if(false != ($attachment_guid = $attachments_id_to_guid[$attachment_id])) {
-									$new_url = $url_writer->write(sprintf('c=ajax&a=downloadFile&guid=%s&name=%s', $attachment_guid, urlencode($attachment_name)), true, true);
-									$article->content = str_replace($replace_url, $new_url, $article->content);
-								}
-								break;
-							}
-						}
-					}
-				}
+				$tpl_builder->addFunction('cerb_file_url', $function_cerb_file_url);
 				
-				// Remove any attachment links that were already used inline
-				foreach($attachments_map['links'] as $attachment_guid => $attachment_link) {
-					if(in_array($attachment_link->attachment_id, $article_inline_attachment_ids)) {
-						unset($attachments_map['links'][$attachment_guid]);
-						unset($attachments_map['attachments'][$attachment_link->attachment_id]);
-					}
-				}
 				// Attachments
 
 				$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $id);
