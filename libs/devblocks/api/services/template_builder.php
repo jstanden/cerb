@@ -571,6 +571,8 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getFilters() {
 		return array(
+			new Twig_SimpleFilter('base64_encode', [$this, 'filter_base64_encode']),
+			new Twig_SimpleFilter('base64_decode', [$this, 'filter_base64_decode']),
 			new Twig_SimpleFilter('bytes_pretty', [$this, 'filter_bytes_pretty']),
 			new Twig_SimpleFilter('date_pretty', [$this, 'filter_date_pretty']),
 			new Twig_SimpleFilter('json_pretty', [$this, 'filter_json_pretty']),
@@ -583,6 +585,20 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFilter('truncate', [$this, 'filter_truncate']),
 			new Twig_SimpleFilter('url_decode', [$this, 'filter_url_decode']),
 		);
+	}
+	
+	function filter_base64_encode($string) {
+		if(!is_string($string))
+			return '';
+		
+		return base64_encode($string);
+	}
+	
+	function filter_base64_decode($string) {
+		if(!is_string($string))
+			return '';
+		
+		return base64_decode($string);
 	}
 	
 	function filter_bytes_pretty($string, $precision='0') {

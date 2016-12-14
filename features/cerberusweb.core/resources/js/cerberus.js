@@ -130,6 +130,8 @@ var atwho_twig_modifiers = [
 	{ name: "upper", content: "Convert text to uppercase" },
 	
 	{ name: "abs", content: "Return the absolute value of a number" },
+	{ name: "base64_encode", content: "Encode text in Base64 format" },
+	{ name: "base64_decode", content: "Decode Base64 encoded text" },
 	{ name: "bytes_pretty(2)", content: "Format a number as human-readable bytes" },
 	{ name: "date_modify('+1 day')", content: "Modify a date or timestamp" },
 	{ name: "escape", content: "Escape text for html, js, css, or url" },
