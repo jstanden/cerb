@@ -194,46 +194,6 @@
 			</params>
 		</extension>
 		
-		<!-- Org Tabs -->
-		
-		<extension point="cerberusweb.ui.context.profile.tab">
-			<id>crm.opp.tab.org</id>
-			<name>Opportunity Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmOrgOppTab</name>
-			</class>
-			<params>
-				<param key="uri" value="opps" />
-				<param key="contexts">
-					<value>
-						<data key="cerberusweb.contexts.org" />
-					</value>
-				</param>
-				<param key="title" value="crm.tab.title" />
-			</params>
-		</extension>
-		
-		<!-- Ticket Tabs -->
-		
-		<extension point="cerberusweb.ui.context.profile.tab">
-			<id>crm.opp.tab.ticket</id>
-			<name>Opportunity Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>CrmTicketOppTab</name>
-			</class>
-			<params>
-				<param key="uri" value="opps" />
-				<param key="contexts">
-					<value>
-						<data key="cerberusweb.contexts.ticket" />
-					</value>
-				</param>
-				<param key="title" value="crm.tab.title" />
-			</params>
-		</extension>
-		
 		<!-- REST Controllers -->
 		
 		<extension point="cerberusweb.rest.controller">
@@ -246,7 +206,7 @@
 			<params>
 				<param key="uri" value="opps" />
 			</params>
-		</extension>		
+		</extension>
 		
 	</extensions>
 </plugin>
