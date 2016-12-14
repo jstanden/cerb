@@ -678,6 +678,17 @@ class Model_Comment {
 		}
 	}
 	
+	public function getAuthorDictionary() {
+		$values = $labels = [];
+		$models = CerberusContexts::getModels($this->owner_context, [$this->owner_context_id]);
+		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $this->owner_context);
+		
+		if(!isset($dicts[$this->owner_context_id]))
+			return false;
+		
+		return $dicts[$this->owner_context_id];
+	}
+	
 	function getAttachments() {
 		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_COMMENT, $this->id);
 	}

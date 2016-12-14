@@ -4079,6 +4079,19 @@
 					<param key="uri" value="classifier_example" />
 				</params>
 			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.comment</id>
+				<name>Comment Section</name>
+				<class>
+					<file>api/uri/profiles/comment.php</file>
+					<name>PageSection_ProfilesComment</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="comment" />
+				</params>
+			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.connected_account</id>
