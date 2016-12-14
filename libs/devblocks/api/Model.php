@@ -130,6 +130,80 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		}
 	}
 	
+	static function _getWhereSQLFromContextAndID(DevblocksSearchCriteria $param, $context_field, $context_id_field) {
+		// Handle nested quick search filters first
+		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			@list($alias, $query) = explode(':', $param->value, 2);
+			
+			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
+				return;
+			
+			$view = $ext->getSearchView(uniqid());
+			$view->is_ephemeral = true;
+			$view->setAutoPersist(false);
+			$view->addParamsWithQuickSearch($query, true);
+			
+			$params = $view->getParams();
+			
+			if(false == ($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
+				return;
+			
+			if(false == ($search_class = $ext->getSearchClass()) || !class_exists($search_class))
+				return;
+			
+			if(false == ($primary_key = $search_class::getPrimaryKey()))
+				return;
+			
+			$query_parts = $dao_class::getSearchQueryComponents(array(), $params);
+			
+			$query_parts['select'] = sprintf("SELECT %s ", $primary_key);
+			
+			$sql = 
+				$query_parts['select']
+				. $query_parts['join']
+				. $query_parts['where']
+				. $query_parts['sort']
+				;
+			
+			return sprintf("%s = %s AND %s IN (%s) ",
+				Cerb_OrmHelper::escape($context_field),
+				Cerb_ORMHelper::qstr($ext->id),
+				Cerb_OrmHelper::escape($context_id_field),
+				$sql
+			);
+		}
+		
+		if(!is_array($param->value))
+			return '0';
+		
+		$wheres = array();
+			
+		foreach($param->value as $owner_context) {
+			@list($context, $context_id) = explode(':', $owner_context);
+			
+			if(empty($context))
+				continue;
+			
+			if(!empty($context_id)) {
+				$wheres[] = sprintf("(%s = %s AND %s = %d)",
+					Cerb_ORMHelper::escape($context_field),
+					Cerb_ORMHelper::qstr($context),
+					Cerb_ORMHelper::escape($context_id_field),
+					$context_id
+				);
+				
+			} else {
+				$wheres[] = sprintf("(%s = %s)",
+					Cerb_ORMHelper::escape($context_field),
+					Cerb_ORMHelper::qstr($context)
+				);
+			}
+		}
+		
+		if(!empty($wheres))
+			return implode(' OR ', $wheres);
+	}
+	
 	static function _getWhereSQLFromContextLinksField(DevblocksSearchCriteria $param, $from_context, $pkey) {
 		
 		// Handle nested quick search filters first
