@@ -113,11 +113,20 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_KB_ARTICLE);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
-		
-		
-		
 		// Template
 		$tpl->display('devblocks:cerberusweb.kb::kb/profile.tpl');
+	}
+	
+	function showArticleTabAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
+		
+		if(!$id || false == ($article = DAO_KbArticle::get($id)))
+			return;
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('article', $article);
+		
+		$tpl->display('devblocks:cerberusweb.kb::kb/ajax/tab_article.tpl');
 	}
 	
 	function showBulkPopupAction() {

@@ -83,7 +83,7 @@
 	<ul>
 		{$tabs = [article,activity,comments]}
 
-		<li><a href="#article">Article</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=kb&action=showArticleTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.article'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&point={$point}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
 
@@ -92,12 +92,6 @@
 			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>
 		{/foreach}
 	</ul>
-	
-	<div id="article">
-		<div id="kbArticleContent" style="margin-bottom:20px;">
-			{$article->getContent() nofilter}
-		</div>
-	</div>
 </div> 
 <br>
 
