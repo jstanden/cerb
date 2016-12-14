@@ -853,6 +853,10 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('author', $fields);
 		
+		// on.*
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('on', $fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_COMMENT, $fields, null);
@@ -888,6 +892,9 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 			default:
 				if($field == 'author' || DevblocksPlatform::strStartsWith($field, 'author.'))
 					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'author', SearchFields_Comment::VIRTUAL_OWNER);
+					
+				if($field == 'on' || DevblocksPlatform::strStartsWith($field, 'on.'))
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'on', SearchFields_Comment::VIRTUAL_TARGET);
 					
 				if($field == 'links' || DevblocksPlatform::strStartsWith($field, 'links.'))
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
