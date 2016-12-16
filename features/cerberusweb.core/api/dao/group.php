@@ -1511,6 +1511,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$prefix = 'Group:';
 			
 		$translate = DevblocksPlatform::getTranslationService();
+		$url_writer = DevblocksPlatform::getUrlService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP);
 		
 		// Polymorph
@@ -1567,6 +1568,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		if(null != $group) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $group->name;
+			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'group', $group->id), true) . '?v=' . $group->updated;
 			$token_values['created'] = $group->created;
 			$token_values['id'] = $group->id;
 			$token_values['is_default'] = $group->is_default;
@@ -1581,7 +1583,6 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values = $this->_importModelCustomFieldsAsValues($group, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=group&id=%d-%s", $group->id, DevblocksPlatform::strToPermalink($group->name)), true);
 		}
 		

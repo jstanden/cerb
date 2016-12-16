@@ -2037,6 +2037,7 @@ class Context_Application extends Extension_DevblocksContext {
 		if(is_null($prefix))
 			$prefix = 'Application:';
 
+		$url_writer = DevblocksPlatform::getUrlService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_APPLICATION);
 
 		// Polymorph
@@ -2080,6 +2081,7 @@ class Context_Application extends Extension_DevblocksContext {
 		if(null != $object) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = 'Cerb';
+			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'app', 0), true) . '?v=' . APP_BUILD;
 			$token_values['name'] = 'Cerb';
 		}
 

@@ -1601,6 +1601,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$prefix = 'Contact:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
+		$url_writer = DevblocksPlatform::getUrlService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT);
 
 		// Polymorph
@@ -1671,6 +1672,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		if($contact) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $contact->getName();
+			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'contact', $contact->id), true) . '?v=' . $contact->updated_at;
 			$token_values['id'] = $contact->id;
 			$token_values['first_name'] = $contact->first_name;
 			$token_values['gender'] = $contact->gender;
@@ -1694,7 +1696,6 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values = $this->_importModelCustomFieldsAsValues($contact, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=contact&id=%d-%s",$contact->id, DevblocksPlatform::strToPermalink($contact->getName())), true);
 		}
 		

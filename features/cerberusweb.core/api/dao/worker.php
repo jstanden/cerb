@@ -2546,6 +2546,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$prefix = 'Worker:';
 			
 		$translate = DevblocksPlatform::getTranslationService();
+		$url_writer = DevblocksPlatform::getUrlService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 		
 		// Polymorph
@@ -2624,6 +2625,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		if(null != $worker) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $worker->getName();
+			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'worker', $worker->id), true) . '?v=' . $worker->updated;
 			$token_values['at_mention_name'] = $worker->at_mention_name;
 			$token_values['calendar_id'] = $worker->calendar_id;
 			$token_values['dob'] = $worker->dob;
@@ -2647,7 +2649,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values = $this->_importModelCustomFieldsAsValues($worker, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
 			
 			// Email

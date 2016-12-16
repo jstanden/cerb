@@ -1598,6 +1598,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$prefix = 'Org:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
+		$url_writer = DevblocksPlatform::getUrlService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 
 		// Polymorph
@@ -1663,6 +1664,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		if($org) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $org->name;
+			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'org', $org->id), true) . '?v=' . $org->updated;
 			$token_values['id'] = $org->id;
 			$token_values['name'] = $org->name;
 			$token_values['created'] = $org->created;
@@ -1681,7 +1683,6 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$token_values = $this->_importModelCustomFieldsAsValues($org, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=org&id=%d-%s",$org->id, DevblocksPlatform::strToPermalink($org->name)), true);
 		}
 		

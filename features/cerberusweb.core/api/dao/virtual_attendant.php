@@ -1141,6 +1141,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			$prefix = 'Virtual Attendant:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
+		$url_writer = DevblocksPlatform::getUrlService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT);
 
 		// Polymorph
@@ -1199,6 +1200,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		if($virtual_attendant) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $virtual_attendant->name;
+			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'bot', $virtual_attendant->id), true) . '?v=' . $virtual_attendant->updated_at;
 			$token_values['created_at'] = $virtual_attendant->created_at;
 			$token_values['id'] = $virtual_attendant->id;
 			$token_values['name'] = $virtual_attendant->name;
@@ -1209,7 +1211,6 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			$token_values = $this->_importModelCustomFieldsAsValues($virtual_attendant, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=virtual_attendant&id=%d-%s",$virtual_attendant->id, DevblocksPlatform::strToPermalink($virtual_attendant->name)), true);
 			
 			$token_values['owner__context'] = $virtual_attendant->owner_context;
