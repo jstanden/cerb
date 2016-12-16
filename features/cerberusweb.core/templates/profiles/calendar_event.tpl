@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_CALENDAR_EVENT}
 {$page_context_id = $event->id}
+{$is_writeable = Context_CalendarEvent::isWriteableByActor($event, $active_worker)}
 
 <div style="float:left;">
 	<h1 style="margin-left:10px;">{$event->name}</h1>
@@ -46,7 +47,7 @@
 		{/if}
 	
 		<!-- Edit -->
-		{if $event->isWriteableByActor($active_worker)}
+		{if $is_writeable}
 		<button type="button" id="btnProfileEventEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -99,7 +100,7 @@ $(function() {
 	var tabs = $("#profileCalendarEventTabs").tabs(tabOptions);
 
 	// Edit
-	{if $event->isWriteableByActor($active_worker)}
+	{if $is_writeable}
 	$('#btnProfileEventEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {

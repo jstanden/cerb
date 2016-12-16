@@ -17,7 +17,7 @@ You can copy this worklist to other pages in order to build your ideal workspace
 <select name="workspace_page_id">
 	<option value=""></option>
 	{foreach from=$pages item=page key=page_id}
-	{if $page->isWriteableByWorker($active_worker)}
+	{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
 	<option value="{$page_id}">{$page->name}</option>
 	{/if}
 	{/foreach}

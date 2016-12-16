@@ -87,7 +87,7 @@
 			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.f_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&type=file_bundle&id={$result.f_id}-{$result.f_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.f_name}</a>
-				{if CerberusContexts::isWriteableByActor($result.f_owner_context, $result.f_owner_context_id, $active_worker)}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.f_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>{/if}
+				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.f_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 			{elseif $column == "f_updated_at"}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">

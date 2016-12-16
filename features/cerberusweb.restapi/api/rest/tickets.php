@@ -641,10 +641,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(false == ($message = DAO_Message::get($message_id)))
 			$this->error(self::ERRNO_CUSTOM, "The given 'message_id' is invalid");
 
-		if(null == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET)))
-			$this->error(self::ERRNO_CUSTOM, "The ticket context could not be loaded");
-		
-		if(false === $context_ext->authorize($message->ticket_id, $worker))
+		if(false === Context_Ticket::isWriteableByActor($message->ticket_id, $worker))
 			$this->error(self::ERRNO_CUSTOM, "You do not have write access to this ticket");
 		
 		if(!empty($file_ids))

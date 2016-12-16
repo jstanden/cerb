@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_FILE_BUNDLE}
 {$page_context_id = $file_bundle->id}
+{$is_writeable = Context_FileBundle::isWriteableByActor($file_bundle, $active_worker)}
 
 <div style="float:left">
 	<h1>{$file_bundle->name}</h1>
@@ -26,7 +27,7 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
 		<!-- Edit -->
-		{if $file_bundle->isWriteableByActor($active_worker)}
+		{if $is_writeable}
 		<button type="button" id="btnDisplayFileBundleEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -109,6 +110,7 @@
 	
 		var tabs = $("#file_bundleTabs").tabs(tabOptions);
 		
+		{if $is_writeable}
 		$('#btnDisplayFileBundleEdit').bind('click', function() {
 			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
 			$popup.one('file_bundle_save', function(event) {
@@ -116,6 +118,7 @@
 				document.location.reload();
 			});
 		});
+		{/if}
 
 		{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 	});

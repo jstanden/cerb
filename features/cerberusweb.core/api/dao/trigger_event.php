@@ -98,9 +98,8 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			
 			if(is_array($behaviors))
 			foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
-				if($behavior->is_private
-					&& !(CerberusContexts::isSameObject($actor, $va)))
-						continue;
+				if(!isset($vas[$behavior->virtual_attendant_id]) || $behavior->is_private)
+					continue;
 			
 				$result = clone $behavior; /* @var $result Model_TriggerEvent */
 			

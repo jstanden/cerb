@@ -1441,10 +1441,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null != ($snippet = DAO_Snippet::get($id))) {
 			// Make sure the worker is allowed to view this context+ID
 			if(!empty($snippet->context)) {
-				if(null == ($context = Extension_DevblocksContext::get($snippet->context))) /* @var $context Extension_DevblocksContext */
-					return;
-				
-				if(!$context->authorize($context_id, $active_worker))
+				if(!CerberusContexts::isReadableByActor($snippet->context, $context_id, $active_worker))
 					return;
 			}
 			
@@ -1480,7 +1477,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!$id || false == ($snippet = DAO_Snippet:: get($id)))
 			return;
 		
-		if(!($snippet->isReadableByWorker($active_worker)))
+		if(!Context_Snippet::isReadableByActor($snippet, $active_worker))
 			return;
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1501,7 +1498,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!$id || false == ($snippet = DAO_Snippet:: get($id)))
 			return;
 		
-		if(!($snippet->isReadableByWorker($active_worker)))
+		if(!Context_Snippet::isReadableByActor($snippet, $active_worker))
 			return;
 
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
@@ -1974,7 +1971,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_tab->workspace_page_id)))
 					throw new Exception("Can't load workspace page.");
 				
-				if(!$workspace_page->isWriteableByWorker($active_worker)) {
+				if(!Context_WorkspacePage::isWriteableByActor($workspace_page, $active_worker)) {
 					$tpl->display('devblocks:cerberusweb.core::internal/workspaces/customize_no_acl.tpl');
 					return;
 				}
@@ -2021,7 +2018,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_page_id)))
 			return;
 		
-		if(!$workspace_page->isWriteableByWorker($active_worker))
+		if(!Context_WorkspacePage::isWriteableByActor($workspace_page, $active_worker))
 			return;
 		
 		if(null == ($workspace_tab = DAO_WorkspaceTab::get($workspace_tab_id)))
@@ -2431,9 +2428,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(is_array($results))
 		foreach($results as $row_id => $result) {
 			// Secure the exported rows
-			if(method_exists($result, 'isReadableByWorker'))
-				if(!$result->isReadableByWorker($active_worker))
-					continue;
+			if(!CerberusContexts::isReadableByActor($context_mft->id, $result, $active_worker))
+				continue;
 			
 			$labels = array(); // ignore
 			$values = array();
@@ -2547,9 +2543,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		foreach($results as $row_id => $result) {
 			// Secure the exported rows
-			if(method_exists($result, 'isReadableByWorker'))
-				if(!$result->isReadableByWorker($active_worker))
-					continue;
+			if(!CerberusContexts::isReadableByActor($context_mft->id, $result, $active_worker))
+				continue;
 			
 			$labels = array(); // ignore
 			$values = array();
@@ -2662,9 +2657,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(is_array($results))
 		foreach($results as $row_id => $result) {
 			// Secure the exported rows
-			if(method_exists($result, 'isReadableByWorker'))
-				if(!$result->isReadableByWorker($active_worker))
-					continue;
+			if(!CerberusContexts::isReadableByActor($context_mft->id, $result, $active_worker))
+				continue;
 			
 			$labels = array(); // ignore
 			$values = array();
@@ -2792,7 +2786,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_tab->workspace_page_id)))
 					throw new Exception("Can't load workspace page.");
 				
-				if(!$workspace_page->isWriteableByWorker($active_worker)) {
+				if(!Context_WorkspacePage::isWriteableByActor($workspace_page, $active_worker)) {
 					throw new Exception("Permission denied to edit workspace.");
 				}
 				
@@ -2917,12 +2911,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(empty($context) || empty($context_id) || empty($macro_id))
 				return;
 	
-			// Load context
-			if(null == ($context_ext = DevblocksPlatform::getExtension($context, true)))
-				throw new Exception("Invalid context.");
-	
 			// ACL: Ensure access to the context object
-			if(!$context_ext->authorize($context_id, $active_worker))
+			if(!CerberusContexts::isReadableByActor($context, $context_id, $active_worker))
 				throw new Exception("Access denied to context.");
 			
 			// Load macro
@@ -2933,7 +2923,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				throw new Exception("Invalid VA.");
 			
 			// ACL: Ensure the worker has access to the macro
-			if(!$va->isReadableByActor($active_worker))
+			if(!Context_VirtualAttendant::isReadableByActor($va, $active_worker))
 				throw new Exception("Access denied to macro.");
 
 			// Relative scheduling
@@ -3072,14 +3062,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
 		
-		if(null == ($ctx = DevblocksPlatform::getExtension($context, true))) /* @var $ctx Extension_DevblocksContext */
-			return;
-
-		$tpl->assign('ctx', $ctx);
-		
 		// Verify permission
-		$editable = $ctx->authorize($context_id, $active_worker);
-		$tpl->assign('editable', $editable);
+		$is_writeable = CerberusContexts::isWriteableByActor($context, $context_id, $active_worker);
+		$tpl->assign('is_writeable', $is_writeable);
 		
 		if(empty($job) && !$editable)
 			return;
@@ -3112,11 +3097,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($trigger = DAO_TriggerEvent::get($job->behavior_id)))
 			return;
 		
-		if(null == ($ctx = DevblocksPlatform::getExtension($job->context, true))) /* @var $ctx Extension_DevblocksContext */
-			return;
-		
 		// Verify permission
-		if(!$ctx->authorize($job->context_id, $active_worker))
+		if(CerberusContexts::isReadableByActor($job->context, $job->context_id, $active_worker))
 			return;
 
 		// Load the event with this context
@@ -3811,7 +3793,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, false)))
 			return; /* @var $event Extension_DevblocksEvent */
 			
-		$is_writeable = $va->isWriteableByActor($active_worker) ? true : false;
+		$is_writeable = Context_VirtualAttendant::isWriteableByActor($va, $active_worker);
 		$tpl->assign('is_writeable', $is_writeable);
 		
 		$tpl->assign('trigger', $trigger);
@@ -3868,7 +3850,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(false == ($va = $trigger->getVirtualAttendant()))
 					return false;
 				
-				if(!$va->isWriteableByActor($active_worker))
+				if(!Context_VirtualAttendant::isWriteableByActor($va, $active_worker))
 					return false;
 				
 				DAO_DecisionNode::update($id, array(
@@ -3891,7 +3873,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(false == ($va = $trigger->getVirtualAttendant()))
 					return false;
 				
-				if(!$va->isWriteableByActor($active_worker))
+				if(!Context_VirtualAttendant::isWriteableByActor($va, $active_worker))
 					return false;
 			}
 			

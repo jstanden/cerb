@@ -95,7 +95,7 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		if(!empty($custom_fieldset_id)) {
 			if(
 				false == ($custom_fieldset = DAO_CustomFieldset::get($custom_fieldset_id))
-				|| !$custom_fieldset->isWriteableByWorker($active_worker)
+				|| !Context_CustomFieldset::isWriteableByActor($custom_fieldset, $active_worker)
 			)
 			return;
 			
@@ -177,7 +177,7 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 					if(
 						$active_worker->is_superuser
 						|| ($cfield->custom_fieldset_id == $custom_fieldset->id
-							&& $custom_fieldset->isWriteableByWorker($active_worker))
+							&& Context_CustomFieldset::isWriteableByActor($custom_fieldset, $active_worker))
 					)
 						DAO_CustomField::delete($id);
 					
@@ -268,7 +268,7 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		if(null == ($custom_fieldset = DAO_CustomFieldset::get($id)))
 			return;
 		
-		if(!$custom_fieldset->isReadableByWorker($active_worker))
+		if(!Context_CustomFieldset::isReadableByActor($custom_fieldset, $active_worker))
 			return;
 		
 		$tpl->assign('custom_fieldset', $custom_fieldset);

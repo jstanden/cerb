@@ -51,8 +51,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			return;
 		
 		// Check group membership ACL
-		if(!$group->isReadableByWorker($active_worker)) {
-			DevblocksPlatform::redirect(new DevblocksHttpRequest());
+		if(!Context_Ticket::isReadableByActor($ticket, $active_worker)) {
+			echo DevblocksPlatform::translateCapitalized('common.access_denied');
 			exit;
 		}
 		
@@ -175,7 +175,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
-
 		// Custom Fieldsets
 
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_TICKET, $ticket->id, $values);

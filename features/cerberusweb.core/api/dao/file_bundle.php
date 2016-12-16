@@ -349,7 +349,7 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 			
 			// Check if the record is readable by the actor
 			if($as_worker) 
-				if(!CerberusContexts::isReadableByActor($bundle->owner_context, $bundle->owner_context_id, $as_worker))
+				if(!Context_FileBundle::isReadableByActor($bundle, $as_worker))
 					return false;
 			
 			return true;
@@ -536,14 +536,6 @@ class Model_FileBundle {
 	public $updated_at;
 	public $owner_context;
 	public $owner_context_id;
-	
-	function isReadableByActor($actor) {
-		return CerberusContexts::isReadableByActor($this->owner_context, $this->owner_context_id, $actor);		
-	}
-	
-	function isWriteableByActor($actor) {
-		return CerberusContexts::isWriteableByActor($this->owner_context, $this->owner_context_id, $actor);		
-	}
 	
 	function getAttachments() {
 		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_FILE_BUNDLE, $this->id);
@@ -1199,7 +1191,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		
 		if(!empty($context_id) && null != ($file_bundle = DAO_FileBundle::get($context_id))) {
 			// ACL
-			if(!$file_bundle->isWriteableByActor($active_worker))
+			if(!Context_FileBundle::isWriteableByActor($file_bundle, $active_worker))
 				return;
 			
 			$tpl->assign('model', $file_bundle);

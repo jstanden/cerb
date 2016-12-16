@@ -10,7 +10,7 @@
 	{if is_array($menu) && !empty($menu)}
 	{foreach from=$menu item=workspace_page_id}
 		{$workspace_page = $workspace_pages.$workspace_page_id}
-		{if $workspace_page && $workspace_page->isReadableByWorker($active_worker)}
+		{if $workspace_page && Context_WorkspacePage::isReadableByActor($workspace_page, $active_worker)}
 		<li class="{if $page->id=='core.page.pages' && isset($response_path[1]) && intval($response_path[1])==$workspace_page->id}selected{/if} drag" page_id="{$workspace_page->id}">
 			<a href="{devblocks_url}c=pages&page={$workspace_page->id}-{$workspace_page->name|devblocks_permalink}{/devblocks_url}">{$workspace_page->name|lower}</a>
 		</li>

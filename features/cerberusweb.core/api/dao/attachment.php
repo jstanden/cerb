@@ -482,16 +482,6 @@ class Model_Attachment {
 	public function getFileContents(&$fp=null) {
 		return Storage_Attachments::get($this, $fp);
 	}
-	
-	public function isReadableByActor($actor) {
-		if(!($actor instanceof Model_Worker))
-			return false;
-		
-		if(false == ($ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
-			return false;
-		
-		return $ext->authorize($this->id, $actor);
-	}
 };
 
 class Storage_Attachments extends Extension_DevblocksStorageSchema {
@@ -1148,103 +1138,77 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 class Context_Attachment extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	const ID = CerberusContexts::CONTEXT_ATTACHMENT;
 	
-	function authorize($context_id, Model_Worker $worker) {
+	static function isDownloadableByActor($models, $actor) {
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return CerberusContexts::denyEveryone($actor, $models);
 		
-		// Security
-		try {
-			if(empty($worker))
-				throw new Exception();
-			
-			if(false == ($model = DAO_Attachment::get($context_id)))
+		// If the actor is a bot, delegate to its owner
+		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
 				return false;
 			
-			if($worker->is_superuser) {
-				return $model->storage_sha1hash;
-			}
-
-			if(false == ($links = DAO_ContextLink::getAllContextLinks(self::ID, $context_id)))
-				return false;
-			
-			$guids = [];
-			
-			foreach($links as $link) {
-				if(!isset($guids[$link->context]))
-					$guids[$link->context] = [];
-				
-				$guids[$link->context][$link->context_id] = $model->storage_sha1hash;
-			}
-			
-			$links = $guids;
-			unset($guids);
-			
-			// Is it linked to a KB article?  Public
-			if(isset($links[CerberusContexts::CONTEXT_KB_ARTICLE]))
-				return true;
-				
-			// If it linked to a file bundle?  Check owners
-			if(isset($links[CerberusContexts::CONTEXT_FILE_BUNDLE])) {
-				$ids = array_keys($links[CerberusContexts::CONTEXT_FILE_BUNDLE]);
-				$models = DAO_FileBundle::getIds($ids);
-				
-				foreach($links[CerberusContexts::CONTEXT_FILE_BUNDLE] as $id => $guid) {
-					$model = $models[$id];
-					
-					if(CerberusContexts::isReadableByActor($model->owner_context, $model->owner_context_id, $worker))
-						return $guid;
-				}
-			}
-			
-			// Is it linked to an HTML template?
-			if(isset($links[CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE])) {
-				$ids = array_keys($links[CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE]);
-				$models = DAO_MailHtmlTemplate::getIds($ids);
-				
-				foreach($links[CerberusContexts::CONTEXT_FILE_BUNDLE] as $id => $guid) {
-					$model = $models[$id];
-					
-					if(CerberusContexts::isReadableByActor($model->owner_context, $model->owner_context_id, $worker))
-						return $guid;
-				}
-			}
-			
-			// Is it linked to a message?
-			if(isset($links[CerberusContexts::CONTEXT_MESSAGE])) {
-				$db = DevblocksPlatform::getDatabaseService();
-				$group_ids = array_keys(DAO_Group::getPublicGroups()) + array_keys($worker->getMemberships());
-				
-				$sql = sprintf("SELECT MAX(m.id) FROM message m INNER JOIN ticket t ON (t.id=m.ticket_id) WHERE m.id IN (%s) AND t.group_id in (%s)",
-					implode(',', DevblocksPlatform::sanitizeArray(array_keys($links[CerberusContexts::CONTEXT_MESSAGE]), 'int')),
-					implode(',', $group_ids)
-				);
-				$id = $db->GetOneSlave($sql);
-				
-				if($id && isset($links[CerberusContexts::CONTEXT_MESSAGE][$id]))
-					return $links[CerberusContexts::CONTEXT_MESSAGE][$id];
-			}
-			
-			// Is it linked to a comment?
-			if(isset($links[CerberusContexts::CONTEXT_COMMENT])) {
-				$ids = array_keys($links[CerberusContexts::CONTEXT_COMMENT]);
-				$models = DAO_Comment::getIds($ids);
-
-				foreach($links[CerberusContexts::CONTEXT_COMMENT] as $id => $guid) {
-					$model = $models[$id];
-					
-					if(false == ($defer_context = Extension_DevblocksContext::get($model->context)))
-						continue;
-					
-					if($defer_context->authorize($model->context_id, $worker))
-						return $guid;
-				}
-			}
-			
-			return false;
-			
-		} catch (Exception $e) {
-			// Fail
+		if(CerberusContexts::isActorAnAdmin($actor)) {
+			return CerberusContexts::allowEveryone($actor, $models);
 		}
 		
-		return false;
+		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_ATTACHMENT)))
+			return CerberusContexts::denyEveryone($actor, $models);
+		
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'links');
+		
+		$results = array_fill_keys(array_keys($dicts), false);
+		
+		foreach($dicts as $context_id => $dict) {
+			if(!isset($dict->links) || !is_array($dict->links))
+				continue;
+			
+			
+			foreach($dict->links as $context => $ids) {
+				if(isset($dict->links[$context])) {
+					if(false == ($mft = DevblocksPlatform::getExtension($context, false)))
+						continue;
+					
+					$class = $mft->class;
+					
+					if(!class_exists($class))
+						continue;
+					
+					if($privs = $class::isReadableByActor($ids, $actor)) {
+						if(false !== array_search(true, $privs)) {
+							$results[$context_id] = true;
+							continue 2;
+						}
+					}
+				}
+			}
+		}
+		
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return array_shift($results);
+		}
+	}
+	
+	static function isReadableByActor($models, $actor) {
+		// Everyone can view attachment meta
+		return CerberusContexts::allowEveryone($actor, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Only admins can edit attachment meta
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return CerberusContexts::denyEveryone($actor, $models);
+		
+		// If the actor is a bot, delegate to its owner
+		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
+				return false;
+			
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEveryone($actor, $models);
+			
+		return CerberusContexts::denyEveryone($actor, $models);
 	}
 	
 	function profileGetUrl($context_id) {
@@ -1465,8 +1429,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		if(!empty($context_id)) {
 			if(false != ($model = DAO_Attachment::get($context_id))) {
-				$guid = $model->isReadableByActor($active_worker);
-				$tpl->assign('guid', $guid);
 			}
 		}
 		

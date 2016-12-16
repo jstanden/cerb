@@ -1,5 +1,7 @@
 {$page_context = CerberusContexts::CONTEXT_ATTACHMENT}
 {$page_context_id = $attachment->id}
+{$is_downloadable = Context_Attachment::isDownloadableByActor($attachment, $active_worker)}
+{$is_writeable = Context_Attachment::isWriteableByActor($attachment, $active_worker)}
 
 <div style="float:left">
 	<h1>{$attachment->name}</h1>
@@ -18,8 +20,10 @@
 		{devblocks_url assign=return_url full=true}c=profiles&type=attachment&id={$page_context_id}-{$attachment->name|devblocks_permalink}{/devblocks_url}
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
-		{if $guid}
+		{if $is_downloadable}
 			<button type="button" id="btnDisplayAttachmentDownload"><span class="glyphicons glyphicons-cloud-download"></span> {'common.download'|devblocks_translate|capitalize}</button>
+		{/if}
+		{if $is_writeable}
 			<button type="button" id="btnDisplayAttachmentEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -91,6 +95,7 @@ $(function() {
 	
 	// Edit
 	
+	{if $is_writeable}
 	$('#btnDisplayAttachmentEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {
@@ -106,9 +111,10 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
+	{/if}
 	
 	// Download button
-	{if $guid}
+	{if $is_downloadable}
 	$('#btnDisplayAttachmentDownload')
 		.on('click', function(e) {
 			window.open('{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}', '_blank');

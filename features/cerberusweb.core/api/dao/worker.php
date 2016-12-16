@@ -2418,23 +2418,46 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 };
 
 class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
-	function authorize($context_id, Model_Worker $worker) {
-		// Security
-		try {
-			if(empty($worker))
-				throw new Exception();
+	static function isReadableByActor($models, $actor) {
+		// Everyone can see workers
+		return CerberusContexts::allowEveryone($actor, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Only admins and the worker themselves can edit
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEveryone($actor, $models);
+		
+		// If the actor is a bot, delegate to its owner
+		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
+				return false;
+		
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEveryone($actor, $models);
+		
+		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_BUCKET)))
+			return CerberusContexts::denyEveryone($actor, $models);
+		
+		$results = array_fill_keys(array_keys($dicts), false);
 			
-			if($worker->is_superuser)
-				return TRUE;
-				
-			if($context_id == $worker->id)
-				return TRUE;
-				
-		} catch (Exception $e) {
-			// Fail
+		switch($actor->_context) {
+			// A worker can edit themselves
+			case CerberusContexts::CONTEXT_WORK:
+				foreach($dicts as $context_id => $dict) {
+					if($dict->id == $actor->id) {
+						$results[$context_id] = true;
+					}
+				}
+				break;
 		}
 		
-		return FALSE;
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return array_shift($results);
+		}
 	}
 	
 	function profileGetUrl($context_id) {

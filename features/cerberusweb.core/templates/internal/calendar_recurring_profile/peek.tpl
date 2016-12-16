@@ -1,5 +1,6 @@
 {$div_id = "peek{uniqid()}"}
 {$peek_context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}
+{$is_writeable = Context_CalendarRecurringEvent::isWriteableByActor($dict, $active_worker)}
 
 <div id="{$div_id}">
 	
@@ -14,7 +15,7 @@
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
 			{/if}
 		
-			{if CerberusContexts::isWriteableByActor($dict->calendar_owner__context, $dict->calendar_owner_context_id, $active_worker)}
+			{if $is_writeable}
 			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 			{/if}
 			
@@ -75,6 +76,7 @@ $(function() {
 		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
 		// Edit button
+		{if $is_writeable}
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
@@ -88,6 +90,7 @@ $(function() {
 				genericAjaxPopupClose($layer);
 			})
 			;
+		{/if}
 		
 		// Comments
 		$popup.find('button.cerb-peek-comments-add')

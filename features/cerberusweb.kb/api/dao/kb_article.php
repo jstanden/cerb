@@ -793,8 +793,14 @@ class Model_KbArticle {
 };
 
 class Context_KbArticle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
-	function authorize($context_id, Model_Worker $worker) {
-		return TRUE;
+	static function isReadableByActor($models, $actor) {
+		// Everyone can read kb articles
+		return CerberusContexts::allowEveryone($actor, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Everyone can edit kb articles
+		return CerberusContexts::allowEveryone($actor, $models);
 	}
 	
 	function getRandom() {

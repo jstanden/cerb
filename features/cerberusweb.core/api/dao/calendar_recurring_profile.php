@@ -503,13 +503,6 @@ class Model_CalendarRecurringProfile {
 		return $this->_calendar_model;
 	}
 	
-	function isWriteableByActor($actor) {
-		if(false == ($calendar = $this->getCalendar()))
-			return false;
-			
-		return CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $actor);
-	}
-	
 	function generateRecurringEvents($date_from, $date_to) {
 		$calendar_events = array();
 

@@ -1,5 +1,7 @@
 {$div_id = uniqid()}
 {$peek_context = CerberusContexts::CONTEXT_ATTACHMENT}
+{$is_downloadable = Context_Attachment::isDownloadableByActor($dict, $active_worker)}
+{$is_writeable = Context_Attachment::isWriteableByActor($dict, $active_worker)}
 
 <div id="{$div_id}">
 	
@@ -9,11 +11,11 @@
 		</h1>
 		
 		<div style="margin-top:5px;">
-			{if $guid}
+			{if $is_downloadable}
 			<button type="button" class="cerb-peek-download"><span class="glyphicons glyphicons-cloud-download"></span> {'common.download'|devblocks_translate|capitalize}</button>
 			{/if}
 			
-			{if $active_worker->is_superuser}
+			{if $is_writeable}
 			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 			{/if}
 			
@@ -80,7 +82,7 @@ $(function() {
 		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
 		// Download button
-		{if $guid}
+		{if $is_downloadable}
 		$popup.find('button.cerb-peek-download')
 			.on('click', function(e) {
 				window.open('{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
@@ -88,7 +90,7 @@ $(function() {
 		{/if}
 		
 		// Edit button
-		{if $active_worker->is_superuser}
+		{if $is_writeable}
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {

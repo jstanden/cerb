@@ -93,7 +93,7 @@ class ChRest_VirtualAttendants extends Extension_RestController {
 		if(false == ($va = DAO_VirtualAttendant::get($id)))
 			$this->error(self::ERRNO_CUSTOM, "Invalid ID.");
 		
-		if(!CerberusContexts::isReadableByActor($va->owner_context, $va->owner_context_id, $active_worker))
+		if(!Context_VirtualAttendant::isReadableByActor($va, $active_worker))
 			$this->error(self::ERRNO_CUSTOM, "You do not have permission to view this object.");
 		
 		$labels = array();
@@ -116,7 +116,7 @@ class ChRest_VirtualAttendants extends Extension_RestController {
 		if(false == ($va = $behavior->getVirtualAttendant()))
 			$this->error(self::ERRNO_CUSTOM, "Invalid Virtual Attendant.");
 
-		if(!$va->isReadableByActor($active_worker))
+		if(!Context_VirtualAttendant::isReadableByActor($va, $active_worker))
 			$this->error(self::ERRNO_ACL);
 		
 		if($va->is_disabled)

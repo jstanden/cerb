@@ -184,12 +184,12 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	static function getByOwner($context, $context_id, $with_disabled=false) {
 		$vas = DAO_VirtualAttendant::getAll();
 		$results = array();
-
+		
 		foreach($vas as $va_id => $va) {
 			if(!$with_disabled && $va->is_disabled)
 				continue;
 			
-			if(CerberusContexts::isSameObject(array($context, $context_id), array($va->owner_context, $va->owner_context_id)))
+			if($context == $va->owner_context && $context_id == $va->owner_context_id)
 				$results[$va_id] = $va;
 		}
 
@@ -201,7 +201,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		$results = array();
 
 		foreach($vas as $va_id => $va) {
-			if(CerberusContexts::isReadableByActor($va->owner_context, $va->owner_context_id, $actor))
+			if(Context_VirtualAttendant::isReadableByActor($va, $actor))
 				$results[$va_id] = $va;
 		}
 		
@@ -213,7 +213,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		$results = array();
 
 		foreach($vas as $va_id => $va) {
-			if(CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $va_id, $actor))
+			if(Context_VirtualAttendant::isWriteableByActor($va, $actor))
 				$results[$va_id] = $va;
 		}
 		
@@ -638,20 +638,6 @@ class Model_VirtualAttendant {
 		}
 		
 		return $manifests;
-	}
-	
-	function isReadableByActor($actor) {
-		if($actor instanceof Model_Worker && $actor->is_superuser)
-			return true;
-		
-		return CerberusContexts::isReadableByActor($this->owner_context, $this->owner_context_id, $actor);
-	}
-	
-	function isWriteableByActor($actor) {
-		if($actor instanceof Model_Worker && $actor->is_superuser)
-			return true;
-		
-		return CerberusContexts::isWriteableByActor($this->owner_context, $this->owner_context_id, $actor);
 	}
 };
 

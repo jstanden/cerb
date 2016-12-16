@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}
 {$page_context_id = $calendar_recurring_profile->id}
+{$is_writeable = Context_CalendarRecurringProfile::isWriteableByActor($calendar_recurring_profile, $active_worker)}
 
 <div style="float:left">
 	<h1>{$calendar_recurring_profile->event_name}</h1>
@@ -26,7 +27,7 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
 		<!-- Edit -->
-		{if $calendar_recurring_profile->isWriteableByActor($active_worker)}
+		{if $is_writeable}
 		<button type="button" id="btnDisplayCalendarRecurringProfileEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -95,7 +96,7 @@ $(function() {
 	var tabs = $("#calendar_recurring_profileTabs").tabs(tabOptions);
 	
 	// Edit
-	{if $calendar_recurring_profile->isWriteableByActor($active_worker)}
+	{if $is_writeable}
 	$('#btnDisplayCalendarRecurringProfileEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {

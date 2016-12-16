@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_SNIPPET}
 {$page_context_id = $snippet->id}
+{$is_writeable = Context_Snippet::isWriteableByActor($snippet, $active_worker)}
 
 <div style="float:left">
 	<h1>{$snippet->title}</h1>
@@ -21,7 +22,7 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
 		<!-- Edit -->
-		{if CerberusContexts::isWriteableByActor($snippet->owner_context, $snippet->owner_id, $active_worker)}
+		{if $is_writeable}
 		<button type="button" id="btnDisplaySnippetEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -92,7 +93,7 @@ $(function() {
 
 	var tabs = $("#snippetTabs").tabs(tabOptions);
 	
-	{if CerberusContexts::isWriteableByActor($snippet->owner_context, $snippet->owner_id, $active_worker)}
+	{if $is_writeable}
 		$('#btnDisplaySnippetEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {

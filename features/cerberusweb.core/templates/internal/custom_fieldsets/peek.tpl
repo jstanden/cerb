@@ -1,4 +1,4 @@
-{$is_writeable = !$custom_fieldset->id || $custom_fieldset->isWriteableByWorker($active_worker)}
+{$is_writeable = !$custom_fieldset->id || Context_CustomFieldset::isWriteableByActor($custom_fieldset, $active_worker)}
 
 {if !$is_writeable}
 <div class="error-box">

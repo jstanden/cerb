@@ -2190,31 +2190,121 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Message extends Extension_DevblocksContext implements IDevblocksContextPeek {
-	function authorize($context_id, Model_Worker $worker) {
-		// Security
-		try {
-			if(empty($worker))
-				throw new Exception();
+	static function isReadableByActor($models, $actor) {
+		// Only admins and group members can see, unless public
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEveryone($actor, $models);
+		
+		// If the actor is a bot, delegate to its owner
+		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
+				return false;
+		
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEveryone($actor, $models);
+		
+		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_MESSAGE)))
+			return CerberusContexts::denyEveryone($actor, $models);
+		
 			
-			if($worker->is_superuser)
-				return TRUE;
-				
-			if(null == ($message = DAO_Message::get($context_id)))
-				throw new Exception();
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'ticket_group_');
+		
+		$results = array_fill_keys(array_keys($dicts), false);
 			
-			if(null == ($ticket = DAO_Ticket::get($message->ticket_id)))
-				throw new Exception();
+		switch($actor->_context) {
+			case CerberusContexts::CONTEXT_GROUP:
+				foreach($dicts as $context_id => $dict) {
+					// Anybody can read public group messages
+					if(!$dict->ticket_group_is_private) {
+						$results[$context_id] = true;
+						continue;
+					}
+					
+					// A group can edit its own messages
+					if($dict->ticket_group_id == $actor->id) {
+						$results[$context_id] = true;
+						continue;
+					}
+				}
+				break;
 			
-			if(null == ($group = $ticket->getGroup()))
-				throw new Exception();
-			
-			return !$group->is_private || $worker->isGroupMember($ticket->group_id);
-				
-		} catch (Exception $e) {
-			// Fail
+			// A worker can edit if they're a manager of the group
+			case CerberusContexts::CONTEXT_WORKER:
+				if(false == ($worker = DAO_Worker::get($actor->id)))
+					break;
+					
+				foreach($dicts as $context_id => $dict) {
+					// Anybody can read public group messages
+					if(!$dict->ticket_group_is_private) {
+						$results[$context_id] = true;
+						continue;
+					}
+					
+					// A group manager can edit messages
+					if($worker->isGroupManager($dict->ticket_group_id)) {
+						$results[$context_id] = true;
+					}
+				}
+				break;
 		}
 		
-		return FALSE;
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return array_shift($results);
+		}
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Only admins and group members can edit
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEveryone($actor, $models);
+		
+		// If the actor is a bot, delegate to its owner
+		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
+				return false;
+		
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEveryone($actor, $models);
+		
+		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_MESSAGE)))
+			return CerberusContexts::denyEveryone($actor, $models);
+		
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'ticket_group_');
+		
+		$results = array_fill_keys(array_keys($dicts), false);
+			
+		switch($actor->_context) {
+			// A group can manage itself
+			case CerberusContexts::CONTEXT_GROUP:
+				foreach($dicts as $context_id => $dict) {
+					if($dict->ticket_group_id == $actor->id) {
+						$results[$context_id] = true;
+					}
+				}
+				break;
+			
+			// A worker can edit if they're a manager of the group
+			case CerberusContexts::CONTEXT_WORKER:
+				if(false == ($worker = DAO_Worker::get($actor->id)))
+					break;
+				
+				foreach($dicts as $context_id => $dict) {
+					if($worker->isGroupManager($dict->ticket_group_id)) {
+						$results[$context_id] = true;
+					}
+				}
+				break;
+		}
+		
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return array_shift($results);
+		}
 	}
 	
 	function getRandom() {

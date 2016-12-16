@@ -837,6 +837,60 @@ class Model_Bucket {
 class Context_Bucket extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_BUCKET;
 	
+	static function isReadableByActor($models, $actor) {
+		// Everyone can see buckets
+		return CerberusContexts::allowEveryone($actor, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Only admins and group managers can edit
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEveryone($actor, $models);
+		
+		// If the actor is a bot, delegate to its owner
+		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
+				return false;
+		
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEveryone($actor, $models);
+		
+		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_BUCKET)))
+			return CerberusContexts::denyEveryone($actor, $models);
+		
+		$results = array_fill_keys(array_keys($dicts), false);
+			
+		switch($actor->_context) {
+			// A group can manage itself
+			case CerberusContexts::CONTEXT_GROUP:
+				foreach($dicts as $context_id => $dict) {
+					if($dict->group_id == $actor->id) {
+						$results[$context_id] = true;
+					}
+				}
+				break;
+			
+			// A worker can edit groups they are a manager of
+			case CerberusContexts::CONTEXT_WORKER:
+				if(false == ($worker = DAO_Worker::get($actor->id)))
+					break;
+				
+				foreach($dicts as $context_id => $dict) {
+					if($worker->isGroupManager($dict->group_id)) {
+						$results[$context_id] = true;
+					}
+				}
+				break;
+		}
+		
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return array_shift($results);
+		}
+	}
+	
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';
@@ -869,24 +923,6 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'replyto__label',
 			'updated_at',
 		);
-	}
-	
-	function authorize($context_id, Model_Worker $worker) {
-		// Security
-		try {
-			if(empty($worker))
-				throw new Exception();
-			
-			// [TODO] Check group
-			//if($worker->isGroupMember($context_id))
-				
-			return TRUE;
-				
-		} catch (Exception $e) {
-			// Fail
-		}
-		
-		return FALSE;
 	}
 	
 	/**

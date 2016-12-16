@@ -863,18 +863,6 @@ class Model_Group {
 		return $this->name;
 	}
 	
-	public function isReadableByWorker(Model_Worker $worker) {
-		// If the group is public
-		if(!$this->is_private)
-			return true;
-		
-		// If the worker is an admin or a group member
-		if($worker->is_superuser || $worker->isGroupMember($this->id))
-			return true;
-		
-		return false;
-	}
-	
 	public function getMembers() {
 		return DAO_Group::getGroupMembers($this->id);
 	}
@@ -1399,20 +1387,58 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 class Context_Group extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.group';
 	
-	function authorize($context_id, Model_Worker $worker) {
-		// Security
-		try {
-			if(empty($worker))
-				throw new Exception();
-			
-			if($worker->isGroupMember($context_id))
-				return TRUE;
-				
-		} catch (Exception $e) {
-			// Fail
-		}
+	static function isReadableByActor($models, $actor) {
+		// Everyone can see buckets
+		return CerberusContexts::allowEveryone($actor, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Only admins and group managers can edit
 		
-		return FALSE;
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEveryone($actor, $models);
+		
+		// If the actor is a bot, delegate to its owner
+		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
+				return false;
+		
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEveryone($actor, $models);
+		
+		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_GROUP)))
+			return CerberusContexts::denyEveryone($actor, $models);
+		
+		$results = array_fill_keys(array_keys($dicts), false);
+			
+		switch($actor->_context) {
+			// A group can manage itself
+			case CerberusContexts::CONTEXT_GROUP:
+				foreach($dicts as $context_id => $dict) {
+					if($dict->id == $actor->id) {
+						$results[$context_id] = true;
+					}
+				}
+				break;
+			
+			// A worker can edit groups they are a manager of
+			case CerberusContexts::CONTEXT_WORKER:
+				if(false == ($worker = DAO_Worker::get($actor->id)))
+					break;
+				
+				foreach($dicts as $context_id => $dict) {
+					if($worker->isGroupManager($dict->id)) {
+						$results[$context_id] = true;
+					}
+				}
+				break;
+		}
+	
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return array_shift($results);
+		}
 	}
 	
 	function getRandom() {

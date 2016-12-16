@@ -1,5 +1,6 @@
 {$div_id = "peek{uniqid()}"}
 {$peek_context = CerberusContexts::CONTEXT_SNIPPET}
+{$is_writeable = Context_Snippet::isWriteableByActor($dict, $active_worker)}
 
 <div id="{$div_id}">
 	<h1 style="color:inherit;">
@@ -7,7 +8,7 @@
 	</h1>
 	
 	<div style="margin-top:5px;">
-		{if CerberusContexts::isWriteableByActor($dict->owner__context, $dict->owner_id, $active_worker)}
+		{if $is_writeable}
 		<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 		{/if}
 		
@@ -66,7 +67,7 @@ $(function() {
 		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
 		// Edit button
-		{if CerberusContexts::isWriteableByActor($dict->owner__context, $dict->owner_id, $active_worker)}
+		{if $is_writeable}
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {

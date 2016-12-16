@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
 {$page_context_id = $virtual_attendant->id}
+{$is_writeable = Context_VirtualAttendant::isWriteableByActor($virtual_attendant, $active_worker)}
 
 <div style="float:left;margin-right:10px;">
 	<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$virtual_attendant->id}{/devblocks_url}?v={$virtual_attendant->updated_at}" style="height:75px;width:75px;border-radius:5px;">
@@ -64,8 +65,6 @@
 		{/foreach}
 		<br clear="all">
 		
-		{$is_writeable = $virtual_attendant->isWriteableByActor($active_worker)}
-		
 		<div style="margin-top:5px;">
 			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="bot.id:{$page_context_id}"><div class="badge-count">{$owner_counts.behaviors|default:0}</div> {'common.behaviors'|devblocks_translate|capitalize}</button>
 			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-query="owner.bot.id:{$page_context_id}"><div class="badge-count">{$owner_counts.calendars|default:0}</div> {'common.calendars'|devblocks_translate|capitalize}</button>
@@ -119,6 +118,7 @@ $(function() {
 	
 	// Edit
 	
+	{if $is_writeable}
 	$('#btnDisplayVirtualAttendantEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {
@@ -134,6 +134,7 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
+	{/if}
 	
 	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });

@@ -155,7 +155,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		
 		if(is_array($calendars))
 		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
-			if(!CerberusContexts::isReadableByActor($calendar->owner_context, $calendar->owner_context_id, $actor)) {
+			if(!Context_Calendar::isReadableByActor($calendar, $actor)) {
 				unset($calendars[$calendar_id]);
 				continue;
 			}
@@ -171,7 +171,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
 			@$manual_disabled = $calendar->params['manual_disabled'];
 			
-			if(!empty($manual_disabled) || !CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $actor)) {
+			if(!empty($manual_disabled) || !Context_Calendar::isWriteableByActor($calendar, $actor)) {
 				unset($calendars[$calendar_id]);
 				continue;
 			}
@@ -551,14 +551,6 @@ class Model_Calendar {
 	public $owner_context_id;
 	public $params;
 	public $updated_at;
-	
-	function isReadableByActor($actor) {
-		return CerberusContexts::isReadableByActor($this->owner_context, $this->owner_context_id, $actor);
-	}
-	
-	function isWriteableByActor($actor) {
-		return CerberusContexts::isWriteableByActor($this->owner_context, $this->owner_context_id, $actor);
-	}
 	
 	function getCreateContexts() {
 		$context_extensions = Extension_DevblocksContext::getAll(false, array('create'));

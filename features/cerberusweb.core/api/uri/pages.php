@@ -47,7 +47,7 @@ class Page_Custom extends CerberusPageExtension {
 			return;
 		
 		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
-			|| !$page->isReadableByWorker($active_worker)
+			|| !Context_WorkspacePage::isReadableByActor($page, $active_worker)
 			)
 			return;
 		
@@ -142,7 +142,7 @@ class Page_Custom extends CerberusPageExtension {
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			return;
 		
-		if(!$page->isReadableByWorker($active_worker))
+		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
 			return;
 			
 		$point = sprintf("pages.worker.%d.%d",
@@ -480,8 +480,7 @@ class Page_Custom extends CerberusPageExtension {
 			if(!isset($pages[$page_id]))
 				continue;
 
-			// Check write permission
-			if(!$pages[$page_id]->isReadableByWorker($active_worker))
+			if(!Context_WorkspacePage::isReadableByActor($pages[$page_id], $active_worker))
 				continue;
 			
 			$menu[] = $page_id;
@@ -500,7 +499,7 @@ class Page_Custom extends CerberusPageExtension {
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			return;
 		
-		if(!$page->isReadableByWorker($active_worker))
+		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
 			return;
 		
 		$tab_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($tab_ids_str), 'integer', array('nonzero','unique'));
@@ -518,7 +517,7 @@ class Page_Custom extends CerberusPageExtension {
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			return;
 		
-		if(!$page->isWriteableByWorker($active_worker))
+		if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
 			return;
 
 		$tpl->assign('page', $page);
@@ -552,7 +551,7 @@ class Page_Custom extends CerberusPageExtension {
 			$menu = array();
 		
 		if(null != ($page = DAO_WorkspacePage::get($page_id))) {
-			if($page->isReadableByWorker($active_worker)) {
+			if(Context_WorkspacePage::isReadableByActor($page, $active_worker)) {
 				if(empty($toggle)) {
 					if(false !== ($idx = array_search($page_id, $menu))) {
 						unset($menu[$idx]);
@@ -598,7 +597,7 @@ class Page_Custom extends CerberusPageExtension {
 			if(null == ($page = DAO_WorkspacePage::get($page_id)))
 				throw new Exception("Page not found.");
 			
-			if(!$page->isWriteableByWorker($active_worker))
+			if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
 				throw new Exception("Write access to page is denied.");
 			
 			$tab_id = null;
@@ -687,7 +686,7 @@ class Page_Custom extends CerberusPageExtension {
 			return;
 		
 		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
-			|| !$page->isReadableByWorker($active_worker)
+			|| !Context_WorkspacePage::isReadableByActor($page, $active_worker)
 			)
 			return;
 
@@ -716,7 +715,7 @@ class Page_Custom extends CerberusPageExtension {
 			return;
 	
 		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
-			|| !$page->isReadableByWorker($active_worker)
+			|| !Context_WorkspacePage::isReadableByActor($page, $active_worker)
 		)
 			return;
 	
@@ -786,7 +785,7 @@ class Page_Custom extends CerberusPageExtension {
 			if(null == ($page = DAO_WorkspacePage::get($id)))
 				return;
 	
-			if(!$page->isWriteableByWorker($active_worker))
+			if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
 				return;
 			
 			$page_users = $page->getUsers();
@@ -829,8 +828,8 @@ class Page_Custom extends CerberusPageExtension {
 		if(!empty($workspace_page_id)) {
 			if(null == ($workspace_page = DAO_WorkspacePage::get($workspace_page_id)))
 				return;
-				
-			if(!$workspace_page->isWriteableByWorker($active_worker))
+			
+			if(!Context_WorkspacePage::isWriteableByActor($workspace_page, $active_worker))
 				return;
 		}
 	
@@ -973,7 +972,7 @@ class Page_Custom extends CerberusPageExtension {
 		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id)))
 			return;
 	
-		if(!$page->isWriteableByWorker($active_worker))
+		if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
 			return;
 	
 		$tpl->assign('workspace_page', $page);
@@ -1012,7 +1011,7 @@ class Page_Custom extends CerberusPageExtension {
 			return;
 		}
 	
-		if(!$workspace_page->isWriteableByWorker($active_worker)) {
+		if(!Context_WorkspacePage::isWriteableByActor($workspace_page, $active_worker)) {
 			echo json_encode(false);
 			return;
 		}
@@ -1061,7 +1060,7 @@ class Page_Custom extends CerberusPageExtension {
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			return;
 		
-		if(!$page->isReadableByWorker($active_worker))
+		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
 			return;
 		
 		$tpl->assign('page', $page);
@@ -1086,7 +1085,7 @@ class Page_Custom extends CerberusPageExtension {
 		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id)))
 			return;
 		
-		if(!$page->isReadableByWorker($active_worker))
+		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
 			return;
 
 		if(null == ($tab_extension = $tab->getExtension()))

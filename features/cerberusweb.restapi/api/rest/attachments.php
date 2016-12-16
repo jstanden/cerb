@@ -64,10 +64,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
-			$this->error(self::ERRNO_CUSTOM, "Can't load attachment context.");
-		
-		if(false == ($context_ext->authorize($id, $active_worker)))
+		if(false == (Context_Attachment::isReadableByActor($id, $active_worker)))
 			$this->error(self::ERRNO_ACL, "Permission denied.");
 		
 		if(is_array($container) && isset($container['results'])) {
@@ -96,10 +93,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
 			$this->error(self::ERRNO_CUSTOM, "Could not open a temporary file.");
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
-			$this->error(self::ERRNO_CUSTOM, "Can't load attachment context.");
-		
-		if(false == ($context_ext->authorize($file->id, $active_worker)))
+		if(false == (Context_Attachment::isDownloadableByActor($file, $active_worker)))
 			$this->error(self::ERRNO_ACL, "Permission denied.");
 		
 		if(false === $file->getFileContents($fp))

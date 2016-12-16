@@ -381,20 +381,6 @@ class Model_WorkspaceWidget {
 		
 		return $tab->getWorkspacePage();
 	}
-	
-	function isReadableByWorker(Model_Worker $worker) {
-		if(false == ($page = $this->getWorkspacePage()))
-			return false;
-		
-		return $page->isReadableByWorker($worker);
-	}
-	
-	function isWriteableByWorker(Model_Worker $worker) {
-		if(false == ($page = $this->getWorkspacePage()))
-			return false;
-		
-		return $page->isWriteableByWorker($worker);
-	}
 };
 
 class Context_WorkspaceWidget extends Extension_DevblocksContext {

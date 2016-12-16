@@ -470,8 +470,12 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		return $keys->children;
 	}
 
-	function authorize($context_id, Model_Worker $worker) {
-		return true;
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::allowEveryone($actor, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::allowEveryone($actor, $models);
 	}
 
 	abstract function getRandom();

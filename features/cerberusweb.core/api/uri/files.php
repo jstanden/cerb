@@ -44,14 +44,11 @@ class ChFilesController extends DevblocksControllerExtension {
 		if(empty($file_id) || empty($file_name))
 			DevblocksPlatform::dieWithHttpError($translate->_('files.not_found'), 404);
 		
-		if(false == ($ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
-			DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
-		
-		if(!$ext->authorize($file_id, $active_worker))
-			DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
-		
 		if(false == ($file = DAO_Attachment::get($file_id)))
 			DevblocksPlatform::dieWithHttpError($translate->_('files.not_found'), 404);
+		
+		if(!Context_Attachment::isDownloadableByActor($file, $active_worker))
+			DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
 		
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
 			DevblocksPlatform::dieWithHttpError($translate->_('files.error_temp_open'), 500);

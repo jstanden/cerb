@@ -241,7 +241,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 				if(null == ($snippet = DAO_Snippet::get($id))) /* @var $snippet Model_Snippet */
 					throw new Exception_DevblocksAjaxValidationError('Failed to delete the record.');
 					
-				if(!$snippet->isWriteableByWorker($active_worker))
+				if(!Context_Snippet::isWriteableByActor($snippet, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError("You do not have permission to delete this record.");
 					
 				DAO_Snippet::delete($id);
@@ -335,7 +335,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 					if(null == ($snippet = DAO_Snippet::get($id)))
 						throw new Exception_DevblocksAjaxValidationError('This record no longer exists.');
 					
-					if(!$snippet->isWriteableByWorker($active_worker))
+					if(!Context_Snippet::isWriteableByActor($snippet, $active_worker))
 						throw new Exception_DevblocksAjaxValidationError('You do not have permission to modify this record.');
 					
 					DAO_Snippet::update($id, $fields);

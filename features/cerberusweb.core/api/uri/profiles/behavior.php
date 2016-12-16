@@ -143,7 +143,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				if(false == ($bot = $behavior->getVirtualAttendant()))
 					throw new Exception_DevblocksAjaxValidationError("Bot record not found.");
 				
-				if(false == ($bot->isWriteableByActor($active_worker)))
+				if(!Context_VirtualAttendant::isWriteableByActor($bot, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError("You don't have permission to delete this record.");
 				
 				DAO_TriggerEvent::delete($id);
@@ -196,7 +196,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						
 						// Verify that the VA is allowed to make these events
 						
-						if(!$bot->isWriteableByActor($active_worker))
+						if(!Context_VirtualAttendant::isWriteableByActor($bot, $active_worker))
 							throw new Exception_DevblocksAjaxValidationError("You don't have access to modify this bot.");
 						
 						// Verify that the active worker has access to make events for this context
@@ -338,7 +338,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							if(false == ($bot = DAO_VirtualAttendant::get($bot_id)))
 								throw new Exception_DevblocksAjaxValidationError("Invalid bot.");
 							
-							if(!$bot->isWriteableByActor($active_worker))
+							if(!Context_VirtualAttendant::isWriteableByActor($bot, $active_worker))
 								throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
 
 							if(empty($event_point))
@@ -376,7 +376,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							if(false == ($bot = $behavior->getVirtualAttendant()))
 								throw new Exception_DevblocksAjaxValidationError("Invalid bot.");
 							
-							if(!$bot->isWriteableByActor($active_worker))
+							if(!Context_VirtualAttendant::isWriteableByActor($bot, $active_worker))
 								throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
 		
 							if(empty($title))

@@ -432,13 +432,6 @@ class Model_CalendarEvent {
 			
 		return $this->_calendar_model;
 	}
-	
-	function isWriteableByActor($actor) {
-		if(false == ($calendar = $this->getCalendar()))
-			return false;
-			
-		return CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $actor);
-	}
 };
 
 class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {

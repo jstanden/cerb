@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_CALENDAR}
 {$page_context_id = $calendar->id}
+{$is_writeable = Context_Calendar::isWriteableByActor($calendar, $active_worker)}
 
 <div style="float:left">
 	<h1>{$calendar->name}</h1>
@@ -28,7 +29,7 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 		
 		<!-- Edit -->
-		{if CerberusContexts::isWriteableByActor($calendar->owner_context, $calendar->owner_context_id, $active_worker)}
+		{if $is_writeable}
 		<button type="button" id="btnDisplayCalendarEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -105,7 +106,7 @@
 		var tabs = $("#profileCalendarTabs").tabs(tabOptions);
 		
 		// Edit
-		
+		{if $is_writeable}
 		$('#btnDisplayCalendarEdit')
 			.cerbPeekTrigger()
 			.on('cerb-peek-opened', function(e) {
@@ -116,11 +117,11 @@
 			})
 			.on('cerb-peek-deleted', function(e) {
 				document.location.href = '{devblocks_url}{/devblocks_url}';
-				
 			})
 			.on('cerb-peek-closed', function(e) {
 			})
 			;
+		{/if}
 		
 		{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 	});

@@ -80,10 +80,7 @@ class PageSection_InternalSkills extends Extension_PageSection {
 		
 		// Check permissions on active worker
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET)))
-			return;
-		
-		if(!$context_ext->authorize($context_id, $active_worker))
+		if(!CerberusContexts::isWriteableByActor($context, $context_id, $active_worker))
 			return;
 		
 		$db = DevblocksPlatform::getDatabaseService();

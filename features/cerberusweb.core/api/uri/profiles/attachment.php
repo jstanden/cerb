@@ -35,9 +35,6 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		
 		$tpl->assign('attachment', $attachment);
 	
-		$guid = $attachment->isReadableByActor($active_worker);
-		$tpl->assign('guid', $guid);
-		
 		// Tab persistence
 		
 		$point = 'profiles.attachment.tab';

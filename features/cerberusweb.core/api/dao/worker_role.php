@@ -348,20 +348,26 @@ class Model_WorkerRole {
 };
 
 class Context_WorkerRole extends Extension_DevblocksContext {
-	function authorize($context_id, Model_Worker $worker) {
-		// Security
-		try {
-			if(empty($worker))
-				throw new Exception();
-			
-			if($worker->is_superuser)
-				return TRUE;
-				
-		} catch (Exception $e) {
-			// Fail
-		}
+	static function isReadableByActor($models, $actor) {
+		// Everyone can see roles
+		return CerberusContexts::allowEveryone($actor, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Only admins can edit roles
 		
-		return FALSE;
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEveryone($actor, $models);
+		
+		// If the actor is a bot, delegate to its owner
+		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
+				return false;
+		
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEveryone($actor, $models);
+		
+		return CerberusContexts::denyEveryone($actor, $models);
 	}
 	
 	function getRandom() {

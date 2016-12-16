@@ -169,13 +169,13 @@ class CerberusApplication extends DevblocksApplication {
 	static function getFileBundleDictionaryJson() {
 		$file_bundles = DAO_FileBundle::getAll();
 		$active_worker = CerberusApplication::getActiveWorker();
-
+		
 		$list = array();
 
-		if(is_array($file_bundles))
+		if($active_worker && is_array($file_bundles))
 		foreach($file_bundles as $file_bundle) { /* @var $file_bundle Model_FileBundle */
 			// Filter by owner/readable
-			if($active_worker && !$file_bundle->isReadableByActor($active_worker))
+			if(!Context_FileBundle::isReadableByActor($file_bundle, $active_worker))
 				continue;
 
 			$list[] = array(
@@ -1164,257 +1164,179 @@ class CerberusContexts {
 		return true;
 	}
 
-	public static function isSameObject($a, $b) {
-		if(false == ($a = CerberusContexts::polymorphActor($a)))
+	public static function isSameActor($a, $b) {
+		if(false == ($a = CerberusContexts::polymorphActorToDictionary($a)))
 			return false;
 
-		if(false == ($b = CerberusContexts::polymorphActor($b)))
+		if(false == ($b = CerberusContexts::polymorphActorToDictionary($b)))
 			return false;
-
-		return ((get_class($a) == get_class($b)) && (intval($a->id) == intval($b->id)));
+		
+		return ($a->_context == $b->_context && $a->id == $b->id);
+	}
+	
+	public static function denyEveryone($actor, $models) {
+		if(is_array($models)) {
+			if(is_numeric(current($models)))
+				$models = array_flip($models);
+			
+			return array_fill_keys(array_keys($models), false);
+			
+		} else {
+			return false;
+		}
 	}
 
-	// Polymorph actor from context array
-	public static function polymorphActor($actor) {
-		if(is_array($actor)) {
-			@list($actor_context, $actor_context_id) = $actor;
-
-			switch($actor_context) {
-				case CerberusContexts::CONTEXT_APPLICATION:
-					$actor = new Model_Application();
-					break;
-				case CerberusContexts::CONTEXT_ROLE:
-					$actor = DAO_WorkerRole::get($actor_context_id);
-					break;
-				case CerberusContexts::CONTEXT_GROUP:
-					$actor = DAO_Group::get($actor_context_id);
-					break;
-				case CerberusContexts::CONTEXT_WORKER:
-					$actor = DAO_Worker::get($actor_context_id);
-					break;
-				case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
-					$actor = DAO_VirtualAttendant::get($actor_context_id);
-					break;
+	public static function allowEveryone($actor, $models) {
+		if(is_array($models)) {
+			if(is_numeric(current($models)))
+				$models = array_flip($models);
+			
+			return array_fill_keys(array_keys($models), true);
+			
+		} else {
+			return true;
+		}
+	}
+	
+	public static function isActorAnAdmin($actor) {
+		if(
+			// If it's Cerb
+			$actor->_context == CerberusContexts::CONTEXT_APPLICATION
+			// Of if it's a role
+			|| $actor->_context == CerberusContexts::CONTEXT_ROLE
+			// Or if it's a superuser
+			|| ($actor->_context == CerberusContexts::CONTEXT_WORKER && $actor->is_superuser)
+		) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static function polymorphModelsToDictionaries($models, $context) {
+		// Normalize objects/primatives into an array
+		if(!is_array($models)) {
+			if($models instanceof DevblocksDictionaryDelegate) {
+				$models = [$models->id => $models];
+			} elseif(is_numeric($models)) {
+				$models = [$models => $models];
+			} else if(is_object($models) && DevblocksPlatform::strStartsWith(get_class($models), 'Model_')) {
+				$models = [$models->id => $models];
 			}
 		}
-
-		if(!is_object($actor))
-			return false;
-
-		$actor_classes = array(
-			'Model_Application',
-			'Model_WorkerRole',
-			'Model_Group',
-			'Model_Worker',
-			'Model_VirtualAttendant',
-		);
-
-		if(!in_array(get_class($actor), $actor_classes))
-			return false;
-
-		return $actor;
+		
+		if(is_array($models) && current($models) instanceof DevblocksDictionaryDelegate) {
+			return $models;
+			
+		} elseif(is_array($models) && is_numeric(current($models))) {
+			$models = CerberusContexts::getModels($context, $models);
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context);
+			return $dicts;
+			
+		} elseif(is_array($models) && is_object(current($models)) && DevblocksPlatform::strStartsWith(get_class(current($models)), 'Model_')) {
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context);
+			return $dicts;
+		}
+		
+		return null;
 	}
-
-	public static function isReadableByActor($owner_context, $owner_context_id, $actor) {
-		if(false == ($actor = CerberusContexts::polymorphActor($actor)))
-			return false;
-
-		if($actor instanceof Model_Application)
-			return true;
-
-		switch($owner_context) {
-			// Everyone can see app-owned content
-			case CerberusContexts::CONTEXT_APPLICATION:
-				return true;
-				break;
-
-			// The role itself, or members of the role, can see it
-			case CerberusContexts::CONTEXT_ROLE:
-				switch(get_class($actor)) {
-					case 'Model_WorkerRole': /* @var $actor Model_WorkerRole */
-						return ($owner_context_id == $actor->id);
-						break;
-
-					case 'Model_Group': /* @var $actor Model_Group */
-						break;
-
-					case 'Model_Worker': /* @var $actor Model_Worker */
-						return in_array($owner_context_id, array_keys($actor->getRoles()));
-						break;
-
-					case 'Model_VirtualAttendant': /* @var $actor Model_VirtualAttendant */
-						return self::isReadableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
-						break;
-				}
-				break;
-
-			case CerberusContexts::CONTEXT_GROUP:
-				switch(get_class($actor)) {
-					case 'Model_WorkerRole':
-						break;
-
-					case 'Model_Group':
-						return ($owner_context_id == $actor->id);
-						break;
-
-					case 'Model_Worker':
-						return in_array($owner_context_id, array_keys($actor->getMemberships()));
-						break;
-
-					case 'Model_VirtualAttendant':
-						return self::isReadableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
-						break;
-				}
-				break;
-
-			case CerberusContexts::CONTEXT_WORKER:
-				switch(get_class($actor)) {
-					case 'Model_WorkerRole':
-						break;
-
-					case 'Model_Group':
-						break;
-
-					case 'Model_Worker':
-						return ($owner_context_id == $actor->id);
-						break;
-
-					case 'Model_VirtualAttendant':
-						return self::isReadableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
-						break;
-				}
-				break;
-
-			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
-				if(false == ($va = DAO_VirtualAttendant::get($owner_context_id)))
-					return false;
+	
+	public static function polymorphActorToDictionary($actor) {
+		if(is_array($actor)) {
+			@list($context, $context_id) = $actor;
+			
+			switch($context) {
+				case CerberusContexts::CONTEXT_APPLICATION:
+				case CerberusContexts::CONTEXT_ADDRESS:
+				case CerberusContexts::CONTEXT_CONTACT:
+				case CerberusContexts::CONTEXT_GROUP:
+				case CerberusContexts::CONTEXT_ORG:
+				case CerberusContexts::CONTEXT_ROLE:
+				case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				case CerberusContexts::CONTEXT_WORKER:
+					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels([$context_id => $context_id], $context);
+					
+					if(isset($dicts[$context_id]))
+						return $dicts[$context_id];
+					break;
+			}
+			
+		} else if ($actor instanceof DevblocksDictionaryDelegate) {
+			switch($actor->_context) {
+				case CerberusContexts::CONTEXT_APPLICATION:
+				case CerberusContexts::CONTEXT_ADDRESS:
+				case CerberusContexts::CONTEXT_CONTACT:
+				case CerberusContexts::CONTEXT_GROUP:
+				case CerberusContexts::CONTEXT_ORG:
+				case CerberusContexts::CONTEXT_ROLE:
+				case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				case CerberusContexts::CONTEXT_WORKER:
+					return $actor;
+					break;
+			}
+			
+		} else if(is_object($actor)) {
+			$context = null;
+			
+			switch(get_class($actor)) {
+				case 'Model_Application':
+					$context = CerberusContexts::CONTEXT_APPLICATION;
+					break;
+					
+				case 'Model_Address':
+					$context = CerberusContexts::CONTEXT_ADDRESS;
+					break;
+					
+				case 'Model_Contact':
+					$context = CerberusContexts::CONTEXT_CONTACT;
+					break;
+					
+				case 'Model_Group':
+					$context = CerberusContexts::CONTEXT_GROUP;
+					break;
+					
+				case 'Model_ContactOrg':
+					$context = CerberusContexts::CONTEXT_ORG;
+					break;
+					
+				case 'Model_WorkerRole':
+					$context = CerberusContexts::CONTEXT_ROLE;
+					break;
+					
+				case 'Model_VirtualAttendant':
+					$context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+					break;
+					
+				case 'Model_Worker':
+					$context = CerberusContexts::CONTEXT_WORKER;
+					break;
+			}
+			
+			if($context) {
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels([$actor->id => $actor], $context);
 				
-				switch(get_class($actor)) {
-					case 'Model_WorkerRole':
-					case 'Model_Group':
-					case 'Model_Worker':
-						return self::isReadableByActor($va->owner_context, $va->owner_context_id, $actor);
-						break;
-
-					case 'Model_VirtualAttendant':
-						return ($owner_context_id == $actor->id);
-						break;
-				}
-				break;
+				if(isset($dicts[$actor->id]))
+					return $dicts[$actor->id];
+			}
+			
 		}
-
-		return false;
+		
+		return null;
+	}
+	
+	public static function isReadableByActor($context, $models, $actor) {
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return self::denyEveryone($actor, $models);
+		
+		return $context_ext::isReadableByActor($models, $actor);
 	}
 
-	public static function isWriteableByActor($owner_context, $owner_context_id, $actor) {
-		// Polymorph actor from context array
-		if(false == ($actor = CerberusContexts::polymorphActor($actor)))
-			return false;
-
-		if($actor instanceof Model_Application)
-			return true;
-
-		switch($owner_context) {
-			case CerberusContexts::CONTEXT_APPLICATION:
-				switch(get_class($actor)) {
-					case 'Model_WorkerRole': /* @var $actor Model_WorkerRole */
-						break;
-
-					case 'Model_Group': /* @var $actor Model_Group */
-						break;
-
-					case 'Model_Worker': /* @var $actor Model_Worker */
-						// [TODO]
-						return $actor->is_superuser;
-						break;
-
-					case 'Model_VirtualAttendant': /* @var $actor Model_VirtualAttendant */
-						return self::isWriteableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
-						break;
-				}
-				break;
-
-			// The role itself, or members of the role, can see it
-			case CerberusContexts::CONTEXT_ROLE:
-				switch(get_class($actor)) {
-					case 'Model_WorkerRole': /* @var $actor Model_WorkerRole */
-						return ($owner_context_id == $actor->id);
-						break;
-
-					case 'Model_Group': /* @var $actor Model_Group */
-						break;
-
-					case 'Model_Worker': /* @var $actor Model_Worker */
-						// [TODO]
-						return $actor->is_superuser;
-						break;
-
-					case 'Model_VirtualAttendant': /* @var $actor Model_VirtualAttendant */
-						return self::isWriteableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
-						break;
-				}
-				break;
-
-			case CerberusContexts::CONTEXT_GROUP:
-				switch(get_class($actor)) {
-					case 'Model_WorkerRole':
-						break;
-
-					case 'Model_Group':
-						return ($owner_context_id == $actor->id);
-						break;
-
-					case 'Model_Worker':
-						// [TODO]
-						return ($actor->is_superuser || $actor->isGroupManager($owner_context_id));
-						break;
-
-					case 'Model_VirtualAttendant':
-						return self::isWriteableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
-						break;
-				}
-				break;
-
-			case CerberusContexts::CONTEXT_WORKER:
-				switch(get_class($actor)) {
-					case 'Model_WorkerRole':
-						break;
-
-					case 'Model_Group':
-						break;
-
-					case 'Model_Worker':
-						// [TODO]
-						return ($actor->is_superuser || $owner_context_id == $actor->id);
-						break;
-
-					case 'Model_VirtualAttendant':
-						return self::isWriteableByActor($owner_context, $owner_context_id, array($actor->owner_context, $actor->owner_context_id));
-						break;
-				}
-				break;
-
-			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
-				if(false == ($va = DAO_VirtualAttendant::get($owner_context_id)))
-					return false;
-
-				switch(get_class($actor)) {
-					case 'Model_WorkerRole':
-					case 'Model_Group':
-					case 'Model_Worker':
-						return self::isWriteableByActor($va->owner_context, $va->owner_context_id, $actor);
-						break;
-
-					case 'Model_VirtualAttendant':
-						return ($owner_context_id == $actor->id);
-						break;
-				}
-				break;
-		}
-
-		return false;
+	public static function isWriteableByActor($context, $models, $actor) {
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return self::denyEveryone($actor, $models);
+		
+		return $context_ext::isWriteableByActor($models, $actor);
 	}
-
+	
 	// [TODO] This could also cache for request until new links are set involving the source/target
 	static public function getWatchers($context, $context_id, $as_contexts=false) {
 		$links = DAO_ContextLink::getContextLinks($context, $context_id, CerberusContexts::CONTEXT_WORKER);
@@ -1990,26 +1912,35 @@ class CerberusContexts {
 	}
 };
 
+class DAO_Application extends Cerb_ORMHelper {
+	static function getWhere($where=null, $sortBy='', $sortAsc=true, $limit=null) {
+		return [
+			0 => new Model_Application(),
+		];
+	}
+}
+
 class Model_Application {
 	public $id = 0;
 	public $name = 'Cerb';
 }
 
 class Context_Application extends Extension_DevblocksContext {
-	function authorize($context_id, Model_Worker $worker) {
-		// Security
-		try {
-			if(empty($worker))
-				throw new Exception();
-
-			if($worker->is_superuser)
-				return TRUE;
-
-		} catch (Exception $e) {
-			// Fail
-		}
-
-		return FALSE;
+	static function isReadableByActor($models, $actor) {
+		// Everyone can read app-owned records
+		return CerberusContexts::allowEveryone($actor, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Only admin workers can edit app-owned records
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEveryone($actor, $models);
+		
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEveryone($actor, $models);
+		
+		return CerberusContexts::denyEveryone($actor, $models);
 	}
 
 	function getRandom() {

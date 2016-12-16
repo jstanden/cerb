@@ -2295,7 +2295,7 @@ class DevblocksEventHelper {
 			if(@!empty($calendar->params['manual_disabled']))
 				return false;
 			
-			if(!$calendar->isWriteableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id)))
+			if(!Context_Calendar::isWriteableByActor($calendar, [CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id]))
 				return false;
 			
 			return true;
@@ -2417,7 +2417,7 @@ class DevblocksEventHelper {
 			if(@!empty($calendar->params['manual_disabled']))
 				return false;
 			
-			if(!$calendar->isWriteableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id)))
+			if(!Context_Calendar::isWriteableByActor($calendar, [CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id]))
 				return false;
 			
 			return true;

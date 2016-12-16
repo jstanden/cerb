@@ -901,8 +901,14 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 };
 
 class Context_KbCategory extends Extension_DevblocksContext {
-	function authorize($context_id, Model_Worker $worker) {
-		return TRUE;
+	static function isReadableByActor($models, $actor) {
+		// Everyone can see kb categories
+		return CerberusContexts::allowEveryone($actor, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Everyone can edit kb categories
+		return CerberusContexts::allowEveryone($actor, $models);
 	}
 	
 	function getRandom() {

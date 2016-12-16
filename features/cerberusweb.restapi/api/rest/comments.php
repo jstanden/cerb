@@ -221,15 +221,8 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			
 			switch($postfield) {
 				case 'context':
-					if($worker->is_superuser) {
-						// A superuser can do anything
-					} else {
-						// Otherwise, is this worker allowed to see this record they are commenting on?
-						if(null != ($context_ext = Extension_DevblocksContext::get($context))) {
-							if(!$context_ext->authorize($context_id, $worker))
-								$this->error(self::ERRNO_ACL);
-						}
-					}
+					if(!CerberusContexts::isReadableByActor($context, $context_id, $worker))
+						$this->error(self::ERRNO_ACL);
 					break;
 				
 				case 'owner_context':

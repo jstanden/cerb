@@ -105,7 +105,7 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		if(is_array($custom_fieldsets))
 		foreach($custom_fieldsets as $custom_fieldset) { /* @var $custom_fieldset Model_CustomFieldset */
-			if(!$custom_fieldset->isReadableByWorker($active_worker))
+			if(!Context_CustomFieldset::isReadableByActor($custom_fieldset, $active_worker))
 				continue;
 		
 			$cf_group_fields = $custom_fieldset->getCustomFields();

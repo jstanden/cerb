@@ -185,11 +185,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-		
-			$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_MESSAGE);
-			
 			// ACL
-			if(!$context_ext->authorize($id, $active_worker))
+			if(!Context_Message::isWriteableByActor($id, $active_worker))
 				throw new Exception_DevblocksAjaxValidationError("You are not authorized to modify this record.");
 			
 			if(!empty($id) && !empty($do_delete)) { // Delete
@@ -1240,11 +1237,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('ticket_id', $ticket_id);
 		$tpl->assign('message_id', $message_id);
 		
-		if(null == ($ctx = DevblocksPlatform::getExtension(CerberusContexts::CONTEXT_TICKET, true))) /* @var $ctx Extension_DevblocksContext */
-			return;
-
 		// Verify permission
-		$editable = $ctx->authorize($ticket_id, $active_worker);
+		$editable = Context_Ticket::isWriteableByActor($ticket_id, $active_worker);
 		
 		if(!$editable)
 			return;
@@ -1270,11 +1264,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 		}
 			
-		if(null == ($ctx = DevblocksPlatform::getExtension(CerberusContexts::CONTEXT_TICKET, true))) /* @var $ctx Extension_DevblocksContext */
-			return;
-
 		// Verify permission
-		$editable = $ctx->authorize($ticket_id, $active_worker);
+		$editable = Context_Ticket::isWriteableByActor($ticket_id, $active_worker);
 		
 		if(!$editable)
 			return;
@@ -1666,13 +1657,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(empty($ticket_id))
 			return;
 
-		// Check context for worker auth
-		$ticket_context = DevblocksPlatform::getExtension(CerberusContexts::CONTEXT_TICKET, true, true); /* @var $ticket_context Extension_DevblocksContext */
-
-		if(!$ticket_context->authorize($ticket_id, $active_worker))
-			return;
-
 		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+			return;
+		
+		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
 			return;
 		
 		if(empty($ticket->owner_id)) {
@@ -1691,6 +1679,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 
 		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+			return;
+		
+		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
 			return;
 		
 		if($ticket->owner_id == $active_worker->id) {

@@ -1104,28 +1104,43 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Comment extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
-	function authorize($context_id, Model_Worker $worker) {
-		// Security
-		try {
-			if(empty($worker))
-				throw new Exception();
-			
-			if($worker->is_superuser)
-				return TRUE;
-
-			if(null == ($comment = DAO_Comment::get($context_id)))
-				throw new Exception();
-				
-			if(null == ($defer_context = DevblocksPlatform::getExtension($comment->context, true)))
-				throw new Exception();
-				
-			return $defer_context->authorize($comment->context_id, $worker);
-			
-		} catch (Exception $e) {
-			// Fail
+	// Anyone can read a comment
+	public static function isReadableByActor($models, $actor) {
+		return CerberusContexts::allowEveryone($actor, $models);
+	}
+	
+	// Only a superuser or the author of the comment can edit it
+	public static function isWriteableByActor($models, $actor) {
+		$context = CerberusContexts::CONTEXT_COMMENT;
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return false;
+		
+		// If the actor is a bot, delegate to its owner
+		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
+				return false;
+		
+		if(CerberusContexts::isActorAnAdmin($actor)) {
+			return CerberusContexts::allowEveryone($actor, $models);
 		}
 		
-		return FALSE;
+		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
+			return false;
+		
+		$results = array_fill_keys(array_keys($dicts), false);
+			
+		// If the actor is the author
+		foreach($dicts as $id => $dict) {
+			if($dict->author__context == $actor->_context && $dict->author_id == $actor->id)
+				$results[$id] = true;
+		}
+		
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return current($results);
+		}
 	}
 	
 	function getRandom() {
