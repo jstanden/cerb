@@ -998,7 +998,7 @@ class Model_CustomField {
 	
 	static function hasMultipleValues($type) {
 		$multiple_types = array(Model_CustomField::TYPE_MULTI_CHECKBOX, Model_CustomField::TYPE_FILES);
-		return in_array($type, $multiple_types);					
+		return in_array($type, $multiple_types);
 	}
 };
 

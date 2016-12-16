@@ -2037,7 +2037,6 @@ class Context_Application extends Extension_DevblocksContext {
 		if(is_null($prefix))
 			$prefix = 'Application:';
 
-		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_APPLICATION);
 
 		// Polymorph
@@ -2058,7 +2057,7 @@ class Context_Application extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'name' => $prefix.$translate->_('common.name'),
+			'name' => $prefix . DevblocksPlatform::translate('common.name'),
 		);
 
 		// Token types

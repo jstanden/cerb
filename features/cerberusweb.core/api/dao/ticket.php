@@ -4911,6 +4911,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 
+		$context = CerberusContexts::CONTEXT_TICKET;
+		
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('edit_mode', $edit_mode);
 
@@ -4951,14 +4953,14 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->assign('buckets', $buckets);
 			
 			// Watchers
-			$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
+			$object_watchers = DAO_ContextLink::getContextLinks($context, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
 			$tpl->assign('object_watchers', $object_watchers);
 			
 			// Custom fields
-			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
+			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
 			
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $ticket->id);
 			if(isset($custom_field_values[$ticket->id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
 			
@@ -4974,10 +4976,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// Links
 			$links = array(
-				CerberusContexts::CONTEXT_TICKET => array(
+				$context => array(
 					$context_id => 
 						DAO_ContextLink::getContextLinkCounts(
-							CerberusContexts::CONTEXT_TICKET,
+							$context,
 							$context_id,
 							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 						),
@@ -4990,13 +4992,13 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->assign('timeline_json', $timeline_json);
 			
 			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET)))
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;
 			
 			// Dictionary
 			$labels = array();
 			$values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket, $labels, $values, '', true, false);
+			CerberusContexts::getContext($context, $ticket, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
