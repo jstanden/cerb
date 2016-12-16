@@ -796,7 +796,7 @@ class ImportCron extends CerberusCronPageExtension {
 					
 					if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $sFileName))) {
 						$fields = array(
-							DAO_Attachment::DISPLAY_NAME => $sFileName,
+							DAO_Attachment::NAME => $sFileName,
 							DAO_Attachment::MIME_TYPE => $sMimeType,
 							DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 						);

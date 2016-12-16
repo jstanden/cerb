@@ -2397,11 +2397,6 @@
 				<seg>Attachment ID</seg>
 			</tuv>
 		</tu>
-		<tu tuid="attachment.display_name">
-			<tuv xml:lang="en_US">
-				<seg>File Name</seg>
-			</tuv>
-		</tu>
 		<tu tuid="attachment.mime_type">
 			<tuv xml:lang="en_US">
 				<seg>MIME Type</seg>

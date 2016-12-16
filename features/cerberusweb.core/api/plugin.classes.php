@@ -625,7 +625,7 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 		
 		if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_name))) {
 			$fields = array(
-				DAO_Attachment::DISPLAY_NAME => $file_name,
+				DAO_Attachment::NAME => $file_name,
 				DAO_Attachment::MIME_TYPE => $file_type,
 				DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 			);

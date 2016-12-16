@@ -17,7 +17,7 @@
 
 class DAO_Attachment extends Cerb_ORMHelper {
 	const ID = 'id';
-	const DISPLAY_NAME = 'display_name';
+	const NAME = 'name';
 	const MIME_TYPE = 'mime_type';
 	const STORAGE_EXTENSION = 'storage_extension';
 	const STORAGE_KEY = 'storage_key';
@@ -74,7 +74,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "SELECT id,display_name,mime_type,storage_size,storage_extension,storage_key,storage_profile_id,storage_sha1hash,updated ".
+		$sql = "SELECT id,name,mime_type,storage_size,storage_extension,storage_key,storage_profile_id,storage_sha1hash,updated ".
 			"FROM attachment ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "");
 		$rs = $db->ExecuteSlave($sql);
@@ -91,7 +91,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Attachment();
 			$object->id = intval($row['id']);
-			$object->display_name = $row['display_name'];
+			$object->name = $row['name'];
 			$object->mime_type = $row['mime_type'];
 			$object->storage_size = intval($row['storage_size']);
 			$object->storage_extension = $row['storage_extension'];
@@ -214,7 +214,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			"ORDER BY id ".
 			"LIMIT 1",
 			$db->qstr($sha1_hash),
-			(!empty($file_name) ? (sprintf("AND display_name=%s", $db->qstr($file_name))) : ''),
+			(!empty($file_name) ? (sprintf("AND name=%s", $db->qstr($file_name))) : ''),
 			(!empty($file_size) ? (sprintf("AND storage_size=%d", $file_size)) : '')
 		);
 		
@@ -295,7 +295,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		
 		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
-			"a.display_name as %s, ".
+			"a.name as %s, ".
 			"a.mime_type as %s, ".
 			"a.storage_size as %s, ".
 			"a.storage_extension as %s, ".
@@ -305,7 +305,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			"a.updated as %s ".
 			"",
 				SearchFields_Attachment::ID,
-				SearchFields_Attachment::DISPLAY_NAME,
+				SearchFields_Attachment::NAME,
 				SearchFields_Attachment::MIME_TYPE,
 				SearchFields_Attachment::STORAGE_SIZE,
 				SearchFields_Attachment::STORAGE_EXTENSION,
@@ -392,7 +392,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 
 class SearchFields_Attachment extends DevblocksSearchFields {
 	const ID = 'a_id';
-	const DISPLAY_NAME = 'a_display_name';
+	const NAME = 'a_name';
 	const MIME_TYPE = 'a_mime_type';
 	const STORAGE_SIZE = 'a_storage_size';
 	const STORAGE_EXTENSION = 'a_storage_extension';
@@ -449,7 +449,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', $translate->_('attachment.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::DISPLAY_NAME => new DevblocksSearchField(self::DISPLAY_NAME, 'a', 'display_name', $translate->_('attachment.display_name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'a', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'a', 'mime_type', $translate->_('attachment.mime_type'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::STORAGE_SIZE => new DevblocksSearchField(self::STORAGE_SIZE, 'a', 'storage_size', $translate->_('common.size'), Model_CustomField::TYPE_NUMBER, true),
 			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'a', 'storage_extension', $translate->_('attachment.storage_extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -470,7 +470,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 
 class Model_Attachment {
 	public $id;
-	public $display_name;
+	public $name;
 	public $mime_type = '';
 	public $storage_extension;
 	public $storage_key;
@@ -888,7 +888,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 			
 			switch($field_key) {
 				// Fields
-				case SearchFields_Attachment::DISPLAY_NAME:
+				case SearchFields_Attachment::NAME:
 				case SearchFields_Attachment::MIME_TYPE:
 				case SearchFields_Attachment::STORAGE_EXTENSION:
 					$pass = true;
@@ -922,7 +922,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 			return array();
 		
 		switch($column) {
-			case SearchFields_Attachment::DISPLAY_NAME:
+			case SearchFields_Attachment::NAME:
 			case SearchFields_Attachment::MIME_TYPE:
 			case SearchFields_Attachment::STORAGE_EXTENSION:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
@@ -951,7 +951,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Attachment::DISPLAY_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_Attachment::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
 			'id' => 
 				array(
@@ -966,7 +966,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Attachment::DISPLAY_NAME),
+					'options' => array('param_key' => SearchFields_Attachment::NAME),
 				),
 			'size' => 
 				array(
@@ -1032,7 +1032,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_Attachment::DISPLAY_NAME:
+			case SearchFields_Attachment::NAME:
 			case SearchFields_Attachment::MIME_TYPE:
 			case SearchFields_Attachment::STORAGE_KEY:
 			case SearchFields_Attachment::STORAGE_EXTENSION:
@@ -1102,7 +1102,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_Attachment::DISPLAY_NAME:
+			case SearchFields_Attachment::NAME:
 			case SearchFields_Attachment::MIME_TYPE:
 			case SearchFields_Attachment::STORAGE_KEY:
 			case SearchFields_Attachment::STORAGE_EXTENSION:
@@ -1261,7 +1261,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 
 		return array(
 			'id' => $attachment->id,
-			'name' => $attachment->display_name,
+			'name' => $attachment->name,
 			'permalink' => null,
 			'updated' => $attachment->updated,
 		);
@@ -1327,7 +1327,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		$token_labels = array(
 			'id' => $prefix.$translate->_('common.id'),
 			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
-			'name' => $prefix.$translate->_('attachment.display_name'),
+			'name' => $prefix.$translate->_('common.name'),
 			'size' => $prefix.$translate->_('common.size'),
 			'storage_extension' => $prefix.$translate->_('attachment.storage_extension'),
 			'storage_key' => $prefix.$translate->_('attachment.storage_key'),
@@ -1361,11 +1361,11 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		if(null != $attachment) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = $attachment->display_name;
+			$token_values['_label'] = $attachment->name;
 			
 			$token_values['id'] = $attachment->id;
 			$token_values['mime_type'] = $attachment->mime_type;
-			$token_values['name'] = $attachment->display_name;
+			$token_values['name'] = $attachment->name;
 			$token_values['size'] = $attachment->storage_size;
 			$token_values['storage_extension'] = $attachment->storage_extension;
 			$token_values['storage_key'] = $attachment->storage_key;

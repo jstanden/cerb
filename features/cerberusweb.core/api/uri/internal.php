@@ -992,7 +992,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_name, $file_size))) {
 				// Create a record w/ timestamp + ID
 				$fields = array(
-					DAO_Attachment::DISPLAY_NAME => $file_name,
+					DAO_Attachment::NAME => $file_name,
 					DAO_Attachment::MIME_TYPE => $file_type,
 					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 				);
@@ -1032,11 +1032,11 @@ class ChInternalController extends DevblocksControllerExtension {
 				foreach($attachments as $attachment) { /* @var $attachment Model_Attachment */
 					$results[] = array(
 						'id' => $attachment->id,
-						'name' => $attachment->display_name,
+						'name' => $attachment->name,
 						'type' => $attachment->mime_type,
 						'size' => $attachment->storage_size,
 						'sha1_hash' => $attachment->storage_sha1hash,
-						'url' => $url_writer->write(sprintf("c=files&id=%d&name=%s", $attachment->id, urlencode($attachment->display_name)), true),
+						'url' => $url_writer->write(sprintf("c=files&id=%d&name=%s", $attachment->id, urlencode($attachment->name)), true),
 					);
 				}
 			}
@@ -2359,7 +2359,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			// Move the temp file to attachments
 			$fields = array(
-				DAO_Attachment::DISPLAY_NAME => $file_name,
+				DAO_Attachment::NAME => $file_name,
 				DAO_Attachment::MIME_TYPE => $mime_type,
 				DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 				DAO_Attachment::UPDATED => time(),

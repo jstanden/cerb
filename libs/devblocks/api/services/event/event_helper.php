@@ -4032,7 +4032,7 @@ class DevblocksEventHelper {
 				$attachments = $bundle->getAttachments();
 				
 				foreach($attachments as $attachment) {
-					$out .= " * " . $attachment->display_name . "\n";
+					$out .= " * " . $attachment->name . "\n";
 				}
 			}
 		}
@@ -4235,7 +4235,7 @@ class DevblocksEventHelper {
 				$attachments = $bundle->getAttachments();
 				
 				foreach($attachments as $attachment) {
-					$out .= " * " . $attachment->display_name . "\n";
+					$out .= " * " . $attachment->name . "\n";
 				}
 			}
 		}
@@ -4452,12 +4452,12 @@ class DevblocksEventHelper {
 				$mail->setBody($content);
 				
 				// Files
-				if(!empty($attachments) && is_array($attachments)) {
+				if(!empty($attachments) && is_array($attachments))
 				foreach($attachments as $file_id => $file) { /* @var $file Model_Attachment */
 					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
 						if(false !== $file->getFileContents($fp)) {
 							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
-							$attach->setFilename($file->display_name);
+							$attach->setFilename($file->name);
 							$mail->attach($attach);
 							fclose($fp);
 						}
@@ -4487,9 +4487,8 @@ class DevblocksEventHelper {
 					CerberusContexts::logActivity('ticket.message.relay', CerberusContexts::CONTEXT_TICKET, $context_id, $entry);
 				}
 				
-				if(!$result) {
+				if(!$result)
 					return false;
-				}
 				
 			} catch (Exception $e) {
 				

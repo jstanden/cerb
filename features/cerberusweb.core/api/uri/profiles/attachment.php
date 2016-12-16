@@ -163,7 +163,7 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 				
 				if(empty($id)) { // New
 					$fields = array(
-						DAO_Attachment::DISPLAY_NAME => $name,
+						DAO_Attachment::NAME => $name,
 						DAO_Attachment::MIME_TYPE => $mime_type,
 						DAO_Attachment::UPDATED => time(),
 					);
@@ -174,7 +174,7 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 					
 				} else { // Edit
 					$fields = array(
-						DAO_Attachment::DISPLAY_NAME => $name,
+						DAO_Attachment::NAME => $name,
 						DAO_Attachment::MIME_TYPE => $mime_type,
 						DAO_Attachment::UPDATED => time(),
 					);

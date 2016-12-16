@@ -1029,7 +1029,7 @@ class CerberusParser {
 						
 						if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $filename))) {
 							$fields = array(
-								DAO_Attachment::DISPLAY_NAME => $filename,
+								DAO_Attachment::NAME => $filename,
 								DAO_Attachment::MIME_TYPE => $file->mime_type,
 								DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 							);
@@ -1330,7 +1330,7 @@ class CerberusParser {
 				// Dupe detection
 				if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $filename))) {
 					$fields = array(
-						DAO_Attachment::DISPLAY_NAME => $filename,
+						DAO_Attachment::NAME => $filename,
 						DAO_Attachment::MIME_TYPE => $file->mime_type,
 						DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 					);
@@ -1367,7 +1367,7 @@ class CerberusParser {
 			
 			if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, 'original_message.html'))) {
 				$fields = array(
-					DAO_Attachment::DISPLAY_NAME => 'original_message.html',
+					DAO_Attachment::NAME => 'original_message.html',
 					DAO_Attachment::MIME_TYPE => 'text/html',
 					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 				);

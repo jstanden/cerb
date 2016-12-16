@@ -2,7 +2,7 @@
 {$page_context_id = $attachment->id}
 
 <div style="float:left">
-	<h1>{$attachment->display_name}</h1>
+	<h1>{$attachment->name}</h1>
 </div>
 
 <div style="float:right;">
@@ -111,7 +111,7 @@ $(function() {
 	{if $guid}
 	$('#btnDisplayAttachmentDownload')
 		.on('click', function(e) {
-			window.open('{devblocks_url}c=files&id={$attachment->id}&name={$attachment->display_name|devblocks_permalink}{/devblocks_url}', '_blank');
+			window.open('{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}', '_blank');
 		});
 	{/if}
 

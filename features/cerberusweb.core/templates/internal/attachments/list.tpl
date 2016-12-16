@@ -6,7 +6,7 @@
 	{foreach from=$attachments item=attachment}
 	<li>
 		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
-			<b>{$attachment->display_name}</b>
+			<b>{$attachment->name}</b>
 			({$attachment->storage_size|devblocks_prettybytes} 
 			- 
 			{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})

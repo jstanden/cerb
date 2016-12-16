@@ -583,11 +583,6 @@
 				<seg>Geregistreerde contactpersonen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="attachment.display_name">
-			<tuv xml:lang="nl_NL">
-				<seg>Bestandsnaam</seg>
-			</tuv>
-		</tu>
 		<tu tuid="attachment.id">
 			<tuv xml:lang="nl_NL">
 				<seg>Bijlage ID</seg>

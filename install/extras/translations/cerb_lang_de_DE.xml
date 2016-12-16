@@ -583,11 +583,6 @@
 				<seg>Registrierte Kontakte</seg>
 			</tuv>
 		</tu>
-		<tu tuid="attachment.display_name">
-			<tuv xml:lang="de_DE">
-				<seg>Dateiname</seg>
-			</tuv>
-		</tu>
 		<tu tuid="attachment.id">
 			<tuv xml:lang="de_DE">
 				<seg>Anlagen-ID</seg>

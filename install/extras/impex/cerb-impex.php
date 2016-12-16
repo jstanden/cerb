@@ -206,7 +206,7 @@ SQL;
 							if(!empty($attachment_ids)) {
 								$xml_attachments = $xml_message->addChild('attachments');
 								
-								$sql_attachments = sprintf("SELECT id, display_name, mime_type, storage_size, storage_key, storage_extension FROM attachment WHERE id IN (%s)", $attachment_ids);
+								$sql_attachments = sprintf("SELECT id, name, mime_type, storage_size, storage_key, storage_extension FROM attachment WHERE id IN (%s)", $attachment_ids);
 								$res = $db->query($sql_attachments);
 								
 								if($res && $res instanceof \mysqli_result)
@@ -215,7 +215,7 @@ SQL;
 									
 									if(file_exists($file_path) && is_readable($file_path)) {
 										$xml_attachment = $xml_attachments->addChild('attachment');
-										$xml_attachment->name = $row['display_name'];
+										$xml_attachment->name = $row['name'];
 										$xml_attachment->mimetype = $row['mime_type'];
 										$xml_attachment->size = $row['storage_size'];
 										

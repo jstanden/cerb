@@ -153,9 +153,9 @@ class UmScAjaxController extends Extension_UmScController {
 		
 		// Attachment hash + display name
 		@$hash = array_shift($stack);
-		@$display_name = array_shift($stack);
+		@$name = array_shift($stack);
 		
-		if(empty($hash) || empty($display_name))
+		if(empty($hash) || empty($name))
 			return;
 		
 		// Attachment

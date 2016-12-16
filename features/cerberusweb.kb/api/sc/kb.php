@@ -137,7 +137,7 @@ class UmScKbController extends Extension_UmScController {
 					if(false == ($file = DAO_Attachment::get($id)))
 						return null;
 					
-					return $url_writer->write(sprintf('c=ajax&a=downloadFile&hash=%s&name=%s', rawurlencode($file->storage_sha1hash), rawurlencode($file->display_name)), true, true);
+					return $url_writer->write(sprintf('c=ajax&a=downloadFile&hash=%s&name=%s', rawurlencode($file->storage_sha1hash), rawurlencode($file->name)), true, true);
 				});
 				
 				$tpl_builder->addFunction('cerb_file_url', $function_cerb_file_url);

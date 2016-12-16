@@ -71,7 +71,7 @@ class ChFilesController extends DevblocksControllerExtension {
 // 		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 
 		if($is_download) {
-			header('Content-Disposition: attachment; filename=' . urlencode($file->display_name));
+			header('Content-Disposition: attachment; filename=' . urlencode($file->name));
 		}
 		
 		$handled = false;

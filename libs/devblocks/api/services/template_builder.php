@@ -449,7 +449,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		if(false == ($file = DAO_Attachment::get($id)))
 			return null;
 		
-		return $url_writer->write(sprintf('c=files&id=%d&name=%s', $id, rawurlencode($file->display_name)), true, true);
+		return $url_writer->write(sprintf('c=files&id=%d&name=%s', $id, rawurlencode($file->name)), true, true);
 	}
 	
 	function function_json_decode($str) {

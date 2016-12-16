@@ -45,7 +45,7 @@
 	<ul class="chooser-container bubbles" style="display:inline-block;">
 		{foreach from=$attachments item=attachment}
 		<li>
-		{$attachment->display_name} ({$attachment->storage_size|devblocks_prettybytes:1})
+		{$attachment->name} ({$attachment->storage_size|devblocks_prettybytes:1})
 		<input type="hidden" name="file_ids[]" value="{$attachment->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 		</li>
 		{/foreach}

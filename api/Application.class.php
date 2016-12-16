@@ -828,7 +828,7 @@ class CerberusApplication extends DevblocksApplication {
 
 				if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['name'][$idx]))) {
 					$fields = array(
-						DAO_Attachment::DISPLAY_NAME => $files['name'][$idx],
+						DAO_Attachment::NAME => $files['name'][$idx],
 						DAO_Attachment::MIME_TYPE => $files['type'][$idx],
 						DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
 					);

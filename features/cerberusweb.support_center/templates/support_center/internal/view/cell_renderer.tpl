@@ -31,7 +31,7 @@
 		{*
 		{$file_id = $result.$column}
 		{$file = DAO_Attachment::get($file_id)}
-		<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$file->storage_sha1hash}&name={$file->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$file->display_name}</a>
+		<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$file->storage_sha1hash}&name={$file->name|escape:'url'}{/devblocks_url}" target="_blank">{$file->name}</a>
 		*}
 	</td>
 {elseif $col->type==Model_CustomField::TYPE_FILES}
@@ -41,7 +41,7 @@
 
 		{foreach from=$file_ids item=file_id name=files}
 			{$file = DAO_Attachment::get($file_id)}
-			<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$file->storage_sha1hash}&name={$file->display_name|escape:'url'}{/devblocks_url}" target="_blank">{$file->display_name}</a>
+			<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$file->storage_sha1hash}&name={$file->name|escape:'url'}{/devblocks_url}" target="_blank">{$file->name}</a>
 		{/foreach}
 		*}
 	</td>

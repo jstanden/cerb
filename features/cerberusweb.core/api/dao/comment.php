@@ -1252,7 +1252,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 				foreach($results as $attachment_id => $attachment) {
 					$object = [
 						'id' => $attachment_id,
-						'file_name' => $attachment->display_name,
+						'file_name' => $attachment->name,
 						'file_size' => $attachment->storage_size,
 						'file_type' => $attachment->mime_type,
 					];

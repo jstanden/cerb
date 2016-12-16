@@ -114,7 +114,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 //		header("Keep-Alive: timeout=5, max=100");
 //		header("Connection: Keep-Alive");
 		header("Content-Type: " . $file->mime_type);
-		header("Content-disposition: attachment; filename=" . $file->display_name);
+		header("Content-disposition: attachment; filename=" . $file->name);
 		header("Content-Length: " . $file_stats['size']);
 		
 		fpassthru($fp);
@@ -136,14 +136,14 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				'display_name' => SearchFields_Attachment::DISPLAY_NAME,
+				'name' => SearchFields_Attachment::NAME,
 				'mime_type' => SearchFields_Attachment::MIME_TYPE,
 				'storage_extension' => SearchFields_Attachment::STORAGE_EXTENSION,
 			);
 			
 		} else {
 			$tokens = array(
-				'display_name' => SearchFields_Attachment::DISPLAY_NAME,
+				'name' => SearchFields_Attachment::NAME,
 				'id' => SearchFields_Attachment::ID,
 				'mime_type' => SearchFields_Attachment::MIME_TYPE,
 				'sha1_hash' => SearchFields_Attachment::STORAGE_SHA1HASH,
@@ -327,7 +327,7 @@ class ChRest_Attachments extends Extension_RestController implements IExtensionR
 		
 		if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_name))) {
 			$fields = array(
-				DAO_Attachment::DISPLAY_NAME => $file_name,
+				DAO_Attachment::NAME => $file_name,
 				DAO_Attachment::MIME_TYPE => $mime_type,
 				DAO_Attachment::UPDATED => time(),
 				DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
