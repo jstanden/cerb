@@ -1240,6 +1240,9 @@ abstract class C4_AbstractView {
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array(),
+					'examples' => [
+						['type' => 'search', 'context' => $context_mft->id, 'q' => ''],
+					]
 				);
 		}
 		
@@ -1267,6 +1270,9 @@ abstract class C4_AbstractView {
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array(),
+					'examples' => [
+						['type' => 'search', 'context' => $context_mft->id, 'q' => ''],
+					]
 				);
 		}
 		
@@ -1620,6 +1626,60 @@ abstract class C4_AbstractView {
 			}, $labels);
 			
 			$tree = Extension_DevblocksContext::getPlaceholderTree(array_combine($keys, $labels), '.', '.');
+			
+			$recurseAddOptions = function(DevblocksMenuItemPlaceholder &$node) use (&$recurseAddOptions, $search_fields) {
+				$key = substr($node->key, 0, -1);
+				
+				foreach($node->children as $child)
+					$recurseAddOptions($child);
+				
+				if(isset($search_fields[$key]) && isset($search_fields[$key]['examples'])) {
+					$examples_menu = new DevblocksMenuItemPlaceholder();
+					
+					foreach($search_fields[$key]['examples'] as $example) {
+						
+						// Literal example
+						if(is_string($example)) {
+							$item = new DevblocksMenuItemPlaceholder();
+							$item->label = $example;
+							$item->l = $example;
+							$item->key = $node->key . $example;
+							$examples_menu->children[$example] = $item;
+							
+						// Structured example
+						} else if(is_array($example)) {
+							switch($example['type']) {
+								case 'chooser':
+									$item = new DevblocksMenuItemPlaceholder();
+									$item->label = '(chooser)';
+									$item->l = '(chooser)';
+									$item->key = $node->key;
+									$item->type = $example['type'];
+									$item->params = $example;
+									$node->children[$example['label']] = $item;
+									break;
+									
+								case 'search':
+									$item = new DevblocksMenuItemPlaceholder();
+									$item->label = '(search)';
+									$item->l = '(search)';
+									$item->key = $node->key;
+									$item->type = $example['type'];
+									$item->params = $example;
+									$node->children[$example['label']] = $item;
+									break;
+							}
+						}
+					}
+					
+					if(!empty($examples_menu))
+						$node->children['(examples)'] = $examples_menu;
+				}
+			};
+
+			if(is_array($tree))
+			foreach($tree as $node)
+				$recurseAddOptions($node);
 			
 			foreach($tree as $k => $v)
 				$menu[$k] = $v;
@@ -3212,6 +3272,10 @@ class CerbQuickSearchLexer {
 		
 		$node_callback = function($token) use (&$string) {
 			switch($token->type) {
+				case 'T_NOT':
+					$string .= '!';
+					break;
+					
 				case 'T_GROUP':
 					$string .= '(';
 					break;

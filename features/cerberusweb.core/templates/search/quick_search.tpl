@@ -26,6 +26,10 @@
 						{tree keys=$data->children level=$level+1}
 					</ul>
 				</li>
+			{elseif $data->type == 'search' && $data->params}
+				<li data-token="{$data->key}" data-label="{$data->label}" data-type="search" data-context="{$data->params.context}" data-query="{$data->params.query}"><div style="font-weight:bold;">{$data->l}</div></li>
+			{elseif $data->type == 'chooser' && $data->params}
+				<li data-token="{$data->key}" data-label="{$data->label}" data-type="chooser" data-context="{$data->params.context}" data-query="{$data->params.query}"><div style="font-weight:bold;">{$data->l}</div></li>
 			{elseif $data->key}
 				<li data-token="{$data->key}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l}</div></li>
 			{/if}
@@ -50,13 +54,54 @@ $(function() {
 	});
 	
 	$menu.find('li').on('click', function(e) {
+		e.stopPropagation();
+
 		var key = $(this).attr('data-token');
+		var type = $(this).attr('data-type');
 		
 		if(key.length == 0)
 			return;
 		
-		$input.insertAtCursor(key).focus();
-		e.stopPropagation();
+		if(type == 'chooser') {
+			var $context = $(this).attr('data-context');
+			var $q = $(this).attr('data-query');
+			var width = $(window).width()-100;
+			var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent($context),null,true,width);
+			
+			$chooser.one('chooser_save', function(event) {
+				var val = key + '[' + event.values.join(',') + ']';
+				
+				if(key.substr(-1) != ')')
+					val += ' ';
+				
+				$input.insertAtCursor(val).focus();
+			});
+			
+		} else if(type == 'search') {
+			var $context = $(this).attr('data-context');
+			var $q = $(this).attr('data-query');
+			var width = $(window).width()-100;
+			var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context=' + encodeURIComponent($context) + '&q=' + encodeURIComponent($q),null,true,width);
+			
+			$chooser.on('chooser_save',function(event) {
+				if(null != event.worklist_model) {
+					var val = key + '(' + event.worklist_quicksearch + ')';
+					
+					if(key.substr(-1) != ')')
+						val += ' ';
+					
+					$input.insertAtCursor(val).focus();
+				}
+			});
+			
+		} else {
+			var val = key;
+			
+			if(key.substr(-1) != ':')
+				val += ' ';
+			
+			$input.insertAtCursor(val).focus();
+		}
 	});
 	
 	$frm.submit(function() {
