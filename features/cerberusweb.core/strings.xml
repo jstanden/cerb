@@ -2146,11 +2146,6 @@
 				<seg>[Display Ticket] Can download ticket attachments</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.comment">
-			<tuv xml:lang="en_US">
-				<seg>[Display Ticket] Can comment on tickets</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.forward">
 			<tuv xml:lang="en_US">
 				<seg>[Display Ticket] Can forward tickets to third-party email addresses</seg>

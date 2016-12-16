@@ -78,11 +78,6 @@
 				<seg>[Toon ticket] Kan ticket bijlages downloaden</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.comment">
-			<tuv xml:lang="nl_NL">
-				<seg>[Toon ticket] Kan commentaar geven op tickets</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.forward">
 			<tuv xml:lang="nl_NL">
 				<seg>[Toon ticket] Kan tickets doorsturen naar e-mailadressen van derden</seg>

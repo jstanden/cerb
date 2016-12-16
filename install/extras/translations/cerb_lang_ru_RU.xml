@@ -78,11 +78,6 @@
 				<seg>[Показ заявки] Может загружать вложения из заявки</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.comment">
-			<tuv xml:lang="ru_RU">
-				<seg>[Показ заявки] Может комментировать в заявках</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.forward">
 			<tuv xml:lang="ru_RU">
 				<seg>[Показ заявки] Может пересылать заявки на сторонние адреса электронной почты</seg>

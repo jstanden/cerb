@@ -78,11 +78,6 @@
 				<seg>[Mostrar Ticket] Pode fazer download de anexos dos tickets</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.comment">
-			<tuv xml:lang="pt_PT">
-				<seg>[Mostrar Ticket] Pode comentar tickets</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.forward">
 			<tuv xml:lang="pt_PT">
 				<seg>[Mostrar Ticket] Pode encaminhar tickets para endereços de email de terceiros</seg>

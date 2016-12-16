@@ -85,8 +85,8 @@
 		{'common.keyboard'|devblocks_translate|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower} 
 		(<b>i</b>) {'common.participants'|devblocks_translate|lower} 
-		(<b>w</b>) {'common.watch'|devblocks_translate|lower}  
-		{if $active_worker->hasPriv('core.display.actions.comment')}(<b>o</b>) {'common.comment'|devblocks_translate} {/if}
+		(<b>w</b>) {'common.watch'|devblocks_translate|lower} 
+		(<b>o</b>) {'common.comment'|devblocks_translate} 
 		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		{if $ticket->status_id != Model_Ticket::STATUS_CLOSED && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {'common.close'|devblocks_translate|lower} {/if}
 		{if !$ticket->spam_trained && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {'common.spam'|devblocks_translate|lower} {/if}

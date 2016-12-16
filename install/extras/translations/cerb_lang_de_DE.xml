@@ -78,11 +78,6 @@
 				<seg>[Ticketansicht] Kann Ticket-Anhänge runterladen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.comment">
-			<tuv xml:lang="de_DE">
-				<seg>[Ticketansicht] Kann Tickets kommentieren</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.forward">
 			<tuv xml:lang="de_DE">
 				<seg>[Ticketansicht] Kann Tickets an Dritte weiterleiten</seg>
