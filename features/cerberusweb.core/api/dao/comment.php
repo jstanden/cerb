@@ -509,7 +509,7 @@ class SearchFields_Comment extends DevblocksSearchFields {
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
+			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.actor'), null, false),
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target'), null, false),
 				
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
@@ -689,6 +689,17 @@ class Model_Comment {
 		return $dicts[$this->owner_context_id];
 	}
 	
+	public function getTargetDictionary() {
+		$values = $labels = [];
+		$models = CerberusContexts::getModels($this->context, [$this->context_id]);
+		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $this->context);
+		
+		if(!isset($dicts[$this->context_id]))
+			return false;
+		
+		return $dicts[$this->context_id];
+	}
+	
 	function getAttachments() {
 		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_COMMENT, $this->id);
 	}
@@ -745,6 +756,8 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Comment::ID,
 			SearchFields_Comment::OWNER_CONTEXT,
 			SearchFields_Comment::OWNER_CONTEXT_ID,
+			SearchFields_Comment::VIRTUAL_OWNER,
+			SearchFields_Comment::VIRTUAL_TARGET,
 		));
 		
 		$this->doResetCriteria();
@@ -828,7 +841,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_TARGET:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_Comment::CONTEXT, DAO_Comment::CONTEXT_ID, 'context_link[]');
+				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_Comment::CONTEXT, DAO_Comment::CONTEXT_ID, 'target_context[]');
 				break;
 				
 			default:
@@ -1028,8 +1041,6 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_Comment::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -1040,11 +1051,11 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_OWNER:
-				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner is');
+				$this->_renderVirtualContextLinks($param, 'Author', 'Authors', 'Author is');
 				break;
 				
 			case SearchFields_Comment::VIRTUAL_TARGET:
-				$this->_renderVirtualContextLinks($param, 'Target', 'Targets', 'On');
+				$this->_renderVirtualContextLinks($param, 'On', 'On', 'On');
 				break;
 		}
 	}
@@ -1085,6 +1096,16 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Comment::VIRTUAL_HAS_FIELDSET:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
+				break;
+				
+			case SearchFields_Comment::VIRTUAL_OWNER:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
+				break;
+				
+			case SearchFields_Comment::VIRTUAL_TARGET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['target_context'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
