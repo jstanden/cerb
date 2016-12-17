@@ -437,6 +437,7 @@ class SearchFields_Comment extends DevblocksSearchFields {
 	
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	
+	const VIRTUAL_ATTACHMENTS_SEARCH = '*_attachments_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
@@ -458,6 +459,10 @@ class SearchFields_Comment extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromFulltextField($param, Search_CommentContent::ID, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_ATTACHMENTS_SEARCH:
+				return self::_getWhereSQLFromAttachmentsField($param, CerberusContexts::CONTEXT_COMMENT, self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
@@ -507,6 +512,7 @@ class SearchFields_Comment extends DevblocksSearchFields {
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'comment', 'owner_context_id', null, null, true),
 			self::COMMENT => new DevblocksSearchField(self::COMMENT, 'comment', 'comment', $translate->_('common.comment'), Model_CustomField::TYPE_MULTI_LINE, true),
 			
+			self::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(self::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.actor'), null, false),
@@ -745,6 +751,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Comment::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Comment::OWNER_CONTEXT,
 			SearchFields_Comment::OWNER_CONTEXT_ID,
+			SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Comment::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Comment::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Comment::VIRTUAL_OWNER,
@@ -756,6 +763,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Comment::ID,
 			SearchFields_Comment::OWNER_CONTEXT,
 			SearchFields_Comment::OWNER_CONTEXT_ID,
+			SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Comment::VIRTUAL_OWNER,
 			SearchFields_Comment::VIRTUAL_TARGET,
 		));
@@ -865,6 +873,14 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Comment::FULLTEXT_COMMENT_CONTENT),
 				),
+			'attachments' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array(),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ATTACHMENT, 'q' => ''],
+					]
+				),
 			'comment' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
@@ -921,6 +937,10 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'attachments':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH);
+				break;
+				
 			default:
 				if($field == 'author' || DevblocksPlatform::strStartsWith($field, 'author.'))
 					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'author', SearchFields_Comment::VIRTUAL_OWNER);
@@ -1042,6 +1062,13 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH:
+				echo sprintf("%s is <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.attachments')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
 			case SearchFields_Comment::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
