@@ -474,6 +474,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	const TICKET_SUBJECT = 't_subject';
 	
 	// Virtuals
+	const VIRTUAL_ATTACHMENTS_SEARCH = '*_attachments_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_HEADER_MESSAGE_ID = '*_header_message_id';
@@ -500,6 +501,10 @@ class SearchFields_Message extends DevblocksSearchFields {
 			$options = array();
 		
 		switch($param->field) {
+			case self::VIRTUAL_ATTACHMENTS_SEARCH:
+				return self::_getWhereSQLFromAttachmentsField($param, CerberusContexts::CONTEXT_MESSAGE, self::getPrimaryKey());
+				break;
+				
 			case self::MESSAGE_CONTENT:
 				return self::_getWhereSQLFromFulltextField($param, Search_MessageContent::ID, self::getPrimaryKey(), $options);
 				break;
@@ -641,6 +646,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
+			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Message::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID, '*', 'header_message_id', $translate->_('message.search.header_message_id'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER, '*', 'in_groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
@@ -1314,6 +1320,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::STORAGE_PROFILE_ID,
 			SearchFields_Message::STORAGE_SIZE,
 			SearchFields_Message::TICKET_STATUS_ID, // [TODO] Keep, or convert the virtual?
+			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
 			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER,
@@ -1323,6 +1330,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::HTML_ATTACHMENT_ID,
 			SearchFields_Message::ID,
 			SearchFields_Message::TICKET_STATUS_ID, // [TODO] Keep the virtual?
+			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
 		));
 		
@@ -1566,6 +1574,14 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Message::MESSAGE_CONTENT),
 				),
+			'attachments' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array(),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ATTACHMENT, 'q' => ''],
+					]
+				),
 			'content' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
@@ -1728,6 +1744,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'attachments':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH);
+				break;
+				
 			case 'group':
 				$field_key = SearchFields_Message::TICKET_GROUP_ID;
 				$oper = null;
@@ -1898,6 +1918,13 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH:
+				echo sprintf("%s is <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.attachments')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
 			case SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID:
 				echo sprintf("Message-ID header is <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml($param->value)
