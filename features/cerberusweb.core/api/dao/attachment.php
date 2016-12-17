@@ -266,6 +266,49 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$logger->info('[Maint] Purged ' . $count . ' attachment records.');
 	}
 	
+	static function count($context, $context_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		$query = null;
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
+			return 0;
+		
+		switch($context) {
+			case CerberusContexts::CONTEXT_TICKET:
+				$query = sprintf("(on.msgs:(ticket.id:%d) OR on.comments:(on.ticket:(id:%d)))", $context_id, $context_id);
+				break;
+				
+			default:
+				if(false == ($manifest = DevblocksPlatform::getExtension($context)))
+					break;
+				
+				if(false == ($aliases = Extension_DevblocksContext::getAliasesForContext($manifest)))
+					break;
+				
+				$query = sprintf("on.comments:(on.%s:(id:%d))", $aliases['uri'], $context_id);
+				break;
+		}
+		
+		if(empty($query))
+			return 0;
+		
+		if(false == ($view = $context_ext->getSearchView(uniqid())))
+			return 0;
+		
+		$view->is_ephemeral = true;
+		$view->setAutoPersist(false);
+		$view->addParamsWithQuickSearch($query, true);
+		$view->renderTotal = true;
+		
+		$query_parts = DAO_Attachment::getSearchQueryComponents($view->view_columns, $view->getParams());
+		
+		$sql = "SELECT count(a.id) ".
+			$query_parts['join'] .
+			$query_parts['where']
+			;
+		return $db->GetOneSlave($sql);
+	}
+	
 	static function delete($ids) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -1559,6 +1602,10 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			$tpl->display('devblocks:cerberusweb.core::internal/attachments/peek_edit.tpl');
 			
 		} else {
+			// Attachment context counts
+			$tpl->assign('contexts', Extension_DevblocksContext::getAll(false));
+			$tpl->assign('context_counts', DAO_Attachment::getLinkCounts($context_id));
+			
 			// Counts
 			$activity_counts = array(
 				//'comments' => DAO_Comment::count($context, $context_id),

@@ -95,6 +95,11 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_ATTACHMENT, $attachment->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
+		// Attachment context counts
+		
+		$tpl->assign('contexts', Extension_DevblocksContext::getAll(false));
+		$tpl->assign('context_counts', DAO_Attachment::getLinkCounts($attachment->id));
+		
 		// Link counts
 		
 		$properties_links = array(

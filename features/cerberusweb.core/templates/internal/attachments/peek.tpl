@@ -53,12 +53,16 @@
 	
 	<div style="clear:both;"></div>
 	
-	{*
+	{if $context_counts}
 	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events|default:0}</div> {'common.events'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events_recurring|default:0}</div> {'common.events.recurring'|devblocks_translate|capitalize}</button>
+		{foreach from=$context_counts item=count key=context_ext_id}
+			{$context = $contexts.$context_ext_id}
+			{if $context}
+				<button type="button" class="cerb-search-trigger" data-context="{$context_ext_id}" data-query="attachments:(id:{$dict->id})"><div class="badge-count">{$count|default:0}</div> {$context->name}</button>
+			{/if}
+		{/foreach}
 	</div>
-	*}
+	{/if}
 	
 </fieldset>
 

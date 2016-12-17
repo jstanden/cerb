@@ -56,6 +56,17 @@
 		{/if}
 	{/foreach}
 	<br clear="all">
+	
+	{if $context_counts}
+		<div style="margin-top:5px;">
+			{foreach from=$context_counts item=count key=context_ext_id}
+				{$context = $contexts.$context_ext_id}
+				{if $context}
+					<button type="button" class="cerb-search-trigger" data-context="{$context_ext_id}" data-query="attachments:(id:{$page_context_id})"><div class="badge-count">{$count|default:0}</div> {$context->name}</button>
+				{/if}
+			{/foreach}
+		</div>
+	{/if}
 	</div>
 </fieldset>
 
