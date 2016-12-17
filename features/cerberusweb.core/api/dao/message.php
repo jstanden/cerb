@@ -1618,7 +1618,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Message::ID),
 				),
-			'inGroupsOfWorker' => 
+			'inGroupsOf' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER),
@@ -1799,6 +1799,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				}
 				break;
 				
+			case 'inGroupsOf':
 			case 'inGroupsOfWorker':
 				$field_key = SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER;
 				$oper = null;

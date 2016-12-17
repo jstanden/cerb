@@ -2980,7 +2980,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_IMPORTANCE),
 				),
-			'inGroupsOfWorker' => 
+			'inGroupsOf' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER),
@@ -3243,6 +3243,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return false;
 				break;
 				
+			case 'inGroupsOf':
 			case 'inGroupsOfWorker':
 				$field_key = SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER;
 				$oper = null;
