@@ -402,6 +402,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 	const UPDATED = 'a_updated';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_ON = '*_on';
 	
 	static private $_fields = null;
 	
@@ -421,12 +422,103 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ATTACHMENT, self::getPrimaryKey());
 				break;
 				
+			case self::VIRTUAL_ON:
+				return self::_getWhereSQLFromAttachmentLinks($param, self::getPrimaryKey());
+				break;
+				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
+				break;
+		}
+	}
+	
+	static private function _getWhereSQLFromAttachmentLinks(DevblocksSearchCriteria $param, $pkey) {
+		// Handle nested quick search filters first
+		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			@list($alias, $query) = explode(':', $param->value, 2);
+			
+			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
+				return;
+			
+			$view = $ext->getSearchView(uniqid());
+			$view->is_ephemeral = true;
+			$view->setAutoPersist(false);
+			$view->addParamsWithQuickSearch($query, true);
+			
+			$params = $view->getParams();
+			
+			if(false == ($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
+				return;
+			
+			if(false == ($search_class = $ext->getSearchClass()) || !class_exists($search_class))
+				return;
+			
+			if(false == ($primary_key = $search_class::getPrimaryKey()))
+				return;
+			
+			$query_parts = $dao_class::getSearchQueryComponents(array(), $params);
+			
+			$query_parts['select'] = sprintf("SELECT %s ", $primary_key);
+			
+			$sql = 
+				$query_parts['select']
+				. $query_parts['join']
+				. $query_parts['where']
+				. $query_parts['sort']
+				;
+			
+			return sprintf("%s IN (SELECT attachment_id FROM attachment_link WHERE context = %s AND context_id IN (%s)) ",
+				$pkey,
+				Cerb_ORMHelper::qstr($ext->id),
+				$sql
+			);
+		}
+		
+		if($param->operator != DevblocksSearchCriteria::OPER_TRUE) {
+			if(empty($param->value) || !is_array($param->value))
+				$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
+		}
+		
+		$where_contexts = array();
+		
+		if(is_array($param->value))
+		foreach($param->value as $context_data) {
+			@list($context, $context_id) = explode(':', $context_data, 2);
+	
+			if(empty($context))
+				return;
+			
+			if(!isset($where_contexts[$context]))
+				$where_contexts[$context] = array();
+			
+			if($context_id)
+				$where_contexts[$context][] = $context_id;
+		}
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_TRUE:
+				break;
+	
+			case DevblocksSearchCriteria::OPER_IN:
+				$where_sqls = array();
+				
+				foreach($where_contexts as $context => $ids) {
+					$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
+					
+					$where_sqls[] = sprintf("%s IN (SELECT attachment_id FROM attachment_link WHERE context = %s %s) ",
+						$pkey,
+						Cerb_ORMHelper::qstr($context),
+						(!empty($ids) ? (sprintf("AND context_id IN (%s)", implode(',', $ids))) : '')
+					);
+				}
+				
+				if(!empty($where_sqls))
+					return sprintf('(%s)', implode(' OR ', $where_sqls));
+				
 				break;
 		}
 	}
@@ -459,6 +551,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'a', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_ON => new DevblocksSearchField(self::VIRTUAL_ON, '*', 'on', $translate->_('common.on'), null, false),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -835,9 +928,11 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 
 		$this->addColumnsHidden(array(
 			SearchFields_Attachment::VIRTUAL_CONTEXT_LINK,
+			SearchFields_Attachment::VIRTUAL_ON,
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_Attachment::VIRTUAL_ON,
 		));
 		
 		$this->doResetCriteria();
@@ -921,7 +1016,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_Attachment::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
-
+				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -974,6 +1069,10 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		$fields = self::_appendLinksFromQuickSearchContexts($fields);
 		
+		// on.*
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('on', $fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_ATTACHMENT, $fields, null);
@@ -993,6 +1092,9 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
+				if($field == 'on' || DevblocksPlatform::strStartsWith($field, 'on.'))
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'on', SearchFields_Attachment::VIRTUAL_ON);
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
@@ -1080,6 +1182,10 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($key) {
 			case SearchFields_Attachment::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
+				break;
+				
+			case SearchFields_Attachment::VIRTUAL_ON:
+				$this->_renderVirtualContextLinks($param, 'On', 'On', 'On');
 				break;
 		}
 	}
