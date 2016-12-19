@@ -15,7 +15,7 @@
  |	http://cerb.io	    http://webgroup.media
  ***********************************************************************/
 
-class ChReportVirtualAttendantUsage extends Extension_Report {
+class ChReportBotUsage extends Extension_Report {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$db = DevblocksPlatform::getDatabaseService();
@@ -43,19 +43,19 @@ class ChReportVirtualAttendantUsage extends Extension_Report {
 
 		// Data
 		
-		$sql = sprintf("SELECT trigger_event.id, trigger_event.title, trigger_event.virtual_attendant_id, trigger_event.event_point, ".
+		$sql = sprintf("SELECT trigger_event.id, trigger_event.title, trigger_event.bot_id, trigger_event.event_point, ".
 			"SUM(trigger_event_history.uses) AS uses, SUM(trigger_event_history.elapsed_ms) AS elapsed_ms ".
 			"FROM trigger_event_history ".
 			"INNER JOIN trigger_event ON (trigger_event_history.trigger_id=trigger_event.id) ".
 			"WHERE trigger_event_history.ts_day BETWEEN %d AND %d ".
-			"GROUP BY trigger_event.id, trigger_event.title, trigger_event.virtual_attendant_id, trigger_event.event_point ",
+			"GROUP BY trigger_event.id, trigger_event.title, trigger_event.bot_id, trigger_event.event_point ",
 			$start_time,
 			$end_time
 		);
 		
 		$stats = $db->GetArraySlave(sprintf($sql, 'DESC'));
 		
-		$vas = DAO_VirtualAttendant::getAll();
+		$vas = DAO_Bot::getAll();
 		
 		foreach($stats as $idx => $stat) {
 			// Avg. Runtime
@@ -69,7 +69,7 @@ class ChReportVirtualAttendantUsage extends Extension_Report {
 			
 			// VA
 			
-			if(false == (@$va = $vas[$stat['virtual_attendant_id']]))
+			if(false == (@$va = $vas[$stat['bot_id']]))
 				continue;
 			
 			// Owner

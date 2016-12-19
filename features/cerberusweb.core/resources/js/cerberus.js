@@ -1096,7 +1096,7 @@ var ajax = new cAjaxCalls();
 							alias = 'org';
 						} else if(context == "cerberusweb.contexts.worker") {
 							alias = 'worker';
-						} else if(context == "cerberusweb.contexts.virtual.attendant") {
+						} else if(context == "cerberusweb.contexts.bot") {
 							alias = 'va';
 						}
 						

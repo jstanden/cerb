@@ -180,7 +180,7 @@ class UmScAvatarController extends Extension_UmScController {
 				$contents = file_get_contents(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
-			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+			case CerberusContexts::CONTEXT_BOT:
 				$contents = file_get_contents(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
 				break;
 				

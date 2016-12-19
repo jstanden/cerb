@@ -117,7 +117,7 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 			case CerberusContexts::CONTEXT_APPLICATION:
 			case CerberusContexts::CONTEXT_ROLE:
 			case CerberusContexts::CONTEXT_GROUP:
-			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+			case CerberusContexts::CONTEXT_BOT:
 			case CerberusContexts::CONTEXT_WORKER:
 				break;
 				

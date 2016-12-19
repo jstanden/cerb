@@ -222,7 +222,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 				'context' => @$trigger->event_params['context'],
 			),
 			'va_watchers' => array(
-				'label' => 'Virtual Attendant Watchers',
+				'label' => 'Bot Watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
@@ -294,7 +294,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 						case CerberusContexts::CONTEXT_ROLE:
 						case CerberusContexts::CONTEXT_GROUP:
 						case CerberusContexts::CONTEXT_WORKER:
-						case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+						case CerberusContexts::CONTEXT_BOT:
 							$options[$context_id] = $context_mft->name;
 							break;
 					}

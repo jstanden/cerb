@@ -104,7 +104,7 @@
 		
 		{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
 		{$tabs[] = 'attendants'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantsTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">Virtual Attendants</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantsTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.bots'|devblocks_translate|capitalize}</a></li>
 		{/if}
 
 		{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}

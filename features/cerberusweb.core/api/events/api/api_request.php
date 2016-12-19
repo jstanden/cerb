@@ -28,8 +28,8 @@ class Event_ApiRequest extends AbstractEvent_ApiRequest {
 		if(false == ($behavior = DAO_TriggerEvent::get($trigger_id)))
 			return;
 
-		// Look up the trigger's owning Virtual Attendant
-		if(false == ($va = $behavior->getVirtualAttendant()))
+		// Look up the trigger's owning bots
+		if(false == ($va = $behavior->getBot()))
 			return;
 
 		$events = DevblocksPlatform::getEventService();
@@ -37,7 +37,7 @@ class Event_ApiRequest extends AbstractEvent_ApiRequest {
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
-					'virtual_attendant_id' => $va->id,
+					'bot_id' => $va->id,
 					'_variables' => $variables,
 					'_whisper' => array(
 						'_trigger_id' => array($trigger_id),

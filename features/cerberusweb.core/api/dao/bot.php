@@ -15,7 +15,7 @@
 |	http://cerb.io	    http://webgroup.media
 ***********************************************************************/
 
-class DAO_VirtualAttendant extends Cerb_ORMHelper {
+class DAO_Bot extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
@@ -25,15 +25,15 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
 	
-	const CACHE_ALL = 'ch_virtual_attendants';
+	const CACHE_ALL = 'ch_bots';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		if(!isset($fields[DAO_VirtualAttendant::CREATED_AT]))
-			$fields[DAO_VirtualAttendant::CREATED_AT] = time();
+		if(!isset($fields[DAO_Bot::CREATED_AT]))
+			$fields[DAO_Bot::CREATED_AT] = time();
 		
-		$sql = "INSERT INTO virtual_attendant () VALUES ()";
+		$sql = "INSERT INTO bot () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
@@ -55,11 +55,11 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $batch_ids);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_BOT, $batch_ids);
 			}
 			
 			// Make changes
-			parent::_update($batch_ids, 'virtual_attendant', $fields);
+			parent::_update($batch_ids, 'bot', $fields);
 			
 			// Send events
 			if($check_deltas) {
@@ -68,7 +68,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 				$eventMgr = DevblocksPlatform::getEventService();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
-						'dao.virtual_attendant.update',
+						'dao.bot.update',
 						array(
 							'fields' => $fields,
 						)
@@ -76,7 +76,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $batch_ids);
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_BOT, $batch_ids);
 			}
 		}
 		
@@ -84,25 +84,25 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	}
 	
 	static function updateWhere($fields, $where) {
-		parent::_updateWhere('virtual_attendant', $fields, $where);
+		parent::_updateWhere('bot', $fields, $where);
 	}
 	
 	static function autocomplete($term) {
 		$params = array(
-			SearchFields_VirtualAttendant::NAME => new DevblocksSearchCriteria(SearchFields_VirtualAttendant::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'*'),
+			SearchFields_Bot::NAME => new DevblocksSearchCriteria(SearchFields_Bot::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'*'),
 		);
 		
-		list($results, $null) = DAO_VirtualAttendant::search(
+		list($results, $null) = DAO_Bot::search(
 			array(),
 			$params,
 			25,
 			0,
-			SearchFields_VirtualAttendant::NAME,
+			SearchFields_Bot::NAME,
 			true,
 			false
 		);
 		
-		return DAO_VirtualAttendant::getIds(array_keys($results));
+		return DAO_Bot::getIds(array_keys($results));
 	}
 	
 	/**
@@ -110,7 +110,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	 * @param mixed $sortBy
 	 * @param mixed $sortAsc
 	 * @param integer $limit
-	 * @return Model_VirtualAttendant[]
+	 * @return Model_Bot[]
 	 */
 	static function getWhere($where=null, $sortBy='name', $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::getDatabaseService();
@@ -119,7 +119,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		
 		// SQL
 		$sql = "SELECT id, name, owner_context, owner_context_id, is_disabled, params_json, created_at, updated_at ".
-			"FROM virtual_attendant ".
+			"FROM bot ".
 			$where_sql.
 			$sort_sql.
 			$limit_sql
@@ -136,13 +136,13 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	
 	/**
 	 * @param integer $id
-	 * @return Model_VirtualAttendant
+	 * @return Model_Bot
 	 */
 	static function get($id) {
 		if(empty($id))
 			return null;
 		
-		$objects = DAO_VirtualAttendant::getAll();
+		$objects = DAO_Bot::getAll();
 		
 		if(isset($objects[$id]))
 			return $objects[$id];
@@ -151,16 +151,16 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	}
 
 	static function random() {
-		return parent::_getRandom('virtual_attendant');
+		return parent::_getRandom('bot');
 	}
 	
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if($nocache || null === ($objects = $cache->load(self::CACHE_ALL))) {
-			$objects = DAO_VirtualAttendant::getWhere(
+			$objects = DAO_Bot::getWhere(
 				null,
-				DAO_VirtualAttendant::NAME,
+				DAO_Bot::NAME,
 				true,
 				null,
 				Cerb_ORMHelper::OPT_GET_MASTER_ONLY
@@ -179,10 +179,10 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	 *
 	 * @param string $context
 	 * @param integer $context_id
-	 * @return Model_VirtualAttendant[]
+	 * @return Model_Bot[]
 	 */
 	static function getByOwner($context, $context_id, $with_disabled=false) {
-		$vas = DAO_VirtualAttendant::getAll();
+		$vas = DAO_Bot::getAll();
 		$results = array();
 		
 		foreach($vas as $va_id => $va) {
@@ -197,11 +197,12 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	}
 	
 	static function getReadableByActor($actor) {
-		$vas = DAO_VirtualAttendant::getAll();
+		$vas = DAO_Bot::getAll();
 		$results = array();
 
+		// [TODO] Can do this en masse
 		foreach($vas as $va_id => $va) {
-			if(Context_VirtualAttendant::isReadableByActor($va, $actor))
+			if(Context_Bot::isReadableByActor($va, $actor))
 				$results[$va_id] = $va;
 		}
 		
@@ -209,11 +210,12 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	}
 	
 	static function getWriteableByActor($actor) {
-		$vas = DAO_VirtualAttendant::getAll();
+		$vas = DAO_Bot::getAll();
 		$results = array();
 
+		// [TODO] Can do this en masse
 		foreach($vas as $va_id => $va) {
-			if(Context_VirtualAttendant::isWriteableByActor($va, $actor))
+			if(Context_Bot::isWriteableByActor($va, $actor))
 				$results[$va_id] = $va;
 		}
 		
@@ -222,7 +224,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	
 	/**
 	 * @param resource $rs
-	 * @return Model_VirtualAttendant[]
+	 * @return Model_Bot[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
@@ -231,7 +233,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$object = new Model_VirtualAttendant();
+			$object = new Model_Bot();
 			$object->id = $row['id'];
 			$object->name = $row['name'];
 			$object->owner_context = $row['owner_context'];
@@ -260,12 +262,12 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->ExecuteMaster(sprintf("DELETE FROM virtual_attendant WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM bot WHERE id IN (%s)", $ids_list));
 
 		// Cascade
 		if(is_array($ids))
 		foreach($ids as $id)
-			DAO_TriggerEvent::deleteByVirtualAttendant($id);
+			DAO_TriggerEvent::deleteByBot($id);
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::getEventService();
@@ -273,7 +275,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			new Model_DevblocksEvent(
 				'context.delete',
 				array(
-					'context' => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+					'context' => CerberusContexts::CONTEXT_BOT,
 					'context_ids' => $ids
 				)
 			)
@@ -294,42 +296,42 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			$context_ids = array($context_ids);
 		
 		foreach($context_ids as $context_id) {
-			$vas = DAO_VirtualAttendant::getByOwner($context, $context_id, true);
+			$vas = DAO_Bot::getByOwner($context, $context_id, true);
 			
 			if(is_array($vas) && !empty($vas))
-				DAO_VirtualAttendant::delete(array_keys($vas));
+				DAO_Bot::delete(array_keys($vas));
 		}
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
-		$fields = SearchFields_VirtualAttendant::getFields();
+		$fields = SearchFields_Bot::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_VirtualAttendant', $sortBy);
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Bot', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"virtual_attendant.id as %s, ".
-			"virtual_attendant.name as %s, ".
-			"virtual_attendant.owner_context as %s, ".
-			"virtual_attendant.owner_context_id as %s, ".
-			"virtual_attendant.is_disabled as %s, ".
-			"virtual_attendant.params_json as %s, ".
-			"virtual_attendant.created_at as %s, ".
-			"virtual_attendant.updated_at as %s ",
-				SearchFields_VirtualAttendant::ID,
-				SearchFields_VirtualAttendant::NAME,
-				SearchFields_VirtualAttendant::OWNER_CONTEXT,
-				SearchFields_VirtualAttendant::OWNER_CONTEXT_ID,
-				SearchFields_VirtualAttendant::IS_DISABLED,
-				SearchFields_VirtualAttendant::PARAMS_JSON,
-				SearchFields_VirtualAttendant::CREATED_AT,
-				SearchFields_VirtualAttendant::UPDATED_AT
+			"bot.id as %s, ".
+			"bot.name as %s, ".
+			"bot.owner_context as %s, ".
+			"bot.owner_context_id as %s, ".
+			"bot.is_disabled as %s, ".
+			"bot.params_json as %s, ".
+			"bot.created_at as %s, ".
+			"bot.updated_at as %s ",
+				SearchFields_Bot::ID,
+				SearchFields_Bot::NAME,
+				SearchFields_Bot::OWNER_CONTEXT,
+				SearchFields_Bot::OWNER_CONTEXT_ID,
+				SearchFields_Bot::IS_DISABLED,
+				SearchFields_Bot::PARAMS_JSON,
+				SearchFields_Bot::CREATED_AT,
+				SearchFields_Bot::UPDATED_AT
 			);
 			
-		$join_sql = "FROM virtual_attendant ";
+		$join_sql = "FROM bot ";
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_VirtualAttendant');
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Bot');
 	
 		// Virtuals
 		
@@ -341,12 +343,12 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	
 		array_walk_recursive(
 			$params,
-			array('DAO_VirtualAttendant', '_translateVirtualParameters'),
+			array('DAO_Bot', '_translateVirtualParameters'),
 			$args
 		);
 		
 		return array(
-			'primary_table' => 'virtual_attendant',
+			'primary_table' => 'bot',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -358,45 +360,15 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 			
-		$from_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
-		$from_index = 'virtual_attendant.id';
+		$from_context = CerberusContexts::CONTEXT_BOT;
+		$from_index = 'bot.id';
 		
 		$param_key = $param->field;
 		settype($param_key, 'string');
 		
 		switch($param_key) {
-			case SearchFields_VirtualAttendant::VIRTUAL_HAS_FIELDSET:
+			case SearchFields_Bot::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-				
-			case SearchFields_VirtualAttendant::VIRTUAL_OWNER:
-				if(!is_array($param->value))
-					break;
-				
-				$wheres = array();
-					
-				foreach($param->value as $owner_context) {
-					@list($context, $context_id) = explode(':', $owner_context);
-					
-					if(empty($context))
-						continue;
-					
-					if(!empty($context_id)) {
-						$wheres[] = sprintf("(virtual_attendant.owner_context = %s AND virtual_attendant.owner_context_id = %d)",
-							Cerb_ORMHelper::qstr($context),
-							$context_id
-						);
-						
-					} else {
-						$wheres[] = sprintf("(virtual_attendant.owner_context = %s)",
-							Cerb_ORMHelper::qstr($context)
-						);
-					}
-				}
-				
-				if(!empty($wheres))
-					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
-				
 				break;
 		}
 	}
@@ -445,7 +417,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$object_id = intval($row[SearchFields_VirtualAttendant::ID]);
+			$object_id = intval($row[SearchFields_Bot::ID]);
 			$results[$object_id] = $row;
 		}
 
@@ -455,7 +427,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 			// We can skip counting if we have a less-than-full single page
 			if(!(0 == $page && $total < $limit)) {
 				$count_sql =
-					"SELECT COUNT(virtual_attendant.id) ".
+					"SELECT COUNT(bot.id) ".
 					$join_sql.
 					$where_sql;
 				$total = $db->GetOneSlave($count_sql);
@@ -474,7 +446,7 @@ class DAO_VirtualAttendant extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_VirtualAttendant extends DevblocksSearchFields {
+class SearchFields_Bot extends DevblocksSearchFields {
 	const ID = 'v_id';
 	const NAME = 'v_name';
 	const OWNER_CONTEXT = 'v_owner_context';
@@ -492,23 +464,27 @@ class SearchFields_VirtualAttendant extends DevblocksSearchFields {
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
-		return 'virtual_attendant.id';
+		return 'bot.id';
 	}
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT => new DevblocksSearchFieldContextKeys('virtual_attendant.id', self::ID),
+			CerberusContexts::CONTEXT_BOT => new DevblocksSearchFieldContextKeys('bot.id', self::ID),
 		);
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, self::getPrimaryKey());
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_BOT, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_OWNER:
+				return self::_getWhereSQLFromContextAndID($param, 'bot.owner_context', 'bot.owner_context_id');
 				break;
 			
 			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, self::getPrimaryKey());
+				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_BOT, self::getPrimaryKey());
 				break;
 			
 			default:
@@ -538,14 +514,14 @@ class SearchFields_VirtualAttendant extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'virtual_attendant', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'virtual_attendant', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'virtual_attendant', 'owner_context', $translate->_('common.owner_context'), null, false),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'virtual_attendant', 'owner_context_id', $translate->_('common.owner_context_id'), null, false),
-			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'virtual_attendant', 'is_disabled', $translate->_('common.disabled'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'virtual_attendant', 'params_json', $translate->_('common.parameters'), null, false),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'virtual_attendant', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'virtual_attendant', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'bot', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'bot', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'bot', 'owner_context', $translate->_('common.owner_context'), null, false),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'bot', 'owner_context_id', $translate->_('common.owner_context_id'), null, false),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'bot', 'is_disabled', $translate->_('common.disabled'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'bot', 'params_json', $translate->_('common.parameters'), null, false),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'bot', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'bot', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -566,7 +542,7 @@ class SearchFields_VirtualAttendant extends DevblocksSearchFields {
 	}
 };
 
-class Model_VirtualAttendant {
+class Model_Bot {
 	public $id;
 	public $name;
 	public $owner_context;
@@ -586,7 +562,7 @@ class Model_VirtualAttendant {
 	}
 	
 	function getBehaviors($event_point=null, $with_disabled=false, $sort_by='pos') {
-		return DAO_TriggerEvent::getByVirtualAttendant($this->id, $event_point, $with_disabled, $sort_by);
+		return DAO_TriggerEvent::getByBot($this->id, $event_point, $with_disabled, $sort_by);
 	}
 	
 	function canUseEvent($event_point) {
@@ -641,8 +617,8 @@ class Model_VirtualAttendant {
 	}
 };
 
-class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
-	const DEFAULT_ID = 'virtual_attendants';
+class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
+	const DEFAULT_ID = 'bots';
 
 	function __construct() {
 		$translate = DevblocksPlatform::getTranslationService();
@@ -650,35 +626,35 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 		$this->id = self::DEFAULT_ID;
 		$this->name = mb_convert_case($translate->_('common.bots'), MB_CASE_TITLE);
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_VirtualAttendant::ID;
+		$this->renderSortBy = SearchFields_Bot::ID;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_VirtualAttendant::NAME,
-			SearchFields_VirtualAttendant::VIRTUAL_OWNER,
-			SearchFields_VirtualAttendant::UPDATED_AT,
+			SearchFields_Bot::NAME,
+			SearchFields_Bot::VIRTUAL_OWNER,
+			SearchFields_Bot::UPDATED_AT,
 		);
 		
 		$this->addColumnsHidden(array(
-			SearchFields_VirtualAttendant::OWNER_CONTEXT,
-			SearchFields_VirtualAttendant::OWNER_CONTEXT_ID,
-			SearchFields_VirtualAttendant::PARAMS_JSON,
-			SearchFields_VirtualAttendant::VIRTUAL_CONTEXT_LINK,
-			SearchFields_VirtualAttendant::VIRTUAL_HAS_FIELDSET,
-			SearchFields_VirtualAttendant::VIRTUAL_WATCHERS,
+			SearchFields_Bot::OWNER_CONTEXT,
+			SearchFields_Bot::OWNER_CONTEXT_ID,
+			SearchFields_Bot::PARAMS_JSON,
+			SearchFields_Bot::VIRTUAL_CONTEXT_LINK,
+			SearchFields_Bot::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Bot::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(
-			SearchFields_VirtualAttendant::OWNER_CONTEXT,
-			SearchFields_VirtualAttendant::OWNER_CONTEXT_ID,
-			SearchFields_VirtualAttendant::PARAMS_JSON,
+			SearchFields_Bot::OWNER_CONTEXT,
+			SearchFields_Bot::OWNER_CONTEXT_ID,
+			SearchFields_Bot::PARAMS_JSON,
 		));
 		
 		$this->doResetCriteria();
 	}
 
 	function getData() {
-		$objects = DAO_VirtualAttendant::search(
+		$objects = DAO_Bot::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -688,17 +664,17 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 			$this->renderTotal
 		);
 		
-		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_VirtualAttendant');
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Bot');
 		
 		return $objects;
 	}
 	
 	function getDataAsObjects($ids=null) {
-		return $this->_getDataAsObjects('DAO_VirtualAttendant', $ids);
+		return $this->_getDataAsObjects('DAO_Bot', $ids);
 	}
 	
 	function getDataSample($size) {
-		return $this->_doGetDataSample('DAO_VirtualAttendant', $size);
+		return $this->_doGetDataSample('DAO_Bot', $size);
 	}
 
 	function getSubtotalFields() {
@@ -712,15 +688,15 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 			
 			switch($field_key) {
 				// Fields
-				case SearchFields_VirtualAttendant::IS_DISABLED:
+				case SearchFields_Bot::IS_DISABLED:
 					$pass = true;
 					break;
 					
 				// Virtuals
-				case SearchFields_VirtualAttendant::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_VirtualAttendant::VIRTUAL_HAS_FIELDSET:
-				case SearchFields_VirtualAttendant::VIRTUAL_OWNER:
-				case SearchFields_VirtualAttendant::VIRTUAL_WATCHERS:
+				case SearchFields_Bot::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_Bot::VIRTUAL_HAS_FIELDSET:
+				case SearchFields_Bot::VIRTUAL_OWNER:
+				case SearchFields_Bot::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
 					
@@ -741,29 +717,29 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
-		$context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+		$context = CerberusContexts::CONTEXT_BOT;
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
-			case SearchFields_VirtualAttendant::IS_DISABLED:
+			case SearchFields_Bot::IS_DISABLED:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 
-			case SearchFields_VirtualAttendant::VIRTUAL_CONTEXT_LINK:
+			case SearchFields_Bot::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
-			case SearchFields_VirtualAttendant::VIRTUAL_HAS_FIELDSET:
+			case SearchFields_Bot::VIRTUAL_HAS_FIELDSET:
 				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_OWNER:
+			case SearchFields_Bot::VIRTUAL_OWNER:
 				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_CustomFieldset::OWNER_CONTEXT, DAO_CustomFieldset::OWNER_CONTEXT_ID, 'owner_context[]');
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_WATCHERS:
+			case SearchFields_Bot::VIRTUAL_WATCHERS:
 				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
@@ -780,45 +756,52 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 	}
 	
 	function getQuickSearchFields() {
-		$search_fields = SearchFields_VirtualAttendant::getFields();
+		$search_fields = SearchFields_Bot::getFields();
 		
 		$fields = array(
 			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_VirtualAttendant::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_Bot::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'created' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
-					'options' => array('param_key' => SearchFields_VirtualAttendant::CREATED_AT),
+					'options' => array('param_key' => SearchFields_Bot::CREATED_AT),
+				),
+			'disabled' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Bot::IS_DISABLED),
 				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_VirtualAttendant::ID),
-				),
-			'isDisabled' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_BOOL,
-					'options' => array('param_key' => SearchFields_VirtualAttendant::IS_DISABLED),
+					'options' => array('param_key' => SearchFields_Bot::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BOT, 'q' => ''],
+					]
 				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_VirtualAttendant::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_Bot::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
-					'options' => array('param_key' => SearchFields_VirtualAttendant::UPDATED_AT),
+					'options' => array('param_key' => SearchFields_Bot::UPDATED_AT),
 				),
 			'watchers' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_WORKER,
-					'options' => array('param_key' => SearchFields_VirtualAttendant::VIRTUAL_OWNER),
+					'options' => array('param_key' => SearchFields_Bot::VIRTUAL_OWNER),
 				),
 		);
+		
+		// Add dynamic owner.* fields
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields);
 		
 		// Add quick search links
 		
@@ -826,7 +809,7 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 		
 		// Add searchable custom fields
 		
-		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $fields, null);
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_BOT, $fields, null);
 		
 		// Add is_sortable
 		
@@ -842,6 +825,9 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
+				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_Bot::VIRTUAL_OWNER);
+				
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
@@ -861,10 +847,10 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BOT);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/va/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/bot/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
@@ -873,35 +859,35 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_VirtualAttendant::NAME:
-			case SearchFields_VirtualAttendant::OWNER_CONTEXT:
+			case SearchFields_Bot::NAME:
+			case SearchFields_Bot::OWNER_CONTEXT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
-			case SearchFields_VirtualAttendant::ID:
+			case SearchFields_Bot::ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
-			case SearchFields_VirtualAttendant::IS_DISABLED:
+			case SearchFields_Bot::IS_DISABLED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
-			case SearchFields_VirtualAttendant::CREATED_AT:
-			case SearchFields_VirtualAttendant::UPDATED_AT:
+			case SearchFields_Bot::CREATED_AT:
+			case SearchFields_Bot::UPDATED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_CONTEXT_LINK:
+			case SearchFields_Bot::VIRTUAL_CONTEXT_LINK:
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('contexts', $contexts);
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT);
+			case SearchFields_Bot::VIRTUAL_HAS_FIELDSET:
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_BOT);
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_OWNER:
+			case SearchFields_Bot::VIRTUAL_OWNER:
 				$groups = DAO_Group::getAll();
 				$tpl->assign('groups', $groups);
 				
@@ -914,7 +900,7 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_owner.tpl');
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_WATCHERS:
+			case SearchFields_Bot::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
 				
@@ -934,7 +920,7 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_VirtualAttendant::IS_DISABLED:
+			case SearchFields_Bot::IS_DISABLED:
 				$this->_renderCriteriaParamBoolean($param);
 				break;
 			default:
@@ -949,67 +935,67 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
-			case SearchFields_VirtualAttendant::VIRTUAL_CONTEXT_LINK:
+			case SearchFields_Bot::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_HAS_FIELDSET:
+			case SearchFields_Bot::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_OWNER:
-				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners');
+			case SearchFields_Bot::VIRTUAL_OWNER:
+				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owned by');
 				break;
 			
-			case SearchFields_VirtualAttendant::VIRTUAL_WATCHERS:
+			case SearchFields_Bot::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
 				break;
 		}
 	}
 
 	function getFields() {
-		return SearchFields_VirtualAttendant::getFields();
+		return SearchFields_Bot::getFields();
 	}
 
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_VirtualAttendant::NAME:
-			case SearchFields_VirtualAttendant::OWNER_CONTEXT:
+			case SearchFields_Bot::NAME:
+			case SearchFields_Bot::OWNER_CONTEXT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case SearchFields_VirtualAttendant::ID:
+			case SearchFields_Bot::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case SearchFields_VirtualAttendant::CREATED_AT:
-			case SearchFields_VirtualAttendant::UPDATED_AT:
+			case SearchFields_Bot::CREATED_AT:
+			case SearchFields_Bot::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case SearchFields_VirtualAttendant::IS_DISABLED:
+			case SearchFields_Bot::IS_DISABLED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_CONTEXT_LINK:
+			case SearchFields_Bot::VIRTUAL_CONTEXT_LINK:
 				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_HAS_FIELDSET:
+			case SearchFields_Bot::VIRTUAL_HAS_FIELDSET:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_OWNER:
+			case SearchFields_Bot::VIRTUAL_OWNER:
 				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 				
-			case SearchFields_VirtualAttendant::VIRTUAL_WATCHERS:
+			case SearchFields_Bot::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
@@ -1029,16 +1015,17 @@ class View_VirtualAttendant extends C4_AbstractView implements IAbstractView_Sub
 	}
 };
 
-class Context_VirtualAttendant extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
+// [TODO] Implement isReadable/isWriteable
+class Context_Bot extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
 	function getRandom() {
-		return DAO_VirtualAttendant::random();
+		return DAO_Bot::random();
 	}
 	
 	function autocomplete($term) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		$list = array();
 		
-		$models = DAO_VirtualAttendant::autocomplete($term);
+		$models = DAO_Bot::autocomplete($term);
 		
 		if(stristr('none',$term) || stristr('empty',$term)) {
 			$empty = new stdClass();
@@ -1053,7 +1040,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			$entry = new stdClass();
 			$entry->label = $bot->name;
 			$entry->value = sprintf("%d", $bot_id);
-			$entry->icon = $url_writer->write('c=avatars&type=virtual_attendant&id=' . $bot->id, true) . '?v=' . $bot->updated_at;
+			$entry->icon = $url_writer->write('c=avatars&type=bot&id=' . $bot->id, true) . '?v=' . $bot->updated_at;
 			
 			$meta = array();
 			$entry->meta = $meta;
@@ -1068,27 +1055,27 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			return '';
 	
 		$url_writer = DevblocksPlatform::getUrlService();
-		$url = $url_writer->writeNoProxy('c=profiles&type=virtual_attendant&id='.$context_id, true);
+		$url = $url_writer->writeNoProxy('c=profiles&type=bot&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
-		if(false == ($virtual_attendant = DAO_VirtualAttendant::get($context_id)))
+		if(false == ($bot = DAO_Bot::get($context_id)))
 			return [];
 			
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		$url = $this->profileGetUrl($context_id);
-		$friendly = DevblocksPlatform::strToPermalink($virtual_attendant->name);
+		$friendly = DevblocksPlatform::strToPermalink($bot->name);
 		
 		if(!empty($friendly))
 			$url .= '-' . $friendly;
 		
 		return array(
-			'id' => $virtual_attendant->id,
-			'name' => $virtual_attendant->name,
+			'id' => $bot->id,
+			'name' => $bot->name,
 			'permalink' => $url,
-			'updated' => $virtual_attendant->updated_at,
+			'updated' => $bot->updated_at,
 		);
 	}
 	
@@ -1122,23 +1109,23 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		);
 	}
 	
-	function getContext($virtual_attendant, &$token_labels, &$token_values, $prefix=null) {
+	function getContext($model, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
-			$prefix = 'Virtual Attendant:';
+			$prefix = 'Bot:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$url_writer = DevblocksPlatform::getUrlService();
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BOT);
 
 		// Polymorph
-		if(is_numeric($virtual_attendant)) {
-			$virtual_attendant = DAO_VirtualAttendant::get($virtual_attendant);
-		} elseif($virtual_attendant instanceof Model_VirtualAttendant) {
+		if(is_numeric($model)) {
+			$model = DAO_Bot::get($model);
+		} elseif($model instanceof Model_Bot) {
 			// It's what we want already.
-		} elseif(is_array($virtual_attendant)) {
-			$virtual_attendant = Cerb_ORMHelper::recastArrayToModel($virtual_attendant, 'Model_VirtualAttendant');
+		} elseif(is_array($model)) {
+			$model = Cerb_ORMHelper::recastArrayToModel($model, 'Model_Bot');
 		} else {
-			$virtual_attendant = null;
+			$model = null;
 		}
 		
 		// Token labels
@@ -1180,27 +1167,27 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+		$token_values['_context'] = CerberusContexts::CONTEXT_BOT;
 		$token_values['_types'] = $token_types;
 		
-		if($virtual_attendant) {
+		if($model) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = $virtual_attendant->name;
-			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'bot', $virtual_attendant->id), true) . '?v=' . $virtual_attendant->updated_at;
-			$token_values['created_at'] = $virtual_attendant->created_at;
-			$token_values['id'] = $virtual_attendant->id;
-			$token_values['name'] = $virtual_attendant->name;
-			$token_values['is_disabled'] = $virtual_attendant->is_disabled;
-			$token_values['updated_at'] = $virtual_attendant->updated_at;
+			$token_values['_label'] = $model->name;
+			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'bot', $model->id), true) . '?v=' . $model->updated_at;
+			$token_values['created_at'] = $model->created_at;
+			$token_values['id'] = $model->id;
+			$token_values['name'] = $model->name;
+			$token_values['is_disabled'] = $model->is_disabled;
+			$token_values['updated_at'] = $model->updated_at;
 			
 			// Custom fields
-			$token_values = $this->_importModelCustomFieldsAsValues($virtual_attendant, $token_values);
+			$token_values = $this->_importModelCustomFieldsAsValues($model, $token_values);
 			
 			// URL
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=virtual_attendant&id=%d-%s",$virtual_attendant->id, DevblocksPlatform::strToPermalink($virtual_attendant->name)), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=bot&id=%d-%s",$model->id, DevblocksPlatform::strToPermalink($model->name)), true);
 			
-			$token_values['owner__context'] = $virtual_attendant->owner_context;
-			$token_values['owner_id'] = $virtual_attendant->owner_context_id;
+			$token_values['owner__context'] = $model->owner_context;
+			$token_values['owner_id'] = $model->owner_context_id;
 		}
 		
 		return true;
@@ -1210,7 +1197,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		if(!isset($dictionary['id']))
 			return;
 		
-		$context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+		$context = CerberusContexts::CONTEXT_BOT;
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
@@ -1225,7 +1212,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			case 'behaviors':
 				$values = $dictionary;
 				
-				if(null == ($va = DAO_VirtualAttendant::get($context_id)))
+				if(null == ($va = DAO_Bot::get($context_id)))
 					break;
 
 				$values['behaviors'] = array();
@@ -1275,13 +1262,13 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Virtual Attendant';
+		$view->name = DevblocksPlatform::translateCapitalized('common.bots');
 		/*
 		$view->addParams(array(
-			SearchFields_VirtualAttendant::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_VirtualAttendant::UPDATED_AT,'=',0),
+			SearchFields_Bot::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_Bot::UPDATED_AT,'=',0),
 		), true);
 		*/
-		$view->renderSortBy = SearchFields_VirtualAttendant::UPDATED_AT;
+		$view->renderSortBy = SearchFields_Bot::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderFilters = false;
@@ -1297,13 +1284,13 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		$defaults->id = $view_id;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Virtual Attendant';
+		$view->name = DevblocksPlatform::translateCapitalized('common.bots');
 		
 		$params_req = array();
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_VirtualAttendant::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+				new DevblocksSearchCriteria(SearchFields_Bot::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		
@@ -1317,15 +1304,15 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+		$context = CerberusContexts::CONTEXT_BOT;
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		if(!empty($context_id) && false != ($model = DAO_VirtualAttendant::get($context_id))) {
+		if(!empty($context_id) && false != ($model = DAO_Bot::get($context_id))) {
 		} else {
 			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
 			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
 			
-			$model = new Model_VirtualAttendant();
+			$model = new Model_Bot();
 			$model->owner_context = $owner_context;
 			$model->owner_context_id = $owner_context_id;
 		}
@@ -1365,7 +1352,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
-			$tpl->display('devblocks:cerberusweb.core::internal/va/peek_edit.tpl');
+			$tpl->display('devblocks:cerberusweb.core::internal/bot/peek_edit.tpl');
 			
 		} else {
 			// Counts
@@ -1409,7 +1396,7 @@ class Context_VirtualAttendant extends Extension_DevblocksContext implements IDe
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
 			
-			$tpl->display('devblocks:cerberusweb.core::internal/va/peek.tpl');
+			$tpl->display('devblocks:cerberusweb.core::internal/bot/peek.tpl');
 		}
 	}
 };

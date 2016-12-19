@@ -17,7 +17,7 @@ This process protects the privacy of personal worker email addresses, while stil
 	<legend>Authentication</legend>
 	<p>
 	By default, relayed messages are authenticated by checking the mail headers.  
-	Copies of mail that are relayed to workers outside of Cerb using Virtual Attendant behavior are "signed" with a secret key in the <tt>Message-Id:</tt> header.  
+	Copies of mail that are relayed to workers outside of Cerb using bot behaviors are "signed" with a secret key in the <tt>Message-Id:</tt> header.  
 	According to the RFC-2822 standard, this <tt>Message-Id:</tt> should be referenced in the <tt>In-Reply-To:</tt> header of any reply.
 	</p>
 	
@@ -30,7 +30,7 @@ This process protects the privacy of personal worker email addresses, while stil
 	In the event that the worker relay doesn't function properly in your environment, you may disable the built-in authentication.
 	<b>Be careful when doing this!</b>  
 	When authentication is disabled, anyone can forge a message <tt>From:</tt> one of your workers and have it relayed to arbitrary conversations.  
-	It is very important that you set up alternative authentication using Virtual Attendants in Mail Filtering to approve or deny inbound worker replies through the relay.  
+	It is very important that you set up alternative authentication using bots in Mail Filtering to approve or deny inbound worker replies through the relay.  
 	</p>
 	
 	<p>

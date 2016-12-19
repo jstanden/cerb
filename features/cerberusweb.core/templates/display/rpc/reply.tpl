@@ -69,7 +69,7 @@
 					{$headers = $message->getHeaders()}
 					<button name="saveDraft" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
 					
-					{* Virtual Attendants *}
+					{* Bots *}
 					{if !empty($macros)}
 					<button type="button" title="(Ctrl+Shift+B)" class="split-left" onclick="$(this).next('button').click();"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button><!--  
 					--><button type="button" title="(Ctrl+Shift+B)" class="split-right" id="btnReplyMacros{$message->id}"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
@@ -78,12 +78,12 @@
 							<input type="text" size="32" class="input_search filter">
 						</li>
 						
-						{$vas = DAO_VirtualAttendant::getAll()}
+						{$vas = DAO_Bot::getAll()}
 						
 						{foreach from=$vas item=va}
 							{capture name=behaviors}
 							{foreach from=$macros item=macro key=macro_id}
-							{if $macro->virtual_attendant_id == $va->id}
+							{if $macro->bot_id == $va->id}
 							<li class="item item-behavior">
 								<div style="margin-left:10px;">
 									{if $macro->has_public_vars}

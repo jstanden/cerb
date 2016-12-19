@@ -297,7 +297,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 	
 	static function getOwnerTree(array $contexts=['app','bot','group','role','worker']) {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$bots = DAO_VirtualAttendant::getAll();
+		$bots = DAO_Bot::getAll();
 		$groups = DAO_Group::getAll();
 		$roles = DAO_WorkerRole::getAll();
 		$workers = DAO_Worker::getAllActive();
@@ -332,7 +332,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 				$item = new DevblocksMenuItemPlaceholder();
 				$item->label = $bot->name;
 				$item->l = $bot->name;
-				$item->key = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT . ':' . $bot->id;
+				$item->key = CerberusContexts::CONTEXT_BOT . ':' . $bot->id;
 				$bots_menu->children[$item->l] = $item;
 			}
 			
@@ -1063,9 +1063,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			}
 		}
 
-		// Virtual Attendant
-
-
 		// Behavior Vars
 		$vars = DevblocksEventHelper::getVarValueToContextMap($trigger);
 
@@ -1133,7 +1130,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		switch($token) {
 			case '_calendar_availability':
 				// Get readable by VA
-				$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id));
+				$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_BOT, $trigger->bot_id));
 				$tpl->assign('calendars', $calendars);
 
 				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_calendar_availability.tpl');
@@ -1626,7 +1623,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$actions[$key] = array('label' => 'Set (variable) ' . $var['label']);
 		}
 
-		$va = $trigger->getVirtualAttendant();
+		$va = $trigger->getBot();
 
 		// Add plugin extensions
 
@@ -1734,7 +1731,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 								break;
 							case Model_CustomField::TYPE_DATE:
 								// Restricted to VA-readable calendars
-								$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id));
+								$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_BOT, $trigger->bot_id));
 								$tpl->assign('calendars', $calendars);
 								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
 								break;

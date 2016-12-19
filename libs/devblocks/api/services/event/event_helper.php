@@ -3,13 +3,13 @@ class DevblocksEventHelper {
 	public static function getVarValueToContextMap($trigger) { /* @var $trigger Model_TriggerEvent */
 		$values_to_contexts = array();
 		
-		// Virtual Attendant
+		// Bot
 		
-		$va = $trigger->getVirtualAttendant();
+		$va = $trigger->getBot();
 		
 		$values_to_contexts['_trigger_va_id'] = array(
 			'label' => '(Self) ' . $va->name,
-			'context' => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+			'context' => CerberusContexts::CONTEXT_BOT,
 			'context_id' => $va->id,
 		);
 		
@@ -188,7 +188,7 @@ class DevblocksEventHelper {
 				
 			case Model_CustomField::TYPE_DATE:
 				// Restricted to VA-readable calendars
-				$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id));
+				$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_BOT, $trigger->bot_id));
 				$tpl->assign('calendars', $calendars);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
 				break;
@@ -1634,7 +1634,7 @@ class DevblocksEventHelper {
 
 		// Macros
 		
-		if(false == ($va = $trigger->getVirtualAttendant()))
+		if(false == ($va = $trigger->getBot()))
 			return;
 		
 		$macros = array();
@@ -1646,7 +1646,7 @@ class DevblocksEventHelper {
 				continue;
 			}
 
-			if(false == ($macro_va = $macro->getVirtualAttendant())) {
+			if(false == ($macro_va = $macro->getBot())) {
 				continue;
 			}
 			
@@ -1885,7 +1885,7 @@ class DevblocksEventHelper {
 
 		// Macros
 		
-		if(false == ($va = $trigger->getVirtualAttendant()))
+		if(false == ($va = $trigger->getBot()))
 			return;
 		
 		$macros = array();
@@ -1897,7 +1897,7 @@ class DevblocksEventHelper {
 				continue;
 			}
 
-			if(false == ($macro_va = $macro->getVirtualAttendant())) {
+			if(false == ($macro_va = $macro->getBot())) {
 				continue;
 			}
 			
@@ -2150,7 +2150,7 @@ class DevblocksEventHelper {
 
 		// Macros
 		
-		if(false == ($va = $trigger->getVirtualAttendant()))
+		if(false == ($va = $trigger->getBot()))
 			return;
 		
 		$macros = array();
@@ -2162,7 +2162,7 @@ class DevblocksEventHelper {
 				continue;
 			}
 
-			if(false == ($macro_va = $macro->getVirtualAttendant())) {
+			if(false == ($macro_va = $macro->getBot())) {
 				continue;
 			}
 			
@@ -2253,7 +2253,7 @@ class DevblocksEventHelper {
 		
 		$event = $trigger->getEvent();
 
-		$calendars = DAO_Calendar::getWriteableByActor(array(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id));
+		$calendars = DAO_Calendar::getWriteableByActor(array(CerberusContexts::CONTEXT_BOT, $trigger->bot_id));
 		
 		if(is_array($calendars))
 		foreach($calendars as $calendar_id => $calendar) {
@@ -2295,7 +2295,7 @@ class DevblocksEventHelper {
 			if(@!empty($calendar->params['manual_disabled']))
 				return false;
 			
-			if(!Context_Calendar::isWriteableByActor($calendar, [CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id]))
+			if(!Context_Calendar::isWriteableByActor($calendar, [CerberusContexts::CONTEXT_BOT, $trigger->bot_id]))
 				return false;
 			
 			return true;
@@ -2417,7 +2417,7 @@ class DevblocksEventHelper {
 			if(@!empty($calendar->params['manual_disabled']))
 				return false;
 			
-			if(!Context_Calendar::isWriteableByActor($calendar, [CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id]))
+			if(!Context_Calendar::isWriteableByActor($calendar, [CerberusContexts::CONTEXT_BOT, $trigger->bot_id]))
 				return false;
 			
 			return true;
@@ -2474,8 +2474,8 @@ class DevblocksEventHelper {
 			// Comment content
 			if(!empty($comment)) {
 				$fields = array(
-					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
-					DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_BOT,
+					DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 					DAO_Comment::COMMENT => $comment,
 					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_CALENDAR_EVENT,
 					DAO_Comment::CONTEXT_ID => $calendar_event_id,
@@ -2580,8 +2580,8 @@ class DevblocksEventHelper {
 		// Fields
 		
 		$fields = array(
-			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
-			DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
+			DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_BOT,
+			DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 			DAO_Comment::CREATED => time(),
 			DAO_Comment::COMMENT => $content,
 		);
@@ -3508,8 +3508,8 @@ class DevblocksEventHelper {
 					DAO_Comment::CONTEXT => $notify_context_data[0],
 					DAO_Comment::CONTEXT_ID => $notify_context_data[1],
 					DAO_Comment::CREATED => time(),
-					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
-					DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_BOT,
+					DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 				);
 				$note_id = DAO_Comment::create($fields, $notify_worker_ids);
 			}
@@ -3659,8 +3659,8 @@ class DevblocksEventHelper {
 		// Comment content
 		if(!empty($comment)) {
 			$fields = array(
-				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
-				DAO_Comment::OWNER_CONTEXT_ID => $trigger->virtual_attendant_id,
+				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_BOT,
+				DAO_Comment::OWNER_CONTEXT_ID => $trigger->bot_id,
 				DAO_Comment::COMMENT => $comment,
 				DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
 				DAO_Comment::CONTEXT_ID => $task_id,
@@ -3824,7 +3824,7 @@ class DevblocksEventHelper {
 
 		// [TODO] Fix this
 		$message->body = sprintf(
-			"(... This message was manually created by a virtual attendant on behalf of the requesters ...)\r\n"
+			"(... This message was manually created by a bot on behalf of the requesters ...)\r\n"
 		);
 
 		// Parse

@@ -250,7 +250,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$this->_renderFilePng(APP_PATH . sprintf('/features/cerberusweb.core/resources/images/avatars/person%d.png', $n));
 				break;
 				
-			case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+			case CerberusContexts::CONTEXT_BOT:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
 				break;
 				

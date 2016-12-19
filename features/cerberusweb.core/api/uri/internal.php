@@ -2919,11 +2919,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(null == ($macro = DAO_TriggerEvent::get($macro_id))) /* @var $macro Model_TriggerEvent */
 				throw new Exception("Invalid macro.");
 			
-			if(null == ($va = $macro->getVirtualAttendant()))
+			if(null == ($va = $macro->getBot()))
 				throw new Exception("Invalid VA.");
 			
 			// ACL: Ensure the worker has access to the macro
-			if(!Context_VirtualAttendant::isReadableByActor($va, $active_worker))
+			if(!Context_Bot::isReadableByActor($va, $active_worker))
 				throw new Exception("Access denied to macro.");
 
 			// Relative scheduling
@@ -3186,7 +3186,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		if(null == $view) {
-			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT);
+			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BOT);
 			$view = $ctx->getChooserView($view_id);
 		}
 		
@@ -3195,8 +3195,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 		} else {
 			$view->addParamsRequired(array(
-				SearchFields_VirtualAttendant::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_VirtualAttendant::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
-				SearchFields_VirtualAttendant::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_VirtualAttendant::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
+				SearchFields_Bot::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Bot::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
+				SearchFields_Bot::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Bot::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
 			), true);
 		}
 		
@@ -3388,7 +3388,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(empty($trigger_id)) {
 				$trigger = null;
 				
-				$va = DAO_VirtualAttendant::get($va_id);
+				$va = DAO_Bot::get($va_id);
 				$tpl->assign('va', $va);
 				
 				$events = Extension_DevblocksEvent::getByContext($va->owner_context, false);
@@ -3787,13 +3787,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			return;
 
-		if(false == ($va = $trigger->getVirtualAttendant()))
+		if(false == ($va = $trigger->getBot()))
 			return;
 		
 		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, false)))
 			return; /* @var $event Extension_DevblocksEvent */
 			
-		$is_writeable = Context_VirtualAttendant::isWriteableByActor($va, $active_worker);
+		$is_writeable = Context_Bot::isWriteableByActor($va, $active_worker);
 		$tpl->assign('is_writeable', $is_writeable);
 		
 		$tpl->assign('trigger', $trigger);
@@ -3847,10 +3847,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 					return false;
 				
-				if(false == ($va = $trigger->getVirtualAttendant()))
+				if(false == ($va = $trigger->getBot()))
 					return false;
 				
-				if(!Context_VirtualAttendant::isWriteableByActor($va, $active_worker))
+				if(!Context_Bot::isWriteableByActor($va, $active_worker))
 					return false;
 				
 				DAO_DecisionNode::update($id, array(
@@ -3870,10 +3870,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 					return false;
 				
-				if(false == ($va = $trigger->getVirtualAttendant()))
+				if(false == ($va = $trigger->getBot()))
 					return false;
 				
-				if(!Context_VirtualAttendant::isWriteableByActor($va, $active_worker))
+				if(!Context_Bot::isWriteableByActor($va, $active_worker))
 					return false;
 			}
 			

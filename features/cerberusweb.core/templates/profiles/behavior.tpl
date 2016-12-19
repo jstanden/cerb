@@ -2,7 +2,7 @@
 {$page_context_id = $trigger_event->id}
 
 <div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$trigger_event->virtual_attendant_id}{/devblocks_url}?v={$trigger_event->updated_at}" style="height:75px;width:75px;border-radius:5px;">
+	<img src="{devblocks_url}c=avatars&context=bot&context_id={$trigger_event->bot_id}{/devblocks_url}?v={$trigger_event->updated_at}" style="height:75px;width:75px;border-radius:5px;">
 </div>
 
 <div style="float:left">

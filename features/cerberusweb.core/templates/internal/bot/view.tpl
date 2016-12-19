@@ -1,4 +1,4 @@
-{$view_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
+{$view_context = CerberusContexts::CONTEXT_BOT}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}
@@ -30,7 +30,7 @@
 <input type="hidden" name="context_id" value="{$view_context}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="virtual_attendant">
+<input type="hidden" name="section" value="bot">
 <input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -90,8 +90,8 @@
 			{elseif $column == "v_name"}
 			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.v_id}" style="display:none;">
-				<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$result.v_id}{/devblocks_url}?v={$result.v_updated_at}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
-				<a href="{devblocks_url}c=profiles&type=virtual_attendant&id={$result.v_id}-{$result.v_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.v_name}</a>
+				<img src="{devblocks_url}c=avatars&context=bot&context_id={$result.v_id}{/devblocks_url}?v={$result.v_updated_at}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
+				<a href="{devblocks_url}c=profiles&type=bot&id={$result.v_id}-{$result.v_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.v_name}</a>
 				
 				{* If the current worker can edit this VA, allow peek *}
 				{if $active_worker->is_superuser}
@@ -165,7 +165,7 @@
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
 		{*
-		{if $active_worker->hasPriv('calls.actions.update_all')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=virtual_attendant&action=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv('calls.actions.update_all')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=bot&action=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		*}
 	</div>
 	{/if}

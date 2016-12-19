@@ -25,17 +25,17 @@
 			<td width="1%" nowrap="nowrap"><b>{'common.bot'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				{if !$model->id}
-					<button type="button" class="chooser-abstract" data-field-name="bot_id" data-context="{CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}" data-single="true" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-abstract" data-field-name="bot_id" data-context="{CerberusContexts::CONTEXT_BOT}" data-single="true" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
 					
 					<ul class="bubbles chooser-container">
 						{if $bot}
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
+							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
 						{/if}
 					</ul>
 				{else}
 					{if $bot}
 						<ul class="bubbles chooser-container">
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
+							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
 						</ul>
 					{/if}
 				{/if}

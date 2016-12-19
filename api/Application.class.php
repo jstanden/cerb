@@ -876,6 +876,7 @@ class CerberusContexts {
 	const CONTEXT_ASSET = 'cerberusweb.contexts.asset';
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_BEHAVIOR = 'cerberusweb.contexts.behavior';
+	const CONTEXT_BOT = 'cerberusweb.contexts.bot';
 	const CONTEXT_BUCKET = 'cerberusweb.contexts.bucket';
 	const CONTEXT_CALENDAR = 'cerberusweb.contexts.calendar';
 	const CONTEXT_CALENDAR_EVENT = 'cerberusweb.contexts.calendar_event';
@@ -922,7 +923,6 @@ class CerberusContexts {
 	const CONTEXT_TASK = 'cerberusweb.contexts.task';
 	const CONTEXT_TICKET = 'cerberusweb.contexts.ticket';
 	const CONTEXT_TIMETRACKING = 'cerberusweb.contexts.timetracking';
-	const CONTEXT_VIRTUAL_ATTENDANT = 'cerberusweb.contexts.virtual.attendant';
 	const CONTEXT_WORKER = 'cerberusweb.contexts.worker';
 	const CONTEXT_WORKSPACE_PAGE = 'cerberusweb.contexts.workspace.page';
 	const CONTEXT_WORKSPACE_TAB = 'cerberusweb.contexts.workspace.tab';
@@ -1251,7 +1251,7 @@ class CerberusContexts {
 				case CerberusContexts::CONTEXT_GROUP:
 				case CerberusContexts::CONTEXT_ORG:
 				case CerberusContexts::CONTEXT_ROLE:
-				case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				case CerberusContexts::CONTEXT_BOT:
 				case CerberusContexts::CONTEXT_WORKER:
 					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels([$context_id => $context_id], $context);
 					
@@ -1268,7 +1268,7 @@ class CerberusContexts {
 				case CerberusContexts::CONTEXT_GROUP:
 				case CerberusContexts::CONTEXT_ORG:
 				case CerberusContexts::CONTEXT_ROLE:
-				case CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT:
+				case CerberusContexts::CONTEXT_BOT:
 				case CerberusContexts::CONTEXT_WORKER:
 					return $actor;
 					break;
@@ -1302,8 +1302,8 @@ class CerberusContexts {
 					$context = CerberusContexts::CONTEXT_ROLE;
 					break;
 					
-				case 'Model_VirtualAttendant':
-					$context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+				case 'Model_Bot':
+					$context = CerberusContexts::CONTEXT_BOT;
 					break;
 					
 				case 'Model_Worker':
@@ -1610,14 +1610,14 @@ class CerberusContexts {
 				&& null != ($trigger_id = end($stack))
 				&& !empty($trigger_id)
 				&& null != ($trigger = DAO_TriggerEvent::get($trigger_id))
-				&& false != ($trigger_va = $trigger->getVirtualAttendant())
+				&& false != ($trigger_va = $trigger->getBot())
 			) {
 				/* @var $trigger Model_TriggerEvent */
 
 				$actor_name = sprintf("%s [%s]", $trigger_va->name, $trigger->title);
-				$actor_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+				$actor_context = CerberusContexts::CONTEXT_BOT;
 				$actor_context_id = $trigger_va->id;
-				$actor_url = sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger_va->id);
+				$actor_url = sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_BOT, $trigger_va->id);
 
 			// Otherwise see if we have an active session
 			} else {

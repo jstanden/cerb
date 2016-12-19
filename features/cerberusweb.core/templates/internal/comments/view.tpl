@@ -78,7 +78,7 @@
 					{if $meta}
 						{if $owner_context->id == CerberusContexts::CONTEXT_APPLICATION}
 						<img src="{devblocks_url}c=avatars&context=app&context_id=0{/devblocks_url}?v={$smarty.const.APP_BUILD}" style="height:32px;width:32px;vertical-align:middle;border-radius:32px;">
-						{elseif $owner_context->id == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
+						{elseif $owner_context->id == CerberusContexts::CONTEXT_BOT}
 						<img src="{devblocks_url}c=avatars&context=bot&context_id={$meta.id}{/devblocks_url}?v={$meta.updated}" style="height:32px;width:32px;vertical-align:middle;border-radius:32px;">
 						{elseif $owner_context->id == CerberusContexts::CONTEXT_WORKER}
 						<img src="{devblocks_url}c=avatars&context=worker&context_id={$meta.id}{/devblocks_url}?v={$meta.updated}" style="height:32px;width:32px;vertical-align:middle;border-radius:32px;">

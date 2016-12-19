@@ -1,7 +1,7 @@
 <fieldset class="peek">
-<legend>{'reports.ui.virtual_attendant.usage'|devblocks_translate}</legend>
+<legend>{'reports.ui.bot.usage'|devblocks_translate}</legend>
 
-<form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.virtual_attendants.usage{/devblocks_url}" method="POST" id="frmRange">
+<form action="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}&report=report.bots.usage{/devblocks_url}" method="POST" id="frmRange">
 <input type="hidden" name="c" value="reports">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 <b>{'reports.ui.date_from'|devblocks_translate}</b> <input type="text" name="start" id="start" size="24" value="{$start}"><button type="button" onclick="devblocksAjaxDateChooser('#start','#divCal');"><span class="glyphicons glyphicons-calendar"></span></button>
@@ -13,8 +13,8 @@
 	<option value="avg_elapsed_ms" {if $sort_by=='avg_elapsed_ms'}selected="selected"{/if}>Runtime (avg)</option>
 	<option value="elapsed_ms" {if $sort_by=='elapsed_ms'}selected="selected"{/if}>Runtime (total)</option>
 	<option value="event" {if $sort_by=='event'}selected="selected"{/if}>Event</option>
-	<option value="va_name" {if $sort_by=='va_name'}selected="selected"{/if}>Virtual Attendant</option>
-	{*<option value="va_owner" {if $sort_by=='va_owner'}selected="selected"{/if}>Virtual Attendant Owner</option>*}
+	<option value="va_name" {if $sort_by=='va_name'}selected="selected"{/if}>{'common.bot'|devblocks_translate|capitalize}</option>
+	{*<option value="va_owner" {if $sort_by=='va_owner'}selected="selected"{/if}>{'common.owner'|devblocks_translate|capitalize}</option>*}
 </select>
 
 <div id="divCal"></div>
@@ -44,7 +44,7 @@
 		<th>Total Runtime</th>
 		<th>Behavior</th>
 		<th>Event</th>
-		<th>Virtual Attendant</th>
+		<th>{'common.bot'|devblocks_translate|capitalize}</th>
 	</tr>
 	{foreach from=$stats item=row}
 	<tr style="background-color:{cycle values="#F0F0F0,#FFFFFF"};">
@@ -62,7 +62,7 @@
 			{$row.event}
 		</td>
 		<td valign="top">
-			<a href="{devblocks_url}c=profiles&w=virtual_attendant&id={$row.va_id}-{$row.va_name|devblocks_permalink}{/devblocks_url}" title="{$row.va_owner}">{$row.va_name}</span>
+			<a href="{devblocks_url}c=profiles&w=bot&id={$row.va_id}-{$row.va_name|devblocks_permalink}{/devblocks_url}" title="{$row.va_owner}">{$row.va_name}</span>
 		</td>
 	</tr>
 	{/foreach}

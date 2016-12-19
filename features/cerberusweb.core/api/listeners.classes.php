@@ -313,15 +313,15 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 						);
 						break;
 
-					case 'attendants':
+					case 'bots':
 						$tour = array(
-							'title' => 'Virtual Attendants',
-							'body' => 'This setup page provides a place to globally manage Virtual Attendants.',
+							'title' => DevblocksPlatform::translateCapitalized('common.bots'),
+							'body' => 'This setup page provides a place to globally manage bots.',
 							'callouts' => array(
 								new DevblocksTourCallout(
-									'#viewsetup_virtual_attendants TABLE.worklist A > SPAN.glyphicons-circle-plus',
-									'Add Virtual Attendant',
-									'You can add a Virtual Attendant by clicking on the (+) icon in this worklist.',
+									'#viewsetup_bots TABLE.worklist A > SPAN.glyphicons-circle-plus',
+									'Add Bot',
+									'You can add a bot by clicking on the (+) icon in this worklist.',
 									'bottomRight',
 									'topLeft',
 									10,
@@ -334,7 +334,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 					case 'scheduled_behavior':
 						$tour = array(
 							'title' => 'Scheduled Behavior',
-							'body' => 'This setup page provides a place to globally manage Virtual Attendant scheduled behavior.',
+							'body' => 'This setup page provides a place to globally manage bot scheduled behavior.',
 						);
 						break;
 
@@ -591,7 +591,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 					case 'worker':
 						$tour = array(
 							'title' => 'Worker Profiles',
-							'body' => "You can think of your profile as your homepage within Cerb.  It provides quick access to your notifications, activity history, calendar, virtual attendant, and watchlist.",
+							'body' => "You can think of your profile as your homepage within Cerb.  It provides quick access to your notifications, activity history, calendar, bot, and watchlist.",
 							'callouts' => array(
 							),
 						);
@@ -679,7 +679,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		
 		// Load all VAs
 		
-		$trigger_vas = DAO_VirtualAttendant::getAll();
+		$trigger_vas = DAO_Bot::getAll();
 		
 		// Are we limited to only one trigger on this event, or all of them?
 		
@@ -716,7 +716,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		// We're restricting the scope of the event
 		if(isset($event->params['_whisper']) && is_array($event->params['_whisper']) && !empty($event->params['_whisper'])) {
 			foreach($triggers as $trigger_id => $trigger) { /* @var $trigger Model_TriggerEvent */
-				if(false == (@$trigger_va = $trigger_vas[$trigger->virtual_attendant_id]))
+				if(false == (@$trigger_va = $trigger_vas[$trigger->bot_id]))
 					continue;
 
 				if($trigger_va->is_disabled)
@@ -755,7 +755,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		$registry = DevblocksPlatform::getRegistryService();
 		
 		foreach($triggers as $trigger) { /* @var $trigger Model_TriggerEvent */
-			if(false == (@$trigger_va = $trigger_vas[$trigger->virtual_attendant_id]))
+			if(false == (@$trigger_va = $trigger_vas[$trigger->bot_id]))
 				continue;
 			
 			if(self::inception($trigger->id)) {
@@ -786,7 +786,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				$trigger->title,
 				$trigger->id,
 				$trigger_va->name,
-				$trigger->virtual_attendant_id
+				$trigger->bot_id
 			));
 			
 			// Load the intermediate data ONCE! (if at least one VA is responding)
@@ -901,7 +901,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_Notification::deleteByContext($context, $context_ids);
 		DAO_ContextScheduledBehavior::deleteByContext($context, $context_ids);
 		DAO_Snippet::deleteByOwner($context, $context_ids);
-		DAO_VirtualAttendant::deleteByOwner($context, $context_ids);
+		DAO_Bot::deleteByOwner($context, $context_ids);
 		DAO_WorkspacePage::deleteByOwner($context, $context_ids);
 	}
 	
@@ -1003,10 +1003,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		}
 		
 		// ===========================================================================
-		// Virtual Attendants
+		// Bots
 		
-		if($context != CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT) {
-			$rs = $db->ExecuteSlave(sprintf("SELECT id FROM virtual_attendant WHERE owner_context = %s AND owner_context_id NOT IN (SELECT %s FROM %s)",
+		if($context != CerberusContexts::CONTEXT_BOT) {
+			$rs = $db->ExecuteSlave(sprintf("SELECT id FROM bot WHERE owner_context = %s AND owner_context_id NOT IN (SELECT %s FROM %s)",
 				$db->qstr($context),
 				$db->escape($context_index),
 				$db->escape($context_table)
@@ -1016,12 +1016,12 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				$deletes = 0;
 				
 				while($row = mysqli_fetch_row($rs)) {
-					DAO_VirtualAttendant::delete($row[0]);
+					DAO_Bot::delete($row[0]);
 					$deletes++;
 				}
 				
 				if(null != ($deletes = $db->Affected_Rows()))
-					$logger->info(sprintf("Purged %d %s virtual attendants.", $deletes, $context));
+					$logger->info(sprintf("Purged %d %s bots.", $deletes, $context));
 			}
 		}
 	}

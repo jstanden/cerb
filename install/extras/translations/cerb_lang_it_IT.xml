@@ -298,7 +298,7 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.reports.group.virtual_attendants">
+		<tu tuid="acl.reports.group.bots">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
@@ -4103,7 +4103,7 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="reports.ui.group.virtual_attendant">
+		<tu tuid="reports.ui.group.bot">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
@@ -4243,7 +4243,7 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="reports.ui.virtual_attendant.usage">
+		<tu tuid="reports.ui.bot.usage">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

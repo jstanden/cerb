@@ -271,7 +271,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			"context_scheduled_behavior.variables_json as %s, ".
 			"context_scheduled_behavior.repeat_json as %s, ".
 			"trigger_event.title as %s, ".
-			"trigger_event.virtual_attendant_id as %s ",
+			"trigger_event.bot_id as %s ",
 				SearchFields_ContextScheduledBehavior::ID,
 				SearchFields_ContextScheduledBehavior::CONTEXT,
 				SearchFields_ContextScheduledBehavior::CONTEXT_ID,
@@ -282,7 +282,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 				SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
 				SearchFields_ContextScheduledBehavior::REPEAT_JSON,
 				SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
-				SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID
+				SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID
 		);
 			
 		$join_sql = "FROM context_scheduled_behavior ".
@@ -405,7 +405,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	const REPEAT_JSON = 'c_repeat_json';
 	
 	const BEHAVIOR_NAME = 'b_behavior_name';
-	const BEHAVIOR_VIRTUAL_ATTENDANT_ID = 'b_behavior_virtual_attendant_id';
+	const BEHAVIOR_BOT_ID = 'b_behavior_bot_id';
 	
 	const VIRTUAL_TARGET = '*_target';
 
@@ -418,7 +418,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	static function getCustomFieldContextKeys() {
 		return array(
 			'' => new DevblocksSearchFieldContextKeys('context_scheduled_behavior.id', self::ID),
-			CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT => new DevblocksSearchFieldContextKeys('trigger_event.virtual_attendant_id', self::BEHAVIOR_VIRTUAL_ATTENDANT_ID),
+			CerberusContexts::CONTEXT_BOT => new DevblocksSearchFieldContextKeys('trigger_event.bot_id', self::BEHAVIOR_BOT_ID),
 		);
 	}
 	
@@ -458,7 +458,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 			self::REPEAT_JSON => new DevblocksSearchField(self::REPEAT_JSON, 'context_scheduled_behavior', 'repeat_json', $translate->_('dao.context_scheduled_behavior.repeat_json'), null, false),
 			
 			self::BEHAVIOR_NAME => new DevblocksSearchField(self::BEHAVIOR_NAME, 'trigger_event', 'title', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::BEHAVIOR_VIRTUAL_ATTENDANT_ID => new DevblocksSearchField(self::BEHAVIOR_VIRTUAL_ATTENDANT_ID, 'trigger_event', 'virtual_attendant_id', $translate->_('common.bot'), null, true),
+			self::BEHAVIOR_BOT_ID => new DevblocksSearchField(self::BEHAVIOR_BOT_ID, 'trigger_event', 'bot_id', $translate->_('common.bot'), null, true),
 
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target'), null, false),
 		);
@@ -604,7 +604,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$this->view_columns = array(
 			SearchFields_ContextScheduledBehavior::RUN_DATE,
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
-			SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID,
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,
 		);
 		$this->addColumnsHidden(array(
@@ -619,7 +619,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 
 		$this->addParamsHidden(array(
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
-			SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID,
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID,
 			SearchFields_ContextScheduledBehavior::CONTEXT,
 			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
 			SearchFields_ContextScheduledBehavior::ID,
@@ -675,7 +675,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			'va' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID),
+					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID),
 				),
 		);
 		
@@ -693,14 +693,14 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'va':
-				$field_key = SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID;
+				$field_key = SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID;
 				$oper = null;
 				$terms = null;
 				
 				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms, false))
 					return false;
 				
-				$vas = DAO_VirtualAttendant::getAll();
+				$vas = DAO_Bot::getAll();
 				$values = array();
 				
 				if(is_array($terms))
@@ -738,7 +738,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		
 		switch($this->renderTemplate) {
 			default:
-				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/va/scheduled_behavior/view.tpl');
+				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/bot/scheduled_behavior/view.tpl');
 				$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 				break;
 		}
@@ -762,7 +762,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 			// [TODO]
-			case SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID:
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID:
 				break;
 		}
 	}
@@ -772,9 +772,9 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID:
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID:
 				$ids = DevblocksPlatform::sanitizeArray($param->value, 'int');
-				$vas = DAO_VirtualAttendant::getIds($ids);
+				$vas = DAO_Bot::getIds($ids);
 				$strings = array();
 				
 				foreach($vas as $va) {
@@ -816,7 +816,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				break;
 				
 			// [TODO]
-			case SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID:
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID:
 				break;
 		}
 

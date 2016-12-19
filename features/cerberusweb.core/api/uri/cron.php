@@ -94,7 +94,7 @@ class ChCronController extends DevblocksControllerExtension {
 						case 'cron.storage':
 						case 'cron.search':
 						case 'cron.mail_queue':
-						case 'cron.virtual_attendant.scheduled_behavior':
+						case 'cron.bot.scheduled_behavior':
 							return false;
 							break;
 					}

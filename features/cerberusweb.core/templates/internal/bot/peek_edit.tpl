@@ -2,7 +2,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="virtual_attendant">
+<input type="hidden" name="section" value="bot">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
@@ -41,10 +41,10 @@
 			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.image'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%" valign="top">
 				<div style="float:left;margin-right:5px;">
-					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
+					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
 				</div>
 				<div style="float:left;">
-					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
+					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
 					<input type="hidden" name="avatar_image">
 				</div>
 			</td>
@@ -61,7 +61,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT context_id=$model->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_BOT context_id=$model->id}
 
 <fieldset class="peek va-fieldset-events">
 	<legend>Events</legend>

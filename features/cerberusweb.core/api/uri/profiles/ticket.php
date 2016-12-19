@@ -224,7 +224,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Filter macros to only those owned by the ticket's group
 		
 		$macros = array_filter($macros, function($macro) use ($ticket) { /* @var $macro Model_TriggerEvent */
-			$va = $macro->getVirtualAttendant(); /* @var $va Model_VirtualAttendant */
+			$va = $macro->getBot(); /* @var $va Model_Bot */
 			
 			if($va->owner_context == CerberusContexts::CONTEXT_GROUP && $va->owner_context_id != $ticket->group_id)
 				return false;

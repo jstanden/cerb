@@ -135,7 +135,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 						'portals' => intval(@$db->GetOneMaster('SELECT count(id) FROM community_tool')),
 						'tickets' => intval($db->GetOneMaster('SELECT count(id) FROM ticket')),
 						'tickets_status' => $tickets_by_status,
-						'va' => intval($db->GetOneMaster('SELECT count(id) FROM virtual_attendant')),
+						'va' => intval($db->GetOneMaster('SELECT count(id) FROM bot')),
 						'va_behaviors' => intval($db->GetOneMaster('SELECT count(id) FROM trigger_event')),
 						'webhooks' => intval($db->GetOneMaster('SELECT count(id) FROM webhook_listener')),
 						'workers' => intval($db->GetOneMaster('SELECT count(id) FROM worker')),
@@ -343,19 +343,19 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 				break;
 				
-			case 'export_attendants':
+			case 'export_bots':
 				$event_mfts = DevblocksPlatform::getExtensions('devblocks.event', false, true);
 
 				header("Content-type: application/json");
 				
 				$output = array(
-					'virtual_attendants' => array(),
+					'bots' => array(),
 				);
 				
-				$vas = DAO_VirtualAttendant::getAll();
+				$vas = DAO_Bot::getAll();
 				
 				foreach($vas as $va) {
-					$output['virtual_attendants'][$va->id] = array(
+					$output['bots'][$va->id] = array(
 						'label' => $va->name,
 						'owner_context' => $va->owner_context,
 						'owner_context_id' => $va->owner_context_id,
@@ -367,7 +367,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					foreach($behaviors as $behavior) {
 						if(false !== ($json = $behavior->exportToJson())) {
 							$json_array = json_decode($json, true);
-							$output['virtual_attendants'][$va->id]['behaviors'][] = $json_array;
+							$output['bots'][$va->id]['behaviors'][] = $json_array;
 						}
 					}
 				}
@@ -395,7 +395,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 								<li><a href='%s'>Requirements Checker</a></li>
 								<li><a href='%s'>Debug Report (for technical support)</a></li>
 								<li><a href='%s'>phpinfo()</a></li>
-								<li><a href='%s'>Export Virtual Attendants</a></li>
+								<li><a href='%s'>Export Bots</a></li>
 							</ul>
 						</form>
 					</body>
@@ -405,7 +405,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					$url_service->write('c=debug&a=check'),
 					$url_service->write('c=debug&a=report'),
 					$url_service->write('c=debug&a=phpinfo'),
-					$url_service->write('c=debug&a=export_attendants')
+					$url_service->write('c=debug&a=export_bots')
 				);
 				break;
 		}

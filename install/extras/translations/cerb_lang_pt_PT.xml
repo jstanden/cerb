@@ -298,7 +298,7 @@
 				<seg>[Grupo de Relatórios] Pode visualizar o grupo 'Relatórios dos Tickets'</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.reports.group.virtual_attendants">
+		<tu tuid="acl.reports.group.bots">
 			<tuv xml:lang="pt_PT">
 				<seg/>
 			</tuv>
@@ -4123,7 +4123,7 @@ Se não solicitou esta operação, não clique no link em cima. O pedido expira 
 				<seg>Relatório de Tickets</seg>
 			</tuv>
 		</tu>
-		<tu tuid="reports.ui.group.virtual_attendant">
+		<tu tuid="reports.ui.group.bot">
 			<tuv xml:lang="pt_PT">
 				<seg/>
 			</tuv>
@@ -4263,7 +4263,7 @@ Se não solicitou esta operação, não clique no link em cima. O pedido expira 
 				<seg>Por Organização</seg>
 			</tuv>
 		</tu>
-		<tu tuid="reports.ui.virtual_attendant.usage">
+		<tu tuid="reports.ui.bot.usage">
 			<tuv xml:lang="pt_PT">
 				<seg/>
 			</tuv>

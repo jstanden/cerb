@@ -15,7 +15,7 @@
 |	http://cerb.io	    http://webgroup.media
 ***********************************************************************/
 
-class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
+class PageSection_ProfilesBot extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
@@ -25,21 +25,21 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
-		@array_shift($stack); // virtual_attendant
+		@array_shift($stack); // bot
 		$id = array_shift($stack); // 123
 
-		$context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+		$context = CerberusContexts::CONTEXT_BOT;
 		@$id = intval($id);
 		
-		if(null == ($virtual_attendant = DAO_VirtualAttendant::get($id))) {
-			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('search','virtual_attendant')));
+		if(null == ($model = DAO_Bot::get($id))) {
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('search','bot')));
 			return;
 		}
-		$tpl->assign('virtual_attendant', $virtual_attendant);
+		$tpl->assign('model', $model);
 	
 		// Tab persistence
 		
-		$point = 'profiles.virtual_attendant.tab';
+		$point = 'profiles.bot.tab';
 		$tpl->assign('point', $point);
 		
 		if(null == (@$tab_selected = $stack[0])) {
@@ -54,33 +54,33 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		$properties['owner'] = array(
 			'label' => mb_ucfirst($translate->_('common.owner')),
 			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $virtual_attendant->owner_context_id,
+			'value' => $model->owner_context_id,
 			'params' => [
-				'context' => $virtual_attendant->owner_context,
+				'context' => $model->owner_context,
 			],
 		);
 		
 		$properties['is_disabled'] = array(
 			'label' => mb_ucfirst($translate->_('common.disabled')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $virtual_attendant->is_disabled,
+			'value' => $model->is_disabled,
 		);
 		
 		$properties['created'] = array(
 			'label' => mb_ucfirst($translate->_('common.created')),
 			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $virtual_attendant->created_at,
+			'value' => $model->created_at,
 		);
 		
 		$properties['updated'] = array(
 			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $virtual_attendant->updated_at,
+			'value' => $model->updated_at,
 		);
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $virtual_attendant->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $model->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
@@ -90,16 +90,16 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $virtual_attendant->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $model->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Counts
 		
 		$owner_counts = array(
-			'behaviors' => DAO_TriggerEvent::countByBot($virtual_attendant->id),
-			'calendars' => DAO_Calendar::count($context, $virtual_attendant->id),
-			'classifiers' => DAO_Classifier::countByBot($virtual_attendant->id),
-			'comments' => DAO_Comment::count($context, $virtual_attendant->id),
+			'behaviors' => DAO_TriggerEvent::countByBot($model->id),
+			'calendars' => DAO_Calendar::count($context, $model->id),
+			'classifiers' => DAO_Classifier::countByBot($model->id),
+			'comments' => DAO_Comment::count($context, $model->id),
 		);
 		$tpl->assign('owner_counts', $owner_counts);
 		
@@ -107,10 +107,10 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		
 		$properties_links = array(
 			$context => array(
-				$virtual_attendant->id => 
+				$model->id => 
 					DAO_ContextLink::getContextLinkCounts(
 						$context,
-						$virtual_attendant->id,
+						$model->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
@@ -126,16 +126,16 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		
 		$macros = DAO_TriggerEvent::getReadableByActor(
 			$active_worker,
-			'event.macro.virtual_attendant'
+			'event.macro.bot'
 		);
 		$tpl->assign('macros', $macros);
 
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_BOT);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/virtual_attendant.tpl');
+		$tpl->display('devblocks:cerberusweb.core::profiles/bot.tpl');
 	}
 	
 	function savePeekJsonAction() {
@@ -154,7 +154,7 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				DAO_VirtualAttendant::delete($id);
+				DAO_Bot::delete($id);
 				
 				echo json_encode(array(
 					'status' => true,
@@ -215,42 +215,42 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 				
 				if(empty($id)) { // New
 					$fields = array(
-						DAO_VirtualAttendant::CREATED_AT => time(),
-						DAO_VirtualAttendant::UPDATED_AT => time(),
-						DAO_VirtualAttendant::NAME => $name,
-						DAO_VirtualAttendant::IS_DISABLED => $is_disabled,
-						DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
-						DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
-						DAO_VirtualAttendant::PARAMS_JSON => json_encode($params),
+						DAO_Bot::CREATED_AT => time(),
+						DAO_Bot::UPDATED_AT => time(),
+						DAO_Bot::NAME => $name,
+						DAO_Bot::IS_DISABLED => $is_disabled,
+						DAO_Bot::OWNER_CONTEXT => $owner_ctx,
+						DAO_Bot::OWNER_CONTEXT_ID => $owner_ctx_id,
+						DAO_Bot::PARAMS_JSON => json_encode($params),
 					);
 					
-					if(false == ($id = DAO_VirtualAttendant::create($fields)))
+					if(false == ($id = DAO_Bot::create($fields)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
 					
 					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id);
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BOT, $id);
 					
 				} else { // Edit
 					$fields = array(
-						DAO_VirtualAttendant::UPDATED_AT => time(),
-						DAO_VirtualAttendant::NAME => $name,
-						DAO_VirtualAttendant::IS_DISABLED => $is_disabled,
-						DAO_VirtualAttendant::OWNER_CONTEXT => $owner_ctx,
-						DAO_VirtualAttendant::OWNER_CONTEXT_ID => $owner_ctx_id,
-						DAO_VirtualAttendant::PARAMS_JSON => json_encode($params),
+						DAO_Bot::UPDATED_AT => time(),
+						DAO_Bot::NAME => $name,
+						DAO_Bot::IS_DISABLED => $is_disabled,
+						DAO_Bot::OWNER_CONTEXT => $owner_ctx,
+						DAO_Bot::OWNER_CONTEXT_ID => $owner_ctx_id,
+						DAO_Bot::PARAMS_JSON => json_encode($params),
 					);
-					DAO_VirtualAttendant::update($id, $fields);
+					DAO_Bot::update($id, $fields);
 					
 				}
 	
 				if($id) {
 					// Custom fields
 					@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $field_ids);
+					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BOT, $id, $field_ids);
 					
 					// Avatar image
 					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
-					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $id, $avatar_image);
+					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $avatar_image);
 				}
 				
 				echo json_encode(array(
@@ -305,7 +305,7 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 			$view->addParamsRequired(array(
 				'_privs' => array(
 					DevblocksSearchCriteria::GROUP_AND,
-					new DevblocksSearchCriteria(SearchFields_ContextScheduledBehavior::BEHAVIOR_VIRTUAL_ATTENDANT_ID, '=', $va_id),
+					new DevblocksSearchCriteria(SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID, '=', $va_id),
 				)
 			), true);
 		}
@@ -356,8 +356,8 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 					'created' => time(),
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=virtual_attendant', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.virtual.attendant.explore.toolbar',
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=bot', true),
+					'toolbar_extension_id' => 'cerberusweb.contexts.bot.explore.toolbar',
 				);
 				$models[] = $model;
 				
@@ -369,13 +369,13 @@ class PageSection_ProfilesVirtualAttendant extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=virtual_attendant&id=%d-%s", $row[SearchFields_VirtualAttendant::ID], DevblocksPlatform::strToPermalink($row[SearchFields_VirtualAttendant::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=bot&id=%d-%s", $row[SearchFields_Bot::ID], DevblocksPlatform::strToPermalink($row[SearchFields_Bot::NAME])), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
 				$model->pos = $pos++;
 				$model->params = array(
-					'id' => $row[SearchFields_VirtualAttendant::ID],
+					'id' => $row[SearchFields_Bot::ID],
 					'url' => $url,
 				);
 				$models[] = $model;

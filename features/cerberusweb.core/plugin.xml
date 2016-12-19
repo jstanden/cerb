@@ -443,12 +443,12 @@
 			<class name="SearchFields_ViewFiltersPreset" />
 		</file>
 		
-		<file path="api/dao/virtual_attendant.php">
-			<class name="Context_VirtualAttendant" />
-			<class name="DAO_VirtualAttendant" />
-			<class name="Model_VirtualAttendant" />
-			<class name="SearchFields_VirtualAttendant" />
-			<class name="View_VirtualAttendant" />
+		<file path="api/dao/bot.php">
+			<class name="Context_Bot" />
+			<class name="DAO_Bot" />
+			<class name="Model_Bot" />
+			<class name="SearchFields_Bot" />
+			<class name="View_Bot" />
 		</file>
 		
 		<file path="api/dao/worker.php">
@@ -548,8 +548,8 @@
 			<class name="AbstractEvent_Ticket" />
 		</file>
 		
-		<file path="api/events/abstract/abstract_event_virtual_attendant.php">
-			<class name="AbstractEvent_VirtualAttendant" />
+		<file path="api/events/abstract/abstract_event_bot.php">
+			<class name="AbstractEvent_Bot" />
 		</file>
 		
 		<file path="api/events/abstract/abstract_event_worker.php">
@@ -656,8 +656,8 @@
 			<class name="Event_TicketMacro" />
 		</file>
 		
-		<file path="api/events/macro/virtual_attendant_macro.php">
-			<class name="Event_VirtualAttendantMacro" />
+		<file path="api/events/macro/bot_macro.php">
+			<class name="Event_BotMacro" />
 		</file>
 		
 		<file path="api/events/macro/worker_macro.php">
@@ -2013,11 +2013,11 @@
 		</extension>
 		
 		<extension point="devblocks.context">
-			<id>cerberusweb.contexts.virtual.attendant</id>
+			<id>cerberusweb.contexts.bot</id>
 			<name>Bot</name>
 			<class>
-				<file>api/dao/virtual_attendant.php</file>
-				<name>Context_VirtualAttendant</name>
+				<file>api/dao/bot.php</file>
+				<name>Context_Bot</name>
 			</class>
 			<params>
 				<param key="names">
@@ -2026,15 +2026,13 @@
 						<data key="bots" value="plural short" />
 						<data key="virtual attendant" value="singular" />
 						<data key="virtual attendants" value="plural" />
-						<data key="va" value="singular short" />
-						<data key="vas" value="plural short" />
 						<data key="virtual agent" value="singular" />
 						<data key="virtual agents" value="plural" />
 					</value>
 				</param>
-				<param key="alias" value="virtual_attendant" />
-				<param key="dao_class" value="DAO_VirtualAttendant" />
-				<param key="view_class" value="View_VirtualAttendant" />
+				<param key="alias" value="bot" />
+				<param key="dao_class" value="DAO_Bot" />
+				<param key="view_class" value="View_Bot" />
 				<param key="options">
 					<value>
 						<data key="cards" />
@@ -2663,14 +2661,14 @@
 		</extension>
 		
 		<extension point="devblocks.event">
-			<id>event.macro.virtual_attendant</id>
-			<name>Custom virtual attendant behavior</name>
+			<id>event.macro.bot</id>
+			<name>Custom bot behavior</name>
 			<class>
-				<file>api/events/macro/virtual_attendant_macro.php</file>
-				<name>Event_VirtualAttendantMacro</name>
+				<file>api/events/macro/bot_macro.php</file>
+				<name>Event_BotMacro</name>
 			</class>
 			<params>
-				<param key="macro_context" value="cerberusweb.contexts.virtual.attendant" />
+				<param key="macro_context" value="cerberusweb.contexts.bot" />
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
@@ -4290,15 +4288,15 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.profiles.virtual_attendant</id>
+				<id>core.page.profiles.bot</id>
 				<name>Bot Section</name>
 				<class>
-					<file>api/uri/profiles/virtual_attendant.php</file>
-					<name>PageSection_ProfilesVirtualAttendant</name>
+					<file>api/uri/profiles/bot.php</file>
+					<name>PageSection_ProfilesBot</name>
 				</class>
 				<params>
 					<param key="page_id" value="core.page.profiles" />
-					<param key="uri" value="virtual_attendant" />
+					<param key="uri" value="bot" />
 				</params>
 			</extension>
 			
@@ -4667,11 +4665,11 @@
 		</extension>
 		
 		<extension point="cerberusweb.cron">
-			<id>cron.virtual_attendant.scheduled_behavior</id>
+			<id>cron.bot.scheduled_behavior</id>
 			<name>Bot Scheduled Behavior</name>
 			<class>
 				<file>api/cron.classes.php</file>
-				<name>Cron_VirtualAttendantScheduledBehavior</name>
+				<name>Cron_BotScheduledBehavior</name>
 			</class>
 			<params />
 		</extension>

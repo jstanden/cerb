@@ -666,7 +666,7 @@ class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 		
-		$classifiers = DAO_Classifier::getReadableByActor(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $trigger->virtual_attendant_id);
+		$classifiers = DAO_Classifier::getReadableByActor(CerberusContexts::CONTEXT_BOT, $trigger->bot_id);
 		$tpl->assign('classifiers', $classifiers);
 		
 		if(!is_null($seq))

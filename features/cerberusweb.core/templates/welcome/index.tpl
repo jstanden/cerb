@@ -16,8 +16,8 @@
 		<li><p>Several workers who share responsibility for the same kinds of tickets can form a <b>group</b>.  Common groups are: Sales, Support, Development, Billing, and Corporate.  Groups can be based on anything.</p></li>
 		<li><p>A <b>bucket</b> is a container for storing similar tickets within a group.  Common buckets are: Leads, Receipts, Newsletters, Refunds, and Spam.</p></li>
 		<li><p>Each worker in a group is called a <b>member</b>.  A member with the authority to administer the group is called a <b>manager</b>.  Groups can have any number of managers.</p></li>
-		<li><p>Every group has an <b>inbox</b> bucket where new tickets are delivered by default.  These tickets are then organized into other buckets by workers or Virtual Attendants.</p></li>
-		<li><p><b>Virtual Attendants</b> are software agents that are capable of performing most of the same actions as workers.  They provide an efficient way to automate common workflows.  Any number of Virtual Attendants can be managed by workers, groups, or roles, and their behaviors can be completely built within the browser -- even by workers with little or no computer programming experience.</p></li>
+		<li><p>Every group has an <b>inbox</b> bucket where new tickets are delivered by default.  These tickets are then organized into other buckets by workers or bots.</p></li>
+		<li><p><b>Bots</b> are software agents that are capable of performing most of the same actions as workers.  They provide an efficient way to automate common workflows.  Any number of bots can be managed by workers, groups, or roles, and their behaviors can be completely built within the browser -- even by workers with little or no computer programming experience.</p></li>
 	</ul>
 </fieldset>
 

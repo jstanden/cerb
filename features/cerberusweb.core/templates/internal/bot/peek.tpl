@@ -1,11 +1,10 @@
 {$div_id = "peek{uniqid()}"}
-{$peek_context = CerberusContexts::CONTEXT_BEHAVIOR}
-{$is_writeable = Context_TriggerEvent::isWriteableByActor($dict, $active_worker)}
+{$peek_context = CerberusContexts::CONTEXT_BOT}
 
 <div id="{$div_id}">
 	
 	<div style="float:left;margin-right:10px;">
-		<img src="{devblocks_url}c=avatars&context=bot&context_id={$dict->bot_id}{/devblocks_url}?v={$dict->bot_updated_at}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
+		<img src="{devblocks_url}c=avatars&context=bot&context_id={$dict->id}{/devblocks_url}?v={$dict->updated}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
 	</div>
 	
 	<div style="float:left;">
@@ -19,12 +18,8 @@
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
 			{/if}
 		
-			{if $is_writeable}
-				<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
-			{/if}
-			{if $dict->id}
-				<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>
-			{/if}
+			{if $active_worker->is_superuser}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
+			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 			<button type="button" class="cerb-peek-comments-add" data-context="{$peek_context}" data-context-id="{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
@@ -54,11 +49,14 @@
 	
 	<div style="clear:both;"></div>
 	
+	<div style="margin-top:5px;">
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="bot.id:{$dict->id}"><div class="badge-count">{$activity_counts.behaviors|default:0}</div> {'common.behaviors'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-query="owner.bot.id:{$dict->id}"><div class="badge-count">{$activity_counts.classifiers|default:0}</div> {'common.classifiers'|devblocks_translate|capitalize}</button>
+	</div>
+
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}
-
-{include file="devblocks:cerberusweb.core::internal/va/behavior/tab.tpl"}
 
 {include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
@@ -71,14 +69,14 @@ $(function() {
 	var $timeline = {$timeline_json|default:'{}' nofilter};
 
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title', "{'common.behavior'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.dialog('option','title', "{'common.bot'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 		
 		// Properties grid
 		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
+		{if $active_worker->is_superuser}
 		// Edit button
-		{if $is_writeable}
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
@@ -114,10 +112,10 @@ $(function() {
 		// View profile
 		$popup.find('.cerb-peek-profile').click(function(e) {
 			if(e.metaKey) {
-				window.open('{devblocks_url}c=profiles&type=behavior&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				window.open('{devblocks_url}c=profiles&type=bot&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
 				
 			} else {
-				document.location='{devblocks_url}c=profiles&type=behavior&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
+				document.location='{devblocks_url}c=profiles&type=bot&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
 			}
 		});
 		

@@ -76,7 +76,7 @@ class DAO_Task extends Cerb_ORMHelper {
 			)
 		);
 		
-		// Virtual Attendant events
+		// Bot events
 		Event_TaskCreatedByWorker::trigger($id, null);
 		
 		return $id;

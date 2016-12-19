@@ -205,7 +205,7 @@ $(function() {
 		} catch(e) { }
 		{/foreach}
 
-		var $va_button = $('<a href="javascript:;" title="This worklist was modified by Virtual Attendants"><div style="background-color:rgb(230,230,230);display:inline-block;margin-top:3px;border-radius:11px;padding:2px;"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:14px;height:14px;margin:0;"></div></a>');
+		var $va_button = $('<a href="javascript:;" title="This worklist was modified by bots"><div style="background-color:rgb(230,230,230);display:inline-block;margin-top:3px;border-radius:11px;padding:2px;"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:14px;height:14px;margin:0;"></div></a>');
 		$va_button.click(function() {
 			var $va_action_log = $('#view{$view->id}_va_actions');
 			if($va_action_log.is(':hidden')) {
@@ -221,11 +221,11 @@ $(function() {
 	</script>
 	
 	<div class="block" style="display:none;margin:5px;" id="view{$view->id}_va_actions">
-		<b>This worklist was modified by Virtual Attendants:</b>
+		<b>This worklist was modified by bots:</b>
 		<ul style="margin:0;">
 			{foreach from=$va_behaviors item=va_behavior name=va_behaviors}
 			<li>
-				{$va = $va_behavior->getVirtualAttendant()}
+				{$va = $va_behavior->getBot()}
 				{$va_behavior->title} ({$va->name})
 			</li>
 			{/foreach}

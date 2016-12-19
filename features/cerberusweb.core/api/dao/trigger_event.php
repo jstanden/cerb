@@ -23,7 +23,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const IS_DISABLED = 'is_disabled';
 	const IS_PRIVATE = 'is_private';
 	const EVENT_POINT = 'event_point';
-	const VIRTUAL_ATTENDANT_ID = 'virtual_attendant_id';
+	const BOT_ID = 'bot_id';
 	const PRIORITY = 'priority';
 	const UPDATED_AT = 'updated_at';
 	const EVENT_PARAMS_JSON = 'event_params_json';
@@ -82,10 +82,10 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	static function getReadableByActor($actor, $event_point=null, $with_disabled=false) {
 		$macros = array();
 
-		$vas = DAO_VirtualAttendant::getReadableByActor($actor);
+		$vas = DAO_Bot::getReadableByActor($actor);
 
 		if(is_array($vas))
-		foreach($vas as $va) { /* @var $va Model_VirtualAttendant */
+		foreach($vas as $va) { /* @var $va Model_Bot */
 			if(!$with_disabled && $va->is_disabled)
 				continue;
 		
@@ -98,7 +98,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			
 			if(is_array($behaviors))
 			foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
-				if(!isset($vas[$behavior->virtual_attendant_id]) || $behavior->is_private)
+				if(!isset($vas[$behavior->bot_id]) || $behavior->is_private)
 					continue;
 			
 				$result = clone $behavior; /* @var $result Model_TriggerEvent */
@@ -128,13 +128,13 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	 * @param string $event_point
 	 * @return Model_TriggerEvent[]
 	 */
-	static function getByVirtualAttendant($va, $event_point=null, $with_disabled=false, $sort_by='title') {
+	static function getByBot($va, $event_point=null, $with_disabled=false, $sort_by='title') {
 		// Polymorph if necessary
 		if(is_numeric($va))
-			$va = DAO_VirtualAttendant::get($va);
+			$va = DAO_Bot::get($va);
 		
 		// If we didn't resolve to a VA model
-		if(!($va instanceof Model_VirtualAttendant))
+		if(!($va instanceof Model_Bot))
 			return array();
 		
 		if(!$with_disabled && $va->is_disabled)
@@ -145,7 +145,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 
 		if(is_array($behaviors))
 		foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
-			if($behavior->virtual_attendant_id != $va->id)
+			if($behavior->bot_id != $va->id)
 				continue;
 			
 			if($event_point && $behavior->event_point != $event_point)
@@ -180,10 +180,10 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	}
 	
 	static function getByEvent($event_id, $with_disabled=false) {
-		$vas = DAO_VirtualAttendant::getAll();
+		$vas = DAO_Bot::getAll();
 		$behaviors = array();
 
-		foreach($vas as $va) { /* @var $va Model_VirtualAttendant */
+		foreach($vas as $va) { /* @var $va Model_Bot */
 			$va_behaviors = $va->getBehaviors($event_id, $with_disabled, 'priority');
 			
 			if(!empty($va_behaviors))
@@ -222,7 +222,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, is_private, event_point, virtual_attendant_id, priority, event_params_json, updated_at, variables_json ".
+		$sql = "SELECT id, title, is_disabled, is_private, event_point, bot_id, priority, event_params_json, updated_at, variables_json ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
@@ -256,7 +256,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$object->is_private = intval($row['is_private']);
 			$object->priority = intval($row['priority']);
 			$object->event_point = $row['event_point'];
-			$object->virtual_attendant_id = $row['virtual_attendant_id'];
+			$object->bot_id = $row['bot_id'];
 			$object->updated_at = intval($row['updated_at']);
 			$object->event_params = @json_decode($row['event_params_json'], true);
 			$object->variables = @json_decode($row['variables_json'], true);
@@ -289,7 +289,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	static public function countByBot($bot_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 		return $db->GetOneSlave(sprintf("SELECT count(*) FROM trigger_event ".
-			"WHERE virtual_attendant_id = %d",
+			"WHERE bot_id = %d",
 			$bot_id
 		));
 	}
@@ -321,9 +321,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		return true;
 	}
 	
-	static function deleteByVirtualAttendant($va_id) {
+	static function deleteByBot($va_id) {
 		$results = self::getWhere(sprintf("%s = %d",
-			self::VIRTUAL_ATTENDANT_ID,
+			self::BOT_ID,
 			$va_id
 		));
 		
@@ -346,7 +346,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			"trigger_event.is_disabled as %s, ".
 			"trigger_event.is_private as %s, ".
 			"trigger_event.priority as %s, ".
-			"trigger_event.virtual_attendant_id as %s, ".
+			"trigger_event.bot_id as %s, ".
 			"trigger_event.updated_at as %s, ".
 			"trigger_event.event_point as %s ",
 				SearchFields_TriggerEvent::ID,
@@ -354,7 +354,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 				SearchFields_TriggerEvent::IS_DISABLED,
 				SearchFields_TriggerEvent::IS_PRIVATE,
 				SearchFields_TriggerEvent::PRIORITY,
-				SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
+				SearchFields_TriggerEvent::BOT_ID,
 				SearchFields_TriggerEvent::UPDATED_AT,
 				SearchFields_TriggerEvent::EVENT_POINT
 			);
@@ -468,7 +468,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	const IS_DISABLED = 't_is_disabled';
 	const IS_PRIVATE = 't_is_private';
 	const PRIORITY = 't_priority';
-	const VIRTUAL_ATTENDANT_ID = 't_virtual_attendant_id';
+	const BOT_ID = 't_bot_id';
 	const EVENT_POINT = 't_event_point';
 	const UPDATED_AT = 't_updated_at';
 	
@@ -483,7 +483,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_BEHAVIOR => new DevblocksSearchFieldContextKeys('trigger_event.id', self::ID),
-			CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT => new DevblocksSearchFieldContextKeys('trigger_event.virtual_attendant_id', self::VIRTUAL_ATTENDANT_ID),
+			CerberusContexts::CONTEXT_BOT => new DevblocksSearchFieldContextKeys('trigger_event.bot_id', self::BOT_ID),
 		);
 	}
 	
@@ -525,7 +525,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'trigger_event', 'is_disabled', $translate->_('dao.trigger_event.is_disabled'), null, true),
 			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'trigger_event', 'is_private', $translate->_('dao.trigger_event.is_private'), null, true),
 			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'trigger_event', 'priority', $translate->_('common.priority'), null, true),
-			self::VIRTUAL_ATTENDANT_ID => new DevblocksSearchField(self::VIRTUAL_ATTENDANT_ID, 'trigger_event', 'virtual_attendant_id', $translate->_('common.bot'), null, true),
+			self::BOT_ID => new DevblocksSearchField(self::BOT_ID, 'trigger_event', 'bot_id', $translate->_('common.bot'), null, true),
 			self::EVENT_POINT => new DevblocksSearchField(self::EVENT_POINT, 'trigger_event', 'event_point', $translate->_('common.event'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'trigger_event', 'updated_at', $translate->_('common.updated'), null, true),
 				
@@ -552,7 +552,7 @@ class Model_TriggerEvent {
 	public $is_private;
 	public $priority;
 	public $event_point;
-	public $virtual_attendant_id;
+	public $bot_id;
 	public $updated_at;
 	public $event_params = array();
 	public $variables = array();
@@ -570,8 +570,8 @@ class Model_TriggerEvent {
 		return $event;
 	}
 	
-	public function getVirtualAttendant() {
-		return DAO_VirtualAttendant::get($this->virtual_attendant_id);
+	public function getBot() {
+		return DAO_Bot::get($this->bot_id);
 	}
 	
 	public function getNextPosByParent($parent_id) {
@@ -1116,7 +1116,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 
 		$this->view_columns = array(
 			SearchFields_TriggerEvent::EVENT_POINT,
-			SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID,
+			SearchFields_TriggerEvent::BOT_ID,
 			SearchFields_TriggerEvent::PRIORITY,
 			SearchFields_TriggerEvent::UPDATED_AT,
 		);
@@ -1168,7 +1168,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				case SearchFields_TriggerEvent::IS_DISABLED:
 				case SearchFields_TriggerEvent::IS_PRIVATE:
 				case SearchFields_TriggerEvent::PRIORITY:
-				case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
+				case SearchFields_TriggerEvent::BOT_ID:
 					$pass = true;
 					break;
 					
@@ -1215,8 +1215,8 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
 				break;
 
-			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
-				$bots = DAO_VirtualAttendant::getAll();
+			case SearchFields_TriggerEvent::BOT_ID:
+				$bots = DAO_Bot::getAll();
 				$labels = array_column(json_decode(json_encode($bots), true), 'name', 'id');
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $labels);
 				break;
@@ -1249,7 +1249,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 			'bot.id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID),
+					'options' => array('param_key' => SearchFields_TriggerEvent::BOT_ID),
 				),
 			'disabled' => 
 				array(
@@ -1316,7 +1316,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		$tpl->assign('view', $this);
 
 		// Bots
-		$bots = DAO_VirtualAttendant::getAll();
+		$bots = DAO_Bot::getAll();
 		$tpl->assign('bots', $bots);
 		
 		// Events
@@ -1327,7 +1327,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BEHAVIOR);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/va/behavior/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/bot/behavior/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
@@ -1338,7 +1338,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		switch($field) {
 			case SearchFields_TriggerEvent::TITLE:
 			case SearchFields_TriggerEvent::EVENT_POINT:
-			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
+			case SearchFields_TriggerEvent::BOT_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
@@ -1387,8 +1387,8 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				parent::_renderCriteriaParamBoolean($param);
 				break;
 				
-			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
-				$bots = DAO_VirtualAttendant::getAll();
+			case SearchFields_TriggerEvent::BOT_ID:
+				$bots = DAO_Bot::getAll();
 				$labels = array_column(json_decode(json_encode($bots), true), 'name', 'id');
 				parent::_renderCriteriaParamString($param, $labels);
 				break;
@@ -1421,7 +1421,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		switch($field) {
 			case SearchFields_TriggerEvent::TITLE:
 			case SearchFields_TriggerEvent::EVENT_POINT:
-			case SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID:
+			case SearchFields_TriggerEvent::BOT_ID:
 			case 'placeholder_string':
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
@@ -1562,7 +1562,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$token_values['_context'] = CerberusContexts::CONTEXT_BEHAVIOR;
 		$token_values['_types'] = $token_types;
 		
-		$token_values['bot__context'] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT;
+		$token_values['bot__context'] = CerberusContexts::CONTEXT_BOT;
 		
 		if($trigger_event) {
 			$token_values['_loaded'] = true;
@@ -1575,7 +1575,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$token_values['priority'] = $trigger_event->priority;
 			$token_values['updated_at'] = $trigger_event->updated_at;
 			
-			$token_values['bot_id'] = $trigger_event->virtual_attendant_id;
+			$token_values['bot_id'] = $trigger_event->bot_id;
 			
 			if(false !== ($event = $trigger_event->getEvent())) {
 				$token_values['event_point_name'] = $event->manifest->name;
@@ -1592,7 +1592,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		// Bot
 		$merge_token_labels = array();
 		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, null, $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BOT, null, $merge_token_labels, $merge_token_values, '', true);
 
 			CerberusContexts::merge(
 				'bot_',
@@ -1715,20 +1715,20 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
-			$bots = DAO_VirtualAttendant::getAll();
+			$bots = DAO_Bot::getAll();
 			$tpl->assign('bots', $bots);
 			
 			if(!empty($model)) {
 				$ext = DevblocksPlatform::getExtension($model->event_point, false);
 				$tpl->assign('ext', $ext);
 				
-				if(isset($bots[$model->virtual_attendant_id]))
-					$tpl->assign('bot', $bots[$model->virtual_attendant_id]);
+				if(isset($bots[$model->bot_id]))
+					$tpl->assign('bot', $bots[$model->bot_id]);
 			}
 			
 			// Check view for defaults by filter
 			if(false != ($view = C4_AbstractViewLoader::getView($view_id))) {
-				$filters = $view->findParam(SearchFields_TriggerEvent::VIRTUAL_ATTENDANT_ID, $view->getParams());
+				$filters = $view->findParam(SearchFields_TriggerEvent::BOT_ID, $view->getParams());
 				
 				if(false != ($filter = array_shift($filters))) {
 					$bot_id = is_array($filter->value) ? array_shift($filter->value) : $filter->value;
@@ -1750,7 +1750,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$list_contexts = Extension_DevblocksContext::getAll(false, 'va_variable');
 			$tpl->assign('list_contexts', $list_contexts);
 			
-			$tpl->display('devblocks:cerberusweb.core::internal/va/behavior/peek_edit.tpl');
+			$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/peek_edit.tpl');
 			
 		} else {
 			// Counts
@@ -1792,7 +1792,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			if(false == ($event = $model->getEvent()))
 				return;
 			
-			if(false == ($va = $model->getVirtualAttendant()))
+			if(false == ($va = $model->getBot()))
 				return;
 			
 			$tpl->assign('behavior', $model);
@@ -1802,7 +1802,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
 			
-			$tpl->display('devblocks:cerberusweb.core::internal/va/behavior/peek.tpl');
+			$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/peek.tpl');
 		}
 		
 	}

@@ -91,7 +91,7 @@ class ChReportGroupSnippets extends Extension_ReportGroup {
 class ChReportGroupSpam extends Extension_ReportGroup {
 };
 
-class ChReportGroupVirtualAttendants extends Extension_ReportGroup {
+class ChReportGroupBots extends Extension_ReportGroup {
 };
 
 if(class_exists('Extension_WorkspacePage')):

@@ -267,14 +267,14 @@
 		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
-			<id>cerberusweb.rest.controller.virtual_attendants</id>
-			<name>Virtual Attendants</name>
+			<id>cerberusweb.rest.controller.bots</id>
+			<name>Bots</name>
 			<class>
 				<file>api/rest/va.php</file>
-				<name>ChRest_VirtualAttendants</name>
+				<name>ChRest_Bots</name>
 			</class>
 			<params>
-				<param key="uri" value="va" />
+				<param key="uri" value="bots" />
 			</params>
 		</extension>
 		

@@ -1,5 +1,5 @@
 <?php
-class ChRest_VirtualAttendants extends Extension_RestController {
+class ChRest_Bots extends Extension_RestController {
 	/*
 	 * GET /va/list.json
 	 * GET /va/123.json
@@ -65,14 +65,14 @@ class ChRest_VirtualAttendants extends Extension_RestController {
 	private function _getVaList() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$vas = DAO_VirtualAttendant::getReadableByActor($active_worker);
+		$vas = DAO_Bot::getReadableByActor($active_worker);
 		
 		$results = array();
 		
 		foreach($vas as $va) {
 			$labels = array();
 			$values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $va, $labels, $values, null, true);
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_BOT, $va, $labels, $values, null, true);
 			
 			$results[] = $values;
 		}
@@ -90,15 +90,15 @@ class ChRest_VirtualAttendants extends Extension_RestController {
 	private function _getVa($id) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(false == ($va = DAO_VirtualAttendant::get($id)))
+		if(false == ($va = DAO_Bot::get($id)))
 			$this->error(self::ERRNO_CUSTOM, "Invalid ID.");
 		
-		if(!Context_VirtualAttendant::isReadableByActor($va, $active_worker))
+		if(!Context_Bot::isReadableByActor($va, $active_worker))
 			$this->error(self::ERRNO_CUSTOM, "You do not have permission to view this object.");
 		
 		$labels = array();
 		$values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT, $va, $labels, $values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BOT, $va, $labels, $values, null, true);
 		
 		$this->success($values);
 	}
@@ -113,17 +113,17 @@ class ChRest_VirtualAttendants extends Extension_RestController {
 			$this->error(self::ERRNO_CUSTOM, "The requested behavior is not a custom API request.");
 		
 		// Check permissions
-		if(false == ($va = $behavior->getVirtualAttendant()))
-			$this->error(self::ERRNO_CUSTOM, "Invalid Virtual Attendant.");
+		if(false == ($bot = $behavior->getBot()))
+			$this->error(self::ERRNO_CUSTOM, "Invalid bot.");
 
-		if(!Context_VirtualAttendant::isReadableByActor($va, $active_worker))
+		if(!Context_Bot::isReadableByActor($bot, $active_worker))
 			$this->error(self::ERRNO_ACL);
 		
-		if($va->is_disabled)
-			$this->error(self::ERRNO_CUSTOM, "Virtual Attendant is disabled.");
+		if($bot->is_disabled)
+			$this->error(self::ERRNO_CUSTOM, "Bot is disabled.");
 		
 		if($behavior->is_disabled)
-			$this->error(self::ERRNO_CUSTOM, "Virtual Attendant behavior is disabled.");
+			$this->error(self::ERRNO_CUSTOM, "Bot behavior is disabled.");
 		
 		// Vars
 

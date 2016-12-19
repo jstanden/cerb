@@ -919,7 +919,7 @@ class CerberusParser {
 		
 		// Reject?
 		if(isset($pre_actions['reject'])) {
-			$logger->warn('Rejecting based on Virtual Attendant filtering.');
+			$logger->warn('Rejecting based on bot filtering.');
 			return NULL;
 		}
 		
@@ -970,7 +970,7 @@ class CerberusParser {
 					
 					// Remove a matched attachment
 					if($matched) {
-						$logger->info(sprintf("Removing attachment '%s' based on Virtual Attendant filtering.", $filename));
+						$logger->info(sprintf("Removing attachment '%s' based on bot filtering.", $filename));
 						@unlink($file->tmpname);
 						unset($message->files[$filename]);
 						continue;

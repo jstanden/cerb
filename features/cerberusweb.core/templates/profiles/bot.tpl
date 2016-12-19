@@ -1,13 +1,13 @@
-{$page_context = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}
-{$page_context_id = $virtual_attendant->id}
-{$is_writeable = Context_VirtualAttendant::isWriteableByActor($virtual_attendant, $active_worker)}
+{$page_context = CerberusContexts::CONTEXT_BOT}
+{$page_context_id = $model->id}
+{$is_writeable = Context_Bot::isWriteableByActor($model, $active_worker)}
 
 <div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$virtual_attendant->id}{/devblocks_url}?v={$virtual_attendant->updated_at}" style="height:75px;width:75px;border-radius:5px;">
+	<img src="{devblocks_url}c=avatars&context=bot&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:75px;width:75px;border-radius:5px;">
 </div>
 
 <div style="float:left">
-	<h1>{$virtual_attendant->name}</h1>
+	<h1>{$model->name}</h1>
 	
 	<div class="cerb-profile-toolbar">
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
@@ -21,12 +21,12 @@
 			</span>
 			
 			<!-- Macros -->
-			{devblocks_url assign=return_url full=true}c=profiles&type=virtual_attendant&id={$page_context_id}-{$virtual_attendant->name|devblocks_permalink}{/devblocks_url}
+			{devblocks_url assign=return_url full=true}c=profiles&type=bot&id={$page_context_id}-{$model->name|devblocks_permalink}{/devblocks_url}
 			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 			
 			<!-- Edit -->
 			{if $active_worker->is_superuser}
-				<button type="button" id="btnDisplayVirtualAttendantEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+				<button type="button" id="btnDisplayBotEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
 		</form>
 		
@@ -96,7 +96,7 @@
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=both&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
 		
 		{$tabs[] = 'behavior'}
-		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=virtual_attendant&action=showScheduledBehaviorsTab&point={$point}&va_id={$page_context_id}{/devblocks_url}">Scheduled Behaviors</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=bot&action=showScheduledBehaviorsTab&point={$point}&va_id={$page_context_id}{/devblocks_url}">Scheduled Behaviors</a></li>
 		
 		{$tabs[] = 'comments'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
@@ -119,7 +119,7 @@ $(function() {
 	// Edit
 	
 	{if $is_writeable}
-	$('#btnDisplayVirtualAttendantEdit')
+	$('#btnDisplayBotEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {
 		})
@@ -170,7 +170,7 @@ $(document).keypress(function(event) {
 			break;
 		case 101:  // (E) edit
 			try {
-				$('#btnDisplayVirtualAttendantEdit').click();
+				$('#btnDisplayBotEdit').click();
 			} catch(ex) { }
 			break;
 		case 109:  // (M) macros

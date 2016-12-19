@@ -53,9 +53,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$properties['bot_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.bot')),
 			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $trigger_event->virtual_attendant_id,
+			'value' => $trigger_event->bot_id,
 			'params' => [
-				'context' => CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT,
+				'context' => CerberusContexts::CONTEXT_BOT,
 			]
 		);
 		
@@ -140,10 +140,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				if(false == ($behavior = DAO_TriggerEvent::get($id)))
 					throw new Exception_DevblocksAjaxValidationError("Record not found.");
 				
-				if(false == ($bot = $behavior->getVirtualAttendant()))
+				if(false == ($bot = $behavior->getBot()))
 					throw new Exception_DevblocksAjaxValidationError("Bot record not found.");
 				
-				if(!Context_VirtualAttendant::isWriteableByActor($bot, $active_worker))
+				if(!Context_Bot::isWriteableByActor($bot, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError("You don't have permission to delete this record.");
 				
 				DAO_TriggerEvent::delete($id);
@@ -190,13 +190,13 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						
 						// Verify the event can be owned by this context
 						
-						if(false == ($bot = DAO_VirtualAttendant::get($bot_id))) {
+						if(false == ($bot = DAO_Bot::get($bot_id))) {
 							throw new Exception_DevblocksAjaxValidationError("The destination bot doesn't exist.");
 						}
 						
 						// Verify that the VA is allowed to make these events
 						
-						if(!Context_VirtualAttendant::isWriteableByActor($bot, $active_worker))
+						if(!Context_Bot::isWriteableByActor($bot, $active_worker))
 							throw new Exception_DevblocksAjaxValidationError("You don't have access to modify this bot.");
 						
 						// Verify that the active worker has access to make events for this context
@@ -255,7 +255,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							DAO_TriggerEvent::IS_PRIVATE => @$json['behavior']['is_private'] ? 1 : 0,
 							DAO_TriggerEvent::VARIABLES_JSON => isset($json['behavior']['variables']) ? json_encode($json['behavior']['variables']) : '',
 							DAO_TriggerEvent::EVENT_PARAMS_JSON => isset($json['behavior']['event']['params']) ? json_encode($json['behavior']['event']['params']) : '',
-							DAO_TriggerEvent::VIRTUAL_ATTENDANT_ID => $bot->id,
+							DAO_TriggerEvent::BOT_ID => $bot->id,
 							DAO_TriggerEvent::PRIORITY => 50,
 							DAO_TriggerEvent::IS_DISABLED => 1, // default to disabled until successfully imported
 							DAO_TriggerEvent::UPDATED_AT => time(),
@@ -335,10 +335,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							if(empty($bot_id))
 								throw new Exception_DevblocksAjaxValidationError("The 'Bot' field is required.", 'bot_id');
 							
-							if(false == ($bot = DAO_VirtualAttendant::get($bot_id)))
+							if(false == ($bot = DAO_Bot::get($bot_id)))
 								throw new Exception_DevblocksAjaxValidationError("Invalid bot.");
 							
-							if(!Context_VirtualAttendant::isWriteableByActor($bot, $active_worker))
+							if(!Context_Bot::isWriteableByActor($bot, $active_worker))
 								throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
 
 							if(empty($event_point))
@@ -354,7 +354,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								throw new Exception_DevblocksAjaxValidationError("The bot can't listen for the selected event.");
 							
 							$id = DAO_TriggerEvent::create(array(
-								DAO_TriggerEvent::VIRTUAL_ATTENDANT_ID => $bot_id,
+								DAO_TriggerEvent::BOT_ID => $bot_id,
 								DAO_TriggerEvent::EVENT_POINT => $event_point,
 								DAO_TriggerEvent::TITLE => $title,
 								DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
@@ -373,10 +373,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							if(false == ($behavior = DAO_TriggerEvent::get($id)))
 								throw new Exception_DevblocksAjaxValidationError("Invalid behavior.");
 								
-							if(false == ($bot = $behavior->getVirtualAttendant()))
+							if(false == ($bot = $behavior->getBot()))
 								throw new Exception_DevblocksAjaxValidationError("Invalid bot.");
 							
-							if(!Context_VirtualAttendant::isWriteableByActor($bot, $active_worker))
+							if(!Context_Bot::isWriteableByActor($bot, $active_worker))
 								throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
 		
 							if(empty($title))
@@ -488,14 +488,14 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		if(false == ($event = $behavior->getEvent()))
 			return;
 		
-		if(false == ($va = $behavior->getVirtualAttendant()))
+		if(false == ($va = $behavior->getBot()))
 			return;
 		
 		$tpl->assign('behavior', $behavior);
 		$tpl->assign('event', $event->manifest);
 		$tpl->assign('va', $va);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/va/behavior/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/tab.tpl');
 	}
 	
 	function getEventsByBotJsonAction() {
@@ -503,7 +503,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
-		if(false == ($bot = DAO_VirtualAttendant::get($bot_id))) {
+		if(false == ($bot = DAO_Bot::get($bot_id))) {
 			echo json_encode([]);
 			return;
 		}

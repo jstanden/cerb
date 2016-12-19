@@ -15,8 +15,8 @@
 |	http://cerb.io	    http://webgroup.media
 ***********************************************************************/
 
-class Event_VirtualAttendantMacro extends AbstractEvent_VirtualAttendant {
-	const ID = 'event.macro.virtual_attendant';
+class Event_BotMacro extends AbstractEvent_Bot {
+	const ID = 'event.macro.bot';
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);

@@ -189,7 +189,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 				$workers = DAO_Worker::getAll();
 				$tpl->assign('workers', $workers);
 				
-				if(false == ($va = $trigger->getVirtualAttendant()))
+				if(false == ($va = $trigger->getBot()))
 					break;
 				
 				$addresses = DAO_AddressToWorker::getByWorker($va->owner_context_id);

@@ -22,12 +22,12 @@ class PageSection_SetupBots extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'bots');
 		
-		$view_id = 'setup_virtual_attendants';
+		$view_id = 'setup_bots';
 		
 		$view = C4_AbstractViewLoader::getView($view_id);
 		
 		if(null == $view) {
-			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT);
+			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BOT);
 			$view = $ctx->getChooserView($view_id);
 		}
 		

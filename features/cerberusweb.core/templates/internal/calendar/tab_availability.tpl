@@ -18,7 +18,7 @@
 	</p>
 	
 	<p>
-		For example, a group-owned Virtual Attendant may be designed to dispatch work only to available workers.  Your own Virtual Attendant may be instructed to send notifications to your mobile phone only if you are unavailable.
+		For example, a group-owned bot may be designed to dispatch work only to available workers.  Your own bot may be instructed to send notifications to your mobile phone only if you are unavailable.
 	</p>
 	
 	<p>

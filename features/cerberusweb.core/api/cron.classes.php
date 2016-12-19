@@ -1499,9 +1499,9 @@ class MailQueueCron extends CerberusCronPageExtension {
 	}
 };
 
-class Cron_VirtualAttendantScheduledBehavior extends CerberusCronPageExtension {
+class Cron_BotScheduledBehavior extends CerberusCronPageExtension {
 	function run() {
-		$logger = DevblocksPlatform::getConsoleLog('Virtual Attendant Scheduler');
+		$logger = DevblocksPlatform::getConsoleLog('Bot Scheduler');
 		$runtime = microtime(true);
 
 		$stop_time = time() + 20; // [TODO] Make configurable

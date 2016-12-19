@@ -72,9 +72,9 @@
 				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 				{/if}
 			</td>
-			{elseif $column=="b_behavior_virtual_attendant_id"}
+			{elseif $column=="b_behavior_bot_id"}
 			<td data-column="{$column}">
-				{$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)}
+				{$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BOT)}
 				{if is_object($ctx)}
 				{$meta = $ctx->getMeta($result.$column)}
 				<span title="{$ctx->manifest->name}">

@@ -21,13 +21,13 @@
 				</abbr>
 			</td>
 			<td valign="middle" align="right" width="1%" nowrap="nowrap">
-				{$va = $behavior->getVirtualAttendant()}
+				{$va = $behavior->getBot()}
 				
 				{if $va}
 					<ul class="bubbles">
 						<li>
 							<img src="{devblocks_url}c=avatars&context=bot&context_id={$va->id}{/devblocks_url}?v={$va->updated_at}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-							<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}" data-context-id="{$va->id}">{$va->name}</a>
+							<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$va->id}">{$va->name}</a>
 						</li>
 					</ul>
 				{/if}

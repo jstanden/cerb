@@ -2225,7 +2225,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			CerberusContexts::denyEveryone($actor, $models);
 		
 		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+		if($actor->_context == CerberusContexts::CONTEXT_BOT)
 			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
 				return false;
 		
@@ -2291,7 +2291,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			CerberusContexts::denyEveryone($actor, $models);
 		
 		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT)
+		if($actor->_context == CerberusContexts::CONTEXT_BOT)
 			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
 				return false;
 		

@@ -734,7 +734,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'owner.bot':
-				$bots = DAO_VirtualAttendant::getAll();
+				$bots = DAO_Bot::getAll();
 				$param = DevblocksSearchCriteria::getTextParamFromTokens($field, $tokens);
 				$param->field = SearchFields_CustomFieldset::VIRTUAL_OWNER;
 				$param->operator = DevblocksSearchCriteria::OPER_IN;
@@ -744,7 +744,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 				foreach($vals as $v) {
 					foreach($bots as $bot) {
 						if(stristr($bot->name, $v))
-							$param->value[] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT . ':' . $bot->id;
+							$param->value[] = CerberusContexts::CONTEXT_BOT . ':' . $bot->id;
 					}
 				}
 				
@@ -759,7 +759,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 				$param->value = [];
 				
 				foreach($vals as $v) {
-					$param->value[] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT . ':' . $v;
+					$param->value[] = CerberusContexts::CONTEXT_BOT . ':' . $v;
 				}
 				
 				return $param;

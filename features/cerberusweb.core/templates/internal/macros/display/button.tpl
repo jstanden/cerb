@@ -6,12 +6,12 @@
 		<input type="text" size="32" class="input_search filter">
 	</li>
 	
-	{$vas = DAO_VirtualAttendant::getAll()}
+	{$vas = DAO_Bot::getAll()}
 	
 	{foreach from=$vas item=va}
 		{capture name=behaviors}
 		{foreach from=$macros item=behavior key=behavior_id}
-		{if $behavior->virtual_attendant_id == $va->id}
+		{if $behavior->bot_id == $va->id}
 			<li class="item item-behavior">
 				<div style="margin-left:20px;">
 					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&context={$context}&context_id={$context_id}&macro={$behavior->id}&return_url={$return_url|escape:'url'}',$(this).closest('ul').get(),false,'50%');$(this).closest('ul.cerb-popupmenu').hide();">
@@ -31,7 +31,7 @@
 		{if strlen(trim($smarty.capture.behaviors))}
 		<li class="item-va">
 			<div>
-				<img src="{devblocks_url}c=avatars&context=virtual_attendant&id={$va->id}{/devblocks_url}?v={$va->updated_at}" style="width:16px;height:16px;border-radius:8px;vertical-align:middle;"> <a href="javascript:;" style="color:black;" tabindex="-1">{$va->name}</a>
+				<img src="{devblocks_url}c=avatars&context=bot&id={$va->id}{/devblocks_url}?v={$va->updated_at}" style="width:16px;height:16px;border-radius:8px;vertical-align:middle;"> <a href="javascript:;" style="color:black;" tabindex="-1">{$va->name}</a>
 			</div>
 		</li>
 		{$smarty.capture.behaviors nofilter}

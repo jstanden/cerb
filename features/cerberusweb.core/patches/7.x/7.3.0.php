@@ -161,6 +161,22 @@ if(isset($columns['pos'])) {
 	$db->ExecuteMaster("UPDATE trigger_event SET priority = priority + 1");
 }
 
+if(isset($columns['virtual_attendant_id'])) {
+	$db->ExecuteMaster("ALTER TABLE trigger_event CHANGE COLUMN virtual_attendant_id bot_id int unsigned not null default 0");
+}
+
+// ===========================================================================
+// Rename table `virtual_attendant` to `bot`
+
+if(isset($tables['virtual_attendant'])) {
+	$db->ExecuteMaster("RENAME TABLE virtual_attendant TO bot");
+	$db->ExecuteMaster("UPDATE cerb_property_store SET extension_id = 'cron.bot.scheduled_behavior' WHERE extension_id = 'cron.virtual_attendant.scheduled_behavior'");
+	$db->ExecuteMaster("UPDATE trigger_event SET event_point = 'event.macro.bot' WHERE event_point = 'event.macro.virtual_attendant'");
+
+	unset($tables['virtual_attendant']);
+	$tables['bot'] = 'bot';
+}
+
 // ===========================================================================
 // Fix `contact.location` (was varchar and default=0)
 
@@ -202,6 +218,51 @@ $db->ExecuteMaster("UPDATE worker_view_model SET render_subtotals = replace(rend
 
 $db->ExecuteMaster("UPDATE workspace_list SET list_view = replace(list_view, '\s:12:\"t_last_wrote\"', 's:15:\"t_last_wrote_id\"') where context = 'cerberusweb.contexts.ticket'");
 $db->ExecuteMaster("UPDATE workspace_widget SET params_json = replace(params_json, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where params_json like '%\"context\":\"cerberusweb.contexts.ticket\"%'");
+
+// ===========================================================================
+// Update bot context + owner_context everywhere
+
+$db->ExecuteMaster("UPDATE attachment_link SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE calendar SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE classifier SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE comment SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE comment SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE context_activity_log SET actor_context = 'cerberusweb.contexts.bot' WHERE actor_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE context_activity_log SET target_context = 'cerberusweb.contexts.bot' WHERE target_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE context_avatar SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE context_bulk_update SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE context_link SET from_context = 'cerberusweb.contexts.bot' WHERE from_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE context_link SET to_context = 'cerberusweb.contexts.bot' WHERE to_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE context_merge_history SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE context_recommendation SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE context_scheduled_behavior SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE context_to_skill SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE custom_field SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE custom_field_clobvalue SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE custom_field_numbervalue SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE custom_field_stringvalue SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE custom_fieldset SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE custom_fieldset SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE file_bundle SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE fulltext_comment_content SET context_crc32 = 2977211304 WHERE context_crc32 = 381457798");
+$db->ExecuteMaster("UPDATE mail_html_template SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE notification SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE snippet SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE snippet SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE workspace_list SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
+$db->ExecuteMaster("UPDATE workspace_page SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
+
+$db->ExecuteMaster("UPDATE context_activity_log SET entry_json = REPLACE(entry_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");
+$db->ExecuteMaster("UPDATE decision_node SET params_json = REPLACE(params_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");
+$db->ExecuteMaster("UPDATE notification SET entry_json = REPLACE(entry_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");
+
+$db->ExecuteMaster("UPDATE IGNORE worker_view_model SET view_id = REPLACE(view_id, 'virtual_attendant', 'bot')");
+$db->ExecuteMaster("UPDATE worker_view_model set title = 'Bots' WHERE title = 'Virtual Attendant' AND class_name = 'View_Bot'");
+$db->ExecuteMaster("UPDATE worker_view_model SET view_id = 'bots' WHERE view_id = 'virtual_attendants'");
+$db->ExecuteMaster("UPDATE worker_view_model SET class_name = 'View_Bot' WHERE class_name = 'View_Bot'");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_editable_json = REPLACE(params_editable_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_default_json = REPLACE(params_default_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_required_json = REPLACE(params_required_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");
 
 // ===========================================================================
 // Finish up

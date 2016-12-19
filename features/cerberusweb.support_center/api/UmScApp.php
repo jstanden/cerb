@@ -590,7 +590,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 			$umsession->login($contact);
 			
-			// Virtual Attendant events
+			// Bot events
 			
 			Event_ContactRegisteredInSupportCenter::trigger($contact_id, null);
 			

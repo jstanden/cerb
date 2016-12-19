@@ -665,7 +665,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 				
 			case 'relay_email':
-				if(false == ($va = $trigger->getVirtualAttendant()))
+				if(false == ($va = $trigger->getBot()))
 					break;
 				
 				switch($va->owner_context) {

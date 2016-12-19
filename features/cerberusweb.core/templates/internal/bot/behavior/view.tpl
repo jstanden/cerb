@@ -89,13 +89,13 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{elseif $column == "t_virtual_attendant_id"}
+			{elseif $column == "t_bot_id"}
 				{$bot_id = $result.$column}
 				<td>
 					{if isset($bots.$bot_id)}
 						{$bot = $bots.$bot_id}
-						<img src="{devblocks_url}c=avatars&context=virtual_attendant&context_id={$bot_id}{/devblocks_url}?v={$bot->updated_at}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT}" data-context-id="{$bot->id}">{$bot->name}</a>
+						<img src="{devblocks_url}c=avatars&context=bot&context_id={$bot_id}{/devblocks_url}?v={$bot->updated_at}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a>
 					{/if}
 				</td>
 			{elseif $column == "t_event_point"}
