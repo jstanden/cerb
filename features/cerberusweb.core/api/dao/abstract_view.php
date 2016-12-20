@@ -1266,14 +1266,20 @@ abstract class C4_AbstractView {
 			if(empty($alias))
 				continue;
 			
-			$fields[$prefix.'.'.str_replace(' ', '.', $alias)] = 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array(),
-					'examples' => [
-						['type' => 'search', 'context' => $context_mft->id, 'q' => ''],
-					]
-				);
+			$field = array(
+				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+				'options' => array(),
+				'examples' => [
+					['type' => 'search', 'context' => $context_mft->id, 'q' => ''],
+				]
+			);
+			
+			if($context_mft->id == CerberusContexts::CONTEXT_APPLICATION)
+				$field['examples'] = [
+					['type' => 'list', 'values' => ['Cerb' => 'Cerb']],
+				];
+			
+			$fields[$prefix.'.'.str_replace(' ', '.', $alias)] = $field;
 		}
 		
 		return $fields;
@@ -1657,6 +1663,20 @@ abstract class C4_AbstractView {
 									$item->type = $example['type'];
 									$item->params = $example;
 									$node->children[$example['label']] = $item;
+									break;
+								
+								case 'list':
+									$key_delimiter = @$example['key_delimiter'] ?: ' ';
+									$label_delimiter = @$example['label_delimiter'] ?: ' ';
+									
+									$values = array_combine(
+										array_map(function($k) use ($node) {
+											return $node->key . $k;
+										}, array_keys($example['values'])),
+										$example['values']
+									);
+									
+									$node->children = Extension_DevblocksContext::getPlaceholderTree($values, $label_delimiter, $key_delimiter);
 									break;
 									
 								case 'search':
