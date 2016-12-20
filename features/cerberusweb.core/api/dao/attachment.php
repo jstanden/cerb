@@ -1085,11 +1085,23 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Attachment::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ATTACHMENT, 'q' => ''],
+					]
 				),
 			'mimetype' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Attachment::MIME_TYPE),
+					'examples' => [
+						'application/pdf',
+						'application/zip',
+						'image/png',
+						'text/csv',
+						'text/plain',
+						'text/html',
+						'text/xml',
+					]
 				),
 			'name' => 
 				array(
@@ -1098,8 +1110,12 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 				),
 			'size' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Attachment::STORAGE_SIZE),
+					'examples' => [
+						'>1MB',
+						'<=512KB',
+					]
 				),
 			'updated' => 
 				array(
@@ -1132,6 +1148,10 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'size':
+				return DevblocksSearchCriteria::getBytesParamFromTokens(SearchFields_Attachment::STORAGE_SIZE, $tokens);
+				break;
+				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
