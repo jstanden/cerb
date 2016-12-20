@@ -349,36 +349,6 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			case SearchFields_Calendar::VIRTUAL_HAS_FIELDSET:
 				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
-		
-			case SearchFields_Calendar::VIRTUAL_OWNER:
-				if(!is_array($param->value))
-					break;
-				
-				$wheres = array();
-					
-				foreach($param->value as $owner_context) {
-					@list($context, $context_id) = explode(':', $owner_context);
-					
-					if(empty($context))
-						continue;
-					
-					if(!empty($context_id)) {
-						$wheres[] = sprintf("(calendar.owner_context = %s AND calendar.owner_context_id = %d)",
-							Cerb_ORMHelper::qstr($context),
-							$context_id
-						);
-						
-					} else {
-						$wheres[] = sprintf("(calendar.owner_context = %s)",
-							Cerb_ORMHelper::qstr($context)
-						);
-					}
-				}
-				
-				if(!empty($wheres))
-					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
-				
-				break;
 		}
 	}
 	
@@ -487,6 +457,10 @@ class SearchFields_Calendar extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CALENDAR, self::getPrimaryKey());
 				break;
 			
+			case self::VIRTUAL_OWNER:
+				return self::_getWhereSQLFromContextAndID($param, 'calendar.owner_context', 'calendar.owner_context_id');
+				break;
+				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_CALENDAR, self::getPrimaryKey());
 				break;
@@ -1043,21 +1017,14 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Calendar::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CALENDAR, 'q' => ''],
+					]
 				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Calendar::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'owner.bot' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array(),
-				),
-			'owner.bot.id' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array(),
 				),
 			'updated' => 
 				array(
@@ -1070,6 +1037,10 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 					'options' => array('param_key' => SearchFields_Calendar::VIRTUAL_WATCHERS),
 				),
 		);
+		
+		// Add dynamic owner.* fields
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields);
 		
 		// Add quick search links
 		
@@ -1092,39 +1063,10 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
-			case 'owner.bot':
-				$bots = DAO_VirtualAttendant::getAll();
-				$param = DevblocksSearchCriteria::getTextParamFromTokens($field, $tokens);
-				$param->field = SearchFields_Calendar::VIRTUAL_OWNER;
-				$param->operator = DevblocksSearchCriteria::OPER_IN;
-				$vals = is_array($param->value) ? $param->value : [$param->value];
-				$param->value = [];
-				
-				foreach($vals as $v) {
-					foreach($bots as $bot) {
-						if(stristr($bot->name, $v))
-							$param->value[] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT . ':' . $bot->id;
-					}
-				}
-				
-				return $param;
-				break;
-			
-			case 'owner.bot.id':
-				$param = DevblocksSearchCriteria::getNumberParamFromTokens($field, $tokens);
-				$param->field = SearchFields_Calendar::VIRTUAL_OWNER;
-				$param->operator = DevblocksSearchCriteria::OPER_IN;
-				$vals = is_array($param->value) ? $param->value : [$param->value];
-				$param->value = [];
-				
-				foreach($vals as $v) {
-					$param->value[] = CerberusContexts::CONTEXT_VIRTUAL_ATTENDANT . ':' . $v;
-				}
-				
-				return $param;
-				break;
-				
 			default:
+				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_Calendar::VIRTUAL_OWNER);
+					
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
