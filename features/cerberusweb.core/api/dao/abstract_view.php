@@ -1639,7 +1639,40 @@ abstract class C4_AbstractView {
 				foreach($node->children as $child)
 					$recurseAddOptions($child);
 				
-				if(isset($search_fields[$key]) && isset($search_fields[$key]['examples'])) {
+				if(!isset($search_fields[$key]))
+					return;
+				
+				if(!isset($search_fields[$key]['examples'])) {
+					switch($search_fields[$key]['type']) {
+						case DevblocksSearchCriteria::TYPE_BOOL:
+							$search_fields[$key]['examples'] = [
+								'yes',
+								'no',
+							];
+							break;
+							
+						case DevblocksSearchCriteria::TYPE_DATE:
+							$search_fields[$key]['examples'] = [
+								'"-2 hours"',
+								sprintf('"%s-01-01 to %s"', date('Y'), date('Y-m-d')),
+								'"-1 month to now"',
+								'"big bang to -1 year"',
+							];
+							break;
+							
+						case DevblocksSearchCriteria::TYPE_NUMBER:
+							$search_fields[$key]['examples'] = [
+								'50',
+								'<10',
+								'>=25',
+								'1...100',
+								'!10',
+							];
+							break;
+					}
+				}
+				
+				if(isset($search_fields[$key]['examples'])) {
 					$examples_menu = new DevblocksMenuItemPlaceholder();
 					
 					foreach($search_fields[$key]['examples'] as $example) {
