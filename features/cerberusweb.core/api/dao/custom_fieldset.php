@@ -319,12 +319,6 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 	
-		array_walk_recursive(
-			$params,
-			array('DAO_CustomFieldset', '_translateVirtualParameters'),
-			$args
-		);
-		
 		return array(
 			'primary_table' => 'custom_fieldset',
 			'select' => $select_sql,
@@ -332,49 +326,6 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			'where' => $where_sql,
 			'sort' => $sort_sql,
 		);
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$from_context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
-		$from_index = 'custom_fieldset.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			case SearchFields_CustomFieldset::VIRTUAL_OWNER:
-				if(!is_array($param->value))
-					break;
-				
-				$wheres = array();
-					
-				foreach($param->value as $owner_context) {
-					@list($context, $context_id) = explode(':', $owner_context);
-					
-					if(empty($context))
-						continue;
-					
-					if(!empty($context_id)) {
-						$wheres[] = sprintf("(custom_fieldset.owner_context = %s AND custom_fieldset.owner_context_id = %d)",
-							Cerb_ORMHelper::qstr($context),
-							$context_id
-						);
-						
-					} else {
-						$wheres[] = sprintf("(custom_fieldset.owner_context = %s)",
-							Cerb_ORMHelper::qstr($context)
-						);
-					}
-				}
-				
-				if(!empty($wheres))
-					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
-				
-				break;
-		}
 	}
 	
 	/**
@@ -477,6 +428,10 @@ class SearchFields_CustomFieldset extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_OWNER:
+				return self::_getWhereSQLFromContextAndID($param, 'custom_fieldset.owner_context', 'custom_fieldset.owner_context_id');
 				break;
 			
 			default:
@@ -704,17 +659,11 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CustomFieldset::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'owner.bot' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array(),
-				),
-			'owner.bot.id' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array(),
-				),
 		);
+		
+		// Add dynamic owner.* fields
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields);
 		
 		// Add quick search links
 		
@@ -733,39 +682,10 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
-			case 'owner.bot':
-				$bots = DAO_Bot::getAll();
-				$param = DevblocksSearchCriteria::getTextParamFromTokens($field, $tokens);
-				$param->field = SearchFields_CustomFieldset::VIRTUAL_OWNER;
-				$param->operator = DevblocksSearchCriteria::OPER_IN;
-				$vals = is_array($param->value) ? $param->value : [$param->value];
-				$param->value = [];
-				
-				foreach($vals as $v) {
-					foreach($bots as $bot) {
-						if(stristr($bot->name, $v))
-							$param->value[] = CerberusContexts::CONTEXT_BOT . ':' . $bot->id;
-					}
-				}
-				
-				return $param;
-				break;
-			
-			case 'owner.bot.id':
-				$param = DevblocksSearchCriteria::getNumberParamFromTokens($field, $tokens);
-				$param->field = SearchFields_CustomFieldset::VIRTUAL_OWNER;
-				$param->operator = DevblocksSearchCriteria::OPER_IN;
-				$vals = is_array($param->value) ? $param->value : [$param->value];
-				$param->value = [];
-				
-				foreach($vals as $v) {
-					$param->value[] = CerberusContexts::CONTEXT_BOT . ':' . $v;
-				}
-				
-				return $param;
-				break;
-				
 			default:
+				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_CustomFieldset::VIRTUAL_OWNER);
+					
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
@@ -878,7 +798,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 				break;
 			
 			case SearchFields_CustomFieldset::VIRTUAL_OWNER:
-				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners');
+				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owned by');
 				break;
 		}
 	}
