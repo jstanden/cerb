@@ -560,6 +560,7 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 	const IS_DEFAULT = 'b_is_default';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_GROUP_SEARCH = '*_group_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
@@ -572,7 +573,6 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_BUCKET => new DevblocksSearchFieldContextKeys('bucket.id', self::ID),
-			CerberusContexts::CONTEXT_GROUP => new DevblocksSearchFieldContextKeys('bucket.group_id', self::GROUP_ID),
 		);
 	}
 	
@@ -582,6 +582,10 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_BUCKET, self::getPrimaryKey());
 				break;
 			
+			case self::VIRTUAL_GROUP_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_GROUP, 'bucket.group_id');
+				break;
+				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_BUCKET, self::getPrimaryKey());
 				break;
@@ -624,6 +628,7 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'bucket', 'is_default', $translate->_('common.default'), Model_CustomField::TYPE_CHECKBOX, true),
 				
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
@@ -1261,11 +1266,13 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Bucket::REPLY_SIGNATURE,
 			SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID,
 			SearchFields_Bucket::VIRTUAL_CONTEXT_LINK,
+			SearchFields_Bucket::VIRTUAL_GROUP_SEARCH,
 			SearchFields_Bucket::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Bucket::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_Bucket::VIRTUAL_GROUP_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -1376,12 +1383,18 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'group' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Bucket::GROUP_ID),
+					'options' => array('param_key' => SearchFields_Bucket::VIRTUAL_GROUP_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_GROUP, 'q' => ''],
+					]
 				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Bucket::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BUCKET, 'q' => ''],
+					]
 				),
 			'name' => 
 				array(
@@ -1416,45 +1429,7 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'group':
-				$field_key = SearchFields_Bucket::GROUP_ID;
-				$oper = null;
-				$terms = array();
-				
-				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms))
-					return false;
-				
-				$groups = DAO_Group::getAll();
-				
-				if(!is_array($terms))
-					break;
-				
-				$group_ids = array();
-				
-				foreach($terms as $term) {
-					// Match IDs
-					if(is_numeric($term) && isset($groups[$term])) {
-						$group_id = intval($term);
-						$group_ids[$group_id] = true;
-						continue;
-					}
-						
-					foreach($groups as $group_id => $group) {
-						if(isset($group_ids[$group_id]))
-							continue;
-						
-						if(false !== stristr($group->name, $term)) {
-							$group_ids[$group_id] = true;
-						}
-					}
-				}
-				
-				if(!empty($group_ids)) {
-					return new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						array_keys($group_ids)
-					);
-				}
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Bucket::VIRTUAL_GROUP_SEARCH);
 				break;
 			
 			case 'ticket.id':
@@ -1475,7 +1450,6 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
-				
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
@@ -1592,6 +1566,10 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$this->_renderVirtualContextLinks($param);
 				break;
 				
+			case SearchFields_Bucket::VIRTUAL_GROUP_SEARCH:
+				echo sprintf("Group is <b>%s</b>", $param->value);
+				break;
+			
 			case SearchFields_Bucket::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
 				break;
