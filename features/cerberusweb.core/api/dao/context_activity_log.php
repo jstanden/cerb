@@ -603,6 +603,10 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_ContextActivityLog::getFields();
 		
+		$activities = array_map(function($e) { 
+			return $e['params']['label_key'];
+		}, DevblocksPlatform::getActivityPointRegistry());
+		
 		$fields = array(
 			'text' => 
 				array(
@@ -612,7 +616,10 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			'activity' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ContextActivityLog::ACTIVITY_POINT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_ContextActivityLog::ACTIVITY_POINT),
+					'examples' => [
+						['type' => 'list', 'values' => $activities],
+					],
 				),
 			'created' => 
 				array(
@@ -628,6 +635,9 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_ContextActivityLog::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ACTIVITY_LOG, 'q' => ''],
+					]
 				),
 		);
 		
