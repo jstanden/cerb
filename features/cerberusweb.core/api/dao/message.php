@@ -478,9 +478,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_HEADER_MESSAGE_ID = '*_header_message_id';
-	const VIRTUAL_TICKET_STATUS = '*_ticket_status';
-	const VIRTUAL_TICKET_IN_GROUPS_OF_WORKER = '*_in_groups_of_worker';
-
+	const VIRTUAL_TICKET_SEARCH = '*_ticket_search';
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
@@ -523,75 +521,12 @@ class SearchFields_Message extends DevblocksSearchFields {
 				);
 				break;
 				
-			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
-				$param_values = !is_array($param->value) ? array($param->value) : $param->value;
-				$ids = DevblocksPlatform::sanitizeArray($param_values, 'integer');
-				
-				if(null == ($members = DAO_Worker::getIds($ids)))
-					break;
-					
-				$all_groups = DAO_Group::getAll();
-				$group_ids = array();
-				
-				foreach($members as $member) {
-					$group_ids = array_merge($group_ids, array_keys($member->getMemberships()));
-				}
-				
-				$group_ids = array_unique($group_ids);
-				
-				if(empty($group_ids))
-					$group_ids = array(0);
-				
-				$restricted_groups = array_diff(array_keys($all_groups), $group_ids);
-				
-				// If the worker is in every group, ignore this filter entirely
-				if(empty($restricted_groups))
-					break;
-				
-				return sprintf("t.group_id IN (%s)", implode(',', $group_ids));
 				break;
 				
-			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
-				$values = $param->value;
-				if(!is_array($values))
-					$values = array($values);
-					
-				$oper_sql = array();
-				$statuses = array();
+			case self::VIRTUAL_TICKET_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_TICKET, 'm.ticket_id');
+				break;
 				
-				switch($param->operator) {
-					default:
-					case DevblocksSearchCriteria::OPER_IN:
-					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-						$oper = '';
-						break;
-					case DevblocksSearchCriteria::OPER_NIN:
-					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-						$oper = 'NOT ';
-						break;
-				}
-				
-				foreach($values as $value) {
-					switch($value) {
-						case 'open':
-							$statuses[] = Model_Ticket::STATUS_OPEN;
-							break;
-						case 'waiting':
-							$statuses[] = Model_Ticket::STATUS_WAITING;
-							break;
-						case 'closed':
-							$statuses[] = Model_Ticket::STATUS_CLOSED;
-							break;
-						case 'deleted':
-							$statuses[] = Model_Ticket::STATUS_DELETED;
-							break;
-					}
-				}
-				
-				if(empty($statuses))
-					break;
-				
-				return sprintf('t.status_id %sIN (%s) ', $oper, implode(', ', $statuses));
 				break;
 				
 			default:
@@ -649,8 +584,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Message::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID, '*', 'header_message_id', $translate->_('message.search.header_message_id'), Model_CustomField::TYPE_SINGLE_LINE, false),
-			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER, '*', 'in_groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
-			SearchFields_Message::VIRTUAL_TICKET_STATUS => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_STATUS, '*', 'ticket_status', $translate->_('common.status'), null, false),
+			SearchFields_Message::VIRTUAL_TICKET_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_SEARCH, '*', 'ticket_search', null, null, false),
 				
 			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT', false),
 			SearchFields_Message::FULLTEXT_NOTE_CONTENT => new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT', false),
@@ -1323,7 +1257,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
-			SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER,
+			SearchFields_Message::VIRTUAL_TICKET_SEARCH,
 		));
 		
 		$this->addParamsHidden(array(
@@ -1332,6 +1266,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::TICKET_STATUS_ID,
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
+			SearchFields_Message::VIRTUAL_TICKET_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -1377,7 +1312,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				case SearchFields_Message::WORKER_ID:
 				case SearchFields_Message::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Message::VIRTUAL_HAS_FIELDSET:
-				case SearchFields_Message::VIRTUAL_TICKET_STATUS:
 					$pass = true;
 					break;
 					
@@ -1446,10 +1380,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 			
-			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
-				$counts = $this->_getSubtotalCountForStatus();
-				break;
-			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -1457,103 +1387,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				}
 				
 				break;
-		}
-		
-		return $counts;
-	}
-	
-	protected function _getSubtotalDataForStatus($dao_class, $field_key) {
-		$db = DevblocksPlatform::getDatabaseService();
-		
-		$fields = $this->getFields();
-		$columns = $this->view_columns;
-		$params = $this->getParams();
-		
-		// We want counts for all statuses even though we're filtering
-		$results = $this->findParam(SearchFields_Message::VIRTUAL_TICKET_STATUS, $params, false);
-		$param = array_shift($results);
-		
-		if(
-			$param instanceof DevblocksSearchCriteria
-			&& is_array($param->value)
-			&& count($param->value) < 2
-			)
-			$this->removeParamByField($param->field, $params);
-			
-		if(!method_exists($dao_class,'getSearchQueryComponents'))
-			return array();
-		
-		$query_parts = call_user_func_array(
-			array($dao_class,'getSearchQueryComponents'),
-			array(
-				$columns,
-				$params,
-				$this->renderSortBy,
-				$this->renderSortAsc
-			)
-		);
-		
-		$join_sql = $query_parts['join'];
-		$where_sql = $query_parts['where'];
-		
-		$sql = "SELECT COUNT(t.id) AS hits, t.status_id ".
-			$join_sql.
-			$where_sql.
-			' GROUP BY t.status_id'
-		;
-		
-		$results = $db->GetArraySlave($sql);
-
-		return $results;
-	}
-	
-	protected function _getSubtotalCountForStatus() {
-		$workers = DAO_Worker::getAll();
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$counts = array();
-		$results = $this->_getSubtotalDataForStatus('DAO_Message', SearchFields_Message::VIRTUAL_TICKET_STATUS);
-
-		$oper = DevblocksSearchCriteria::OPER_IN;
-		
-		foreach($results as $result) {
-			if(empty($result['hits']))
-				continue;
-			
-			switch($result['status_id']) {
-				case Model_Ticket::STATUS_OPEN:
-					$label = $translate->_('status.open');
-					$values = array('options[]' => 'open');
-					break;
-				case Model_Ticket::STATUS_WAITING:
-					$label = $translate->_('status.waiting');
-					$values = array('options[]' => 'waiting');
-					break;
-				case Model_Ticket::STATUS_CLOSED:
-					$label = $translate->_('status.closed');
-					$values = array('options[]' => 'closed');
-					break;
-				case Model_Ticket::STATUS_DELETED:
-					$label = $translate->_('status.deleted');
-					$values = array('options[]' => 'deleted');
-					break;
-				default:
-					$label = '';
-					break;
-			}
-			
-			if(!isset($counts[$label]))
-				$counts[$label] = array(
-					'hits' => $result['hits'],
-					'label' => $label,
-					'filter' =>
-						array(
-							'field' => SearchFields_Message::VIRTUAL_TICKET_STATUS,
-							'oper' => $oper,
-							'values' => $values,
-						),
-					'children' => array()
-				);
 		}
 		
 		return $counts;
@@ -1597,17 +1430,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Message::ADDRESS_EMAIL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
-			'group.id' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_Message::TICKET_GROUP_ID),
-				),
-			'group' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Message::TICKET_GROUP_ID),
-					'examples' => array_slice($group_names, 0, 15),
-				),
 			'header.messageId' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -1620,12 +1442,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_MESSAGE, 'q' => ''],
 					]
-				),
-			'inGroupsOf' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER),
-					'examples' => array_merge(array('me','current'),array_slice($worker_names, 0, 13)),
 				),
 			'isBroadcast' => 
 				array(
@@ -1652,37 +1468,25 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Message::RESPONSE_TIME),
 				),
+				array(
+				),
+				array(
+				),
+			'ticket' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_TICKET_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],
+					]
+				),
 			'ticket.id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Message::TICKET_ID),
-				),
-			'ticket.mask' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Message::TICKET_MASK, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
-					'examples' => array(
-						'ABC*',
-						'XYZ-12345-678',
-					),
-				),
-			'ticket.status' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Message::VIRTUAL_TICKET_STATUS),
-					'examples' => array(
-						'open',
-						'waiting',
-						'closed',
-						'deleted',
-						'[o,w]',
-						'![d]',
-					),
-				),
-			'ticket.subject' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Message::TICKET_SUBJECT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],
+					]
 				),
 			'worker.id' => 
 				array(
@@ -1746,44 +1550,13 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		$search_fields = $this->getQuickSearchFields();
+		
 		switch($field) {
 			case 'attachments':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH);
 				break;
 				
-			case 'group':
-				$field_key = SearchFields_Message::TICKET_GROUP_ID;
-				$oper = null;
-				$terms = null;
-				
-				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms);
-				
-				if(!is_array($terms))
-					break;
-				
-				$groups = DAO_Group::getAll();
-				$group_ids = array();
-				
-				foreach($terms as $term) {
-					foreach($groups as $group_id => $group) {
-						if(isset($group_ids[$group_id]))
-							continue;
-						
-						if(false !== stristr($group->name, $term)) {
-							$group_ids[$group_id] = true;
-						}
-					}
-				}
-				
-				if(!empty($group_ids)) {
-					return new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						array_keys($group_ids)
-					);
-				}
-				
-				return false;
 				break;
 				
 			case 'header.messageId':
@@ -1801,49 +1574,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					);
 				}
 				break;
-				
-			case 'inGroupsOf':
-			case 'inGroupsOfWorker':
-				$field_key = SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER;
-				$oper = null;
-				$values = null;
-				
-				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $values);
-				
-				$worker_ids = array();
-				
-				foreach($values as $v)  {
-					switch(strtolower($v)) {
-						case 'current':
-							$worker_ids['{{current_worker_id}}'] = true;
-							break;
-							
-						case 'me':
-						case 'mine':
-						case 'my':
-							if(false != ($active_worker = CerberusApplication::getActiveWorker()))
-								$worker_ids[$active_worker->id] = true;
-							break;
-						
-						default:
-							if(false != ($matches = DAO_Worker::getByString($v)) && !empty($matches))
-								$worker_ids[key($matches)] = true;
-							break;
-					}
-				}
-				
-				if(empty($worker_ids))
-					$worker_ids = array(-1);
-				
-				if($worker_ids) {
-					return new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						array_keys($worker_ids)
-					);
-				}
-				break;
-
+			
 			case 'responseTime':
 				$tokens = CerbQuickSearchLexer::getHumanTimeTokensAsNumbers($tokens);
 				
@@ -1851,32 +1582,9 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
 				break;
 				
-			case 'ticket.status':
-				$field_key = SearchFields_Message::VIRTUAL_TICKET_STATUS;
-				$oper = null;
-				$value = null;
-				
-				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
-				
-				$values = array();
-				
-				// Normalize status labels
-				foreach($value as $idx => $status) {
-					switch(substr(strtolower($status), 0, 1)) {
-						case 'o':
-							$values['open'] = true;
-							break;
-						case 'w':
-							$values['waiting'] = true;
-							break;
-						case 'c':
-							$values['closed'] = true;
-							break;
-						case 'd':
-							$values['deleted'] = true;
-							break;
-					}
-				}
+			case 'ticket':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_TICKET_SEARCH);
+				break;
 				
 				return new DevblocksSearchCriteria(
 					$field_key,
@@ -1889,7 +1597,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 					
-				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
 		}
@@ -1943,51 +1650,15 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$this->_renderVirtualHasFieldset($param);
 				break;
 				
-			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
-				echo "In groups of ";
-				self::_renderCriteriaParamWorker($param);
 				break;
 				
-			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
-				if(!is_array($param->value))
-					$param->value = array($param->value);
-					
-				$strings = array();
+			case SearchFields_Message::VIRTUAL_TICKET_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.ticket')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
 				
-				foreach($param->value as $value) {
-					switch($value) {
-						case 'open':
-							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.open')) . '</b>';
-							break;
-						case 'waiting':
-							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.waiting')) . '</b>';
-							break;
-						case 'closed':
-							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.closed')) . '</b>';
-							break;
-						case 'deleted':
-							$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($translate->_('status.deleted')) . '</b>';
-							break;
-					}
-				}
-				
-				switch($param->operator) {
-					case DevblocksSearchCriteria::OPER_IN:
-						$oper = 'is';
-						break;
-					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-						$oper = 'is blank or';
-						break;
-					case DevblocksSearchCriteria::OPER_NIN:
-						$oper = 'is not';
-						break;
-					case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-						$oper = 'is blank or not';
-						break;
-				}
-				echo sprintf("Status %s %s",
-					DevblocksPlatform::strEscapeHtml($oper),
-					implode(' or ', $strings)
 				);
 				break;
 		}
@@ -2044,25 +1715,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Message::VIRTUAL_HAS_FIELDSET:
 				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_ASSET);
-				break;
-				
-			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
-				$tpl->assign('workers', DAO_Worker::getAllActive());
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__worker.tpl');
-				break;
-				
-			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
-				$translate = DevblocksPlatform::getTranslationService();
-				
-				$options = array(
-					'open' => $translate->_('status.open'),
-					'waiting' => $translate->_('status.waiting'),
-					'closed' => $translate->_('status.closed'),
-					'deleted' => $translate->_('status.deleted'),
-				);
-				
-				$tpl->assign('options', $options);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 				break;
 				
 			default:
@@ -2193,16 +1845,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::VIRTUAL_HAS_FIELDSET:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
-			case SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER:
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'string','');
-				$criteria = new DevblocksSearchCriteria($field, '=', $worker_id);
-				break;
-				
-			case SearchFields_Message::VIRTUAL_TICKET_STATUS:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
-				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 				
 			default:
@@ -2613,16 +2255,8 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Messages';
-		$view->addParams(array(), true);
-		
-		$params_required = array();
-		
-		if(!empty($active_worker) && !$active_worker->is_superuser) {
-			$params_required[SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER] = new DevblocksSearchCriteria(SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER,'=',$active_worker->id);
-		}
-		
-		$view->addParamsRequired($params_required, true);
+		$view->name = DevblocksPlatform::translateCapitalized('common.messages');
+		$view->removeAllParams();
 		
 		$view->renderSortBy = SearchFields_Message::CREATED_DATE;
 		$view->renderSortAsc = false;
