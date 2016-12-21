@@ -1887,7 +1887,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	
 	// Virtuals
 	const VIRTUAL_BUCKET_SEARCH = '*_bucket_search';
-	const VIRTUAL_CONTACT_ID = '*_contact_id';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUP_SEARCH = '*_group_search';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
@@ -2003,22 +2002,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 				return sprintf("t.org_id = %d",
 					$org_id
-				);
-				break;
-				
-			// [TODO]
-			// [TODO] IN, NOT
-			case self::VIRTUAL_CONTACT_ID:
-				$contact_ids = is_array($param->value) ? $param->value : array($param->value);
-				$contact_ids = DevblocksPlatform::sanitizeArray($contact_ids, 'int');
-				
-				$contact_ids_string = implode(',', $contact_ids);
-				
-				if(empty($contact_ids_string))
-					$contact_ids_string = '-1';
-				
-				return sprintf("(t.id IN (SELECT DISTINCT r.ticket_id FROM requester r INNER JOIN address a ON (a.id=r.address_id) WHERE a.contact_id IN (%s)))",
-					$contact_ids_string
 				);
 				break;
 				
@@ -2288,7 +2271,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::SENDER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::SENDER_ADDRESS, 'a1', 'email', null, null, true),
 
 			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH, '*', 'bucket_search', null, null, false),
-			SearchFields_Ticket::VIRTUAL_CONTACT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTACT_ID, '*', 'contact_id', null, null, false), // contact ID
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
@@ -2543,7 +2525,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			SearchFields_Ticket::TICKET_ORG_ID,
-			SearchFields_Ticket::VIRTUAL_CONTACT_ID,
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
@@ -2567,7 +2548,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::TICKET_STATUS_ID,
 			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH,
-			SearchFields_Ticket::VIRTUAL_CONTACT_ID,
 			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH,
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH,
@@ -3001,14 +2981,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT),
-				),
-			'contact.id' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_CONTACT_ID),
-					'examples' => [
-						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CONTACT, 'q' => ''],
-					]
 				),
 			'created' =>
 				array(
@@ -3812,23 +3784,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				}
 				
 				echo sprintf("Org is %s", implode($sep, $strings));
-				break;
-			
-			// [TODO] Handle long multiple value strings
-			case SearchFields_Ticket::VIRTUAL_CONTACT_ID:
-				$sep = ' or ';
-				$strings = array();
-				
-				$ids = is_array($param->value) ? $param->value : array($param->value);
-				$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
-				
-				$contacts = DAO_Contact::getIds($ids);
-				
-				foreach($contacts as $contact) {
-					$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($contact->getName()) . '</b>';
-				}
-				
-				echo sprintf("Contact is %s", implode($sep, $strings));
 				break;
 			
 			// [TODO] Handle long multiple value strings
