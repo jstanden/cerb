@@ -1886,6 +1886,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const FULLTEXT_NOTE_CONTENT = 'ftnc_content';
 	
 	// Virtuals
+	const VIRTUAL_BUCKET_SEARCH = '*_bucket_search';
 	const VIRTUAL_CONTACT_ID = '*_contact_id';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
@@ -2019,6 +2020,10 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_BUCKET_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BUCKET, 't.bucket_id');
 				break;
 				
 			case self::VIRTUAL_ORG_SEARCH:
@@ -2262,6 +2267,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			
 			SearchFields_Ticket::SENDER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::SENDER_ADDRESS, 'a1', 'email', null, null, true),
 
+			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH, '*', 'bucket_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_CONTACT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTACT_ID, '*', 'contact_id', null, null, false), // contact ID
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
@@ -2517,6 +2523,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH,
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
@@ -2531,6 +2538,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::TICKET_STATUS_ID,
+			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH,
 			SearchFields_Ticket::VIRTUAL_CONTACT_ID,
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
@@ -2933,17 +2941,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Ticket::getFields();
-		
 		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$workers = DAO_Worker::getAllActive();
-		$worker_names = array('me');
-		array_walk($workers, function($worker) use (&$worker_names) {
-			$worker_names[] = sprintf('"%s"', $worker->getName());
-		});
-		
-		$group_names = DAO_Group::getNames($active_worker);
-		$bucket_names = DAO_Bucket::getNames($active_worker);
 		
 		$fields = array(
 			'text' => 
@@ -2954,8 +2952,18 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'bucket' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_BUCKET, 'q' => ''],
+					]
+				),
+			'bucket.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_BUCKET_ID),
-					'examples' => array_slice($bucket_names, 0, 15),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BUCKET, 'q' => ''],
+					]
 				),
 			'comments' => 
 				array(
@@ -3183,43 +3191,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'bucket':
-				$field_key = SearchFields_Ticket::TICKET_BUCKET_ID;
-				$oper = null;
-				$terms = null;
-				
-				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms);
-				
-				if(!is_array($terms))
-					break;
-				
-				$buckets = DAO_Bucket::getAll();
-				$bucket_ids = array();
-				
-				foreach($terms as $term) {
-					if(is_numeric($term) && isset($buckets[$term])) {
-						$bucket_ids[intval($term)] = true;
-						
-					} else {
-						foreach($buckets as $bucket_id => $bucket) {
-							if(isset($bucket_ids[$bucket_id]))
-								continue;
-							
-							if(false !== stristr($bucket->name, $term)) {
-								$bucket_ids[$bucket_id] = true;
-							}
-						}
-					}
-				}
-				
-				if(!empty($bucket_ids)) {
-					return new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						array_keys($bucket_ids)
-					);
-				}
-				
-				return false;
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH);
 				break;
 				
 			case 'group':
@@ -3704,6 +3676,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.bucket')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
