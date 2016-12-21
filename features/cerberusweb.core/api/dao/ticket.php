@@ -1895,6 +1895,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const VIRTUAL_MESSAGES_SEARCH = '*_messages_search';
 	const VIRTUAL_ORG_ID = '*_org_id';
 	const VIRTUAL_ORG_SEARCH = '*_org_search';
+	const VIRTUAL_OWNER_SEARCH = '*_owner_search';
 	const VIRTUAL_PARTICIPANT_ID = '*_participant_id';
 	const VIRTUAL_STATUS = '*_status';
 	const VIRTUAL_WATCHERS = '*_workers';
@@ -2034,6 +2035,10 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_ORG_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ORG, 't.org_id');
+				break;
+				
+			case self::VIRTUAL_OWNER_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 't.owner_id');
 				break;
 				
 			case self::VIRTUAL_MESSAGES_SEARCH:
@@ -2286,6 +2291,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH, '*', 'messages_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_ID, '*', 'org_id', null, null, false), // org ID
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_SEARCH, '*', 'org_search', null, null, false),
+			SearchFields_Ticket::VIRTUAL_OWNER_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_OWNER_SEARCH, '*', 'owner_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID, '*', 'participant_id', null, null, false), // participant ID
 			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS, '*', 'recommendations', $translate->_('common.recommended'), null, false),
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('common.status'), null, false),
@@ -2537,6 +2543,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH,
 			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH,
+			SearchFields_Ticket::VIRTUAL_OWNER_SEARCH,
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
@@ -2558,6 +2565,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH,
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH,
 			SearchFields_Ticket::VIRTUAL_ORG_ID,
+			SearchFields_Ticket::VIRTUAL_OWNER_SEARCH,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
 			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED,
 			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED,
@@ -3069,7 +3077,18 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'owner' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_OWNER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
+				),
+			'owner.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_WORKER,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_OWNER_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
 				),
 			'participant' =>
 				array(
@@ -3085,7 +3104,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS),
-					'examples' => array_slice($worker_names, 0, 15),
 				),
 			'resolution.first' =>
 				array(
@@ -3253,6 +3271,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case 'org':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_ORG_SEARCH);
+				break;
+				
+			case 'owner':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_OWNER_SEARCH);
 				break;
 				
 			// Alias
@@ -3676,6 +3698,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::VIRTUAL_ORG_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.organization')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_OWNER_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.owner')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
