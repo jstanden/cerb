@@ -537,6 +537,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_OWNER_SEARCH = '*_owner_search';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	// Comment Content
@@ -562,6 +563,10 @@ class SearchFields_Task extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_TASK, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_OWNER_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 't.owner_id');
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -607,6 +612,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			self::VIRTUAL_OWNER_SEARCH => new DevblocksSearchField(self::VIRTUAL_OWNER_SEARCH, '*', 'owner_search', null, null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 			
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
@@ -672,11 +678,13 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			SearchFields_Task::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Task::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Task::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Task::VIRTUAL_OWNER_SEARCH,
 			SearchFields_Task::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(
 			SearchFields_Task::ID,
+			SearchFields_Task::VIRTUAL_OWNER_SEARCH,
 		));
 		
 		$this->addParamsDefault(array(
@@ -832,8 +840,19 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				),
 			'owner' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Task::VIRTUAL_OWNER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
+				),
+			'owner.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Task::OWNER_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
 				),
 			'title' => 
 				array(
@@ -886,6 +905,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'owner':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Task::VIRTUAL_OWNER_SEARCH);
+				break;
+				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -992,7 +1015,14 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			case SearchFields_Task::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
 				break;
-			
+				
+			case SearchFields_Task::VIRTUAL_OWNER_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.owner')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
 			case SearchFields_Task::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
 				break;
