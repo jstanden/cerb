@@ -407,6 +407,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	const BEHAVIOR_NAME = 'b_behavior_name';
 	const BEHAVIOR_BOT_ID = 'b_behavior_bot_id';
 	
+	const VIRTUAL_BEHAVIOR_SEARCH = '*_behavior_search';
 	const VIRTUAL_TARGET = '*_target';
 
 	static private $_fields = null;
@@ -423,10 +424,18 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		if('cf_' == substr($param->field, 0, 3)) {
-			return self::_getWhereSQLFromCustomFields($param);
-		} else {
-			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		switch($param->field) {
+			case self::VIRTUAL_BEHAVIOR_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BEHAVIOR, 'context_scheduled_behavior.behavior_id');
+				break;
+				
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
 		}
 	}
 	
@@ -461,6 +470,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 			self::BEHAVIOR_BOT_ID => new DevblocksSearchField(self::BEHAVIOR_BOT_ID, 'trigger_event', 'bot_id', $translate->_('common.bot'), null, true),
 
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target'), null, false),
+			self::VIRTUAL_BEHAVIOR_SEARCH => new DevblocksSearchField(self::VIRTUAL_BEHAVIOR_SEARCH, '*', 'behavior_search', null, null, false),
 		);
 
 		// Sort by label (translation-conscious)
@@ -603,8 +613,8 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 
 		$this->view_columns = array(
 			SearchFields_ContextScheduledBehavior::RUN_DATE,
-			SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID,
+			SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,
 		);
 		$this->addColumnsHidden(array(
@@ -615,6 +625,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			SearchFields_ContextScheduledBehavior::RUN_LITERAL,
 			SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
 			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
+			SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH,
 		));
 
 		$this->addParamsHidden(array(
@@ -627,6 +638,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			SearchFields_ContextScheduledBehavior::RUN_LITERAL,
 			SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
 			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
+			SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,
 		));
 
@@ -665,17 +677,28 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			'behavior' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_BEHAVIOR, 'q' => ''],
+					]
 				),
-			'runDate' => 
+			'behavior.id' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_DATE,
-					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::RUN_DATE),
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BEHAVIOR, 'q' => ''],
+					]
 				),
 			'va' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID),
+				),
+			'runDate' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::RUN_DATE),
 				),
 		);
 		
@@ -710,6 +733,9 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 							$values[$va_id] = true;
 					}
 				}
+			case 'behavior':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH);
+				break;
 				
 				if(!empty($values)) {
 					return new DevblocksSearchCriteria(
@@ -786,6 +812,19 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				
 			default:
 				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+	
+	function renderVirtualCriteria($param) {
+		$field = $param->field;
+
+		switch($field) {
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.behavior')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 		}
 	}
