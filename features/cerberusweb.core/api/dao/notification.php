@@ -831,6 +831,10 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Notification::getFields();
 		
+		$activities = array_map(function($e) { 
+			return $e['params']['label_key'];
+		}, DevblocksPlatform::getActivityPointRegistry());
+		
 		$fields = array(
 			'text' => 
 				array(
@@ -840,7 +844,10 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			'activity' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Notification::ACTIVITY_POINT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_Notification::ACTIVITY_POINT),
+					'examples' => [
+						['type' => 'list', 'values' => $activities],
+					],
 				),
 			'created' => 
 				array(
