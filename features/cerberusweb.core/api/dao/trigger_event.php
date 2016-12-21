@@ -472,6 +472,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	const EVENT_POINT = 't_event_point';
 	const UPDATED_AT = 't_updated_at';
 	
+	const VIRTUAL_BOT_SEARCH = '*_bot_search';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private $_fields = null;
@@ -489,6 +490,10 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_BOT_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BOT, 'trigger_event.bot_id');
+				break;
+				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_BEHAVIOR, self::getPrimaryKey());
 				break;
@@ -529,6 +534,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			self::EVENT_POINT => new DevblocksSearchField(self::EVENT_POINT, 'trigger_event', 'event_point', $translate->_('common.event'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'trigger_event', 'updated_at', $translate->_('common.updated'), null, true),
 				
+			self::VIRTUAL_BOT_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOT_SEARCH, '*', 'bot_search', null, null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
 		
@@ -1118,10 +1124,13 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_TriggerEvent::PRIORITY,
 			SearchFields_TriggerEvent::UPDATED_AT,
 		);
+		
 		$this->addColumnsHidden(array(
+			SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH,
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -1244,10 +1253,21 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_TriggerEvent::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'bot' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_BOT, 'q' => ''],
+					]
+				),
 			'bot.id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_TriggerEvent::BOT_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BOT, 'q' => ''],
+					]
 				),
 			'disabled' => 
 				array(
@@ -1300,6 +1320,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'bot':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH);
+				break;
+			
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
@@ -1406,6 +1430,13 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.bot')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+			
 			case SearchFields_TriggerEvent::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
 				break;
@@ -1422,13 +1453,12 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		switch($field) {
 			case SearchFields_TriggerEvent::TITLE:
 			case SearchFields_TriggerEvent::EVENT_POINT:
-			case SearchFields_TriggerEvent::BOT_ID:
-			case 'placeholder_string':
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_TriggerEvent::ID:
 			case SearchFields_TriggerEvent::PRIORITY:
+			case SearchFields_TriggerEvent::BOT_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
