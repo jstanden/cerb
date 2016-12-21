@@ -384,6 +384,7 @@ class SearchFields_Skill extends DevblocksSearchFields {
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_SKILLSET_SEARCH = '*_skillset_search';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private $_fields = null;
@@ -403,6 +404,10 @@ class SearchFields_Skill extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_SKILL, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_SKILLSET_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_SKILLSET, 'skill.skillset_id');
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -444,6 +449,7 @@ class SearchFields_Skill extends DevblocksSearchFields {
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			self::VIRTUAL_SKILLSET_SEARCH => new DevblocksSearchField(self::VIRTUAL_SKILLSET_SEARCH, '*', 'skillset_search', null, null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
 		
@@ -487,10 +493,12 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$this->addColumnsHidden(array(
 			SearchFields_Skill::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Skill::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Skill::VIRTUAL_SKILLSET_SEARCH,
 			SearchFields_Skill::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_Skill::VIRTUAL_SKILLSET_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -628,11 +636,18 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			'skillset' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Skill::VIRTUAL_SKILLSET_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_SKILLSET, 'q' => ''],
+					]
+				),
+			'skillset.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Skill::SKILLSET_ID),
-					'examples' => array(
-						'(development)',
-						'(sales, dev)',
-					),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_SKILLSET, 'q' => ''],
+					]
 				),
 			'updated' => 
 				array(
@@ -662,30 +677,7 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'skillset':
-				$field_key = SearchFields_Skill::SKILLSET_ID;
-				$oper = null;
-				$terms = null;
-				
-				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms);
-				
-				$skillsets = DAO_Skillset::getAll();
-				$values = array();
-				
-				if(is_array($values))
-				foreach($terms as $term) {
-					foreach($skillsets as $skillset_id => $skillset) {
-						if(false !== stripos($skillset->name, $term))
-							$values[$skillset_id] = true;
-					}
-				}
-				
-				if(!empty($values)) {
-					return new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						array_keys($values)
-					);
-				}
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Skill::VIRTUAL_SKILLSET_SEARCH);
 				break;
 				
 			default:
@@ -802,6 +794,13 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				
 			case SearchFields_Skill::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
+				break;
+				
+			case SearchFields_Skill::VIRTUAL_SKILLSET_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.skillset')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 			
 			case SearchFields_Skill::VIRTUAL_WATCHERS:
