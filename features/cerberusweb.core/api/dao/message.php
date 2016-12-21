@@ -478,6 +478,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_HEADER_MESSAGE_ID = '*_header_message_id';
+	const VIRTUAL_SENDER_SEARCH = '*_sender_search';
 	const VIRTUAL_TICKET_SEARCH = '*_ticket_search';
 	static private $_fields = null;
 	
@@ -521,6 +522,8 @@ class SearchFields_Message extends DevblocksSearchFields {
 				);
 				break;
 				
+			case self::VIRTUAL_SENDER_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'm.address_id');
 				break;
 				
 			case self::VIRTUAL_TICKET_SEARCH:
@@ -584,6 +587,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Message::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID => new DevblocksSearchField(SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID, '*', 'header_message_id', $translate->_('message.search.header_message_id'), Model_CustomField::TYPE_SINGLE_LINE, false),
+			SearchFields_Message::VIRTUAL_SENDER_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_SENDER_SEARCH, '*', 'sender_search', null, null, false),
 			SearchFields_Message::VIRTUAL_TICKET_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_TICKET_SEARCH, '*', 'ticket_search', null, null, false),
 				
 			SearchFields_Message::MESSAGE_CONTENT => new DevblocksSearchField(SearchFields_Message::MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('common.content'), 'FT', false),
@@ -1425,11 +1429,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Message::CREATED_DATE),
 				),
-			'from' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Message::ADDRESS_EMAIL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
-				),
 			'header.messageId' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -1468,9 +1467,21 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Message::RESPONSE_TIME),
 				),
+			'sender' => 
 				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Message::VIRTUAL_SENDER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
 				),
+			'sender.id' => 
 				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Message::ADDRESS_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
 				),
 			'ticket' => 
 				array(
@@ -1557,6 +1568,9 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH);
 				break;
 				
+			case 'from':
+			case 'sender':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_SENDER_SEARCH);
 				break;
 				
 			case 'header.messageId':
@@ -1650,6 +1664,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$this->_renderVirtualHasFieldset($param);
 				break;
 				
+			case SearchFields_Message::VIRTUAL_SENDER_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.sender')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 				
 			case SearchFields_Message::VIRTUAL_TICKET_SEARCH:
