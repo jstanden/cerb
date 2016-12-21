@@ -816,6 +816,9 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Task::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TASK, 'q' => ''],
+					]
 				),
 			'importance' => 
 				array(

@@ -618,6 +618,9 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_MailHtmlTemplate::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, 'q' => ''],
+					]
 				),
 			'name' => 
 				array(

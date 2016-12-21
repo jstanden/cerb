@@ -1213,6 +1213,9 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_KbArticle::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_KB_ARTICLE, 'q' => ''],
+					]
 				),
 			'title' => 
 				array(

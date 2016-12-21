@@ -837,6 +837,9 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Notification::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_NOTIFICATION, 'q' => ''],
+					]
 				),
 			'isRead' => 
 				array(

@@ -638,6 +638,8 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_CustomFieldset::getFields();
 		
+		$contexts = array_column(DevblocksPlatform::objectsToArrays(Extension_DevblocksContext::getAll(false)), 'name', 'id');
+		
 		$fields = array(
 			'text' => 
 				array(
@@ -647,12 +649,18 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 			'context' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CustomFieldset::CONTEXT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_CustomFieldset::CONTEXT),
+					'examples' => [
+						['type' => 'list', 'values' => $contexts],
+					]
 				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CustomFieldset::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'q' => ''],
+					]
 				),
 			'name' => 
 				array(

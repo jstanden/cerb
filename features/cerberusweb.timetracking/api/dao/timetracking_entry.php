@@ -898,6 +898,9 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_TimeTrackingEntry::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TIMETRACKING, 'q' => ''],
+					]
 				),
 			'isClosed' => 
 				array(

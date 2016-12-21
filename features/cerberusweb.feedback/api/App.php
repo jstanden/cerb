@@ -652,6 +652,9 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_FeedbackEntry::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_FEEDBACK, 'q' => ''],
+					]
 				),
 			'mood' => 
 				array(

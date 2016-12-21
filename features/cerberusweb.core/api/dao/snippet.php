@@ -900,6 +900,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Snippet::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_SNIPPET, 'q' => ''],
+					]
 				),
 			'title' => 
 				array(
