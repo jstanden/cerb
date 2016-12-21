@@ -1122,7 +1122,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 			
 			case SearchFields_Snippet::VIRTUAL_OWNER:
-				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners');
+				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner is');
 				break;
 		}
 	}
@@ -1443,7 +1443,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		
 		switch($token) {
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}

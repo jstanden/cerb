@@ -1106,10 +1106,8 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 	const DEFAULT_ID = 'trigger';
 
 	function __construct() {
-		$translate = DevblocksPlatform::getTranslationService();
-	
 		$this->id = self::DEFAULT_ID;
-		$this->name = mb_ucfirst($translate->_('common.behaviors'));
+		$this->name = DevblocksPlatform::translateCapitalized('common.behaviors');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_TriggerEvent::PRIORITY;
 		$this->renderSortAsc = true;
@@ -1630,7 +1628,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 				break;
 				
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}

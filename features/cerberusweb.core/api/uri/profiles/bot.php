@@ -73,7 +73,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		);
 		
 		$properties['updated'] = array(
-			'label' => mb_ucfirst($translate->_('common.updated')),
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $model->updated_at,
 		);

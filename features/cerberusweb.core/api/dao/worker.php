@@ -2136,7 +2136,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				if(!is_array($param->value) || count($param->value) != 3)
 					break;
 				
-				echo sprintf("Calendar is <b>%s</b> between <b>%s</b> and <b>%s</b>",
+				echo sprintf("Calendar matches <b>%s</b> between <b>%s</b> and <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml((!empty($param->value[2]) ? 'available' : 'busy')),
 					DevblocksPlatform::strEscapeHtml($param->value[0]),
 					DevblocksPlatform::strEscapeHtml($param->value[1])
@@ -2728,7 +2728,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		
 		switch($token) {
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}

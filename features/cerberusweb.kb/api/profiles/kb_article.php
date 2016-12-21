@@ -50,7 +50,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$properties = array();
 			
 		$properties['updated'] = array(
-			'label' => mb_ucfirst($translate->_('common.updated')),
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $article->updated,
 		);

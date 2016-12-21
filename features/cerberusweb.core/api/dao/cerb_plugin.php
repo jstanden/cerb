@@ -412,7 +412,7 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 				),
 			'id' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CerbPlugin::ID),
 				),
 			'name' => 

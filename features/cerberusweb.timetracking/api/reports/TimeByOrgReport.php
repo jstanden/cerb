@@ -210,8 +210,7 @@ class ChReportTimeSpentOrg extends Extension_Report {
 			if(!empty($filter_org_ids)) {
 				$params[] = array(
 					DevblocksSearchCriteria::GROUP_AND,
-					new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK,DevblocksSearchCriteria::OPER_EQ, CerberusContexts::CONTEXT_ORG),
-					new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::CONTEXT_LINK_ID,DevblocksSearchCriteria::OPER_IN, $filter_org_ids),
+					new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK, 'in', [CerberusContexts::CONTEXT_ORG, $filter_org_ids])
 				);
 			}
 			

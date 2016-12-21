@@ -1319,7 +1319,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::STORAGE_KEY,
 			SearchFields_Message::STORAGE_PROFILE_ID,
 			SearchFields_Message::STORAGE_SIZE,
-			SearchFields_Message::TICKET_STATUS_ID, // [TODO] Keep, or convert the virtual?
+			SearchFields_Message::TICKET_STATUS_ID,
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
@@ -1329,7 +1329,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$this->addParamsHidden(array(
 			SearchFields_Message::HTML_ATTACHMENT_ID,
 			SearchFields_Message::ID,
-			SearchFields_Message::TICKET_STATUS_ID, // [TODO] Keep the virtual?
+			SearchFields_Message::TICKET_STATUS_ID,
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
 		));
@@ -1920,14 +1920,14 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		switch($key) {
 			case SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH:
-				echo sprintf("%s is <b>%s</b>",
+				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.attachments')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
 				
 			case SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID:
-				echo sprintf("Message-ID header is <b>%s</b>",
+				echo sprintf("Message-ID header matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
@@ -2588,7 +2588,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				break;
 				
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
@@ -2635,7 +2635,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		$defaults->id = $view_id;
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Messages';
+		$view->name = DevblocksPlatform::translateCapitalized('common.messages');
 		
 		$params_req = array();
 		

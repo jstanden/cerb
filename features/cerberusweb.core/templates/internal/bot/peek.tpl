@@ -51,7 +51,7 @@
 	
 	<div style="margin-top:5px;">
 		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="bot.id:{$dict->id}"><div class="badge-count">{$activity_counts.behaviors|default:0}</div> {'common.behaviors'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-query="owner.bot.id:{$dict->id}"><div class="badge-count">{$activity_counts.classifiers|default:0}</div> {'common.classifiers'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-query="owner.bot:(id:{$dict->id})"><div class="badge-count">{$activity_counts.classifiers|default:0}</div> {'common.classifiers'|devblocks_translate|capitalize}</button>
 	</div>
 
 </fieldset>

@@ -1066,7 +1066,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 				break;
 				
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
@@ -1567,7 +1567,7 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Bucket::VIRTUAL_GROUP_SEARCH:
-				echo sprintf("Group is <b>%s</b>", $param->value);
+				echo sprintf("Group matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
 				break;
 			
 			case SearchFields_Bucket::VIRTUAL_HAS_FIELDSET:

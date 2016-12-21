@@ -397,8 +397,6 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			"org.name as %s, ".
 			"o.primary_email_id as %s, ".
 			"a.email as %s, ".
-			"a.num_spam as %s, ".
-			"a.num_nonspam as %s, ".
 			"o.created_date as %s, ".
 			"o.updated_date as %s, ".
 			"o.closed_date as %s, ".
@@ -411,8 +409,6 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 				SearchFields_CrmOpportunity::ORG_NAME,
 				SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 				SearchFields_CrmOpportunity::EMAIL_ADDRESS,
-				SearchFields_CrmOpportunity::EMAIL_NUM_SPAM,
-				SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM,
 				SearchFields_CrmOpportunity::CREATED_DATE,
 				SearchFields_CrmOpportunity::UPDATED_DATE,
 				SearchFields_CrmOpportunity::CLOSED_DATE,
@@ -550,15 +546,13 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	const ORG_NAME = 'org_name';
 
 	const EMAIL_ADDRESS = 'a_email';
-	const EMAIL_IS_DEFUNCT = 'a_is_defunct';
-	const EMAIL_NUM_SPAM = 'a_num_spam';
-	const EMAIL_NUM_NONSPAM = 'a_num_nonspam';
 
 	// Comment Content
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 
 	// Virtuals
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
@@ -571,8 +565,8 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_OPPORTUNITY => new DevblocksSearchFieldContextKeys('o.id', self::ID),
-			CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('o.primary_email_id', self::PRIMARY_EMAIL_ID),
-			CerberusContexts::CONTEXT_ORG => new DevblocksSearchFieldContextKeys('a.contact_org_id', self::ORG_ID),
+			//CerberusContexts::CONTEXT_ADDRESS => new DevblocksSearchFieldContextKeys('o.primary_email_id', self::PRIMARY_EMAIL_ID),
+			//CerberusContexts::CONTEXT_ORG => new DevblocksSearchFieldContextKeys('a.contact_org_id', self::ORG_ID),
 		);
 	}
 	
@@ -584,6 +578,10 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_OPPORTUNITY, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_EMAIL_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'o.primary_email_id');
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -621,9 +619,6 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 			
 			self::PRIMARY_EMAIL_ID => new DevblocksSearchField(self::PRIMARY_EMAIL_ID, 'o', 'primary_email_id', $translate->_('crm.opportunity.primary_email_id'), null, true),
 			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ADDRESS, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::EMAIL_IS_DEFUNCT => new DevblocksSearchField(self::EMAIL_IS_DEFUNCT, 'a', 'is_defunct', $translate->_('address.is_defunct'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::EMAIL_NUM_SPAM => new DevblocksSearchField(self::EMAIL_NUM_SPAM, 'a', 'num_spam', $translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER, true),
-			self::EMAIL_NUM_NONSPAM => new DevblocksSearchField(self::EMAIL_NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER, true),
 			
 			self::ORG_ID => new DevblocksSearchField(self::ORG_ID, 'org', 'id', $translate->_('address.contact_org_id'), Model_CustomField::TYPE_NUMBER, true),
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'org', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -637,6 +632,7 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'o', 'is_closed', $translate->_('crm.opportunity.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 				
@@ -696,7 +692,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_CrmOpportunity::ORG_NAME,
 			SearchFields_CrmOpportunity::AMOUNT,
 			SearchFields_CrmOpportunity::UPDATED_DATE,
-			SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM,
 		);
 		$this->addColumnsHidden(array(
 			SearchFields_CrmOpportunity::ID,
@@ -704,6 +699,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_CrmOpportunity::ORG_ID,
 			SearchFields_CrmOpportunity::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK,
+			SearchFields_CrmOpportunity::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_CrmOpportunity::VIRTUAL_HAS_FIELDSET,
 			SearchFields_CrmOpportunity::VIRTUAL_WATCHERS,
 		));
@@ -714,7 +710,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$this->addParamsHidden(array(
 			SearchFields_CrmOpportunity::ID,
 			SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
+			SearchFields_CrmOpportunity::EMAIL_ADDRESS,
 			SearchFields_CrmOpportunity::ORG_ID,
+			SearchFields_CrmOpportunity::ORG_NAME,
+			SearchFields_CrmOpportunity::VIRTUAL_EMAIL_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -756,7 +755,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			switch($field_key) {
 				// Strings
 				case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
-				case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 				case SearchFields_CrmOpportunity::IS_CLOSED:
 				case SearchFields_CrmOpportunity::IS_WON:
 				case SearchFields_CrmOpportunity::ORG_NAME:
@@ -798,7 +796,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				break;
 				
 			case SearchFields_CrmOpportunity::IS_CLOSED:
-			case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 			case SearchFields_CrmOpportunity::IS_WON:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
@@ -841,7 +838,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::AMOUNT),
 				),
-			'closed' => 
+			'closedDate' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::CLOSED_DATE),
@@ -858,28 +855,27 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				),
 			'email' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::EMAIL_ADDRESS, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_CrmOpportunity::VIRTUAL_EMAIL_SEARCH),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
 				),
-			'email.isDefunct' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_BOOL,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT),
-				),
-			'email.nonspam' => 
+			'email.id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM),
-				),
-			'email.spam' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::EMAIL_NUM_SPAM),
+					'options' => array('param_key' => SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					],
 				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_OPPORTUNITY, 'q' => ''],
+					]
 				),
 			'isClosed' => 
 				array(
@@ -895,16 +891,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'org.id' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::ORG_ID),
-				),
-			'org' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::ORG_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'updated' => 
 				array(
@@ -952,6 +938,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'email':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_CrmOpportunity::VIRTUAL_EMAIL_SEARCH);
+				break;
+			
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -998,6 +988,13 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				$this->_renderVirtualContextLinks($param);
 				break;
 				
+			case SearchFields_CrmOpportunity::VIRTUAL_EMAIL_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.email')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
 			case SearchFields_CrmOpportunity::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
 				break;
@@ -1015,18 +1012,14 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 
 		switch($field) {
 			case SearchFields_CrmOpportunity::NAME:
-			case SearchFields_CrmOpportunity::ORG_NAME:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_CrmOpportunity::AMOUNT:
-			case SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM:
-			case SearchFields_CrmOpportunity::EMAIL_NUM_SPAM:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
-			case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 			case SearchFields_CrmOpportunity::IS_CLOSED:
 			case SearchFields_CrmOpportunity::IS_WON:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
@@ -1072,7 +1065,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 			case SearchFields_CrmOpportunity::IS_CLOSED:
 			case SearchFields_CrmOpportunity::IS_WON:
 				$this->_renderCriteriaParamBoolean($param);
@@ -1093,18 +1085,14 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 
 		switch($field) {
 			case SearchFields_CrmOpportunity::NAME:
-			case SearchFields_CrmOpportunity::ORG_NAME:
 			case SearchFields_CrmOpportunity::EMAIL_ADDRESS:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_CrmOpportunity::AMOUNT:
-			case SearchFields_CrmOpportunity::EMAIL_NUM_NONSPAM:
-			case SearchFields_CrmOpportunity::EMAIL_NUM_SPAM:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT:
 			case SearchFields_CrmOpportunity::IS_CLOSED:
 			case SearchFields_CrmOpportunity::IS_WON:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
@@ -1361,7 +1349,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 				break;
 				
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}

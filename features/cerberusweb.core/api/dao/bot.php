@@ -795,7 +795,7 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 			'watchers' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_WORKER,
-					'options' => array('param_key' => SearchFields_Bot::VIRTUAL_OWNER),
+					'options' => array('param_key' => SearchFields_Bot::VIRTUAL_WATCHERS),
 				),
 		);
 		
@@ -944,7 +944,7 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 				break;
 				
 			case SearchFields_Bot::VIRTUAL_OWNER:
-				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owned by');
+				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner matches');
 				break;
 			
 			case SearchFields_Bot::VIRTUAL_WATCHERS:
@@ -1240,7 +1240,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 				break;
 				
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}

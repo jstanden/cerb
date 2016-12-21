@@ -66,7 +66,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		);
 		
 		$properties['updated_date'] = array(
-			'label' => mb_ucfirst($translate->_('common.updated')),
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $task->updated_date,
 		);

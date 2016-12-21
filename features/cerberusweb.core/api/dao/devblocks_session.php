@@ -234,7 +234,6 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 			
 		$join_sql = "FROM devblocks_session ";
 		
-				
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
@@ -616,8 +615,6 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 		}

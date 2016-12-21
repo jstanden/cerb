@@ -479,7 +479,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		
 		switch($token) {
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}
@@ -499,7 +499,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Roles';
+		$view->name = DevblocksPlatform::translateCapitalized('common.roles');
 		$view->addParams(array(
 			//SearchFields_Worker::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED,'=',0),
 		), true);
@@ -516,7 +516,7 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		$defaults->id = $view_id;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Roles';
+		$view->name = DevblocksPlatform::translateCapitalized('common.roles');
 		
 		$params_req = array();
 		

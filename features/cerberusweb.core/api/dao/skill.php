@@ -472,10 +472,8 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	const DEFAULT_ID = 'skill';
 
 	function __construct() {
-		$translate = DevblocksPlatform::getTranslationService();
-	
 		$this->id = self::DEFAULT_ID;
-		$this->name = mb_convert_case($translate->_('common.skills'), MB_CASE_TITLE);
+		$this->name = DevblocksPlatform::translateCapitalized('common.skills');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_Skill::NAME;
 		$this->renderSortAsc = true;
@@ -995,7 +993,7 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 				break;
 				
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}

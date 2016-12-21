@@ -81,7 +81,6 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 				'is_broadcast' => SearchFields_Message::IS_BROADCAST,
 				'is_outgoing' => SearchFields_Message::IS_OUTGOING,
 				'sender_address' => SearchFields_Message::ADDRESS_EMAIL,
-				'ticket_status' => SearchFields_Message::VIRTUAL_TICKET_STATUS,
 				'ticket_group' => SearchFields_Message::TICKET_GROUP_ID,
 				'worker' => SearchFields_Message::WORKER_ID,
 			);

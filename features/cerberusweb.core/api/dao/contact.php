@@ -1186,7 +1186,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Contact::ORG_ID),
 				),
-			'timezone' => 
+			'timezone' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Contact::TIMEZONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
@@ -1773,7 +1773,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				break;
 				
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}

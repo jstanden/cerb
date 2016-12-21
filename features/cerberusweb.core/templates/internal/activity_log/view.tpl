@@ -64,6 +64,7 @@
 		<tr class="{$tableRowClass}">
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}" style="font-size:12px;color:rgb(80,80,80);padding:2px 0px;">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
+				<span class="subject">
 				{* If we're looking at the target context, hide the text in the entry *}
 				{$entry = json_decode($result.c_entry_json, true)}
 				{$params_req = $view->getParamsRequired()}
@@ -73,6 +74,7 @@
 				{else}
 					{CerberusContexts::formatActivityLogEntry($entry,'html',[],true) nofilter}
 				{/if}
+				</span>
 			</td>
 		</tr>
 		

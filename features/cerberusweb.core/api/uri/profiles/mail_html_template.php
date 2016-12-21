@@ -50,7 +50,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		$properties = array();
 		
 		$properties['updated'] = array(
-			'label' => mb_ucfirst($translate->_('common.updated')),
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $mail_html_template->updated_at,
 		);

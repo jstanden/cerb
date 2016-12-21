@@ -57,7 +57,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 		);
 			
 		$properties['updated'] = array(
-			'label' => mb_ucfirst($translate->_('common.updated')),
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $bucket->updated_at,
 		);

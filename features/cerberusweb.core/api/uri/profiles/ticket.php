@@ -129,7 +129,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				'value' => $ticket->created_date,
 			),
 			'updated' => array(
-				'label' => mb_ucfirst($translate->_('common.updated')),
+				'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 				'type' => Model_CustomField::TYPE_DATE,
 				'value' => $ticket->updated_date,
 			),

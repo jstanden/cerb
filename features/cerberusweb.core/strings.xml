@@ -312,6 +312,16 @@
 				<seg>attachments</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.attribute">
+			<tuv xml:lang="en_US">
+				<seg>attribute</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.attributes">
+			<tuv xml:lang="en_US">
+				<seg>attributes</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.author">
 			<tuv xml:lang="en_US">
 				<seg>Author</seg>
@@ -737,6 +747,11 @@
 				<seg>recurring events</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.everyone">
+			<tuv xml:lang="en_US">
+				<seg>everyone</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.example">
 			<tuv xml:lang="en_US">
 				<seg>example</seg>
@@ -1100,6 +1115,11 @@
 		<tu tuid="common.objects">
 			<tuv xml:lang="en_US">
 				<seg>objects</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.on">
+			<tuv xml:lang="en_US">
+				<seg>on</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.optional">
@@ -1495,6 +1515,16 @@
 		<tu tuid="common.security">
 			<tuv xml:lang="en_US">
 				<seg>security</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.sender">
+			<tuv xml:lang="en_US">
+				<seg>sender</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.senders">
+			<tuv xml:lang="en_US">
+				<seg>senders</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.service">
@@ -2095,47 +2125,47 @@
 		</tu>
 		<tu tuid="acl.core.addybook.addy.actions.update">
 			<tuv xml:lang="en_US">
-				<seg>[Address Book] Can modify email address contacts</seg>
+				<seg>[Addresses] Can modify email address contacts</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.addybook.addy.view.actions.broadcast">
 			<tuv xml:lang="en_US">
-				<seg>[Address Book] Can broadcast compose email to address lists</seg>
+				<seg>[Addresses] Can broadcast compose email to address lists</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.addybook.addy.view.actions.export">
 			<tuv xml:lang="en_US">
-				<seg>[Address Book] Can export email address lists to CSV/XML</seg>
+				<seg>[Addresses] Can export email address lists to CSV/XML</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.addybook.org.actions.merge">
 			<tuv xml:lang="en_US">
-				<seg>[Address Book] Can merge organizations</seg>
+				<seg>[Orgs] Can merge organizations</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.addybook.org.actions.update">
 			<tuv xml:lang="en_US">
-				<seg>[Address Book] Can modify organizations</seg>
+				<seg>[Orgs] Can modify organizations</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.addybook.org.actions.delete">
 			<tuv xml:lang="en_US">
-				<seg>[Address Book] Can delete organizations</seg>
+				<seg>[Orgs] Can delete organizations</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.addybook.org.view.actions.export">
 			<tuv xml:lang="en_US">
-				<seg>[Address Book] Can export organization lists to CSV/XML</seg>
+				<seg>[Orgs] Can export organization lists to CSV/XML</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.addybook.person.actions.delete">
 			<tuv xml:lang="en_US">
-				<seg>[Address Book] Can delete registered contacts</seg>
+				<seg>[Contacts] Can delete registered contacts</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.addybook.person.actions.update">
 			<tuv xml:lang="en_US">
-				<seg>[Address Book] Can modify registered contacts</seg>
+				<seg>[Contacts] Can modify registered contacts</seg>
 			</tuv>
 		</tu>
 
@@ -2143,32 +2173,32 @@
 		
 		<tu tuid="acl.core.display.actions.attachments.download">
 			<tuv xml:lang="en_US">
-				<seg>[Display Ticket] Can download ticket attachments</seg>
+				<seg>[Tickets] Can download ticket attachments</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.display.actions.forward">
 			<tuv xml:lang="en_US">
-				<seg>[Display Ticket] Can forward tickets to third-party email addresses</seg>
+				<seg>[Tickets] Can forward tickets to third-party email addresses</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.display.actions.note">
 			<tuv xml:lang="en_US">
-				<seg>[Display Ticket] Can add sticky notes to tickets</seg>
+				<seg>[Tickets] Can add sticky notes to tickets</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.display.actions.reply">
 			<tuv xml:lang="en_US">
-				<seg>[Display Ticket] Can reply to tickets</seg>
+				<seg>[Tickets] Can reply to tickets</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.display.actions.split">
 			<tuv xml:lang="en_US">
-				<seg>[Display Ticket] Can split tickets</seg>
+				<seg>[Tickets] Can split tickets</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.display.message.actions.delete">
 			<tuv xml:lang="en_US">
-				<seg>[Display Ticket] Can permanently delete messages on tickets</seg>
+				<seg>[Tickets] Can permanently delete messages on tickets</seg>
 			</tuv>
 		</tu>
 

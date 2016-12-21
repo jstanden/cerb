@@ -31,14 +31,14 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
-		<file path="api/dao/crm_opportunity.php">
+		<file path="api/dao/opportunity.php">
 			<class name="Context_CrmOpportunity" />
 			<class name="DAO_CrmOpportunity" />
 			<class name="Model_CrmOpportunity" />
 			<class name="SearchFields_CrmOpportunity" />
 			<class name="View_CrmOpportunity" />
 		</file>
-		<file path="api/events/crm_opportunity_macro.php">
+		<file path="api/events/opportunity_macro.php">
 			<class name="Event_CrmOpportunityMacro" />
 		</file>
 	</class_loader>
@@ -90,7 +90,7 @@
 			<id>cerberusweb.contexts.opportunity</id>
 			<name>Opportunity</name>
 			<class>
-				<file>api/dao/crm_opportunity.php</file>
+				<file>api/dao/opportunity.php</file>
 				<name>Context_Opportunity</name>
 			</class>
 			<params>
@@ -159,7 +159,7 @@
 			<id>event.macro.crm.opportunity</id>
 			<name>Custom opportunity behavior</name>
 			<class>
-				<file>api/events/crm_opportunity_macro.php</file>
+				<file>api/events/opportunity_macro.php</file>
 				<name>Event_CrmOpportunityMacro</name>
 			</class>
 			<params>

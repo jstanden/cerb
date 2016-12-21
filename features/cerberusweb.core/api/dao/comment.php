@@ -1071,7 +1071,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		switch($key) {
 			case SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH:
-				echo sprintf("%s is <b>%s</b>",
+				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.attachments')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
@@ -1334,7 +1334,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 				break;
 			
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}

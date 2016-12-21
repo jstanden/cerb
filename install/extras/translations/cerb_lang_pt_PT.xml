@@ -100,7 +100,7 @@
 		</tu>
 		<tu tuid="acl.core.display.message.actions.delete">
 			<tuv xml:lang="pt_PT">
-				<seg>[Display Ticket] Pode eliminar permanentemente mensagens nos tickets</seg>
+				<seg>[Tickets] Pode eliminar permanentemente mensagens nos tickets</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.kb.articles.modify">

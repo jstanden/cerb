@@ -772,7 +772,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 				$contexts = Extension_DevblocksContext::getAll(false);
 				$strings = array();
 				
-				foreach($param->value as $context_id) {
+				foreach($values as $context_id) {
 					if(isset($contexts[$context_id])) {
 						$strings[] = sprintf('<b>%s</b>',DevblocksPlatform::strEscapeHtml($contexts[$context_id]->name));
 					}
@@ -798,7 +798,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 				break;
 			
 			case SearchFields_CustomFieldset::VIRTUAL_OWNER:
-				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owned by');
+				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner matches');
 				break;
 		}
 	}
@@ -992,7 +992,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 				
 			default:
 				/*
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}

@@ -1370,7 +1370,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Address::VIRTUAL_TICKET_ID:
 				echo sprintf("Participant on %s <b>%s</b>",
 					1 == count($param->value) ? 'ticket' : 'tickets',
-					DevblocksPlatform::stripHTML(implode(' or ', $param->value))
+					DevblocksPlatform::strEscapeHtml(implode(' or ', $param->value))
 				);
 				break;
 			
@@ -1801,7 +1801,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				break;
 				
 			default:
-				if(substr($token,0,7) == 'custom_') {
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
 					$values = array_merge($values, $fields);
 				}

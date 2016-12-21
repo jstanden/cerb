@@ -644,7 +644,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		}
 
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
-			$view = $this->getChooserView($view_id); /* @var $view C4_AbstractViewModel */
+			if(null == ($view = $this->getChooserView($view_id))) /* @var $view C4_AbstractViewModel */
+				return;
 		}
 
 		$view->name = 'Search Results';

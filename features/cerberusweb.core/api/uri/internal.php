@@ -1272,7 +1272,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		), true);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('popup_title', mb_convert_case($translate->_('common.notifications'), MB_CASE_TITLE));
+		$tpl->assign('popup_title', DevblocksPlatform::translateCapitalized('common.notifications'));
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::search/popup.tpl');
@@ -3066,7 +3066,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$is_writeable = CerberusContexts::isWriteableByActor($context, $context_id, $active_worker);
 		$tpl->assign('is_writeable', $is_writeable);
 		
-		if(empty($job) && !$editable)
+		if(empty($job) && !$is_writeable)
 			return;
 
 		$event = $macro->getEvent();
