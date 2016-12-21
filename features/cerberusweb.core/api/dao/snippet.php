@@ -390,37 +390,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 				if(is_array($args) && isset($args['join_sql']) && isset($args['where_sql']))
 					self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
 				break;
-			
-			case SearchFields_Snippet::VIRTUAL_OWNER:
-				if(!is_array($param->value))
-					break;
-				
-				$wheres = array();
-					
-				foreach($param->value as $owner_context) {
-					@list($context, $context_id) = explode(':', $owner_context);
-					
-					if(empty($context))
-						continue;
-					
-					if(!empty($context_id)) {
-						$wheres[] = sprintf("(snippet.owner_context = %s AND snippet.owner_context_id = %d)",
-							Cerb_ORMHelper::qstr($context),
-							$context_id
-						);
-						
-					} else {
-						$wheres[] = sprintf("(snippet.owner_context = %s)",
-							Cerb_ORMHelper::qstr($context)
-						);
-					}
-					
-				}
-				
-				if(!empty($wheres))
-					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
-				
-				break;
 		}
 	}
 	
@@ -530,6 +499,10 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_SNIPPET, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_OWNER:
+				return self::_getWhereSQLFromContextAndID($param, 'snippet.owner_context', 'snippet.owner_context_id');
 				break;
 				
 			case SearchFields_Snippet::FULLTEXT_SNIPPET:
@@ -880,8 +853,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		return $counts;
 	}
 	
-	// [TODO] My uses? owner?
-	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Snippet::getFields();
 		
@@ -931,6 +902,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'options' => array('param_key' => SearchFields_Snippet::UPDATED_AT),
 				),
 		);
+		
+		// Add dynamic owner.* fields
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields);
 		
 		// Add quick search links
 		
@@ -997,6 +972,9 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			default:
+				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_Snippet::VIRTUAL_OWNER);
+				
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
