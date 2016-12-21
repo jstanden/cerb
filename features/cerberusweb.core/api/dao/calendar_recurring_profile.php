@@ -754,6 +754,9 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_CalendarRecurringProfile::getFields();
+		$date = DevblocksPlatform::getDateService();
+		
+		$timezones = $date->getTimezones();
 		
 		$fields = array(
 			'text' => 
@@ -802,7 +805,10 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 			'timezone' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::TZ, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_CalendarRecurringProfile::TZ),
+					'examples' => array(
+						['type' => 'list', 'values' => array_combine($timezones, $timezones), 'label_delimiter' => '/', 'key_delimiter' => '/'],
+					)
 				),
 			'watchers' =>
 				array(
