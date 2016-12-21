@@ -357,7 +357,7 @@ abstract class C4_AbstractView {
 		}
 	}
 	
-	function addParamsWithQuickSearch($query, $replace=true) {
+	function getParamsFromQuickSearch($query) {
 		if(!($this instanceof IAbstractView_QuickSearch))
 			return false;
 		
@@ -410,6 +410,11 @@ abstract class C4_AbstractView {
 			}
 		});
 		
+		return $fields;
+	}
+	
+	function addParamsWithQuickSearch($query, $replace=true) {
+		$fields = $this->getParamsFromQuickSearch($query);
 		$this->addParams($fields, $replace);
 		$this->renderPage = 0;
 	}
