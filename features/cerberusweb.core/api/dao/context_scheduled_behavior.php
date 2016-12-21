@@ -434,6 +434,10 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BOT, 'trigger_event.bot_id');
 				break;
 			
+			case self::VIRTUAL_TARGET:
+				return self::_getWhereSQLFromContextAndID($param, 'context_scheduled_behavior.context', 'context_scheduled_behavior.context_id');
+				break;
+				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -474,9 +478,9 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 			self::BEHAVIOR_NAME => new DevblocksSearchField(self::BEHAVIOR_NAME, 'trigger_event', 'title', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::BEHAVIOR_BOT_ID => new DevblocksSearchField(self::BEHAVIOR_BOT_ID, 'trigger_event', 'bot_id', $translate->_('common.bot'), null, true),
 
-			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.target'), null, false),
 			self::VIRTUAL_BEHAVIOR_SEARCH => new DevblocksSearchField(self::VIRTUAL_BEHAVIOR_SEARCH, '*', 'behavior_search', null, null, false),
 			self::VIRTUAL_BOT_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOT_SEARCH, '*', 'bot_search', null, null, false),
+			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.on'), null, false),
 		);
 
 		// Sort by label (translation-conscious)
@@ -721,6 +725,10 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				),
 		);
 		
+		// On:
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('on', $fields);
+		
 		// Add is_sortable
 		
 		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
@@ -743,6 +751,9 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				break;
 				
 			default:
+				if($field == 'on' || DevblocksPlatform::strStartsWith($field, 'on.'))
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'on', SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -813,6 +824,10 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.bot')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+			
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
+				$this->_renderVirtualContextLinks($param, 'On', 'On', 'On');
 				break;
 		}
 	}
