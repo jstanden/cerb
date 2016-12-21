@@ -482,6 +482,10 @@ abstract class C4_AbstractView {
 		$this->_paramsEditable = array();
 	}
 	
+	function removeAllParamsRequired() {
+		$this->_paramsRequired = array();
+	}
+	
 	// Params Default
 	
 	function addParamsDefault($params, $replace=false) {
@@ -497,11 +501,22 @@ abstract class C4_AbstractView {
 	
 	// Params Required
 	
+	function addParamRequired($param, $key=null) {
+		if(!$key || is_numeric($key))
+			$key = uniqid();
+		
+		$this->_paramsRequired[$key] = $param;
+	}
+	
 	function addParamsRequired($params, $replace=false) {
 		if($replace)
-			$this->_paramsRequired = $params;
-		else
-			$this->_paramsRequired = array_merge($this->_paramsRequired, $params);
+			$this->removeAllParamsRequired();
+		
+		if(is_array($params))
+		foreach($params as $key => $param) {
+			$key = is_numeric($key) ? null : $key;
+			$this->addParamRequired($param, $key);
+		}
 	}
 	
 	function getParamsRequired() {
