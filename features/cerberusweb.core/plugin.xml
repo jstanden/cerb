@@ -3426,19 +3426,6 @@
 			<!-- Setup Page Sections -->
 			
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.acl</id>
-				<name>ACL Section</name>
-				<class>
-					<file>api/uri/config/acl.php</file>
-					<name>PageSection_SetupACL</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="acl" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.bots</id>
 				<name>Bots Section</name>
 				<class>
@@ -3825,6 +3812,19 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="scheduled_behavior" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.roles</id>
+				<name>Roles Section</name>
+				<class>
+					<file>api/uri/config/roles.php</file>
+					<name>PageSection_SetupRoles</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="roles" />
 				</params>
 			</extension>
 		
