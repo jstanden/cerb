@@ -440,9 +440,8 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	const VIRTUAL_WATCHERS = '*_workers';
-
 	const VIRTUAL_OWNER = '*_owner';
+	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private $_fields = null;
 	
@@ -464,6 +463,10 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_FILE_BUNDLE, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_OWNER:
+				return self::_getWhereSQLFromContextAndID($param, 'file_bundle.owner_context', 'file_bundle.owner_context_id');
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -694,6 +697,9 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_FileBundle::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_FILE_BUNDLE, 'q' => ''],
+					]
 				),
 			'name' => 
 				array(
@@ -716,6 +722,10 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 					'options' => array('param_key' => SearchFields_FileBundle::VIRTUAL_WATCHERS),
 				),
 		);
+		
+		// Add dynamic owner.* fields
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields);
 		
 		// Add quick search links
 		
@@ -752,6 +762,9 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
+				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_FileBundle::VIRTUAL_OWNER);
+				
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
