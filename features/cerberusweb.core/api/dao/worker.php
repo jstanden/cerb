@@ -1815,9 +1815,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Worker::getFields();
-		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		$date = DevblocksPlatform::getDateService();
+		$timezones = $date->getTimezones();
 		$group_names = DAO_Group::getNames();
 		
 		$fields = array(
@@ -1915,10 +1916,13 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Worker::PHONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'timezone' => 
+			'timezone' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Worker::TIMEZONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_Worker::TIMEZONE),
+					'examples' => array(
+						['type' => 'list', 'values' => array_combine($timezones, $timezones), 'label_delimiter' => '/', 'key_delimiter' => '/'],
+					)
 				),
 			'title' => 
 				array(
