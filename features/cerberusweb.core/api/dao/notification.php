@@ -581,6 +581,8 @@ class SearchFields_Notification extends DevblocksSearchFields {
 	const ACTIVITY_POINT = 'we_activity_point';
 	const ENTRY_JSON = 'we_entry_json';
 	
+	const VIRTUAL_WORKER_SEARCH = '*_worker_search';
+	
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
@@ -595,10 +597,18 @@ class SearchFields_Notification extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		if('cf_' == substr($param->field, 0, 3)) {
-			return self::_getWhereSQLFromCustomFields($param);
-		} else {
-			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		switch($param->field) {
+			case self::VIRTUAL_WORKER_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'we.worker_id');
+				break;
+			
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
 		}
 	}
 	
@@ -627,6 +637,8 @@ class SearchFields_Notification extends DevblocksSearchFields {
 			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', $translate->_('notification.is_read'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::ACTIVITY_POINT => new DevblocksSearchField(self::ACTIVITY_POINT, 'we', 'activity_point', $translate->_('dao.context_activity_log.activity_point'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::ENTRY_JSON => new DevblocksSearchField(self::ENTRY_JSON, 'we', 'entry_json', $translate->_('dao.context_activity_log.entry'), Model_CustomField::TYPE_MULTI_LINE, true),
+				
+			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, true),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -699,6 +711,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_Notification::CONTEXT_ID,
 			SearchFields_Notification::ENTRY_JSON,
 			SearchFields_Notification::ID,
+			SearchFields_Notification::VIRTUAL_WORKER_SEARCH,
 		));
 		
 		$this->addParamsHidden(array(
@@ -706,6 +719,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_Notification::CONTEXT_ID,
 			SearchFields_Notification::ENTRY_JSON,
 			SearchFields_Notification::ID,
+			SearchFields_Notification::VIRTUAL_WORKER_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -848,8 +862,19 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 				),
 			'worker' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Notification::VIRTUAL_WORKER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
+				),
+			'worker.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Notification::WORKER_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
 				),
 		);
 		
@@ -870,6 +895,10 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'worker':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Notification::VIRTUAL_WORKER_SEARCH);
+				break;
+			
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
@@ -926,6 +955,19 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 			default:
 				echo '';
+				break;
+		}
+	}
+	
+	function renderVirtualCriteria($param) {
+		$field = $param->field;
+		
+		switch($field) {
+			case SearchFields_Notification::VIRTUAL_WORKER_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.worker')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 		}
 	}
