@@ -1150,6 +1150,9 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Contact::getFields();
+		$date = DevblocksPlatform::getDateService();
+		
+		$timezones = $date->getTimezones();
 		
 		$fields = array(
 			'text' => 
@@ -1222,7 +1225,10 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			'timezone' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Contact::TIMEZONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'options' => array('param_key' => SearchFields_Contact::TIMEZONE),
+					'examples' => array(
+						['type' => 'list', 'values' => array_combine($timezones, $timezones), 'label_delimiter' => '/', 'key_delimiter' => '/'],
+					)
 				),
 			'updated' => 
 				array(
