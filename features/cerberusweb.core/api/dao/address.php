@@ -634,6 +634,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_ORG_SEARCH = '*_org_search';
 	const VIRTUAL_TICKET_ID = '*_ticket_id';
+	const VIRTUAL_TICKET_SEARCH = '*_ticket_search';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private $_fields = null;
@@ -682,6 +683,10 @@ class SearchFields_Address extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_ORG_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ORG, 'a.contact_org_id');
+				break;
+				
+			case self::VIRTUAL_TICKET_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "a.id IN (SELECT address_id FROM requester r WHERE r.ticket_id IN (%s))");
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -737,6 +742,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_ORG_SEARCH => new DevblocksSearchField(self::VIRTUAL_ORG_SEARCH, '*', 'org_search', null, null, false),
 			self::VIRTUAL_TICKET_ID => new DevblocksSearchField(self::VIRTUAL_TICKET_ID, '*', 'ticket_id', $translate->_('common.ticket'), null, false),
+			self::VIRTUAL_TICKET_SEARCH => new DevblocksSearchField(self::VIRTUAL_TICKET_SEARCH, '*', 'ticket_search', null, null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
 		
@@ -1017,6 +1023,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Address::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Address::VIRTUAL_ORG_SEARCH,
 			SearchFields_Address::VIRTUAL_TICKET_ID,
+			SearchFields_Address::VIRTUAL_TICKET_SEARCH,
 			SearchFields_Address::VIRTUAL_WATCHERS,
 		));
 		
@@ -1026,6 +1033,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Address::VIRTUAL_CONTACT_SEARCH,
 			SearchFields_Address::VIRTUAL_ORG_SEARCH,
 			SearchFields_Address::VIRTUAL_TICKET_ID,
+			SearchFields_Address::VIRTUAL_TICKET_SEARCH,
 		));
 	}
 
@@ -1209,11 +1217,27 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Address::NUM_SPAM),
+					'examples' => [
+						'spam',
+						'notspam',
+						'unknown',
+					]
+				),
+			'ticket' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Address::VIRTUAL_TICKET_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],
+					]
 				),
 			'ticket.id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Address::VIRTUAL_TICKET_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],
+					]
 				),
 			'updated' =>
 				array(
@@ -1283,6 +1307,10 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Address::VIRTUAL_ORG_SEARCH);
 				break;
 				
+			case 'ticket':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Address::VIRTUAL_TICKET_SEARCH);
+				break;
+			
 			case 'ticket.id':
 				$field_key = SearchFields_Address::VIRTUAL_TICKET_ID;
 				$oper = null;
@@ -1422,8 +1450,16 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				);
 				break;
 			
+			case SearchFields_Address::VIRTUAL_TICKET_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.ticket')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+			
 			case SearchFields_Address::VIRTUAL_TICKET_ID:
-				echo sprintf("Participant on %s <b>%s</b>",
+				echo sprintf("%s on %s <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.participant')),
 					1 == count($param->value) ? 'ticket' : 'tickets',
 					DevblocksPlatform::strEscapeHtml(implode(' or ', $param->value))
 				);
