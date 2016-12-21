@@ -335,6 +335,8 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 	const USER_IP = 'd_user_ip';
 	const USER_AGENT = 'd_user_agent';
 	
+	const VIRTUAL_WORKER_SEARCH = '*_worker_search';
+	
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
@@ -349,10 +351,20 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		if('cf_' == substr($param->field, 0, 3)) {
-			return self::_getWhereSQLFromCustomFields($param);
-		} else {
-			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		$field = $param->field;
+		
+		switch($field) {
+			case SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'devblocks_session.user_id');
+				break;
+				
+			default:
+				if('cf_' == substr($field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
 		}
 	}
 	
@@ -380,6 +392,8 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 			self::USER_ID => new DevblocksSearchField(self::USER_ID, 'devblocks_session', 'user_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER, true),
 			self::USER_IP => new DevblocksSearchField(self::USER_IP, 'devblocks_session', 'user_ip', $translate->_('dao.devblocks_session.user_ip'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::USER_AGENT => new DevblocksSearchField(self::USER_AGENT, 'devblocks_session', 'user_agent', $translate->_('dao.devblocks_session.user_agent'), Model_CustomField::TYPE_SINGLE_LINE, true),
+				
+			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, true),
 		);
 		
 		// Sort by label (translation-conscious)
@@ -412,11 +426,13 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 		$this->addColumnsHidden(array(
 			SearchFields_DevblocksSession::SESSION_KEY,
 			SearchFields_DevblocksSession::SESSION_DATA,
+			SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH,
 		));
 		
 		$this->addParamsHidden(array(
 			SearchFields_DevblocksSession::SESSION_KEY,
 			SearchFields_DevblocksSession::SESSION_DATA,
+			SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -526,8 +542,19 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 				),
 			'worker' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
+				),
+			'worker.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_DevblocksSession::USER_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
 				),
 		);
 		
@@ -544,6 +571,10 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'worker':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH);
+				break;
+			
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
@@ -617,6 +648,12 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.worker')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
 		}
 	}
 
