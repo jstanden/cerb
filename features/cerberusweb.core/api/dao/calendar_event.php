@@ -341,6 +341,7 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 	const DATE_END = 'c_date_end';
 	
 	// Virtuals
+	const VIRTUAL_CALENDAR_SEARCH = '*_calendar_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	
 	static private $_fields = null;
@@ -358,6 +359,10 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_CALENDAR_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CALENDAR, 'calendar_event.calendar_id');
+				break;
+			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CALENDAR_EVENT, self::getPrimaryKey());
 				break;
@@ -574,15 +579,21 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CalendarEvent::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'calendar' =>
+			'calendar' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_CalendarEvent::CALENDAR_ID),
+					'options' => array('param_key' => SearchFields_CalendarEvent::VIRTUAL_CALENDAR_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CALENDAR, 'q' => ''],
+					]
 				),
 			'calendar.id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CalendarEvent::CALENDAR_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CALENDAR, 'q' => ''],
+					]
 				),
 			'endDate' =>
 				array(
@@ -593,6 +604,9 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CalendarEvent::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CALENDAR_EVENT, 'q' => ''],
+					]
 				),
 			'name' =>
 				array(
@@ -637,32 +651,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'calendar':
-				$field_key = SearchFields_CalendarEvent::CALENDAR_ID;
-				$oper = null;
-				$terms = array();
-				
-				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $terms, false))
-					return false;
-				
-				if(empty($terms))
-					return false;
-				
-				$calendars = DAO_Calendar::getAll();
-				$value = array();;
-				
-				if(is_array($terms))
-				foreach($terms as $term) {
-					foreach($calendars as $calendar_id => $calendar) {
-						if(false !== stripos($calendar->name, $term))
-							$values[$calendar_id] = true;
-					}
-				}
-				
-				return new DevblocksSearchCriteria(
-					$field_key,
-					$oper,
-					array_keys($values)
-				);
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_CalendarEvent::VIRTUAL_CALENDAR_SEARCH);
 				break;
 				
 			case 'status':
@@ -799,9 +788,14 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
+			case SearchFields_CalendarEvent::VIRTUAL_CALENDAR_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.calendar')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+		
 			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
