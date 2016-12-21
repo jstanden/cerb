@@ -1246,7 +1246,12 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_TriggerEvent::getFields();
-	
+		
+		$event_extensions = DevblocksPlatform::getExtensions('devblocks.event', false);
+		DevblocksPlatform::sortObjects($event_extensions, 'name');
+		
+		$events = array_column(DevblocksPlatform::objectsToArrays($event_extensions), 'name', 'id');
+		
 		$fields = array(
 			'text' => 
 				array(
@@ -1273,6 +1278,14 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_TriggerEvent::IS_DISABLED),
+				),
+			'event' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_TriggerEvent::EVENT_POINT),
+					'examples' => [
+						['type' => 'list', 'values' => $events],
+					]
 				),
 			'id' => 
 				array(
