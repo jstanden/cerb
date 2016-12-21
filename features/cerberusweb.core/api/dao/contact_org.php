@@ -599,8 +599,8 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 	const FULLTEXT_ORG = 'ft_org';
 
 	// Virtuals
-	const VIRTUAL_EMAIL = '*_email';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
@@ -630,23 +630,8 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
 				break;
 				
-			case self::VIRTUAL_EMAIL:
-				$where_sql = $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
-				
-				switch($param->operator) {
-					case DevblocksSearchCriteria::OPER_LIKE:
-						return sprintf("c.email_id IN (SELECT id FROM address WHERE email LIKE %s)",
-							Cerb_ORMHelper::qstr(str_replace('*','%',$param->value))
-						);
-						break;
-						
-					default:
-					case DevblocksSearchCriteria::OPER_EQ:
-						return sprintf("c.email_id IN (SELECT id FROM address WHERE email = %s)",
-							Cerb_ORMHelper::qstr($param->value)
-						);
-						break;
-				}
+			case self::VIRTUAL_EMAIL_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'c.email_id');
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -697,8 +682,8 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 			self::FULLTEXT_ORG => new DevblocksSearchField(self::FULLTEXT_ORG, 'ft', 'org', $translate->_('common.search.fulltext'), 'FT', false),
 
-			self::VIRTUAL_EMAIL => new DevblocksSearchField(self::VIRTUAL_EMAIL, '*', 'email', $translate->_('common.email'), null, false),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
@@ -985,7 +970,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_ContactOrg::FULLTEXT_ORG,
 			SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK,
-			SearchFields_ContactOrg::VIRTUAL_EMAIL,
+			SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET,
 			SearchFields_ContactOrg::VIRTUAL_WATCHERS,
 		));
@@ -1131,17 +1116,26 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			'email' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_ContactOrg::EMAIL_ID),
+					'options' => array('param_key' => SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
 				),
 			'email.id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_ContactOrg::EMAIL_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
 				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_ContactOrg::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ORG, 'q' => ''],
+					]
 				),
 			'name' => 
 				array(
@@ -1233,14 +1227,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			case 'email':
-				$oper = null;
-				$value = null;
-				CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
-				
-				if(false !== strpos($value, '*'))
-					$oper = DevblocksSearchCriteria::OPER_LIKE;
-				
-				return new DevblocksSearchCriteria(SearchFields_ContactOrg::VIRTUAL_EMAIL, $oper, $value);
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH);
 				break;
 			
 			default:
@@ -1302,10 +1289,6 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
-			case SearchFields_ContactOrg::VIRTUAL_EMAIL:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
 			case SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_ContactOrg::FULLTEXT_ORG:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
@@ -1344,42 +1327,10 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				$this->_renderVirtualContextLinks($param);
 				break;
 				
-			case SearchFields_ContactOrg::VIRTUAL_EMAIL:
-				$strings_or = array();
-
-				switch($param->operator) {
-					case DevblocksSearchCriteria::OPER_EQ:
-					case DevblocksSearchCriteria::OPER_IN:
-					case DevblocksSearchCriteria::OPER_LIKE:
-						$oper = 'is';
-						break;
-						
-					case DevblocksSearchCriteria::OPER_NEQ:
-					case DevblocksSearchCriteria::OPER_NIN:
-					case DevblocksSearchCriteria::OPER_NOT_LIKE:
-						$oper = 'is not';
-						break;
-						
-					default:
-						$oper = $param->operator;
-						break;
-				}
-				
-				if(is_array($param->value)) {
-					foreach($param->value as $param_value) {
-						$strings_or[] = sprintf("<b>%s</b>",
-							DevblocksPlatform::strEscapeHtml($param_value)
-						);
-					}
-				} else {
-					$strings_or[] = sprintf("<b>%s</b>",
-						DevblocksPlatform::strEscapeHtml($param->value)
-					);
-				}
-				
-				echo sprintf("Email %s %s",
-					DevblocksPlatform::strEscapeHtml($oper),
-					implode(' or ', $strings_or)
+			case SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.email')),
+					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
 				
@@ -1429,10 +1380,6 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_ContactOrg::EMAIL_ID:
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-				
-			case SearchFields_ContactOrg::VIRTUAL_EMAIL:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
