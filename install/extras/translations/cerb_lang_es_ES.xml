@@ -23,11 +23,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.addybook">
-			<tuv xml:lang="es_ES">
-				<seg>[Contactos] Puede ver los contactos</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.addybook.addy.actions.update">
 			<tuv xml:lang="es_ES">
 				<seg>[Contactos] Puede modificar direcciones de correo de los contactos</seg>

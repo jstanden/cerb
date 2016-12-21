@@ -21,7 +21,7 @@ class ChContactsPage extends CerberusPageExtension {
 		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
 		
-		return $worker->hasPriv('core.addybook');
+		return true;
 	}
 	
 	function render() {

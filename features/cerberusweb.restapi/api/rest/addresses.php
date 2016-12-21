@@ -69,10 +69,6 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	private function getId($id) {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('core.addybook'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -324,10 +320,6 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	function postSearch() {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('core.addybook'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);

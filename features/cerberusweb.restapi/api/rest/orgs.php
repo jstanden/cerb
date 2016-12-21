@@ -76,10 +76,6 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 	function getId($id) {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('core.addybook'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -234,10 +230,6 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 	function postSearch() {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('core.addybook'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);

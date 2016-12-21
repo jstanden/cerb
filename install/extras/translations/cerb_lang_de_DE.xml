@@ -23,11 +23,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.addybook">
-			<tuv xml:lang="de_DE">
-				<seg>[Adressbuch] Kann das Adressbuch durchsuchen</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.addybook.addy.actions.update">
 			<tuv xml:lang="de_DE">
 				<seg>[Adressbuch] Kann E-Mail-Adressen modifizieren</seg>

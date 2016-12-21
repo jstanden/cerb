@@ -23,11 +23,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.addybook">
-			<tuv xml:lang="ru_RU">
-				<seg>[Адресная книга] Может просматривать адресную книгу</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.addybook.addy.actions.update">
 			<tuv xml:lang="ru_RU">
 				<seg>[Адресная книга] Может изменять адреса электронной почты контакта</seg>

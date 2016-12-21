@@ -23,11 +23,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.addybook">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.addybook.addy.actions.update">
 			<tuv xml:lang="it_IT">
 				<seg/>

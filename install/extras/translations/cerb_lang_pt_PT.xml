@@ -23,11 +23,6 @@
 				<seg>[Registo de Chamadas] Pode exportar a lista de chamadas para CSV/XML</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.addybook">
-			<tuv xml:lang="pt_PT">
-				<seg>[Contactos] Pode navegar pelos contactos</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.addybook.addy.actions.update">
 			<tuv xml:lang="pt_PT">
 				<seg>[Contactos] Pode alterar os endereços de email dos contactos</seg>

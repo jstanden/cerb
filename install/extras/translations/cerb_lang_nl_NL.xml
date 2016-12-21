@@ -23,11 +23,6 @@
 				<seg>[Call logging] Kan call lijsten exporteren naar CSV/XML</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.addybook">
-			<tuv xml:lang="nl_NL">
-				<seg>[Adressenbestand] Kan het adressenbestand inzien</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.addybook.addy.actions.update">
 			<tuv xml:lang="nl_NL">
 				<seg>[Adressenbestand] Kan e-mailadressen aanpassen</seg>
