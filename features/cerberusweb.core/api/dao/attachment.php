@@ -229,28 +229,13 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		// This also cleans up temporary attachment uploads from the file chooser.
 		// If any of these queries fail, we need to stop immediately
 		
-		if(false === $db->ExecuteMaster("CREATE TEMPORARY TABLE _tmp_maint_attachment (PRIMARY KEY (id)) SELECT id, updated FROM attachment")) {
-			$logger->error('[Maint] Failed to create temporary table for purging attachments.');
-			return false;
-		}
-		
-		if(false === $db->ExecuteMaster("DELETE FROM _tmp_maint_attachment WHERE id IN (SELECT to_context_id FROM context_link WHERE to_context = 'cerberusweb.contexts.attachment')")) {
-			$logger->error('[Maint] Failed to remove valid attachment links from temporary table.');
-			return false;
-		}
-		
-		if(false === $db->ExecuteMaster("DELETE FROM _tmp_maint_attachment WHERE updated >= UNIX_TIMESTAMP() - 86400 AND updated != 2147483647")) {
-			$logger->error('[Maint] Failed to remove recent attachments from temporary table.');
-			return false;
-		}
-		
-		if(false === ($rs = $db->ExecuteMaster("SELECT SQL_CALC_FOUND_ROWS id FROM _tmp_maint_attachment")) || !($rs instanceof mysqli_result)) {
-			$logger->error('[Maint] Failed to iterate attachments from temporary table.');
+		if(false == ($rs = $db->ExecuteMaster("SELECT SQL_CALC_FOUND_ROWS id FROM attachment WHERE id NOT IN (SELECT DISTINCT attachment_id FROM attachment_link) AND updated < UNIX_TIMESTAMP() - 86400 LIMIT 500"))) {
+			$logger->error('[Maint] Failed to select unlinked attachments to purge.');
 			return false;
 		}
 		
 		if(false === ($count = $db->GetOneMaster("SELECT FOUND_ROWS()"))) {
-			$logger->error('[Maint] Failed to count attachments from temporary table.');
+			$logger->error('[Maint] Failed to count unlinked attachments.');
 			return false;
 		}
 		
@@ -260,8 +245,6 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			}
 			mysqli_free_result($rs);
 		}
-		
-		$db->ExecuteMaster("DROP TABLE _tmp_maint_attachment");
 		
 		$logger->info('[Maint] Purged ' . $count . ' attachment records.');
 	}
@@ -324,7 +307,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			return FALSE;
 		
 		// Delete links
-		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE id IN (%s)", implode(',', $ids)));
+		$db->ExecuteMaster(sprintf("DELETE FROM attachment_link WHERE attachment_id IN (%s)", implode(',', $ids)));
 		
 		// Delete DB manifests
 		$sql = sprintf("DELETE FROM attachment WHERE id IN (%s)", implode(',', $ids));
