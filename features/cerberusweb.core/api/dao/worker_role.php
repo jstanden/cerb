@@ -215,6 +215,42 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_WorkerRole[]
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+
+		if(empty($ids))
+			return array();
+
+		if(!method_exists(get_called_class(), 'getWhere'))
+			return array();
+
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+
+		$models = array();
+
+		$results = static::getWhere(sprintf("id IN (%s)",
+			implode(',', $ids)
+		));
+
+		// Sort $models in the same order as $ids
+		foreach($ids as $id) {
+			if(isset($results[$id]))
+				$models[$id] = $results[$id];
+		}
+
+		unset($results);
+
+		return $models;
+	}	
+	
+	/**
 	 * @param resource $rs
 	 * @return Model_WorkerRole[]
 	 */
@@ -339,6 +375,133 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			}
 		}
 	}
+	
+	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
+		$fields = SearchFields_WorkerRole::getFields();
+		
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkerRole', $sortBy);
+		
+		$select_sql = sprintf("SELECT ".
+			"worker_role.id as %s, ".
+			"worker_role.name as %s, ".
+			"worker_role.params_json as %s ",
+				SearchFields_WorkerRole::ID,
+				SearchFields_WorkerRole::NAME,
+				SearchFields_WorkerRole::PARAMS_JSON
+			);
+			
+		$join_sql = "FROM worker_role ";
+		
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+			
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_WorkerRole');
+	
+		// Virtuals
+		
+		$args = array(
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'tables' => &$tables,
+		);
+	
+		array_walk_recursive(
+			$params,
+			array('DAO_WorkerRole', '_translateVirtualParameters'),
+			$args
+		);
+		
+		return array(
+			'primary_table' => 'worker_role',
+			'select' => $select_sql,
+			'join' => $join_sql,
+			'where' => $where_sql,
+			'sort' => $sort_sql,
+		);
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		$from_context = CerberusContexts::CONTEXT_ROLE;
+		$from_index = 'worker_role.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+			case SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET:
+				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
+				break;
+		}
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Build search queries
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
+
+		$select_sql = $query_parts['select'];
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		$sort_sql = $query_parts['sort'];
+		
+		$sql =
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			$sort_sql;
+			
+		if($limit > 0) {
+			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+				return false;
+		} else {
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
+			$total = mysqli_num_rows($rs);
+		}
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
+		$results = array();
+		
+		while($row = mysqli_fetch_assoc($rs)) {
+			$object_id = intval($row[SearchFields_WorkerRole::ID]);
+			$results[$object_id] = $row;
+		}
+
+		$total = count($results);
+		
+		if($withCounts) {
+			// We can skip counting if we have a less-than-full single page
+			if(!(0 == $page && $total < $limit)) {
+				$count_sql =
+					"SELECT COUNT(worker_role.id) ".
+					$join_sql.
+					$where_sql;
+				$total = $db->GetOneSlave($count_sql);
+			}
+		}
+		
+		mysqli_free_result($rs);
+		
+		return array($results,$total);
+	}
 };
 
 class Model_WorkerRole {
@@ -347,7 +510,363 @@ class Model_WorkerRole {
 	public $params = array();
 };
 
-class Context_WorkerRole extends Extension_DevblocksContext {
+class SearchFields_WorkerRole extends DevblocksSearchFields {
+	const ID = 'w_id';
+	const NAME = 'w_name';
+	const PARAMS_JSON = 'w_params_json';
+
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'worker_role.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('worker_role.id', self::ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ROLE, self::getPrimaryKey());
+				break;
+				
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$columns = array(
+			self::ID => new DevblocksSearchField(self::ID, 'worker_role', 'id', $translate->_('common.id'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'worker_role', 'name', $translate->_('common.name'), null, true),
+
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+		);
+		
+		// Custom Fields
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
+		
+		if(!empty($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
+
+		// Sort by label (translation-conscious)
+		DevblocksPlatform::sortObjects($columns, 'db_label');
+
+		return $columns;
+	}
+};
+
+class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
+	const DEFAULT_ID = 'worker_roles';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = DevblocksPlatform::translateCapitalized('common.roles');
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_WorkerRole::ID;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_WorkerRole::NAME,
+		);
+
+		$this->addColumnsHidden(array(
+			SearchFields_WorkerRole::PARAMS_JSON,
+			SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK,
+			SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET,
+		));
+		
+		$this->addParamsHidden(array(
+			SearchFields_WorkerRole::PARAMS_JSON,
+		));
+		
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		$objects = DAO_WorkerRole::search(
+			$this->view_columns,
+			$this->getParams(),
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc,
+			$this->renderTotal
+		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_WorkerRole');
+		
+		return $objects;
+	}
+	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_WorkerRole', $ids);
+	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_WorkerRole', $size);
+	}
+
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable(true);
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Virtuals
+				case SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = array();
+		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_ROLE;
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
+				break;
+
+			case SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
+				break;
+				
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}
+	
+	function getQuickSearchFields() {
+		$search_fields = SearchFields_WorkerRole::getFields();
+	
+		$fields = array(
+			'text' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_WorkerRole::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_WorkerRole::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ROLE, 'q' => ''],
+					]
+				),
+			'name' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_WorkerRole::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+		);
+		
+		// Add quick search links
+		
+		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		
+		// Add searchable custom fields
+		
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_ROLE, $fields, null);
+		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+		
+		// Sort by keys
+		ksort($fields);
+		
+		return $fields;
+	}	
+	
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
+		}
+		
+		return false;
+	}
+	
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ROLE);
+		$tpl->assign('custom_fields', $custom_fields);
+
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/roles/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_WorkerRole::NAME:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
+				break;
+				
+			case SearchFields_WorkerRole::ID:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+				break;
+				
+			case SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+				
+			case SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET:
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_ROLE);
+				break;
+				
+			default:
+				// Custom Fields
+				if('cf_' == substr($field,0,3)) {
+					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+				} else {
+					echo ' ';
+				}
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($key) {
+			case SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+				
+			case SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
+				break;
+		}
+	}
+
+	function getFields() {
+		return SearchFields_WorkerRole::getFields();
+	}
+
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_WorkerRole::NAME:
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
+				break;
+				
+			case SearchFields_WorkerRole::ID:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
+			case SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
+				break;
+				
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				}
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->addParam($criteria, $field);
+			$this->renderPage = 0;
+		}
+	}
+};
+
+class Context_WorkerRole extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can see roles
 		return CerberusContexts::allowEveryone($actor, $models);
@@ -531,11 +1050,10 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_Worker::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
-
+		
 		$view->addParamsRequired($params_req, true);
 		
 		$view->renderTemplate = 'context';

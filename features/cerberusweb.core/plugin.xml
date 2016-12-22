@@ -465,6 +465,8 @@
 			<class name="Context_WorkerRole" />
 			<class name="DAO_WorkerRole" />
 			<class name="Model_WorkerRole" />
+			<class name="SearchFields_WorkerRole" />
+			<class name="View_WorkerRole" />
 		</file>
 		
 		<file path="api/dao/notification.php">
@@ -2105,14 +2107,12 @@
 				<param key="dao_class" value="DAO_WorkerRole" />
 				<param key="view_class" value="View_WorkerRole" />
 				<param key="options">
-					<!--
 					<value>
-						<data key="create" />
+						<data key="custom_fields" />
 						<data key="find" />
-						<data key="snippets" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
-					-->
 				</param>
 			</params>
 		</extension>
