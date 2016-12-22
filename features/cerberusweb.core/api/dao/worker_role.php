@@ -374,6 +374,15 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 		return DAO_WorkerRole::random();
 	}
 	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::getUrlService();
+		$url = $url_writer->writeNoProxy('c=profiles&type=role&id='.$context_id, true);
+		return $url;
+	}
+	
 	function getMeta($context_id) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
@@ -455,8 +464,8 @@ class Context_WorkerRole extends Extension_DevblocksContext {
 			$token_values = $this->_importModelCustomFieldsAsValues($role, $token_values);
 			
 			// URL
-// 			$url_writer = DevblocksPlatform::getUrlService();
-// 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=worker&id=%d-%s",$worker->id, DevblocksPlatform::strToPermalink($worker->getName())), true);
+			$url_writer = DevblocksPlatform::getUrlService();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=role&id=%d-%s",$role->id, DevblocksPlatform::strToPermalink($role->name)), true);
 		}
 		
 		return true;

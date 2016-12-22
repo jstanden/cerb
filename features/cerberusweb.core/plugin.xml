@@ -4208,6 +4208,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.role</id>
+				<name>Role Section</name>
+				<class>
+					<file>api/uri/profiles/role.php</file>
+					<name>PageSection_ProfilesWorkerRole</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="role" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.skill</id>
 				<name>Skill Section</name>
 				<class>
