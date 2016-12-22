@@ -252,7 +252,21 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
 				return;
 			
-			$view = $ext->getSearchView(uniqid());
+			if(!method_exists($ext, 'getSearchView') || false == ($view = $ext->getSearchView(uniqid()))) {
+				// Handle contexts without worklists
+				switch($alias) {
+					case 'app':
+						return sprintf("(%s = %s AND %s = %d)",
+							Cerb_OrmHelper::escape($context_field),
+							Cerb_ORMHelper::qstr($ext->id),
+							Cerb_OrmHelper::escape($context_id_field),
+							'0'
+						);
+						break;
+				}
+				return;
+			}
+				
 			$view->is_ephemeral = true;
 			$view->setAutoPersist(false);
 			$view->addParamsWithQuickSearch($query, true);
@@ -279,7 +293,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['sort']
 				;
 			
-			return sprintf("%s = %s AND %s IN (%s) ",
+			return sprintf("(%s = %s AND %s IN (%s)) ",
 				Cerb_OrmHelper::escape($context_field),
 				Cerb_ORMHelper::qstr($ext->id),
 				Cerb_OrmHelper::escape($context_id_field),
@@ -291,6 +305,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			return '0';
 		
 		$wheres = array();
+		$contexts = array();
 			
 		foreach($param->value as $owner_context) {
 			@list($context, $context_id) = explode(':', $owner_context);
@@ -307,11 +322,17 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				);
 				
 			} else {
-				$wheres[] = sprintf("(%s = %s)",
-					Cerb_ORMHelper::escape($context_field),
-					Cerb_ORMHelper::qstr($context)
-				);
+				$contexts[] = $context;
 			}
+		}
+		
+		if(!empty($contexts)) {
+			$wheres[] = sprintf("(%s IN (%s))",
+				Cerb_ORMHelper::escape($context_field),
+				implode(',', array_map(function($ctx) {
+					return Cerb_ORMHelper::qstr($ctx);
+				}, $contexts))
+			);
 		}
 		
 		if(!empty($wheres))
