@@ -1059,6 +1059,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUPS = '*_groups';
+	const VIRTUAL_GROUP_SEARCH = '*_group_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_CALENDAR_AVAILABILITY = '*_calendar_availability';
 	
@@ -1085,23 +1086,10 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
 				break;
 				
-			case self::VIRTUAL_GROUPS:
-				if(!is_array($param->value))
-					break;
-					
-				// Sanitize array
-				$param->value = DevblocksPlatform::sanitizeArray($param->value, 'int');
 				
-				$param->value = array_filter($param->value, function($v) {
-					return !empty($v);
-				});
-				
-				if($param->value) {
-					return sprintf("w.id %sIN (SELECT worker_id FROM worker_to_group WHERE group_id IN (%s))",
-						$param->operator == 'not in' ? 'NOT ' : '',
-						implode(',', $param->value)
-					);
-				}
+			case self::VIRTUAL_GROUP_SEARCH:
+				$sql = "w.id IN (SELECT worker_id FROM worker_to_group WHERE group_id IN (%s))";
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql);
 				break;
 				
 			case self::VIRTUAL_CALENDAR_AVAILABILITY:
@@ -1204,7 +1192,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::FULLTEXT_WORKER => new DevblocksSearchField(self::FULLTEXT_WORKER, 'ft', 'content', $translate->_('common.content'), 'FT'),
 				
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
-			self::VIRTUAL_GROUPS => new DevblocksSearchField(self::VIRTUAL_GROUPS, '*', 'groups', $translate->_('common.groups'), null),
+			self::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability', null),
 		);
@@ -1681,8 +1669,8 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$this->addColumnsHidden(array(
 			SearchFields_Worker::EMAIL_ID,
 			SearchFields_Worker::VIRTUAL_CONTEXT_LINK,
-			SearchFields_Worker::VIRTUAL_GROUPS,
 			SearchFields_Worker::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
 			SearchFields_Worker::FULLTEXT_WORKER,
 		));
 		
@@ -1690,6 +1678,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::CALENDAR_ID,
 			SearchFields_Worker::EMAIL_ID,
 			SearchFields_Worker::ID,
+			SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -1850,8 +1839,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'group' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_GROUPS),
-					'examples' => array_slice($group_names, 0, 15),
+					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_GROUP_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_GROUP, 'q' => ''],
+					]
 				),
 			'id' => 
 				array(
@@ -2050,6 +2041,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				}
 				break;
 				
+			case 'group':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_GROUP_SEARCH);
+				break;
+			
 			case 'isAvailable':
 				$param = DevblocksSearchCriteria::getDateParamFromTokens(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $tokens);
 				$param->value[] = '1';
@@ -2130,6 +2125,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					);
 				}
 				
+			case SearchFields_Worker::VIRTUAL_GROUP_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.group')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
