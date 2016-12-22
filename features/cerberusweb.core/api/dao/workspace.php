@@ -301,18 +301,12 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 		
-		array_walk_recursive(
-			$params,
-			array('DAO_WorkspacePage', '_translateVirtualParameters'),
-			$args
-		);
-		
 		$sql =
 			$select_sql.
 			$join_sql.
 			$where_sql.
 			$sort_sql;
-
+		
 		if($limit > 0) {
 			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
 				return false;
@@ -350,39 +344,6 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		return array($results,$total);
 	}
 
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
-				if(!is_array($param->value))
-					break;
-				
-				$wheres = array();
-					
-				foreach($param->value as $owner_context) {
-					@list($context, $context_id) = explode(':', $owner_context);
-					
-					if(empty($context))
-						continue;
-					
-					$wheres[] = sprintf("(workspace_page.owner_context = %s AND workspace_page.owner_context_id = %d)",
-						Cerb_ORMHelper::qstr($context),
-						$context_id
-					);
-				}
-				
-				if(!empty($wheres))
-					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
-				
-				break;
-		}
-	}
-	
 	public static function maint() {
 		$db = DevblocksPlatform::getDatabaseService();
 		$logger = DevblocksPlatform::getConsoleLog();
@@ -721,10 +682,18 @@ class SearchFields_WorkspacePage extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		if('cf_' == substr($param->field, 0, 3)) {
-			return self::_getWhereSQLFromCustomFields($param);
-		} else {
-			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		switch($param->field) {
+			case self::VIRTUAL_OWNER:
+				return self::_getWhereSQLFromContextAndID($param, 'workspace_page.owner_context', 'workspace_page.owner_context_id');
+				break;
+				
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
 		}
 	}
 	
@@ -1132,6 +1101,10 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 				),
 		);
 		
+		// Add 'owner.*'
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields);
+		
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $fields, null);
@@ -1150,6 +1123,9 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
+				if($field == 'owner' || DevblocksPlatform::strStartsWith($field, 'owner.'))
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_WorkspacePage::VIRTUAL_OWNER);
+				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
@@ -1207,39 +1183,9 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
-				echo sprintf("%s %s ",
-					DevblocksPlatform::strEscapeHtml(mb_convert_case($translate->_('common.owner'), MB_CASE_TITLE)),
-					DevblocksPlatform::strEscapeHtml($param->operator)
-				);
-				
-				$objects = array();
-				
-				if(is_array($param->value))
-				foreach($param->value as $v) {
-					@list($context, $context_id) = explode(':', $v);
-					
-					if(empty($context) || empty($context_id))
-						continue;
-					
-					if(null == ($ext = Extension_DevblocksContext::get($context)))
-						return;
-					
-					$meta = $ext->getMeta($context_id);
-					
-					if(empty($meta))
-						return;
-					
-					$objects[] = sprintf("<b>%s (%s)</b>",
-						DevblocksPlatform::strEscapeHtml($meta['name']),
-						DevblocksPlatform::strEscapeHtml($ext->manifest->name)
-					);
-				}
-				
-				echo implode('; ', $objects);
+				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner matches');
 				break;
 		}
 	}
