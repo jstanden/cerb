@@ -664,11 +664,11 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
-				if($field == 'actor' || substr($field, 0, strlen('actor.')) == 'actor.')
-					return $this->_getActorParamFromTokens($field, $tokens);
+				if($field == 'actor' || DevblocksPlatform::strStartsWith($field, 'actor.'))
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'actor', SearchFields_ContextActivityLog::VIRTUAL_ACTOR);
 					
-				if($field == 'target' || substr($field, 0, strlen('target.')) == 'target.')
-					return $this->_getTargetParamFromTokens($field, $tokens);
+				if($field == 'target' || DevblocksPlatform::strStartsWith($field, 'target.'))
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'target', SearchFields_ContextActivityLog::VIRTUAL_TARGET);
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
@@ -676,80 +676,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		}
 		
 		return false;
-	}
-	
-	private function _getActorParamFromTokens($field_key, $tokens) {
-		// Is this a nested subquery?
-		if(substr($field_key, 0, strlen('actor.')) == 'actor.') {
-			@list($null, $alias) = explode('.', $field_key);
-			
-			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
-			
-			$param = new DevblocksSearchCriteria(
-				SearchFields_ContextActivityLog::VIRTUAL_ACTOR,
-				DevblocksSearchCriteria::OPER_CUSTOM,
-				sprintf('%s:%s', $alias, $query)
-			);
-			return $param;
-			
-		} else {
-			$aliases = Extension_DevblocksContext::getAliasesForAllContexts();
-			$link_contexts = array();
-			
-			$oper = null;
-			$value = null;
-			CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
-			
-			if(is_array($value))
-			foreach($value as $alias) {
-				if(isset($aliases[$alias]))
-					$link_contexts[$aliases[$alias]] = true;
-			}
-			
-			$param = new DevblocksSearchCriteria(
-				SearchFields_ContextActivityLog::VIRTUAL_ACTOR,
-				DevblocksSearchCriteria::OPER_IN,
-				array_keys($link_contexts)
-			);
-			return $param;
-		}
-	}
-	
-	private function _getTargetParamFromTokens($field_key, $tokens) {
-		// Is this a nested subquery?
-		if(substr($field_key, 0, strlen('target.')) == 'target.') {
-			@list($null, $alias) = explode('.', $field_key);
-			
-			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
-			
-			$param = new DevblocksSearchCriteria(
-				SearchFields_ContextActivityLog::VIRTUAL_TARGET,
-				DevblocksSearchCriteria::OPER_CUSTOM,
-				sprintf('%s:%s', $alias, $query)
-			);
-			return $param;
-			
-		} else {
-			$aliases = Extension_DevblocksContext::getAliasesForAllContexts();
-			$link_contexts = array();
-			
-			$oper = null;
-			$value = null;
-			CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
-			
-			if(is_array($value))
-			foreach($value as $alias) {
-				if(isset($aliases[$alias]))
-					$link_contexts[$aliases[$alias]] = true;
-			}
-			
-			$param = new DevblocksSearchCriteria(
-				SearchFields_ContextActivityLog::VIRTUAL_TARGET,
-				DevblocksSearchCriteria::OPER_IN,
-				array_keys($link_contexts)
-			);
-			return $param;
-		}
 	}
 	
 	function render() {
