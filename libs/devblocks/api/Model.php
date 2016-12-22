@@ -762,6 +762,84 @@ class DevblocksSearchCriteria {
 		);
 	}
 	
+	public static function getBytesParamFromTokens($field_key, $tokens) {
+		$oper = DevblocksSearchCriteria::OPER_EQ;
+		$value = null;
+		$not = false;
+		
+		if(is_array($tokens))
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_NOT':
+					$not = true;
+					break;
+					
+				case 'T_ARRAY':
+					$oper = $not ? DevblocksSearchCriteria::OPER_NIN : DevblocksSearchCriteria::OPER_IN;
+					
+					// Convert values
+					array_walk($token->value, function(&$v) {
+						$v = DevblocksPlatform::parseBytesString($v);
+					});
+					
+					$value = DevblocksPlatform::sanitizeArray($token->value, 'int');
+					break;
+					
+				case 'T_TEXT':
+				case 'T_QUOTED_TEXT':
+					$oper = $not ? DevblocksSearchCriteria::OPER_NEQ : DevblocksSearchCriteria::OPER_EQ;
+					$value = $token->value;
+					
+					if(preg_match('#(.*?)\.{3}(.*)#', $value, $matches) || preg_match('#(.*?)\s+to\s+(.*)#', $value, $matches)) {
+						$from = intval(DevblocksPlatform::parseBytesString($matches[1]));
+						$to = intval(DevblocksPlatform::parseBytesString($matches[2]));
+						
+						$oper = DevblocksSearchCriteria::OPER_BETWEEN;
+						$value = array($from, $to);
+						
+					} else if(preg_match('#^([\<\>\!\=]+)(.*)#', $value, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$value = DevblocksPlatform::parseBytesString(trim($matches[2]));
+						
+						switch($oper_hint) {
+							case '!':
+							case '!=':
+								$oper = self::OPER_NEQ;
+								break;
+								
+							case '>':
+								$oper = self::OPER_GT;
+								break;
+								
+							case '>=':
+								$oper = self::OPER_GTE;
+								break;
+								
+							case '<':
+								$oper = self::OPER_LT;
+								break;
+								
+							case '<=':
+								$oper = self::OPER_LTE;
+								break;
+								
+							default:
+								break;
+						}
+						
+						$value = intval($value);
+					}
+					break;
+			}
+		}
+		
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$value
+		);
+	}
+	
 	public static function getNumberParamFromTokens($field_key, $tokens) {
 		$oper = DevblocksSearchCriteria::OPER_EQ;
 		$value = null;
