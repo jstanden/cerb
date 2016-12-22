@@ -538,23 +538,28 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(256, $actual);
 		
 		// [TODO] This could test 'bytes', 'MB', 'GB', etc.
-		// [TODO] Also 1000^n vs 1024^n (MB vs MiB)
+		// [TODO] Handle commas and decimals?
+		// [TODO] Test KB/MB/GB/TB vs KiB/...
 		
 		// B
 		$actual = DevblocksPlatform::parseBytesString('512B');
 		$this->assertEquals(512, $actual);
 		
-		// K
-		$actual = DevblocksPlatform::parseBytesString('256K');
+		// KiB
+		$actual = DevblocksPlatform::parseBytesString('256KiB');
 		$this->assertEquals(262144, $actual);
 		
-		// M
-		$actual = DevblocksPlatform::parseBytesString('100M');
+		// MiB
+		$actual = DevblocksPlatform::parseBytesString('100MiB');
 		$this->assertEquals(104857600, $actual);
 		
-		// G
-		$actual = DevblocksPlatform::parseBytesString('8G');
+		// GiB
+		$actual = DevblocksPlatform::parseBytesString('8GiB');
 		$this->assertEquals(8589934592, $actual);
+		
+		// TiB
+		$actual = DevblocksPlatform::parseBytesString('2TiB');
+		$this->assertEquals(2 * pow(1024,4), $actual);
 	}
 	
 	public function testParseCrlfString() {

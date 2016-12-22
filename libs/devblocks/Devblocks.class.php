@@ -320,22 +320,44 @@ class DevblocksPlatform extends DevblocksEngine {
 			return intval($string);
 			
 		} else {
-			$value = intval($string);
-			$unit = strtolower(substr($string, -1));
-			 
+			if(!preg_match('#(\d+)(.*)#', $string, $matches))
+				return false;
+			
+			$value = intval($matches[1]);
+			$unit = strtolower(trim($matches[2]));
+			
 			switch($unit) {
 				default:
 				case 'b':
 					return $value;
 					break;
 				case 'k':
-					return $value * 1024; // 1024^1
+				case 'kb':
+					return $value * 1000;
+					break;
+				case 'kib':
+					return $value * 1024;
 					break;
 				case 'm':
-					return $value * 1048576; // 1024^2
+				case 'mb':
+					return $value * pow(1000,2);
+					break;
+				case 'mib':
+					return $value * pow(1024,2);
 					break;
 				case 'g':
-					return $value * 1073741824; // 1024^3
+				case 'gb':
+					return $value * pow(1000,3);
+					break;
+				case 'gib':
+					return $value * pow(1024,3);
+					break;
+				case 't':
+				case 'tb':
+					return $value * pow(1000,4);
+					break;
+				case 'tib':
+					return $value * pow(1024,4);
 					break;
 			}
 		}
