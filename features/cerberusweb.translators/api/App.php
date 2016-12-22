@@ -564,6 +564,9 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Translation::getFields();
 		
+		$translate = DevblocksPlatform::getTranslationService();
+		$languages = DAO_Translation::getDefinedLangCodes();
+		
 		$fields = array(
 			'text' => 
 				array(
@@ -580,9 +583,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Translation::LANG_CODE),
 					'examples' => array(
-						'en',
-						'[en,de,nl]',
-						'![en]',
+						['type' => 'list', 'values' => $languages],
 					)
 				),
 			'mine' => 
