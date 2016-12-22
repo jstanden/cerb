@@ -314,6 +314,10 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 	}
 	
+	public static function random() {
+		return self::_getRandom('attachment');
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Attachment::getFields();
 		
@@ -1384,7 +1388,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getRandom() {
-		return null;
+		return DAO_Attachment::random();
 	}
 	
 	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
