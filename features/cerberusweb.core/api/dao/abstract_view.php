@@ -3342,8 +3342,9 @@ class CerbQuickSearchLexer {
 	
 	static function getTokensAsQuery($tokens) {
 		$string = null;
+		$group_stack = [];
 		
-		$node_callback = function($token) use (&$string) {
+		$node_callback = function($token) use (&$string, &$group_stack) {
 			switch($token->type) {
 				case 'T_NOT':
 					$string .= '!';
@@ -3351,6 +3352,7 @@ class CerbQuickSearchLexer {
 					
 				case 'T_GROUP':
 					$string .= '(';
+					$group_stack[] = $token->value;
 					break;
 					
 				case 'T_ARRAY':
@@ -3362,10 +3364,24 @@ class CerbQuickSearchLexer {
 					break;
 					
 				case 'T_TEXT':
+					if($string && !DevblocksPlatform::strEndsWith($string, ['(',':']))
+						$string .= ' ';
+						
 					$string .= $token->value;
 					break;
 					
 				case 'T_FIELD':
+					// AND/OR separators
+					if($string && !DevblocksPlatform::strEndsWith($string, ['(',':']) && end($group_stack)) {
+						if(!DevblocksPlatform::strEndsWith($string, [' ']))
+							$string .= ' ';
+						
+						$string .= end($group_stack);
+					}
+					
+					if(!DevblocksPlatform::strEndsWith($string, [' ','(']))
+						$string .= ' ';
+					
 					switch($token->value) {
 						case 'text':
 							break;
@@ -3378,10 +3394,11 @@ class CerbQuickSearchLexer {
 			}
 		};
 		
-		$after_children_callback = function($token) use (&$string) {
+		$after_children_callback = function($token) use (&$string, &$group_stack) {
 			switch($token->type) {
 				case 'T_GROUP':
 					$string = rtrim($string) . ')';
+					array_pop($group_stack);
 					break;
 					
 				case 'T_ARRAY':
