@@ -1058,6 +1058,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	const FULLTEXT_WORKER = 'ft_worker';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_GROUPS = '*_groups';
 	const VIRTUAL_GROUP_SEARCH = '*_group_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -1086,6 +1087,9 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
 				break;
 				
+			case self::VIRTUAL_EMAIL_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'w.email_id');
+				break;
 				
 			case self::VIRTUAL_GROUP_SEARCH:
 				$sql = "w.id IN (SELECT worker_id FROM worker_to_group WHERE group_id IN (%s))";
@@ -1192,6 +1196,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::FULLTEXT_WORKER => new DevblocksSearchField(self::FULLTEXT_WORKER, 'ft', 'content', $translate->_('common.content'), 'FT'),
 				
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null),
 			self::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability', null),
@@ -1669,6 +1674,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$this->addColumnsHidden(array(
 			SearchFields_Worker::EMAIL_ID,
 			SearchFields_Worker::VIRTUAL_CONTEXT_LINK,
+			SearchFields_Worker::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Worker::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
 			SearchFields_Worker::FULLTEXT_WORKER,
@@ -1678,6 +1684,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::CALENDAR_ID,
 			SearchFields_Worker::EMAIL_ID,
 			SearchFields_Worker::ID,
+			SearchFields_Worker::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
 		));
 		
@@ -1820,11 +1827,17 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Worker::EMAIL_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
 				),
 			'email' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Worker::EMAIL_ADDRESS, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_EMAIL_SEARCH),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
 				),
 			'firstName' => 
 				array(
@@ -1848,6 +1861,9 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Worker::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
 				),
 			'isAdmin' => 
 				array(
@@ -1985,60 +2001,9 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$value
 				);
 				break;
-			
-			case 'group':
-			case 'inGroups':
-				$field_key = SearchFields_Worker::VIRTUAL_GROUPS;
-				$oper = DevblocksSearchCriteria::OPER_IN;
 				
-				$terms = array();
-				
-				foreach($tokens as $token) {
-					switch($token->type) {
-						case 'T_NOT':
-							$oper = DevblocksSearchCriteria::OPER_NIN;
-							break;
-						case 'T_QUOTED_TEXT':
-						case 'T_TEXT':
-							$terms[] = $token->value;
-							break;
-						case 'T_ARRAY':
-							$terms += $token->value;
-							break;
-					}
-				}
-				
-				$groups = DAO_Group::getAll();
-				
-				if(!is_array($terms))
-					break;
-				
-				$group_ids = array();
-				
-				foreach($terms as $term) {
-					// Allow raw IDs
-					if(is_numeric($term) && isset($groups[$term])) {
-						$group_ids[intval($term)] = true;
-						
-					} else {
-						foreach($groups as $group_id => $group) {
-							if(isset($group_ids[$group_id]))
-								continue;
-							
-							if(false !== stristr($group->name, $term)) {
-								$group_ids[$group_id] = true;
-							}
-						}
-					}
-				}
-				
-				if(!empty($group_ids)) {
-					return new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						array_keys($group_ids)
-					);
-				}
+			case 'email':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_EMAIL_SEARCH);
 				break;
 				
 			case 'group':
@@ -2103,27 +2068,12 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$this->_renderVirtualContextLinks($param);
 				break;
 			
-			case SearchFields_Worker::VIRTUAL_GROUPS:
-				$groups = DAO_Group::getAll();
-				
-				// Empty
-				if(empty($param->value)) {
-					echo "<b>Not</b> a member of any groups";
-					
-				// Group IDs array
-				} elseif(is_array($param->value)) {
-					$strings = array();
-					
-					foreach($param->value as $group_id) {
-						if(isset($groups[$group_id]))
-							$strings[] = '<b>'.DevblocksPlatform::strEscapeHtml($groups[$group_id]->name).'</b>';
-					}
-					
-					echo sprintf("Is %sa member of %s",
-						$param->operator == 'not in' ? 'not ' : '',
-						implode(' or ', $strings)
-					);
-				}
+			case SearchFields_Worker::VIRTUAL_EMAIL_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.email')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
 				
 			case SearchFields_Worker::VIRTUAL_GROUP_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
