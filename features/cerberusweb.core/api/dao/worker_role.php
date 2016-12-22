@@ -1059,4 +1059,130 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		$view->renderTemplate = 'context';
 		return $view;
 	}
+	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('view_id', $view_id);
+		
+		$context = CerberusContexts::CONTEXT_ROLE;
+		
+		if(!empty($context_id)) {
+			$model = DAO_WorkerRole::get($context_id);
+		}
+		
+		if(empty($context_id) || $edit) {
+			if(isset($model))
+				$tpl->assign('model', $model);
+			
+			$plugins = DevblocksPlatform::getPluginRegistry();
+			$acls = DevblocksPlatform::getAclRegistry();
+			
+			unset($plugins['devblocks.core']);
+			
+			$plugins_acl = [];
+			
+			foreach($plugins as $plugin_id => $plugin) {
+				$plugins_acl[$plugin_id] = [
+					'label' => $plugin->name,
+					'privs' => [],
+				];
+			}
+			
+			foreach($acls as $acl_key => $acl) {
+				$plugin_id = $acl->plugin_id;
+				
+				if(empty($plugin_id) || !isset($plugins_acl[$plugin_id]))
+					continue;
+				
+				$plugins_acl[$plugin_id]['privs'][$acl->id] = DevblocksPlatform::translate($acl->label);
+			}
+			
+			// Sort privs within each plugin
+			foreach($plugins_acl as &$plugin) {
+				asort($plugin['privs']);
+			}
+			
+			// Sort plugins
+			DevblocksPlatform::sortObjects($plugins_acl, '[label]');
+			
+			// Move Cerb back to the top
+			$cerb_acl = $plugins_acl['cerberusweb.core'];
+			unset($plugins_acl['cerberusweb.core']);
+			$keys = array_keys($plugins_acl);
+			$values = array_values($plugins_acl);
+			array_unshift($keys, 'cerberusweb.core');
+			array_unshift($values, $cerb_acl);
+			$plugins_acl = array_combine($keys, $values);
+			
+			$tpl->assign('plugins_acl', $plugins_acl);
+			
+			$groups = DAO_Group::getAll();
+			$tpl->assign('groups', $groups);
+			
+			$workers = DAO_Worker::getAllActive();
+			$tpl->assign('workers', $workers);
+			
+			$role_privs = DAO_WorkerRole::getRolePrivileges($context_id);
+			$tpl->assign('role_privs', $role_privs);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/roles/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/roles/peek.tpl');
+		}
+	}
+	
 }
