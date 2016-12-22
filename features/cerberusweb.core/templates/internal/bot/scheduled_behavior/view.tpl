@@ -78,11 +78,7 @@
 				{if is_object($ctx)}
 				{$meta = $ctx->getMeta($result.$column)}
 				<span title="{$ctx->manifest->name}">
-				{if !empty($meta.permalink)}
-				<a href="{$meta.permalink}">{$meta.name|truncate:64}</a>
-				{else}
-				{$meta.name|truncate:64}
-				{/if} 
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$ctx->id}" data-context-id="{$meta.id}">{$meta.name|truncate:64}</a>
 				</span>
 				{/if}
 			</td>
@@ -92,11 +88,11 @@
 				{if is_object($ctx)}
 				{$meta = $ctx->getMeta($result.c_context_id)}
 				<span title="{$ctx->manifest->name}">
-				{if !empty($meta.permalink)}
-				<a href="{$meta.permalink}">{$meta.name|truncate:64}</a>
-				{else}
-				{$meta.name|truncate:64}
-				{/if} 
+					{if $ctx->hasOption('cards')}
+						<a href="javascript:;" class="cerb-peek-trigger" data-context="{$ctx->id}" data-context-id="{$meta.id}">{$meta.name|truncate:64}</a>
+					{else}
+						{$meta.name|truncate:64}
+					{/if}
 				</span>
 				{/if}
 			</td>
