@@ -855,6 +855,14 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 };
 
 class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $models);
+	}
+	
 	function getRandom() {
 		return DAO_MailHtmlTemplate::random();
 	}

@@ -961,6 +961,14 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 };
 
 class Context_FileBundle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_FILE_BUNDLE, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_FILE_BUNDLE, $models);
+	}
+	
 	function getRandom() {
 		return DAO_FileBundle::random();
 	}

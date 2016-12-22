@@ -1248,6 +1248,14 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 };
 
 class Context_Calendar extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR, $models);
+	}
+	
 	function getRandom() {
 		return DAO_Calendar::random();
 	}

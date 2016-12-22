@@ -1,5 +1,3 @@
-{$if_readable = Context_WorkspacePage::isReadableByActor($page, $active_worker)}
-
 <form action="{devblocks_url}{/devblocks_url}" id="frmWorkspacePage{$page->id}" method="POST" style="margin-top:5px;">
 	<input type="hidden" name="c" value="internal">
 	<input type="hidden" name="a" value="">
@@ -14,9 +12,7 @@
 	</div>
 
 	<div style="float:right;">
-		{if $is_readable}
-			<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span>{else}<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span>{/if} Menu</button>
-		{/if}
+		<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span>{else}<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span>{/if} Menu</button>
 	
 		<div style="display:inline-block;">
 			<button class="config-page split-left" type="button"><span class="glyphicons glyphicons-cogwheel"></span></button><!--
@@ -158,7 +154,6 @@
 		});
 		
 		// Add/Remove in menu
-		{if $is_readable}
 		$workspace.find('button.add').click(function(e) {
 			var $this = $(this);
 		
@@ -205,7 +200,6 @@
 				genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=1');
 			}
 		});
-		{/if}
 		
 	});
 </script>

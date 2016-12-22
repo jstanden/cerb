@@ -862,6 +862,14 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 };
 
 class Context_CustomFieldset extends Extension_DevblocksContext {
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $models);
+	}
+	
 	function getRandom() {
 		return DAO_CustomFieldset::random();
 	}

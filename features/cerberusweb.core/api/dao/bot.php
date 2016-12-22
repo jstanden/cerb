@@ -1015,8 +1015,15 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 	}
 };
 
-// [TODO] Implement isReadable/isWriteable
 class Context_Bot extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BOT, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BOT, $models);
+	}
+	
 	function getRandom() {
 		return DAO_Bot::random();
 	}

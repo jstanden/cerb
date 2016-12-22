@@ -1198,6 +1198,14 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Snippet extends Extension_DevblocksContext implements IDevblocksContextAutocomplete, IDevblocksContextProfile, IDevblocksContextPeek {
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_SNIPPET, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_SNIPPET, $models);
+	}
+	
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';

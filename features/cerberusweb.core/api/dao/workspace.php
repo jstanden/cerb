@@ -1240,6 +1240,14 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 };
 
 class Context_WorkspacePage extends Extension_DevblocksContext {
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $models);
+	}
+	
 	function getRandom() {
 		return DAO_WorkspacePage::random();
 	}
