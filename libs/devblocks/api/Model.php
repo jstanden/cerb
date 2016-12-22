@@ -130,6 +130,120 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		}
 	}
 	
+	static function _getWhereSQLFromAttachmentsField(DevblocksSearchCriteria $param, $context, $join_key) {
+		// Handle nested quick search filters first
+		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			$query = $param->value;
+			
+			if(false == ($ext_attachments = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
+				return;
+			
+			if(false == ($ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			$view = $ext_attachments->getSearchView(uniqid());
+			$view->is_ephemeral = true;
+			$view->setAutoPersist(false);
+			$view->addParamsWithQuickSearch($query, true);
+			
+			$params = $view->getParams();
+			
+			$query_parts = DAO_Attachment::getSearchQueryComponents(array(), $params);
+			
+			$query_parts['select'] = sprintf("SELECT %s ", SearchFields_Attachment::getPrimaryKey());
+			
+			$sql = 
+				$query_parts['select']
+				. $query_parts['join']
+				. $query_parts['where']
+				. $query_parts['sort']
+				;
+			
+			return sprintf("%s IN (SELECT context_id FROM attachment_link WHERE attachment_id IN (%s)) ",
+				Cerb_OrmHelper::escape($join_key),
+				$sql
+			);
+		}
+	}
+	
+	static function _getWhereSQLFromVirtualSearchSqlField(DevblocksSearchCriteria $param, $context, $subquery_sql) {
+		// Handle nested quick search filters first
+		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			$query = $param->value;
+			
+			if(false == ($ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			$view = $ext->getSearchView(uniqid());
+			$view->is_ephemeral = true;
+			$view->setAutoPersist(false);
+			$view->addParamsWithQuickSearch($query, true);
+			
+			$params = $view->getParams();
+			
+			if(false == ($dao_class = $ext->getDaoClass()))
+				return;
+			
+			if(false == ($search_class = $ext->getSearchClass()))
+				return;
+			
+			$query_parts = $dao_class::getSearchQueryComponents(array(), $params);
+			
+			$query_parts['select'] = sprintf("SELECT %s ", $search_class::getPrimaryKey());
+			
+			$sql = 
+				$query_parts['select']
+				. $query_parts['join']
+				. $query_parts['where']
+				. $query_parts['sort']
+				;
+			
+			return sprintf($subquery_sql, $sql);
+		}
+	}
+	
+	static function _getWhereSQLFromVirtualSearchField(DevblocksSearchCriteria $param, $context, $join_key) {
+		// Handle nested quick search filters first
+		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			$query = $param->value;
+			
+			if(false == ($ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			$view = $ext->getSearchView(uniqid());
+			$view->is_ephemeral = true;
+			$view->setAutoPersist(false);
+			$view->addParamsWithQuickSearch($query, true);
+			
+			$params = $view->getParams();
+			
+			if(false == ($dao_class = $ext->getDaoClass()) || !class_exists($dao_class))
+				return;
+			
+			if(false == ($search_class = $ext->getSearchClass()) || !class_exists($search_class))
+				return;
+			
+			if(false == ($primary_key = $search_class::getPrimaryKey()))
+				return;
+			
+			$query_parts = $dao_class::getSearchQueryComponents(array(), $params);
+			
+			$query_parts['select'] = sprintf("SELECT %s ", $primary_key);
+			
+			$sql = 
+				$query_parts['select']
+				. $query_parts['join']
+				. $query_parts['where']
+				. $query_parts['sort']
+				;
+			
+			return sprintf("%s IN (%s) ",
+				Cerb_OrmHelper::escape($join_key),
+				$sql
+			);
+		}
+	}
+	
 	static function _getWhereSQLFromContextAndID(DevblocksSearchCriteria $param, $context_field, $context_id_field) {
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
@@ -788,6 +902,16 @@ class DevblocksSearchCriteria {
 		return $param;
 	}
 	
+	public static function getVirtualQuickSearchParamFromTokens($field_key, $tokens, $search_field_key) {
+		$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
+		
+		$param = new DevblocksSearchCriteria(
+			$search_field_key,
+			DevblocksSearchCriteria::OPER_CUSTOM,
+			sprintf('%s', $query)
+		);
+		return $param;
+	}
 	public static function getVirtualContextParamFromTokens($field_key, $tokens, $prefix, $search_field_key) {
 		// Is this a nested subquery?
 		if(DevblocksPlatform::strStartsWith($field_key, $prefix.'.')) {
