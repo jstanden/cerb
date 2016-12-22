@@ -40,6 +40,18 @@ class DevblocksExtension {
 	function getParam($key,$default=null) {
 		return $this->manifest->getParam($key, $default);
 	}
+	
+	/**
+	 * 
+	 * @param string $key
+	 * @return boolean
+	 */
+	function hasOption($key) {
+		if(!$this->manifest)
+			return false;
+		
+		return $this->manifest->hasOption($key);
+	}
 };
 
 class Exception_Devblocks extends Exception {};

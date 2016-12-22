@@ -1939,6 +1939,20 @@ class DevblocksExtensionManifest {
 	function getParam($key, $default=null) {
 		return DAO_DevblocksExtensionPropertyStore::get($this->id, $key, $default);
 	}
+	
+	/**
+	 * 
+	 * @param string $key
+	 * @return boolean
+	 */
+	function hasOption($key) {
+		if(!isset($this->params['options']) || !is_array($this->params['options']))
+			return false;
+		
+		$options = $this->params['options'][0];
+		
+		return isset($options[$key]);
+	}
 };
 
 /**
