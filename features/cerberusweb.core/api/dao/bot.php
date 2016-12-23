@@ -1212,7 +1212,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

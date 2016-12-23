@@ -1115,6 +1115,16 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 };
 
 class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+	static function isReadableByActor($models, $actor) {
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Everyone can modify
+		return CerberusContexts::allowEverything($models);
+	}
+	
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';
@@ -1306,7 +1316,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

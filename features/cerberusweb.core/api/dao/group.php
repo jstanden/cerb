@@ -1391,26 +1391,23 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	const ID = 'cerberusweb.contexts.group';
 	
 	static function isReadableByActor($models, $actor) {
-		// Everyone can see buckets
-		return CerberusContexts::allowEveryone($actor, $models);
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admins and group managers can edit
+		// Only admins and group managers can modify
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
-		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
+			CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_GROUP)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
+		
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'members');
 		
 		$results = array_fill_keys(array_keys($dicts), false);
 			
@@ -1426,11 +1423,8 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			
 			// A worker can edit groups they are a manager of
 			case CerberusContexts::CONTEXT_WORKER:
-				if(false == ($worker = DAO_Worker::get($actor->id)))
-					break;
-				
 				foreach($dicts as $context_id => $dict) {
-					if($worker->isGroupManager($dict->id)) {
+					if(is_array($dict->members) && isset($dict->members[$actor->id]) && $dict->members[$actor->id]['is_manager']) {
 						$results[$context_id] = true;
 					}
 				}
@@ -1508,7 +1502,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		);
 	}
 	
-	function autocomplete($term)	{
+	function autocomplete($term) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		$list = array();
 		
@@ -1653,7 +1647,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {
@@ -1713,13 +1707,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				$values = $dictionary;
 
 				if(!isset($values['members']))
-					$values['members'] = array(
-						'results_meta' => array(
-							'labels' => array(),
-							'types' => array(),
-						),
-						'results' => array(),
-					);
+					$values['members'] = [];
 				
 				$rosters = DAO_Group::getRosters();
 				
@@ -1743,19 +1731,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 					
 					// Add a manager value
 					$member_values['is_manager'] = $member->is_manager ? true : false;
-					$member_values['_types']['is_manager'] = Model_CustomField::TYPE_CHECKBOX;
-					
-					// Results meta
-					if(is_null($values['members']['results_meta']['labels']))
-						$values['members']['results_meta']['labels'] = $member_values['_labels'];
-					
-					if(is_null($values['members']['results_meta']['types']))
-						$values['members']['results_meta']['types'] = $member_values['_types'];
 					
 					// Lazy load
 					$member_dict = new DevblocksDictionaryDelegate($member_values);
 					$member_dict->address_;
-					$member_dict->custom_;
 					$member_values = $member_dict->getDictionary(null, false);
 					unset($member_dict);
 					
@@ -1781,7 +1760,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 						return true;
 					});
 					
-					$values['members']['results'][] = $member_values;
+					$values['members'][$member_values['id']] = $member_values;
 				}
 				break;
 			

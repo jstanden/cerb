@@ -966,6 +966,42 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 };
 
 class Context_Draft extends Extension_DevblocksContext {
+	static function isReadableByActor($models, $actor) {
+		// Everyone can read
+		return CerberusContexts::allowEveryone($models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Admins and owner can modify
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEverything($models);
+		
+		// Admins can do whatever they want
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+		
+		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_DRAFT)))
+			return CerberusContexts::denyEverything($models);
+		
+		$results = [];
+		
+		foreach($dicts as $id => $dict) {
+			$is_writeable = false;
+			
+			if($actor->_context == CerberusContexts::CONTEXT_WORKER && $actor->id == $dict->worker_id)
+				$is_writeable = true;
+			
+			$results[$id] = $is_writeable;
+		}
+		
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return array_shift($results);
+		}
+	}
+	
 	function getDaoClass() {
 		return 'DAO_MailQueue';
 	}
@@ -1083,10 +1119,26 @@ class Context_Draft extends Extension_DevblocksContext {
 			$token_values['to'] = $object->hint_to;
 			$token_values['updated'] = $object->updated;
 			
+			$token_values['worker_id'] = $object->worker_id;
+			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($object, $token_values);
 		}
+		
+		// Worker
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
 
+		CerberusContexts::merge(
+			'worker_',
+			$prefix.'Worker:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
 		return true;
 	}
 
@@ -1102,7 +1154,7 @@ class Context_Draft extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

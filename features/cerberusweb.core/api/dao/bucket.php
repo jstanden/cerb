@@ -843,50 +843,29 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 	const ID = CerberusContexts::CONTEXT_BUCKET;
 	
 	static function isReadableByActor($models, $actor) {
-		// Everyone can see buckets
-		return CerberusContexts::allowEveryone($actor, $models);
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admins and group managers can edit
+		// Only admins and group managers can modify
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
-		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
+			CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_BUCKET)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
+		
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'group_');
 		
 		$results = array_fill_keys(array_keys($dicts), false);
 			
-		switch($actor->_context) {
-			// A group can manage itself
-			case CerberusContexts::CONTEXT_GROUP:
-				foreach($dicts as $context_id => $dict) {
-					if($dict->group_id == $actor->id) {
-						$results[$context_id] = true;
-					}
-				}
-				break;
-			
-			// A worker can edit groups they are a manager of
-			case CerberusContexts::CONTEXT_WORKER:
-				if(false == ($worker = DAO_Worker::get($actor->id)))
-					break;
-				
-				foreach($dicts as $context_id => $dict) {
-					if($worker->isGroupManager($dict->group_id)) {
-						$results[$context_id] = true;
-					}
-				}
-				break;
+		foreach($dicts as $id => $dict) {
+			$group_dict = $dict->extract('group_');
+			$results[$id] = Context_Group::isWriteableByActor($group_dict, $actor);
 		}
 		
 		if(is_array($models)) {
@@ -1005,6 +984,8 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['name'] = $bucket->name;
 			$token_values['updated_at'] = $bucket->updated_at;
 			
+			$token_values['group_id'] = $bucket->group_id;
+			
 			if(false != ($replyto = $bucket->getReplyTo()))
 				$token_values['replyto_id'] = $replyto->address_id;
 			
@@ -1039,6 +1020,20 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values
 		);
 		
+		// Group
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'group_',
+			$prefix.'Group:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
 		return true;
 	}
 	
@@ -1054,7 +1049,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

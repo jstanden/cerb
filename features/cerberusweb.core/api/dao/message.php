@@ -1898,59 +1898,21 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		// Only admins and group members can see, unless public
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
-		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
+			CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_MESSAGE)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
 		
-			
 		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'ticket_group_');
 		
 		$results = array_fill_keys(array_keys($dicts), false);
-			
-		switch($actor->_context) {
-			case CerberusContexts::CONTEXT_GROUP:
-				foreach($dicts as $context_id => $dict) {
-					// Anybody can read public group messages
-					if(!$dict->ticket_group_is_private) {
-						$results[$context_id] = true;
-						continue;
-					}
-					
-					// A group can edit its own messages
-					if($dict->ticket_group_id == $actor->id) {
-						$results[$context_id] = true;
-						continue;
-					}
-				}
-				break;
-			
-			// A worker can edit if they're a manager of the group
-			case CerberusContexts::CONTEXT_WORKER:
-				if(false == ($worker = DAO_Worker::get($actor->id)))
-					break;
-					
-				foreach($dicts as $context_id => $dict) {
-					// Anybody can read public group messages
-					if(!$dict->ticket_group_is_private) {
-						$results[$context_id] = true;
-						continue;
-					}
-					
-					// A group manager can edit messages
-					if($worker->isGroupManager($dict->ticket_group_id)) {
-						$results[$context_id] = true;
-					}
-				}
-				break;
+		
+		foreach($dicts as $id => $dict) {
+			$ticket_dict = $dict->extract('ticket_');
+			$results[$id] = Context_Ticket::isReadableByActor($ticket_dict, $actor);
 		}
 		
 		if(is_array($models)) {
@@ -1961,47 +1923,24 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admins and group members can edit
+		// Only admins and group members can modify
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
-		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
+			CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_MESSAGE)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
 		
 		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'ticket_group_');
 		
 		$results = array_fill_keys(array_keys($dicts), false);
-			
-		switch($actor->_context) {
-			// A group can manage itself
-			case CerberusContexts::CONTEXT_GROUP:
-				foreach($dicts as $context_id => $dict) {
-					if($dict->ticket_group_id == $actor->id) {
-						$results[$context_id] = true;
-					}
-				}
-				break;
-			
-			// A worker can edit if they're a manager of the group
-			case CerberusContexts::CONTEXT_WORKER:
-				if(false == ($worker = DAO_Worker::get($actor->id)))
-					break;
-				
-				foreach($dicts as $context_id => $dict) {
-					if($worker->isGroupManager($dict->ticket_group_id)) {
-						$results[$context_id] = true;
-					}
-				}
-				break;
+		
+		foreach($dicts as $id => $dict) {
+			$ticket_dict = $dict->extract('ticket_');
+			$results[$id] = Context_Ticket::isWriteableByActor($ticket_dict, $actor);
 		}
 		
 		if(is_array($models)) {
@@ -2220,7 +2159,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 			$dictionary = $values;
 		}
 		

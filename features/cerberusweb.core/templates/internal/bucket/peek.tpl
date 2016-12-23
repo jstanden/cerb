@@ -1,6 +1,7 @@
 {$div_id = "peek{uniqid()}"}
 {$peek_context = CerberusContexts::CONTEXT_BUCKET}
 {$group = $bucket->getGroup()}
+{$is_writeable = Context_Bucket::isWriteableByActor($bucket, $active_worker)}
 
 <div id="{$div_id}">
 	<div style="float:left;margin-right:10px;">
@@ -17,7 +18,7 @@
 		</h1>
 		
 		<div style="margin-top:5px;">
-			{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$bucket->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
+			{if $is_writeable}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$bucket->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
 			{if $bucket}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 			{if $bucket}<button type="button" class="cerb-peek-comments-add" data-context="{$peek_context}" data-context-id="{$bucket->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
 		</div>
@@ -81,6 +82,7 @@ $(function() {
 		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
 		// Edit button
+		{if $is_writeable}
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
@@ -90,6 +92,7 @@ $(function() {
 				genericAjaxPopupClose($layer);
 			})
 			;
+		{/if}
 		
 		// Comments
 		$popup.find('button.cerb-peek-comments-add')

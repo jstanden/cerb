@@ -694,6 +694,16 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 class Context_ExampleObject extends Extension_DevblocksContext {
 	const ID = 'cerberusweb.contexts.example_object';
 	
+	static function isReadableByActor($models, $actor) {
+		// Everyone can view
+		return CerberusContexts::allowEverything($models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Everyone can modify
+		return CerberusContexts::allowEverything($models);
+	}
+	
 	function getRandom() {
 		return DAO_ExampleObject::random();
 	}
@@ -798,7 +808,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

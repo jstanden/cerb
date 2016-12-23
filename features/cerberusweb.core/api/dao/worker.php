@@ -2373,45 +2373,20 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 
 class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	static function isReadableByActor($models, $actor) {
-		// Everyone can see workers
-		return CerberusContexts::allowEveryone($actor, $models);
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admins and the worker themselves can edit
+		// Only admins can edit
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
-		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
+			CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_BUCKET)))
-			return CerberusContexts::denyEveryone($actor, $models);
-		
-		$results = array_fill_keys(array_keys($dicts), false);
-			
-		switch($actor->_context) {
-			// A worker can edit themselves
-			case CerberusContexts::CONTEXT_WORK:
-				foreach($dicts as $context_id => $dict) {
-					if($dict->id == $actor->id) {
-						$results[$context_id] = true;
-					}
-				}
-				break;
-		}
-		
-		if(is_array($models)) {
-			return $results;
-		} else {
-			return array_shift($results);
-		}
+		return CerberusContexts::denyEverything($models);
 	}
 	
 	function profileGetUrl($context_id) {
@@ -2677,7 +2652,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

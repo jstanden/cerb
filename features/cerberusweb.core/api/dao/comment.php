@@ -1162,7 +1162,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 class Context_Comment extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	// Anyone can read a comment
 	public static function isReadableByActor($models, $actor) {
-		return CerberusContexts::allowEveryone($actor, $models);
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	// Only a superuser or the author of the comment can edit it
@@ -1172,13 +1172,8 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return false;
 		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
-		
 		if(CerberusContexts::isActorAnAdmin($actor)) {
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		}
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
@@ -1312,7 +1307,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {
@@ -1392,6 +1387,8 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
+
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$context = CerberusContexts::CONTEXT_COMMENT;
 		

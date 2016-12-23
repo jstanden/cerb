@@ -1141,6 +1141,16 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 };
 
 class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+	static function isReadableByActor($models, $actor) {
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Everyone can modify
+		return CerberusContexts::allowEverything($models);
+	}
+	
 	function getDaoClass() {
 		return 'DAO_CrmOpportunity';
 	}
@@ -1337,7 +1347,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

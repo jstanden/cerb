@@ -1107,7 +1107,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

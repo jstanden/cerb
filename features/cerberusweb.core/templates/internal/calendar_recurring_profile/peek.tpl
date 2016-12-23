@@ -1,6 +1,6 @@
 {$div_id = "peek{uniqid()}"}
 {$peek_context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}
-{$is_writeable = Context_CalendarRecurringEvent::isWriteableByActor($dict, $active_worker)}
+{$is_writeable = Context_CalendarRecurringProfile::isWriteableByActor($dict, $active_worker)}
 
 <div id="{$div_id}">
 	

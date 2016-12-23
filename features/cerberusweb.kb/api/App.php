@@ -902,13 +902,13 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 
 class Context_KbCategory extends Extension_DevblocksContext {
 	static function isReadableByActor($models, $actor) {
-		// Everyone can see kb categories
-		return CerberusContexts::allowEveryone($actor, $models);
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Everyone can edit kb categories
-		return CerberusContexts::allowEveryone($actor, $models);
+		// Everyone can modify
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	function getRandom() {
@@ -1003,7 +1003,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

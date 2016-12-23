@@ -1004,25 +1004,38 @@ class Model_CustomField {
 
 class Context_CustomField extends Extension_DevblocksContext {
 	static function isReadableByActor($models, $actor) {
-		// Everyone can see custom fields
-		return CerberusContexts::allowEveryone($actor, $models);
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admins can edit
+		// Admins can modify
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
-		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
+			CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
-		return CerberusContexts::denyEveryone($actor, $models);
+		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_GROUP)))
+			return CerberusContexts::denyEverything($models);
+		
+		$results = array_fill_keys(array_keys($dicts), false);
+		
+		foreach($dicts as $id => $dict) {
+			// If not in a fieldset, skip
+			if(!$dict->custom_fieldset_id)
+				continue;
+			
+			// If in a fieldset, owner delegate can modify
+			$results[$id] = CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CUSTOM_FIELD, $dict, 'custom_fieldset_owner_');
+		}
+		
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return array_shift($results);
+		}
 	}
 	
 	function getRandom() {
@@ -1094,6 +1107,20 @@ class Context_CustomField extends Extension_DevblocksContext {
 				$token_values['params'] = $cfield->params;
 		}
 		
+		// Custom fieldset
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'custom_fieldset_',
+			$prefix.'Fieldset:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
 		return true;
 	}
 
@@ -1109,7 +1136,7 @@ class Context_CustomField extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

@@ -76,7 +76,7 @@ class DevblocksEventHelper {
 		
 		$labels = array();
 		$values = array();
-		CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+		CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		

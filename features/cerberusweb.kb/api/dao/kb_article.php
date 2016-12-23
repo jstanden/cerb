@@ -795,12 +795,12 @@ class Model_KbArticle {
 class Context_KbArticle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read kb articles
-		return CerberusContexts::allowEveryone($actor, $models);
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
 		// Everyone can edit kb articles
-		return CerberusContexts::allowEveryone($actor, $models);
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	function getRandom() {
@@ -949,7 +949,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

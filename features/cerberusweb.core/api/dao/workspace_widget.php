@@ -384,6 +384,14 @@ class Model_WorkspaceWidget {
 };
 
 class Context_WorkspaceWidget extends Extension_DevblocksContext {
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $models, 'tab_page_owner_');
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $models, 'tab_page_owner_');
+	}
+	
 	function getRandom() {
 		return DAO_WorkspaceTab::random();
 	}
@@ -451,7 +459,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
 		$token_values['_types'] = $token_types;
-
+		
 		// Token values
 		if(null != $widget) {
 			$token_values['_loaded'] = true;
@@ -460,9 +468,25 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 			$token_values['extension_id'] = $widget->extension_id;
 			$token_values['label'] = $widget->label;
 			
+			$token_values['tab_id'] = $widget->workspace_tab_id;
+			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($widget, $token_values);
 		}
+		
+		// Tab
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_TAB, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'tab_',
+			$prefix.'Tab:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
 		
 		return true;
 	}
@@ -479,7 +503,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, false);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, false);
 		}
 		
 		switch($token) {

@@ -4164,20 +4164,15 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Only admins and group members can see, unless public
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
-		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				CerberusContexts::denyEveryone($actor, $models);
+			CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_TICKET)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
 		
-		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'group_');
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'group_members');
 		
 		$results = array_fill_keys(array_keys($dicts), false);
 			
@@ -4200,9 +4195,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// A worker can edit if they're a manager of the group
 			case CerberusContexts::CONTEXT_WORKER:
-				if(false == ($worker = DAO_Worker::get($actor->id)))
-					break;
-					
 				foreach($dicts as $context_id => $dict) {
 					// Anybody can read public group messages
 					if(!$dict->group_is_private) {
@@ -4211,7 +4203,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 					}
 					
 					// A group manager can edit messages
-					if($worker->isGroupManager($dict->group_id)) {
+					if(is_array($dict->group_members) && isset($dict->group_members[$actor->id]) && $dict->group_members[$actor->id]['is_manager']) {
 						$results[$context_id] = true;
 					}
 				}
@@ -4229,23 +4221,18 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Only admins and group members can edit
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
-		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
+			CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_TICKET)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
 		
-		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'group_');
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'group_members');
 		
 		$results = array_fill_keys(array_keys($dicts), false);
-			
+		
 		switch($actor->_context) {
 			// A group can manage itself
 			case CerberusContexts::CONTEXT_GROUP:
@@ -4258,18 +4245,19 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// A worker can edit if they're a manager of the group
 			case CerberusContexts::CONTEXT_WORKER:
-				if(false == ($worker = DAO_Worker::get($actor->id)))
-					break;
-				
 				foreach($dicts as $context_id => $dict) {
-					if($worker->isGroupManager($dict->group_id)) {
+					if(is_array($dict->group_members) && isset($dict->group_members[$actor->id]) && $dict->group_members[$actor->id]['is_manager']) {
 						$results[$context_id] = true;
 					}
 				}
 				break;
 		}
 		
-		return $results;
+		if(is_array($models)) {
+			return $results;
+		} else {
+			return array_shift($results);
+		}
 	}
 	
 	function getRandom() {
@@ -4671,7 +4659,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {
@@ -4995,34 +4983,21 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'string',null);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		$context = CerberusContexts::CONTEXT_TICKET;
 		
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('edit_mode', $edit_mode);
 
-		$messages = array();
-		
-		if(null != ($ticket = DAO_Ticket::get($context_id))) {
-			/* @var $ticket Model_Ticket */
-			$tpl->assign('ticket', $ticket);
-			
-			$messages = $ticket->getMessages();
-		}
-		
-		// Permissions
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		// Check ACL
-		if(!Context_Ticket::isReadableByActor($ticket, $active_worker)) {
-			echo DevblocksPlatform::translateCapitalized('common.access_denied');
-			return;
-		}
-		
 		// Template
 		
+		$model = DAO_Ticket::get($context_id);
+		
 		if(empty($context_id) || $edit_mode) {
+			if($model)
+				$tpl->assign('ticket', $model);
+			
 			// Props
 			$workers = DAO_Worker::getAllActive();
 			$tpl->assign('workers', $workers);
@@ -5034,16 +5009,16 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->assign('buckets', $buckets);
 			
 			// Watchers
-			$object_watchers = DAO_ContextLink::getContextLinks($context, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
+			$object_watchers = DAO_ContextLink::getContextLinks($context, array($model->id), CerberusContexts::CONTEXT_WORKER);
 			$tpl->assign('object_watchers', $object_watchers);
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
 			
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $ticket->id);
-			if(isset($custom_field_values[$ticket->id]))
-				$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $model->id);
+			if(isset($custom_field_values[$model->id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$model->id]);
 			
 			$tpl->display('devblocks:cerberusweb.core::tickets/peek_edit.tpl');
 			
@@ -5068,10 +5043,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			);
 			$tpl->assign('links', $links);
 			
-			// Timeline
-			$timeline_json = Page_Profiles::getTimelineJson($ticket->getTimeline());
-			$tpl->assign('timeline_json', $timeline_json);
-			
 			// Context
 			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;
@@ -5079,12 +5050,24 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			// Dictionary
 			$labels = array();
 			$values = array();
-			CerberusContexts::getContext($context, $ticket, $labels, $values, '', true, false);
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
+			$is_readable = Context_Ticket::isReadableByActor($dict, $active_worker);
+			$tpl->assign('is_readable', $is_readable);
+			
+			$is_writeable = Context_Ticket::isWriteableByActor($dict, $active_worker);
+			$tpl->assign('is_writeable', $is_writeable);
+			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Timeline
+			if($is_readable && $model) {
+				$timeline_json = Page_Profiles::getTimelineJson($model->getTimeline());
+				$tpl->assign('timeline_json', $timeline_json);
+			}
 			
 			// Template
 			

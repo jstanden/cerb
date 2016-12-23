@@ -1174,19 +1174,7 @@ class CerberusContexts {
 		return ($a->_context == $b->_context && $a->id == $b->id);
 	}
 	
-	public static function denyEveryone($actor, $models) {
-		if(is_array($models)) {
-			if(is_numeric(current($models)))
-				$models = array_flip($models);
-			
-			return array_fill_keys(array_keys($models), false);
-			
-		} else {
-			return false;
-		}
-	}
-
-	public static function allowEveryone($actor, $models) {
+	public static function allowEverything($models) {
 		if(is_array($models)) {
 			if(is_numeric(current($models)))
 				$models = array_flip($models);
@@ -1198,6 +1186,18 @@ class CerberusContexts {
 		}
 	}
 	
+	public static function denyEverything($models) {
+		if(is_array($models)) {
+			if(is_numeric(current($models)))
+				$models = array_flip($models);
+			
+			return array_fill_keys(array_keys($models), false);
+			
+		} else {
+			return false;
+		}
+	}
+
 	public static function isActorAnAdmin(DevblocksDictionaryDelegate $actor) {
 		if(
 			// If it's Cerb
@@ -1240,7 +1240,22 @@ class CerberusContexts {
 		return null;
 	}
 	
-	public static function polymorphActorToDictionary($actor) {
+	public static function polymorphActorToDictionary($actor, $undelegate_bots=true) {
+		if(null == ($actor = self::_polymorphActorToDictionary($actor)))
+			return null;
+		
+		// If the actor is a bot, delegate to its owner
+		if($undelegate_bots && $actor->_context == CerberusContexts::CONTEXT_BOT) {
+			$owner_dict = $actor->extract('owner_');
+		
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary($owner_dict, false)))
+				return null;
+		}
+			
+		return $actor;
+	}
+	
+	public static function _polymorphActorToDictionary($actor) {
 		if(is_array($actor)) {
 			@list($context, $context_id) = $actor;
 			
@@ -1325,42 +1340,40 @@ class CerberusContexts {
 	
 	public static function isReadableByActor($context, $models, $actor) {
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-			return self::denyEveryone($actor, $models);
+			return self::denyEverything($models);
 		
 		return $context_ext::isReadableByActor($models, $actor);
 	}
 
 	public static function isWriteableByActor($context, $models, $actor) {
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-			return self::denyEveryone($actor, $models);
+			return self::denyEverything($models);
 		
 		return $context_ext::isWriteableByActor($models, $actor);
 	}
 	
-	public static function isReadableByDelegateOwner($actor, $context, $models) {
+	public static function isReadableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_') {
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
-		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
+			CerberusContexts::denyEverything($models);
 		
 		// Admins can do whatever they want
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
 		
 		$results = [];
 		
-		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'owner_');
+		$owner_key_context = $owner_key_prefix . '_context';
+		$owner_key_id = $owner_key_prefix . 'id';
+		
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $owner_key_prefix);
 		
 		foreach($dicts as $id => $dict) {
 			$is_readable = false;
 			
-			switch($dict->owner__context) {
+			switch($dict->$owner_key_context) {
 				// Everyone can read app-owned records
 				case CerberusContexts::CONTEXT_APPLICATION:
 					$is_readable = true;
@@ -1369,7 +1382,7 @@ class CerberusContexts {
 				// Role members can read role-owned records
 				case CerberusContexts::CONTEXT_ROLE:
 					// Is the actor the same role?
-					if($actor->_context == CerberusContexts::CONTEXT_ROLE && $actor->id == $dict->owner_id) {
+					if($actor->_context == CerberusContexts::CONTEXT_ROLE && $actor->id == $dict->$owner_key_id) {
 						$is_readable = true;
 						break;
 					}
@@ -1377,7 +1390,7 @@ class CerberusContexts {
 					// Are we a member of the role?
 					if($actor->_context == CerberusContexts::CONTEXT_WORKER) {
 						$roles = DAO_WorkerRole::getRolesByWorker($actor->id);
-						$is_readable = isset($roles[$dict->owner_id]);
+						$is_readable = isset($roles[$dict->$owner_key_id]);
 						break;
 					}
 					break;
@@ -1385,19 +1398,20 @@ class CerberusContexts {
 				// Members can read group-owned records, or everyone if a public group
 				case CerberusContexts::CONTEXT_GROUP:
 					// Is the actor the same group?
-					if($actor->_context == CerberusContexts::CONTEXT_GROUP && $actor->id == $dict->owner_id) {
+					if($actor->_context == CerberusContexts::CONTEXT_GROUP && $actor->id == $dict->$owner_key_id) {
 						$is_readable = true;
 						break;
 					}
 					
 					// Is it a public group?
-					if(!$dict->owner_is_private) {
+					$owner_key_is_private = $owner_key_prefix . 'is_private';
+					if(!$dict->$owner_key_is_private) {
 						$is_readable = true;
 						break;
 					}
 					
 					// Are we a member of the group?
-					$members = DAO_Group::getGroupMembers($dict->owner_id);
+					$members = DAO_Group::getGroupMembers($dict->$owner_key_id);
 					if($actor->_context == CerberusContexts::CONTEXT_WORKER && isset($members[$actor->id])) {
 						$is_readable = true;
 						break;
@@ -1406,7 +1420,7 @@ class CerberusContexts {
 					
 				// Only the same worker can view a worker owned record
 				case CerberusContexts::CONTEXT_WORKER:
-					$is_readable = ($actor->_context == CerberusContexts::CONTEXT_WORKER && $actor->id == $dict->owner_id);
+					$is_readable = ($actor->_context == CerberusContexts::CONTEXT_WORKER && $actor->id == $dict->$owner_key_id);
 					break;
 			}
 			
@@ -1421,40 +1435,38 @@ class CerberusContexts {
 		}
 	}
 	
-	public static function isWriteableByDelegateOwner($actor, $context, $models) {
+	public static function isWriteableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_') {
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
-		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
+			CerberusContexts::denyEverything($models);
 		
 		// Admins can do whatever they want
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
 		
-		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'owner_');
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $owner_key_prefix);
 		
 		$results = [];
+		
+		$owner_key_context = $owner_key_prefix . '_context';
+		$owner_key_id = $owner_key_prefix . 'id';
 		
 		foreach($dicts as $id => $dict) {
 			$is_writeable = false;
 			
-			switch($dict->owner__context) {
+			switch($dict->$owner_key_context) {
 				// Members can modify group-owned records
 				case CerberusContexts::CONTEXT_GROUP:
 					// Is the actor the same group?
-					if($actor->_context == CerberusContexts::CONTEXT_GROUP && $actor->id == $dict->owner_id) {
+					if($actor->_context == CerberusContexts::CONTEXT_GROUP && $actor->id == $dict->$owner_key_id) {
 						$is_writeable = true;
 						break;
 					}
 					
 					// Are we a manager of the group?
-					$members = DAO_Group::getGroupMembers($dict->owner_id);
+					$members = DAO_Group::getGroupMembers($dict->$owner_key_id);
 					if($actor->_context == CerberusContexts::CONTEXT_WORKER && isset($members[$actor->id]) && $members[$actor->id]->is_manager) {
 						$is_writeable = true;
 						break;
@@ -1463,7 +1475,7 @@ class CerberusContexts {
 					
 				// Only the same worker can modify a worker owned record
 				case CerberusContexts::CONTEXT_WORKER:
-					$is_writeable = ($actor->_context == CerberusContexts::CONTEXT_WORKER && $actor->id == $dict->owner_id);
+					$is_writeable = ($actor->_context == CerberusContexts::CONTEXT_WORKER && $actor->id == $dict->$owner_key_id);
 					break;
 			}
 			
@@ -2068,20 +2080,20 @@ class Model_Application {
 
 class Context_Application extends Extension_DevblocksContext {
 	static function isReadableByActor($models, $actor) {
-		// Everyone can read app-owned records
-		return CerberusContexts::allowEveryone($actor, $models);
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admin workers can edit app-owned records
+		// Only admin workers can modify
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEveryone($actor, $models);
+			CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		
-		return CerberusContexts::denyEveryone($actor, $models);
+		return CerberusContexts::denyEverything($models);
 	}
 
 	function getRandom() {
@@ -2172,7 +2184,7 @@ class Context_Application extends Extension_DevblocksContext {
 
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 
 		switch($token) {

@@ -75,9 +75,6 @@
 	{if !$view->options.disable_recommendations}{$object_recommendations = DAO_ContextRecommendation::getByContexts($view_context, array_keys($data))}{/if}
 	{if !$view->options.disable_watchers}{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}{/if}
 	
-	{* Bulk check permissions *}
-	{$row_is_readable = Context_Ticket::isReadableByActor(array_keys($data), $active_worker)}
-	
 	{* Bulk load drafts *}
 	{$ticket_drafts = DAO_MailQueue::getDraftsByTicketIds(array_keys($data))} 
 	
@@ -114,18 +111,7 @@
 	
 	{$ticket_group_id = $result.t_group_id}
 	{$ticket_group = $groups.$ticket_group_id}
-	{if !isset($row_is_readable.{$result.t_id}) || !$row_is_readable.{$result.t_id}}
-	<tbody>
-	<tr class="{$tableRowClass}">
-		<td>&nbsp;</td>
-		<td rowspan="2" colspan="{$smarty.foreach.headers.total}" style="color:rgb(140,140,140);font-size:10px;text-align:left;vertical-align:middle;">[Access Denied: {$ticket_group->name} #{$result.t_mask}]</td>
-	</tr>
-	<tr class="{$tableRowClass}">
-		<td>&nbsp;</td>
-	</tr>
-	</tbody>
-	
-	{else}
+
 	<tbody style="cursor:pointer;" data-num-messages="{$result.t_num_messages}">
 	
 	{if !$view->options.disable_recommendations || !$view->options.disable_watchers || !in_array('t_subject',$view->view_columns)}
@@ -264,7 +250,6 @@
 	{/foreach}
 	</tr>
 	</tbody>
-	{/if}{*!censor*}
 {/foreach}
 </table>
 

@@ -1362,7 +1362,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, false);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {
@@ -1472,6 +1472,14 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 };
 
 class Context_WorkspaceTab extends Extension_DevblocksContext {
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_TAB, $models, 'page_owner_');
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_TAB, $models, 'page_owner_');
+	}
+	
 	function getRandom() {
 		return DAO_WorkspaceTab::random();
 	}
@@ -1537,7 +1545,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_WORKSPACE_TAB;
 		$token_values['_types'] = $token_types;
-
+		
 		// Token values
 		if(null != $tab) {
 			$token_values['_loaded'] = true;
@@ -1545,10 +1553,25 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 			$token_values['id'] = $tab->id;
 			$token_values['name'] = $tab->name;
 			$token_values['extension_id'] = $tab->extension_id;
+			$token_values['page_id'] = $tab->workspace_page_id;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($tab, $token_values);
 		}
+		
+		// Page
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_PAGE, null, $merge_token_labels, $merge_token_values, '', true);
+		
+		CerberusContexts::merge(
+			'page_',
+			$prefix.'Page:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
 		
 		return true;
 	}
@@ -1565,7 +1588,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, false);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

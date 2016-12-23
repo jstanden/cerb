@@ -673,7 +673,7 @@ class Model_TriggerEvent {
 						$labels = array();
 						$values = array();
 						
-						CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+						CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 						
 						if(!isset($values['_loaded']))
 							continue;
@@ -1506,6 +1506,14 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	static function isReadableByActor($models, $actor) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_');
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_');
+	}
+	
 	function getRandom() {
 		return DAO_TriggerEvent::random();
 	}
@@ -1606,8 +1614,6 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$token_values['_context'] = CerberusContexts::CONTEXT_BEHAVIOR;
 		$token_values['_types'] = $token_types;
 		
-		$token_values['bot__context'] = CerberusContexts::CONTEXT_BOT;
-		
 		if($trigger_event) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $trigger_event->title;
@@ -1662,7 +1668,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

@@ -1149,6 +1149,16 @@ endif;
 
 // [TODO] Move to a DAO class
 class Context_Feedback extends Extension_DevblocksContext implements IDevblocksContextPeek {
+	static function isReadableByActor($models, $actor) {
+		// Everyone can view
+		return CerberusContexts::allowEverything($models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Everyone can modify
+		return CerberusContexts::allowEverything($models);
+	}
+	
 	function getDaoClass() {
 		return 'DAO_FeedbackEntry';
 	}
@@ -1345,7 +1355,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

@@ -1296,19 +1296,14 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	
 	static function isDownloadableByActor($models, $actor) {
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
 		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
-			
 		if(CerberusContexts::isActorAnAdmin($actor)) {
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 		}
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_ATTACHMENT)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
 		
 		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'links');
 		
@@ -1348,23 +1343,18 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view attachment meta
-		return CerberusContexts::allowEveryone($actor, $models);
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
 		// Only admins can edit attachment meta
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEveryone($actor, $models);
+			return CerberusContexts::denyEverything($models);
 		
-		// If the actor is a bot, delegate to its owner
-		if($actor->_context == CerberusContexts::CONTEXT_BOT)
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary([$actor->owner__context, $actor->owner_id])))
-				return false;
-			
 		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEveryone($actor, $models);
+			return CerberusContexts::allowEverything($models);
 			
-		return CerberusContexts::denyEveryone($actor, $models);
+		return CerberusContexts::denyEverything($models);
 	}
 	
 	function profileGetUrl($context_id) {
@@ -1510,7 +1500,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

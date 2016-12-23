@@ -838,6 +838,24 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 class Context_MailTransport extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = 'cerberusweb.contexts.mail.transport';
 	
+	static function isReadableByActor($models, $actor) {
+		// Only admins can read
+		return self::isWriteableByActor($models, $actor);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Only admins can modify
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEverything($models);
+		
+		// Admins can do whatever they want
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+		
+		return CerberusContexts::denyEverything($models);
+	}
+	
 	function getRandom() {
 		return DAO_MailTransport::random();
 	}
@@ -961,7 +979,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		
 		if(!$is_loaded) {
 			$labels = array();
-			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true);
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
 		switch($token) {

@@ -111,7 +111,12 @@ class DevblocksMenuItemPlaceholder {
 	var $children = array();
 }
 
-abstract class Extension_DevblocksContext extends DevblocksExtension {
+interface IDevblocksContextExtension {
+	static function isReadableByActor($actor, $models);
+	static function isWriteableByActor($actor, $models);
+}
+
+abstract class Extension_DevblocksContext extends DevblocksExtension implements IDevblocksContextExtension {
 	static $_changed_contexts = array();
 
 	static function markContextChanged($context, $context_ids) {
@@ -480,14 +485,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension {
 		$condense($keys);
 		
 		return $keys->children;
-	}
-
-	static function isReadableByActor($models, $actor) {
-		return CerberusContexts::allowEveryone($actor, $models);
-	}
-	
-	static function isWriteableByActor($models, $actor) {
-		return CerberusContexts::allowEveryone($actor, $models);
 	}
 
 	abstract function getRandom();
