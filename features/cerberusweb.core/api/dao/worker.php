@@ -1302,7 +1302,7 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 		
 		$doc = array(
 			'content' => implode("\n", array(
-				$dict->__label,
+				$dict->_label,
 				$dict->address_email,
 				$dict->title,
 				$dict->at_mention_name,
