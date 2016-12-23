@@ -1683,9 +1683,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 					
 				case '_exit':
-					@$options = $this->manifest->params['options'][0];
-					
-					if(is_array($options) && isset($options['resumable']))
+					if($this->hasOption('resumable'))
 						$tpl->assign('is_resumable', true);
 					
 					return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_exit.tpl');

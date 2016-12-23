@@ -253,6 +253,7 @@
 		</file>
 		
 		<file path="api/dao/connected_account.php">
+			<class name="Context_ConnectedAccount" />
 			<class name="DAO_ConnectedAccount" />
 			<class name="Model_ConnectedAccount" />
 			<class name="SearchFields_ConnectedAccount" />
@@ -1033,14 +1034,11 @@
 				<param key="dao_class" value="" />
 				<param key="view_class" value="" />
 				<param key="options">
-					<!--
 					<value>
-						<data key="create" />
-						<data key="find" />
-						<data key="snippets" />
-						<data key="workspace" />
+						<!--
+						<data key="links" />
+						-->
 					</value>
-					-->
 				</param>
 			</params>
 		</extension>
@@ -1067,7 +1065,8 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="workspace" />
 						<data key="va_variable" />
 					</value>
@@ -1085,6 +1084,8 @@
 			<params>
 				<param key="names">
 					<value>
+						<data key="account" value="singular" />
+						<data key="accounts" value="plural" />
 						<data key="connected account" value="singular" />
 						<data key="connected accounts" value="plural" />
 					</value>
@@ -1094,14 +1095,10 @@
 				<param key="view_class" value="View_ConnectedAccount" />
 				<param key="options">
 					<value>
+						<data key="cards" />
 						<data key="custom_fields" />
-						<!--
-						<data key="create" />
-						<data key="find" />
-						<data key="snippets" />
-						<data key="va_variable" />
-						<data key="workspace" />
-						-->
+						<data key="links" />
+						<data key="search" />
 					</value>
 				</param>
 			</params>
@@ -1131,7 +1128,8 @@
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1161,6 +1159,8 @@
 					<value>
 						<data key="cards" />
 						<data key="custom_fields" />
+						<data key="links" />
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1189,6 +1189,8 @@
 					<value>
 						<data key="cards" />
 						<data key="custom_fields" />
+						<data key="links" />
+						<!-- <data key="search" /> -->
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1218,14 +1220,10 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="links" />
+						<!-- <data key="search" /> -->
 						<data key="va_variable" />
 						<data key="workspace" />
-						<!--
-						<data key="create" />
-						<data key="custom_fields" />
-						<data key="find" />
-						<data key="snippets" />
-						-->
 					</value>
 				</param>
 			</params>
@@ -1255,10 +1253,7 @@
 				<param key="options">
 					<!--
 					<value>
-						<data key="create" />
-						<data key="find" />
-						<data key="snippets" />
-						<data key="workspace" />
+						<data key="search" />
 					</value>
 					-->
 				</param>
@@ -1293,7 +1288,8 @@
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1324,7 +1320,8 @@
 					<value>
 						<data key="cards" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1354,7 +1351,8 @@
 					<value>
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1387,8 +1385,8 @@
 					<value>
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
-						<!--<data key="snippets" />-->
+						<data key="links" />
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1420,8 +1418,8 @@
 					<value>
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
-						<!-- <data key="snippets" /> -->
+						<data key="links" />
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1451,10 +1449,11 @@
 				<param key="view_class" value="View_Comment" />
 				<param key="options">
 					<value>
-						<data key="card" />
+						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1483,9 +1482,11 @@
 				<param key="view_class" value="View_CustomFieldset" />
 				<param key="options">
 					<value>
+						<!--<data key="cards" />-->
 						<!--<data key="create" />-->
-						<data key="find" />
-						<!--<data key="snippets" />-->
+						<data key="links" />
+						<data key="search" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -1517,7 +1518,8 @@
 				<param key="view_class" value="View_ContextActivityLog" />
 				<param key="options">
 					<value>
-						<data key="find" />
+						<!-- <data key="links" /> -->
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1544,9 +1546,7 @@
 				<param key="view_class" value="View_MailQueue" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
-						<!--<data key="find" />-->
-						<!--<data key="snippets" />-->
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1577,7 +1577,8 @@
 					<value>
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1607,14 +1608,13 @@
 				<param key="view_class" value="View_MailHtmlTemplate" />
 				<param key="options">
 					<value>
-						<!-- 
-						<data key="custom_fields" />
-						<data key="snippets" />
+						<!--
+						<data key="search" /> 
 						<data key="va_variable" />
 						<data key="workspace" />
 						-->
 						<data key="create" />
-						<data key="find" />
+						<data key="links" />
 					</value>
 				</param>
 			</params>
@@ -1643,7 +1643,8 @@
 					<value>
 						<data key="cards" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1674,13 +1675,6 @@
 				<param key="options">
 					<value>
 						<data key="custom_fields" />
-						<!--
-						<data key="create" />
-						<data key="find" />
-						<data key="snippets" />
-						<data key="va_variable" />
-						<data key="workspace" />
-						-->
 					</value>
 				</param>
 			</params>
@@ -1711,6 +1705,8 @@
 					<value>
 						<data key="cards" />
 						<data key="custom_fields" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1739,7 +1735,8 @@
 				<param key="view_class" value="View_Notification" />
 				<param key="options">
 					<value>
-						<!--<data key="snippets" />-->
+						<data key="links" />
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1775,7 +1772,8 @@
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1804,13 +1802,6 @@
 				<param key="options">
 					<value>
 						<data key="custom_fields" />
-						<!--
-						<data key="create" />
-						<data key="find" />
-						<data key="snippets" />
-						<data key="va_variable" />
-						<data key="workspace" />
-						-->
 					</value>
 				</param>
 			</params>
@@ -1838,7 +1829,8 @@
 						<data key="custom_fields" />
 						<!--
 						<data key="create" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1872,7 +1864,8 @@
 						<data key="custom_fields" />
 						<!--
 						<data key="create" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1903,7 +1896,8 @@
 					<value>
 						<data key="cards" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1934,7 +1928,8 @@
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1970,7 +1965,8 @@
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1999,13 +1995,9 @@
 				<param key="view_class" value="View_TriggerEvent" />
 				<param key="options">
 					<value>
-						<!--
-						<data key="create" />
-						<data key="find" />
-						<data key="snippets" />
-						-->
 						<data key="cards" />
 						<data key="custom_fields" />
+						<data key="search" />
 						<data key="workspace" />
 						<data key="va_variable" />
 					</value>
@@ -2039,8 +2031,8 @@
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
-						<!--<data key="snippets" />-->
+						<data key="links" />
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -2076,10 +2068,10 @@
 				<param key="view_class" value="View_Worker" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
 						<data key="cards" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -2108,8 +2100,10 @@
 				<param key="view_class" value="View_WorkerRole" />
 				<param key="options">
 					<value>
+						<data key="cards" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -2138,11 +2132,9 @@
 				<param key="view_class" value="View_WorkspacePage" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
-						<!--<data key="find" />-->
-						<!--<data key="snippets" />-->
-						<!--<data key="va_variable" />-->
-						<!--<data key="workspace" />-->
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
 					</value>
 				</param>
 			</params>
@@ -2169,11 +2161,7 @@
 				<param key="view_class" value="View_WorkspaceTab" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
-						<!--<data key="find" />-->
-						<!--<data key="snippets" />-->
-						<!--<data key="va_variable" />-->
-						<!--<data key="workspace" />-->
+						<!-- <data key="va_variable" /> -->
 					</value>
 				</param>
 			</params>
@@ -2200,11 +2188,7 @@
 				<param key="view_class" value="View_WorkspaceWidget" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
-						<!--<data key="find" />-->
-						<!--<data key="snippets" />-->
 						<!--<data key="va_variable" />-->
-						<!--<data key="workspace" />-->
 					</value>
 				</param>
 			</params>

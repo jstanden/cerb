@@ -6,7 +6,7 @@
 	<select name="add_context">
 		<option value="">- {'common.choose'|devblocks_translate|lower} -</option>
 		{foreach from=$contexts item=mft key=mft_id}
-		{if isset($mft->params['options'][0]['workspace'])}
+		{if $mft->hasOption('workspace')}
 		<option value="{$mft_id}">{$mft->name}</option>
 		{/if}
 		{/foreach}

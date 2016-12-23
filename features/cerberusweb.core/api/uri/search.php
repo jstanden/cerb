@@ -56,7 +56,7 @@ class Page_Search extends CerberusPageExtension {
 				return;
 		}
 		
-		if(!isset($context_ext->manifest->params['options'][0]['workspace']))
+		if(!$context_ext->manifest->hasOption('workspace'))
 			return;
 		
 		$tpl->assign('context_ext', $context_ext);
@@ -97,9 +97,7 @@ class Page_Search extends CerberusPageExtension {
 			return;
 		
 		// Verify that this context is publicly searchable
-		@$context_options = $context_ext->manifest->params['options'][0];
-		
-		if(!is_array($context_options) || !isset($context_options['workspace']))
+		if(!$context_ext->hasOption('workspace'))
 			return;
 		
 		if(false == ($view = $context_ext->getSearchView()) || !($view instanceof IAbstractView_QuickSearch))

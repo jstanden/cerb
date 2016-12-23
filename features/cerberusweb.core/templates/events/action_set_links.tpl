@@ -65,7 +65,7 @@
 		<li><b>Choosers</b></li>
 		
 		{foreach from=$contexts item=context key=context_id}
-			{if isset($context->params['options'][0]['find'])}
+			{if $context->hasOption('links')}
 				<li class="chooser" key="{$context_id}" style="padding-left:20px;">
 					<a href="javascript:;">{$context->name}</a>
 				</li>

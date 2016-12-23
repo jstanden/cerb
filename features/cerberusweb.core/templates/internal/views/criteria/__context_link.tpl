@@ -8,7 +8,7 @@
 <select class="chooser">
 	<option value="">-- {'common.choose'|devblocks_translate|lower} --</option>
 	{foreach from=$contexts item=context key=context_id}
-		{if isset($context->params['options'][0]['find'])}
+		{if $context->hasOption('links')}
 		<option value="{$context_id}">{$context->name}</option>
 		{/if}
 	{/foreach}

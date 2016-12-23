@@ -122,7 +122,8 @@
 					<value>
 						<data key="create" />
 						<data key="custom_fields" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -156,7 +157,8 @@
 					<!--
 					<value>
 						<data key="create" />
-						<data key="find" />
+						<data key="links" />
+						<data key="search" />
 						<data key="snippets" />
 						<data key="workspace" />
 					</value>

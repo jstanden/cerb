@@ -20,7 +20,7 @@
 			
 			<ul class="menu cerb-float" style="width:200px;margin-top:-5px;display:none;">
 				{foreach from=$link_ctxs item=link_ctx}
-				{if isset($link_ctx->params.options[0].find)}
+				{if $link_ctx->hasOption('links')}
 				<li data-context="{$link_ctx->id}"><b>{$link_ctx->name}</b></li>
 				{/if}
 				{/foreach}
