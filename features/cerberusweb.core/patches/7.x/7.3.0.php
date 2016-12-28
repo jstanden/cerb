@@ -406,6 +406,12 @@ $db->ExecuteMaster("UPDATE worker_view_model SET params_default_json = REPLACE(p
 $db->ExecuteMaster("UPDATE worker_view_model SET params_required_json = REPLACE(params_required_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");
 
 // ===========================================================================
+// Reindex fulltext_worker
+
+$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.worker'");
+$db->ExecuteMaster("DELETE FROM fulltext_worker");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
