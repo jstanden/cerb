@@ -1040,7 +1040,7 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 		
 		// Add dynamic owner.* fields
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner');
 		
 		// Add quick search links
 		

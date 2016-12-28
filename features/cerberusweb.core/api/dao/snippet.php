@@ -905,7 +905,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		// Add dynamic owner.* fields
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner');
 		
 		// Add quick search links
 		
