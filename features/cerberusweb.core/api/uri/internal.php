@@ -160,6 +160,14 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->display('devblocks:cerberusweb.core::console/message.tpl');
 					break;
 					
+				case 'script.send':
+					if(false == ($script = @$params['script']))
+						break;
+						
+					$tpl->assign('script', $script);
+					$tpl->display('devblocks:cerberusweb.core::console/script.tpl');
+					break;
+					
 				case 'worklist.open':
 					$context = @$params['context'] ?: null;
 					$q = @$params['q'] ?: null;

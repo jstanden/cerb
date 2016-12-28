@@ -162,6 +162,7 @@ class Event_PrivateMessageReceivedByBot extends Extension_DevblocksEvent {
 			array(
 				//'chooser_open' => array('label' => 'Open a chooser popup'),
 				'send_message' => array('label' => 'Respond with message'),
+				'send_script' => array('label' => 'Respond with script'),
 				'worklist_open' => array('label' => 'Open a worklist popup'),
 			)
 			//+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
@@ -185,6 +186,10 @@ class Event_PrivateMessageReceivedByBot extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_send_response.tpl');
 				break;
 				
+			case 'send_script':
+				$tpl->display('devblocks:cerberusweb.core::events/pm/action_send_script.tpl');
+				break;
+				
 			case 'worklist_open':
 				$context_mfts = Extension_DevblocksContext::getAll(false);
 				$tpl->assign('context_mfts', $context_mfts);
@@ -205,6 +210,16 @@ class Event_PrivateMessageReceivedByBot extends Extension_DevblocksEvent {
 				$content = $tpl_builder->build($params['message'], $dict);
 				
 				$out = sprintf(">>> Sending response message\n".
+					"%s\n",
+					$content
+				);
+				break;
+				
+			case 'send_script':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$content = $tpl_builder->build($params['script'], $dict);
+				
+				$out = sprintf(">>> Sending response script\n".
 					"%s\n",
 					$content
 				);
@@ -254,6 +269,19 @@ class Event_PrivateMessageReceivedByBot extends Extension_DevblocksEvent {
 					'_trigger_id' => $trigger->id,
 					'message' => $content,
 					'format' => $format,
+				);
+				break;
+				
+			case 'send_script':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$content = $tpl_builder->build($params['script'], $dict);
+				
+				$actions[] = array(
+					'_action' => 'script.send',
+					'_trigger_id' => $trigger->id,
+					'script' => $content,
 				);
 				break;
 				
