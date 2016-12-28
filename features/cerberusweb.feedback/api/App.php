@@ -405,6 +405,7 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
+	const VIRTUAL_WORKER_SEARCH = '*_worker_search';
 	
 	static private $_fields = null;
 	
@@ -430,6 +431,10 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'f.quote_address_id');
 				break;
 			
+			case self::VIRTUAL_WORKER_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'f.worker_id');
+				break;
+				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_FEEDBACK, self::getPrimaryKey());
 				break;
@@ -476,6 +481,7 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', mb_convert_case($translate->_('common.watchers'), MB_CASE_TITLE), 'WS', false),
+			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
 		);
 		
 		// Custom fields with fieldsets
@@ -518,11 +524,14 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_FeedbackEntry::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET,
 			SearchFields_FeedbackEntry::VIRTUAL_WATCHERS,
+			SearchFields_FeedbackEntry::VIRTUAL_WORKER_SEARCH,
 		));
 		
 		$this->addParamsHidden(array(
 			SearchFields_FeedbackEntry::ID,
 			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
+			SearchFields_FeedbackEntry::VIRTUAL_EMAIL_SEARCH,
+			SearchFields_FeedbackEntry::VIRTUAL_WORKER_SEARCH,
 		));
 		$this->addParamsDefault(array(
 			SearchFields_FeedbackEntry::LOG_DATE => new DevblocksSearchCriteria(SearchFields_FeedbackEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
@@ -693,8 +702,11 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				),
 			'worker' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
-					'options' => array('param_key' => SearchFields_FeedbackEntry::WORKER_ID),
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_FeedbackEntry::VIRTUAL_WORKER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
 				),
 			'watchers' => 
 				array(
@@ -764,6 +776,10 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_FeedbackEntry::VIRTUAL_WATCHERS, $tokens);
 				break;
 				
+			case 'worker':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_FeedbackEntry::VIRTUAL_WORKER_SEARCH);
+				break;
+			
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -874,6 +890,10 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 			
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
+				break;
+			
+			case SearchFields_FeedbackEntry::VIRTUAL_WORKER_SEARCH:
+				echo sprintf("Worker matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
 				break;
 		}
 	}
