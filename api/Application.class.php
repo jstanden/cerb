@@ -1257,7 +1257,16 @@ class CerberusContexts {
 	
 	public static function _polymorphActorToDictionary($actor) {
 		if(is_array($actor)) {
-			@list($context, $context_id) = $actor;
+			if(isset($actor['context']) && isset($actor['context_id'])) {
+				$context = $actor['context'];
+				$context_id = $actor['context_id'];
+				
+			} else if(2 == count($actor)) {
+				@list($context, $context_id) = $actor;
+				
+			} else {
+				return false;
+			}
 			
 			switch($context) {
 				case CerberusContexts::CONTEXT_APPLICATION:
