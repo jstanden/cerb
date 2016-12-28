@@ -294,6 +294,20 @@ class DevblocksDictionaryDelegate {
 		}
 	}
 	
+	public function extract($prefix) {
+		$values = [];
+		
+		if(is_array($this->_dictionary))
+		foreach(array_keys($this->_dictionary) as $key) {
+			if(DevblocksPlatform::strStartsWith($key, $prefix)) {
+				$new_key = substr($key, strlen($prefix));
+				$values[$new_key] = $this->_dictionary[$key];
+			}
+		}
+		
+		return DevblocksDictionaryDelegate::instance($values);
+	}
+	
 	public static function getDictionariesFromModels(array $models, $context, array $keys=array()) {
 		$dicts = array();
 		
