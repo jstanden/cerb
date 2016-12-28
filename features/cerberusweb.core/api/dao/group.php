@@ -1703,9 +1703,14 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				}
 				break;
 				
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
+				break;
+				
 			case 'members':
 				$values = $dictionary;
-
+				
 				if(!isset($values['members']))
 					$values['members'] = [];
 				

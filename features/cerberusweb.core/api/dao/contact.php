@@ -1844,7 +1844,11 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				foreach($addresses as $model_id => $model) {
 					$values['emails'][$model_id] = $model->email;
 				}
+				break;
 				
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
 				break;
 			
 			case 'watchers':

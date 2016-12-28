@@ -1003,7 +1003,11 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 				
 				if(!empty($cfield_values['custom_fields']))
 					$values = array_merge($values, $cfield_values);
+				break;
 				
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
 				break;
 				
 			default:

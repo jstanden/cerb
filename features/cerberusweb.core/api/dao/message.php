@@ -2175,16 +2175,6 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				$values['_label'] = sprintf("%s wrote on %s", $sender_address, $ticket_label);
 				break;
 				
-			case 'content':
-				// [TODO] Allow an array with storage meta here?  It removes an extra (n) SELECT in dictionaries for content
-				$values['content'] = Storage_MessageContent::get($context_id);
-				break;
-				
-			case 'headers':
-				$headers = DAO_MessageHeaders::getAll($context_id);
-				$values['headers'] = $headers;
-				break;
-				
 			case 'attachments':
 				$results = DAO_Attachment::getByContextIds($context, $context_id);
 				$objects = [];
@@ -2200,6 +2190,21 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				}
 				
 				$values['attachments'] = $objects;
+				break;
+				
+			case 'content':
+				// [TODO] Allow an array with storage meta here?  It removes an extra (n) SELECT in dictionaries for content
+				$values['content'] = Storage_MessageContent::get($context_id);
+				break;
+				
+			case 'headers':
+				$headers = DAO_MessageHeaders::getAll($context_id);
+				$values['headers'] = $headers;
+				break;
+				
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
 				break;
 				
 			default:

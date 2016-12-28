@@ -1246,6 +1246,11 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 					$values['behaviors'][$behavior->id] = $json;
 				}
 				break;
+				
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
+				break;
 			
 			case 'watchers':
 				$watchers = array(

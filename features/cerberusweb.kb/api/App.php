@@ -1007,6 +1007,11 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		}
 		
 		switch($token) {
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
+				break;
+			
 			case 'watchers':
 				$watchers = array(
 					$token => CerberusContexts::getWatchers($context, $context_id, true),

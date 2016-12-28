@@ -1504,6 +1504,11 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		switch($token) {
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
+				break;
+			
 			default:
 				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);

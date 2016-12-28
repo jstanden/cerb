@@ -4669,6 +4669,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		switch($token) {
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
+				break;
+			
 			case 'requester_emails':
 				if(!isset($dictionary['requesters'])) {
 					$result = $this->lazyLoadContextValues('requesters', $dictionary);

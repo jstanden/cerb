@@ -1366,6 +1366,11 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		}
 		
 		switch($token) {
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
+				break;
+			
 			case 'tabs':
 				$tabs = DAO_WorkspaceTab::getByPage($context_id);
 				$values['tabs'] = array();
@@ -1592,6 +1597,11 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		}
 		
 		switch($token) {
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
+				break;
+			
 			case 'widgets':
 				$values = $dictionary;
 

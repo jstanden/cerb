@@ -533,6 +533,11 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 				
 				$values['data'] = isset($json['widget']) ? $json['widget'] : $json;
 				break;
+				
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $fields);
+				break;
 			
 			default:
 				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {

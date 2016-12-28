@@ -685,6 +685,24 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 		return $token_values;
 	}
+	
+	protected function _lazyLoadLinks($context, $context_id) {
+		$results = DAO_ContextLink::getAllContextLinks($context, $context_id);
+		$links = array();
+		$token_values['links'] = array();
+		
+		foreach($results as $result) {
+			if($result->context == CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+				continue;
+			
+			if(!isset($token_values['links'][$result->context]))
+				$token_values['links'][$result->context] = array();
+			
+			$token_values['links'][$result->context][] = intval($result->context_id);
+		}
+		
+		return $token_values;
+	}
 
 	protected function _lazyLoadCustomFields($token, $context, $context_id, $field_values=null) {
 		$fields = DAO_CustomField::getByContext($context);
