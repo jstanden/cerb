@@ -1,5 +1,6 @@
 {$div_id = "peek{uniqid()}"}
 {$peek_context = CerberusContexts::CONTEXT_BOT}
+{$is_writeable = $active_worker->is_superuser}
 
 <div id="{$div_id}">
 	
@@ -18,7 +19,7 @@
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
 			{/if}
 		
-			{if $active_worker->is_superuser}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
+			{if $is_writeable}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
 			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 			<button type="button" class="cerb-peek-comments-add" data-context="{$peek_context}" data-context-id="{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 		</div>
@@ -75,7 +76,7 @@ $(function() {
 		// Properties grid
 		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
-		{if $active_worker->is_superuser}
+		{if $is_writeable}
 		// Edit button
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })

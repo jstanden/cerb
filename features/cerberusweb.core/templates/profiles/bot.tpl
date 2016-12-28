@@ -1,6 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_BOT}
 {$page_context_id = $model->id}
-{$is_writeable = Context_Bot::isWriteableByActor($model, $active_worker)}
+{$is_writeable = $active_worker->is_superuser}
 
 <div style="float:left;margin-right:10px;">
 	<img src="{devblocks_url}c=avatars&context=bot&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:75px;width:75px;border-radius:5px;">
@@ -25,7 +25,7 @@
 			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
 			
 			<!-- Edit -->
-			{if $active_worker->is_superuser}
+			{if $is_writeable}
 				<button type="button" id="btnDisplayBotEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
 		</form>

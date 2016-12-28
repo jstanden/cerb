@@ -93,10 +93,7 @@
 				<img src="{devblocks_url}c=avatars&context=bot&context_id={$result.v_id}{/devblocks_url}?v={$result.v_updated_at}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
 				<a href="{devblocks_url}c=profiles&type=bot&id={$result.v_id}-{$result.v_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.v_name}</a>
 				
-				{* If the current worker can edit this VA, allow peek *}
-				{if $active_worker->is_superuser}
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.v_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
-				{/if}
 			</td>
 			{elseif in_array($column, ["v_created_at", "v_updated_at"])}
 				<td data-column="{$column}">

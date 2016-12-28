@@ -145,7 +145,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker || !$active_worker->is_superuser)
+		if(!$active_worker)
 			return false;
 		
 		// Model
@@ -214,6 +214,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				// Create or update
 				
 				if(empty($id)) { // New
+					if(!$active_worker->is_superuser)
+						throw new Exception_DevblocksAjaxValidationError("Only admins can create new bots.");
+					
 					$fields = array(
 						DAO_Bot::CREATED_AT => time(),
 						DAO_Bot::UPDATED_AT => time(),
@@ -231,6 +234,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BOT, $id);
 					
 				} else { // Edit
+ 					if(!$active_worker->is_superuser)
+ 						throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this record.");
+					
 					$fields = array(
 						DAO_Bot::UPDATED_AT => time(),
 						DAO_Bot::NAME => $name,
@@ -240,7 +246,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						DAO_Bot::PARAMS_JSON => json_encode($params),
 					);
 					DAO_Bot::update($id, $fields);
-					
 				}
 	
 				if($id) {
