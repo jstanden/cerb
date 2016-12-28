@@ -402,6 +402,7 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 	const ADDRESS_EMAIL = 'a_email';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
@@ -425,6 +426,10 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_FEEDBACK, self::getPrimaryKey());
 				break;
 				
+			case self::VIRTUAL_EMAIL_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'f.quote_address_id');
+				break;
+			
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_FEEDBACK, self::getPrimaryKey());
 				break;
@@ -468,6 +473,7 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', $translate->_('feedback_entry.quote_address'), Model_CustomField::TYPE_SINGLE_LINE, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', mb_convert_case($translate->_('common.watchers'), MB_CASE_TITLE), 'WS', false),
 		);
@@ -509,6 +515,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_FeedbackEntry::ID,
 			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
 			SearchFields_FeedbackEntry::VIRTUAL_CONTEXT_LINK,
+			SearchFields_FeedbackEntry::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET,
 			SearchFields_FeedbackEntry::VIRTUAL_WATCHERS,
 		));
@@ -645,8 +652,19 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				),
 			'email' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_FeedbackEntry::ADDRESS_EMAIL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_FeedbackEntry::VIRTUAL_EMAIL_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
+				),
+			'email.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
 				),
 			'id' => 
 				array(
@@ -706,6 +724,10 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'email':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_FeedbackEntry::VIRTUAL_EMAIL_SEARCH);
+				break;
+				
 			case 'mood':
 				$field_key = SearchFields_FeedbackEntry::QUOTE_MOOD;
 				$oper = null;
@@ -840,6 +862,10 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		switch($key) {
 			case SearchFields_FeedbackEntry::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
+				break;
+			
+			case SearchFields_FeedbackEntry::VIRTUAL_EMAIL_SEARCH:
+				echo sprintf("Email matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
 				break;
 			
 			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
