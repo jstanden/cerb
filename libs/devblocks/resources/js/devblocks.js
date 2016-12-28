@@ -1,4 +1,11 @@
 function DevblocksClass() {
+	this.audio = new Audio();
+	
+	this.playAudioUrl = function(url) {
+		this.audio.src = url;
+		this.audio.play();
+	}
+	
 	// Source: http://stackoverflow.com/a/16693578
 	this.uniqueId = function() {
 		return (Math.random().toString(16)+"000000000").substr(2,8);
