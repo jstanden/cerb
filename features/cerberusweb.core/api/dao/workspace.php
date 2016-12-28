@@ -1432,6 +1432,8 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+			
 		// View
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
@@ -1439,6 +1441,25 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Pages';
+		
+		$params_req = array();
+		
+		if($active_worker && !$active_worker->is_superuser) {
+			$worker_group_ids = array_keys($active_worker->getMemberships());
+			$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
+			
+			// Restrict owners
+			
+			$params = $view->getParamsFromQuickSearch(sprintf('(owner.app:cerb OR owner.worker:(id:[%d]) OR owner.group:(id:[%s]) OR owner.role:(id:[%s])',
+				$active_worker->id,
+				implode(',', $worker_group_ids),
+				implode(',', $worker_role_ids)
+			));
+			
+			$params_req['_ownership'] = $params[0];
+		}
+		
+		$view->addParamsRequired($params_req, true);
 		
 		$view->renderSortBy = SearchFields_WorkspacePage::ID;
 		$view->renderSortAsc = true;
@@ -1452,6 +1473,8 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 
@@ -1460,16 +1483,20 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		
 		$params_req = array();
 		
-		/*
-		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_WorkspacePage::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_WorkspacePage::CONTEXT_LINK_ID,'=',$context_id),
-			);
+		if($active_worker && !$active_worker->is_superuser) {
+			$worker_group_ids = array_keys($active_worker->getMemberships());
+			$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
+			
+			// Restrict owners
+			
+			$params = $view->getParamsFromQuickSearch(sprintf('(owner.app:cerb OR owner.worker:(id:[%d]) OR owner.group:(id:[%s]) OR owner.role:(id:[%s])',
+				$active_worker->id,
+				implode(',', $worker_group_ids),
+				implode(',', $worker_role_ids)
+			));
+			
+			$params_req['_ownership'] = $params[0];
 		}
-		
-		$view->addParamsRequired($params_req, true);
-		*/
 		
 		$view->renderTemplate = 'context';
 		return $view;
