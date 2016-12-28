@@ -62,7 +62,7 @@ var markitupParsedownDefaults = {
 			return markItUp.line+'. ';
 		}},
 		{name:'Link to an External Image', openWith:'![Image](', closeWith:')', placeHolder:'http://www.example.com/path/to/image.png', className:'img'},
-		{name:'Link', key:'L', openWith:'[', closeWith:'](http://www.example.com/)', placeHolder:'link text', className:'a' },
+		{name:'Link', key:"L", openWith:'[', closeWith:']([![Url:!:http://]!])', placeHolder:'Your text to link here...', className:'a' },
 		{name:'Quotes', openWith:'> ', className:'blockquote'},
 		{
 			name:'Code Format', 
