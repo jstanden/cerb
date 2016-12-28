@@ -1127,6 +1127,7 @@
 				<param key="view_class" value="View_Contact" />
 				<param key="options">
 					<value>
+						<data key="autocomplete" />
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
@@ -1287,6 +1288,7 @@
 				<param key="view_class" value="View_Address" />
 				<param key="options">
 					<value>
+						<data key="autocomplete" />
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
@@ -1577,6 +1579,7 @@
 				<param key="view_class" value="View_FileBundle" />
 				<param key="options">
 					<value>
+						<data key="autocomplete" />
 						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
@@ -1965,6 +1968,7 @@
 				<param key="view_class" value="View_Ticket" />
 				<param key="options">
 					<value>
+						<data key="autocomplete" />
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
@@ -2031,6 +2035,7 @@
 				<param key="view_class" value="View_Bot" />
 				<param key="options">
 					<value>
+						<data key="autocomplete" />
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
@@ -2072,6 +2077,7 @@
 				<param key="view_class" value="View_Worker" />
 				<param key="options">
 					<value>
+						<data key="autocomplete" />
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
