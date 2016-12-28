@@ -543,7 +543,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 
 		// Add quick search links
 		
-		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
 		
 		// Add searchable custom fields
 		

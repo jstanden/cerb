@@ -1240,38 +1240,8 @@ abstract class C4_AbstractView {
 		return $criteria;
 	}
 	
-	protected function _appendLinksFromQuickSearchContexts($fields=array()) {
-		$context_mfts = Extension_DevblocksContext::getAll(false, ['find']);
-		
-		$fields['links'] = array(
-			'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-			'options' => array(),
-		);
-		
-		foreach($context_mfts as $context_mft) {
-			$aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
-			
-			$alias = $aliases['uri'];
-			
-			if(empty($alias))
-				continue;
-			
-			$fields['links.'.str_replace(' ', '.', $alias)] = 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array(),
-					'examples' => [
-						['type' => 'search', 'context' => $context_mft->id, 'q' => ''],
-					]
-				);
-		}
-		
-		return $fields;
-	}
-	
-	// [TODO] Allow filtering of contexts
-	protected function _appendVirtualFiltersFromQuickSearchContexts($prefix, $fields=array()) {
-		$context_mfts = Extension_DevblocksContext::getAll(false, ['find']);
+	protected function _appendVirtualFiltersFromQuickSearchContexts($prefix, $fields=array(), $option='search') {
+		$context_mfts = Extension_DevblocksContext::getAll(false, [$option]);
 		
 		$fields[$prefix] = array(
 			'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,

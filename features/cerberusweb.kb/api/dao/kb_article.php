@@ -1241,7 +1241,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		
 		// Add quick search links
 		
-		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
 		
 		// Add searchable custom fields
 		

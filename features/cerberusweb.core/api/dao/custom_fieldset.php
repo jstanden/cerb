@@ -675,7 +675,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 		
 		// Add quick search links
 		
-		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
 		
 		// Add is_sortable
 		

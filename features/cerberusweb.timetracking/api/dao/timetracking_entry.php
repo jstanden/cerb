@@ -954,7 +954,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		
 		// Add quick search links
 		
-		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
 		
 		// Add searchable custom fields
 		

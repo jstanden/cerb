@@ -1405,7 +1405,7 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		// Add quick search links
 		
-		$fields = self::_appendLinksFromQuickSearchContexts($fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
 		
 		// Add searchable custom fields
 		
