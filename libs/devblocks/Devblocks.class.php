@@ -2324,6 +2324,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function getMailService() {
 		return _DevblocksEmailManager::getInstance();
 	}
+	
+	/**
+	 * @return _DevblocksEncryptionService
+	 */
+	static function getEncryptionService() {
+		return _DevblocksEncryptionService::getInstance();
+	}
 
 	/**
 	 * @return _DevblocksEventManager
