@@ -220,6 +220,31 @@ $db->ExecuteMaster("UPDATE workspace_list SET list_view = replace(list_view, '\s
 $db->ExecuteMaster("UPDATE workspace_widget SET params_json = replace(params_json, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where params_json like '%\"context\":\"cerberusweb.contexts.ticket\"%'");
 
 // ===========================================================================
+// Modify `attachment`
+
+if(!isset($tables['attachment'])) {
+	$logger->error("The 'attachment' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('attachment');
+
+$changes = [];
+
+if(isset($columns['display_name'])) {
+	$changes[] = "CHANGE COLUMN display_name name VARCHAR(255) NOT NULL DEFAULT ''";
+	$changes[] = "ADD INDEX name (name(6))";
+}
+
+if(!isset($indexes['mime_type'])) {
+	$changes[] = "ADD INDEX (mime_type)";
+}
+
+if(!empty($changes))
+	if(false == ($db->ExecuteMaster(sprintf("ALTER TABLE attachment %s", implode(',', $changes)))))
+		return FALSE;
+
+// ===========================================================================
 // Update bot context + owner_context everywhere
 
 $db->ExecuteMaster("UPDATE attachment_link SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
