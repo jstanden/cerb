@@ -339,21 +339,31 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 		}
 	}
 
-	static function autocomplete($term, $as_worker=null) {
+	static function autocomplete($term, $as='models', $actor=null) {
 		$bundles = DAO_FileBundle::getAll();
 		
-		return array_filter($bundles, function($bundle) use ($as_worker, $term) { /* @var $bundle Model_FileBundle */
+		$models = array_filter($bundles, function($bundle) use ($term) { /* @var $bundle Model_FileBundle */
 			// Check if the term exists
 			if(false === stristr($bundle->name . ' ' . $bundle->tag, $term))
 				return false;
 			
-			// Check if the record is readable by the actor
-			if($as_worker) 
-				if(!Context_FileBundle::isReadableByActor($bundle, $as_worker))
-					return false;
-			
 			return true;
 		});
+		
+		// Filter to only models readable by the actor
+		if($actor) {
+			$models = CerberusContexts::filterModelsByActorReadable('Context_FileBundle', $models, $actor);
+		}
+		
+		switch($as) {
+			case 'ids':
+				return array_keys($models);
+				break;
+				
+			default:
+				return $models;
+				break;
+		}
 	}
 	
 	/**
@@ -1009,7 +1019,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 	function autocomplete($term) {
 		$list = array();
 		
-		$models = DAO_FileBundle::autocomplete($term, CerberusApplication::getActiveWorker());
+		$models = DAO_FileBundle::autocomplete($term, 'models', CerberusApplication::getActiveWorker());
 		
 		// [TODO] Rank results?
 		// [TODO] Show count of files, or summarize file names?

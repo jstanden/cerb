@@ -87,7 +87,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 		parent::_updateWhere('bot', $fields, $where);
 	}
 	
-	static function autocomplete($term) {
+	static function autocomplete($term, $as='models') {
 		$params = array(
 			SearchFields_Bot::NAME => new DevblocksSearchCriteria(SearchFields_Bot::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'*'),
 		);
@@ -102,7 +102,15 @@ class DAO_Bot extends Cerb_ORMHelper {
 			false
 		);
 		
-		return DAO_Bot::getIds(array_keys($results));
+		switch($as) {
+			case 'ids':
+				return array_keys($results);
+				break;
+				
+			default:
+				return DAO_Bot::getIds(array_keys($results));
+				break;
+		}
 	}
 	
 	/**

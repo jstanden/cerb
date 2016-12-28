@@ -1728,7 +1728,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	// [TODO] Utilize Sphinx when it exists?
-	static function autocomplete($term) {
+	static function autocomplete($term, $as='models') {
 		$db = DevblocksPlatform::getDatabaseService();
 		$objects = array();
 		
@@ -1750,9 +1750,15 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$objects[$row['id']] = null;
 		}
 		
-		$objects = DAO_Ticket::getIds(array_keys($objects));
-		
-		return $objects;
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+				break;
+				
+			default:
+				return DAO_Ticket::getIds(array_keys($objects));
+				break;
+		}
 	}
 
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {

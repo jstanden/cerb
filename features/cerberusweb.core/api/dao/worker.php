@@ -928,7 +928,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		}
 	}
 	
-	static function autocomplete($term) {
+	static function autocomplete($term, $as='models') {
 		$db = DevblocksPlatform::getDatabaseService();
 		$workers = DAO_Worker::getAll();
 		$objects = array();
@@ -958,7 +958,15 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$objects[$worker_id] = $workers[$worker_id];
 		}
 		
-		return $objects;
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+				break;
+				
+			default:
+				return DAO_Address::getIds(array_keys($objects));
+				break;
+		}
 	}
 	
 	/**

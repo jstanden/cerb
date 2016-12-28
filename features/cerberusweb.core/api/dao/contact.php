@@ -476,7 +476,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		}
 	}
 	
-	static function autocomplete($term) {
+	static function autocomplete($term, $as='models') {
 		$db = DevblocksPlatform::getDatabaseService();
 		$ids = array();
 		
@@ -500,7 +500,15 @@ class DAO_Contact extends Cerb_ORMHelper {
 			$ids[] = $row['id'];
 		}
 		
-		return DAO_Contact::getIds($ids);
+		switch($as) {
+			case 'ids':
+				return array_keys($results);
+				break;
+				
+			default:
+				return DAO_Contact::getIds(array_keys($results));
+				break;
+		}
 	}
 	
 	/**

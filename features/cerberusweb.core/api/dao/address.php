@@ -514,7 +514,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		}
 	}
 	
-	static function autocomplete($term) {
+	static function autocomplete($term, $as='models') {
 		// If we have a special email character then switch to literal email matching
 		if(preg_match('/[\.\@\_]/', $term)) {
 			// If a leading '@', then prefix/trailing wildcard
@@ -549,8 +549,16 @@ class DAO_Address extends Cerb_ORMHelper {
 			false,
 			false
 		);
-		
-		return DAO_Address::getIds(array_keys($results));
+
+		switch($as) {
+			case 'ids':
+				return array_keys($results);
+				break;
+				
+			default:
+				return DAO_Address::getIds(array_keys($results));
+				break;
+		}
 	}
 	
 	/**
