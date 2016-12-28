@@ -1499,6 +1499,14 @@ class CerberusContexts {
 		}
 	}
 	
+	static public function filterModelsByActorReadable($context_class, $models, $actor) {
+		return array_intersect_key($models, array_flip(array_keys($context_class::isReadableByActor($models, $actor), true)));
+	}
+	
+	static public function filterModelsByActorWriteable($context_class, $models, $actor) {
+		return array_intersect_key($models, array_flip(array_keys($context_class::isWriteableByActor($models, $actor), true)));
+	}
+	
 	// [TODO] This could also cache for request until new links are set involving the source/target
 	static public function getWatchers($context, $context_id, $as_contexts=false) {
 		$links = DAO_ContextLink::getContextLinks($context, $context_id, CerberusContexts::CONTEXT_WORKER);
