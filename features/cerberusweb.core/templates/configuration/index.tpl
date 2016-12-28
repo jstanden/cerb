@@ -34,22 +34,6 @@
 		</li>
 		<li>
 			<div>
-				<a href="javascript:;" class="menu">{'common.workers'|devblocks_translate|capitalize} &amp; {'common.groups'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
-				<ul class="cerb-popupmenu cerb-float">
-					<li><a href="{devblocks_url}c=config&a=groups{/devblocks_url}">{'common.groups'|devblocks_translate|capitalize}</a></li>
-					<li><a href="{devblocks_url}c=config&a=roles{/devblocks_url}">{'common.roles'|devblocks_translate|capitalize}</a></li>
-					<li><a href="{devblocks_url}c=config&a=workers{/devblocks_url}">{'common.workers'|devblocks_translate|capitalize}</a></li>
-					
-					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.workers')}
-					{if !empty($exts)}<li><hr></li>{/if}
-					{foreach from=$exts item=menu_item}
-						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
-					{/foreach}
-				</ul>
-			</div>
-		</li>
-		<li>
-			<div>
 				<a href="javascript:;" class="menu">Mail <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><b>Incoming Mail</b></li>

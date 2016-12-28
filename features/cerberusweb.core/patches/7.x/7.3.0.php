@@ -412,6 +412,11 @@ $db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.s
 $db->ExecuteMaster("DELETE FROM fulltext_worker");
 
 // ===========================================================================
+// Clean up removed worklists
+
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id IN ('cfg_worker_roles','setup_groups','twitter_account','workers_cfg')");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

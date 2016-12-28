@@ -536,7 +536,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/workers/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.core::workers/bulk.tpl');
 	}
 	
 	function startBulkUpdateJsonAction() {
