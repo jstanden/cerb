@@ -102,32 +102,20 @@ class Page_Custom extends CerberusPageExtension {
 		$defaults = C4_AbstractViewModel::loadFromClass('View_WorkspacePage');
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id, $defaults))) {
-			$worker_group_ids = array_keys($active_worker->getMemberships());
-			$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
-			
-			// Restrict owners
-			$params = array( '_ownership' => array(
-					DevblocksSearchCriteria::GROUP_OR,
-					SearchFields_WorkspacePage::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_WorkspacePage::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_APPLICATION),
-					array(
-						DevblocksSearchCriteria::GROUP_AND,
-						SearchFields_WorkspacePage::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_WorkspacePage::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
-						SearchFields_WorkspacePage::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_WorkspacePage::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
-					),
-					array(
-						DevblocksSearchCriteria::GROUP_AND,
-						SearchFields_WorkspacePage::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_WorkspacePage::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
-						SearchFields_WorkspacePage::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_WorkspacePage::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_group_ids),
-					),
-					array(
-						DevblocksSearchCriteria::GROUP_AND,
-						SearchFields_WorkspacePage::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_WorkspacePage::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
-						SearchFields_WorkspacePage::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_WorkspacePage::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_role_ids),
-					),
-				)
-			);
-			
-			$view->addParamsRequired($params, true);
+			if(!$active_worker->is_superuser) {
+				$worker_group_ids = array_keys($active_worker->getMemberships());
+				$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
+				
+				// Restrict owners
+				
+				$params = $view->getParamsFromQuickSearch(sprintf('(owner.app:cerb OR owner.worker:(id:[%d]) OR owner.group:(id:[%s]) OR owner.role:(id:[%s])',
+					$active_worker->id,
+					implode(',', $worker_group_ids),
+					implode(',', $worker_role_ids)
+				));
+				
+				$view->addParamsRequired(['_ownership' => $params[0]], true);
+			}
 			
 			$tpl->assign('view', $view);
 		}
