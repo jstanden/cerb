@@ -919,6 +919,9 @@ class Model_TriggerEvent {
 						if(!$replay_id || $action == '_run_subroutine')
 							$event->runAction($action, $this, $params, $dict, $dry_run);
 						
+						$pass = true;
+						EventListener_Triggers::logNode($node_id);
+						
 						if(isset($dict->__exit)) {
 							$path[] = $node_id;
 							$path[] = ('suspend' == $dict->__exit) ? 'SUSPEND' : 'STOP';
