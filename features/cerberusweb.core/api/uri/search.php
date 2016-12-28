@@ -52,11 +52,10 @@ class Page_Search extends CerberusPageExtension {
 			return;
 		
 		if(null == ($context_ext = Extension_DevblocksContext::getByAlias($context_extid, true))) { /* @var $context_ext Extension_DevblocksContext */
-			if(null == ($context_ext = Extension_DevblocksContext::get($context_extid)))
-				return;
+			return;
 		}
 		
-		if(!$context_ext->manifest->hasOption('workspace'))
+		if(!$context_ext->hasOption('search') && !$context_ext->hasOption('workspace'))
 			return;
 		
 		$tpl->assign('context_ext', $context_ext);
