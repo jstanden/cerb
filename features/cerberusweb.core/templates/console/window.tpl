@@ -1,7 +1,6 @@
 {$div_id = "botchat_{uniqid()}"}
 <style type="text/css">
 .bot-chat-window {
-	/*position: fixed;*/
 }
 
 .bot-chat-window > div.bot-chat-window-convo {
@@ -107,6 +106,15 @@ $(function() {
 	
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', "Cerb");
+		
+		$window = $popup.closest('div.ui-dialog');
+		$window
+			.css('position', 'fixed')
+			.css('left', '100%')
+			.css('top', '100%')
+			.css('margin-left', '-550px')
+			.css('margin-top', '-500px')
+			;
 	
 		var $chat_window_convo = $popup.find('div.bot-chat-window-convo');
 		var $chat_window_input_form = $('form.bot-chat-window-input-form');
