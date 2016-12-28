@@ -1035,6 +1035,7 @@
 				<param key="view_class" value="" />
 				<param key="options">
 					<value>
+						<data key="owner" />
 						<!--
 						<data key="links" />
 						-->
@@ -1084,10 +1085,10 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="account" value="singular" />
-						<data key="accounts" value="plural" />
 						<data key="connected account" value="singular" />
 						<data key="connected accounts" value="plural" />
+						<data key="account" value="singular" />
+						<data key="accounts" value="plural" />
 					</value>
 				</param>
 				<param key="alias" value="connected_account" />
@@ -1099,6 +1100,7 @@
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="search" />
+						<data key="workspace" />
 					</value>
 				</param>
 			</params>
@@ -1438,8 +1440,8 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="comment" value="singular short" />
-						<data key="comments" value="plural short" />
+						<data key="comment" value="singular" />
+						<data key="comments" value="plural" />
 						<data key="note" value="singular" />
 						<data key="notes" value="plural" />
 					</value>
@@ -1644,6 +1646,7 @@
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="owner" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -1948,8 +1951,8 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="ticket" value="singular short" />
-						<data key="tickets" value="plural short" />
+						<data key="ticket" value="singular" />
+						<data key="tickets" value="plural" />
 						<data key="mail" value="singular plural short" />
 						<data key="conversation" value="singular" />
 						<data key="conversations" value="plural" />
@@ -2015,8 +2018,8 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="bot" value="singular short" />
-						<data key="bots" value="plural short" />
+						<data key="bot" value="singular" />
+						<data key="bots" value="plural" />
 						<data key="virtual attendant" value="singular" />
 						<data key="virtual attendants" value="plural" />
 						<data key="virtual agent" value="singular" />
@@ -2032,6 +2035,7 @@
 						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="owner" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -2071,6 +2075,7 @@
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="owner" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2103,6 +2108,7 @@
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="owner" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
