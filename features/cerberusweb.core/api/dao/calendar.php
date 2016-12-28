@@ -152,32 +152,22 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	
 	static function getReadableByActor($actor) {
 		$calendars = DAO_Calendar::getAll();
-		
-		if(is_array($calendars))
-		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
-			if(!Context_Calendar::isReadableByActor($calendar, $actor)) {
-				unset($calendars[$calendar_id]);
-				continue;
-			}
-		}
-		
-		return $calendars;
+		return CerberusContexts::filterModelsByActorReadable('Context_Calendar', $calendars, $actor);
 	}
 	
 	static function getWriteableByActor($actor) {
 		$calendars = DAO_Calendar::getAll();
-		
-		if(is_array($calendars))
-		foreach($calendars as $calendar_id => $calendar) { /* @var $calendar Model_Calendar */
+
+		$calendars = array_filter($calendars, function($calendar) {
 			@$manual_disabled = $calendar->params['manual_disabled'];
 			
-			if(!empty($manual_disabled) || !Context_Calendar::isWriteableByActor($calendar, $actor)) {
-				unset($calendars[$calendar_id]);
-				continue;
-			}
-		}
+			if(!empty($manual_disabled))
+				return false;
+			
+			return true;
+		});
 		
-		return $calendars;
+		return CerberusContexts::filterModelsByActorWriteable('Context_Calendar', $calendar, $actor);
 	}
 	
 	static function getOwnedByWorker($worker) {
