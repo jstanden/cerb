@@ -129,6 +129,26 @@ BUTTON SPAN {
   vertical-align: middle;
 }
 
+DIV.cerb-form {
+  margin: 0px 0px 10px 0px;
+}
+DIV.cerb-form > DIV {
+  margin: 0px 0px 5px 10px;
+}
+DIV.cerb-form > DIV LABEL {
+  display: block;
+  font-weight: bold;
+  margin-left: -10px;
+  padding-bottom: 5px;
+}
+DIV.cerb-form > DIV INPUT[type=text] {
+  width: 100%;
+}
+DIV.cerb-form > DIV TEXTAREA {
+  width: 100%;
+  height: 50px;
+}
+
 FIELDSET.delete {
   color: #960000;
 }
@@ -1251,6 +1271,11 @@ FIELDSET.peek LEGEND {
 }
 FIELDSET.peek LEGEND A {
   color: inherit;
+}
+
+FIELDSET.no-legend {
+  background: none;
+  border: 0;
 }
 
 FIELDSET.peek-noborder {

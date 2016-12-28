@@ -4,6 +4,32 @@
 // Cerb custom styles
 
 
+// Forms
+
+DIV.cerb-form {
+	margin: 0px 0px 10px 0px;
+	
+	> DIV {
+		margin: 0px 0px 5px 10px;
+		
+		LABEL {
+			display: block;
+			font-weight: bold;
+			margin-left: -10px;
+			padding-bottom: 5px;
+		}
+		
+		INPUT[type=text] {
+			width: 100%;
+		}
+		
+		TEXTAREA {
+			width: 100%;
+			height: 50px;
+		}
+	}
+}
+
 // Fieldsets
 
 FIELDSET.delete {
@@ -1219,6 +1245,11 @@ FIELDSET.peek {
 			color:inherit;
 		}
 	}
+}
+
+FIELDSET.no-legend {
+	background: none;
+	border: 0;
 }
 
 FIELDSET.peek-noborder {
