@@ -47,12 +47,15 @@
 .bot-chat-window > div.bot-chat-window-convo > div.bot-chat-message.bot-chat-left > div.bot-chat-message-bubble {
 	background-color:rgb(240,240,240);
 	border:1px solid rgb(230,230,230);
+	border:0;
+	border-radius:0px 12px 12px 12px;
 }
 
 .bot-chat-window > div.bot-chat-window-convo > div.bot-chat-message.bot-chat-right > div.bot-chat-message-bubble {
 	color:white;
 	background-color:rgb(35,150,255);
 	border:0;
+	border-radius:12px 0px 12px 12px;
 }
 
 .bot-chat-window > div.bot-chat-window-convo div.bot-chat-message-time {
