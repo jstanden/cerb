@@ -245,6 +245,122 @@ if(!empty($changes))
 		return FALSE;
 
 // ===========================================================================
+// Modify `attachment_link` to drop 'guid'
+
+if(!isset($tables['attachment_link'])) {
+	$logger->error("The 'attachment_link' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('attachment_link');
+
+if(isset($columns['guid'])) {
+	$db->ExecuteMaster("ALTER TABLE attachment_link DROP COLUMN guid");
+}
+
+// ===========================================================================
+// Clean up attachment_link GUID references in content
+
+function cerb730_extractInternalURLsFromContent($content) {
+	$url_writer = DevblocksPlatform::getUrlService();
+	$img_baseurl = $url_writer->write('c=files', true, false);
+	$img_baseurl_parts = parse_url($img_baseurl);
+	
+	$results = array();
+	
+	// Extract URLs
+	$matches = array();
+		preg_match_all(
+			sprintf('#\"(https*://%s%s/(.*?))\"#i',
+			preg_quote($img_baseurl_parts['host']),
+			preg_quote($img_baseurl_parts['path'])
+		),
+		$content,
+		$matches
+	);
+
+	if(isset($matches[1]))
+	foreach($matches[1] as $idx => $replace_url) {
+		$results[$replace_url] = array(
+			'path' => $matches[2][$idx],
+		);
+	}
+	
+	return $results;
+}
+
+// ===========================================================================
+// Migrate kb articles and html templates away from guids
+
+// Migrate hash URLs in KB articles
+$sql = "SELECT id, content FROM kb_article WHERE content LIKE '%/files/%'";
+$rs = $db->ExecuteMaster($sql);
+
+while($row = mysqli_fetch_assoc($rs)) {
+	$internal_urls = cerb730_extractInternalURLsFromContent($row['content']);
+	
+	if(is_array($internal_urls)) {
+		foreach($internal_urls as $replace_url => $replace_data) {
+			@list($attachment_hash, $attachment_name) = explode('/', $replace_data['path'], 2);
+			$attachment_id = 0;
+			
+			if(strlen($attachment_hash) == 40) {
+				$attachment_id = $db->GetOneMaster(sprintf("SELECT id FROM attachment WHERE storage_sha1hash = %s", $db->qstr($attachment_hash)));
+			} elseif(strlen($attachment_hash) == 36) {
+				$attachment_id = $db->GetOneMaster(sprintf("SELECT attachment_id FROM attachment_link WHERE guid = %s", $db->qstr($attachment_hash)));
+			} elseif(is_numeric($attachment_hash)) {
+				$attachment_id = intval($attachment_hash);
+			} else {
+				continue;
+			}
+			
+			if($attachment_id) {
+				$new_url = sprintf("{{cerb_file_url(%d, '%s')}}", $attachment_id, DevblocksPlatform::strToPermalink($attachment_name));
+				
+				$db->ExecuteMaster(sprintf("UPDATE kb_article SET content = %s WHERE id = %d",
+					$db->qstr(str_replace($replace_url, $new_url, $row['content'])),
+					$row['id']
+				));
+			}
+		}
+	}
+}
+
+// Migrate hash URLs in HTML templates
+$sql = "SELECT id, content FROM mail_html_template WHERE content LIKE '%/files/%'";
+$rs = $db->ExecuteMaster($sql);
+
+while($row = mysqli_fetch_assoc($rs)) {
+	$internal_urls = cerb730_extractInternalURLsFromContent($row['content']);
+	
+	if(is_array($internal_urls)) {
+		foreach($internal_urls as $replace_url => $replace_data) {
+			@list($attachment_hash, $attachment_name) = explode('/', $replace_data['path'], 2);
+			$attachment_id = 0;
+			
+			if(strlen($attachment_hash) == 40) {
+				$attachment_id = $db->GetOneMaster(sprintf("SELECT id FROM attachment WHERE storage_sha1hash = %s", $db->qstr($attachment_hash)));
+			} elseif(strlen($attachment_hash) == 36) {
+				$attachment_id = $db->GetOneMaster(sprintf("SELECT attachment_id FROM attachment_link WHERE guid = %s", $db->qstr($attachment_hash)));
+			} elseif(is_numeric($attachment_hash)) {
+				$attachment_id = intval($attachment_hash);
+			} else {
+				continue;
+			}
+			
+			if($attachment_id) {
+				$new_url = sprintf("{{cerb_file_url(%d, '%s')}}", $attachment_id, DevblocksPlatform::strToPermalink($attachment_name));
+				
+				$db->ExecuteMaster(sprintf("UPDATE mail_html_template SET content = %s WHERE id = %d",
+					$db->qstr(str_replace($replace_url, $new_url, $row['content'])),
+					$row['id']
+				));
+			}
+		}
+	}
+}
+
+// ===========================================================================
 // Update bot context + owner_context everywhere
 
 $db->ExecuteMaster("UPDATE attachment_link SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
