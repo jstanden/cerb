@@ -198,7 +198,22 @@ class ChPageController extends DevblocksControllerExtension {
 
 		// Contexts
 		$contexts = Extension_DevblocksContext::getAll(false);
-		$tpl->assign('contexts', $contexts);
+		$search_menu = [];
+		
+		foreach($contexts as $context_id => $context) {
+			if($context->hasOption('search')) {
+				$label = $context->name;
+
+				if(false != ($aliases = Extension_DevblocksContext::getAliasesForContext($context)))
+					$label = @$aliases['plural'] ?: $aliases['singular'];
+				
+				$search_menu[$context_id] = $label;
+			}
+		}
+		
+		asort($search_menu);
+		
+		$tpl->assign('search_menu', $search_menu);
 
 		$tpl->display('devblocks:cerberusweb.core::border.tpl');
 		
