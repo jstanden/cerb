@@ -1838,22 +1838,17 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return DevblocksExtensionManifest
 	 */
 	static function getExtension($extension_id, $as_instance=false, $ignore_acl=false) {
-		$result = null;
 		$extensions = DevblocksPlatform::getExtensionRegistry($ignore_acl);
-
-		if(is_array($extensions))
-		foreach($extensions as $extension) { /* @var $extension DevblocksExtensionManifest */
-			if($extension->id == $extension_id) {
-				$result = $extension;
-				break;
-			}
-		}
-
-		if($as_instance && !is_null($result)) {
-			return $result->createInstance();
-		}
 		
-		return $result;
+		if(!isset($extensions[$extension_id]))
+			return null;
+		
+		$extension = $extensions[$extension_id];
+		
+		if($as_instance)
+			return $extension->createInstance();
+		
+		return $extension;
 	}
 
 	/**

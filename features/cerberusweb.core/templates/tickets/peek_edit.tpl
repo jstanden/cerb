@@ -111,7 +111,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" align="right" valign="middle">{'common.owner'|devblocks_translate|capitalize}:</td>
 			<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="inGroups:{$ticket->group_id}" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="group:(id:{$ticket->group_id})" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
 				
 				<ul class="bubbles chooser-container">
 					{$owner = $ticket->getOwner()}
@@ -259,7 +259,7 @@ $(function() {
 			$btn_watchers.trigger('refresh');
 			
 			// When the group changes, change the owner chooser defaults
-			$chooser_owner.attr('data-query', 'inGroups:' + $frm.find('select[name=group_id]').val());
+			$chooser_owner.attr('data-query', 'group:(id:' + $frm.find('select[name=group_id]' + ')').val());
 		});
 	});
 });

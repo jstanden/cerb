@@ -195,6 +195,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			$ctx_aliases = self::getAliasesForContext($ctx);
 			
 			@$uri = $ctx_aliases['uri'];
+			$results[$uri] = $ctx_id;
 			
 			if(isset($ctx_aliases['aliases']) && is_array($ctx_aliases['aliases']))
 			foreach($ctx_aliases['aliases'] as $alias => $meta) {
@@ -2359,13 +2360,8 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 	 * @return Extension_DevblocksSearchEngine
 	 */
 	public function getEngine() {
-		static $_engine = null; // Static cache
-
-		if(!is_null($_engine))
-			return $_engine;
-
 		$engine_params = $this->getEngineParams();
-
+		
 		if(false == ($_engine = Extension_DevblocksSearchEngine::get($engine_params['engine_extension_id'], true)))
 			return false;
 
