@@ -173,12 +173,12 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError("The 'Classifier' field is required.", 'classifier_id');
 					
 					$fields = array(
-						DAO_ClassifierClass::NAME => $name,
 						DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
-						DAO_ClassifierClass::TRAINING_COUNT => 0,
 						DAO_ClassifierClass::DICTIONARY_SIZE => 0,
+						DAO_ClassifierClass::NAME => $name,
+						DAO_ClassifierClass::SLOTS_JSON => json_encode([]),
+						DAO_ClassifierClass::TRAINING_COUNT => 0,
 						DAO_ClassifierClass::UPDATED_AT => time(),
-						DAO_ClassifierClass::ATTRIBS_JSON => json_encode([]),
 					);
 					$id = DAO_ClassifierClass::create($fields);
 					
@@ -188,6 +188,7 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 				} else { // Edit
 					$fields = array(
 						DAO_ClassifierClass::NAME => $name,
+						DAO_ClassifierClass::SLOTS_JSON => json_encode([]),
 						DAO_ClassifierClass::UPDATED_AT => time(),
 					);
 					DAO_ClassifierClass::update($id, $fields);

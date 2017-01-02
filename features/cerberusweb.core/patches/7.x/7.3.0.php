@@ -52,6 +52,7 @@ if(!isset($tables['classifier'])) {
 
 // ===========================================================================
 // Add `classifier_class` table
+
 if(!isset($tables['classifier_class'])) {
 	$sql = sprintf("
 	CREATE TABLE `classifier_class` (
@@ -60,8 +61,9 @@ if(!isset($tables['classifier_class'])) {
 		classifier_id int unsigned not null default 0,
 		training_count int unsigned not null default 0,
 		dictionary_size int unsigned not null default 0,
+		entities varchar(255) default '',
+		slots_json text,
 		updated_at int unsigned not null default 0,
-		attribs_json text,
 		primary key (id),
 		index (classifier_id)
 	) ENGINE=%s;

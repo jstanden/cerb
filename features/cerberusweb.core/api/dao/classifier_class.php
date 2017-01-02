@@ -4,7 +4,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 	const CLASSIFIER_ID = 'classifier_id';
 	const NAME = 'name';
 	const UPDATED_AT = 'updated_at';
-	const ATTRIBS_JSON = 'attribs_json';
+	const SLOTS_JSON = 'slots_json';
 	const DICTIONARY_SIZE = 'dictionary_size';
 	const TRAINING_COUNT = 'training_count';
 
@@ -33,7 +33,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $batch_ids);
 			}
 			
 			// Make changes
@@ -53,7 +53,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $batch_ids);
 			}
 		}
 	}
@@ -75,7 +75,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, classifier_id, name, updated_at, attribs_json, dictionary_size, training_count ".
+		$sql = "SELECT id, classifier_id, name, updated_at, slots_json, dictionary_size, training_count ".
 			"FROM classifier_class ".
 			$where_sql.
 			$sort_sql.
@@ -183,8 +183,8 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 			$object->dictionary_size = $row['dictionary_size'];
 			$object->training_count = $row['training_count'];
 			
-			@$attribs_json = json_decode($row['attribs_json']);
-			$object->attribs = is_array($attribs_json) ? $attribs_json : [];
+			@$slots_json = json_decode($row['slots_json']);
+			$object->attribs = is_array($slots_json) ? $slots_json : [];
 			
 			$objects[$object->id] = $object;
 		}
