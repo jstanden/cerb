@@ -102,11 +102,6 @@ class Page_ExampleObjects extends CerberusPageExtension {
 		// Create
 		} else {
 			$id = DAO_ExampleObject::create($fields);
-			
-			// Watchers
-			@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
-			if(!empty($add_watcher_ids))
-				CerberusContexts::addWatchers(Context_ExampleObject::ID, $id, $add_watcher_ids);
 		}
 		
 		// If we're adding a comment

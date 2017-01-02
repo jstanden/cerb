@@ -73,17 +73,6 @@
 			<td><input type="text" name="website" value="{$org->website}" style="width:98%;" class="url"></td>
 		</tr>
 		
-		{* Watchers *}
-		{if empty($org->id)}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.watchers'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-					<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
-					<ul class="chooser-container bubbles" style="display:block;"></ul>
-			</td>
-		</tr>
-		{/if}
-		
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.image'|devblocks_translate|capitalize}:</td>
 			<td width="99%" valign="top">

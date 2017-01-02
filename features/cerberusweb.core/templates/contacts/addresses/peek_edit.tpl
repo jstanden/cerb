@@ -66,16 +66,6 @@
 			</td>
 		</tr>
 		
-		{if empty($id)}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.watchers'|devblocks_translate|capitalize}:</b></td>
-			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="add_watcher_ids" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="chooser-container bubbles" style="display:block;"></ul>
-			</td>
-		</tr>
-		{/if}
-		
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.options'|devblocks_translate|capitalize}:</b> </td>
 			<td width="100%">

@@ -45,7 +45,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 			$new_model = $context_id;
 		}
 		
-		return new Model_DevblocksEvent(
+		$event_model = new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
 				'context' => @$trigger->event_params['context'],
@@ -56,6 +56,8 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 				'__trigger' => $trigger,
 			)
 		);
+		
+		return $event_model;
 	}
 
 	/**
@@ -103,7 +105,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger) {
 		$labels = array();
 		$values = array();
-
+		
 		@$context = $trigger->event_params['context'];
 		@$new_model = $event_model->params['new_model'];
 		@$old_model = $event_model->params['old_model'];

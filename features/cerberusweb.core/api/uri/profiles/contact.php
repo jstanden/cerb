@@ -264,11 +264,6 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 					
 					$id = DAO_Contact::create($fields);
 					
-					// Watchers
-					@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
-					if(!empty($add_watcher_ids))
-						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_CONTACT, $id, $add_watcher_ids);
-					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CONTACT, $id);
 					

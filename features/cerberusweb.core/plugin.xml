@@ -1738,6 +1738,8 @@
 					<value>
 						<data key="notification" value="singular" />
 						<data key="notifications" value="plural" />
+						<data key="alert" value="singular" />
+						<data key="alerts" value="plural" />
 					</value>
 				</param>
 				<param key="alias" value="notification" />

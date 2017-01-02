@@ -224,11 +224,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 						if(false == ($id = DAO_ContactOrg::create($fields)))
 							throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
 						
-						// Watchers
-						@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
-						if(!empty($add_watcher_ids))
-							CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ORG, $id, $add_watcher_ids);
-						
 						// View marquee
 						if(!empty($id) && !empty($view_id)) {
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ORG, $id);
