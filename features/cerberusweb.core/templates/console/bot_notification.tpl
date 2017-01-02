@@ -43,7 +43,7 @@ $(function() {
 	};
 	
 	$console_button.click(function() {
-		var $popup = genericAjaxPopup('va','c=internal&a=openBotChatChannel', position, false, '300');
+		var $popup = genericAjaxPopup('va','c=internal&a=startBotInteraction', position, false, '300');
 		Devblocks.playAudioUrl('');
 	});
 });

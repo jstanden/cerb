@@ -279,6 +279,23 @@ if(isset($tables['virtual_attendant'])) {
 }
 
 // ===========================================================================
+// Add `bot_session` table
+
+if(!isset($tables['bot_session'])) {
+	$sql = sprintf("
+	CREATE TABLE `bot_session` (
+		session_id varchar(40) NOT NULL DEFAULT '',
+		session_data text,
+		updated_at int unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (session_id)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['bot_session'] = 'bot_session';
+}
+
+// ===========================================================================
 // Add `bot.at_mention_name`
 
 if(!isset($tables['bot'])) {

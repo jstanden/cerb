@@ -125,6 +125,12 @@
 			<class name="Model_BayesWord" />
 		</file>
 		
+		<file path="api/dao/bot_session.php">
+			<class name="DAO_BotSession" />
+			<class name="Model_BotSession" />
+			<class name="SearchFields_BotSession" />
+		</file>
+		
 		<file path="api/dao/bucket.php">
 			<class name="Context_Bucket" />
 			<class name="DAO_Bucket" />

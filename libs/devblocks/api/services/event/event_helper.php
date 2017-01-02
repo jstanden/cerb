@@ -1767,8 +1767,10 @@ class DevblocksEventHelper {
 						
 						// Capture results
 						
-						if(isset($runners[$behavior->id]))
-							$dict->$var = $runners[$behavior->id];
+						if(isset($runners[$behavior->id])) {
+							$new_dict = $runners[$behavior->id]; /* @var $new_dict DevblocksDictionaryDelegate */
+							$dict->$var = $new_dict;
+						}
 						
 						// [TODO] We could show this dictionary in the simulator
 						

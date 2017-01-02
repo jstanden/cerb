@@ -16,7 +16,7 @@
 		</h1>
 		
 		<div style="margin-top:5px;">
-			{*<button type="button" class="" onclick="genericAjaxPopup('va','c=internal&a=openBotChatChannel', null, false, '300');"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button>*}
+			{*<button type="button" class="" onclick="genericAjaxPopup('va','c=internal&a=startBotInteraction', null, false, '300');"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button>*}
 			
 			{if $is_writeable}
 				{if !empty($dict->id)}

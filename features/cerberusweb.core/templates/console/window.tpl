@@ -49,6 +49,7 @@
 	border:1px solid rgb(230,230,230);
 	border:0;
 	border-radius:0px 12px 12px 12px;
+	margin-left:5px;
 }
 
 .bot-chat-window > div.bot-chat-window-convo > div.bot-chat-message.bot-chat-right > div.bot-chat-message-bubble {
@@ -81,22 +82,15 @@
 <div id="{$div_id}" class="bot-chat-window">
 
 	<div class="bot-chat-window-convo">
-	
-		<div class="bot-chat-message bot-chat-left">
-			<div class="bot-chat-message-bubble">
-				Hello, {$active_worker->first_name}.  Say &quot;<b>help</b>&quot; for a list of things I can help you with.
-			</div>
-		</div>
-		
-		<br clear="all">
 	</div>
 	
 	<div class="bot-chat-window-input">
 		<form class="bot-chat-window-input-form" action="javascript:;" onsubmit="return false;">
 			<input type="hidden" name="c" value="internal">
 			<input type="hidden" name="a" value="consoleSendMessage">
+			<input type="hidden" name="session_id" value="{$session_id}">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-			<input type="text" name="message" placeholder="write a message, or type 'help'" autocomplete="off" autofocus="autofocus">
+			<input type="text" name="message" placeholder="say something, or @mention to switch bots" autocomplete="off" autofocus="autofocus">
 		</form>
 	</div>
 	
@@ -104,11 +98,10 @@
 
 <script type="text/javascript">
 $(function() {
-	// [TODO] Change this to be dynamic
 	var $popup = genericAjaxPopupFind('#{$div_id}');
 	
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title', "Cerb");
+		$popup.dialog('option','title', "{$bot->name|escape:'javascript' nofilter}");
 		
 		$window = $popup.closest('div.ui-dialog');
 		$window
@@ -131,17 +124,31 @@ $(function() {
 			$(this).scrollTop(this.scrollHeight);
 		});
 		
+		// @mentions
+		var atwho_bots = {CerberusApplication::getAtMentionsBotDictionaryJson($active_worker) nofilter};
+
+		$chat_input.atwho({
+			at: '@',
+			{literal}displayTpl: '<li><b>${name}</b> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
+			{literal}insertTpl: '@${at_mention}',{/literal}
+			data: atwho_bots,
+			searchKey: '_index',
+			limit: 10
+		});
+		
 		$chat_window_input_form.submit(function() {
 			var txt = $chat_input.val();
 			
-			// Create outgoing message in log
-			var $msg = $('<div class="bot-chat-message bot-chat-right"></div>');
-			var $bubble = $('<div class="bot-chat-message-bubble"></div>');
-			
-			$bubble.text(txt).appendTo($msg.appendTo($chat_window_convo));
-			
-			$('<br clear="all">').insertAfter($msg);
-			
+			if(txt.length > 0) {
+				// Create outgoing message in log
+				var $msg = $('<div class="bot-chat-message bot-chat-right"></div>');
+				var $bubble = $('<div class="bot-chat-message-bubble"></div>');
+				
+				$bubble.text(txt).appendTo($msg.appendTo($chat_window_convo));
+				
+				$('<br clear="all">').insertAfter($msg);
+			}
+				
 			// Show loading icon placeholder
 			
 			var $loading = $('<div class="bot-chat-message bot-chat-left"><div class="bot-chat-message-bubble"><span class="cerb-ajax-spinner"></span></div></div>')
@@ -161,6 +168,9 @@ $(function() {
 				$chat_input.val('');
 			});
 		});
+		
+		// Submit form when open
+		$chat_window_input_form.submit();
 	});
 });
 </script>

@@ -59,24 +59,88 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	// [TODO] Move this
 	
-	function openBotChatChannelAction() {
-		@$channel = DevblocksPlatform::importGPC($_REQUEST['channel'], 'string', '');
+	function startBotInteractionAction() {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::getTemplateService();
 		
+		// Which bots can @mention?
+		$chat_bots = array_filter(DAO_Bot::getReadableByActor($active_worker), function($bot) {
+			if(empty($bot->at_mention_name))
+				return false;
+			
+			if(!isset($bot->params['interactions']))
+				return false;
+			
+			if(!isset($bot->params['interactions']['worker']))
+				return false;
+			
+			if(empty($bot->params['interactions']['worker']))
+				return false;
+			
+			return true;
+		});
+		
+		$bot = reset($chat_bots);
+		$behavior_id = $bot->params['interactions']['worker'];
+		
+		$session_data = [
+			'actor' => ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id],
+			'behavior_id' => $behavior_id,
+			'dict' => null,
+		];
+		
+		$session_id = DAO_BotSession::create([
+			DAO_BotSession::SESSION_DATA => json_encode($session_data),
+			DAO_BotSession::UPDATED_AT => time(),
+		]);
+		
+		$tpl->assign('bot', $bot);
+		$tpl->assign('bots', $chat_bots);
+		$tpl->assign('session_id', $session_id);
 		$tpl->display('devblocks:cerberusweb.core::console/window.tpl');
 	}
 	
 	function consoleSendMessageAction() {
+		@$session_id = DevblocksPlatform::importGPC($_REQUEST['session_id'], 'string', '');
 		@$message = DevblocksPlatform::importGPC($_REQUEST['message'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::getTemplateService();
 		
+		// Load the session
+		if(false == ($interaction = DAO_BotSession::get($session_id)))
+			return false;
+		
+		// Load our default behavior for this interaction
+		if(false == (@$behavior_id = $interaction->session_data['behavior_id']))
+			return false;
+			
+		if(DevblocksPlatform::strStartsWith($message, '@')) {
+			$bots = CerberusApplication::getBotsByAtMentionsText($message);
+			$bot = array_shift($bots);
+
+			if($bot) {
+				@$new_behavior_id = $bot->params['interactions']['worker'];
+				if($new_behavior_id && $new_behavior_id != $behavior_id) {
+					$behavior_id = $new_behavior_id;
+					$interaction->session_data['behavior_id'] = $behavior_id;
+					$interaction->session_data['dict'] = [];
+					$interaction->session_data['path'] = [];
+				}
+				
+				@list($mention, $message) = explode(' ', $message, 2);
+				$tpl->assign('title', $bot->name);
+				$tpl->display('devblocks:cerberusweb.core::console/_change_window_title.tpl');
+				
+			} else {
+				return;
+			}
+		}
+		
 		$actions = array();
 		
-		if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 			return;
 		
 		$event_model = new Model_DevblocksEvent(
@@ -91,38 +155,31 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(false == ($event = Extension_DevblocksEvent::get($event_model->id, true)))
 			return;
 			
-		$event->setEvent($event_model, $trigger);
-			
-		@$resume = json_decode(file_get_contents(APP_TEMP_PATH . '/behavior_state.json'), true);
+		$event->setEvent($event_model, $behavior);
 		
 		// Are we resuming a scope?
-		if($resume && is_array($resume) && isset($resume['dict']) && isset($resume['path'])) {
+		if(isset($interaction->session_data['dict']) && isset($interaction->session_data['path'])) {
 			$values = $event->getValues();
-			$values = array_replace($values, $resume['dict']);
-			//$values = array_merge($event->getValues(), $resume['dict']);
-			//$values['message'] = $message;
-			//$values['_actions'] =& $actions;
+			$values = array_replace($values, $interaction->session_data['dict']);
 			
 			$dict = new DevblocksDictionaryDelegate($values);
 			
-			if(false == ($result = $trigger->resumeDecisionTree($dict, false, $event, $resume['path'])))
+			if(false == ($result = $behavior->resumeDecisionTree($dict, false, $event, $interaction->session_data['path'])))
 				return;
 			
 		} else {
-			//Event_PrivateMessageReceivedByBot::trigger($active_worker->id, $message, $actions);
-			
 			$values = $event->getValues();
 			
 			$dict = new DevblocksDictionaryDelegate($values);
 			
-			if(false == ($result = $trigger->runDecisionTree($dict, false, $event)))
+			if(false == ($result = $behavior->runDecisionTree($dict, false, $event)))
 				return;
 		}
-
+		
 		$values = $dict->getDictionary(null, false);
 		$values = array_diff_key($values, $event->getValues());
-		$result['dict'] = $values;
 		
+		// Hibernate
 		if($result['exit_state'] == 'SUSPEND') {
 			// Keep everything as it is
 		} else {
@@ -130,22 +187,26 @@ class ChInternalController extends DevblocksControllerExtension {
 			$result['path'] = [];
 		}
 		
-		// [TODO] Put this into the cache
-		// [TODO] Locking?
-		//var_dump($result);
+		$interaction->session_data['dict'] = $values;
+		$interaction->session_data['path'] = $result['path'];
 		
-		//var_dump($actions);
-		//var_dump($result);
-				continue;
-			
-			$bot->name = 'Cerb';
-			
+		// Save session scope
+		DAO_BotSession::update($interaction->session_id, [
+			DAO_BotSession::SESSION_DATA => json_encode($interaction->session_data),
+			DAO_BotSession::UPDATED_AT => time(),
+		]);
+		
+		if(false == ($bot = $behavior->getBot()))
+			continue;
+		
+		$tpl->assign('bot', $bot);
+		
+		foreach($actions as $params) {
 			switch(@$params['_action']) {
 				case 'emote':
 					if(false == ($emote = @$params['emote']))
 						break;
 					
-					$tpl->assign('actor', $bot->name);
 					$tpl->assign('emote', $emote);
 					$tpl->display('devblocks:cerberusweb.core::console/emote.tpl');
 					break;
@@ -154,7 +215,6 @@ class ChInternalController extends DevblocksControllerExtension {
 					if(false == ($msg = @$params['message']))
 						break;
 						
-					$tpl->assign('actor', $bot->name);
 					$tpl->assign('message', $msg);
 					$tpl->assign('format', @$params['format']);
 					$tpl->display('devblocks:cerberusweb.core::console/message.tpl');
@@ -178,7 +238,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					// Open popup
 					$tpl->assign('context', $context_ext->id);
 					$tpl->assign('q', $q);
-					$tpl->display('devblocks:cerberusweb.core::console/commands/search_worklist.tpl');
+					$tpl->display('devblocks:cerberusweb.core::console/search_worklist.tpl');
 					break;
 			}
 		}

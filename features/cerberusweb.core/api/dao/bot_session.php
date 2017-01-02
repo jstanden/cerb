@@ -1,0 +1,362 @@
+<?php
+class DAO_BotSession extends Cerb_ORMHelper {
+	const SESSION_ID = 'session_id';
+	const SESSION_DATA = 'session_data';
+	const UPDATED_AT = 'updated_at';
+
+	static function create($fields) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$session_id = sha1(json_encode($fields) . time() . uniqid(null, true));
+		
+		$sql = sprintf("INSERT INTO bot_session (session_id) VALUES (%s)",
+			$db->qstr($session_id)
+		);
+		$db->ExecuteMaster($sql);
+		
+		self::update($session_id, $fields);
+		
+		return $session_id;
+	}
+	
+	static function update($ids, $fields, $check_deltas=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		self::updateWhere($fields, sprintf("session_id IN (%s)",
+			implode(',', $db->qstrArray($ids))
+		));
+	}
+	
+	static function updateWhere($fields, $where) {
+		parent::_updateWhere('bot_session', $fields, $where);
+	}
+	
+	/**
+	 * @param string $where
+	 * @param mixed $sortBy
+	 * @param mixed $sortAsc
+	 * @param integer $limit
+	 * @return Model_BotSession[]
+	 */
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
+		$db = DevblocksPlatform::getDatabaseService();
+
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		// SQL
+		$sql = "SELECT session_id, session_data, updated_at ".
+			"FROM bot_session ".
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
+		
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
+		
+		return self::_getObjectsFromResult($rs);
+	}
+	
+	/**
+	 *
+	 * @param bool $nocache
+	 * @return Model_BotSession[]
+	 */
+	static function getAll($nocache=false) {
+		//$cache = DevblocksPlatform::getCacheService();
+		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+			$objects = self::getWhere(null, DAO_BotSession::UPDATED_AT, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			
+			//if(!is_array($objects))
+			//	return false;
+				
+			//$cache->save($objects, self::_CACHE_ALL);
+		//}
+		
+		return $objects;
+	}
+
+	/**
+	 * @param integer $id
+	 * @return Model_BotSession	 */
+	static function get($id) {
+		if(empty($id))
+			return null;
+		
+		$objects = self::getWhere(sprintf("%s = %s",
+			self::SESSION_ID,
+			Cerb_ORMHelper::qstr($id)
+		));
+		
+		if(isset($objects[$id]))
+			return $objects[$id];
+		
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_BotSession[]
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+
+		if(empty($ids))
+			return array();
+
+		if(!method_exists(get_called_class(), 'getWhere'))
+			return array();
+
+		$db = DevblocksPlatform::getDatabaseService();
+
+		$models = array();
+
+		$results = static::getWhere(sprintf("session_id IN (%s)",
+			implode(',', $db->qstrArray($ids))
+		));
+
+		// Sort $models in the same order as $ids
+		foreach($ids as $id) {
+			if(isset($results[$id]))
+				$models[$id] = $results[$id];
+		}
+
+		unset($results);
+
+		return $models;
+	}	
+	
+	/**
+	 * @param resource $rs
+	 * @return Model_BotSession[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = array();
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
+		while($row = mysqli_fetch_assoc($rs)) {
+			$object = new Model_BotSession();
+			$object->session_id = $row['session_id'];
+			$object->updated_at = intval($row['updated_at']);
+			
+			@$session_data = json_decode($row['session_data'], true);
+			$object->session_data = $session_data ?: [];
+			
+			$objects[$object->session_id] = $object;
+		}
+		
+		mysqli_free_result($rs);
+		
+		return $objects;
+	}
+	
+	static function random() {
+		return self::_getRandom('bot_session');
+	}
+	
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		if(empty($ids))
+			return;
+		
+		$ids_list = implode(',', $db->qstrArray($ids));
+		
+		$db->ExecuteMaster(sprintf("DELETE FROM bot_session WHERE session_id IN (%s)", $ids_list));
+		
+		// Fire event
+		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => 'cerberusweb.contexts.bot.session',
+					'context_ids' => $ids
+				)
+			)
+		);
+		
+		return true;
+	}
+	
+	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
+		$fields = SearchFields_BotSession::getFields();
+		
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_BotSession', $sortBy);
+		
+		$select_sql = sprintf("SELECT ".
+			"bot_session.session_id as %s, ".
+			"bot_session.session_data as %s, ".
+			"bot_session.updated_at as %s ",
+				SearchFields_BotSession::SESSION_ID,
+				SearchFields_BotSession::SESSION_DATA,
+				SearchFields_BotSession::UPDATED_AT
+			);
+			
+		$join_sql = "FROM bot_session ";
+		
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+			
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_BotSession');
+	
+		// Virtuals
+		
+		$args = array(
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'tables' => &$tables,
+		);
+	
+		return array(
+			'primary_table' => 'bot_session',
+			'select' => $select_sql,
+			'join' => $join_sql,
+			'where' => $where_sql,
+			'sort' => $sort_sql,
+		);
+	}
+	
+	/**
+	 * Enter description here...
+	 *
+	 * @param array $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Build search queries
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
+
+		$select_sql = $query_parts['select'];
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		$sort_sql = $query_parts['sort'];
+		
+		$sql =
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			$sort_sql;
+			
+		if($limit > 0) {
+			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+				return false;
+		} else {
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
+			$total = mysqli_num_rows($rs);
+		}
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
+		$results = array();
+		
+		while($row = mysqli_fetch_assoc($rs)) {
+			$object_id = $row[SearchFields_BotSession::SESSION_ID];
+			$results[$object_id] = $row;
+		}
+
+		$total = count($results);
+		
+		if($withCounts) {
+			// We can skip counting if we have a less-than-full single page
+			if(!(0 == $page && $total < $limit)) {
+				$count_sql =
+					"SELECT COUNT(bot_session.session_id) ".
+					$join_sql.
+					$where_sql;
+				$total = $db->GetOneSlave($count_sql);
+			}
+		}
+		
+		mysqli_free_result($rs);
+		
+		return array($results,$total);
+	}
+};
+
+class SearchFields_BotSession extends DevblocksSearchFields {
+	const SESSION_ID = 'b_session_id';
+	const SESSION_DATA = 'b_session_data';
+	const UPDATED_AT = 'b_updated_at';
+
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'bot_session.session_id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		// [TODO] Context
+		return array(
+			'' => new DevblocksSearchFieldContextKeys('bot_session.session_id', self::SESSION_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			default:
+				break;
+		}
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$columns = array(
+			self::SESSION_ID => new DevblocksSearchField(self::SESSION_ID, 'bot_session', 'session_id', null, null, true),
+			self::SESSION_DATA => new DevblocksSearchField(self::SESSION_DATA, 'bot_session', 'session_data', null, null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'bot_session', 'updated_at', $translate->_('common.updated'), null, true),
+		);
+		
+		// Custom Fields
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
+		
+		if(!empty($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
+
+		// Sort by label (translation-conscious)
+		DevblocksPlatform::sortObjects($columns, 'db_label');
+
+		return $columns;
+	}
+};
+
+class Model_BotSession {
+	public $session_id;
+	public $session_data;
+	public $updated_at;
+};
