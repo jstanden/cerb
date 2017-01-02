@@ -18,6 +18,7 @@
 class DAO_Bot extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
+	const AT_MENTION_NAME = 'at_mention_name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const IS_DISABLED = 'is_disabled';
@@ -126,7 +127,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, owner_context, owner_context_id, is_disabled, params_json, created_at, updated_at ".
+		$sql = "SELECT id, name, at_mention_name, owner_context, owner_context_id, is_disabled, params_json, created_at, updated_at ".
 			"FROM bot ".
 			$where_sql.
 			$sort_sql.
@@ -140,6 +141,25 @@ class DAO_Bot extends Cerb_ORMHelper {
 		}
 		
 		return self::_getObjectsFromResult($rs);
+	}
+	
+	static function getByAtMentions($at_mentions) {
+		if(!is_array($at_mentions) && is_string($at_mentions))
+			$at_mentions = array($at_mentions);
+		
+		$bots = DAO_Bot::getAll();
+		
+		$bots = array_filter($bots, function($bot) use ($at_mentions) {
+			foreach($at_mentions as $at_mention) {
+				if($bot->at_mention_name && 0 == strcasecmp(ltrim($at_mention, '@'), $bot->at_mention_name)) {
+					return true;
+				}
+			}
+			
+			return false;
+		});
+		
+		return $bots;
 	}
 	
 	/**
@@ -242,13 +262,14 @@ class DAO_Bot extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Bot();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->name = $row['name'];
+			$object->at_mention_name = $row['at_mention_name'];
 			$object->owner_context = $row['owner_context'];
-			$object->owner_context_id = $row['owner_context_id'];
+			$object->owner_context_id = intval($row['owner_context_id']);
 			$object->is_disabled = $row['is_disabled'] ? true : false;
-			$object->created_at = $row['created_at'];
-			$object->updated_at = $row['updated_at'];
+			$object->created_at = intval($row['created_at']);
+			$object->updated_at = intval($row['updated_at']);
 			
 			@$params = json_decode($row['params_json'], true);
 			$object->params = $params ?: array();
@@ -319,6 +340,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"bot.id as %s, ".
 			"bot.name as %s, ".
+			"bot.at_mention_name as %s, ".
 			"bot.owner_context as %s, ".
 			"bot.owner_context_id as %s, ".
 			"bot.is_disabled as %s, ".
@@ -327,6 +349,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 			"bot.updated_at as %s ",
 				SearchFields_Bot::ID,
 				SearchFields_Bot::NAME,
+				SearchFields_Bot::AT_MENTION_NAME,
 				SearchFields_Bot::OWNER_CONTEXT,
 				SearchFields_Bot::OWNER_CONTEXT_ID,
 				SearchFields_Bot::IS_DISABLED,
@@ -457,6 +480,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 class SearchFields_Bot extends DevblocksSearchFields {
 	const ID = 'v_id';
 	const NAME = 'v_name';
+	const AT_MENTION_NAME = 'v_at_mention_name';
 	const OWNER_CONTEXT = 'v_owner_context';
 	const OWNER_CONTEXT_ID = 'v_owner_context_id';
 	const IS_DISABLED = 'v_is_disabled';
@@ -524,6 +548,7 @@ class SearchFields_Bot extends DevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'bot', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'bot', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::AT_MENTION_NAME => new DevblocksSearchField(self::AT_MENTION_NAME, 'bot', 'at_mention_name', $translate->_('worker.at_mention_name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'bot', 'owner_context', $translate->_('common.owner_context'), null, false),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'bot', 'owner_context_id', $translate->_('common.owner_context_id'), null, false),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'bot', 'is_disabled', $translate->_('common.disabled'), Model_CustomField::TYPE_CHECKBOX, true),
@@ -553,6 +578,7 @@ class SearchFields_Bot extends DevblocksSearchFields {
 class Model_Bot {
 	public $id;
 	public $name;
+	public $at_mention_name;
 	public $owner_context;
 	public $owner_context_id;
 	public $is_disabled;
@@ -640,6 +666,7 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 		$this->view_columns = array(
 			SearchFields_Bot::NAME,
 			SearchFields_Bot::VIRTUAL_OWNER,
+			SearchFields_Bot::AT_MENTION_NAME,
 			SearchFields_Bot::UPDATED_AT,
 		);
 		
@@ -790,6 +817,11 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BOT, 'q' => ''],
 					]
 				),
+			'mentionName' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Bot::AT_MENTION_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -867,6 +899,7 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
+			case SearchFields_Bot::AT_MENTION_NAME:
 			case SearchFields_Bot::NAME:
 			case SearchFields_Bot::OWNER_CONTEXT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
@@ -969,6 +1002,7 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 		$criteria = null;
 
 		switch($field) {
+			case SearchFields_Bot::AT_MENTION_NAME:
 			case SearchFields_Bot::NAME:
 			case SearchFields_Bot::OWNER_CONTEXT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
@@ -1119,6 +1153,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 	function getDefaultProperties() {
 		return array(
 			'owner__label',
+			'mention_name',
 			'is_disabled',
 			'updated_at',
 		);
@@ -1148,6 +1183,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			'_label' => $prefix,
 			'created_at' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
+			'mention_name' => $prefix.$translate->_('worker.at_mention_name'),
 			'name' => $prefix.$translate->_('common.name'),
 			'is_disabled' => $prefix.$translate->_('common.disabled'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
@@ -1162,6 +1198,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			'_label' => 'context_url',
 			'created_at' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'mention_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
 			'updated_at' => Model_CustomField::TYPE_DATE,
@@ -1191,6 +1228,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'bot', $model->id), true) . '?v=' . $model->updated_at;
 			$token_values['created_at'] = $model->created_at;
 			$token_values['id'] = $model->id;
+			$token_values['mention_name'] = $model->at_mention_name;
 			$token_values['name'] = $model->name;
 			$token_values['is_disabled'] = $model->is_disabled;
 			$token_values['updated_at'] = $model->updated_at;

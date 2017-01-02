@@ -101,6 +101,16 @@ class CerberusApplication extends DevblocksApplication {
 			;
 	}
 
+	static function getBotsByAtMentionsText($text) {
+		$bots = array();
+
+		if(false !== ($at_mentions = DevblocksPlatform::parseAtMentionString($text))) {
+			$bots = DAO_Bot::getByAtMentions($at_mentions);
+		}
+
+		return $bots;
+	}
+	
 	static function getWorkersByAtMentionsText($text) {
 		$workers = array();
 
@@ -188,12 +198,35 @@ class CerberusApplication extends DevblocksApplication {
 		return json_encode($list);
 	}
 
+	static function getAtMentionsBotDictionaryJson($actor) {
+		$bots = DAO_Bot::getReadableByActor($actor);
+
+		$list = array();
+
+		foreach($bots as $bot) {
+			if(empty($bot->at_mention_name))
+				continue;
+			
+			$list[] = array(
+				'id' => $bot->id,
+				'name' => DevblocksPlatform::strEscapeHtml($bot->name),
+				'at_mention' => DevblocksPlatform::strEscapeHtml($bot->at_mention_name),
+				'_index' => DevblocksPlatform::strEscapeHtml($bot->name . ' ' . $bot->at_mention_name),
+			);
+		}
+
+		return json_encode($list);
+	}
+	
 	static function getAtMentionsWorkerDictionaryJson() {
 		$workers = DAO_Worker::getAllActive();
 
 		$list = array();
 
 		foreach($workers as $worker) {
+			if(empty($worker->at_mention_name))
+				continue;
+			
 			$list[] = array(
 				'id' => $worker->id,
 				'name' => DevblocksPlatform::strEscapeHtml($worker->getName()),

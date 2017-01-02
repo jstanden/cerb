@@ -178,6 +178,20 @@ if(isset($tables['virtual_attendant'])) {
 }
 
 // ===========================================================================
+// Add `bot.at_mention_name`
+
+if(!isset($tables['bot'])) {
+	$logger->error("The 'bot' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('bot');
+
+if(!isset($columns['at_mention_name'])) {
+	$db->ExecuteMaster("ALTER TABLE bot ADD COLUMN at_mention_name varchar(64) not null default''");
+}
+
+// ===========================================================================
 // Fix `contact.location` (was varchar and default=0)
 
 if(!isset($tables['contact'])) {

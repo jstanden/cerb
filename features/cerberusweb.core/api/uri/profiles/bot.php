@@ -60,6 +60,12 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			],
 		);
 		
+		$properties['mention_name'] = array(
+			'label' => mb_ucfirst($translate->_('worker.at_mention_name')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->at_mention_name,
+		);
+		
 		$properties['is_disabled'] = array(
 			'label' => mb_ucfirst($translate->_('common.disabled')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
@@ -165,6 +171,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+				@$at_mention_name = DevblocksPlatform::importGPC($_REQUEST['at_mention_name'], 'string', '');
 				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
 				@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
 				@$allowed_events = DevblocksPlatform::importGPC($_REQUEST['allowed_events'], 'string', '');
@@ -221,6 +228,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						DAO_Bot::CREATED_AT => time(),
 						DAO_Bot::UPDATED_AT => time(),
 						DAO_Bot::NAME => $name,
+						DAO_Bot::AT_MENTION_NAME => $at_mention_name,
 						DAO_Bot::IS_DISABLED => $is_disabled,
 						DAO_Bot::OWNER_CONTEXT => $owner_ctx,
 						DAO_Bot::OWNER_CONTEXT_ID => $owner_ctx_id,
@@ -240,6 +248,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$fields = array(
 						DAO_Bot::UPDATED_AT => time(),
 						DAO_Bot::NAME => $name,
+						DAO_Bot::AT_MENTION_NAME => $at_mention_name,
 						DAO_Bot::IS_DISABLED => $is_disabled,
 						DAO_Bot::OWNER_CONTEXT => $owner_ctx,
 						DAO_Bot::OWNER_CONTEXT_ID => $owner_ctx_id,
