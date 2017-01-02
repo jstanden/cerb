@@ -1772,6 +1772,9 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			// Aliases
+			$tpl->assign('aliases', DAO_ContextAlias::get(CerberusContexts::CONTEXT_ORG, $context_id));
+			
 			$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek_edit.tpl');
 			
 		} else {

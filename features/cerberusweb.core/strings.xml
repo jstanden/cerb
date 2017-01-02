@@ -267,6 +267,16 @@
 				<seg>all</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.alias">
+			<tuv xml:lang="en_US">
+				<seg>alias</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.aliases">
+			<tuv xml:lang="en_US">
+				<seg>aliases</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.anonymous">
 			<tuv xml:lang="en_US">
 				<seg>anonymous</seg>

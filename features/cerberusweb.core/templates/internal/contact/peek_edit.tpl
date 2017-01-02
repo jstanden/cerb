@@ -21,7 +21,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.name.first'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				<input type="text" name="first_name" value="{$model->first_name}" style="width:98%;" autocomplete="off" spellcheck="false">
+				<input type="text" name="first_name" value="{$model->first_name}" style="width:98%;" autocomplete="off" spellcheck="false" autofocus="autofocus">
 			</td>
 		</tr>
 		
@@ -29,6 +29,15 @@
 			<td width="1%" nowrap="nowrap"><b>{'common.name.last'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<input type="text" name="last_name" value="{$model->last_name}" style="width:98%;" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top" title="(one per line)">
+				<b>{'common.aliases'|devblocks_translate|capitalize}:</b>
+			</td>
+			<td width="99%" valign="top">
+				<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{$aliases|implode:"\n"}</textarea>
 			</td>
 		</tr>
 		
@@ -218,7 +227,8 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.contact'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		$popup.find('input:text:first').focus();
+		
+		var $aliases = $(this).find('textarea[name=aliases]').autosize();
 		
 		// Buttons
 		

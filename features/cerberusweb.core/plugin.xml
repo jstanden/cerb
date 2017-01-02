@@ -239,6 +239,10 @@
 			<class name="View_ContextActivityLog" />
 		</file>
 		
+		<file path="api/dao/context_alias.php">
+			<class name="DAO_ContextAlias" />
+		</file>
+		
 		<file path="api/dao/context_avatar.php">
 			<class name="DAO_ContextAvatar" />
 			<class name="Model_ContextAvatar" />

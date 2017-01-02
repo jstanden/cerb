@@ -2757,6 +2757,9 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$groups = DAO_Group::getAll();
 			$tpl->assign('groups', $groups);
 			
+			// Aliases
+			$tpl->assign('aliases', DAO_ContextAlias::get(CerberusContexts::CONTEXT_WORKER, $context_id));
+			
 			// Custom Fields
 			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER, false);
 			$tpl->assign('custom_fields', $custom_fields);

@@ -191,6 +191,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				
 			} else { // create/edit
 				@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
+				@$aliases = DevblocksPlatform::importGPC($_REQUEST['aliases'],'string','');
 				@$street = DevblocksPlatform::importGPC($_REQUEST['street'],'string','');
 				@$city = DevblocksPlatform::importGPC($_REQUEST['city'],'string','');
 				@$province = DevblocksPlatform::importGPC($_REQUEST['province'],'string','');
@@ -242,6 +243,9 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 						// Custom field saves
 						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
 						DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ORG, $id, $field_ids);
+						
+						// Aliases
+						DAO_ContextAlias::set(CerberusContexts::CONTEXT_ORG, $id, DevblocksPlatform::parseCrlfString($org_name . "\n" . $aliases));
 						
 						// Avatar image
 						@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');

@@ -16,11 +16,19 @@
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="middle"><b>{'common.name.first'|devblocks_translate|capitalize}:</b> </td>
-			<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}" style="width:98%;"></td>
+			<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}" style="width:98%;" autofocus="autofocus"></td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'common.name.last'|devblocks_translate|capitalize}: </td>
 			<td width="100%"><input type="text" name="last_name" value="{$worker->last_name}" style="width:98%;"></td>
+		</tr>
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top" align="right" title="(one per line)">
+				{'common.aliases'|devblocks_translate|capitalize}:
+			</td>
+			<td width="99%" valign="top">
+				<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{$aliases|implode:"\n"}</textarea>
+			</td>
 		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.title'|devblocks_translate|capitalize}: </td>
@@ -257,6 +265,8 @@ $(function() {
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.worker'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
+		var $aliases = $(this).find('textarea[name=aliases]').autosize();
+		
 		// Buttons
 		
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
@@ -292,10 +302,6 @@ $(function() {
 		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
 		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
 		ajax.chooserAvatar($avatar_chooser, $avatar_image);
-		
-		// Focus
-		
-		$frm.find('input:text:first').select().focus();
 	});
 });
 </script>

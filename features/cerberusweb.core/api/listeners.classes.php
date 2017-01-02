@@ -893,6 +893,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_Calendar::deleteByContext($context, $context_ids);
 		DAO_Comment::deleteByContext($context, $context_ids);
 		DAO_ContextActivityLog::deleteByContext($context, $context_ids);
+		DAO_ContextAlias::delete($context, $context_ids);
 		DAO_ContextAvatar::deleteByContext($context, $context_ids);
 		DAO_ContextRecommendation::deleteByContext($context, $context_ids);
 		DAO_ContextLink::delete($context, $context_ids);

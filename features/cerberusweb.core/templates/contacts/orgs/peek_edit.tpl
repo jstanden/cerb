@@ -23,6 +23,14 @@
 			<td width="100%"><input type="text" name="org_name" value="{$org->name}" style="width:98%;"></td>
 		</tr>
 		<tr>
+			<td width="1%" nowrap="nowrap" valign="top" align="right" title="(one per line)">
+				{'common.aliases'|devblocks_translate|capitalize}:
+			</td>
+			<td width="99%" valign="top">
+				<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{$aliases|implode:"\n"}</textarea>
+			</td>
+		</tr>
+		<tr>
 			<td align="right" valign="top">{'contact_org.street'|devblocks_translate|capitalize}: </td>
 			<td><textarea name="street" style="width:98%;height:50px;">{$org->street}</textarea></td>
 		</tr>
@@ -137,6 +145,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 
 	$popup.one('popup_open',function(event,ui) {
+		var $aliases = $(this).find('textarea[name=aliases]').autosize();
 		var $textarea = $(this).find('textarea[name=comment]');
 		
 		// Buttons

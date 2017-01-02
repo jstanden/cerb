@@ -1936,6 +1936,9 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		}
 		
+		// Aliases
+		$tpl->assign('aliases', DAO_ContextAlias::get(CerberusContexts::CONTEXT_CONTACT, $context_id));
+		
 		// Languages
 		$translate = DevblocksPlatform::getTranslationService();
 		$locales = $translate->getLocaleStrings();

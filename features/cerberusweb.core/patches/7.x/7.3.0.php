@@ -124,6 +124,107 @@ if(!isset($tables['classifier_example'])) {
 	$tables['classifier_example'] = 'classifier_example';
 }
 
+// ===========================================================================
+// Add `context_alias` table
+
+if(!isset($tables['context_alias'])) {
+	$sql = sprintf("
+	CREATE TABLE `context_alias` (
+		context varchar(32) NOT NULL DEFAULT '',
+		id int(10) unsigned NOT NULL DEFAULT '0',
+		name varchar(255) NOT NULL DEFAULT '',
+		terms varchar(255) NOT NULL DEFAULT '',
+		PRIMARY KEY (`context`,`id`,`terms`),
+		FULLTEXT KEY `terms` (`terms`)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['context_alias'] = 'context_alias';
+	
+	$bayes = DevblocksPlatform::getBayesClassifierService();
+	
+	$values = [];
+	$n = 0;
+	
+	$flush_entities = function() use (&$values, &$n, $db) {
+		if(empty($values))
+			return;
+		
+		$sql = sprintf("REPLACE INTO context_alias (context, id, name, terms) VALUES %s",
+			implode(',', $values)
+		);
+		$db->ExecuteMaster($sql);
+		
+		$values = [];
+		$n = 0;
+	};
+	
+	$sql = "SELECT id, name FROM contact_org";
+	$rs = $db->ExecuteSlave($sql);
+	
+	while($row = mysqli_fetch_assoc($rs)) {
+		$name = DevblocksPlatform::strAlphaNum($row['name'], ' ', '');
+		$tokens = $bayes::preprocessWordsPad($bayes::tokenizeWords($name), 4);
+		
+		$values[] = sprintf("(%s,%d,%s,%s)",
+			$db->qstr(CerberusContexts::CONTEXT_ORG),
+			$row['id'],
+			$db->qstr($row['name']),
+			$db->qstr(implode(' ', $tokens))
+		);
+		
+		if(++$n >= 200)
+			$flush_entities();
+	}
+	
+	$flush_entities();
+	mysqli_free_result($rs);
+	
+	$sql = "SELECT id, concat_ws(' ', first_name, last_name) as name FROM contact";
+	$rs = $db->ExecuteSlave($sql);
+	
+	while($row = mysqli_fetch_assoc($rs)) {
+		$name = DevblocksPlatform::strAlphaNum($row['name'], ' ', '');
+		$tokens = $bayes::preprocessWordsPad($bayes::tokenizeWords($name), 4);
+		
+		$values[] = sprintf("(%s,%d,%s,%s)",
+			$db->qstr(CerberusContexts::CONTEXT_CONTACT),
+			$row['id'],
+			$db->qstr($row['name']),
+			$db->qstr(implode(' ', $tokens))
+		);
+		
+		if(++$n >= 200)
+			$flush_entities();
+	}
+	
+	$flush_entities();
+	mysqli_free_result($rs);
+	
+	$sql = "SELECT id, concat_ws(' ', first_name, last_name) as name FROM worker";
+	$rs = $db->ExecuteSlave($sql);
+	
+	while($row = mysqli_fetch_assoc($rs)) {
+		$name = DevblocksPlatform::strAlphaNum($row['name'], ' ', '');
+		$tokens = $bayes::preprocessWordsPad($bayes::tokenizeWords($name), 4);
+		
+		$values[] = sprintf("(%s,%d,%s,%s)",
+			$db->qstr(CerberusContexts::CONTEXT_WORKER),
+			$row['id'],
+			$db->qstr($row['name']),
+			$db->qstr(implode(' ', $tokens))
+		);
+		
+		if(++$n >= 200)
+			$flush_entities();
+	}
+	
+	$flush_entities();
+	mysqli_free_result($rs);
+}
+
+// ===========================================================================
 // Modify `decision_node` to add 'subroutine' and 'loop' types
 // Add `status_id` field to nodes
 

@@ -203,6 +203,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 			} else {
 				@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'], 'string', '');
 				@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'], 'string', '');
+				@$aliases = DevblocksPlatform::importGPC($_REQUEST['aliases'],'string','');
 				@$title = DevblocksPlatform::importGPC($_REQUEST['title'], 'string', '');
 				@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'], 'integer', 0);
 				@$primary_email_id = DevblocksPlatform::importGPC($_REQUEST['primary_email_id'], 'integer', 0);
@@ -299,6 +300,9 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				}
 				
 				if($id) {
+					// Aliases
+					DAO_ContextAlias::set(CerberusContexts::CONTEXT_CONTACT, $id, DevblocksPlatform::parseCrlfString(sprintf("%s%s", $first_name, $last_name ? (' '.$last_name) : '') . "\n" . $aliases));
+					
 					// Custom fields
 					@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
 					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CONTACT, $id, $field_ids);
