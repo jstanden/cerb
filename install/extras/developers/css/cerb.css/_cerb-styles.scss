@@ -1686,6 +1686,10 @@ DIV.emailBodyHtml {
 			&.status {
 				background-color:rgb(220,220,220);
 			}
+			&.temperature {
+				color:rgb(212,4,30);
+				background-color:rgb(245,200,200);
+			}
 			&.time {
 				color:rgb(255,128,0);
 				background-color:rgb(253,238,193);

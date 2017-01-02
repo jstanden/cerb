@@ -166,6 +166,10 @@ class DAO_Classifier extends Cerb_ORMHelper {
 				'label' => 'Status',
 				'description' => 'open, closed, waiting, completed, active',
 			],
+			'temperature' => [
+				'label' => 'Temperature',
+				'description' => '212F, 12C, 75 degrees, 32 F',
+			],
 			'time' => [
 				'label' => 'Time',
 				'description' => 'at 2pm, 08:00, noon, in the morning, from now, in hours',

@@ -64,6 +64,8 @@
 								{* No output *}
 							{elseif $param_type == 'status'}
 								{$param|key}
+							{elseif $param_type == 'temperature'}
+								{$v.value} &deg;{$v.unit}
 							{elseif $param_type == 'time'}
 								{$v.time}
 							{elseif $param_type == 'worker'}

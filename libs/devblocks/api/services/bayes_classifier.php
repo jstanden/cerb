@@ -17,6 +17,7 @@ class _DevblocksBayesClassifierService {
 	static $TIME_REL = ['now', 'morning', 'afternoon', 'noon', 'evening', 'night', 'tonight', 'midnight'];
 	static $TIME_UNITS = ['ms', 'millisecond', 'milliseconds', 'sec', 'secs', 'second', 'seconds', 'min', 'mins', 'minute', 'minutes', 'hr', 'hrs', 'hour', 'hours'];
 	static $DATE_UNIT = ['day', 'days', 'wk', 'wks', 'week', 'weeks', 'mo', 'mos', 'month', 'months', 'yr', 'yrs', 'year', 'years'];
+	static $TEMP_UNITS = ['c', 'celsius', 'centigrade', 'f', 'fahrenheit', 'degrees'];
 	
 	static $CONTRACTIONS_EN = [
 		"aren't" => 'are not',
@@ -95,6 +96,7 @@ class _DevblocksBayesClassifierService {
 		//'#\{\{place\:(.*?)\}\}#' => '[place]',
 		'#\{\{remind\:(.*?)\}\}#' => '[remind]',
 		'#\{\{status\:(.*?)\}\}#' => '[status]',
+		'#\{\{temperature\:(.*?)\}\}#' => '[temperature]',
 		'#\{\{time\:(.*?)\}\}#' => '[time]',
 		'#\{\{worker\:(.*?)\}\}#' => '[worker]',
 	];
@@ -134,6 +136,9 @@ class _DevblocksBayesClassifierService {
 	
 	// [TODO] Configurable
 	static function tokenizeWords($text) {
+		// Change symbols to words
+		$text = str_replace(['º','°'], [' degrees ', ' degrees '], $text);
+		
 		$text = strtolower($text);
 		
 		// [TODO] Normalize 5pm -> 5 pm
@@ -542,6 +547,19 @@ class _DevblocksBayesClassifierService {
 		$hits = array_intersect($words, self::$TIME_UNITS);
 		foreach($hits as $idx => $token)
 			$tags[$idx]['{time_unit}'] = $token;
+		
+		/**
+		 * Temps
+		 */
+		
+		array_walk($words, function($word, $idx) use (&$tags) {
+			if(preg_match('#^\d+[º]*(c|f)*$#', $word))
+				$tags[$idx]['{temp}'] = $word;
+		});
+		
+		$hits = array_intersect($words, self::$TEMP_UNITS);
+		foreach($hits as $idx => $token)
+			$tags[$idx]['{temp_unit}'] = $token;
 		
 		/**
 		 * Times
@@ -1018,6 +1036,16 @@ class _DevblocksBayesClassifierService {
 			];
 			
 			self::_sequenceToEntity($sequences, 'date', $words, $tags, $entities);
+		}
+		
+		if(in_array('temperature', $types)) {
+			$sequences = [
+				'{number} {temp_unit} {temp_unit}',
+				'{number} {temp_unit}',
+				'{temp}',
+			];
+			
+			self::_sequenceToEntity($sequences, 'temperature', $words, $tags, $entities);
 		}
 		
 		if(in_array('time', $types)) {
@@ -1808,6 +1836,22 @@ class _DevblocksBayesClassifierService {
 							$params[$entity_type] = array_merge($params[$entity_type], array_slice($result['value'], 0, 1));
 						break;
 					
+					case 'temperature':
+						$param_key = implode(' ', $result['range']);
+						$temp_words = $result['range'];
+						$seq = $result['sequence'];
+						
+						if(!isset($params['temperature']))
+							$params['temperature'] = [];
+						
+						$temp_string = trim(implode(' ', $temp_words));
+							
+						$params['temperature'][$param_key] = [
+							'value' => intval($temp_string),
+							'unit' => stristr($temp_string, 'c') ? 'C' : 'F', // [TODO] This is way too naive
+						];
+						break;
+						
 					case 'time':
 						$param_key = implode(' ', $result['range']);
 						

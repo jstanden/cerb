@@ -1637,6 +1637,10 @@ DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtm
 .cerb-expression-editor .expression SPAN.status {
   background-color: gainsboro;
 }
+.cerb-expression-editor .expression SPAN.temperature {
+  color: #d4041e;
+  background-color: #f5c8c8;
+}
 .cerb-expression-editor .expression SPAN.time {
   color: #ff8000;
   background-color: #fdeec1;
