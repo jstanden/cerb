@@ -1,6 +1,6 @@
 {$node = $nodes[$node_id]}
 
-{if in_array($node_id, $path)}
+{if isset($path.$node_id)}
 
 {* Label *}
 <div class="node {$node->node_type}">
