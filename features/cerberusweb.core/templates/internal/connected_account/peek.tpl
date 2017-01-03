@@ -82,14 +82,6 @@ $(function() {
 			;
 		{/if}
 		
-		// Comments
-		$popup.find('button.cerb-peek-comments-add')
-			.cerbCommentTrigger()
-			.on('cerb-comment-saved', function() {
-				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
-			})
-			;
-		
 		// Peeks
 		$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()

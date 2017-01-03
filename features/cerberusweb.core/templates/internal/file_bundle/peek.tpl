@@ -61,9 +61,6 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_FILE_BUNDLE context_id=$model->id}
 
-{* Comments *}
-{include file="devblocks:cerberusweb.core::internal/peek/peek_comments_pager.tpl" comments=$comments}
-
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
 	<textarea name="comment" rows="2" cols="45" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>

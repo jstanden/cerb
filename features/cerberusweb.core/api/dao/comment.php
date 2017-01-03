@@ -1397,8 +1397,32 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(isset($model))
-				$tpl->assign('model', $model);
+			if(!isset($model)) {
+				$model = new Model_Comment();
+			}
+			
+			// Handle '$edit'
+			if(empty($context_id) && !empty($edit)) {
+				$tokens = explode(' ', trim($edit));
+				
+				foreach($tokens as $token) {
+					@list($k,$v) = explode(':', $token, 2);
+					
+					if($v)
+					switch($k) {
+						case 'context':
+							if(false != ($ext = Extension_DevblocksContext::get($v)))
+								$model->context = $ext->id;
+							break;
+							
+						case 'context.id':
+							$model->context_id = intval($v);
+							break;
+					}
+				}
+			}
+			
+			$tpl->assign('model', $model);
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
