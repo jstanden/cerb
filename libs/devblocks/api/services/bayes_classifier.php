@@ -118,6 +118,14 @@ class _DevblocksBayesClassifierService {
 		return implode(' ', $words);
 	}
 	
+	static function preprocessWordsPad(array $words, $length=0) {
+		array_walk($words, function(&$word) use ($length) {
+			$word = str_pad($word, $length, '_', STR_PAD_RIGHT);
+		});
+		
+		return $words;
+	}
+	
 	static function preprocessWordsStripPunctuation(array $words) {
 		array_walk($words, function(&$word) {
 			if($word == '?')
@@ -713,17 +721,21 @@ class _DevblocksBayesClassifierService {
 		
 		// [TODO] Always tag 'my' as the current worker
 		
-		$lookup = implode(' ', $words);
+		$lookup = implode(' ', self::preprocessWordsPad($words, 4));
+		$terms = $db->qstr($lookup);
 		
 		$sql = implode(' UNION ALL ', [
-			sprintf("(SELECT context, id, name FROM lookup_entity WHERE MATCH (name) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = 'worker' LIMIT 5)",
-				$db->qstr($lookup)
+			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s LIMIT 5)",
+				$terms,
+				$db->qstr(CerberusContexts::CONTEXT_WORKER)
 			),
-			sprintf("(SELECT context, id, name FROM lookup_entity WHERE MATCH (name) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = 'org' LIMIT 5)",
-				$db->qstr($lookup)
+			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s LIMIT 5)",
+				$terms,
+				$db->qstr(CerberusContexts::CONTEXT_ORG)
 			),
-			sprintf("(SELECT context, id, name FROM lookup_entity WHERE MATCH (name) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = 'contact' LIMIT 5)",
-				$db->qstr($lookup)
+			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s LIMIT 5)",
+				$terms,
+				$db->qstr(CerberusContexts::CONTEXT_CONTACT)
 			),
 		]);
 		
@@ -746,11 +758,25 @@ class _DevblocksBayesClassifierService {
 		
 		foreach($hits as $pos => $hit) {
 			$result = $results[$pos];
-			$context_idx = '{' . $result['context'] . '}';
+			
+			$context_map = [
+				CerberusContexts::CONTEXT_CONTACT => 'contact',
+				CerberusContexts::CONTEXT_ORG => 'org',
+				CerberusContexts::CONTEXT_WORKER => 'worker',
+			];
+			
+			if(!isset($context_map[$result['context']]))
+				continue;
+			
+			$context_idx = '{' . $context_map[$result['context']] . '}';
 			
 			foreach(array_keys($hit) as $idx) {
 				if(!isset($tags[$idx][$context_idx]))
 					$tags[$idx][$context_idx] = [];
+				
+				// Only keep the first match per context:id tuple
+				if(isset($tags[$idx][$context_idx][$result['id']]))
+					continue;
 				
 				$tags[$idx][$context_idx][$result['id']] = $result['name'];
 			}
@@ -1137,10 +1163,11 @@ class _DevblocksBayesClassifierService {
 							$entities['contact'][$contact_idx]['range'] = $contact['range'];
 							
 							// Find a matching contact at the org
-							$contact_find = implode(' ', array_slice($words, $contact_idx, end($range) - $contact_idx + 1));
-	
-							$sql = sprintf("SELECT id, name FROM lookup_entity WHERE MATCH (name) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = 'contact' AND id IN (SELECT id FROM contact WHERE org_id = %d) LIMIT 5",
+							$contact_find = implode(' ', self::preprocessWordsPad(array_slice($words, $contact_idx, end($range) - $contact_idx + 1), 4));
+							
+							$sql = sprintf("SELECT id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s AND id IN (SELECT id FROM contact WHERE org_id = %d) LIMIT 5",
 								$db->qstr($contact_find),
+								$db->qstr(CerberusContexts::CONTEXT_CONTACT),
 								key($org['value'])
 							);
 							
