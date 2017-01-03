@@ -11,8 +11,8 @@ class _DevblocksBayesClassifierService {
 	//static $DAYS_SHORT_PLURAL = ['mons', 'tues', 'weds', 'thus', 'thurs', 'fris', 'sats', 'suns '];
 	static $MONTHS_LONG = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 	static $MONTHS_SHORT = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'sept', 'oct', 'nov', 'dec'];
-	static $NUM_ORDINAL = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth', 'thirtieth'];
-	static $NUM_WORDS = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety', 'hundred', 'thousand', 'million', 'billion', 'trillion', 'quadrillion'];
+	static $NUM_ORDINAL = ['zeroth', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth', 'thirtieth'];
+	static $NUM_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety', 'hundred', 'thousand', 'million', 'billion', 'trillion', 'quadrillion'];
 	static $TIME_MERIDIEM = ['am', 'pm', 'a.m', 'p.m'];
 	static $TIME_REL = ['now', 'morning', 'afternoon', 'noon', 'evening', 'night', 'tonight', 'midnight'];
 	static $TIME_UNITS = ['ms', 'millisecond', 'milliseconds', 'sec', 'secs', 'second', 'seconds', 'min', 'mins', 'minute', 'minutes', 'hr', 'hrs', 'hour', 'hours'];
@@ -92,7 +92,7 @@ class _DevblocksBayesClassifierService {
 		'#\{\{number\:(.*?)\}\}#' => '[number]',
 		'#\{\{org\:(.*?)\}\}#' => '[org]',
 		//'#\{\{phone\:(.*?)\}\}#' => '[phone]',
-		//'#\{\{place\:(.*?)\}\}#' => '[place]',
+		'#\{\{place\:(.*?)\}\}#' => '[place]',
 		'#\{\{remind\:(.*?)\}\}#' => '[remind]',
 		'#\{\{status\:(.*?)\}\}#' => '[status]',
 		'#\{\{temperature\:(.*?)\}\}#' => '[temperature]',
@@ -229,84 +229,6 @@ class _DevblocksBayesClassifierService {
 		return false;
 	}
 
-	/*
-	static function extractWorkersUsingClassifier(&$tokens, &$words, &$meta) {
-		$classifier = DevblocksPlatform::getBayesClassifierService();
-		
-		// [TODO] Strip possessive? (e.g. Dan's)
-		
-		$text = str_replace("'s",'', implode(' ',array_filter($tokens, function($token) {
-			return !('[' == substr($token,0,1));
-		})));
-		
-		$result = $classifier::predict($text, 3);
-		
-		//var_dump($result);
-		
-		if(isset($result['prediction']) && is_array($result['prediction'])) {
-			$terms = $classifier::getNGramsForClass($result['prediction']['classification']['id']);
-			
-			// [TODO] Add possessive
-			foreach($terms as $term) {
-				$terms[] = sprintf("%s's", $term);
-			};
-			
-			// [TODO] Force this to whole string tokens
-			// [TODO] Ignore pointless terms (salutations, etc)?
-			// [TODO] Sort desc by n, len 
-			
-			$hits = array_intersect($tokens, $terms);
-			
-			foreach($hits as $idx => $token)
-				$tokens[$idx] = '{worker}';
-		}
-		
-		// [TODO] We want to keep track of the worker's actual ID
-		// [TODO] Normalize the worker name
-		
-		$worker_refinements = [
-			['{worker}','{worker}','{worker}','{worker}'],
-			['{worker}','{worker}','{worker}'],
-			['{worker}','{worker}'],
-			['{worker}'],
-		];
-		
-		foreach($worker_refinements as $find) {
-			while(false !== ($key = self::_findSubsetInArrayKeys($find, $tokens))) {
-				array_splice($tokens, $key, count($find), ['[worker]']);
-				$slice = array_slice($words, $key, count($find));
-				array_splice($words, $key, count($find), implode(' ', $slice));
-				$meta[$key] = $result['prediction']['classification']['attribs'];
-			}
-		}
-		
-		// Revert unused intermediate tokens
-		array_walk($tokens, function(&$token, $idx) use (&$words) {
-			if('{' == substr($token,0,1))
-				$token = $words[$idx];
-		});
-		
-		//var_dump([$tokens, $words]);
-		
-		return $tokens;
-	}
-	*/
-	
-	/*
-	static function combineConditionalProbabilities($probs) {
-		$AB = 1; // probabilities: A*B*C...
-		$ZY = 1; // compliments: (1-A)*(1-B)*(1-C)...
-		
-		foreach($probs as $p) {
-			$AB *= $p;
-			$ZY *= (1-$p);
-		}
-
-		$combined_p = $AB / ($AB + $ZY);
-		return $combined_p;
-	}
-	*/
-	
 	static function getNGrams($text, $n=2, $with_terminators=true) {
 		// Example: Schedule lunch at noon
 		// Unigrams: schedule, lunch, at, noon
@@ -819,8 +741,13 @@ class _DevblocksBayesClassifierService {
 		];
 		
 		while($idx < count($tags)) {
+			if(!isset($tags[$idx])) {
+				$idx++;
+				continue;
+			}
+			
 			$hits = array_intersect($contexts, array_keys($tags[$idx]));
-
+			
 			if(empty($hits)) {
 				$idx++;
 				continue;
@@ -831,6 +758,8 @@ class _DevblocksBayesClassifierService {
 			
 			// Record stats about each candidate so we can compare them
 			foreach($hits as $context => $tag) {
+				$idx = $start_idx;
+				
 				if(isset($tags[$idx][$tag]))
 				foreach($tags[$idx][$tag] as $candidate_id => $candidate_label) {
 					$idx = $start_idx;
@@ -970,7 +899,7 @@ class _DevblocksBayesClassifierService {
 					if(isset($tags[$idx][$k]))
 						$pass = true;
 				} else {
-					if($words[$idx] == $k)
+					if(isset($words[$idx]) && $words[$idx] == $k)
 						$pass = true;
 				}
 				
@@ -1013,8 +942,6 @@ class _DevblocksBayesClassifierService {
 		
 		$entities = [];
 		
-		// [TODO] Learn 'ago'
-		// [TODO] Convert 'a' {date_unit} to {number:1}
 		// [TODO] Lemmatize from/for/... ?
 		if(in_array('date', $types)) {
 			$sequences = [
@@ -1068,6 +995,7 @@ class _DevblocksBayesClassifierService {
 				'on the {number}',
 				'on the {day}',
 				'in {month}',
+				'in a {date_unit}',
 				'in {number} {day}',
 				'in {number} {date_unit}',
 				'{number} {date_unit} ago',
@@ -1104,6 +1032,8 @@ class _DevblocksBayesClassifierService {
 				'at {number} {number} {time_meridiem}',
 				'at {number} {number}',
 				'at {number} {time_meridiem}',
+				'at {number} o\'clock in the {time_rel}',
+				'at {number} o\'clock',
 				'at {number} in the {time_rel}',
 				'in {number} {time_unit}',
 				'at {time} {time_meridiem}',
@@ -1121,6 +1051,9 @@ class _DevblocksBayesClassifierService {
 				'until {time}',
 				'at {time_rel}',
 				'in the {time_rel}',
+				'in an {time_unit}',
+				'in a {time_unit}',
+				'on the {time_unit}',
 				'{time_rel}',
 				'{time}',
 			];
@@ -1226,7 +1159,6 @@ class _DevblocksBayesClassifierService {
 			$tokens = $words;
 			
 			// [TODO] Windowing (3 words before and after?)
-			// [TODO] We can use this for declare.entity.alias and others
 			
 			foreach($entities as $entity_type => $results) {
 				foreach($results as $result) {
@@ -1280,7 +1212,6 @@ class _DevblocksBayesClassifierService {
 			$tokens = $words;
 			
 			// [TODO] Windowing (3 words before and after?)
-			// [TODO] We can use this for declare.entity.alias and others
 			
 			foreach($entities as $entity_type => $results) {
 				foreach($results as $result) {
@@ -1348,19 +1279,9 @@ class _DevblocksBayesClassifierService {
 		$classes = array_column($results, null, 'id');
 		$class_freqs = array_column($results, 'training_count', 'id');
 		
-		array_walk($classes, function(&$class) {
-			@$attribs = json_decode($class['attribs_json'], true);
-			unset($class['attribs_json']);
-			if(!is_array($attribs))
-				$attribs = [];
-			$class['attribs'] = $attribs;
-		});
-		//var_dump($classes);
-		
 		$raw_words = self::tokenizeWords($text);
 		
 		$tags = self::tag($raw_words, $environment);
-		//var_dump($tags);
 		
 		// [TODO] Disambiguate tags once
 		
@@ -1382,9 +1303,6 @@ class _DevblocksBayesClassifierService {
 					}
 				}
 			}
-			
-			// [TODO] Don't include some tokens (if not required)
-			//var_dump($tokens);
 			
 			/*
 			if(false) {
@@ -1431,12 +1349,8 @@ class _DevblocksBayesClassifierService {
 				implode(',', array_keys($classes)),
 				implode(',', $db->qstrArray($unique_tokens))
 			);
-			
 			$results = $db->GetArrayMaster($sql);
 		}
-		
-		//var_dump($unique_tokens);
-		//var_dump($results);
 		
 		//****** IDF *******
 		
@@ -1474,6 +1388,7 @@ class _DevblocksBayesClassifierService {
 		$class_probs = [];
 		
 		foreach($class_data as $class_id => $data) {
+			$training_count = @$classes[$class_id]['training_count'] ?: 0;
 			
 			// If we've never seen this class in training (or any class), we can't make any predictions
 			if(0 == $class_freqs_sum || 0 == $classifiers[$classifier_id]['dictionary_size']) {
@@ -1506,7 +1421,6 @@ class _DevblocksBayesClassifierService {
 			}
 			
 			$class_data[$class_id]['p'] = array_product($probs) * $class_prob;
-			
 		}
 		
 		$p_x = array_sum(array_column($class_data, 'p'));
@@ -1636,6 +1550,16 @@ class _DevblocksBayesClassifierService {
 							}
 						}
 						
+						foreach($seq as $idx => $token) {
+							if('{number}' == $token) {
+								if(false !== ($ordinal = array_search($date_words[$idx], self::$NUM_WORDS)))
+									$date_words[$idx] = $ordinal;
+								
+								if(false !== ($ordinal = array_search($date_words[$idx], self::$NUM_ORDINAL)))
+									$date_words[$idx] = $ordinal;
+							}
+						}
+						
 						// Flip a relative number negative if _before_ an anchor
 						if(false !== ($pos = self::_findSubsetInArray(['{number}','{date_unit}','before'], $seq))) {
 							$date_words[$pos] = '-' . abs($date_words[$pos]);
@@ -1703,9 +1627,26 @@ class _DevblocksBayesClassifierService {
 					// [TODO] This can't handle "for 1 hr"
 					case 'duration':
 						$param_key = implode(' ', $result['range']);
+						$dur_words = $result['range'];
+						$seq = $result['sequence'];
 						
-						$dur_string = implode(' ', array_intersect_key($result['range'], array_filter($result['sequence'], function($seq) {
-							return '{' == substr($seq, 0, 1);
+						// In durations, tag 'a' and 'an' as a {number:1}
+						if(false !== ($hits = array_intersect($seq, ['a','an']))) {
+							foreach($hits as $idx => $hit) {
+								$dur_words[$idx] = '1';
+								$seq[$idx] = '{number}';
+							}
+						}
+						
+						foreach($seq as $idx => $token) {
+							if('{number}' == $token) {
+								if(false !== ($ordinal = array_search($dur_words[$idx], self::$NUM_WORDS)))
+									$dur_words[$idx] = $ordinal;
+							}
+						}
+						
+						$dur_string = implode(' ', array_intersect_key($dur_words, array_filter($seq, function($token) {
+							return '{' == substr($token, 0, 1);
 						})));
 						
 						// [TODO] for time_unit we can use seconds.  For date_unit we could pick an absolute
@@ -1805,9 +1746,27 @@ class _DevblocksBayesClassifierService {
 						
 					case 'time':
 						$param_key = implode(' ', $result['range']);
+						$time_words = $result['range'];
+						$seq = $result['sequence'];
 						
-						$time_string = implode(' ', array_intersect_key($result['range'], array_filter($result['sequence'], function($seq) {
-							return '{' == substr($seq, 0, 1);
+						
+						// In dates and times, tag 'a' and 'an' as a {number:1}
+						if(false !== ($hits = array_intersect($seq, ['a','an']))) {
+							foreach($hits as $idx => $hit) {
+								$time_words[$idx] = '1';
+								$seq[$idx] = '{number}';
+							}
+						}
+						
+						foreach($seq as $idx => $token) {
+							if('{number}' == $token) {
+								if(false !== ($ordinal = array_search($time_words[$idx], self::$NUM_WORDS)))
+									$time_words[$idx] = $ordinal;
+							}
+						}
+						
+						$time_string = implode(' ', array_intersect_key($time_words, array_filter($seq, function($token) {
+							return '{' == substr($token, 0, 1);
 						})));
 						
 						// [TODO] in the (morning/afternoon/evening/night)
