@@ -458,6 +458,10 @@ class _DevblocksBayesClassifierService {
 			$classifier_id
 		);
 		$db->ExecuteMaster($sql);
+		
+		// Cache entity hints per classifier
+		$sql = "UPDATE classifier_class SET entities = (SELECT GROUP_CONCAT(SUBSTRING(n.token,2,LENGTH(n.token)-2)) FROM classifier_ngram n INNER JOIN classifier_ngram_to_class c ON (n.id=c.token_id) WHERE n.token LIKE '[%' AND c.class_id = classifier_class.id)";
+		$db->ExecuteMaster($sql);
 
 		$sql = sprintf("UPDATE classifier_class SET dictionary_size = (SELECT COUNT(DISTINCT token_id) FROM classifier_ngram_to_class WHERE class_id=classifier_class.id), training_count = (SELECT count(id) FROM classifier_example WHERE class_id=classifier_class.id) WHERE FIND_IN_SET(id, @class_ids)");
 		$db->ExecuteMaster($sql);
@@ -1291,8 +1295,7 @@ class _DevblocksBayesClassifierService {
 			return false;
 		
 		// Load the frequency of classes for this classifier from the database
-		// [TODO] This would be cached between training
-		$results = $db->GetArrayMaster(sprintf('SELECT id, name, training_count, dictionary_size, attribs_json FROM classifier_class WHERE classifier_id = %d', $classifier_id));
+		$results = $db->GetArrayMaster(sprintf('SELECT id, name, training_count, dictionary_size, entities FROM classifier_class WHERE classifier_id = %d', $classifier_id));
 		$classes = array_column($results, null, 'id');
 		$class_freqs = array_column($results, 'training_count', 'id');
 		
@@ -1315,47 +1318,11 @@ class _DevblocksBayesClassifierService {
 		$class_data = [];
 		$unique_tokens = [];
 		
-		// [TODO] Can we limit which classes even check tokens?
 		foreach($classes as $class_id => $class) {
 			$tokens = $words = $raw_words;
-			$types = [];
+			$types = DevblocksPlatform::parseCsvString($class['entities']);
 			
-			// [TODO] Filter by class
-			// [TODO] Convert this to param handling
-			// [TODO] This needs to come from classification params
-			switch($class_id) {
-				case 4: // schedule.add
-					$types = ['event', 'date','time','duration'];
-					break;
-					
-				case 5: // schedule.check
-					$types = ['avail', 'date', 'time', 'worker'];
-					break;
-					
-				case 14: // reminder.add
-					$types = ['date', 'time', 'duration', 'remind'];
-					break;
-					
-				case 15: // worklist.search
-					$types = ['context', 'org', 'status', 'worker', 'date'];
-					break;
-					
-				case 16: // declare.entity.alias
-					$types = ['alias', 'org', 'contact', 'worker'];
-					break;
-					
-				case 27: // ask.entity.field
-					// [TODO] $limit based on class?
-					$types = ['worker','contact','org','contact_method'];
-					break;
-					
-				case 30: // ask.org.roster
-					$types = ['org'];
-					break;
-					
-				default:
-					break;
-			}
+			// [TODO] Check required types?
 			
 			$entities = self::extractNamedEntities($raw_words, $tags, $types);
 			
