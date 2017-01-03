@@ -238,6 +238,153 @@ interface IServiceProvider_Popup {
 	function saveAuthFormAndReturnJson();
 }
 
+class WgmCerb_API {
+	private $_base_url = '';
+	private $_access_key = '';
+	private $_secret_key = '';
+
+	public function __construct($base_url, $access_key, $secret_key) {
+		$this->_base_url = $base_url;
+		$this->_access_key = $access_key;
+		$this->_secret_key = $secret_key;
+	}
+
+	private function _getBaseUrl() {
+		return rtrim($this->_base_url, '/') . '/rest/';
+	}
+	
+	public function get($path) {
+		return $this->_connect('GET', $path);
+	}
+
+	public function put($path, $payload=array()) {
+		return $this->_connect('PUT', $path, $payload);
+	}
+
+	public function post($path, $payload=array()) {
+		return $this->_connect('POST', $path, $payload);
+	}
+
+	public function delete($path) {
+		return $this->_connect('DELETE', $path);
+	}
+
+	private function _sortQueryString($query) {
+		// Strip the leading ?
+		if(substr($query,0,1)=='?') $query = substr($query,1);
+		$args = array();
+		$parts = explode('&', $query);
+		foreach($parts as $part) {
+			$pair = explode('=', $part, 2);
+			if(is_array($pair) && 2==count($pair))
+				$args[$pair[0]] = $part;
+		}
+		ksort($args);
+		return implode("&", $args);
+	}
+	
+	function signHttpRequest($url, $verb, $http_date, $postfields) {
+		// Authentication
+		$url_parts = parse_url($url);
+		$url_path = $url_parts['path'];
+		
+		$verb = strtoupper($verb);
+
+		$url_query = '';
+		if(isset($url_parts['query']) && !empty($url_parts))
+			$url_query = $this->_sortQueryString($url_parts['query']);
+
+		$secret = strtolower(md5($this->_secret_key));
+
+		$string_to_sign = "$verb\n$http_date\n$url_path\n$url_query\n$postfields\n$secret\n";
+		$hash = md5($string_to_sign);
+		return sprintf("%s:%s", $this->_access_key, $hash);
+	}
+
+	private function _connect($verb, $path, $payload=null) {
+		// Prepend the base URL and normalize the given path
+		$url = $this->_getBaseUrl() . ltrim($path, '/');
+		
+		$header = array();
+		$ch = DevblocksPlatform::curlInit();
+
+		$verb = strtoupper($verb);
+		$http_date = gmdate(DATE_RFC822);
+
+		$header[] = 'Date: '.$http_date;
+		$header[] = 'Content-Type: application/x-www-form-urlencoded; charset=utf-8';
+
+		$postfields = '';
+
+		if(!is_null($payload)) {
+			if(is_array($payload)) {
+				foreach($payload as $pair) {
+					if(is_array($pair) && 2==count($pair))
+						$postfields .= $pair[0].'='.rawurlencode($pair[1]) . '&';
+				}
+				rtrim($postfields,'&');
+
+			} elseif (is_string($payload)) {
+				$postfields = $payload;
+			}
+		}
+
+		// HTTP verb-specific options
+		switch($verb) {
+			case 'DELETE':
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+				break;
+
+			case 'GET':
+				break;
+
+			case 'PUT':
+				$header[] = 'Content-Length: ' .  strlen($postfields);
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+				break;
+
+			case 'POST':
+				$header[] = 'Content-Length: ' .  strlen($postfields);
+				curl_setopt($ch, CURLOPT_POST, 1);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+				break;
+		}
+
+		// Authentication
+		
+		if(false == ($signature = $this->signHttpRequest($url, $verb, $http_date, $postfields)))
+			return false;
+		
+		// [TODO] Use Authoriztion w/ bearer
+		$header[] = 'Cerb-Auth: ' . $signature;
+		
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+		$output = DevblocksPlatform::curlExec($ch);
+
+		$info = curl_getinfo($ch);
+		
+		// Content-type handling
+		@list($content_type, $content_type_opts) = explode(';', strtolower($info['content_type']));
+		
+		curl_close($ch);
+		
+		switch($content_type) {
+			case 'application/json':
+			case 'text/javascript':
+				return json_decode($output, true);
+				break;
+				
+			default:
+				return $output;
+				break;
+		}
+	}
+};
+
 class ServiceProvider_Cerb extends Extension_ServiceProvider implements IServiceProvider_Popup, IServiceProvider_HttpRequestSigner {
 	const ID = 'core.service.provider.cerb';
 	
