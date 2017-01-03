@@ -296,8 +296,15 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		
 		$bayes = DevblocksPlatform::getBayesClassifierService();
 		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$prediction = $bayes::predict($text, $classifier_id);
+		$environment = [
+			'me' => ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id, 'model' => $active_worker],
+			'lang' => 'en_US',
+			'timezone' => '',
+		];
+		
+		$prediction = $bayes::predict($text, $classifier_id, $environment);
 		$tpl->assign('prediction', $prediction['prediction']);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/classifier/prediction.tpl');

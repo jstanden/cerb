@@ -498,7 +498,7 @@ class _DevblocksBayesClassifierService {
 		}
 	}
 	
-	public static function tag($words) {
+	public static function tag($words, $environment=[]) {
 		if(!is_array($words))
 			return [];
 		
@@ -719,8 +719,6 @@ class _DevblocksBayesClassifierService {
 		 * Entities (worker, contact, org)
 		 */
 		
-		// [TODO] Always tag 'my' as the current worker
-		
 		$lookup = implode(' ', self::preprocessWordsPad($words, 4));
 		$terms = $db->qstr($lookup);
 		
@@ -741,6 +739,30 @@ class _DevblocksBayesClassifierService {
 		
 		$results = $db->GetArraySlave($sql);
 		$hits = [];
+		
+		// Tag me|my|i as the current user if we know who they are
+		if(array_intersect($words, ['i','me','my']) && isset($environment['me']) && isset($environment['me']['context'])) {
+			switch($environment['me']['context']) {
+				case CerberusContexts::CONTEXT_CONTACT:
+				case CerberusContexts::CONTEXT_WORKER:
+					$results[] = [
+						'context' => $environment['me']['context'],
+						'id' => $environment['me']['id'],
+						'name' => 'me',
+					];
+					$results[] = [
+						'context' => $environment['me']['context'],
+						'id' => $environment['me']['id'],
+						'name' => 'my',
+					];
+					$results[] = [
+						'context' => $environment['me']['context'],
+						'id' => $environment['me']['id'],
+						'name' => 'i',
+					];
+					break;
+			}
+		}
 		
 		foreach($results as $idx => $result) {
 			$name = self::tokenizeWords($result['name']);
@@ -1308,7 +1330,7 @@ class _DevblocksBayesClassifierService {
 		return $entities;
 	}
 	
-	static function predict($text, $classifier_id) {
+	static function predict($text, $classifier_id, $environment=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		// Load all classes
@@ -1337,7 +1359,7 @@ class _DevblocksBayesClassifierService {
 		
 		$raw_words = self::tokenizeWords($text);
 		
-		$tags = self::tag($raw_words);
+		$tags = self::tag($raw_words, $environment);
 		//var_dump($tags);
 		
 		// [TODO] Disambiguate tags once

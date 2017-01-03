@@ -726,14 +726,21 @@ class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$bayes = DevblocksPlatform::getBayesClassifierService();
 		
 		@$classifier_id = $params['classifier_id'];
 		@$content = $tpl_builder->build($params['content'], $dict);
 		@$object_placeholder = $params['object_placeholder'] ?: '_prediction';
 		
-		$bayes = DevblocksPlatform::getBayesClassifierService();
+		$environment = [
+			'lang' => 'en_US',
+			'timezone' => '',
+		];
 		
-		if(false === ($result = $bayes::predict($content, $classifier_id)))
+		if(false != ($active_worker = CerberusApplication::getActiveWorker()))
+			$environment['me'] = ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id, 'model' => $active_worker];
+		
+		if(false === ($result = $bayes::predict($content, $classifier_id, $environment)))
 			return;
 		
 		// Set placeholder with object meta
