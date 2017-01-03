@@ -114,8 +114,6 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	
 	static function getEntities() {
 		$entities = [
-			//'alias' => [
-			//,
 			'avail' => [
 				'label' => 'Availability',
 				'description' => 'available, free, busy, preoccupied',

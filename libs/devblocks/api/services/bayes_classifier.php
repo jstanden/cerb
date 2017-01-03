@@ -80,7 +80,6 @@ class _DevblocksBayesClassifierService {
 	];
 	
 	static $TAGS_TO_TOKENS = [
-		//'#\{\{alias\:(.*?)\}\}#' => '[alias]',
 		'#\{\{avail\:(.*?)\}\}#' => '[avail]',
 		'#\{\{contact\:(.*?)\}\}#' => '[contact]',
 		'#\{\{contact_method\:(.*?)\}\}#' => '[contact_method]',
@@ -704,8 +703,6 @@ class _DevblocksBayesClassifierService {
 				$tags[$idx]['{ip}'] = $token;
 		});
 		
-		// [TODO] Aliases (WGM -> Webgroup Media)
-		
 		/**
 		 * Entities (worker, contact, org)
 		 */
@@ -1225,7 +1222,7 @@ class _DevblocksBayesClassifierService {
 			}
 		}
 		
-		// [TODO] Redundant with 'alias' and 'remind'
+		// [TODO] Redundant with 'remind'
 		if(in_array('event', $types)) {
 			$tokens = $words;
 			
@@ -1271,55 +1268,6 @@ class _DevblocksBayesClassifierService {
 						];
 						
 						$entities['event'][] = $event;
-						break;
-					}
-				}
-			}
-		}
-		
-		// [TODO] This shares everything but $patterns in common with alias
-		if(in_array('alias', $types)) {
-			$tokens = $words;
-			
-			// [TODO] Windowing (3 words before and after?)
-			// [TODO] We can use this for declare.entity.alias and others
-			
-			foreach($entities as $entity_type => $results) {
-				foreach($results as $result) {
-					if(isset($result['range']))
-					foreach(array_keys($result['range']) as $key) {
-						$tokens[$key] = sprintf('{%s}', $entity_type);
-					}
-				}
-			}
-			
-			$text = implode(' ', $tokens);
-			
-			// [TODO] These patterns should be learnable
-			// [TODO] These can be optimized as a tree
-			$patterns = [
-				'* refers to ',
-				'* is another name for ',
-				'is also known as *$',
-				'* aka ',
-				'i say * i mean ',
-			];
-			
-			foreach($patterns as $pattern) {
-				$pattern = str_replace('\{alias\}', '(.*?)', DevblocksPlatform::strToRegExp($pattern, true, false));
-				$matches = array();
-				
-				if(preg_match($pattern, $text, $matches)) {
-					$terms = explode(' ', $matches[1]);
-					if(false !== ($pos = self::_findSubsetInArray($terms, $words))) {
-						if(!isset($entities['event']))
-							$entities['event'] = [];
-						
-						$alias = [
-							'range' => array_combine(range($pos, $pos+count($terms)-1), $terms),
-						];
-							
-						$entities['alias'][] = $alias;
 						break;
 					}
 				}
@@ -1583,19 +1531,6 @@ class _DevblocksBayesClassifierService {
 				$param = [];
 				
 				switch($entity_type) {
-					case 'alias':
-						if(!isset($params[$entity_type]))
-							$params[$entity_type] = [];
-						
-						$param_key = implode(' ', $result['range']);
-						
-						// [TODO] We should keep a case-sensitive version of the original tokenized string for params
-						$params[$entity_type][$param_key] = [
-							//'value' => implode(' ', array_intersect_key(explode(' ', $text), $result['range'])),
-							'value' => implode(' ', $result['range']),
-						];
-						break;
-					
 					case 'avail':
 						if(!empty($result['value']))
 							$params[$entity_type] = array_merge($params[$entity_type], array_slice($result['value'], 0, 1));
