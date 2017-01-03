@@ -1261,7 +1261,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 
 		$logger->info('');
-		$logger->info(sprintf("Checking condition '%s'...", $token));
+		$logger->info(sprintf("Checking condition `%s`...", $token));
 
 		// Built-in conditions
 		switch($token) {
@@ -1827,7 +1827,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					@$format = $params['format'];
 
 					$value = ($format == 'json') ? @DevblocksPlatform::strFormatJson(json_encode($dict->$var, true)) : $dict->$var;
-
+					
 					return sprintf(">>> Setting custom placeholder {{%s}}:\n%s\n\n",
 						$var,
 						$value
@@ -2086,7 +2086,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					'title' => $all_actions[$token]['label'],
 					'content' => $out,
 				);
-
+				
 				$previous_output = $dict->__simulator_output;
 				$previous_output[] = $output;
 				$dict->__simulator_output = $previous_output;

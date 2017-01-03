@@ -868,7 +868,7 @@ class Model_TriggerEvent {
 						@$any = intval($cond_group['any']);
 						@$conditions = $cond_group['conditions'];
 						$group_pass = true;
-						$logger->info(sprintf("Conditions are in '%s' group.", ($any ? 'any' : 'all')));
+						$logger->info(sprintf("Conditions are in `%s` group.", ($any ? 'any' : 'all')));
 						
 						if(!empty($conditions) && is_array($conditions))
 						foreach($conditions as $condition_data) {
@@ -908,6 +908,9 @@ class Model_TriggerEvent {
 					break;
 					
 				case 'action':
+					$pass = true;
+					EventListener_Triggers::logNode($node_id);
+					
 					// Run all the actions
 					if(is_array(@$nodes[$node_id]->params['actions']))
 					foreach($nodes[$node_id]->params['actions'] as $params) {
@@ -918,9 +921,6 @@ class Model_TriggerEvent {
 						
 						if(!$replay_id || $action == '_run_subroutine')
 							$event->runAction($action, $this, $params, $dict, $dry_run);
-						
-						$pass = true;
-						EventListener_Triggers::logNode($node_id);
 						
 						if(isset($dict->__exit)) {
 							$path[] = $node_id;
@@ -942,6 +942,7 @@ class Model_TriggerEvent {
 								break;
 						}
 					}
+					
 					break;
 			}
 			
