@@ -25,6 +25,24 @@
 	</div>
 </div>
 
+<b>Authentication:</b>
+<div style="margin-left:10px;margin-bottom:10px;">
+	<label><input type="radio" name="{$namePrefix}[auth]" value="" {if !$params.auth}checked="checked"{/if}> {'common.none'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[auth]" value="connected_account" {if 'connected_account' == $params.auth}checked="checked"{/if}> {'common.connected_account'|devblocks_translate|capitalize}</label>
+</div>
+
+<div class="cerb-httprequest-connected-account" style="margin-left:20px;{if 'connected_account' != $params.auth}display:none;{/if}">
+	<b>{'common.connected_account'|devblocks_translate|capitalize}:</b>
+	<div style="margin-left:10px;margin-bottom:10px;">
+		<select name="{$namePrefix}[auth_connected_account_id]">
+			<option value=""></option>
+			{foreach from=$connected_accounts item=account}
+			<option value="{$account->id}" {if $params.auth_connected_account_id == $account->id}selected="selected"{/if}>{$account->name}</option>
+			{/foreach}
+		</select>
+	</div>
+</div>
+
 <b>Options:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	<label><input type="checkbox" name="{$namePrefix}[options][ignore_ssl_validation]" value="1" {if $params.options.ignore_ssl_validation}checked="checked"{/if}> Ignore SSL certificate validation (e.g. self-signed)</label>
@@ -42,20 +60,36 @@
 <b>Save response to a placeholder named:</b><br>
 <div style="margin-left:10px;margin-bottom:10px;">
 	&#123;&#123;<input type="text" name="{$namePrefix}[response_placeholder]" value="{$params.response_placeholder|default:"_http_response"}" required="required" spellcheck="false" size="32" placeholder="e.g. _http_response">&#125;&#125;
+	<div>
+	(with properties: <tt>.content_type</tt> &nbsp; <tt>.body</tt> &nbsp; <tt>.info.http_code</tt> &nbsp; <tt>.error</tt>)
+	</div>
 </div>
 
 <script type="text/javascript">
-var $action = $('fieldset#{$namePrefix}');
-$action.find('textarea').autosize();
-
-$action.find('select.cerb-httprequest-verb').change(function() {
-	var $container = $(this).closest('fieldset');
-	var $div_httpbody = $container.find('div.cerb-httprequest-body');
-	var val = $(this).val();
+$(function() {
+	var $action = $('fieldset#{$namePrefix}');
+	$action.find('textarea').autosize();
 	
-	if(val == 'post' || val == 'put')
-		$div_httpbody.show().find('textarea').autosize();
-	else
-		$div_httpbody.fadeOut();
+	$action.find('select.cerb-httprequest-verb').change(function() {
+		var $container = $(this).closest('fieldset');
+		var $div_httpbody = $container.find('div.cerb-httprequest-body');
+		var val = $(this).val();
+		
+		if(val == 'post' || val == 'put')
+			$div_httpbody.show().find('textarea').autosize();
+		else
+			$div_httpbody.fadeOut();
+	});
+	
+	$action.find('input[name="{$namePrefix}[auth]"]').change(function() {
+		var $container = $(this).closest('fieldset');
+		var $div_account = $container.find('div.cerb-httprequest-connected-account');
+		var val = $(this).val();
+		
+		if(val == 'connected_account')
+			$div_account.show();
+		else
+			$div_account.fadeOut();
+	});
 });
 </script>
