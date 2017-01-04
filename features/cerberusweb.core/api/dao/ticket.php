@@ -242,12 +242,18 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['status_id'] == Model_Ticket::STATUS_CLOSED) {
-				$counts['closed'] += $result['count'];
-			} else if($result['status_id'] == Model_Ticket::STATUS_WAITING) {
-				$counts['waiting'] += $result['count'];
-			} else {
-				$counts['open'] += $result['count'];
+			switch($result['status_id']) {
+				case Model_Ticket::STATUS_OPEN:
+					$counts['open'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_WAITING:
+					$counts['waiting'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_CLOSED: 
+					$counts['closed'] += $result['count'];
+					break;
 			}
 			
 			$counts['total'] += $result['count'];
@@ -276,12 +282,18 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['status_id'] == Model_Ticket::STATUS_CLOSED) {
-				$counts['closed'] += $result['count'];
-			} else if($result['status_id'] == Model_Ticket::STATUS_WAITING) {
-				$counts['waiting'] += $result['count'];
-			} else {
-				$counts['open'] += $result['count'];
+			switch($result['status_id']) {
+				case Model_Ticket::STATUS_OPEN:
+					$counts['open'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_WAITING:
+					$counts['waiting'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_CLOSED: 
+					$counts['closed'] += $result['count'];
+					break;
 			}
 			
 			$counts['total'] += $result['count'];
@@ -310,12 +322,18 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['status_id'] != Model_Ticket::STATUS_CLOSED) {
-				$counts['closed'] += $result['count'];
-			} else if($result['status_id'] != Model_Ticket::STATUS_WAITING) {
-				$counts['waiting'] += $result['count'];
-			} else {
-				$counts['open'] += $result['count'];
+			switch($result['status_id']) {
+				case Model_Ticket::STATUS_OPEN:
+					$counts['open'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_WAITING:
+					$counts['waiting'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_CLOSED: 
+					$counts['closed'] += $result['count'];
+					break;
 			}
 			
 			$counts['total'] += $result['count'];
@@ -344,12 +362,18 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['status_id'] == Model_Ticket::STATUS_CLOSED) {
-				$counts['closed'] += $result['count'];
-			} else if($result['status_id'] == Model_Ticket::STATUS_WAITING) {
-				$counts['waiting'] += $result['count'];
-			} else {
-				$counts['open'] += $result['count'];
+			switch($result['status_id']) {
+				case Model_Ticket::STATUS_OPEN:
+					$counts['open'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_WAITING:
+					$counts['waiting'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_CLOSED: 
+					$counts['closed'] += $result['count'];
+					break;
 			}
 			
 			$counts['total'] += $result['count'];
@@ -379,12 +403,18 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['status_id'] == Model_Ticket::STATUS_CLOSED) {
-				$counts['closed'] += $result['count'];
-			} else if($result['status_id'] == Model_Ticket::STATUS_WAITING) {
-				$counts['waiting'] += $result['count'];
-			} else {
-				$counts['open'] += $result['count'];
+			switch($result['status_id']) {
+				case Model_Ticket::STATUS_OPEN:
+					$counts['open'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_WAITING:
+					$counts['waiting'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_CLOSED: 
+					$counts['closed'] += $result['count'];
+					break;
 			}
 			
 			$counts['total'] += $result['count'];
@@ -413,12 +443,18 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			if($result['status_id'] == Model_Ticket::STATUS_CLOSED) {
-				$counts['closed'] += $result['count'];
-			} else if($result['status_id'] == Model_Ticket::STATUS_WAITING) {
-				$counts['waiting'] += $result['count'];
-			} else {
-				$counts['open'] += $result['count'];
+			switch($result['status_id']) {
+				case Model_Ticket::STATUS_OPEN:
+					$counts['open'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_WAITING:
+					$counts['waiting'] += $result['count'];
+					break;
+					
+				case Model_Ticket::STATUS_CLOSED: 
+					$counts['closed'] += $result['count'];
+					break;
 			}
 			
 			$counts['total'] += $result['count'];
