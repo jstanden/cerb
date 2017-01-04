@@ -144,12 +144,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		);
 	}
 	
-	static function getViewCountForRequesterHistory($view_id, $ticket, $scope=null) {
-		$view = self::getViewForRequesterHistory($view_id, $ticket, $scope);
-		list($results, $count) = $view->getData();
-		return $count;
-	}
-	
 	static function getViewForRequesterHistory($view_id, $ticket, $scope=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		
