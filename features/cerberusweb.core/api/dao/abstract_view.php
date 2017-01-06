@@ -2903,6 +2903,7 @@ class CerbQuickSearchLexer {
 						if(!is_null($append_to)) {
 							$token->children[$append_to]->children[] = $child;
 							unset($token->children[$k]);
+							$append_to = null;
 						}
 						break;
 						
