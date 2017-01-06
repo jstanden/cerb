@@ -523,6 +523,16 @@ class DAO_DevblocksSetting extends DevblocksORMHelper {
 		
 		return $settings;
 	}
+	
+	static function delete($plugin_id, array $keys=[]) {
+		if(false == ($db = DevblocksPlatform::getDatabaseService()))
+			return;
+		
+		return $db->ExecuteMaster(sprintf("DELETE FROM devblocks_setting WHERE plugin_id = %s AND setting IN (%s)",
+			$db->qstr($plugin_id),
+			implode(',', $db->qstrArray($keys))
+		));
+	}
 };
 
 class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {

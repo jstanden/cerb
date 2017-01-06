@@ -25,18 +25,21 @@ class _DevblocksPluginSettingsManager {
 	 * @param string $key
 	 * @param mixed $value
 	 * @param bool $json_encode
+	 * @param bool $encrypted
 	 * @return boolean
 	 */
-	public function set($plugin_id, $key, $value, $json_encode=false) {
+	public function set($plugin_id, $key, $value, $json_encode=false, $encrypted=false) {
 		if($json_encode)
 			$value = json_encode($value);
 		
+		if($encrypted) {
+			$encrypt = DevblocksPlatform::getEncryptionService();
+			$value = $encrypt->encrypt($value);
+		}
+		
 		DAO_DevblocksSetting::set($plugin_id, $key, $value);
 		
-		// Clear the plugin's settings cache when changed
-		$cache = DevblocksPlatform::getCacheService();
-		$cache_key = $this->_getCacheKey($plugin_id);
-		$cache->remove($cache_key);
+		$this->_clearCache($plugin_id);
 		
 		return TRUE;
 	}
@@ -46,9 +49,10 @@ class _DevblocksPluginSettingsManager {
 	 * @param string $key
 	 * @param mixed $default
 	 * @param bool $json_decode
+	 * @param bool $encrypted
 	 * @return mixed
 	 */
-	public function get($plugin_id, $key, $default=null, $json_decode=false) {
+	public function get($plugin_id, $key, $default=null, $json_decode=false, $encrypted=false) {
 		$cache = DevblocksPlatform::getCacheService();
 		$cache_key = $this->_getCacheKey($plugin_id);
 		
@@ -61,9 +65,40 @@ class _DevblocksPluginSettingsManager {
 			$cache->save($settings, $cache_key);
 		}
 		
-		if(isset($settings[$key]))
-			return $json_decode ? @json_decode($settings[$key], true) : $settings[$key];
+		if(isset($settings[$key])) {
+			$value = $settings[$key];
+			
+			if($encrypted) {
+				$encrypt = DevblocksPlatform::getEncryptionService();
+				$value = $encrypt->decrypt($value);
+			}
+			
+			if($json_decode)
+				$value = @json_decode($value, true);
+			
+			return $value;
+		}
 		
 		return $default;
+	}
+	
+	/**
+	 * @param string $plugin_id
+	 * @param array $keys
+	 */
+	public function delete($plugin_id, array $keys=[]) {
+		DAO_DevblocksSetting::delete($plugin_id, $keys);
+		$this->_clearCache($plugin_id);
+	}
+	
+	/**
+	 * @param string $plugin_id
+	 * @return boolean
+	 */
+	private function _clearCache($plugin_id) {
+		// Clear the plugin's settings cache when changed
+		$cache = DevblocksPlatform::getCacheService();
+		$cache_key = $this->_getCacheKey($plugin_id);
+		return $cache->remove($cache_key);
 	}
 };

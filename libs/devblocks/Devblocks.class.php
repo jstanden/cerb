@@ -2257,14 +2257,14 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksPluginSettingsManager::getInstance();
 	}
 	
-	static function getPluginSetting($plugin_id, $key, $default=null, $json_decode=false) {
+	static function getPluginSetting($plugin_id, $key, $default=null, $json_decode=false, $encrypted=false) {
 		$settings = self::getPluginSettingsService();
-		return $settings->get($plugin_id, $key, $default, $json_decode);
+		return $settings->get($plugin_id, $key, $default, $json_decode, $encrypted);
 	}
 	
-	static function setPluginSetting($plugin_id, $key, $value, $json_encode=false) {
+	static function setPluginSetting($plugin_id, $key, $value, $json_encode=false, $encrypted=false) {
 		$settings = self::getPluginSettingsService();
-		return $settings->set($plugin_id, $key, $value, $json_encode);
+		return $settings->set($plugin_id, $key, $value, $json_encode, $encrypted);
 	}
 
 	/**
