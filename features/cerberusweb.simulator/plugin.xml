@@ -56,7 +56,7 @@
 		
 		<extension point="cerberusweb.ui.page.menu.item">
 			<id>simulator.setup.menu.mail.simulator</id>
-			<name>Setup Page Simulator Menu Item</name>
+			<name>Simulator</name>
 			<class>
 				<file>classes.php</file>
 				<name>PageMenuItem_SetupSimulator</name>

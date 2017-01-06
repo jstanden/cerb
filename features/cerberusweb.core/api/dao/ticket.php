@@ -4609,31 +4609,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				$token_values
 			);
 			
-		// Plugin-provided tokens
-		// [TODO]
-		$token_extension_mfts = DevblocksPlatform::getExtensions('cerberusweb.template.token', false);
-		foreach($token_extension_mfts as $mft) { /* @var $mft DevblocksExtensionManifest */
-			@$token = $mft->params['token'];
-			@$label = $mft->params['label'];
-			@$bind = $mft->params['bind'][0];
-			
-			if(empty($token) || empty($label) || !is_array($bind))
-				continue;
-
-			if(!isset($bind['ticket']))
-				continue;
-				
-			if(null != ($ext = $mft->createInstance()) && $ext instanceof ITemplateToken_Ticket) {
-				/* @var $ext ITemplateToken_Signature */
-				$value = $ext->getTicketTokenValue($worker);
-				
-				if(!empty($value)) {
-					$token_labels[$token] = $label;
-					$token_values[$token] = $value;
-				}
-			}
-		}
-		
 		return true;
 	}
 	

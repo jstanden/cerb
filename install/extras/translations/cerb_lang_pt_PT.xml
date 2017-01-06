@@ -2233,26 +2233,6 @@
 				<seg>Está Inativo</seg>
 			</tuv>
 		</tu>
-		<tu tuid="dao.twitter_account.last_synced_at">
-			<tuv xml:lang="pt_PT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.twitter_account.last_synced_msgid">
-			<tuv xml:lang="pt_PT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.twitter_account.oauth_token">
-			<tuv xml:lang="pt_PT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.twitter_account.screen_name">
-			<tuv xml:lang="pt_PT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="dao.twitter_message.account_id">
 			<tuv xml:lang="pt_PT">
 				<seg/>

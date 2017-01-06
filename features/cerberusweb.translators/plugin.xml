@@ -50,7 +50,7 @@
 		
 		<extension point="cerberusweb.ui.page.menu.item">
 			<id>translators.setup.menu.mail.translations</id>
-			<name>Setup Page Translations Menu Item</name>
+			<name>Translation Editor</name>
 			<class>
 				<file>api/App.php</file>
 				<name>ChTranslators_SetupPluginsMenuItem</name>
@@ -59,7 +59,7 @@
 				<param key="page_id" value="core.page.configuration" />
 				<param key="menu_id" value="core.setup.menu.settings" />
 			</params>
-		</extension>	
+		</extension>
 		 
 	</extensions>
 </plugin>

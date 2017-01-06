@@ -214,7 +214,7 @@
 		
 		<extension point="cerberusweb.ui.page.menu.item">
 			<id>timetracking.setup.menu.plugins.timetracking</id>
-			<name>Setup Page Time Tracking Menu Item</name>
+			<name>Time Tracking</name>
 			<class>
 				<file>api/App.php</file>
 				<name>ChTimeTracking_SetupPluginsMenuItem</name>
