@@ -69,6 +69,18 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		parent::_updateWhere('connected_account', $fields, $where);
 	}
 	
+	static function getByExtension($extension_id) {
+		$accounts = DAO_ConnectedAccount::getAll();
+		
+		if(!is_null($extension_id)) {
+			$accounts = array_filter($accounts, function($account) use ($extension_id) {
+				return $account->extension_id == $extension_id;
+			});
+		}
+		
+		return $accounts;
+	}
+	
 	static function getReadableByActor($actor, $extension_id=null) {
 		$accounts = DAO_ConnectedAccount::getAll();
 		
