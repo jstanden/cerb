@@ -92,6 +92,13 @@
 		{$object_last_wrotes = DAO_Address::getIds($last_wrote_ids)}
 	{/if}
 	
+	{* Bulk lazy load orgs *}
+	{$object_orgs = []}
+	{if in_array(SearchFields_Ticket::TICKET_ORG_ID, $view->view_columns)}
+		{$org_ids = DevblocksPlatform::extractArrayValues($results, 't_org_id')}
+		{$object_orgs = DAO_ContactOrg::getIds($org_ids)}
+	{/if}
+	
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -187,10 +194,12 @@
 				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a>
 			{/if}
 		</td>
-		{elseif $column=="o_name"}
+		{elseif $column=="t_org_id"}
 		<td data-column="{$column}">
-			{if $result.t_org_id}
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$result.t_org_id}">{$result.o_name}</a>
+			{$org_id = $result.t_org_id}
+			{if $org_id && isset($object_orgs.$org_id)}
+				{$org = $object_orgs.$org_id}
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a>
 			{/if}
 		</td>
 		{elseif $column=="t_group_id"}

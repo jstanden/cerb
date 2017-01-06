@@ -192,7 +192,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		switch($scope) {
 			case 'org':
 				$view->addParamsRequired(array(
-					SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ORG_ID,'=',$ticket->org_id),
+					SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,'=',$ticket->org_id),
 					SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 				), true);
 				$view->name = ucwords($translate->_('common.organization'));
@@ -1670,12 +1670,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$join_sql .= sprintf("INNER JOIN worker_to_bucket wtb ON (wtb.bucket_id=t.bucket_id AND wtb.worker_id=%d) ", $active_worker->id);
 			}
 		}
-			
-		// Org joins
-		if(isset($tables['o'])) {
-			$select_sql .= ", o.name as o_name ";
-			$join_sql .= "LEFT JOIN contact_org o ON (t.org_id=o.id) ";
-		}
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -1883,9 +1877,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const REQUESTER_ID = 'r_id';
 	const REQUESTER_ADDRESS = 'ra_email';
 	
-	// Sender Org
-	const ORG_NAME = 'o_name';
-
 	// Fulltexts
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	const FULLTEXT_MESSAGE_CONTENT = 'ftmc_content';
@@ -1898,7 +1889,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_MESSAGES_SEARCH = '*_messages_search';
-	const VIRTUAL_ORG_ID = '*_org_id';
 	const VIRTUAL_ORG_SEARCH = '*_org_search';
 	const VIRTUAL_OWNER_SEARCH = '*_owner_search';
 	const VIRTUAL_PARTICIPANT_ID = '*_participant_id';
@@ -1999,16 +1989,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
-				break;
-				
-			// [TODO] This doesn't need to be virtual now
-			// [TODO] IN, NOT
-			case self::VIRTUAL_ORG_ID:
-				$org_id = $param->value;
-				
-				return sprintf("t.org_id = %d",
-					$org_id
-				);
 				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
@@ -2249,10 +2229,9 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::TICKET_FIRST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, 't', 'first_wrote_address_id', $translate->_('ticket.first_wrote'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_LAST_WROTE_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_LAST_WROTE_ID, 't', 'last_wrote_address_id', $translate->_('ticket.last_wrote'), Model_CustomField::TYPE_NUMBER, true),
 			
-			SearchFields_Ticket::ORG_NAME => new DevblocksSearchField(SearchFields_Ticket::ORG_NAME, 'o', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::REQUESTER_ADDRESS, 'ra', 'email',$translate->_('common.participant'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			
-			SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_ORG_ID, 't','org_id',$translate->_('common.id'), null, true),
+			SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_ORG_ID, 't','org_id',$translate->_('common.organization'), null, true),
 			SearchFields_Ticket::TICKET_OWNER_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_OWNER_ID,'t','owner_id',$translate->_('common.owner'), Model_CustomField::TYPE_WORKER, true),
 			SearchFields_Ticket::TICKET_IMPORTANCE => new DevblocksSearchField(SearchFields_Ticket::TICKET_IMPORTANCE,'t','importance',$translate->_('common.importance'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_GROUP_ID,'t','group_id',$translate->_('common.group'), null, true),
@@ -2282,7 +2261,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH, '*', 'messages_search', null, null, false),
-			SearchFields_Ticket::VIRTUAL_ORG_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_ID, '*', 'org_id', null, null, false), // org ID
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_SEARCH, '*', 'org_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_OWNER_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_OWNER_SEARCH, '*', 'owner_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID, '*', 'participant_id', null, null, false), // participant ID
@@ -2530,7 +2508,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::REQUESTER_ADDRESS,
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
-			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
@@ -2540,7 +2517,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH,
-			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
 			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS,
 			SearchFields_Ticket::TICKET_STATUS_ID,
@@ -2551,13 +2527,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$this->addParamsHidden(array(
 			SearchFields_Ticket::REQUESTER_ID,
-			SearchFields_Ticket::TICKET_ORG_ID,
 			SearchFields_Ticket::TICKET_STATUS_ID,
 			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH,
 			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH,
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH,
-			SearchFields_Ticket::VIRTUAL_ORG_ID,
 			SearchFields_Ticket::VIRTUAL_OWNER_SEARCH,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH,
@@ -2604,13 +2578,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			
 			switch($field_key) {
 				// DAO
-				case SearchFields_Ticket::ORG_NAME:
 				case SearchFields_Ticket::TICKET_FIRST_WROTE_ID:
 				case SearchFields_Ticket::TICKET_LAST_WROTE_ID:
 				case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				case SearchFields_Ticket::TICKET_SUBJECT:
 				case SearchFields_Ticket::TICKET_GROUP_ID:
 				case SearchFields_Ticket::TICKET_BUCKET_ID:
+				case SearchFields_Ticket::TICKET_ORG_ID:
 				case SearchFields_Ticket::TICKET_OWNER_ID:
 					$pass = true;
 					break;
@@ -2649,7 +2623,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			return array();
 		
 		switch($column) {
-			case SearchFields_Ticket::ORG_NAME:
 			case SearchFields_Ticket::TICKET_SUBJECT:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
@@ -2680,6 +2653,15 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				foreach($workers as $k => $v)
 					$label_map[$k] = $v->getName();
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'worker_id[]');
+				break;
+				
+			case SearchFields_Ticket::TICKET_ORG_ID:
+				$label_map = function($ids) {
+					$models = DAO_ContactOrg::getIds($ids);
+					$results = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+					return $results;
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_Ticket::TICKET_GROUP_ID:
@@ -3055,7 +3037,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'org.id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_ORG_ID),
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_ORG_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ORG, 'q' => ''],
 					]
@@ -3530,7 +3512,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_SUBJECT:
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
-			case SearchFields_Ticket::ORG_NAME:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 
@@ -3776,23 +3757,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			// [TODO] Handle long multiple value strings
-			case SearchFields_Ticket::VIRTUAL_ORG_ID:
-				$sep = ' or ';
-				$strings = array();
-				
-				$ids = is_array($param->value) ? $param->value : array($param->value);
-				$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
-				
-				$orgs = DAO_ContactOrg::getIds($ids);
-				
-				foreach($orgs as $org) {
-					$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($org->name) . '</b>';
-				}
-				
-				echo sprintf("Org is %s", implode($sep, $strings));
-				break;
-			
-			// [TODO] Handle long multiple value strings
 			case SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID:
 				$sep = ' or ';
 				$strings = array();
@@ -3916,6 +3880,17 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				}
 				echo implode(", ", $strings);
 				break;
+				
+			case SearchFields_Ticket::TICKET_ORG_ID:
+				$strings = array();
+				
+				$orgs = DAO_ContactOrg::getIds($values);
+				
+				foreach($orgs as $org) {
+					$strings[] = DevblocksPlatform::strEscapeHtml($org->name);
+				}
+				echo implode(", ", $strings);
+				break;
 					
 			case SearchFields_Ticket::TICKET_BUCKET_ID:
 				$buckets = DAO_Bucket::getAll();
@@ -4008,7 +3983,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_SUBJECT:
 			case SearchFields_Ticket::REQUESTER_ADDRESS:
 			case SearchFields_Ticket::TICKET_INTERESTING_WORDS:
-			case SearchFields_Ticket::ORG_NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 
@@ -4076,6 +4050,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_BUCKET_ID,$oper,$bucket_ids));
 				} else { // clear if no buckets provided
 					$this->removeParam(SearchFields_Ticket::TICKET_BUCKET_ID);
+				}
+				break;
+				
+			case SearchFields_Ticket::TICKET_ORG_ID:
+				@$org_ids = DevblocksPlatform::importGPC($_REQUEST['options'],'array');
+
+				if(!empty($org_ids)) {
+					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,$oper,$org_ids));
+				} else { // clear if no buckets provided
+					$this->removeParam(SearchFields_Ticket::TICKET_ORG_ID);
 				}
 				break;
 				

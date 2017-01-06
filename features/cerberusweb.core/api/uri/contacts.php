@@ -252,7 +252,7 @@ class ChContactsPage extends CerberusPageExtension {
 		
 		if(empty($ids)) {
 			@$view->name = $translate->_('common.participants') . ": " . $translate->_('common.organization');
-			$params_required[SearchFields_Ticket::VIRTUAL_ORG_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_ORG_ID,'=',$org_id);
+			$params_required[SearchFields_Ticket::TICKET_ORG_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,'=',$org_id);
 			
 		} else {
 			@$view->name = $translate->_('common.participants') . ": " . intval(count($ids)) . ' contact(s)';
