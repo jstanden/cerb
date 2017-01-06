@@ -877,11 +877,18 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		@$took_ms = (microtime(true) - $start_time) * 1000;
 		$count = count($ids);
-		$total = $count;
 		
 		// Store the search info in a request registry for later use
+		$meta_key = 'fulltext_meta';
+		$engine = 'mysql-fulltext';
+		$meta = DevblocksPlatform::getRegistryKey($meta_key, DevblocksRegistryEntry::TYPE_JSON, '[]');
+		$entry_key = sha1($engine.$query.$count.$ns);
 		
-		//return $temp_table;
+		if(!isset($meta[$entry_key])) {
+			$meta[$entry_key] = array('engine' => $engine, 'query' => $query, 'took_ms' => $took_ms, 'results' => $count, 'ns' => $ns, 'is_cached' => $is_cached, 'max' => $max_results, 'database' => APP_DB_DATABASE);
+			DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
+		}
+		
 		return $ids;
 	}
 	

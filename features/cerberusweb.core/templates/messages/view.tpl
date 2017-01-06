@@ -1,6 +1,5 @@
 {$view_context = CerberusContexts::CONTEXT_MESSAGE}
 {$view_fields = $view->getColumnsAvailable()}
-{$results = $view->getData()}
 {$total = $results[1]}
 {$data = $results[0]}
 

@@ -1951,12 +1951,17 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 	
 	function render() {
-		$this->_sanitize();
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
-
+		
+		$this->_sanitize();
+		
+		$results = $this->getData();
+		$tpl->assign('results', $results);
+		
+		$this->_checkFulltextMarquee();
+		
 		switch($this->renderTemplate) {
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::messages/view.tpl');
@@ -2190,7 +2195,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 						
 					default:
 						$value = array_shift($values);
-						echo $value;
+						echo DevblocksPlatform::strEscapeHtml($value);
 						break;
 				}
 				break;

@@ -3569,6 +3569,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$results = self::getData();
 		$tpl->assign('results', $results);
 		
+		$this->_checkFulltextMarquee();
+		
 		@$ids = array_keys($results[0]);
 		
 		$workers = DAO_Worker::getAll();

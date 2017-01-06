@@ -691,6 +691,42 @@ abstract class C4_AbstractView {
 		return $string;
 	}
 	
+	protected function _checkFulltextMarquee() {
+		// Add search meta output to the view marquee
+		$meta = DevblocksPlatform::getRegistryKey('fulltext_meta', DevblocksRegistryEntry::TYPE_JSON, '[]');
+		
+		if(!empty($meta)) {
+			$marquees = array();
+			
+			if(is_array($meta))
+			foreach($meta as $results) {
+				if(is_array($results)
+					&& isset($results['results'])
+					&& isset($results['took_ms'])
+					&& isset($results['engine'])
+					) {
+					
+					$marquees[] = sprintf("Found %s %s hit%s for <b>%s</b> [%s: %d ms%s, max %d]",
+						number_format($results['results']),
+						str_replace('_',' ', $results['ns']),
+						($results['results']==1) ? '' : 's',
+						DevblocksPlatform::strEscapeHtml($results['query']),
+						$results['engine'],
+						$results['took_ms'],
+						(isset($results['is_cached']) && $results['is_cached']) ? ', cached' : '',
+						$results['max']
+					);
+				}
+			}
+			
+			if(!empty($marquees)) {
+				C4_AbstractView::setMarquee($this->id, implode('<br>', $marquees));
+			}
+			
+			DevblocksPlatform::setRegistryKey('fulltext_meta', array(), DevblocksRegistryEntry::TYPE_JSON, false);
+		}
+	}
+	
 	// Render
 	
 	function render() {
@@ -1491,6 +1527,9 @@ abstract class C4_AbstractView {
 			$counts = array_slice($counts, 0, 20);
 		
 		$tpl->assign('subtotal_counts', $counts);
+		
+		// Reset any accumulated fulltext meta
+		DevblocksPlatform::setRegistryKey('fulltext_meta', array(), DevblocksRegistryEntry::TYPE_JSON, false);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/sidebar.tpl');
 	}
