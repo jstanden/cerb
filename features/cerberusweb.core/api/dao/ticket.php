@@ -1757,14 +1757,49 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		$fulltext_params = array();
+		
+		foreach($params as $param_key => $param) {
+			if(!($param instanceof DevblocksSearchCriteria))
+				continue;
+			
+			if($param->field == SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT) {
+				$fulltext_params[$param_key] = $param;
+				unset($params[$param_key]);
+			}
+		}
+		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
-
+		
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
 		$has_multiple_values = $query_parts['has_multiple_values'];
 		$sort_sql = $query_parts['sort'];
+		
+		if(!empty($fulltext_params)) {
+			$prefetch_sql = null;
+			
+			if(!empty($params)) {
+				$prefetch_sql = 
+					sprintf('SELECT message.id FROM message INNER JOIN (SELECT t.id %s%s ORDER BY id DESC LIMIT 20000) AS search ON (search.id=message.ticket_id)',
+						$join_sql,
+						$where_sql
+					);
+			}
+			
+			// Restrict the scope of the fulltext search to these IDs
+			if($prefetch_sql) {
+				foreach($fulltext_params as $param_key => $param) {
+					$where_sql .= 'AND ' . SearchFields_Ticket::getWhereSQL($param, array('prefetch_sql' => $prefetch_sql)) . ' ';
+				}
+			} else {
+				foreach($fulltext_params as $param_key => $param) {
+					$where_sql .= 'AND ' . SearchFields_Ticket::getWhereSQL($param) . ' ';
+				}
+			}
+		}
 		
 		$sql =
 			$select_sql.
@@ -1890,7 +1925,10 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 		);
 	}
 	
-	static function getWhereSQL(DevblocksSearchCriteria $param) {
+	static function getWhereSQL(DevblocksSearchCriteria $param, $options=array()) {
+		if(!is_array($options))
+			$options = array();
+		
 		switch($param->field) {
 			case self::VIRTUAL_HAS_ATTACHMENTS:
 				return sprintf("%s %sIN (".
@@ -1960,8 +1998,15 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					return null;
 				
 				$query = $search->getQueryFromParam($param);
+				$attribs = array();
 				
-				if(false === ($ids = $search->query($query, array()))) {
+				if(isset($options['prefetch_sql'])) {
+					$attribs['id'] = array(
+						'sql' => $options['prefetch_sql'],
+					);
+				}
+				
+				if(false === ($ids = $search->query($query, $attribs))) {
 					return '0';
 					
 				} elseif(is_array($ids)) {

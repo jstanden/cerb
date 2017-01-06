@@ -192,7 +192,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		);
 
 		$cache = DevblocksPlatform::getCacheService();
-		$cache_key = sprintf("search:%s", md5($sql));
+		$cache_key = sprintf("search:%s", sha1($sql));
 		$is_only_cached_for_request = !$cache->isVolatile();
 		
 		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
@@ -752,31 +752,56 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			
 			switch($attr_type) {
 				case 'string':
-					$where_sql[] = sprintf("%s = '%s'",
-						$db->escape($attr),
-						$db->escape($attr_val)
-					);
+					if(is_array($attr_val)) {
+						if(!empty($attr_val)) {
+							$where_sql[] = sprintf("%s IN (%s)",
+								$db->escape($attr),
+								implode(',', $db->qstrArray($attr_val))
+							);
+						} else {
+							$where_sql[] = sprintf("%s IS NULL",
+								$db->escape($attr)
+							);
+							
+						}
+						
+					} else {
+						$where_sql[] = sprintf("%s = '%s'",
+							$db->escape($attr),
+							$db->escape($attr_val)
+						);
+					}
+					
 					break;
 				
 				case 'int':
 				case 'int4':
 				case 'int8':
-					$where_sql[] = sprintf("%s = %d",
-						$db->escape($attr),
-						$attr_val
-					);
-					break;
-					
 				case 'uint4':
 				case 'uint8':
-					$where_sql[] = sprintf("%s = %u",
-						$db->escape($attr),
-						$attr_val
-					);
+					if(is_array($attr_val)) {
+						if(!empty($attr_val)) {
+							$where_sql[] = sprintf("%s IN (%s)",
+								$db->escape($attr),
+								implode(',', DevblocksPlatform::sanitizeArray($attr_val, 'int'))
+							);
+						} else {
+							$where_sql[] = sprintf("%s = %d",
+								$db->escape($attr),
+								-1
+							);
+						}
+						
+					} else {
+						$where_sql[] = sprintf("%s = %s",
+							$db->escape($attr),
+							intval($attr_val)
+						);
+					}
 					break;
 			}
 		}
-
+		
 		// The max desired results (blank for unlimited)
 		@$max_results = intval($limit) ?: intval($this->_config['max_results']) ?: 1000;
 		@$max_results = DevblocksPlatform::intClamp($max_results, 1, 10000);
@@ -786,55 +811,75 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$start_time = microtime(true);
 		
-		/*
-		$sql = sprintf("CREATE TEMPORARY TABLE IF NOT EXISTS %s (PRIMARY KEY (id)) ".
-			"SELECT SQL_CALC_FOUND_ROWS id ".
-			"FROM fulltext_%s ".
-			"WHERE MATCH content AGAINST ('%s' IN BOOLEAN MODE) ".
-			"%s ".
-			($max_results ? sprintf("LIMIT 0,%d ", $max_results) : ''),
-			$temp_table,
-			$this->escapeNamespace($ns),
-			$escaped_query,
-			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
-		);
-		$db->ExecuteSlave($sql);
-		*/
-		
-		$sql = sprintf("SELECT SQL_CALC_FOUND_ROWS id ".
-			"FROM fulltext_%s ".
-			"WHERE MATCH content AGAINST ('%s' IN BOOLEAN MODE) ".
-			"%s ".
-			($max_results ? sprintf("LIMIT %d ", $max_results) : ''),
-			$this->escapeNamespace($ns),
-			$escaped_query,
-			!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
-		);
-		
 		$cache = DevblocksPlatform::getCacheService();
-		$cache_key = sprintf("search:%s", md5($sql));
 		$is_only_cached_for_request = !$cache->isVolatile();
+		$cache_ttl = 300;
+		$is_cached = true;
 		
-		if(null === ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
-			$ids = array();
+		if(isset($attributes['id']) && is_array($attributes['id']) && isset($attributes['id']['sql'])) {
+			$sql = sprintf("CREATE TEMPORARY TABLE %s (id int unsigned, content text) ENGINE=MyISAM SELECT id, content FROM fulltext_%s WHERE id IN (%s)",
+				$db->escape($temp_table),
+				$this->escapeNamespace($ns),
+				$attributes['id']['sql']
+			);
 			
-			$results = $db->GetArraySlave($sql);
+			$cache_key = sprintf("search:%s", sha1($ns.$escaped_query.$attributes['id']['sql'].json_encode($where_sql)));
 			
-			if(is_array($results))
-			foreach($results as $result)
-				$ids[] = intval($result['id']);
+			if(null == ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
+				$is_cached = false;
+				
+				$db->ExecuteSlave($sql);
+				
+				$sql = sprintf("SELECT id ".
+					"FROM %s ".
+					"WHERE MATCH (content) AGAINST ('%s' IN BOOLEAN MODE) ".
+					"%s ".
+					"LIMIT %d",
+					$db->escape($temp_table),
+					$escaped_query,
+					!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : '',
+					$max_results
+				);
+				$results = $db->GetArraySlave($sql);
+				
+				$db->ExecuteSlave(sprintf("DROP TABLE %s",
+					$temp_table
+				));
+				
+				$ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::extractArrayValues($results, 'id'), 'int');
+				$cache->save($ids, $cache_key, array(), $cache_ttl, $is_only_cached_for_request);
+			}
 			
-			$cache->save($ids, $cache_key, array(), 300, $is_only_cached_for_request);
+		} else {
+			$sql = sprintf("SELECT id ".
+				"FROM fulltext_%s ".
+				"WHERE MATCH content AGAINST ('%s' IN BOOLEAN MODE) ".
+				"%s ".
+				($max_results ? sprintf("LIMIT %d ", $max_results) : ''),
+				$this->escapeNamespace($ns),
+				$escaped_query,
+				!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
+			);
+			
+			$cache_key = sprintf("search:%s", sha1($sql));
+			
+			if(null == ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
+				$is_cached = false;
+				
+				if(false === ($results = $db->GetArraySlave($sql))) {
+					$ids = array();
+				} else {
+					$ids = DevblocksPlatform::sanitizeArray(array_column($results, 'id'), 'int');
+					$cache->save($ids, $cache_key, array(), $cache_ttl, $is_only_cached_for_request);
+				}
+			}
 		}
 		
 		@$took_ms = (microtime(true) - $start_time) * 1000;
 		$count = count($ids);
-		$total = !empty($count) ? intval($db->Found_Rows()) : 0;
+		$total = $count;
 		
 		// Store the search info in a request registry for later use
-		$meta_key = 'search_' . sha1($query);
-		$meta = array('engine' => 'mysql-fulltext', 'query' => $query, 'took_ms' => $took_ms, 'results' => $count, 'total' => $total, 'database' => APP_DB_DATABASE);
-		DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
 		
 		//return $temp_table;
 		return $ids;
