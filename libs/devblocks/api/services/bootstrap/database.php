@@ -202,6 +202,7 @@ class _DevblocksDatabaseManager {
 				'cardinality' => $row['Cardinality'],
 				'index_type' => $row['Index_type'],
 				'subpart' => $row['Sub_part'],
+				'unique' => empty($row['Non_unique']),
 			);
 		}
 		
