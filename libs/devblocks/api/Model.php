@@ -68,13 +68,20 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		return $field_key;
 	}
 	
-	static function _getWhereSQLFromFulltextField(DevblocksSearchCriteria $param, $schema, $pkey) {
+	static function _getWhereSQLFromFulltextField(DevblocksSearchCriteria $param, $schema, $pkey, $options=array()) {
 		if(false == ($search = Extension_DevblocksSearchSchema::get($schema)))
 			return null;
 		
 		$query = $search->getQueryFromParam($param);
+		$attribs = array();
 		
-		if(false === ($ids = $search->query($query, array()))) {
+		if(isset($options['prefetch_sql'])) {
+			$attribs['id'] = array(
+				'sql' => $options['prefetch_sql'],
+			);
+		}
+		
+		if(false === ($ids = $search->query($query, $attribs))) {
 			return '0';
 			
 		} elseif(is_array($ids)) {
