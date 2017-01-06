@@ -18,6 +18,7 @@
 class DAO_Address extends Cerb_ORMHelper {
 	const ID = 'id';
 	const EMAIL = 'email';
+	const HOST = 'host';
 	const CONTACT_ID = 'contact_id';
 	const CONTACT_ORG_ID = 'contact_org_id';
 	const NUM_SPAM = 'num_spam';
@@ -60,9 +61,10 @@ class DAO_Address extends Cerb_ORMHelper {
 			
 		// Make sure the address doesn't exist already
 		if(null == ($check = self::getByEmail($full_address))) {
-			$sql = sprintf("INSERT INTO address (email,contact_id,contact_org_id,num_spam,num_nonspam,is_banned,is_defunct,updated) ".
-				"VALUES (%s,0,0,0,0,0,0,0)",
-				$db->qstr($full_address)
+			$sql = sprintf("INSERT INTO address (email,host,contact_id,contact_org_id,num_spam,num_nonspam,is_banned,is_defunct,updated) ".
+				"VALUES (%s,%s,0,0,0,0,0,0,0)",
+				$db->qstr($full_address),
+				$db->qstr(substr($full_address, strpos($full_address, '@')+1))
 			);
 			if(false == ($db->ExecuteMaster($sql)))
 				return false;
@@ -247,7 +249,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, email, contact_id, contact_org_id, num_spam, num_nonspam, is_banned, is_defunct, updated ".
+		$sql = "SELECT id, email, host, contact_id, contact_org_id, num_spam, num_nonspam, is_banned, is_defunct, updated ".
 			"FROM address ".
 			$where_sql.
 			$sort_sql.
@@ -274,6 +276,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			$object = new Model_Address();
 			$object->id = intval($row['id']);
 			$object->email = $row['email'];
+			$object->host = $row['host'];
 			$object->contact_id = intval($row['contact_id']);
 			$object->contact_org_id = intval($row['contact_org_id']);
 			$object->num_spam = intval($row['num_spam']);
@@ -441,6 +444,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
 			"a.email as %s, ".
+			"a.host as %s, ".
 			"a.contact_id as %s, ".
 			"a.contact_org_id as %s, ".
 			"o.name as %s, ".
@@ -451,6 +455,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			"a.updated as %s ",
 				SearchFields_Address::ID,
 				SearchFields_Address::EMAIL,
+				SearchFields_Address::HOST,
 				SearchFields_Address::CONTACT_ID,
 				SearchFields_Address::CONTACT_ORG_ID,
 				SearchFields_Address::ORG_NAME,
@@ -622,6 +627,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 	// Address
 	const ID = 'a_id';
 	const EMAIL = 'a_email';
+	const HOST = 'a_host';
 	const CONTACT_ID = 'a_contact_id';
 	const CONTACT_ORG_ID = 'a_contact_org_id';
 	const NUM_SPAM = 'a_num_spam';
@@ -732,6 +738,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'a', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::HOST => new DevblocksSearchField(self::HOST, 'a', 'host', $translate->_('common.host'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CONTACT_ID => new DevblocksSearchField(self::CONTACT_ID, 'a', 'contact_id', $translate->_('common.contact'), null, true),
 			self::NUM_SPAM => new DevblocksSearchField(self::NUM_SPAM, 'a', 'num_spam', $translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER, true),
 			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER, true),
@@ -937,6 +944,7 @@ class Model_Address {
 	public $contact_id = 0;
 	public $contact_org_id = 0;
 	public $email = '';
+	public $host = '';
 	public $is_banned = 0;
 	public $is_defunct = 0;
 	public $num_nonspam = 0;
@@ -1079,6 +1087,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			$pass = false;
 			
 			switch($field_key) {
+				case SearchFields_Address::HOST:
 				case SearchFields_Address::IS_BANNED:
 				case SearchFields_Address::IS_DEFUNCT:
 				case SearchFields_Address::ORG_NAME:
@@ -1120,6 +1129,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
+			case SearchFields_Address::HOST:
 			case SearchFields_Address::ORG_NAME:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
@@ -1183,7 +1193,12 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			'email' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Address::EMAIL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'options' => array('param_key' => SearchFields_Address::EMAIL),
+				),
+			'host' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Address::HOST),
 				),
 			'id' =>
 				array(
@@ -1382,6 +1397,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 		switch($field) {
 			case SearchFields_Address::EMAIL:
+			case SearchFields_Address::HOST:
 			case SearchFields_Address::ORG_NAME:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
@@ -1534,6 +1550,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 		switch($field) {
 			case SearchFields_Address::EMAIL:
+			case SearchFields_Address::HOST:
 			case SearchFields_Address::ORG_NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
@@ -1806,6 +1823,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['id'] = $address->id;
 			$token_values['address'] = $address->email;
 			$token_values['email'] = $address->email;
+			$token_values['host'] = $address->host;
 			$token_values['num_spam'] = $address->num_spam;
 			$token_values['num_nonspam'] = $address->num_nonspam;
 			$token_values['is_banned'] = $address->is_banned;

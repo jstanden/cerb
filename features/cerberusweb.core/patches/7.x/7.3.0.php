@@ -551,6 +551,39 @@ $db->ExecuteMaster("DELETE FROM fulltext_worker");
 $db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id IN ('cfg_worker_roles','setup_groups','twitter_account','workers_cfg')");
 
 // ===========================================================================
+// Add `host` to `address` and reindex `email`
+
+if(!isset($tables['address'])) {
+	$logger->error("The 'address' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address');
+
+$changes = [];
+
+if(isset($indexes['email']) && $indexes['email']['columns']['email']['unique']) {
+	$changes[] = 'drop index email';
+	$changes[] = 'add index (email(4))';
+}
+
+if(!isset($columns['host'])) {
+	$changes[] = "add column host varchar(255) not null default ''";
+	$changes[] = 'add index (host(4))';
+}
+
+if(!empty($changes)) {
+	$db->ExecuteMaster(sprintf('ALTER TABLE address %s',
+		implode(',', $changes)
+	));
+	
+	if(!isset($column['host'])) {
+		$db->ExecuteMaster("UPDATE address SET host = SUBSTRING(email, LOCATE('@', email)+1)");
+		$db->ExecuteMaster("ANALYZE TABLE address");
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

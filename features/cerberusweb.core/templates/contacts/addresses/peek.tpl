@@ -21,7 +21,7 @@
 			{if is_array($email_parts) && 2==count($email_parts)}
 				{$domain = $email_parts.1}
 				<button type="button" onclick="window.open('http://www.{$domain|escape:'url'}');"><span class="glyphicons glyphicons-link"></span> {'common.website'|devblocks_translate|capitalize}</button>
-				<button type="button" class="cerb-search-trigger" data-context="{$peek_context}" data-query="email:(*@{$domain})"><span class="glyphicons glyphicons-search"></span> Similar</button>
+				<button type="button" class="cerb-search-trigger" data-context="{$peek_context}" data-query="host:{$domain}"><span class="glyphicons glyphicons-search"></span> Similar</button>
 			{/if}
 		</div>
 	</div>
