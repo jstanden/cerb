@@ -2559,8 +2559,8 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		
 		$params_required = array();
 		
-		if(!empty($active_worker)) {
-			$params[SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER] = new DevblocksSearchCriteria(SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER,'=',$active_worker->id);
+		if(!empty($active_worker) && !$active_worker->is_superuser) {
+			$params_required[SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER] = new DevblocksSearchCriteria(SearchFields_Message::VIRTUAL_TICKET_IN_GROUPS_OF_WORKER,'=',$active_worker->id);
 		}
 		
 		$view->addParamsRequired($params_required, true);

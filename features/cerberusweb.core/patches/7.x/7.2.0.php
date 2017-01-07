@@ -579,6 +579,11 @@ if(!empty($changes)) {
 }
 
 // ===========================================================================
+// Remove message worklist models
+
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE class_name = 'View_Message'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
