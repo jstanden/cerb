@@ -584,6 +584,11 @@ if(!empty($changes)) {
 }
 
 // ===========================================================================
+// Fix invalid attachment updated dates
+
+$db->ExecuteMaster("UPDATE attachment SET updated = UNIX_TIMESTAMP() WHERE updated > UNIX_TIMESTAMP()");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
