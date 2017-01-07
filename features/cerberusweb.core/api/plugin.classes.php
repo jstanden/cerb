@@ -214,6 +214,12 @@ class ChPageController extends DevblocksControllerExtension {
 		asort($search_menu);
 		
 		$tpl->assign('search_menu', $search_menu);
+		
+		// Conversational bots
+		if($active_worker) {
+			$conversational_bots = DAO_Bot::getReadableByActorAndInteraction($active_worker, 'worker');
+			$tpl->assign('conversational_bots', $conversational_bots);
+		}
 
 		$tpl->display('devblocks:cerberusweb.core::border.tpl');
 		

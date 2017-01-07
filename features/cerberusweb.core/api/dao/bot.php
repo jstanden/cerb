@@ -225,29 +225,35 @@ class DAO_Bot extends Cerb_ORMHelper {
 	}
 	
 	static function getReadableByActor($actor) {
-		$vas = DAO_Bot::getAll();
-		$results = array();
-
-		// [TODO] Can do this en masse
-		foreach($vas as $va_id => $va) {
-			if(Context_Bot::isReadableByActor($va, $actor))
-				$results[$va_id] = $va;
-		}
+		$bots = DAO_Bot::getAll();
+		$privs = Context_Bot::isReadableByActor($bots, $actor);
+		return array_intersect_key($bots, array_flip(array_keys($privs, true)));
+	}
+	
+	static function getReadableByActorAndInteraction($actor, $interaction) {
+		$bots = DAO_Bot::getAll();
 		
-		return $results;
+		$bots = array_filter($bots, function($bot) { /* @var $bot Model_Bot */
+			if(!$bot->at_mention_name)
+				return false;
+			
+			if(!isset($bot->params['interactions']))
+				return false;
+			
+			if(!isset($bot->params['interactions']['worker']) || empty($bot->params['interactions']['worker']))
+				return false;
+			
+			return true;
+		});
+		
+		$privs = Context_Bot::isReadableByActor($bots, $actor);
+		return array_intersect_key($bots, array_flip(array_keys($privs, true)));
 	}
 	
 	static function getWriteableByActor($actor) {
-		$vas = DAO_Bot::getAll();
-		$results = array();
-
-		// [TODO] Can do this en masse
-		foreach($vas as $va_id => $va) {
-			if(Context_Bot::isWriteableByActor($va, $actor))
-				$results[$va_id] = $va;
-		}
-		
-		return $results;
+		$bots = DAO_Bot::getAll();
+		$privs = Context_Bot::isWriteableByActor($bots, $actor);
+		return array_intersect_key($bots, array_flip(array_keys($privs, true)));
 	}
 	
 	/**

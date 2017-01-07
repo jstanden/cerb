@@ -65,24 +65,22 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		// Which bots can @mention?
-		$chat_bots = array_filter(DAO_Bot::getReadableByActor($active_worker), function($bot) {
-			if(empty($bot->at_mention_name))
-				return false;
-			
-			if(!isset($bot->params['interactions']))
-				return false;
-			
-			if(!isset($bot->params['interactions']['worker']))
-				return false;
-			
-			if(empty($bot->params['interactions']['worker']))
-				return false;
-			
-			return true;
-		});
+		$chat_bots = DAO_Bot::getReadableByActorAndInteraction($active_worker, 'worker');
+		
+		if(empty($chat_bots)) {
+			echo "No conversational bots are available.";
+			return;
+		}
+		
+		// [TODO] Default bot
 		
 		$bot = reset($chat_bots);
-		$behavior_id = $bot->params['interactions']['worker'];
+		@$behavior_id = $bot->params['interactions']['worker'];
+		
+		if(empty($behavior_id)) {
+			echo "Invalid bot behavor.";
+			return;
+		}
 		
 		$session_data = [
 			'actor' => ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id],
