@@ -329,29 +329,29 @@ if(isset($columns['location']) && 0 == strcasecmp('0', $columns['location']['def
 // ===========================================================================
 // Switch ticket worklists to the {first,last}_wrote_id fields w/o joins
 
-$db->ExecuteMaster("UPDATE worker_view_model SET columns_json = replace(columns_json, '\"t_first_wrote\"', '\"t_first_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET columns_hidden_json = replace(columns_hidden_json, '\"t_first_wrote\"', '\"t_first_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET params_default_json = replace(params_default_json, '\"t_first_wrote\"', '\"t_first_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET params_editable_json = replace(params_editable_json, '\"t_first_wrote\"', '\"t_first_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET params_hidden_json = replace(params_hidden_json, '\"t_first_wrote\"', '\"t_first_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET params_required_json = replace(params_required_json, '\"t_first_wrote\"', '\"t_first_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET render_sort_by = replace(render_sort_by, '\"t_first_wrote\"', '\"t_first_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET render_subtotals = replace(render_subtotals, '\"t_first_wrote\"', '\"t_first_wrote_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET columns_json = replace(columns_json, '\"t_first_wrote\"', '\"t_first_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET columns_hidden_json = replace(columns_hidden_json, '\"t_first_wrote\"', '\"t_first_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_default_json = replace(params_default_json, '\"t_first_wrote\"', '\"t_first_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_editable_json = replace(params_editable_json, '\"t_first_wrote\"', '\"t_first_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_hidden_json = replace(params_hidden_json, '\"t_first_wrote\"', '\"t_first_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_required_json = replace(params_required_json, '\"t_first_wrote\"', '\"t_first_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET render_sort_by = replace(render_sort_by, '\"t_first_wrote\"', '\"t_first_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET render_subtotals = replace(render_subtotals, '\"t_first_wrote\"', '\"t_first_wrote_address_id\"') where class_name = 'View_Ticket'");
 
-$db->ExecuteMaster("UPDATE workspace_list SET list_view = replace(list_view, '\s:12:\"t_first_wrote\"', 's:15:\"t_first_wrote_id\"') where context = 'cerberusweb.contexts.ticket'");
-$db->ExecuteMaster("UPDATE workspace_widget SET params_json = replace(params_json, '\"t_first_wrote\"', '\"t_first_wrote_id\"') where params_json like '%\"context\":\"cerberusweb.contexts.ticket\"%'");
+$db->ExecuteMaster("UPDATE workspace_list SET list_view = replace(list_view, '\s:13:\"t_first_wrote\"', 's:24:\"t_first_wrote_address_id\"') where context = 'cerberusweb.contexts.ticket'");
+$db->ExecuteMaster("UPDATE workspace_widget SET params_json = replace(params_json, '\"t_first_wrote\"', '\"t_first_wrote_address_id\"') where params_json like '%\"context\":\"cerberusweb.contexts.ticket\"%'");
 
-$db->ExecuteMaster("UPDATE worker_view_model SET columns_json = replace(columns_json, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET columns_hidden_json = replace(columns_hidden_json, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET params_default_json = replace(params_default_json, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET params_editable_json = replace(params_editable_json, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET params_hidden_json = replace(params_hidden_json, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET params_required_json = replace(params_required_json, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET render_sort_by = replace(render_sort_by, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where class_name = 'View_Ticket'");
-$db->ExecuteMaster("UPDATE worker_view_model SET render_subtotals = replace(render_subtotals, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET columns_json = replace(columns_json, '\"t_last_wrote\"', '\"t_last_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET columns_hidden_json = replace(columns_hidden_json, '\"t_last_wrote\"', '\"t_last_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_default_json = replace(params_default_json, '\"t_last_wrote\"', '\"t_last_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_editable_json = replace(params_editable_json, '\"t_last_wrote\"', '\"t_last_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_hidden_json = replace(params_hidden_json, '\"t_last_wrote\"', '\"t_last_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET params_required_json = replace(params_required_json, '\"t_last_wrote\"', '\"t_last_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET render_sort_by = replace(render_sort_by, '\"t_last_wrote\"', '\"t_last_wrote_address_id\"') where class_name = 'View_Ticket'");
+$db->ExecuteMaster("UPDATE worker_view_model SET render_subtotals = replace(render_subtotals, '\"t_last_wrote\"', '\"t_last_wrote_address_id\"') where class_name = 'View_Ticket'");
 
-$db->ExecuteMaster("UPDATE workspace_list SET list_view = replace(list_view, '\s:12:\"t_last_wrote\"', 's:15:\"t_last_wrote_id\"') where context = 'cerberusweb.contexts.ticket'");
-$db->ExecuteMaster("UPDATE workspace_widget SET params_json = replace(params_json, '\"t_last_wrote\"', '\"t_last_wrote_id\"') where params_json like '%\"context\":\"cerberusweb.contexts.ticket\"%'");
+$db->ExecuteMaster("UPDATE workspace_list SET list_view = replace(list_view, '\s:12:\"t_last_wrote\"', 's:23:\"t_last_wrote_address_id\"') where context = 'cerberusweb.contexts.ticket'");
+$db->ExecuteMaster("UPDATE workspace_widget SET params_json = replace(params_json, '\"t_last_wrote\"', '\"t_last_wrote_address_id\"') where params_json like '%\"context\":\"cerberusweb.contexts.ticket\"%'");
 
 // ===========================================================================
 // Modify `attachment`
