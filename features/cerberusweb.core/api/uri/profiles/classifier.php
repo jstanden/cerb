@@ -152,6 +152,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', ''));
+				@$do_retrain = DevblocksPlatform::importGPC($_REQUEST['do_retrain'], 'integer', 0);
 				
 				if(empty($name))
 					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
@@ -189,6 +190,12 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 				// Custom fields
 				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
 				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CLASSIFIER, $id, $field_ids);
+				
+				if($do_retrain) {
+					if(false != ($classifier = DAO_Classifier::get($id))) {
+						$classifier->trainModel();
+					}
+				}
 				
 				echo json_encode(array(
 					'status' => true,
