@@ -796,8 +796,8 @@ abstract class Extension_ServiceProvider extends DevblocksExtension {
 	/**
 	 * @return DevblocksExtensionManifest[]|Extension_ServiceProvider[]
 	 */
-	static function getAll($as_instances=true) {
-		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+	static function getAll($as_instances=true, $ignore_acl=false) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances, $ignore_acl);
 
 		// Sorting
 		if($as_instances)
