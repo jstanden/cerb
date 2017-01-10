@@ -195,7 +195,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		]);
 		
 		if(false == ($bot = $behavior->getBot()))
-			continue;
+			return;
 		
 		$tpl->assign('bot', $bot);
 		
