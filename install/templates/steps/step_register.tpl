@@ -20,7 +20,7 @@
 	We hope that you find the software useful, and we're looking forward to growing along with you.<br>
 	<br>
 	
-	For organizations that require more than 3 seats, <a href="http://www.cerberusweb.com/buy/" target="_blank">we offer affordable and flexible licensing
+	For organizations that require more than 3 seats, <a href="https://cerb.ai/pricing/" target="_blank">we offer affordable and flexible licensing
 	options</a>.<br>
 </div>
 

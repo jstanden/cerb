@@ -7,12 +7,12 @@
 |
 | This source code is released under the Devblocks Public License.
 | The latest version of this license can be found here:
-| http://cerb.io/license
+| http://cerb.ai/license
 |
 | By using this software, you acknowledge having read this license
 | and agree to be bound thereby.
 | ______________________________________________________________________
-|	http://cerb.io	    http://webgroup.media
+|	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
 class Event_MessageMacro extends AbstractEvent_Message {

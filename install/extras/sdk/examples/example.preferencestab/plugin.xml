@@ -5,16 +5,16 @@
 	<description>This example plugin adds an example tab to the worker preferences page (my account)</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>0.0.0</version>
-	<link>http://wiki.cerberusweb.com/wiki/5.x/Extension_Point:cerberusweb.preferences.tab</link>
+	<link>https://cerb.ai</link>
 	
-    <!-- Plugin Dependencies -->
+	<!-- Plugin Dependencies -->
 	
 	<dependencies>
 		<require plugin_id="cerberusweb.core" version="5.1.0" />
 	</dependencies>
-    
-    <!-- Exported Classes -->
-   
+	
+	<!-- Exported Classes -->
+	
 	<extensions>
 		<extension point="cerberusweb.preferences.tab">
 			<id>example.preferences.tab</id>
@@ -25,7 +25,7 @@
 			</class>
 			<params>
 				<param key="uri" value="example" />
-    			<param key="title" value="example.preferences.tab" />
+				<param key="title" value="example.preferences.tab" />
 			</params>
 		</extension>
 	</extensions>

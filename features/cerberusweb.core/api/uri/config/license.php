@@ -7,12 +7,12 @@
 |
 | This source code is released under the Devblocks Public License.
 | The latest version of this license can be found here:
-| http://cerb.io/license
+| http://cerb.ai/license
 |
 | By using this software, you acknowledge having read this license
 | and agree to be bound thereby.
 | ______________________________________________________________________
-|	http://cerb.io	    http://webgroup.media
+|	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
 class PageSection_SetupLicense extends Extension_PageSection {
@@ -60,7 +60,7 @@ class PageSection_SetupLicense extends Extension_PageSection {
 				 * [IMPORTANT -- Yes, this is simply a line in the sand.]
 				 * You're welcome to modify the code to meet your needs, but please respect
 				 * our licensing.  Buy a legitimate copy to help support the project!
-				 * http://www.cerberusweb.com/
+				 * https://cerb.ai/
 				 */
 		
 				// Please be honest.

@@ -30,7 +30,7 @@
 
 	<ul style="list-style:none;margin:5px;padding-left:10px;line-height:2em;font-weight:bold;">
 		<li>
-			<a href="http://www.cerberusweb.com/book" target="_blank">Read the user's guide</a>
+			<a href="https://cerb.ai/docs/" target="_blank">Read the user's guide</a>
 		</li>
 		<li>
 			<a href="http://www.facebook.com/cerbapp" target="_blank">Become a fan on Facebook</a>

@@ -5,16 +5,16 @@
 	<description>This example plugin adds an example cron</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>0.0.0</version>
-	<link>http://wiki.cerberusweb.com/wiki/5.x/Extension:cerberusweb.cron</link>
+	<link>https://cerb.ai</link>
 	
-    <!-- Plugin Dependencies -->
+	<!-- Plugin Dependencies -->
 	
 	<dependencies>
 		<require plugin_id="cerberusweb.core" version="5.1.0" />
 	</dependencies>
-    
-    <!-- Exported Classes -->
-   
+	
+	<!-- Exported Classes -->
+	
 	<extensions>
 		
 		<!-- Scheduled Jobs -->

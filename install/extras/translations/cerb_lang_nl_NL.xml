@@ -3350,7 +3350,7 @@
 		</tu>
 		<tu tuid="portal.cfg.installation_instructions">
 			<tuv xml:lang="nl_NL">
-				<seg>Plaats het index.php bestand in een nieuwe directory op een publieke website. Deze directory mag elke naam hebben maar heeft meestal een beschrijvende naam. &lt;br /&gt; Bijvoorbeeld: http://www.cerberusweb.com/support/</seg>
+				<seg>Plaats het index.php bestand in een nieuwe directory op een publieke website. Deze directory mag elke naam hebben maar heeft meestal een beschrijvende naam. &lt;br /&gt; Bijvoorbeeld: https://cerb.ai/contact/</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.cfg.language">

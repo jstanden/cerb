@@ -7,12 +7,12 @@
  |
  | This source code is released under the Devblocks Public License.
  | The latest version of this license can be found here:
- | http://cerb.io/license
+ | http://cerb.ai/license
  |
  | By using this software, you acknowledge having read this license
  | and agree to be bound thereby.
  | ______________________________________________________________________
- |	http://cerb.io	    http://webgroup.media
+ |	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 class ChCoreTour extends DevblocksHttpResponseListenerExtension {
@@ -288,7 +288,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 					case 'license':
 						$tour = array(
 							'title' => 'License',
-							'body' => "This setup page manages your Cerb license.  If you don't have a license, one can be <a href='http://www.cerberusweb.com/buy' target='_blank'>purchased from the project website</a>.",
+							'body' => "This setup page manages your Cerb license.  If you don't have a license, one can be <a href='https://cerb.ai/pricing' target='_blank'>purchased from the project website</a>.",
 						);
 						break;
 						
