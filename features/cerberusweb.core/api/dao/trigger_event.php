@@ -1631,7 +1631,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			
 			$token_values['bot_id'] = $trigger_event->bot_id;
 			
-			if(false !== ($event = $trigger_event->getEvent())) {
+			if(null != ($event = $trigger_event->getEvent())) {
 				$token_values['event_point_name'] = $event->manifest->name;
 			}
 			
