@@ -862,7 +862,7 @@ class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 		
 		if(!empty($object_placeholder)) {
 			$out .= sprintf("\n>>> Saving result to {{%1\$s}}\n".
-				" * {{%1\$s.classification}}\n".
+				" * {{%1\$s.classification.name}}\n".
 				" * {{%1\$s.confidence}}\n".
 				" * {{%1\$s.params}}\n".
 				"\n",
