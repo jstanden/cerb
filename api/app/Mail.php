@@ -1173,6 +1173,8 @@ class CerberusMail {
 		
 		if(isset($message_id))
 			return $message_id;
+		
+		return true;
 	}
 	
 	static function relay($message_id, $emails, $include_attachments = false, $content = null, $actor_context = null, $actor_context_id = null) {
