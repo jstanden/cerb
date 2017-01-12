@@ -768,7 +768,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 		$tpl->assign('view', $this);
 
 		// Extension manifests
-		$provider_mfts = Extension_ServiceProvider::getAll(false, true);
+		$provider_mfts = Extension_ServiceProvider::getAll(false);
 		$tpl->assign('provider_mfts', $provider_mfts);
 		
 		// Custom fields

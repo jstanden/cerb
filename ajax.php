@@ -48,7 +48,6 @@ header("Content-type: text/html; charset=".LANG_CHARSET_CODE);
 $request = DevblocksPlatform::readRequest();
 
 DevblocksPlatform::init();
-DevblocksPlatform::setExtensionDelegate('Cerb_DevblocksExtensionDelegate');
 DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
 
 $session = DevblocksPlatform::getSessionService();

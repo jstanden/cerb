@@ -63,7 +63,7 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		}
 
 		if(!empty($id)) {
-			$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', false, true);
+			$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', false);
 			$tpl->assign('storage_schemas', $storage_schemas);
 			
 			$storage_schema_stats = $profile->getUsageStats();

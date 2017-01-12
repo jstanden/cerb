@@ -710,7 +710,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		$tpl->assign('view', $this);
 
 		// Tool Manifests
-		$tools = DevblocksPlatform::getExtensions('usermeet.tool', false, true);
+		$tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
 		$tpl->assign('tool_extensions', $tools);
 		
 		// Custom fields

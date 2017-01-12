@@ -1816,9 +1816,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $point
 	 * @return DevblocksExtensionManifest[]
 	 */
-	static function getExtensions($point,$as_instances=false, $ignore_acl=false) {
+	static function getExtensions($point, $as_instances=false) {
 		$results = array();
-		$extensions = DevblocksPlatform::getExtensionRegistry($ignore_acl);
+		$extensions = DevblocksPlatform::getExtensionRegistry();
 
 		if(is_array($extensions))
 		foreach($extensions as $extension) { /* @var $extension DevblocksExtensionManifest */
@@ -1837,8 +1837,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param boolean $as_instance
 	 * @return DevblocksExtensionManifest
 	 */
-	static function getExtension($extension_id, $as_instance=false, $ignore_acl=false) {
-		$extensions = DevblocksPlatform::getExtensionRegistry($ignore_acl);
+	static function getExtension($extension_id, $as_instance=false) {
+		$extensions = DevblocksPlatform::getExtensionRegistry();
 		
 		if(!isset($extensions[$extension_id]))
 			return null;
@@ -1857,7 +1857,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @static
 	 * @return DevblocksExtensionManifest[]
 	 */
-	static function getExtensionRegistry($ignore_acl=false, $nocache=false, $with_disabled=false) {
+	static function getExtensionRegistry($nocache=false, $with_disabled=false) {
 		$cache = self::getCacheService();
 		
 		// Forced
@@ -1905,25 +1905,6 @@ class DevblocksPlatform extends DevblocksEngine {
 
 			if(!$nocache)
 				$cache->save($extensions, self::CACHE_EXTENSIONS);
-		}
-		
-		if(!$ignore_acl) {
-			// If we don't have a cache in this request
-			if(null == $acl_extensions) {
-				// Check with an extension delegate if we have one
-				if(class_exists(self::$extensionDelegate) && method_exists('DevblocksExtensionDelegate','shouldLoadExtension')) {
-					if(is_array($extensions))
-					foreach($extensions as $id => $extension) {
-						// Ask the delegate if we should load the extension
-						if(!call_user_func(array(self::$extensionDelegate,'shouldLoadExtension'), $extension))
-							unset($extensions[$id]);
-					}
-				}
-				// Cache for duration of request
-				$acl_extensions = $extensions;
-			} else {
-				$extensions = $acl_extensions;
-			}
 		}
 		
 		return $extensions;
@@ -2023,7 +2004,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(null !== ($events = $cache->load(self::CACHE_EVENTS)))
 			return $events;
 		
-		$extensions = self::getExtensions('devblocks.listener.event',false,true);
+		$extensions = self::getExtensions('devblocks.listener.event',false);
 		$events = array('*');
 		 
 		// [JAS]: Event point hashing/caching
@@ -2826,11 +2807,6 @@ class DevblocksPlatform extends DevblocksEngine {
 		$registry->save();
 	}
 
-	static function setExtensionDelegate($class) {
-		if(!empty($class) && class_exists($class, true))
-			self::$extensionDelegate = $class;
-	}
-	
 	static function setHandlerSession($class) {
 		if(!empty($class) && class_exists($class, true))
 			self::$handlerSession = $class;

@@ -547,7 +547,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 	}
 	
 	static function getAll() {
-		$extensions = DevblocksPlatform::getExtensionRegistry(true);
+		$extensions = DevblocksPlatform::getExtensionRegistry();
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if(null == ($params = $cache->load(self::_CACHE_ALL))) {

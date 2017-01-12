@@ -1013,7 +1013,7 @@ EOF;
 	case STEP_FINISHED:
 		
 		// Set up the default cron jobs
-		$crons = DevblocksPlatform::getExtensions('cerberusweb.cron', true, true);
+		$crons = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
 		if(is_array($crons))
 		foreach($crons as $id => $cron) { /* @var $cron CerberusCronPageExtension */
 			switch($id) {

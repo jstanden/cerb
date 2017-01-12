@@ -372,7 +372,7 @@ class UmScApp extends Extension_UsermeetTool {
 		@$visible_modules = unserialize(DAO_CommunityToolProperty::get($instance->code, self::PARAM_VISIBLE_MODULES, ''));
 		$tpl->assign('visible_modules', $visible_modules);
 		
-		$all_modules = DevblocksPlatform::getExtensions('usermeet.sc.controller', true, true);
+		$all_modules = DevblocksPlatform::getExtensions('usermeet.sc.controller', true);
 		$modules = array();
 		
 		// Sort the enabled modules first, in order.
@@ -424,7 +424,7 @@ class UmScApp extends Extension_UsermeetTool {
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_DEFAULT_LOCALE, $sDefaultLocale);
 
 		// Allow modules to save their own config
-		$modules = DevblocksPlatform::getExtensions('usermeet.sc.controller',true,true);
+		$modules = DevblocksPlatform::getExtensions('usermeet.sc.controller',true);
 		foreach($modules as $module) { /* @var $module Extension_UmScController */
 			// Only save enabled
 			if(!isset($aEnabledModules[$module->manifest->id]))

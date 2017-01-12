@@ -11,5 +11,4 @@ require(APP_PATH . '/api/app/Mail.php');
 
 PHPUnit_Extensions_SeleniumTestCase::shareSession(true);
 
-DevblocksPlatform::setExtensionDelegate('Cerb_DevblocksExtensionDelegate');
 DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');

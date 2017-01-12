@@ -1582,7 +1582,7 @@ class SearchCron extends CerberusCronPageExtension {
 		
 		// Loop through search schemas and batch index by ID or timestamp
 		
-		$schemas = DevblocksPlatform::getExtensions('devblocks.search.schema', true, true);
+		$schemas = DevblocksPlatform::getExtensions('devblocks.search.schema', true);
 
 		$stop_time = time() + 30; // [TODO] Make configurable
 		

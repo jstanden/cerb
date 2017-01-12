@@ -193,7 +193,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 	protected $_payload = '';
 	
 	private function _getRestControllers() {
-		$manifests = DevblocksPlatform::getExtensions('cerberusweb.rest.controller', false, true);
+		$manifests = DevblocksPlatform::getExtensions('cerberusweb.rest.controller', false);
 		$controllers = array();
 		
 		if(is_array($manifests))

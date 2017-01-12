@@ -3,10 +3,6 @@ include_once(DEVBLOCKS_PATH . "api/Model.php");
 include_once(DEVBLOCKS_PATH . "api/DAO.php");
 include_once(DEVBLOCKS_PATH . "api/Extension.php");
 
-interface DevblocksExtensionDelegate {
-	static function shouldLoadExtension(DevblocksExtensionManifest $extension_manifest);
-};
-
 if(!function_exists('mb_ucfirst')) {
 	function mb_ucfirst($string) {
 		if(!is_string($string))
@@ -31,7 +27,6 @@ abstract class DevblocksEngine {
 	const CACHE_TABLES = 'devblocks_tables';
 	const CACHE_TAG_TRANSLATIONS = 'devblocks_translations';
 
-	static protected $extensionDelegate = null;
 	static protected $handlerSession = null;
 
 	static protected $start_time = 0;

@@ -2570,39 +2570,6 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	}
 };
 
-class Cerb_DevblocksExtensionDelegate implements DevblocksExtensionDelegate {
-	static $_worker = null;
-	static $_plugin_cache = array();
-
-	static function shouldLoadExtension(DevblocksExtensionManifest $extension_manifest) {
-		// Always allow core
-		if("devblocks.core" == $extension_manifest->plugin_id)
-			return true;
-		if("cerberusweb.core" == $extension_manifest->plugin_id)
-			return true;
-
-		// [TODO] This should limit to just things we can run with no session
-		// Community Tools, Cron/Update.  They are still limited by their own
-		// isVisible() otherwise.
-		if(null == self::$_worker) {
-			if(null == (self::$_worker = CerberusApplication::getActiveWorker()))
-				return true;
-		}
-
-		// Use plugin cache if exists
-		if(isset(self::$_plugin_cache[$extension_manifest->plugin_id]))
-			return self::$_plugin_cache[$extension_manifest->plugin_id];
-
-		// ... Otherwise, check it
-		$has_priv = self::$_worker->hasPriv('plugin.'.$extension_manifest->plugin_id);
-
-		// ... Then cache it
-		self::$_plugin_cache[$extension_manifest->plugin_id] = $has_priv;
-
-		return $has_priv;
-	}
-};
-
 class CerberusVisit extends DevblocksVisit {
 	private $worker_id;
 	private $imposter_id;

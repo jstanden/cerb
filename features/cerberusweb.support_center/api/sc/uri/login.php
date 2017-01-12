@@ -103,7 +103,7 @@ class UmScLoginController extends Extension_UmScController {
 	function saveConfiguration(Model_CommunityTool $instance) {
 		@$login_extensions_enabled = DevblocksPlatform::importGPC($_POST['login_extensions'],'array',array());
 
-		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator', false, true);
+		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator', false);
 		
 		// Validate
 		foreach($login_extensions_enabled as $idx => $login_extension_enabled) {

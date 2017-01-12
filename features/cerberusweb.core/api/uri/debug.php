@@ -344,7 +344,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 				break;
 				
 			case 'export_bots':
-				$event_mfts = DevblocksPlatform::getExtensions('devblocks.event', false, true);
+				$event_mfts = DevblocksPlatform::getExtensions('devblocks.event', false);
 
 				header("Content-type: application/json");
 				

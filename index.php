@@ -67,7 +67,6 @@ if('' == APP_DB_HOST
 require(APP_PATH . '/api/Application.class.php');
 
 DevblocksPlatform::init();
-DevblocksPlatform::setExtensionDelegate('Cerb_DevblocksExtensionDelegate');
 DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
 
 $request = DevblocksPlatform::readRequest();

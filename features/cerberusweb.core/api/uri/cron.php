@@ -79,7 +79,7 @@ class ChCronController extends DevblocksControllerExtension {
 			"<BODY>"; // onload=\"setTimeout(\\\"window.location.replace('".$url->write('c=cron')."')\\\",30);\"
 		}
 
-		$cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true, true);
+		$cron_manifests = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
 		$jobs = array();
 		
 		if(empty($job_ids)) { // do everything

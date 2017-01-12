@@ -60,7 +60,7 @@ abstract class Extension_PluginSetup extends DevblocksExtension {
 		$results = array();
 
 		// Include disabled extensions
-		$all_extensions = DevblocksPlatform::getExtensionRegistry(true, true, true);
+		$all_extensions = DevblocksPlatform::getExtensionRegistry(true, true);
 		foreach($all_extensions as $k => $ext) { /* @var $ext DevblocksExtensionManifest */
 			if($ext->plugin_id == $plugin_id && $ext->point == Extension_PluginSetup::POINT)
 				$results[$k] = ($as_instances) ? $ext->createInstance() : $ext;
@@ -796,8 +796,8 @@ abstract class Extension_ServiceProvider extends DevblocksExtension {
 	/**
 	 * @return DevblocksExtensionManifest[]|Extension_ServiceProvider[]
 	 */
-	static function getAll($as_instances=true, $ignore_acl=false) {
-		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances, $ignore_acl);
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
 
 		// Sorting
 		if($as_instances)

@@ -2070,7 +2070,7 @@ class Model_DevblocksStorageProfile {
 	
 	function getUsageStats() {
 		// Schemas
-		$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', true, true);
+		$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', true);
 		
 		// Stats
 		$storage_schema_stats = array();
