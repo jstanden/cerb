@@ -538,7 +538,6 @@ $db->ExecuteMaster("UPDATE custom_field_stringvalue SET context = 'cerberusweb.c
 $db->ExecuteMaster("UPDATE custom_fieldset SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
 $db->ExecuteMaster("UPDATE custom_fieldset SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
 $db->ExecuteMaster("UPDATE file_bundle SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
-$db->ExecuteMaster("UPDATE fulltext_comment_content SET context_crc32 = 2977211304 WHERE context_crc32 = 381457798");
 $db->ExecuteMaster("UPDATE mail_html_template SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
 $db->ExecuteMaster("UPDATE notification SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
 $db->ExecuteMaster("UPDATE snippet SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
@@ -558,11 +557,18 @@ $db->ExecuteMaster("UPDATE worker_view_model SET params_editable_json = REPLACE(
 $db->ExecuteMaster("UPDATE worker_view_model SET params_default_json = REPLACE(params_default_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");
 $db->ExecuteMaster("UPDATE worker_view_model SET params_required_json = REPLACE(params_required_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");
 
+if(isset($tables['fulltext_comment_content'])) {
+	$db->ExecuteMaster("UPDATE fulltext_comment_content SET context_crc32 = 2977211304 WHERE context_crc32 = 381457798");
+}
+
 // ===========================================================================
 // Reindex fulltext_worker
 
 $db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id = 'cerb.search.schema.worker'");
-$db->ExecuteMaster("DELETE FROM fulltext_worker");
+
+if(isset($tables['fulltext_worker'])) {
+	$db->ExecuteMaster("DELETE FROM fulltext_worker");
+}
 
 // ===========================================================================
 // Clean up removed worklists
