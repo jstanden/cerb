@@ -550,6 +550,7 @@ abstract class DevblocksEngine {
 					case 'png':
 					case 'ttf':
 					case 'woff':
+					case 'woff2':
 						header('Cache-control: max-age=604800', true); // 1 wk // , must-revalidate
 						header('Expires: ' . gmdate('D, d M Y H:i:s',time()+604800) . ' GMT'); // 1 wk
 						break;
@@ -580,6 +581,9 @@ abstract class DevblocksEngine {
 						break;
 					case 'woff':
 						header('Content-type: application/font-woff');
+						break;
+					case 'woff2':
+						header('Content-type: font/woff2');
 						break;
 					case 'xml':
 						header('Content-type: text/xml');
