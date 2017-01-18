@@ -30,9 +30,13 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
-		$sql = "INSERT INTO plugin_library () VALUES ()";
+		@$id = $fields[self::ID];
+		
+		if(empty($id))
+			return false;
+		
+		$sql = sprintf("INSERT INTO plugin_library (id) VALUES (%d)", $id);
 		$db->ExecuteMaster($sql);
-		$id = $db->LastInsertId();
 		
 		self::update($id, $fields);
 		

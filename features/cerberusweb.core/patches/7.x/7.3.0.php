@@ -327,6 +327,25 @@ if(isset($columns['location']) && 0 == strcasecmp('0', $columns['location']['def
 }
 
 // ===========================================================================
+// Fix `plugin_library.plugin_id` (was default=0)
+
+if(!isset($tables['plugin_library'])) {
+	$logger->error("The 'plugin_library' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('plugin_library');
+
+if(isset($columns['id']) && false !== strpos($columns['id']['extra'], 'auto_increment')) {
+	$db->ExecuteMaster("ALTER TABLE plugin_library MODIFY COLUMN id int unsigned not null default 0");
+}
+
+if(isset($columns['plugin_id']) && 0 == strcasecmp('0', $columns['plugin_id']['default'])) {
+	$db->ExecuteMaster("ALTER TABLE plugin_library MODIFY COLUMN plugin_id varchar(255) not null default ''");
+	$db->ExecuteMaster("UPDATE plugin_library SET plugin_id = '' WHERE plugin_id = '0'");
+}
+
+// ===========================================================================
 // Switch ticket worklists to the {first,last}_wrote_id fields w/o joins
 
 $db->ExecuteMaster("UPDATE worker_view_model SET columns_json = replace(columns_json, '\"t_first_wrote\"', '\"t_first_wrote_address_id\"') where class_name = 'View_Ticket'");
