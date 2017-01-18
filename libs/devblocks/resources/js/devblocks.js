@@ -139,7 +139,12 @@ function DevblocksClass() {
 					selectedTabs = JSON.parse(localStorage.selectedTabs);
 				
 				selectedTabs[tabsId] = $activeTab.index(); //$tabs.index($activeTab);
-				localStorage.selectedTabs = JSON.stringify(selectedTabs);
+				
+				try {
+					localStorage.selectedTabs = JSON.stringify(selectedTabs);
+				} catch(e) {
+					
+				}
 				
 				return $activeTab.index();
 			}
