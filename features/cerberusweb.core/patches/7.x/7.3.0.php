@@ -616,4 +616,6 @@ $db->ExecuteMaster("UPDATE attachment SET updated = UNIX_TIMESTAMP() WHERE updat
 // ===========================================================================
 // Finish up
 
+DevblocksPlatform::clearCache(_DevblocksClassLoadManager::CACHE_CLASS_MAP);
+
 return TRUE;
