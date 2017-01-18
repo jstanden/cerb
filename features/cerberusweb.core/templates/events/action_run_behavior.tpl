@@ -23,6 +23,7 @@
 	{/foreach}
 	</select>
 	<select name="{$namePrefix}[behavior_id]" class="behavior">
+	<option value=""></option>
 	{foreach from=$macros item=macro key=macro_id}
 		{if $events_to_contexts.{$macro->event_point} == $selected_context}
 		{if empty($params.behavior_id)}{$params.behavior_id=$macro_id}{/if}
