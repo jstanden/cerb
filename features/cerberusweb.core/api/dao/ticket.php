@@ -4995,6 +4995,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		} else {
 			// Counts
 			$activity_counts = array(
+				'comments' => DAO_Comment::count($context, $context_id),
 				'participants' => DAO_Address::countByTicketId($context_id),
 				'messages' => DAO_Message::countByTicketId($context_id),
 			);
