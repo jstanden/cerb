@@ -678,8 +678,8 @@
 			<class name="Event_WorkerMacro" />
 		</file>
 		
-		<file path="api/events/pm/pm_received_bot.php">
-			<class name="Event_PrivateMessageReceivedByBot" />
+		<file path="api/events/interaction/interaction_chat_worker.php">
+			<class name="Event_InteractionChatWorker" />
 		</file>
 		
 		<file path="api/events/ui/ui_before_reply_by_worker.php">
@@ -2222,11 +2222,11 @@
 		<!-- Event Triggers -->
 		
 		<extension point="devblocks.event">
-			<id>event.pm.received.bot</id>
+			<id>event.interaction.chat.worker</id>
 			<name>Private message received by bot</name>
 			<class>
-				<file>api/events/pm/pm_received_bot.php</file>
-				<name>Event_PrivateMessageReceivedByBot</name>
+				<file>api/events/interaction/interaction_chat_worker.php</file>
+				<name>Event_InteractionChatWorker</name>
 			</class>
 			<params>
 				<param key="contexts">

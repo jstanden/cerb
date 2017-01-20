@@ -74,10 +74,11 @@
 			</td>
 		</tr>
 		
+		{if $model->id}
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>Worker chat:</b></td>
 			<td width="99%">
-				<button type="button" class="chooser-abstract" data-field-name="interactions[worker]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="bot.id:{$model->id} event:event.pm.received.bot"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="interactions[worker]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="bot.id:{$model->id} event:event.interaction.chat.worker"><span class="glyphicons glyphicons-search"></span></button>
 				<ul class="bubbles chooser-container">
 					{if $model->params.interactions.worker}
 						{$behavior = $interaction_behaviors[$model->params.interactions.worker]}
@@ -91,6 +92,7 @@
 				</ul>
 			</td>
 		</tr>
+		{/if}
 	</table>
 </fieldset>
 

@@ -15,8 +15,8 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
-class Event_PrivateMessageReceivedByBot extends Extension_DevblocksEvent {
-	const ID = 'event.pm.received.bot';
+class Event_InteractionChatWorker extends Extension_DevblocksEvent {
+	const ID = 'event.interaction.chat.worker';
 	
 	/**
 	 *
@@ -155,17 +155,13 @@ class Event_PrivateMessageReceivedByBot extends Extension_DevblocksEvent {
 		return $pass;
 	}
 	
-	// [TODO] Send private message to worker (global?)
-	// [TODO] Open cards
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
-				//'chooser_open' => array('label' => 'Open a chooser popup'),
 				'send_message' => array('label' => 'Respond with message'),
 				'send_script' => array('label' => 'Respond with script'),
 				'worklist_open' => array('label' => 'Open a worklist popup'),
 			)
-			//+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 		
 		return $actions;
@@ -304,65 +300,12 @@ class Event_PrivateMessageReceivedByBot extends Extension_DevblocksEvent {
 					'q' => $query,
 				);
 				
-				//$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
-				
 				$actions[] = array(
 					'_action' => 'emote',
 					'_trigger_id' => $trigger->id,
 					'emote' => 'opened a worklist.',
 				);
 				break;
-			
-			/*
-			default:
-				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches)) {
-					@$parser_model = $dict->_parser_model;
-					
-					$field_key = $matches[1];
-					$field_id = $matches[2];
-					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
-					
-					switch($custom_field->type) {
-						case Model_CustomField::TYPE_MULTI_CHECKBOX:
-							$value = $params['values'];
-							break;
-						case Model_CustomField::TYPE_WORKER:
-							$value = $params['worker_id'];
-							break;
-						case Model_CustomField::TYPE_DROPDOWN:
-						case Model_CustomField::TYPE_CHECKBOX:
-						case Model_CustomField::TYPE_DATE:
-							$value = $params['value'];
-							break;
-						default:
-							$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-							$value = $tpl_builder->build($params['value'], $dict);
-							break;
-					}
-					
-					$field_context_id = null;
-					
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_TICKET:
-							break;
-							
-						default:
-							$field_id_key = $field_key . '_id';
-							$field_context_id = $dict->$field_id_key;
-							break;
-					}
-					
-					$parser_model->getMessage()->custom_fields[] = array(
-						'field_id' => $field_id,
-						'context' => $custom_field->context,
-						'context_id' => $field_context_id,
-						'value' => $value,
-					);
-				}
-				break;
-				*/
 		}
 	}
 };

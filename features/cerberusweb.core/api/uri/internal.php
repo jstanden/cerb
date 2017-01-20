@@ -142,7 +142,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 		
 		$event_model = new Model_DevblocksEvent(
-			Event_PrivateMessageReceivedByBot::ID,
+			Event_InteractionChatWorker::ID,
 			array(
 				'worker_id' => $active_worker->id,
 				'message' => $message,

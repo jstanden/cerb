@@ -1414,7 +1414,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			$tpl->assign('action_extensions', $action_extensions);
 			
 			// Interaction behaviors
-			$interaction_behaviors = DAO_TriggerEvent::getReadableByActor($active_worker, Event_PrivateMessageReceivedByBot::ID);
+			$interaction_behaviors = DAO_TriggerEvent::getReadableByActor($active_worker, Event_InteractionChatWorker::ID);
 			$tpl->assign('interaction_behaviors', $interaction_behaviors);
 			
 			// View
