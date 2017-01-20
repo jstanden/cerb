@@ -184,6 +184,15 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 		
+		// Profile counts
+		$profile_counts = array(
+			'attachments' => DAO_Attachment::count(CerberusContexts::CONTEXT_TICKET, $ticket->id),
+			'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_TICKET, $ticket->id),
+			//'participants' => DAO_Address::countByTicketId($ticket->id),
+			'messages' => DAO_Message::countByTicketId($ticket->id),
+		);
+		$tpl->assign('profile_counts', $profile_counts);
+		
 		// Link counts
 		
 		$properties_links = array(
