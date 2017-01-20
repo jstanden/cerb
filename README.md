@@ -42,8 +42,8 @@
 
 Cerb has continuously evolved for more than 15 years based on community feedback from thousands of teams.
 
-The software is distributed under the [Devblocks Public License](https://cerb.ai/license) as a commercial open source project. The full source code is publicly available on GitHub[^github].
+The software is distributed under the [Devblocks Public License](https://cerb.ai/license) as a commercial open source project. The full source code is publicly available on GitHub.
 
 Licenses are based on the maximum number of workers able to log in at the same time (i.e. seats). The software can be deployed on independent servers, or as a fully-managed, cloud-based service.
 
-Cerb is developed in the PHP[^php] programming language. Relational data is stored in MySQL[^mysql]. See the [credits](https://cerb.ai/docs/credits) for a full list of third-party libraries, resources, and contributors.
+Cerb is developed in the PHP programming language. Relational data is stored in MySQL. See the [credits](https://cerb.ai/docs/credits) for a full list of third-party libraries, resources, and contributors.
