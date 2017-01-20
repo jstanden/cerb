@@ -49,6 +49,37 @@ class DAO_ContextAlias extends Cerb_ORMHelper {
 		}
 	}
 	
+	static function upsert($context, $id, array $aliases) {
+		if(empty($context) || empty($id) || empty($aliases))
+			return false;
+		
+		$aliases = array_unique($aliases);
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$bayes = DevblocksPlatform::getBayesClassifierService();
+		
+		$values = [];
+		
+		foreach($aliases as $alias) {
+			$terms = DevblocksPlatform::strAlphaNum($alias, ' ', '');
+			$tokens = $bayes::preprocessWordsPad($bayes::tokenizeWords($terms), 4);
+			
+			$values[] = sprintf("(%s,%d,%s,%s)",
+				$db->qstr($context),
+				$id,
+				$db->qstr($alias),
+				$db->qstr(implode(' ', $tokens))
+			);
+		}
+		
+		if(!empty($values)) {
+			$sql = sprintf("REPLACE IGNORE INTO context_alias (context,id,name,terms) VALUES %s",
+				implode(',', $values)
+			);
+			$db->ExecuteMaster($sql);
+		}
+	}
+	
 	static function delete($context, $ids) {
 		if(!is_array($ids)) {
 			if(!is_numeric($ids))

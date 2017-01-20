@@ -41,7 +41,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		
 		$sql = sprintf("INSERT INTO contact_org (created) ".
-  		"VALUES (%d)",
+		"VALUES (%d)",
 			time()
 		);
 		
@@ -1925,5 +1925,8 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		if(!empty($custom_fields) && !empty($meta['object_id'])) {
 			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
 		}
+		
+		// Aliases
+		DAO_ContextAlias::set(CerberusContexts::CONTEXT_ORG, $meta['object_id'], DevblocksPlatform::parseCrlfString($fields[DAO_ContactOrg::NAME])); //  . "\n" . $aliases
 	}
 };

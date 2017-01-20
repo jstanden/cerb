@@ -2153,5 +2153,8 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		if(!empty($custom_fields) && !empty($meta['object_id'])) {
 			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
 		}
+		
+		// Aliases
+		DAO_ContextAlias::set(CerberusContexts::CONTEXT_CONTACT, $meta['object_id'], DevblocksPlatform::parseCrlfString($fields[DAO_Contact::FIRST_NAME] . ' ' . $fields[DAO_Contact::LAST_NAME])); //  . "\n" . $aliases
 	}
 };
