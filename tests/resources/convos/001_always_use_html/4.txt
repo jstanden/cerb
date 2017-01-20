@@ -1,0 +1,12 @@
+> That would be ideal. We have 22 workers and it will be tedious to have
+> everyone change their own settings.
+
+Hi Alessio,
+
+We filed your feature request here:
+https://github.com/wgm/cerb/issues
+
+You'll receive a notification by email with any progress.
+
+#signature
+#cut

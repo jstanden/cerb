@@ -1,0 +1,7 @@
+{
+    "require": {
+        "facebook/webdriver": "^1.3",
+        "phpunit/phpunit": "^5.7",
+        "se/selenium-server-standalone": "^3.0"
+    }
+}

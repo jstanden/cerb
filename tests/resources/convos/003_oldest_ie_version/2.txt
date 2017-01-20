@@ -1,0 +1,9 @@
+> What is the oldest version of Microsoft Internet Explorer compatible with
+> Cerb?
+
+Hi Luuk,
+
+We recommend using at least IE10 for the best experience.
+
+#signature
+#cut

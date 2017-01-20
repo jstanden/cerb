@@ -1,0 +1,18 @@
+> I'd like to require our workers to always use HTML mode for replies in
+> Cerb. Right now we have to select 'Switch to Markdown' on every reply. Is
+> there an option to make this the default for everyone?
+
+Hi Alessio,
+
+Each worker can configure that preference with these instructions:
+
+1. Click your name in the top right
+2. Select 'settings'
+3. Under 'While replying:' check the box for 'Always switch to HTML mode'
+4. Save changes
+
+We don't have a global preference for this yet where admins can set the default for everyone. I'll check with the developers to see if that's something we can do in the next update.
+
+#signature
+#cut
+#comment @Milo How difficult would it be to create a global preference for HTML mode on replies? Fiaflux wants workers to reply in HTML by default without each worker having to configure the preference.

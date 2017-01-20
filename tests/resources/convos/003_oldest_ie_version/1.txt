@@ -1,0 +1,22 @@
+From: Luuk Brouwer <l.brouwer@helderster.example>
+To: support@cerb.example
+Content-Type: text/html; charset=utf-8
+Subject: Oldest supported IE version
+Mime-Version: 1.0 (Mac OS X Mail)
+X-Apple-Windows-Friendly: 1
+Message-Id: <convo3.msg1@cerb.example>
+
+<html>
+<head></head>
+<body dir="auto" style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;">
+<p>
+What is the oldest version of Microsoft Internet Explorer compatible with Cerb?
+</p>
+<div>
+<br>
+<b>Luuk Brouwer</b><br>
+<i>DevOps</i><br>
+Helderster Aerospace B.V.<br>
+</div>
+</body>
+</html>

@@ -1,0 +1,18 @@
+> What are the best practices for backups? Should we be using database
+> replication?
+
+Hi François,
+
+MySQL replication is useful for automated fail-over and having a hot standby server to minimize disaster recovery times, but it's not absolutely required for backups.  The cost of redundant hardware is usually weighed against your budget and your availability requirements.
+
+However, we absolute recommend using a RAID on the database server.
+
+With a database backup of a few GB in SQL format, it should only take a couple minutes to import and rebuild your indexes.
+
+One upside of replication is that you can use the slaves for distributions reads (e.g. searches) to reduce the load on the master.
+
+As for backups in general, see:
+http://cerbweb.com/book/latest/admin_guide/backups
+
+#signature
+#cut

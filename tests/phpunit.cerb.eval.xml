@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="bootstrap.eval.php" colors="true" stopOnFailure="true">
 	<testsuites>
-		<testsuite name="eval_init">
-			<file>eval/CerbEval_Init.php</file>
-		</testsuite>
 		<testsuite name="eval_ui_setup">
 			<file>eval/CerbEval_UI_Setup.php</file>
 		</testsuite>
@@ -16,11 +13,8 @@
 		<testsuite name="eval_ui_simulate_day3">
 			<file>eval/CerbEval_UI_SimulateDay3.php</file>
 		</testsuite>
-		<testsuite name="eval_ui_simulate_day4">
-			<file>eval/CerbEval_UI_SimulateDay4.php</file>
-		</testsuite>
-		<testsuite name="eval_ui_simulate_day5">
-			<file>eval/CerbEval_UI_SimulateDay5.php</file>
+		<testsuite name="eval_ui_screenshots">
+			<file>eval/CerbEval_UI_Screenshots.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

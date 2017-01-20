@@ -1,0 +1,14 @@
+> Out of interest, do you have a German language version of Cerb?
+
+Hi Teun,
+
+Yeah, German is our second most complete translation.  Out of about 1,100 fragments of text, only 300 need to be updated in German, and that can be done from the browser with our built-in Translation Editor plugin.  The translation coverage is better than 75% because the most common phrases (e.g. new, close, from/to, status, etc) are repeated pretty often.
+
+The 6.9 release also included some subtle changes to make translations easier using external TMX editors.  Heartsome is a pretty efficient one: http://translation-blog.com/heartsome-tm-editor/
+
+We also offer a $0.50 credit toward Standalone or Cerb Cloud subscriptions per translation entry.  So if you had someone translate those last 300 entries (mostly for new additions to the Plugin Library that were created after the original translations), then you'd get a $150 credit.
+
+Let me know if there's anything I can do to help with that.
+
+#signature
+#cut

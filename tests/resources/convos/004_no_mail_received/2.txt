@@ -1,0 +1,14 @@
+> I installed Cerb an hour ago and haven't received new email in the system.
+
+Hi Zöe,
+
+Make sure your scheduler jobs are running.  You can find them in Setup->Configure->Scheduler.
+
+You can click the "run now" link for 'Mailbox (POP3/IMAP) Checker and Email Downloader' and 'Inbound Email Message Processor' to run them manually.
+
+If that works, you need to set up a cronjob on your server to ping the /cron URL on your site every minute or so using wget or curl.
+
+See: https://cerb.ai/docs/setup/scheduler/
+
+#signature
+#cut

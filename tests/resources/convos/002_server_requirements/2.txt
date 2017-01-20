@@ -1,0 +1,16 @@
+> However, I would like to know about the hardware requirements for Cerb.
+> Should this be a dedicated machine?
+> Should the database and web server be separate?
+
+Hi Sergey,
+
+There isn't a "one size fits all" recommendation for server specs. It really depends on how many simultaneous workers will be using your system; but in most cases the server can be a virtual machine and/or also serving other sites and apps.
+
+As you scale, the main bottleneck will usually be write traffic to the database. The main consideration there is just giving enough RAM to MySQL so it can cache the indexes in memory. You can use a tool like mysqltuner to monitor that.
+
+I'd also recommend using SSD drives for the database I/O if at all possible.
+
+How many simultaneous workers do you expect to use the system at peak times?
+
+#signature
+#cut

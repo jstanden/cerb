@@ -1,253 +1,293 @@
 <?php
-class CerbEval_UI_SimulateDay1 extends PHPUnit_Extensions_SeleniumTestCase {
-	private $path;
-	
-	protected function setUp() {
-		$this->setHost(SELENIUM_SERVER_HOST);
-		$this->setPort(SELENIUM_SERVER_PORT);
-		$this->setBrowser(SELENIUM_SERVER_BROWSER);
-		$this->setBrowserUrl(SELENIUM_BROWSER_URL);
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\Exception\NoSuchElementException;
+
+class CerbEval_UI_SimulateDay1 extends CerbTestBase {
+	function testKinaLogsIn() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
+		
+		$cerb->logInAs('kina@cerb.example', 'cerb');
+		
+		$this->assertTrue(true);
 	}
 	
-	private function _pushBackTime($secs) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$db->ExecuteMaster(sprintf("SET @secs = %d", $secs));
-		$db->ExecuteMaster("UPDATE ticket set created_date=created_date-@secs, updated_date=updated_date-@secs");
-		$db->ExecuteMaster("UPDATE message set created_date=created_date-@secs");
-		$db->ExecuteMaster("UPDATE attachment set updated=updated-@secs");
-		$db->ExecuteMaster("UPDATE comment set created=created-@secs");
-		$db->ExecuteMaster("UPDATE context_activity_log set created=created-@secs");
-		$db->ExecuteMaster("UPDATE notification set created_date=created_date-@secs");
+	public function testParser() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
+		
+		$message_files = [
+			'001_always_use_html/1.txt',
+			'002_server_requirements/1.txt',
+			'003_oldest_ie_version/1.txt',
+			'004_no_mail_received/1.txt',
+			'005_swift_api/1.txt',
+			'006_german_translation/1.txt',
+			'007_itil_compliance/1.txt',
+			'008_charity_discount/1.txt',
+			'009_backups_process/1.txt',
+			'010_mobile_app/1.txt',
+			'011_kb_translations/1.txt',
+			'012_restore_binlogs/1.txt',
+			'013_more_subtotals/1.txt',
+			'014_scaling_with_aws/1.txt',
+			'015_slow_performance/1.txt',
+			'016_pay_by_wire/1.txt',
+			'017_salesforce_integration/1.txt',
+			'018_quote_for_14_seats/1.txt',
+			'019_incremental_quick_search/1.txt',
+			'020_upgrade_with_local_changes/1.txt',
+			'021_thai/1.txt',
+			'022_volume_discount/1.txt',
+			'023_calendar_shared_holidays/1.txt',
+			'024_same_license_two_instances/1.txt',
+			'025_migrate_standalone_to_cloud/1.txt',
+			'026_sso_login_via_sc/1.txt',
+			'027_auto_close_va/1.txt',
+		];
+		
+		foreach($message_files as $message_file) {
+			$cerb->getPathAndWait('/config/mail_import');
+			
+			$by = WebDriverBy::id('frmSetupMailImport');
+			
+			$driver->wait(5, 250)->until(
+				WebDriverExpectedCondition::presenceOfElementLocated($by)
+			);
+			
+			$form = $driver->findElement($by);
+			
+			$textarea = $form->findElement(WebDriverBy::name('message_source'));
+			$textarea->sendKeys(file_get_contents('resources/convos/' . $message_file));
+			
+			$form->findElement(WebDriverBy::tagName('button'))
+				->click();
+			
+			$driver->wait(5, 250)->until(
+				WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('div.output'), 'Ticket updated:')
+			);
+		}
+		
+		$this->assertTrue(true);
 	}
 	
-	private function _runTestCase($path) {
-		$path = APP_PATH . '/tests/selenium/' . $path;
-		$this->runSelenese($path);
+	public function testKinaRepliesToTicket1() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
+		
+		$cerb->getPathAndWait('/profiles/ticket/1');
+		
+		$cerb->replyOnTicket(1, file_get_contents('resources/convos/001_always_use_html/2.txt'));
+		
+		$driver->wait(5)->until(
+			function() use (&$driver) {
+				try {
+					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
+					return 3 == count($objects);
+					
+				} catch (NoSuchElementException $nse) {
+					return null;
+				}
+			},
+			"Error waiting for the new reply to display in the convo history."
+		);
+		
+		$this->assertTrue(true);
 	}
 	
-	private function _downloadMessage($filename, $and_parse=false) {
-		$path_to_source = APP_PATH . '/tests/selenium/' . $filename;
+	public function testKinaCommentsToMiloOnTicket2() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
 		
-		if(!file_exists($path_to_source))
-			$this->assertTrue(false, "The message '" . $filename . '" does not exist');
+		$cerb->getPathAndWait('/profiles/ticket/2');
 		
-		$path_to_message = APP_MAIL_PATH . 'new/' . str_replace('/', '_', $filename) . '.msg';
+		$cerb->commentOnTicket(2, '@Milo Can you respond to the server management questions here?');
 		
-		if(!copy($path_to_source, $path_to_message))
-			$this->assertTrue(false, "Failed copying message '" . $filename . '" into storage/mail/new/');
-		
-		if(!chmod($path_to_message, 0664))
-			$this->assertTrue(false, "Failed chmod on message '" . $filename . '"');
-		
-		if($and_parse)
-			$this->_runTestCase('scheduler/RunParser.htm');
+		$this->assertTrue(true);
 	}
 	
-	public function testSupportDay1() {
-		/**
-		 * Incoming mail
-		 */
+	public function testKinaRepliesToTicket3() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
 		
-		// Ticket #1 is created from a new message
-		$this->_downloadMessage('convos/001_always_use_html/1.txt');
+		$cerb->getPathAndWait('/profiles/ticket/3');
 		
-		// Ticket #2 is created from a new message
-		$this->_downloadMessage('convos/002_server_requirements/1.txt');
-
-		// Ticket #3 is created from a new message
-		$this->_downloadMessage('convos/003_oldest_ie_version/1.txt');
-
-		// The parser runs
-		$this->_runTestCase('scheduler/RunParser.htm');
+		$cerb->replyOnTicket(3, file_get_contents('resources/convos/003_oldest_ie_version/2.txt'));
 		
-		/**
-		 * Kina
-		 */
+		$driver->wait(5)->until(
+			function() use (&$driver) {
+				try {
+					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
+					return 2 == count($objects);
+					
+				} catch (NoSuchElementException $nse) {
+					return null;
+				}
+			},
+			"Error waiting for the new reply to display in the convo history."
+		);
 		
-		// Kina logs in
-		$this->_runTestCase('sessions/LogInKina.htm');
-		
-		// 2 mins go by
-		$this->_pushBackTime(120);
-
-		// Kina replies to ticket #1
-		$this->_runTestCase('convos/001_always_use_html/2.htm');
-		
-		// 1 min 10 sec goes by
-		$this->_pushBackTime(70);
-		
-		// Kina comments on ticket #2
-		$this->_runTestCase('convos/002_server_requirements/comment_to_milo.htm');
-		
-		// 5 mins 23 sec goes by
-		$this->_pushBackTime(323);
-		
-		// Kina replies to ticket #3
-		$this->_runTestCase('convos/003_oldest_ie_version/2.htm');
-		
-		// 2 mins go by
-		$this->_pushBackTime(120);
+		$this->assertTrue(true);
+	}
 	
-		// Kina logs out
-		$this->_runTestCase('sessions/LogOut.htm');
+	public function testLogKinaLogsOut() {
+		$cerb = CerbTestHelper::getInstance();
 		
-		// 7 mins go by
-		$this->_pushBackTime(420);
+		$cerb->logOut();
 		
-		/**
-		 * Milo
-		 */
+		$this->assertTrue(true);
+	}
 	
-		// Milo logs in for the first time
-		$this->_runTestCase('sessions/LogInMilo.htm');
+	public function testMiloLogsIn() {
+		$cerb = CerbTestHelper::getInstance();
 		
-		// Milo closes the tour
-		$this->_runTestCase('sessions/CloseTour.htm');
+		$cerb->logInAs('milo@cerb.example', 'cerb');
+	}
+	
+	public function testMiloCommentsToKinaOnTicket1() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
 		
-		// Milo adds a default mail page
-		$this->_runTestCase('workspaces/AddMailPage.htm');
+		$cerb->getPathAndWait('/profiles/ticket/1');
 		
-		// 2 mins go by
-		$this->_pushBackTime(120);
+		$cerb->commentOnTicket(3, '@Kina We could add global mail preferences to Setup->Mail->Settings without much difficulty. I went ahead and filed it as feature request #1234 on GitHub.');
+	}
+	
+	public function testMiloRepliesToTicket2() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
 		
-		// Milo views his notifications
-		$this->_runTestCase('notifications/ViewUnread.htm');
+		$cerb->getPathAndWait('/profiles/ticket/2');
 		
-		// 1 min goes by
-		$this->_pushBackTime(60);
-
-		// Milo comments on Ticket #1
-		$this->_runTestCase('convos/001_always_use_html/comment_to_kina.htm');
+		$cerb->replyOnTicket(2, file_get_contents('resources/convos/002_server_requirements/2.txt'));
 		
-		// 2 min goes by
-		$this->_pushBackTime(120);
+		$driver->wait(5)->until(
+			function() use (&$driver) {
+				try {
+					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
+					return 3 == count($objects);
+					
+				} catch (NoSuchElementException $nse) {
+					return null;
+				}
+			},
+			"Error waiting for the new reply to display in the convo history."
+		);
 		
-		// Milo replies to Ticket #2
-		$this->_runTestCase('convos/002_server_requirements/2.htm');
+		$this->assertTrue(true);
+	}
+	
+	public function testMiloLogsOut() {
+		$cerb = CerbTestHelper::getInstance();
 		
-		// Milo logs out
-		$this->_runTestCase('sessions/LogOut.htm');
-
-		// 3 min goes by
-		$this->_pushBackTime(180);
+		$cerb->logOut();
+	}
+	
+	public function testKinaLogsInAgain() {
+		$cerb = CerbTestHelper::getInstance();
 		
-		/**
-		 * Mara
-		 */
+		$cerb->logInAs('kina@cerb.example', 'cerb');
+	}
+	
+	public function testCustomersReply() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
 		
-		// Mara logs in for the first time
-		$this->_runTestCase('sessions/LogInMara.htm');
+		$message_files = [
+			'001_always_use_html/3.txt',
+			'002_server_requirements/3.txt',
+		];
 		
-		// Mara closes the tour
-		$this->_runTestCase('sessions/CloseTour.htm');
+		foreach($message_files as $message_file) {
+			$cerb->getPathAndWait('/config/mail_import');
+			
+			$by = WebDriverBy::id('frmSetupMailImport');
+			
+			$driver->wait(5, 250)->until(
+				WebDriverExpectedCondition::presenceOfElementLocated($by)
+			);
+			
+			$form = $driver->findElement($by);
+			
+			$textarea = $form->findElement(WebDriverBy::name('message_source'));
+			$textarea->sendKeys(file_get_contents('resources/convos/' . $message_file));
+			
+			$form->findElement(WebDriverBy::tagName('button'))
+				->click();
+			
+			$driver->wait(5, 250)->until(
+				WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('div.output'), 'Ticket updated:')
+			);
+		}
 		
-		// Mara adds a default mail page
-		$this->_runTestCase('workspaces/AddMailPage.htm');
-
-		// Mara logs out
-		$this->_runTestCase('sessions/LogOut.htm');
-
-		// 2 min goes by
-		$this->_pushBackTime(117);
+		$this->assertTrue(true);
+	}
+	
+	public function testKinaRepliesToTicket1Again() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
 		
-		/**
-		 * Karl
-		 */
-
-		// Karl logs in for the first time
-		$this->_runTestCase('sessions/LogInKarl.htm');
+		$cerb->getPathAndWait('/profiles/ticket/1');
 		
-		// Karl closes the tour
-		$this->_runTestCase('sessions/CloseTour.htm');
+		$cerb->replyOnTicket(1, file_get_contents('resources/convos/001_always_use_html/4.txt'));
 		
-		// Karl adds a default mail page
-		$this->_runTestCase('workspaces/AddMailPage.htm');
-
-		// Karl logs out
-		$this->_runTestCase('sessions/LogOut.htm');
+		$driver->wait(5)->until(
+			function() use (&$driver) {
+				try {
+					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
+					return 6 == count($objects);
+					
+				} catch (NoSuchElementException $nse) {
+					return null;
+				}
+			},
+			"Error waiting for the new reply to display in the convo history."
+		);
 		
-		// 1 min goes by
-		$this->_pushBackTime(78);
+		$this->assertTrue(true);
+	}
+	
+	public function testKinaLogsOutAgain() {
+		$cerb = CerbTestHelper::getInstance();
 		
-		/**
-		 * Janey
-		 */
-
-		// Janey logs in for the first time
-		$this->_runTestCase('sessions/LogInJaney.htm');
+		$cerb->logOut();
+	}
+	
+	public function testMiloLogsInAgain() {
+		$cerb = CerbTestHelper::getInstance();
 		
-		// Janey closes the tour
-		$this->_runTestCase('sessions/CloseTour.htm');
+		$cerb->logInAs('milo@cerb.example', 'cerb');
+	}
+	
+	public function testMiloRepliesToTicket2Again() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
 		
-		// Janey adds a default mail page
-		$this->_runTestCase('workspaces/AddMailPage.htm');
-
-		// Janey logs out
-		$this->_runTestCase('sessions/LogOut.htm');
+		$cerb->getPathAndWait('/profiles/ticket/2');
 		
-		/**
-		 * Ned
-		 */
-
-		// Ned logs in for the first time
-		$this->_runTestCase('sessions/LogInNed.htm');
+		$cerb->replyOnTicket(2, file_get_contents('resources/convos/002_server_requirements/4.txt'));
 		
-		// Ned closes the tour
-		$this->_runTestCase('sessions/CloseTour.htm');
+		$driver->wait(5)->until(
+			function() use (&$driver) {
+				try {
+					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
+					return 4 == count($objects);
+					
+				} catch (NoSuchElementException $nse) {
+					return null;
+				}
+			},
+			"Error waiting for the new reply to display in the convo history."
+		);
 		
-		// Ned adds a default mail page
-		$this->_runTestCase('workspaces/AddMailPage.htm');
-
-		// Ned logs out
-		$this->_runTestCase('sessions/LogOut.htm');
+		$this->assertTrue(true);
+	}
+	
+	public function testMiloLogsOutAgain() {
+		$cerb = CerbTestHelper::getInstance();
 		
-		/**
-		 * Incoming mail
-		 */
-		
-		// 2 hours go by
-		$this->_pushBackTime(7200);
-		
-		// The customer replies to Ticket #1
-		$this->_downloadMessage('convos/001_always_use_html/3.txt');
-		
-		// The customer replies to Ticket #2
-		$this->_downloadMessage('convos/002_server_requirements/3.txt');
-		
-		// The parser runs
-		$this->_runTestCase('scheduler/RunParser.htm');
-		
-		// 30 mins go by
-		$this->_pushBackTime(1800);
-		
-		/**
-		 * Kina
-		 */
-		
-		// Kina logs in
-		$this->_runTestCase('sessions/LogInKina.htm');
-		
-		// 6 mins go by
-		$this->_pushBackTime(360);
-		
-		// Kina replies to Ticket #1
-		$this->_runTestCase('convos/001_always_use_html/4.htm');
-		
-		// Kina logs out
-		$this->_runTestCase('sessions/LogOut.htm');
-		
-		/**
-		 * Milo
-		 */
-		
-		// Milo logs in
-		$this->_runTestCase('sessions/LogInMilo.htm');
-		
-		// Kina replies to Ticket #2
-		$this->_runTestCase('convos/002_server_requirements/4.htm');
-		
-		// Milo logs out
-		$this->_runTestCase('sessions/LogOut.htm');
+		$cerb->logOut();
 	}
 	
 };

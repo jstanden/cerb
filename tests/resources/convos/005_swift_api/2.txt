@@ -1,0 +1,15 @@
+> Is there a Cerb API library for Swift?
+
+Hi Kayla!
+
+We don't have an official Swift library for the Cerb API yet, but it should be pretty easy to port one of the existing ones to use NSURL instead.
+
+You can refer to the existing libraries here:
+http://cerbweb.com/book/latest/developer_guide/rest_api/index.html#libraries
+
+If you need any help with that process, let us know.
+
+If you decide to release your Swift library under an open source community, I'd be happy to share the link with the community.
+
+#signature
+#cut

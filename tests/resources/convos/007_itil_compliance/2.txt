@@ -1,0 +1,12 @@
+> is Cerb ITIL compliant?
+
+Hi Zhang,
+
+Since Cerb is a toolkit for building and automating your own workflows, it's not intended to be ITIL compliant out of the box.
+
+However, you can use Cerb's tools (workspaces, dashboards, Virtual Attendants) to build ITIL compatible processes. Over time, we'll likely provide pre-built bundles like this to make implementation easier.
+
+What aspects of ITIL are most important to you to start with? We'd be happy to help point you in the right direction.
+
+#signature
+#cut

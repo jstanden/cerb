@@ -1,0 +1,13 @@
+> Do you provide any discounts for non-profits?
+
+Hi Lisa,
+
+Yes!  We provide free licenses to charitable organizations and established open source projects.
+
+We use the U.S. Internal Revenue Service definition of charitable organizations from Section 501(c)(3):
+http://www.irs.gov/Charities-&amp;-Non-Profits/Charitable-Organizations/Exemption-Requirements-Section-501(c)(3)-Organizations
+
+Let us know the organization name and how many seats you need, and we'll send over a license.
+
+#signature
+#cut

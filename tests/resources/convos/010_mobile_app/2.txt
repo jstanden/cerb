@@ -1,0 +1,14 @@
+> Does Cerb have a mobile interface, or are responsive web design principles
+> used?
+
+Hi Grace,
+
+Cerb does have a mobile plugin that provides a separate, scaled-down interface.  See:
+https://cerb.ai/release/6.5#Mobile_plugin
+
+You can install the plugin from Setup->Plugins->Library.
+
+As for responsive web design, we're exploring concepts and libraries (like Bootstrap) to serve all devices from a single interface, but it's a fairly massive undertaking.  Cerb's current UI is the result of over 14 years of development.  The most likely places for us to start with RWD are the mobile UI and the Support Center.
+
+#signature
+#cut

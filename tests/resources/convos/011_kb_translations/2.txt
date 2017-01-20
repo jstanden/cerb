@@ -1,0 +1,17 @@
+> Can we provide alternate translations of our existing knowledgebase
+> articles in these languages with the ability for visitors on our web sites
+> to switch between them?
+
+Hi Mathias,
+
+Currently we recommend that alternate languages are different knowledgebase topics, but we realize that this is not ideal for many reasons.
+
+There's an open feature request to allow alternate translations on each article:
+https://wgmdev.atlassian.net/browse/CHD-3721
+
+I've linked your interest to it, and you'll receive a notification with any progress.
+
+Thanks for the report!
+
+#signature
+#cut
