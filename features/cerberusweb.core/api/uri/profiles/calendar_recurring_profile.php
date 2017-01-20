@@ -29,6 +29,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 		$id = array_shift($stack); // 123
 
 		@$id = intval($id);
+		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
 		
 		if(null == ($calendar_recurring_profile = DAO_CalendarRecurringProfile::get($id))) {
 			return;
@@ -100,26 +101,33 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 			
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $calendar_recurring_profile->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $calendar_recurring_profile->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $calendar_recurring_profile->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $calendar_recurring_profile->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+		
+		// Search buttons
+		
+		$owner_counts = array(
+			'comments' => DAO_Comment::count($context, $id),
+		);
+		$tpl->assign('owner_counts', $owner_counts);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING => array(
+			$context => array(
 				$calendar_recurring_profile->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING,
+						$context,
 						$calendar_recurring_profile->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
