@@ -885,7 +885,7 @@ class CerberusMail {
 				// ...do nothing
 				
 			} else { // otherwise send
-				if(!$mail_service->send($mail)) {
+				if(false === $mail_service->send($mail)) {
 					throw new Exception('Mail not sent.');
 				}
 			}
