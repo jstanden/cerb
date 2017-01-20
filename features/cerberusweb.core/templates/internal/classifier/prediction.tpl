@@ -89,7 +89,7 @@
 	{/if}
 	
 	<div>
-		<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}" data-context-id="0" data-edit="classifier.id:{$prediction.classifier.id} class.id:{$prediction.classification.id} text:{$prediction.text|escape:'url'}" style="margin-top:5px;">{'common.train'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-train-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}" data-context-id="0" data-edit="classifier.id:{$prediction.classifier.id} class.id:{$prediction.classification.id} text:{$prediction.text|escape:'url'}" style="margin-top:5px;">{'common.train'|devblocks_translate|capitalize}</button>
 	</div>
 </div>
 
@@ -97,6 +97,15 @@
 <script type="text/javascript">
 $(function() {
 	var $container = $('#{$div_id}');
+	var $parent = $container.closest('div.output');
+	
 	$container.find('.cerb-peek-trigger').cerbPeekTrigger();
+	
+	var $button = $container.find('.cerb-train-trigger')
+		.cerbPeekTrigger()
+			.on('cerb-peek-saved', function() {
+				$parent.trigger('cerb-peek-saved');
+			})
+		;
 });
 </script>

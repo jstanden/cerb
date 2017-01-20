@@ -1493,22 +1493,22 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	/**
 	 * Takes a comma-separated value string and returns an array of tokens.
-	 * [TODO] Move to a FormHelper service?
 	 *
 	 * @param string $string
 	 * @param boolean $keep_blanks
 	 * @param mixed $typecast
+	 * @param boolean $limit
 	 * @return array
 	 * @test DevblocksPlatformTest
 	 */
-	static function parseCsvString($string, $keep_blanks=false, $typecast=null) {
+	static function parseCsvString($string, $keep_blanks=false, $typecast=null, $limit=null) {
 		if(0 == strlen($string))
 			return array();
 		
 		if(!$keep_blanks)
 			$string = rtrim($string, ', ');
 		
-		$tokens = explode(',', $string);
+		$tokens = explode(',', $string, $limit);
 
 		if(!is_array($tokens))
 			return array();

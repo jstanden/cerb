@@ -112,7 +112,8 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_ClassifierClass	 */
+	 * @return Model_ClassifierClass
+	 */
 	static function get($id) {
 		if(empty($id))
 			return null;
@@ -162,7 +163,15 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 		unset($results);
 
 		return $models;
-	}	
+	}
+	
+	static function getByClassifierId($classifier_id) {
+		$classes = self::getAll();
+		
+		return array_filter($classes, function($class) use ($classifier_id) { /* @var $class Model_ClassifierClass */
+			return $class->classifier_id == $classifier_id;
+		});
+	}
 	
 	/**
 	 * @param resource $rs

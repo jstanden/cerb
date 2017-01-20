@@ -304,6 +304,18 @@ class _DevblocksBayesClassifierService {
 		return true;
 	}
 	
+	static function verify($text) {
+		if(empty($text))
+			return false;
+		
+		$tagged_text = preg_replace(array_keys(self::$TAGS_TO_TOKENS), self::$TAGS_TO_TOKENS, $text);
+		
+		if(false == ($tokens = self::tokenizeWords($tagged_text)))
+			return false;
+		
+		return true;
+	}
+	
 	static function train($text, $classifier_id, $class_id, $delta=false) {
 		$db = DevblocksPlatform::getDatabaseService();
 		

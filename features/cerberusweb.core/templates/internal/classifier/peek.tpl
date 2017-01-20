@@ -11,6 +11,7 @@
 		<div style="margin-top:5px;">
 			{if $is_writeable}
 			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-peek-import" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-file-import"></span> {'common.import'|devblocks_translate|capitalize}</button>
 			{/if}
 			
 			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
@@ -51,7 +52,7 @@
 
 <fieldset class="peek">
 	<legend>Train Classifier</legend>
-	<input type="text" class="expression-tester" style="width:100%;" autocomplete="off" spellcheck="false" placeholder="Enter some text and press ENTER for a classification prediction">
+	<input type="text" class="expression-tester" style="width:100%;" autocomplete="off" spellcheck="false" autofocus="autofocus" placeholder="Enter some text and press ENTER for a classification prediction">
 	
 	<div class="output" style="margin:5px;"></div>
 </fieldset>
@@ -80,6 +81,15 @@ $(function() {
 				genericAjaxPopupClose($layer);
 			})
 			;
+		
+		$popup.find('button.cerb-peek-import')
+			.click(function() {
+				var $import_popup = genericAjaxPopup('classifier_import','c=profiles&a=handleSectionAction&section=classifier&action=showImportPopup&classifier_id={$dict->id}',null,false,'50%');
+				
+				$import_popup.on('dialogclose', function() {
+					genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+				});
+			})
 		{/if}
 		
 		// Peeks
@@ -120,6 +130,12 @@ $(function() {
 				});
 			}
 		});
+		
+		$output.on('cerb-peek-saved', function() {
+			genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+		});
+		
+		$input.select().focus();
 	});
 });
 </script>

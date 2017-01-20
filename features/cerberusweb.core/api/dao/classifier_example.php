@@ -898,7 +898,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 		$token_labels = array(
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
-			'name' => $prefix.$translate->_('common.name'),
+			'expression' => $prefix.$translate->_('dao.classifier_example.expression'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 				
@@ -908,7 +908,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 		$token_types = array(
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
-			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'expression' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 				

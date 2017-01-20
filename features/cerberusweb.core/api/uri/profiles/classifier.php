@@ -224,6 +224,100 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		}
 	}
 	
+	function showImportPopupAction() {
+		@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
+		
+		if(!$classifier_id || false == ($classifier = DAO_Classifier::get($classifier_id))) {
+			echo "Invalid classifier.";
+			return;
+		}
+		
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('classifier_id', $classifier_id);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/classifier/import_popup.tpl');
+	}
+	
+	function saveImportPopupJsonAction() {
+		@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
+		@$examples_csv = DevblocksPlatform::importGPC($_REQUEST['examples_csv'], 'string', null);
+		
+		$bayes = DevblocksPlatform::getBayesClassifierService();
+		
+		header('Content-Type: application/json');
+		
+		$examples = DevblocksPlatform::parseCrlfString($examples_csv);
+		
+		// Error if examples are blank
+		if(empty($examples) || !is_array($examples)) {
+			echo json_encode([
+				'status' => false,
+				'error' => "No examples were given.",
+			]);
+			return;
+		}
+		
+		$classifications = DAO_ClassifierClass::getByClassifierId($classifier_id);
+		$class_name_to_id = array_column($classifications, 'id', 'name');
+		
+		// Verify the format of the examples
+		foreach($examples as $example) {
+			if(empty($example))
+				continue;
+			
+			$data = DevblocksPlatform::parseCsvString($example, false, null, 2);
+			
+			if(empty($data) || !is_array($data) || count($data) != 2) {
+				echo json_encode([
+					'status' => false,
+					'error' => sprintf("Invalid training data: %s", DevblocksPlatform::strEscapeHtml($example)),
+				]);
+				return;
+			}
+			
+			$classification = trim($data[0], '"');
+			$expression = trim($data[1], '"');
+			
+			if(!$bayes::verify($expression)) {
+				echo json_encode([
+					'status' => false,
+					'error' => sprintf("Invalid training data: %s", DevblocksPlatform::strEscapeHtml($example)),
+				]);
+				return;
+			}
+			
+			// If the classification doesn't exist we need to create it
+			if(!isset($class_name_to_id[$classification])) {
+				$class_id = DAO_ClassifierClass::create([
+					DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
+					DAO_ClassifierClass::NAME => $classification,
+					DAO_ClassifierClass::UPDATED_AT => time()
+				]);
+				
+				$class_name_to_id[$classification] = $class_id;
+				
+			} else {
+				$class_id = $class_name_to_id[$classification];
+			}
+			
+			DAO_ClassifierExample::create([
+				DAO_ClassifierExample::CLASS_ID => $class_id,
+				DAO_ClassifierExample::CLASSIFIER_ID => $classifier_id,
+				DAO_ClassifierExample::EXPRESSION => $expression,
+				DAO_ClassifierExample::UPDATED_AT => time(),
+			]);
+			
+			$bayes::train($expression, $classifier_id, $class_id, true);
+		}
+		
+		// Update the model
+		$bayes::updateCounts($classifier_id);
+		
+		echo json_encode([
+			'status' => true,
+		]);
+	}
+	
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

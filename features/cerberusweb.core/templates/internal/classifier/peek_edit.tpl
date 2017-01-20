@@ -27,12 +27,14 @@
 			</td>
 		</tr>
 		
+		{if !empty($model)}
 		<tr>
 			<td width="1%" valign="top" nowrap="nowrap"><b>{'common.training'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<label><input type="checkbox" name="do_retrain" value="1"> Build a new model using the training examples</label>
 			</td>
 		</tr>
+		{/if}
 	</table>
 </fieldset>
 
