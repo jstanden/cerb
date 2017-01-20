@@ -1508,7 +1508,11 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(!$keep_blanks)
 			$string = rtrim($string, ', ');
 		
-		$tokens = explode(',', $string, $limit);
+		if($limit) {
+			$tokens = explode(',', $string, $limit);
+		} else {
+			$tokens = explode(',', $string);
+		}
 
 		if(!is_array($tokens))
 			return array();

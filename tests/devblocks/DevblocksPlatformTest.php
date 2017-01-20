@@ -590,6 +590,11 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$actual = DevblocksPlatform::parseCsvString($str, false, null);
 		$this->assertEquals(array('1','2','3'), $actual);
 		
+		// CSV, no blanks, no cast, limit 2
+		$str = "1,2,3,";
+		$actual = DevblocksPlatform::parseCsvString($str, false, null, 2);
+		$this->assertEquals(array('1','2,3'), $actual);
+		
 		// CSV, with blanks, no cast
 		$str = "1,2,3,";
 		$actual = DevblocksPlatform::parseCsvString($str, true, null);
@@ -604,6 +609,12 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$str = "red,green,blue";
 		$actual = DevblocksPlatform::parseCsvString($str, false, 'string');
 		$this->assertEquals(array('red','green','blue'), $actual);
+		
+		// CSV, with blanks, no cast, and limit
+		$str = "1,2,3,";
+		$actual = DevblocksPlatform::parseCsvString($str, true, null, 2);
+		$this->assertEquals(array('1','2,3,'), $actual);
+		
 	}
 	
 	public function testParseMarkdown() {
