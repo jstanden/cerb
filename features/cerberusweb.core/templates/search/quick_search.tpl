@@ -9,7 +9,7 @@
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 	<div style="border:1px solid rgb(200,200,200);border-radius:10px;display:inline-block;">
-		<input type="text" name="query" class="input_search cerb-input-quicksearch" style="border:0;" size="60" value="{$quick_search_query}" autocomplete="off" spellcheck="false">
+		<input type="text" name="query" class="input_search cerb-input-quicksearch" style="border:0;" size="50" value="{$quick_search_query}" autocomplete="off" spellcheck="false">
 		<a href="javascript:;" class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span></a>
 	</div>
 	
