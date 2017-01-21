@@ -1050,6 +1050,7 @@ var ajax = new cAjaxCalls();
 				e.stopPropagation();
 				var $label = e.label;
 				var $value = e.value;
+				var icon_url = e.icon;
 				
 				if(undefined != $label && undefined != $value) {
 					if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
@@ -1064,25 +1065,8 @@ var ajax = new cAjaxCalls();
 							.cerbPeekTrigger()
 							;
 						
-						var alias = '';
-						
-						if(context == "cerberusweb.contexts.address") {
-							alias = 'address';
-						} else if(context == "cerberusweb.contexts.contact") {
-							alias = 'contact';
-						} else if(context == "cerberusweb.contexts.group") {
-							alias = 'group';
-						} else if(context == "cerberusweb.contexts.org") {
-							alias = 'org';
-						} else if(context == "cerberusweb.contexts.worker") {
-							alias = 'worker';
-						} else if(context == "cerberusweb.contexts.bot") {
-							alias = 'va';
-						}
-						
-						if(alias.length > 0) {
-							var url = DevblocksAppPath + 'avatars/' + alias + '/' + $value + '?v=';
-							var $img = $('<img class="cerb-avatar">').attr('src',url).prependTo($li);
+						if(icon_url && icon_url.length > 0) {
+							var $img = $('<img class="cerb-avatar">').attr('src',icon_url).prependTo($li);
 						}
 						
 						var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
