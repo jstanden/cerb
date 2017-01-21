@@ -3330,24 +3330,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		DAO_DecisionNode::clearCache();
 	}
 	
-	function showDecisionMovePopupAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		if(!empty($id) && null != ($node = DAO_DecisionNode::get($id))) {
-			$tpl->assign('node', $node);
-			
-		} elseif(isset($_REQUEST['trigger_id'])) {
-			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-			if(null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-				$tpl->assign('trigger', $trigger);
-			}
-		}
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/_move.tpl');
-	}
-	
 	function showDecisionReorderPopupAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		
