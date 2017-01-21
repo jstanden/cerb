@@ -27,6 +27,7 @@
 			<!-- Edit -->
 			{if $is_writeable}
 				<button type="button" id="btnDisplayBotEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+				<button type="button" id="btnProfileAddComment" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$page_context} context.id:{$page_context_id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 			{/if}
 		</form>
 		
@@ -69,8 +70,8 @@
 			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="bot.id:{$page_context_id}"><div class="badge-count">{$owner_counts.behaviors|default:0}</div> {'common.behaviors'|devblocks_translate|capitalize}</button>
 			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-query="owner.bot:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.calendars|default:0}</div> {'common.calendars'|devblocks_translate|capitalize}</button>
 			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-query="owner.bot:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.classifiers|default:0}</div> {'common.classifiers'|devblocks_translate|capitalize}</button>
-			{*<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-query="author.bot:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.comments|default:0}</div> {'common.comments'|devblocks_translate|capitalize}</button>*}
-			{if $is_writeable}<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-query="owner.bot:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.custom_fieldsets|default:0}</div> {'common.custom_fieldsets'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-query="on.bot:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.comments|default:0}</div> {'common.comments'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-query="owner.bot:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.custom_fieldsets|default:0}</div> {'common.custom_fieldsets'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 	
@@ -97,9 +98,6 @@
 		
 		{$tabs[] = 'behavior'}
 		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=bot&action=showScheduledBehaviorsTab&point={$point}&va_id={$page_context_id}{/devblocks_url}">Scheduled Behaviors</a></li>
-		
-		{$tabs[] = 'comments'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
 		
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
@@ -132,6 +130,14 @@ $(function() {
 			
 		})
 		.on('cerb-peek-closed', function(e) {
+		})
+		;
+	
+	// Comments
+	$('#btnProfileAddComment')
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function() {
+			//genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
 		})
 		;
 	{/if}
