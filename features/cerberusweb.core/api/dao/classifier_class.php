@@ -887,18 +887,17 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		$url_writer = DevblocksPlatform::getUrlService();
 		$list = array();
 		
-		list($results, $null) = DAO_ClassifierClass::search(
-			array(),
-			array(
-				new DevblocksSearchCriteria(SearchFields_ClassifierClass::NAME,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
-			),
-			25,
-			0,
-			SearchFields_ClassifierClass::NAME,
-			true,
-			false
-		);
-
+		$view = Context_ClassifierClass::getSearchView('autocomplete_classifier');
+		$view->renderLimit = 25;
+		$view->renderSortBy = SearchFields_ClassifierClass::NAME;
+		$view->renderSortAsc = true;
+		$view->is_ephemeral = true;
+		
+		$view->addParamsWithQuickSearch($query, true);
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_ClassifierClass::NAME,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'));
+		
+		list($results, $null) = $view->getData();
+		
 		foreach($results AS $row){
 			$entry = new stdClass();
 			$entry->label = $row[SearchFields_ClassifierClass::NAME];

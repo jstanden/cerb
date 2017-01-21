@@ -33,7 +33,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap"><b>{'common.classifier.classification'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="class_id" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_CLASS}" data-single="true" data-query="{if $model->classifier_id}classifier.id:{$model->classifier_id}{/if}" {*data-autocomplete="{if $model->classifier_id}classifier.id:{$model->classifier_id}{/if}"*}><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="class_id" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_CLASS}" data-single="true" data-query="{if $model->classifier_id}classifier.id:{$model->classifier_id}{/if}" data-autocomplete="{if $model->classifier_id}classifier.id:{$model->classifier_id}{/if}"><span class="glyphicons glyphicons-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{if $model}
@@ -225,6 +225,7 @@ $(function() {
 					if($bubble.length > 0) {
 						var classifier_id = $bubble.val();
 						$chooser_class.attr('data-query', 'classifier.id:' + classifier_id);
+						$chooser_class.attr('data-autocomplete', 'classifier.id:' + classifier_id);
 					}
 				}
 			})
