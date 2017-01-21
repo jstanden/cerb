@@ -57,6 +57,8 @@ class ChCronController extends DevblocksControllerExtension {
 		
 		@set_time_limit(600); // 10 mins
 		
+		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_APPLICATION, 0);
+		
 		$url = DevblocksPlatform::getUrlService();
 		$time_left = intval(ini_get('max_execution_time')) ?: 86400;
 		
@@ -153,6 +155,8 @@ class ChCronController extends DevblocksControllerExtension {
 			echo "</BODY>".
 			"</HTML>";
 		}
+		
+		CerberusContexts::popActivityDefaultActor();
 		
 		exit;
 	}
