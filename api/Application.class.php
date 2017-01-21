@@ -1757,7 +1757,7 @@ class CerberusContexts {
 	}
 
 	static public function pushActivityDefaultActor($context=null, $context_id=null) {
-		if(empty($context) || empty($context_id)) {
+		if(empty($context) || is_null($context_id)) {
 			self::$_default_actor_context = null;
 			self::$_default_actor_context_id = null;
 		} else {

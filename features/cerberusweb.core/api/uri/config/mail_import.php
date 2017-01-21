@@ -28,6 +28,8 @@ class PageSection_SetupMailImport extends Extension_PageSection {
 	function parseMessageJsonAction() {
 		header("Content-Type: application/json");
 		
+		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_APPLICATION, 0);
+		
 		$logger = DevblocksPlatform::getConsoleLog('Parser');
 		$logger->setLogLevel(4);
 		
@@ -79,5 +81,7 @@ class PageSection_SetupMailImport extends Extension_PageSection {
 		}
 		
 		$logger->setLogLevel(0);
+		
+		CerberusContexts::popActivityDefaultActor();
 	}
 }
