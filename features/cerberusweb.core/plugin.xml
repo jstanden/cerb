@@ -2223,7 +2223,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.interaction.chat.worker</id>
-			<name>Private message received by bot</name>
+			<name>[UI] New chat message from worker</name>
 			<class>
 				<file>api/events/interaction/interaction_chat_worker.php</file>
 				<name>Event_InteractionChatWorker</name>

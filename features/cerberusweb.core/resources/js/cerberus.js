@@ -1158,7 +1158,6 @@ var ajax = new cAjaxCalls();
 							'',
 							'c=internal&a=autocomplete&term=' + encodeURIComponent(request.term) + '&context=' + context + '&query=' + encodeURIComponent($trigger.attr('data-autocomplete')),
 							function(json) {
-								console.log(json);
 								response(json);
 							}
 						);
