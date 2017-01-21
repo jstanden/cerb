@@ -42,7 +42,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="middle" align="right"><b>{'common.organization'|devblocks_translate|capitalize}:</b> </td>
 			<td width="99%" valign="top">
-					<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-autocomplete="if-null" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
 					
 					<ul class="bubbles chooser-container">
 						{if $org}
@@ -55,7 +55,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="middle" align="right"><b>{'common.contact'|devblocks_translate|capitalize}:</b> </td>
 			<td width="99%" valign="top">
-					<button type="button" class="chooser-abstract" data-field-name="contact_id" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-single="true" {if $org}data-query="org.id:{$org->id}"{/if} data-autocomplete="if-null" data-create="if-null" data-create-defaults="email:{if $address}{$address->id}{elseif $email}{$email}{/if} {if $org}org:{$org->id}{/if}"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-abstract" data-field-name="contact_id" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-single="true" {if $org}data-query="org.id:{$org->id}"{/if} data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null" data-create-defaults="email:{if $address}{$address->id}{elseif $email}{$email}{/if} {if $org}org:{$org->id}{/if}"><span class="glyphicons glyphicons-search"></span></button>
 					
 					<ul class="bubbles chooser-container">
 						{if $contact}

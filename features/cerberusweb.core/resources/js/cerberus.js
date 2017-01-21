@@ -1143,8 +1143,9 @@ var ajax = new cAjaxCalls();
 			}
 			
 			// Autocomplete
-			if($trigger.attr('data-autocomplete')) {
-				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete') == 'if-null';
+			if(undefined != $trigger.attr('data-autocomplete')) {
+				var is_single = $trigger.attr('data-single');
+				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete-if-empty');
 				var autocomplete_placeholders = $trigger.attr('data-autocomplete-placeholders');
 				
 				var $autocomplete = $('<input type="search" size="32">');
@@ -1152,7 +1153,16 @@ var ajax = new cAjaxCalls();
 				
 				$autocomplete.autocomplete({
 					delay: 300,
-					source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
+					source: function(request, response) {
+						genericAjaxGet(
+							'',
+							'c=internal&a=autocomplete&term=' + encodeURIComponent(request.term) + '&context=' + context + '&query=' + encodeURIComponent($trigger.attr('data-autocomplete')),
+							function(json) {
+								console.log(json);
+								response(json);
+							}
+						);
+					},
 					minLength: 1,
 					focus:function(event, ui) {
 						return false;
@@ -1214,9 +1224,10 @@ var ajax = new cAjaxCalls();
 				
 				$autocomplete.autocomplete('widget').css('max-width', $autocomplete.closest('form').width());
 				
-				if(is_autocomplete_ifnull) {
-					if($ul.find('>li').length > 0)
+				if(is_autocomplete_ifnull || is_single) {
+					if($ul.find('>li').length > 0) {
 						$autocomplete.hide();
+					}
 					
 					$trigger.on('cerb-chooser-saved', function() {
 						// If we have zero bubbles, show autocomplete

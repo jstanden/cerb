@@ -85,7 +85,7 @@
 			</td>
 			<td width="100%">
 				<div style="display:none;">
-					<button type="button" class="chooser-abstract" data-field-name="params[owner]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-abstract" data-field-name="params[owner]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="bubbles chooser-container"></ul>
 				</div>
 			</td>
@@ -102,7 +102,7 @@
 			</td>
 			<td width="100%">
 				<div style="display:none;">
-					<button type="button" class="chooser-abstract" data-field-name="params[watchers_add][]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-abstract" data-field-name="params[watchers_add][]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete=""><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="bubbles chooser-container" style="display:block;"></ul>
 				</div>
 			</td>
@@ -119,7 +119,7 @@
 			</td>
 			<td width="100%">
 				<div style="display:none;">
-					<button type="button" class="chooser-abstract" data-field-name="params[watchers_remove][]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+					<button type="button" class="chooser-abstract" data-field-name="params[watchers_remove][]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete=""><span class="glyphicons glyphicons-search"></span></button>
 					<ul class="bubbles chooser-container" style="display:block;"></ul>
 				</div>
 			</td>

@@ -300,7 +300,7 @@
 							{/if}
 							
 							<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
-							<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="if-null"><span class="glyphicons glyphicons-search"></span></button>
+							<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 							<ul class="bubbles chooser-container">
 									{if $draft && $draft->params.owner_id}
 										{$owner = $workers.{$draft->params.owner_id}}

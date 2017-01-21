@@ -33,7 +33,7 @@
 
 <div>
 	<b>{'reports.ui.filters.group'|devblocks_translate}</b> 
-	<button type="button" class="chooser-abstract" data-field-name="group_id[]" data-context="{CerberusContexts::CONTEXT_GROUP}" data-query="" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-abstract" data-field-name="group_id[]" data-context="{CerberusContexts::CONTEXT_GROUP}" data-query="" data-autocomplete=""><span class="glyphicons glyphicons-search"></span></button>
 	<ul class="bubbles chooser-container">
 		{foreach from=$filter_group_ids item=filter_group_id}
 		{$filter_group = $groups.{$filter_group_id}}

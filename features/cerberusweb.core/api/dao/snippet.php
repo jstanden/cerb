@@ -1262,7 +1262,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 	
-	function autocomplete($term) {
+	function autocomplete($term, $query=null) {
 		$as_worker = CerberusApplication::getActiveWorker();
 		
 		$list = array();

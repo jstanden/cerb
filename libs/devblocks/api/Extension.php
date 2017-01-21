@@ -101,7 +101,7 @@ interface IDevblocksContextProfile {
 }
 
 interface IDevblocksContextAutocomplete {
-	function autocomplete($term);
+	function autocomplete($term, $query=null);
 }
 
 class DevblocksMenuItemPlaceholder {

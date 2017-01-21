@@ -1038,7 +1038,7 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		);
 	}
 	
-	function autocomplete($term) {
+	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		$list = array();
 		

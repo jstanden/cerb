@@ -24,7 +24,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.email'|devblocks_translate|capitalize}: </td>
 			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-autocomplete="if-null" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
 				
 				<ul class="bubbles chooser-container">
 					{if $address}

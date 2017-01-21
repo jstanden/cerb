@@ -1016,7 +1016,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		);
 	}
 	
-	function autocomplete($term) {
+	function autocomplete($term, $query=null) {
 		$list = array();
 		
 		$models = DAO_FileBundle::autocomplete($term, 'models', CerberusApplication::getActiveWorker());

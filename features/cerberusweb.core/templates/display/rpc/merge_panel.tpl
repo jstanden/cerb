@@ -6,7 +6,7 @@
 
 <b>Merge with tickets:</b>
 
-<button type="button" class="chooser-abstract" data-field-name="dst_ticket_id[]" data-context="{CerberusContexts::CONTEXT_TICKET}" data-autocomplete="true"><span class="glyphicons glyphicons-search"></span></button>
+<button type="button" class="chooser-abstract" data-field-name="dst_ticket_id[]" data-context="{CerberusContexts::CONTEXT_TICKET}" data-autocomplete=""><span class="glyphicons glyphicons-search"></span></button>
 <ul class="bubbles chooser-container" style="display:block;"></ul>
 <br>
 <br>

@@ -2468,7 +2468,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		);
 	}
 	
-	function autocomplete($term) {
+	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		$results = DAO_Worker::autocomplete($term);
 		$list = array();

@@ -4341,7 +4341,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		);
 	}
 	
-	function autocomplete($term) {
+	function autocomplete($term, $query=null) {
 		$results = DAO_Ticket::autocomplete($term);
 		$list = array();
 

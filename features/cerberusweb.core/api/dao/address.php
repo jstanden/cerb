@@ -1704,7 +1704,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 	
-	function autocomplete($term) {
+	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		
 		$models = DAO_Address::autocomplete($term);

@@ -1639,7 +1639,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 	
-	function autocomplete($term) {
+	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		$list = array();
 		

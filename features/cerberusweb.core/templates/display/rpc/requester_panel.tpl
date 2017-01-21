@@ -6,7 +6,7 @@
 
 <b>{'display.ui.add_to_recipients'|devblocks_translate}:</b><br>
 
-<button type="button" class="chooser-abstract" data-field-name="address_id[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="" data-autocomplete="true" data-create="true"><span class="glyphicons glyphicons-search"></span></button>
+<button type="button" class="chooser-abstract" data-field-name="address_id[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="" data-autocomplete="" data-create="true"><span class="glyphicons glyphicons-search"></span></button>
 
 <ul class="bubbles chooser-container" style="display:block;margin-top:10px;">
 	{if !empty($requesters)}

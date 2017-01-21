@@ -1502,7 +1502,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		);
 	}
 	
-	function autocomplete($term) {
+	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		$list = array();
 		

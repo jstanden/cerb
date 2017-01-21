@@ -1515,7 +1515,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		);
 	}
 	
-	function autocomplete($term) {
+	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::getUrlService();
 		$list = array();
 		

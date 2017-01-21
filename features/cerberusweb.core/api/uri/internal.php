@@ -1428,9 +1428,10 @@ class ChInternalController extends DevblocksControllerExtension {
 	function autocompleteAction() {
 		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
 		@$term = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
 		
-		header('Content-Type: application/javascript');
+		header('Content-Type: application/json');
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::getUrlService();
@@ -1441,7 +1442,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(false != ($context_ext = Extension_DevblocksContext::get($context))) {
 			if($context_ext instanceof IDevblocksContextAutocomplete)
-				$list = $context_ext->autocomplete($term);
+				$list = $context_ext->autocomplete($term, $query);
 		}
 		
 		echo sprintf("%s%s%s",
