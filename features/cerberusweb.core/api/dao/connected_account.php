@@ -954,7 +954,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 	}
 };
 
-class Context_ConnectedAccount extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_ConnectedAccount extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $models);
 	}
@@ -969,6 +969,34 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	
 	function getRandom() {
 		return DAO_ConnectedAccount::random();
+	}
+	
+	function autocomplete($term, $query=null) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		$list = array();
+		
+		$models = DAO_ConnectedAccount::autocomplete($term);
+		
+		if(stristr('none',$term) || stristr('empty',$term)) {
+			$empty = new stdClass();
+			$empty->label = '(no account)';
+			$empty->value = '0';
+			$empty->meta = array('desc' => 'Clear the account');
+			$list[] = $empty;
+		}
+		
+		if(is_array($models))
+		foreach($models as $account_id => $account){
+			$entry = new stdClass();
+			$entry->label = $account->name;
+			$entry->value = sprintf("%d", $account_id);
+			
+			$meta = array();
+			$entry->meta = $meta;
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function profileGetUrl($context_id) {
