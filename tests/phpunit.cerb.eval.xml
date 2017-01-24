@@ -13,8 +13,10 @@
 		<testsuite name="eval_ui_simulate_day3">
 			<file>eval/CerbEval_UI_SimulateDay3.php</file>
 		</testsuite>
+		<!--
 		<testsuite name="eval_ui_screenshots">
 			<file>eval/CerbEval_UI_Screenshots.php</file>
 		</testsuite>
+		-->
 	</testsuites>
 </phpunit>

@@ -2,7 +2,7 @@
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 
-class CerbEval_UI_Setup extends CerbTestBase {
+class CerbEval_UI_Screenshots extends CerbTestBase {
 	function testLoginKina() {
 		$cerb = CerbTestHelper::getInstance();
 		$driver = $cerb->driver();
