@@ -319,7 +319,9 @@ class DevblocksDictionaryDelegate {
 			$labels = array();
 			$values = array();
 			CerberusContexts::getContext($context, $model, $labels, $values, null, true, true);
-			$dicts[$model_id] = DevblocksDictionaryDelegate::instance($values);
+			
+			if(isset($values['id']))
+				$dicts[$model_id] = DevblocksDictionaryDelegate::instance($values);
 		}
 		
 		// Batch load extra keys

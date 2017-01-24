@@ -1312,8 +1312,11 @@ class CerberusContexts {
 				case CerberusContexts::CONTEXT_WORKER:
 					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels([$context_id => $context_id], $context);
 					
-					if(isset($dicts[$context_id]))
+					if(isset($dicts[$context_id])) {
 						return $dicts[$context_id];
+					} else {
+						return false;
+					}
 					break;
 			}
 			
@@ -1396,7 +1399,7 @@ class CerberusContexts {
 	
 	public static function isReadableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_') {
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEverything($models);
+			return CerberusContexts::denyEverything($models);
 		
 		// Admins can do whatever they want
 		if(CerberusContexts::isActorAnAdmin($actor))

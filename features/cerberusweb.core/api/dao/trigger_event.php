@@ -477,6 +477,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	const UPDATED_AT = 't_updated_at';
 	
 	const VIRTUAL_BOT_SEARCH = '*_bot_search';
+	const VIRTUAL_USABLE_BY = '*_usable_by';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private $_fields = null;
@@ -498,6 +499,10 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BOT, 'trigger_event.bot_id');
 				break;
 				
+			case self::VIRTUAL_USABLE_BY:
+				return self::_getWhereSQLForUsableBy($param, self::getPrimaryKey());
+				break;
+				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_BEHAVIOR, self::getPrimaryKey());
 				break;
@@ -510,6 +515,36 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 				}
 				break;
 		}
+	}
+	
+	static private function _getWhereSQLForUsableBy($param, $pkey) {
+		// Handle nested quick search filters first
+		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			if(!is_array($param->value))
+				return '0';
+			
+			$actor_context = $param->value['context'];
+			$actor_id = $param->value['id'];
+			
+			if(empty($actor_context))
+				return '0';
+			
+			$behaviors = DAO_TriggerEvent::getReadableByActor([$actor_context, $actor_id]);
+			
+			if(empty($behaviors))
+				return '0';
+			
+			$behavior_ids = array_keys($behaviors);
+			
+			$sql = sprintf("%s IN (%s)",
+				$pkey,
+				implode(',', $behavior_ids)
+			);
+			
+			return $sql;
+		}
+		
+		return '0';
 	}
 	
 	/**
@@ -539,6 +574,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'trigger_event', 'updated_at', $translate->_('common.updated'), null, true),
 				
 			self::VIRTUAL_BOT_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOT_SEARCH, '*', 'bot_search', null, null, false),
+			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
 		
@@ -1135,10 +1171,12 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		
 		$this->addColumnsHidden(array(
 			SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH,
+			SearchFields_TriggerEvent::VIRTUAL_USABLE_BY,
 		));
 		
 		$this->addParamsHidden(array(
 			SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH,
+			SearchFields_TriggerEvent::VIRTUAL_USABLE_BY,
 		));
 		
 		$this->doResetCriteria();
@@ -1323,6 +1361,22 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_TriggerEvent::UPDATED_AT),
 				),
+			'usableBy.bot' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_TriggerEvent::VIRTUAL_USABLE_BY),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BOT, 'q' => ''],
+					]
+				),
+			'usableBy.worker' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_TriggerEvent::VIRTUAL_USABLE_BY),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
+				),
 		);
 		
 		// Add searchable custom fields
@@ -1344,7 +1398,31 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 			case 'bot':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH);
 				break;
-			
+				
+			case 'usableBy.bot':
+				$oper = $value = null;
+				CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
+				$bot_id = intval($value);
+				
+				return new DevblocksSearchCriteria(
+					SearchFields_TriggerEvent::VIRTUAL_USABLE_BY,
+					DevblocksSearchCriteria::OPER_CUSTOM,
+					['context' => CerberusContexts::CONTEXT_BOT, 'id' => $bot_id]
+				);
+				break;
+				
+			case 'usableBy.worker':
+				$oper = $value = null;
+				CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
+				$worker_id = intval($value);
+				
+				return new DevblocksSearchCriteria(
+					SearchFields_TriggerEvent::VIRTUAL_USABLE_BY,
+					DevblocksSearchCriteria::OPER_CUSTOM,
+					['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $worker_id]
+				);
+				break;
+				
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
@@ -1457,13 +1535,47 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
+				
+			case SearchFields_TriggerEvent::VIRTUAL_USABLE_BY:
+				if(!is_array($param->value) || !isset($param->value['context']))
+					return;
+				
+				switch($param->value['context']) {
+					case CerberusContexts::CONTEXT_BOT:
+						if(false == ($bot = DAO_Bot::get($param->value['id']))) {
+							$bot_name = '(invalid bot)';
+						} else {
+							$bot_name = $bot->name;
+						}
+						
+						echo sprintf("Usable by %s <b>%s</b>",
+							DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translate('common.bot', DevblocksPlatform::TRANSLATE_LOWER)),
+							DevblocksPlatform::strEscapeHtml($bot_name)
+						);
+						break;
+					
+					case CerberusContexts::CONTEXT_WORKER:
+						if(false == ($worker = DAO_Worker::get($param->value['id']))) {
+							$worker_name = '(invalid worker)';
+						} else {
+							$worker_name = $worker->getName();
+						}
+						
+						echo sprintf("Usable by %s <b>%s</b>",
+							DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translate('common.worker', DevblocksPlatform::TRANSLATE_LOWER)),
+							DevblocksPlatform::strEscapeHtml($worker_name)
+						);
+						break;
+				}
+				
+				break;
 			
 			case SearchFields_TriggerEvent::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
 				break;
 		}
 	}
-
+	
 	function getFields() {
 		return SearchFields_TriggerEvent::getFields();
 	}

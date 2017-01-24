@@ -260,7 +260,7 @@ abstract class DevblocksORMHelper {
 				$where = $search_class::getWhereSQL($param);
 			}
 			
-			if(!empty($where)) {
+			if(0 != strlen($where)) {
 				$wheres[$param_key] = $where;
 			}
 		}

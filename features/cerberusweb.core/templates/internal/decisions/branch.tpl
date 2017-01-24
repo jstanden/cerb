@@ -6,35 +6,35 @@
 
 	{if $node->node_type == 'subroutine'}
 		<div class="badge badge-lightgray" style="margin:2px;">
-			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(50,50,50);" onclick="decisionNodeMenu(this);" node_id="{$node->id}" trigger_id="{$trigger_id}">
+			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(50,50,50);" {if $is_writeable}onclick="decisionNodeMenu(this);"{/if} node_id="{$node->id}" trigger_id="{$trigger_id}">
 				<span style="font-weight:normal;"></span> {$node->title}{if $is_writeable} &#x25be;{/if}
 			</a>
 		</div>
 		
 	{elseif $node->node_type == 'switch'}
 		<div class="badge badge-lightgray" style="margin:2px;">
-			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(68,154,220);" onclick="decisionNodeMenu(this);" node_id="{$node->id}" trigger_id="{$trigger_id}">
+			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(68,154,220);" {if $is_writeable}onclick="decisionNodeMenu(this);"{/if} node_id="{$node->id}" trigger_id="{$trigger_id}">
 				{$node->title}{if $is_writeable} &#x25be;{/if}
 			</a>
 		</div>
 		
 	{elseif $node->node_type == 'loop'}
 		<div class="badge badge-lightgray" style="margin:2px;">
-			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(100,100,100);" onclick="decisionNodeMenu(this);" node_id="{$node->id}" trigger_id="{$trigger_id}">
+			<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:rgb(100,100,100);" {if $is_writeable}onclick="decisionNodeMenu(this);"{/if} node_id="{$node->id}" trigger_id="{$trigger_id}">
 				<span style="font-weight:normal;">&#x27f3;</span> {$node->title}{if $is_writeable} &#x25be;{/if}
 			</a>
 		</div>
 	
 	{elseif $node->node_type == 'outcome'}
 		<div class="badge badge-lightgray">
-			<a href="javascript:;" style="text-decoration:none;font-weight:bold;{if preg_match('#^yes($|,| )#i',$node->title)}color:rgb(0,150,0);{elseif preg_match('#^no($|,| )#i',$node->title)}color:rgb(150,0,0);{/if}" onclick="decisionNodeMenu(this);" node_id="{$node->id}" trigger_id="{$trigger_id}">
+			<a href="javascript:;" style="text-decoration:none;font-weight:bold;{if preg_match('#^yes($|,| )#i',$node->title)}color:rgb(0,150,0);{elseif preg_match('#^no($|,| )#i',$node->title)}color:rgb(150,0,0);{/if}" {if $is_writeable}onclick="decisionNodeMenu(this);"{/if} node_id="{$node->id}" trigger_id="{$trigger_id}">
 				{$node->title}{if $is_writeable} &#x25be;{/if}
 			</a>
 		</div>
 	
 	{elseif $node->node_type == 'action'}
 		<div class="badge badge-lightgray" style="margin:2px;">
-			<a href="javascript:;" style="text-decoration:none;font-weight:normal;font-style:italic;" onclick="decisionNodeMenu(this);" node_id="{$node->id}" trigger_id="{$trigger_id}">
+			<a href="javascript:;" style="text-decoration:none;font-weight:normal;font-style:italic;" {if $is_writeable}onclick="decisionNodeMenu(this);"{/if} node_id="{$node->id}" trigger_id="{$trigger_id}">
 				{$node->title}{if $is_writeable} &#x25be;{/if}
 			</a>
 		</div>
