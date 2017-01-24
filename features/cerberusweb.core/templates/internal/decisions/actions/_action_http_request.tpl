@@ -34,12 +34,16 @@
 <div class="cerb-httprequest-connected-account" style="margin-left:20px;{if 'connected_account' != $params.auth}display:none;{/if}">
 	<b>{'common.connected_account'|devblocks_translate|capitalize}:</b>
 	<div style="margin-left:10px;margin-bottom:10px;">
-		<select name="{$namePrefix}[auth_connected_account_id]">
-			<option value=""></option>
-			{foreach from=$connected_accounts item=account}
-			<option value="{$account->id}" {if $params.auth_connected_account_id == $account->id}selected="selected"{/if}>{$account->name}</option>
-			{/foreach}
-		</select>
+		<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[auth_connected_account_id]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
+		
+		<ul class="bubbles chooser-container">
+			{if $params.auth_connected_account_id}
+				{$account = DAO_ConnectedAccount::get($params.auth_connected_account_id)}
+				{if $account && Context_ConnectedAccount::isWriteableByActor($account, $trigger->getBot())}
+					<li><input type="hidden" name="{$namePrefix}[auth_connected_account_id]" value="{$account->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$account->id}">{$account->name}</a></li>
+				{/if}
+			{/if}
+		</ul>
 	</div>
 </div>
 
@@ -69,6 +73,10 @@
 $(function() {
 	var $action = $('fieldset#{$namePrefix}');
 	$action.find('textarea').autosize();
+	
+	$action.find('.chooser-abstract')
+		.cerbChooserTrigger()
+		;
 	
 	$action.find('select.cerb-httprequest-verb').change(function() {
 		var $container = $(this).closest('fieldset');
