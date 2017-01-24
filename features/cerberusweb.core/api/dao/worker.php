@@ -809,7 +809,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	/**
 	 * @return Model_GroupMember[]
 	 */
-	static function getWorkerGroups($worker_id) {
+	static function getWorkerGroups($worker_id, $only_if_manager=false) {
 		// Get the cache
 		$rosters = DAO_Group::getRosters();
 
@@ -819,7 +819,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(is_array($rosters))
 		foreach($rosters as $group_id => $members) {
 			if(isset($members[$worker_id])) {
-				$memberships[$group_id] = $members[$worker_id];
+				if(!$only_if_manager || $members[$worker_id]->is_manager)
+					$memberships[$group_id] = $members[$worker_id];
 			}
 		}
 		
@@ -1429,6 +1430,10 @@ class Model_Worker {
 	 */
 	function getMemberships() {
 		return DAO_Worker::getWorkerGroups($this->id);
+	}
+	
+	function getManagerships() {
+		return DAO_Worker::getWorkerGroups($this->id, true);
 	}
 
 	function getRoles() {

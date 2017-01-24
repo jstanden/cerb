@@ -105,6 +105,44 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		return CerberusContexts::filterModelsByActorWriteable('Context_ConnectedAccount', $accounts, $actor);
 	}
 	
+	static function getUsableByActor($actor, $extension_id=null) {
+		$accounts = DAO_ConnectedAccount::getAll();
+		
+		if(!is_null($extension_id)) {
+			$accounts = array_filter($accounts, function($account) use ($extension_id) {
+				return $account->extension_id == $extension_id;
+			});
+		}
+		
+		return array_intersect_key($accounts, array_flip(array_keys(Context_ConnectedAccount::isUsableByActor($accounts, $actor), true)));
+	}
+	
+	static function autocomplete($term, $as='models') {
+		$params = array(
+			SearchFields_ConnectedAccount::NAME => new DevblocksSearchCriteria(SearchFields_ConnectedAccount::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'*'),
+		);
+		
+		list($results, $null) = DAO_ConnectedAccount::search(
+			array(),
+			$params,
+			25,
+			0,
+			SearchFields_ConnectedAccount::NAME,
+			true,
+			false
+		);
+		
+		switch($as) {
+			case 'ids':
+				return array_keys($results);
+				break;
+				
+			default:
+				return DAO_ConnectedAccount::getIds(array_keys($results));
+				break;
+		}
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -541,7 +579,7 @@ class Model_ConnectedAccount {
 		if(false == ($ext = Extension_ServiceProvider::get($this->extension_id)))
 			return false;
 		
-		if(!Context_ConnectedAccount::isReadableByActor($this, $actor))
+		if(!Context_ConnectedAccount::isUsableByActor($this, $actor))
 			return false;
 		
 		// Check the interface on the service
@@ -925,6 +963,10 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $models);
 	}
 	
+	static function isUsableByActor($models, $actor) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $models);
+	}
+	
 	function getRandom() {
 		return DAO_ConnectedAccount::random();
 	}
@@ -1089,15 +1131,14 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		$params_req = array();
 		
 		if($active_worker && !$active_worker->is_superuser) {
-			$worker_group_ids = array_keys($active_worker->getMemberships());
+			$worker_group_ids = array_keys($active_worker->getManagerships());
 			$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
 			
 			// Restrict owners
 			
-			$params = $view->getParamsFromQuickSearch(sprintf('(owner.app:cerb OR owner.worker:(id:[%d]) OR owner.group:(id:[%s]) OR owner.role:(id:[%s])',
+			$params = $view->getParamsFromQuickSearch(sprintf('(owner.worker:(id:[%d]) OR owner.group:(id:[%s])',
 				$active_worker->id,
-				implode(',', $worker_group_ids),
-				implode(',', $worker_role_ids)
+				implode(',', $worker_group_ids)
 			));
 			
 			$params_req['_ownership'] = $params[0];
@@ -1128,15 +1169,14 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		$params_req = array();
 		
 		if($active_worker && !$active_worker->is_superuser) {
-			$worker_group_ids = array_keys($active_worker->getMemberships());
+			$worker_group_ids = array_keys($active_worker->getManagerships());
 			$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
 			
 			// Restrict owners
 			
-			$params = $view->getParamsFromQuickSearch(sprintf('(owner.app:cerb OR owner.worker:(id:[%d]) OR owner.group:(id:[%s]) OR owner.role:(id:[%s])',
+			$params = $view->getParamsFromQuickSearch(sprintf('(owner.worker:(id:[%d]) OR owner.group:(id:[%s])',
 				$active_worker->id,
-				implode(',', $worker_group_ids),
-				implode(',', $worker_role_ids)
+				implode(',', $worker_group_ids)
 			));
 			
 			$params_req['_ownership'] = $params[0];

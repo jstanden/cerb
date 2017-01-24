@@ -493,7 +493,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
 		
-		$connected_accounts = DAO_ConnectedAccount::getReadableByActor($trigger->getBot());
+		$connected_accounts = DAO_ConnectedAccount::getUsableByActor($trigger->getBot());
 		$tpl->assign('connected_accounts', $connected_accounts);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_http_request.tpl');
@@ -534,7 +534,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			case 'connected_account':
 				@$connected_account_id = $params['auth_connected_account_id'];
 				if(false != ($connected_account = DAO_ConnectedAccount::get($connected_account_id))) {
-					if(!Context_ConnectedAccount::isReadableByActor($connected_account, $trigger->getBot()))
+					if(!Context_ConnectedAccount::isUsableByActor($connected_account, $trigger->getBot()))
 						return "[ERROR] This behavior is attempting to use an unauthorized connected account.";
 					
 					$out .= sprintf(">>> Authenticating with %s\n\n", $connected_account->name);
