@@ -98,11 +98,15 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			
 			if(is_array($behaviors))
 			foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
-				if(!isset($vas[$behavior->bot_id]) || $behavior->is_private)
+				if(!isset($vas[$behavior->bot_id]))
 					continue;
-			
+				
+				// A private behavior is only usable by the same owner
+				if($behavior->is_private && !Context_TriggerEvent::isWriteableByActor($behavior, $actor))
+					continue;
+				
 				$result = clone $behavior; /* @var $result Model_TriggerEvent */
-			
+				
 				$has_public_vars = false;
 				if(is_array($result->variables))
 				foreach($result->variables as $var_name => $var_data) {
