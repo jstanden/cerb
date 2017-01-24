@@ -169,6 +169,7 @@ $(function() {
 		var $events_container = $popup.find('div.va-events');
 		var $events = $events_container.find('label');
 		
+		// Owners
 		var $owners_menu = $popup.find('ul.owners-menu');
 		var $ul = $owners_menu.siblings('ul.chooser-container');
 		

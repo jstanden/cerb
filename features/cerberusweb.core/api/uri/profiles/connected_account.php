@@ -144,24 +144,6 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 			$tpl->assign('model', $connected_account);
 		}
 		
-		/*
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, false);
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		if(!empty($context_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $context_id);
-			if(isset($custom_field_values[$context_id]))
-				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
-		}
-		*/
-
-		// Comments
-		/*
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $context_id);
-		$comments = array_reverse($comments, true);
-		$tpl->assign('comments', $comments);
-		*/
-		
 		$tpl->display('devblocks:cerberusweb.core::internal/connected_account/peek.tpl');
 	}
 	
@@ -188,22 +170,48 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
+				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', null);
 				
 				if(empty($id)) { // New
 					throw new Exception_DevblocksAjaxValidationError("This form can't create new accounts.");
 					
 				} else { // Edit
+					if(empty($name))
+						throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
+					
 					$fields = array(
 						DAO_ConnectedAccount::NAME => $name,
 						DAO_ConnectedAccount::UPDATED_AT => time(),
 					);
-					DAO_ConnectedAccount::update($id, $fields);
 					
+					// Owner (only admins)
+					if(!empty($owner) && $active_worker->is_superuser) {
+						$owner_ctx = '';
+						@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+						
+						// Make sure we're given a valid ctx
+						
+						switch($owner_ctx) {
+							case CerberusContexts::CONTEXT_APPLICATION:
+							case CerberusContexts::CONTEXT_ROLE:
+							case CerberusContexts::CONTEXT_GROUP:
+							case CerberusContexts::CONTEXT_WORKER:
+								break;
+							
+							default:
+								$owner_ctx = null;
+						}
+						
+						if(empty($owner_ctx))
+							throw new Exception_DevblocksAjaxValidationError("A valid 'Owner' is required.");
+						
+						$fields[DAO_ConnectedAccount::OWNER_CONTEXT] = $owner_ctx;
+						$fields[DAO_ConnectedAccount::OWNER_CONTEXT_ID] = $owner_ctx_id;
+					}
+					
+					DAO_ConnectedAccount::update($id, $fields);
 				}
-	
+				
 				// Custom fields
 				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
 				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $id, $field_ids);
@@ -231,7 +239,6 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				'error' => 'An error occurred.',
 			));
 			return;
-			
 		}
 	}
 	

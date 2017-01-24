@@ -1255,6 +1255,10 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			// Owner
+			$owners_menu = Extension_DevblocksContext::getOwnerTree(['app','group','role','worker']);
+			$tpl->assign('owners_menu', $owners_menu);
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
