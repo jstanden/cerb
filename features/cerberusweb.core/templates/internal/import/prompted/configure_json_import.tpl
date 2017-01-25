@@ -23,6 +23,9 @@
 	<option value="{$worker_id}">{$worker->getName()}</option>
 	{/foreach}
 </select>
+{elseif $import_field.type == 'chooser'}
+<button type="button" class="cerb-chooser-trigger" data-field-name="configure[{$import_seq}]" data-context="{$import_field.params.context}" {if $import_field.params.single}data-single="true"{/if} data-query="{$import_field.params.query}"><span class="glyphicons glyphicons-search"></span></button>
+<ul class="bubbles chooser-container"></ul>
 {else}
 	{if substr($import_field.type,0,4) == 'ctx_'}
 		{$context = substr($import_field.type, 4)}
@@ -36,8 +39,16 @@
 </fieldset>
 
 <script type="text/javascript">
-$('#{$div_uniqid} button.chooser').each(function() {
-	var $this = $(this);
-	ajax.chooser(this,$(this).attr('context'),$(this).attr('field'), { autocomplete:false });
+$(function() {
+	var $fieldset = $('#{$div_uniqid}');
+	
+	$fieldset.find('button.chooser').each(function() {
+		var $this = $(this);
+		ajax.chooser(this,$(this).attr('context'),$(this).attr('field'), { autocomplete:false });
+	});
+	
+	$fieldset.find('.cerb-chooser-trigger')
+		.cerbChooserTrigger()
+		;
 });
 </script>
