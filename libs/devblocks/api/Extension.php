@@ -1854,14 +1854,21 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 
 				case '_run_subroutine':
-					@$subroutine_id = $params['subroutine'];
+					$subroutine_node = null;
 					
-					if(false == (@$subroutine_node = DAO_DecisionNode::get($subroutine_id)))
+					foreach($trigger->getNodes('subroutine') as $node) {
+						if($node->title == $params['subroutine']) {
+							$subroutine_node = $node;
+							break;
+						}
+					}
+					
+					if(false == $subroutine_node)
 						return;
 					
 					return sprintf(">>> Running subroutine: %s (#%d)\n",
 						$subroutine_node->title,
-						$subroutine_id
+						$subroutine_node->id
 					);
 					break;
 					
@@ -2020,8 +2027,19 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 
 				case '_run_subroutine':
-					@$state = $params['subroutine'];
-					$dict->__goto = $state;
+					$subroutine_node = null;
+					
+					foreach($trigger->getNodes('subroutine') as $node) {
+						if($node->title == $params['subroutine']) {
+							$subroutine_node = $node;
+							break;
+						}
+					}
+					
+					if(false == $subroutine_node)
+						break;
+					
+					$dict->__goto = $subroutine_node->id;
 					
 					if($dry_run)
 						$out = $this->simulateAction($token, $trigger, $params, $dict);

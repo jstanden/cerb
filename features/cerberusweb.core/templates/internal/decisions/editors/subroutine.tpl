@@ -14,7 +14,7 @@
 
 <b>{'common.title'|devblocks_translate|capitalize}:</b>
 <div style="margin:0px 0px 10px 10px;">
-	<input type="text" name="title" value="{$model->title}" style="width:100%;" autocomplete="off" spellcheck="false">
+	<input type="text" name="title" value="{$model->title}" style="width:100%;" autocomplete="off" spellcheck="false" placeholder="doSomething()">
 </div>
 
 <b>{'common.status'|devblocks_translate|capitalize}:</b>

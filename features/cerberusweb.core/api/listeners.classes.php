@@ -656,6 +656,10 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		return self::$_traversal_log;
 	}
 	
+	static function setNodeLog(array $log) {
+		self::$_traversal_log = $log;
+	}
+	
 	static function clear() {
 		self::$_traversal_log = array();
 		self::$_trigger_log = array();
