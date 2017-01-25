@@ -32,6 +32,14 @@
 		{/if}
 
 	{/if}
+	
+	<li><hr></li>
+	
+	{if $node}
+		<li><a href="javascript:;" onclick="genericAjaxPopup('export_nodes','c=internal&a=showBehaviorExportPopup&trigger_id={$trigger_id}&node_id={$node->id}',null,false,'50%');">Export</a></li>
+	{else}
+		{*<li><a href="javascript:;" onclick="genericAjaxPopup('export_nodes','c=internal&a=showBehaviorExportPopup&trigger_id={$trigger_id}',null,false,'50%');">Export</a></li>*}
+	{/if}
 </ul>
 
 <script type="text/javascript">

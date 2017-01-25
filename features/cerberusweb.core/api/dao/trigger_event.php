@@ -751,11 +751,11 @@ class Model_TriggerEvent {
 		return $nodes;
 	}
 	
-	public function getDecisionTreeData() {
+	public function getDecisionTreeData($root_id = 0) {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
 		$depths = array();
-		$this->_recurseBuildTreeDepths($tree, 0, $depths);
+		$this->_recurseBuildTreeDepths($tree, $root_id, $depths);
 		
 		return array('nodes' => $nodes, 'tree' => $tree, 'depths' => $depths);
 	}
@@ -1093,20 +1093,28 @@ class Model_TriggerEvent {
 		return DAO_TriggerEvent::logUsage($this->id, $runtime_ms);
 	}
 	
-	function exportToJson() {
+	function exportToJson($root_id=0) {
 		if(null == ($event = $this->getEvent()))
 			return;
 		
-		$ptrs = array(
-			'0' => array(
-				'nodes' => array(),
-			),
-		);
+		$ptrs = [
+			'0' => [
+				'nodes' => [],
+			],
+		];
 		
 		$tree_data = $this->getDecisionTreeData();
 		
 		$nodes = $tree_data['nodes'];
 		$depths = $tree_data['depths'];
+		
+		$root = null;
+		
+		$statuses = [
+			0 => 'live',
+			1 => 'disabled',
+			2 => 'simulator',
+		];
 		
 		foreach($depths as $node_id => $depth) {
 			$node = $nodes[$node_id]; /* @var $node Model_DecisionNode */
@@ -1114,6 +1122,7 @@ class Model_TriggerEvent {
 			$ptrs[$node->id] = array(
 				'type' => $node->node_type,
 				'title' => $node->title,
+				'status' => $statuses[$node->status_id],
 			);
 			
 			if(!empty($node->params_json))
@@ -1122,13 +1131,27 @@ class Model_TriggerEvent {
 			$parent =& $ptrs[$node->parent_id];
 			
 			if(!isset($parent['nodes']))
-				$parent['nodes'] = array();
+				$parent['nodes'] = [];
 			
-			$parent['nodes'][] =& $ptrs[$node->id];
+			$ptr =& $ptrs[$node->id];
+			
+			if($node->id == $root_id) {
+				$root = [];
+				$root[] =& $ptr;
+			}
+			
+			$parent['nodes'][] =& $ptr;
 		}
-
+		
+		$export_type = 'behavior_fragment';
+		
+		if(!$root_id || is_null($root)) {
+			$root = $ptrs[0]['nodes'];
+			$export_type = 'behavior';
+		}
+		
 		$array = array(
-			'behavior' => array(
+			$export_type => array(
 				'title' => $this->title,
 				'is_disabled' => $this->is_disabled ? true : false,
 				'is_private' => $this->is_private ? true : false,
@@ -1140,13 +1163,13 @@ class Model_TriggerEvent {
 		);
 		
 		if(isset($this->event_params) && !empty($this->event_params))
-			$array['behavior']['event']['params'] = $this->event_params;
+			$array[$export_type]['event']['params'] = $this->event_params;
 		
 		if(!empty($this->variables))
-			$array['behavior']['variables'] = $this->variables;
+			$array[$export_type]['variables'] = $this->variables;
 		
-		if(!empty($ptrs[0]['nodes']))
-			$array['behavior']['nodes'] = $ptrs[0]['nodes'];
+		if($root)
+			$array[$export_type]['nodes'] = $root;
 		
 		return DevblocksPlatform::strFormatJson($array);
 	}

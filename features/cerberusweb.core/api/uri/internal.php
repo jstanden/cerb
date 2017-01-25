@@ -3748,11 +3748,12 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function showBehaviorExportPopupAction() {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		@$node_id = DevblocksPlatform::importGPC($_REQUEST['node_id'],'integer', 0);
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			return;
 
-		$behavior_json = $trigger->exportToJson();
+		$behavior_json = $trigger->exportToJson($node_id);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
