@@ -1632,37 +1632,6 @@ class DevblocksEventHelper {
 		$tpl->assign('context_to_macros', $context_to_macros);
 		$tpl->assign('events_to_contexts', array_flip($context_to_macros));
 
-		// Macros
-		
-		if(false == ($va = $trigger->getBot()))
-			return;
-		
-		$macros = array();
-		
-		$results = DAO_TriggerEvent::getReadableByActor($va, null, true);
-		
-		foreach($results as $k => $macro) {
-			if(!in_array($macro->event_point, $context_to_macros)) {
-				continue;
-			}
-
-			if(false == ($macro_va = $macro->getBot())) {
-				continue;
-			}
-			
-			$macro->title = sprintf("[%s] %s%s",
-				$macro_va->name,
-				$macro->title,
-				($macro->is_disabled ? ' (disabled)' : '')
-			);
-			
-			$macros[$k] = $macro;
-		}
-		
-		DevblocksPlatform::sortObjects($macros, 'title');
-		
-		$tpl->assign('macros', $macros);
-		
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::events/action_run_behavior.tpl');
@@ -1763,7 +1732,13 @@ class DevblocksEventHelper {
 					}
 					
 					if($run_in_simulator) {
+						// Save the current state so we can resume it after the remote behavior
+						$log = EventListener_Triggers::getNodeLog();
+						
 						$runners = call_user_func(array($ext->manifest->class, 'trigger'), $behavior->id, $on_object->id, $vars);
+						
+						// Restore the current state
+						EventListener_Triggers::setNodeLog($log);
 						
 						// Capture results
 						
@@ -1854,7 +1829,9 @@ class DevblocksEventHelper {
 					if(!isset($on_object->id) && empty($on_object->id))
 						continue;
 
+					$log = EventListener_Triggers::getNodeLog();
 					$runners = call_user_func(array($ext->class, 'trigger'), $behavior->id, $on_object->id, $vars);
+					EventListener_Triggers::setNodeLog($log);
 					
 					if(null != (@$runner = $runners[$behavior->id])) {
 						$dict->$var = $runner;

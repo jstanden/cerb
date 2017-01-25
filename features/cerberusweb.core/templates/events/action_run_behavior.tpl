@@ -4,8 +4,9 @@
 <select name="{$namePrefix}[on]" class="on">
 	{foreach from=$values_to_contexts item=context_data key=val_key name=context_data}
 	{if $smarty.foreach.context_data.first && empty($params.on)}{$params.on = $val_key}{/if}
-	{if !$context_data.is_polymorphic}
-	<option value="{$val_key}" context="{$context_data.context}" {if $params.on==$val_key}{$selected_context = $context_data.context}selected="selected"{/if}>{$context_data.label}</option>
+	{$event_point = $context_to_macros.{$context_data.context}}
+	{if $event_point && !$context_data.is_polymorphic}
+	<option value="{$val_key}" data-event="{$event_point}" {if $params.on==$val_key}{$selected_event = $event_point}selected="selected"{/if}>{$context_data.label}</option>
 	{/if}
 	{/foreach}
 </select>
@@ -13,31 +14,24 @@
 {/if}
 
 <b>Run this behavior:</b>
+{$behavior = null}
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<select class="behavior_defaults" style="display:none;visibility:hidden;">
-	{foreach from=$macros item=macro key=macro_id}
-		{$is_selected = ($params.behavior_id==$macro_id)}
-		{if $is_selected || !$macro->is_disabled}
-		<option value="{$macro_id}" context="{$events_to_contexts.{$macro->event_point}}" {if $is_selected}selected="selected"{/if}>{$macro->title}</option>
+	<button type="button" class="chooser-behavior" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="event:{$selected_event} disabled:n usableBy.bot:{$trigger->bot_id}"><span class="glyphicons glyphicons-search"></span></button>
+	
+	<ul class="bubbles chooser-container">
+		{if $params.behavior_id}
+			{$behavior = DAO_TriggerEvent::get($params.behavior_id)}
+			{if $behavior}
+				<li><input type="hidden" name="{$namePrefix}[behavior_id]" value="{$behavior->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></li>
+			{/if}
 		{/if}
-	{/foreach}
-	</select>
-	<select name="{$namePrefix}[behavior_id]" class="behavior">
-	<option value=""></option>
-	{foreach from=$macros item=macro key=macro_id}
-		{if $events_to_contexts.{$macro->event_point} == $selected_context}
-		{if empty($params.behavior_id)}{$params.behavior_id=$macro_id}{/if}
-		{$is_selected = ($params.behavior_id==$macro_id)}
-		{if $is_selected || !$macro->is_disabled}
-		<option value="{$macro_id}" {if $is_selected}selected="selected"{/if}>{$macro->title}</option>
-		{/if}
-		{/if}
-	{/foreach}
-	</select>
+	</ul>
 </div>
 
 <div class="parameters">
-{include file="devblocks:cerberusweb.core::events/_action_behavior_params.tpl" params=$params macro_params=$macros.{$params.behavior_id}->variables}
+{if $behavior}
+{include file="devblocks:cerberusweb.core::events/_action_behavior_params.tpl" params=$params macro_params=$behavior->variables}
+{/if}
 </div>
 
 <b>Also run behavior in simulator mode:</b>
@@ -55,30 +49,40 @@
 </div>
 
 <script type="text/javascript">
-$action = $('fieldset#{$namePrefix}');
-$action.find('select.behavior').change(function(e) {
-	var $div = $(this).closest('fieldset').find('div.parameters');
-	genericAjaxGet($div,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + $(this).val());
-});
-
-$action.find('select.on').change(function(e) {
-	var $div = $(this).closest('fieldset').find('div.parameters');
-	$div.html('');
+$(function() {
+	var $action = $('fieldset#{$namePrefix}');
+	var $behavior_params = $action.find('div.parameters');
+	var $bubbles = $action.find('ul.chooser-container');
 	
-	var $on = $(this).find('option:selected');
-	var ctx = $on.attr('context');
-
-	var $sel_behavior = $(this).closest('fieldset').find('select.behavior');
-	$sel_behavior.find('option').remove();
+	$action.find('.cerb-peek-trigger')
+		.cerbPeekTrigger()
+		;
 	
-	var $sel_behavior_defaults = $(this).closest('fieldset').find('select.behavior_defaults');
-	$sel_behavior_defaults.find('option').each(function() {
-		var $this = $(this);
-		if($this.attr('context') == ctx) {
-			$sel_behavior.append($this.clone());
-		}
+	$action.find('.chooser-behavior')
+		.cerbChooserTrigger()
+			.on('cerb-chooser-saved', function(e) {
+				var $bubble = $bubbles.find('> li:first input:hidden');
+				var id = $bubble.first().val();
+				
+				if(id) {
+					genericAjaxGet($behavior_params,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + id);
+				} else {
+					$behavior_params.html('');
+				}
+			})
+		;
+	
+	$action.find('select.on').change(function(e) {
+		$behavior_params.html('');
+		
+		var $on = $(this).find('option:selected');
+		var event_point = $on.attr('data-event');
+		
+		$action.find('.chooser-behavior')
+			.attr('data-query', 'event:' + event_point + ' disabled:n usableBy.bot:{$trigger->bot_id}')
+			;
+		
+		$bubbles.find('> *').remove();
 	});
-	
-	$sel_behavior.trigger('change');
 });
 </script>
