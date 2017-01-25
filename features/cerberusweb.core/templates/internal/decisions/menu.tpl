@@ -36,8 +36,10 @@
 	<li><hr></li>
 	
 	{if $node}
+		{if $node->node_type != 'action'}<li><a href="javascript:;" onclick="genericAjaxPopup('import_nodes','c=internal&a=showBehaviorImportPopup&trigger_id={$trigger_id}&node_id={$node->id}',null,false,'50%');">Import</a></li>{/if}
 		<li><a href="javascript:;" onclick="genericAjaxPopup('export_nodes','c=internal&a=showBehaviorExportPopup&trigger_id={$trigger_id}&node_id={$node->id}',null,false,'50%');">Export</a></li>
 	{else}
+		<li><a href="javascript:;" onclick="genericAjaxPopup('import_nodes','c=internal&a=showBehaviorImportPopup&trigger_id={$trigger_id}',null,false,'50%');">Import</a></li>
 		{*<li><a href="javascript:;" onclick="genericAjaxPopup('export_nodes','c=internal&a=showBehaviorExportPopup&trigger_id={$trigger_id}',null,false,'50%');">Export</a></li>*}
 	{/if}
 </ul>

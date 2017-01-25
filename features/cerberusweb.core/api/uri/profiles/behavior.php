@@ -517,6 +517,135 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		echo json_encode(array_column(json_decode(json_encode($events), true), 'name', 'id'));
 	}
 	
+	function saveBehaviorImportPopupJsonAction() {
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		@$node_id = DevblocksPlatform::importGPC($_REQUEST['node_id'],'integer', 0);
+		@$behavior_json = DevblocksPlatform::importGPC($_REQUEST['behavior_json'],'string', null);
+		@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', array());
+		
+		header('Content-Type: application/json');
+		
+		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+			echo json_encode([
+				'status' => false,
+				'error' => 'Invalid behavior.',
+			]);
+			return;
+		}
+
+		if($node_id && false == ($parent = DAO_DecisionNode::get($node_id))) {
+			echo json_encode([
+				'status' => false,
+				'error' => 'Invalid parent node.',
+			]);
+			return;
+		}
+		
+		if(false == (@$json = json_decode($behavior_json, true))) {
+			echo json_encode([
+				'status' => false,
+				'error' => 'Invalid JSON (unable to decode).',
+			]);
+			return;
+		}
+		
+		if(!is_array($json) || !isset($json['behavior_fragment'])) {
+			echo json_encode([
+				'status' => false,
+				'error' => 'Invalid JSON (missing fragment).',
+			]);
+			return;
+		}
+		
+		// Verify event type
+		if($trigger->event_point != @$json['behavior_fragment']['event']['key']) {
+			echo json_encode([
+				'status' => false,
+				'error' => sprintf('Imported event (%s) differs from target event (%s).',
+					@$json['behavior_fragment']['event']['key'],
+					$trigger->event_point
+				),
+			]);
+			return;
+		}
+		
+		@$nodes = $json['behavior_fragment']['nodes'];
+		
+		$validation = [
+			'action' => [],
+			'behavior' => ['action','loop','subroutine','switch'],
+			'loop' => ['action','loop','switch'],
+			'outcome' => ['action','loop','switch'],
+			'subroutine' => ['action','loop','switch'],
+			'switch' => ['outcome'],
+		];
+		
+		if($parent) {
+			$parent_type = $parent->node_type;
+			$parent_id = $parent->id;
+		} else {
+			$parent_type = 'behavior';
+			$parent_id = 0;
+		}
+		
+		// Validation
+		
+		foreach($nodes as $node) {
+			if(!in_array($node['type'], $validation[$parent_type])) {
+				echo json_encode([
+					'status' => false,
+					'error' => sprintf("Invalid JSON ('%s' can't contain '%s').", $parent->node_type, $node['type']),
+				]);
+				return;
+			}
+		}
+		
+		// Allow prompted configuration of the VA behavior import
+		
+		@$configure_fields = $json['behavior_fragment']['configure'];
+		
+		// Are there configurable fields in this import file?
+		if(is_array($configure_fields) && !empty($configure_fields)) {
+			// If the worker has provided the configuration, make the changes to JSON array
+			if(!empty($configure)) {
+				foreach($configure_fields as $config_field_idx => $config_field) {
+					if(!isset($config_field['path']))
+						continue;
+					
+					if(!isset($configure[$config_field_idx]))
+						continue;
+					
+					$ptr =& DevblocksPlatform::jsonGetPointerFromPath($json, $config_field['path']);
+					$ptr = $configure[$config_field_idx];
+				}
+				
+			// If the worker hasn't been prompted, do that now
+			} else {
+				$tpl = DevblocksPlatform::getTemplateService();
+				$tpl->assign('import_json', $behavior_json);
+				$tpl->assign('import_fields', $configure_fields);
+				$config_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/prompted/configure_json_import.tpl');
+				
+				echo json_encode(array(
+					'config_html' => $config_html,
+				));
+				return;
+			}
+		}
+		
+		if(false == $this->_recursiveImportDecisionNodes($json['behavior_fragment']['nodes'], $trigger->id, $parent_id)) {
+			echo json_encode([
+				'status' => false,
+				'error' => 'Failed to import behavior fragment.',
+			]);
+			return;
+		}
+		
+		echo json_encode(array(
+			'status' => true,
+		));
+	}
+	
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
