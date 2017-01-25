@@ -4372,7 +4372,7 @@ class DevblocksEventHelper {
 	
 	
 	static function runActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
-		$logger = DevblocksPlatform::getConsoleLog('Attendant');
+		$logger = DevblocksPlatform::getConsoleLog('Bot');
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$mail_service = DevblocksPlatform::getMailService();
 		$settings = DevblocksPlatform::getPluginSettingsService();

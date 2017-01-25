@@ -450,7 +450,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			if(
 				!isset($node['type'])
 				|| !isset($node['title'])
-				|| !in_array($node['type'], array('switch','outcome','action'))
+				|| !in_array($node['type'], array('action','loop','outcome','subroutine','switch'))
 			)
 				return false;
 			

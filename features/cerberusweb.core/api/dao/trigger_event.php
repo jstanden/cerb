@@ -822,7 +822,7 @@ class Model_TriggerEvent {
 	}
 	
 	private function _recurseRunTree($event, $nodes, $tree, $node_id, DevblocksDictionaryDelegate $dict, &$path, &$replay, $dry_run=false) {
-		$logger = DevblocksPlatform::getConsoleLog("Attendant");
+		$logger = DevblocksPlatform::getConsoleLog('Bot');
 
 		// Did the last action request that we exit early?
 		if(false !== in_array(end($path) ?: '', ['STOP','SUSPEND']))

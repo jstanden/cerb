@@ -6,7 +6,7 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset>
-	<legend>{if !empty($node)}{$node->title}{elseif !empty($trigger)}{$trigger->event_point}{/if}</legend>
+	<legend>{if !empty($node)}{$node->title}{elseif !empty($trigger)}{$trigger->title}{/if}</legend>
 	
 	{* [TODO] Show a tree excluding the current branch *}
 	<div class="container">
@@ -60,18 +60,26 @@
 	</div>
 	
 </fieldset>
-{if !empty($node)}{$trigger_id = $node->trigger_id}{elseif !empty($trigger)}{$trigger_id = $trigger->id}{/if}
-<button type="button" onclick="genericAjaxPost('frmDecisionNodeReorder','','',function() { genericAjaxPopupDestroy('peek');genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $frm = $('#frmDecisionNodeReorder');
+	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
-		$(this).dialog('option','title',"Reorder");
+		$popup.dialog('option','title',"Reorder");
 
-		$('#frmDecisionNodeReorder DIV.container').sortable({ items:'DIV.item', placeholder:'ui-state-highlight' });
+		$frm.find('DIV.container').sortable({ items:'DIV.item', placeholder:'ui-state-highlight' });
+		
+		$frm.find('button.submit').click(function() {
+			genericAjaxPost($frm,'','',function() {
+				{if !empty($node)}{$trigger_id = $node->trigger_id}{elseif !empty($trigger)}{$trigger_id = $trigger->id}{/if}
+				genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}');
+				genericAjaxPopupDestroy($popup);
+			});
+		})
 	});
 });
 </script>

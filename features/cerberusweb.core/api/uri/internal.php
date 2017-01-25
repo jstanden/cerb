@@ -3640,7 +3640,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$custom_values = DevblocksPlatform::importGPC($_POST['values'],'array', array());
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$logger = DevblocksPlatform::getConsoleLog('Attendant');
+		$logger = DevblocksPlatform::getConsoleLog('Bot');
 		
 		$logger->setLogLevel(6);
 		
@@ -3737,10 +3737,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		$logger->setLogLevel(0);
 
 		$conditions_output = ob_get_contents();
-
+		
 		ob_end_clean();
 
-		$conditions_output = preg_replace("/^\[INFO\] \[Attendant\] /m", '', strip_tags($conditions_output));
+		$conditions_output = preg_replace("/^\[INFO\] \[Bot\] /m", '', strip_tags($conditions_output));
 		$tpl->assign('conditions_output', trim($conditions_output));
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/simulator/results.tpl');

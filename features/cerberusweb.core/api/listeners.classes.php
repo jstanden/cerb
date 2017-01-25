@@ -667,7 +667,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 	 * @param Model_DevblocksEvent $event
 	 */
 	function handleEvent(Model_DevblocksEvent $event) {
-		$logger = DevblocksPlatform::getConsoleLog("Attendant");
+		$logger = DevblocksPlatform::getConsoleLog('Bot');
 		
 		$logger->info(sprintf("EVENT: %s",
 			$event->id
@@ -782,7 +782,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			
 			$start_runtime = intval(microtime(true));
 			
-			$logger->info(sprintf("Running behavior '%s' (#%d) for %s (#%d)",
+			$logger->info(sprintf("Running behavior %s (#%d) for %s (#%d)",
 				$trigger->title,
 				$trigger->id,
 				$trigger_va->name,

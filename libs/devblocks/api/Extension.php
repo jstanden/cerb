@@ -1240,7 +1240,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 
 	function runCondition($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$logger = DevblocksPlatform::getConsoleLog('Attendant');
+		$logger = DevblocksPlatform::getConsoleLog('Bot');
 		$conditions = $this->getConditions($trigger);
 		
 		// Cache the extensions
