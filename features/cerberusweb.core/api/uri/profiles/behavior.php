@@ -256,7 +256,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							DAO_TriggerEvent::VARIABLES_JSON => isset($json['behavior']['variables']) ? json_encode($json['behavior']['variables']) : '',
 							DAO_TriggerEvent::EVENT_PARAMS_JSON => isset($json['behavior']['event']['params']) ? json_encode($json['behavior']['event']['params']) : '',
 							DAO_TriggerEvent::BOT_ID => $bot->id,
-							DAO_TriggerEvent::PRIORITY => 50,
+							DAO_TriggerEvent::PRIORITY => @$json['behavior']['priority'] ?: 50,
 							DAO_TriggerEvent::IS_DISABLED => 1, // default to disabled until successfully imported
 							DAO_TriggerEvent::UPDATED_AT => time(),
 						);

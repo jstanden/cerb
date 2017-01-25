@@ -1155,6 +1155,7 @@ class Model_TriggerEvent {
 				'title' => $this->title,
 				'is_disabled' => $this->is_disabled ? true : false,
 				'is_private' => $this->is_private ? true : false,
+				'priority' => $this->priority,
 				'event' => array(
 					'key' => $this->event_point,
 					'label' => $event->manifest->name,
