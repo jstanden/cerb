@@ -282,6 +282,7 @@ $(function() {
 				x = 0;
 				y = 0;
 				$(img).one('load', function() {
+					$bgcolor_well.miniColors('value', '#FFFFFF');
 					$canvas.trigger('avatar-redraw');
 				});
 				$(img).attr('src', json.imageData);
