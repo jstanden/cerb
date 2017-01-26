@@ -1979,6 +1979,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
   display: inline-block;
   margin: 0px 2px;
   cursor: pointer;
+  border: 1px solid #c8c8c8;
 }
 
 .miniColors-colorPicker {

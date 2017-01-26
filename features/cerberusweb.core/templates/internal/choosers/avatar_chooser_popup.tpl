@@ -70,7 +70,7 @@ $(function() {
 		var $monogram = $popup.find('fieldset.cerb-avatar-monogram');
 		
 		$bgcolor_well.miniColors({
-			color_favorites: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#CF25F5','#ADADAD','#34434E'],
+			color_favorites: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#CF25F5','#ADADAD','#34434E', '#FFFFFF'],
 			change: function() {
 				$canvas.trigger('avatar-redraw');
 			}
