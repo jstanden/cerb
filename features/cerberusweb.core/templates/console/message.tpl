@@ -2,7 +2,7 @@
 	{if $bot}
 	<div class="bot-chat-message-author">
 		<img src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}" style="height:16px;width:16px;border-radius:5px;vertical-align:middle;">
-		<b>{$bot->name}</b>:
+		<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}"><b>{$bot->name}</b></a>:
 	</div>
 	{/if}
 	{if in_array($format, ['markdown','html'])}

@@ -1,4 +1,3 @@
-{$div_id = "botchat_{uniqid()}"}
 <style type="text/css">
 .bot-chat-window {
 }
@@ -79,7 +78,7 @@
 }
 </style>
 
-<div id="{$div_id}" class="bot-chat-window">
+<div id="cerb-bot-chat-window" class="bot-chat-window">
 
 	<div class="bot-chat-window-convo">
 	</div>
@@ -98,7 +97,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#{$div_id}');
+	var $popup = genericAjaxPopupFind('#cerb-bot-chat-window');
 	
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', "{$bot->name|escape:'javascript' nofilter}");
