@@ -4294,6 +4294,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 
 	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {
 		$labels = $dict->_labels;
+		
+		if(!is_array($labels))
+			return [];
+		
 		$prefix = $labels['_label'];
 		
 		if(!empty($prefix)) {
