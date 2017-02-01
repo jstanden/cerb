@@ -155,6 +155,9 @@ class ChUpdateController extends DevblocksControllerExtension {
 						// Lock file
 						touch($file);
 						
+						// Reset the classloader
+						DevblocksPlatform::getClassLoaderService()->destroy();
+						
 						// Recursive patch
 						CerberusApplication::update();
 						

@@ -144,6 +144,8 @@ if(!isset($tables['context_alias'])) {
 
 	$tables['context_alias'] = 'context_alias';
 	
+	require_once(DEVBLOCKS_PATH . 'api/services/bayes_classifier.php');
+	
 	$bayes = DevblocksPlatform::getBayesClassifierService();
 	
 	$values = [];
