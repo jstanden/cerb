@@ -50,7 +50,7 @@
 		<label>
 			{'common.comment'|devblocks_translate|capitalize}:</b>
 		</label>
-		<textarea name="comment" rows="2" cols="60" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
+		<textarea name="comment" rows="2" cols="60" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}" autofocus="autofocus">{$model->comment}</textarea>
 		<button type="button" onclick="ajax.chooserSnippet('snippets',$('#{$form_id} textarea[name=comment]'), { '{$context}':'{$context_id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|lower}</button>
 	</div>
 	
