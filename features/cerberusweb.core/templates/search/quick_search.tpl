@@ -36,7 +36,7 @@
 		{/foreach}
 	{/function}
 	
-	<ul class="cerb-menu cerb-float" style="width:200px;display:none;">
+	<ul class="cerb-menu cerb-float" style="display:none;">
 	{tree keys=$menu}
 	</ul>
 </form>
