@@ -946,6 +946,11 @@ class Model_Contact {
 		return mb_convert_case(DevblocksPlatform::strToInitials($this->getName()), MB_CASE_UPPER);
 	}
 	
+	function getImageUrl() {
+		$url_writer = DevblocksPlatform::getUrlService();
+		return $url_writer->write(sprintf('c=avatars&type=contact&id=%d', $this->id)) . '?v=' . $this->updated_at;
+	}
+	
 	function getOrg() {
 		if(empty($this->org_id))
 			return null;
@@ -961,6 +966,13 @@ class Model_Contact {
 			return null;
 		
 		return $org->name;
+	}
+	
+	function getOrgImageUrl() {
+		if(false == ($org = $this->getOrg()))
+			return null;
+		
+		return $org->getImageUrl();
 	}
 	
 	// Primary

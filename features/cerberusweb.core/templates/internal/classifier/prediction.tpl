@@ -34,7 +34,7 @@
 								<ul class="bubbles">
 								{foreach from=$param.$k item=contact}
 									<li>
-										<img src="{devblocks_url}c=avatars&context=contact&context_id={$contact.id}{/devblocks_url}?v={$contact.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+										<img src="{$contact.image}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
 										<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact.id}">{$contact.full_name}</a>
 									</li>
 								{/foreach}
@@ -55,7 +55,7 @@
 								<ul class="bubbles">
 								{foreach from=$param.$k item=org}
 									<li>
-										<img src="{devblocks_url}c=avatars&context=org&context_id={$org.id}{/devblocks_url}?v={$org.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+										<img src="{$org.image}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
 										<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org.id}">{$org.name}</a>
 									</li>
 								{/foreach}
@@ -72,7 +72,7 @@
 								<ul class="bubbles">
 								{foreach from=$param.$k item=worker}
 									<li>
-										<img src="{devblocks_url}c=avatars&context=worker&context_id={$worker.id}{/devblocks_url}?v={$worker.updated}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
+										<img src="{$worker.image}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
 										<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker.id}">{$worker.full_name}</a>
 									</li>
 								{/foreach}

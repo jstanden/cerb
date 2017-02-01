@@ -1466,6 +1466,11 @@ class Model_Worker {
 		return mb_convert_case(DevblocksPlatform::strToInitials($this->getName()), MB_CASE_UPPER);
 	}
 	
+	function getImageUrl() {
+		$url_writer = DevblocksPlatform::getUrlService();
+		return $url_writer->write(sprintf('c=avatars&type=worker&id=%d', $this->id)) . '?v=' . $this->updated;
+	}
+	
 	function getLatestActivity() {
 		return DAO_ContextActivityLog::getLatestEntriesByActor(CerberusContexts::CONTEXT_WORKER, $this->id, 1);
 	}
