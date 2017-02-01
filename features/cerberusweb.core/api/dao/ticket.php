@@ -2039,7 +2039,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			// [TODO] Array
 			case self::VIRTUAL_GROUPS_OF_WORKER:
 				if(null == ($member = DAO_Worker::get($param->value)))
-					break;
+					return '0';
 					
 				$all_groups = DAO_Group::getAll();
 				$roster = $member->getMemberships();
@@ -2051,7 +2051,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 				// If the worker is in every group, ignore this filter entirely
 				if(empty($restricted_groups))
-					break;
+					return '1';
 				
 				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
 				
