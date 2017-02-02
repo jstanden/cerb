@@ -209,8 +209,13 @@ class _DevblocksBayesClassifierService {
 	}
 	*/
 	
-	static function _findSubsetInArray(array $find, array $array) {
+	static function _findSubsetInArray(array $find, array $array, $start=0) {
 		reset($array);
+		
+		if($start) {
+			$array = array_slice($array, $start, null, true);
+		}
+		
 		$first_idx = key($array);
 		$vals = array_values($array);
 		
