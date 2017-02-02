@@ -662,17 +662,35 @@ class _DevblocksBayesClassifierService {
 		$terms = $db->qstr($lookup);
 		
 		$sql = implode(' UNION ALL ', [
-			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s LIMIT 5)",
+			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s AND is_primary = 0 LIMIT 10)",
 				$terms,
-				$db->qstr(CerberusContexts::CONTEXT_WORKER)
+				$db->qstr(CerberusContexts::CONTEXT_WORKER),
+				$terms
 			),
-			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s LIMIT 5)",
+			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s AND is_primary = 1 LIMIT 5)",
 				$terms,
-				$db->qstr(CerberusContexts::CONTEXT_ORG)
+				$db->qstr(CerberusContexts::CONTEXT_WORKER),
+				$terms
 			),
-			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s LIMIT 5)",
+			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s AND is_primary = 0 LIMIT 10)",
 				$terms,
-				$db->qstr(CerberusContexts::CONTEXT_CONTACT)
+				$db->qstr(CerberusContexts::CONTEXT_ORG),
+				$terms
+			),
+			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s AND is_primary = 1 LIMIT 5)",
+				$terms,
+				$db->qstr(CerberusContexts::CONTEXT_ORG),
+				$terms
+			),
+			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s AND is_primary = 0 LIMIT 10)",
+				$terms,
+				$db->qstr(CerberusContexts::CONTEXT_CONTACT),
+				$terms
+			),
+			sprintf("(SELECT context, id, name FROM context_alias WHERE MATCH (terms) AGAINST (%s IN NATURAL LANGUAGE MODE) AND context = %s AND is_primary = 1 LIMIT 5)",
+				$terms,
+				$db->qstr(CerberusContexts::CONTEXT_CONTACT),
+				$terms
 			),
 		]);
 		
@@ -714,8 +732,6 @@ class _DevblocksBayesClassifierService {
 				array_pop($name);
 			}
 		}
-		
-		//var_dump($hits);
 		
 		foreach($hits as $pos => $hit) {
 			$result = $results[$pos];

@@ -133,7 +133,8 @@ if(!isset($tables['context_alias'])) {
 	$sql = sprintf("
 	CREATE TABLE `context_alias` (
 		context varchar(32) NOT NULL DEFAULT '',
-		id int(10) unsigned NOT NULL DEFAULT '0',
+		id int(10) unsigned NOT NULL DEFAULT 0,
+		is_primary tinyint(1) unsigned NOT NULL DEFAULT 0,
 		name varchar(255) NOT NULL DEFAULT '',
 		terms varchar(255) NOT NULL DEFAULT '',
 		PRIMARY KEY (`context`,`id`,`terms`),
@@ -226,6 +227,21 @@ if(!isset($tables['context_alias'])) {
 	
 	$flush_entities();
 	mysqli_free_result($rs);
+}
+
+// ===========================================================================
+// Modify `context_alias` to add 'is_primary' field
+
+if(!isset($tables['context_alias'])) {
+	$logger->error("The 'context_alias' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('context_alias');
+
+if(!isset($columns['is_primary'])) {
+	$db->ExecuteMaster("ALTER TABLE context_alias ADD COLUMN is_primary tinyint(1) unsigned not null default 0");
+	$db->ExecuteMaster("UPDATE context_alias SET is_primary = 1");
 }
 
 // ===========================================================================
