@@ -52,7 +52,7 @@
 						{$k_alias = 'org'}
 						{$k_updated = $k_prefix|cat:"updated"}
 					{elseif $dict->$k_context == "{CerberusContexts::CONTEXT_BOT}"}
-						{$k_alias = 'va'}
+						{$k_alias = 'bot'}
 						{$k_updated = $k_prefix|cat:"updated_at"}
 					{elseif $dict->$k_context == "{CerberusContexts::CONTEXT_WORKER}"}
 						{$k_alias = 'worker'}
