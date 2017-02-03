@@ -494,7 +494,6 @@ class DAO_Contact extends Cerb_ORMHelper {
 				: '')
 		));
 		
-		
 		if(is_array($results))
 		foreach($results as $row) {
 			$ids[] = $row['id'];
@@ -502,11 +501,11 @@ class DAO_Contact extends Cerb_ORMHelper {
 		
 		switch($as) {
 			case 'ids':
-				return array_keys($results);
+				return $ids;
 				break;
 				
 			default:
-				return DAO_Contact::getIds(array_keys($results));
+				return DAO_Contact::getIds($ids);
 				break;
 		}
 	}
