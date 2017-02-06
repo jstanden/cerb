@@ -550,7 +550,7 @@ class Model_Classifier {
 			$bayes::train($example->expression, $example->classifier_id, $example->class_id, true);
 		}
 		
-		$bayes::updateCounts($this->id);
+		$bayes::build($this->id);
 	}
 };
 

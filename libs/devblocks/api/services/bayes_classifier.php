@@ -425,14 +425,24 @@ class _DevblocksBayesClassifierService {
 			$db->ExecuteMaster($sql);
 			
 			if(!$delta) {
-				self::updateCounts($classifier_id);
+				self::build($classifier_id);
 			}
 			
 			// [TODO] Invalidate caches
 		}
 	}
 	
-	static function updateCounts($classifier_id) {
+	static function build($classifier_id) {
+		self::_updateCounts($classifier_id);
+		
+		//self::learnTextEntityPatterns();
+		
+		DAO_Classifier::clearCache();
+		DAO_ClassifierClass::clearCache();
+		DAO_ClassifierEntity::clearCache();
+	}
+	
+	private static function _updateCounts($classifier_id) {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		$sql = sprintf("SET @class_ids := (SELECT GROUP_CONCAT(id) FROM classifier_class WHERE classifier_id = %d)",

@@ -311,7 +311,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		}
 		
 		// Update the model
-		$bayes::updateCounts($classifier_id);
+		$bayes::build($classifier_id);
 		
 		echo json_encode([
 			'status' => true,
