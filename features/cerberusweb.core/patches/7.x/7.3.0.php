@@ -106,6 +106,26 @@ if(!isset($tables['classifier_ngram_to_class'])) {
 }
 
 // ===========================================================================
+// Add `classifier_entity` table
+
+if(!isset($tables['classifier_entity'])) {
+	$sql = sprintf("
+	CREATE TABLE `classifier_entity` (
+		id int unsigned auto_increment,
+		name varchar(255) not null default '',
+		description varchar(255) not null default '',
+		type varchar(255) not null default '',
+		params_json text,
+		updated_at int unsigned not null default 0,
+		primary key (id)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['classifier_entity'] = 'classifier_entity';
+}
+
+// ===========================================================================
 // Add `classifier_example` table
 
 if(!isset($tables['classifier_example'])) {

@@ -36,9 +36,13 @@ UL.ui-menu li.ui-menu-item {
 }
 
 UL.ui-menu li.ui-menu-item.ui-state-focus {
-	background-color:rgb(105,140,221);
-	color:rgb(255,255,255);
-	font-weight:normal;
+	//background-color: none;
+}
+
+UL.ui-menu li.ui-menu-item:hover {
+	//background-color:rgb(105,140,221);
+	//color:rgb(255,255,255);
+	//font-weight:normal;
 }
 
 /* Autocomplete */

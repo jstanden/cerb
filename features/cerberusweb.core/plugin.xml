@@ -59,7 +59,7 @@
 		<patch version="7.0.0" revision="1127" file="patches/7.x/7.0.0.php" />
 		<patch version="7.1.0" revision="1141" file="patches/7.x/7.1.0.php" />
 		<patch version="7.2.0" revision="1167" file="patches/7.x/7.2.0.php" />
-		<patch version="7.3.0" revision="1189" file="patches/7.x/7.3.0.php" />
+		<patch version="7.3.0" revision="1190" file="patches/7.x/7.3.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -184,6 +184,14 @@
 			<class name="Model_ClassifierClass" />
 			<class name="SearchFields_ClassifierClass" />
 			<class name="View_ClassifierClass" />
+		</file>
+		
+		<file path="api/dao/classifier_entity.php">
+			<class name="Context_ClassifierEntity" />
+			<class name="DAO_ClassifierEntity" />
+			<class name="Model_ClassifierEntity" />
+			<class name="SearchFields_ClassifierEntity" />
+			<class name="View_ClassifierEntity" />
 		</file>
 		
 		<file path="api/dao/classifier_example.php">
@@ -1205,6 +1213,37 @@
 						<data key="custom_fields" />
 						<data key="links" />
 						<!-- <data key="search" /> -->
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.classifier.entity</id>
+			<name>Classifier Entity</name>
+			<class>
+				<file>api/dao/classifier_entity.php</file>
+				<name>Context_ClassifierEntity</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="classifier entity" value="singular" />
+						<data key="classifier entities" value="plural" />
+						<data key="entity" value="singular short" />
+						<data key="entities" value="plural short" />
+					</value>
+				</param>
+				<param key="alias" value="classifier_entity" />
+				<param key="dao_class" value="DAO_ClassifierEntity" />
+				<param key="view_class" value="View_ClassifierEntity" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="links" />
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -4005,6 +4044,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="classifier_class" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.classifier_entity</id>
+				<name>Classifier Entity Section</name>
+				<class>
+					<file>api/uri/profiles/classifier_entity.php</file>
+					<name>PageSection_ProfilesClassifierEntity</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="classifier_entity" />
 				</params>
 			</extension>
 			

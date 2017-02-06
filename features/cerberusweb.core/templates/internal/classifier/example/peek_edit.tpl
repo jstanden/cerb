@@ -59,15 +59,15 @@
 		</div>
 		
 		<ul class="expression-toolbar" style="margin-top:5px;display:none;">
+			<li data-tag="">
+				<span style="color:black;font-weight:bold;">- remove selected tags -</span>
+			</li>
 			{foreach from=$entities item=entity key=k}
 			<li data-tag="{$k}" class="expression">
 				<span class="{$k}">{$entity.label}</span>
 				<div style="margin-left:20px;color:black;">{$entity.description}</div>
 			</li>
 			{/foreach}
-			<li data-tag="">
-				<span style="color:black;font-weight:bold;">- remove selected tags -</span>
-			</li>
 		</ul>
 	</div>
 </fieldset>

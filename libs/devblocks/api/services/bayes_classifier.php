@@ -79,29 +79,64 @@ class _DevblocksBayesClassifierService {
 		'the',
 	];
 	
-	static $TAGS_TO_TOKENS = [
-		'#\{\{avail\:(.*?)\}\}#' => '[avail]',
-		'#\{\{contact\:(.*?)\}\}#' => '[contact]',
-		'#\{\{contact_method\:(.*?)\}\}#' => '[contact_method]',
-		'#\{\{context\:(.*?)\}\}#' => '[context]',
-		'#\{\{date\:(.*?)\}\}#' => '[date]',
-		'#\{\{duration\:(.*?)\}\}#' => '[duration]',
-		//'#\{\{entity\:(.*?)\}\}#' => '[entity]',
-		'#\{\{event\:(.*?)\}\}#' => '[event]',
-		'#\{\{name\:(.*?)\}\}#' => '[name]',
-		'#\{\{number\:(.*?)\}\}#' => '[number]',
-		'#\{\{org\:(.*?)\}\}#' => '[org]',
-		//'#\{\{phone\:(.*?)\}\}#' => '[phone]',
-		'#\{\{place\:(.*?)\}\}#' => '[place]',
-		'#\{\{remind\:(.*?)\}\}#' => '[remind]',
-		'#\{\{status\:(.*?)\}\}#' => '[status]',
-		'#\{\{temperature\:(.*?)\}\}#' => '[temperature]',
-		'#\{\{time\:(.*?)\}\}#' => '[time]',
-		'#\{\{worker\:(.*?)\}\}#' => '[worker]',
-	];
-	
 	static function getInstance() {
 		return self::class;
+	}
+	
+	static function getEntities() {
+		$entities = [
+			'contact' => [
+				'label' => 'Contact',
+				'description' => 'The name of a contact',
+			],
+			'date' => [
+				'label' => 'Date',
+				'description' => 'July 9, 2019-09-29, the 1st',
+			],
+			'duration' => [
+				'label' => 'Duration',
+				'description' => 'for 5 mins, for 2 hours',
+			],
+			'number' => [
+				'label' => 'Number',
+				'description' => 'A number',
+			],
+			'org' => [
+				'label' => 'Organization',
+				'description' => 'The name of an organization',
+			],
+			'context' => [
+				'label' => 'Record type',
+				'description' => 'message, task, ticket, worker',
+			],
+			'status' => [
+				'label' => 'Status',
+				'description' => 'open, closed, waiting, completed, active',
+			],
+			'temperature' => [
+				'label' => 'Temperature',
+				'description' => '212F, 12C, 75 degrees, 32 F',
+			],
+			'time' => [
+				'label' => 'Time',
+				'description' => 'at 2pm, 08:00, noon, in the morning, from now, in hours',
+			],
+			'worker' => [
+				'label' => 'Worker',
+				'description' => 'The name of a worker',
+			]
+		];
+		
+		$custom_entities = DAO_ClassifierEntity::getAll();
+		
+		foreach($custom_entities as $entity) {
+			$entities[strtolower($entity->name)] = [
+				'label' => $entity->name,
+				'description' => $entity->description,
+			];
+		}
+		
+		return $entities;
 	}
 	
 	static function preprocessTextCondenseWhitespace($text) {
@@ -313,7 +348,8 @@ class _DevblocksBayesClassifierService {
 		if(empty($text))
 			return false;
 		
-		$tagged_text = preg_replace(array_keys(self::$TAGS_TO_TOKENS), self::$TAGS_TO_TOKENS, $text);
+		// [TODO] Look for tags and verify them
+		$tagged_text = preg_replace('#\{\{(.*?)\:(.*?)\}\}#','[${1}]', $text);
 		
 		if(false == ($tokens = self::tokenizeWords($tagged_text)))
 			return false;
@@ -326,7 +362,7 @@ class _DevblocksBayesClassifierService {
 		
 		// Convert tags to tokens
 		
-		$tagged_text = preg_replace(array_keys(self::$TAGS_TO_TOKENS), self::$TAGS_TO_TOKENS, $text);
+		$tagged_text = preg_replace('#\{\{(.*?)\:(.*?)\}\}#','[${1}]', $text);
 		
 		// Tokenize words
 		// [TODO] Apply filtering based on classifier
@@ -760,6 +796,41 @@ class _DevblocksBayesClassifierService {
 		}
 		
 		self::_disambiguateActorTags($tags);
+		
+		$custom_entities = DAO_ClassifierEntity::getAll();
+		
+		foreach($custom_entities as $entity) {
+			switch($entity->type) {
+				case 'list':
+					$synonyms = [];
+					@$label_map = $entity->params['map'];
+					
+					if(empty($label_map) || !is_array($label_map))
+						break;
+					
+					self::_tagEntitySynonyms($label_map, strtolower($entity->name), $words, $tags);
+					break;
+					
+				case 'regexp':
+					@$pattern = $entity->params['pattern'];
+					$entity_name = strtolower($entity->name);
+					
+					if(empty($pattern))
+						break;
+					
+					// [TODO] Currently these patterns can only handle one token
+					
+					array_walk($words, function(&$token, $idx) use (&$tags, $pattern, $entity_name) {
+						if(preg_match($pattern, $token))
+							$tags[$idx]['{' . $entity_name . '}'] = $token;
+					});
+					break;
+					
+				case 'text':
+					// Already tagged
+					break;
+			}
+		}
 		
 		return $tags;
 	}
@@ -1218,10 +1289,18 @@ class _DevblocksBayesClassifierService {
 				'remind me * \{time\}',
 				'remind me *$',
 			];
+		// Custom entities
+		
+		$custom_entities = DAO_ClassifierEntity::getAll();
+		
+		foreach($custom_entities as $entity) {
+			$entity_token = strtolower($entity->name);
 			
 			foreach($patterns as $pattern) {
 				$pattern = str_replace('\{remind\}', '(.*?)', DevblocksPlatform::strToRegExp($pattern, true, false));
 				$matches = array();
+			if(!in_array($entity_token, $types))
+				continue;
 				
 				if(preg_match($pattern, $text, $matches)) {
 					$terms = explode(' ', $matches[1]);
@@ -1232,9 +1311,32 @@ class _DevblocksBayesClassifierService {
 						$remind = [
 							'range' => array_combine(range($pos, $pos+count($terms)-1), $terms),
 						];
+			switch($entity->type) {
+				case 'list':
+					self::_tagToEntity($entity_token, $words, $tags, $entities);
+					break;
+					
+				case 'regexp':
+					foreach($tags as $idx => $tagset) {
+						@$entity_value = $tagset['{' . $entity_token . '}'];
+						
+						if($entity_value) {
+							if(!isset($entities[$entity_token]))
+								$entities[$entity_token] = [];
 							
 						$entities['remind'][] = $remind;
 						break;
+							$entities[$entity_token][$idx] = [
+								'range' => [
+									$idx => [
+										$idx => $entity_value
+									],
+								],
+								'value' => [
+									$entity_value => $entity_value
+								]
+							];
+						}
 					}
 				}
 			}
@@ -1251,6 +1353,20 @@ class _DevblocksBayesClassifierService {
 					if(isset($result['range']))
 					foreach(array_keys($result['range']) as $key) {
 						$tokens[$key] = sprintf('{%s}', $entity_type);
+					break;
+					
+				case 'text':
+					$tokens = $words;
+					
+					
+					
+					foreach($entities as $entity_type => $results) {
+						foreach($results as $result) {
+							if(isset($result['range']))
+							foreach(array_keys($result['range']) as $key) {
+								$tokens[$key] = sprintf('[%s]', $entity_type);
+							}
+						}
 					}
 				}
 			}
@@ -1285,9 +1401,35 @@ class _DevblocksBayesClassifierService {
 						];
 						
 						$entities['event'][] = $event;
+					
+					$text = implode(' ', $tokens);
+					
+					
+					@$patterns = $entity->params['patterns'];
+					
+					if(empty($patterns) || !is_array($patterns))
 						break;
+					
+					foreach($patterns as $pattern) {
+						$pattern = str_replace('\{' . $entity_token . '\}', '(.*?)', DevblocksPlatform::strToRegExp($pattern, true, false));
+						$matches = array();
+						
+						if(preg_match($pattern, $text, $matches)) {
+							$terms = explode(' ', $matches[1]);
+							if(false !== ($pos = self::_findSubsetInArray($terms, $words))) {
+								if(!isset($entities[$entity_token]))
+									$entities[$entity_token] = [];
+								
+								$remind = [
+									'range' => array_combine(range($pos, $pos+count($terms)-1), $terms),
+								];
+									
+								$entities[$entity_token][] = $remind;
+								break;
+							}
+						}
 					}
-				}
+					break;
 			}
 		}
 		
@@ -1890,7 +2032,36 @@ class _DevblocksBayesClassifierService {
 							];
 						}
 						break;
+				
+					default:
+						if(false == ($custom_entity = DAO_ClassifierEntity::getByName($entity_type)))
+							break;
+							
+						switch($custom_entity->type) {
+							case 'list':
+								if(!empty($result['value']))
+									$params[$entity_type] = array_merge($params[$entity_type], array_slice($result['value'], 0, 1));
+								break;
+								
+							case 'regexp':
+								if(!empty($result['value']))
+									$params[$entity_type] = array_merge($params[$entity_type], array_slice($result['value'], 0, 1));
+								break;
+								
+							case 'text':
+								if(!isset($params[$entity_type]))
+									$params[$entity_type] = [];
+								
+								$param_key = implode(' ', $result['range']);
+								
+								$params[$entity_type][$param_key] = [
+									//'value' => implode(' ', array_intersect_key(explode(' ', $text), $result['range'])),
+									'value' => implode(' ', $result['range']),
+								];
+								break;
+						}
 						
+						break;
 				}
 			}
 			

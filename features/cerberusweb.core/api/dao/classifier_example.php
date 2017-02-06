@@ -1135,7 +1135,8 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 			$tpl->assign('classes', $classes);
 			
 			// Entities
-			$entities = DAO_Classifier::getEntities();
+			$bayes = DevblocksPlatform::getBayesClassifierService();
+			$entities = $bayes::getEntities();
 			$tpl->assign('entities', $entities);
 			
 			// Custom fields

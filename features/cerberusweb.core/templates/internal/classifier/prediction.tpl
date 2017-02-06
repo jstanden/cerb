@@ -78,7 +78,7 @@
 								{/foreach}
 								</ul>
 							{else}
-								{var_dump($param)}
+								{*var_dump($param)*}
 							{/if}
 						</td>
 					</tr>

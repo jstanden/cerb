@@ -1596,10 +1596,12 @@ DIV.emailBodyHtml {
 }
 
 .cerb-expression-editor {
-
 	UL.expression-toolbar {
-		width: 250px;
+		width: 100%;
 		border: 0;
+		overflow-x: hidden;
+		overflow-y: auto;
+		max-height: 35em;
 		
 		LI {
 			color: black;
@@ -1612,13 +1614,26 @@ DIV.emailBodyHtml {
 			
 			&.ui-menu-item {
 				background-color: rgb(255,255,255);
-			}
 			
-			&.ui-menu-item:hover {
-				background-color: rgb(240,240,240);
-				border-color: rgb(240,240,240);
+				&:hover {
+					background-color: rgb(240,240,240);
+					border-color: rgb(240,240,240);
+				}
 			}
 		}
+		
+		&::-webkit-scrollbar {
+			width: 12px;
+		}
+		&::-webkit-scrollbar-track {
+			background-color: rgb(245,245,245);
+			border-radius: 10px;
+		}
+		&::-webkit-scrollbar-thumb {
+			background-color: rgb(200,200,200);
+			border-radius:10px;
+		}
+
 	}
 	
 	.expression {

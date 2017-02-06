@@ -1557,8 +1557,11 @@ DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtm
 }
 
 .cerb-expression-editor UL.expression-toolbar {
-  width: 250px;
+  width: 100%;
   border: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 35em;
 }
 .cerb-expression-editor UL.expression-toolbar LI {
   color: black;
@@ -1574,6 +1577,17 @@ DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtm
 .cerb-expression-editor UL.expression-toolbar LI.ui-menu-item:hover {
   background-color: #f0f0f0;
   border-color: #f0f0f0;
+}
+.cerb-expression-editor UL.expression-toolbar::-webkit-scrollbar {
+  width: 12px;
+}
+.cerb-expression-editor UL.expression-toolbar::-webkit-scrollbar-track {
+  background-color: whitesmoke;
+  border-radius: 10px;
+}
+.cerb-expression-editor UL.expression-toolbar::-webkit-scrollbar-thumb {
+  background-color: #c8c8c8;
+  border-radius: 10px;
 }
 .cerb-expression-editor .expression:focus {
   outline: none;
@@ -1710,12 +1724,6 @@ UL.ui-menu {
 
 UL.ui-menu li.ui-menu-item {
   color: #4a6e9e;
-  font-weight: normal;
-}
-
-UL.ui-menu li.ui-menu-item.ui-state-focus {
-  background-color: #698cdd;
-  color: white;
   font-weight: normal;
 }
 

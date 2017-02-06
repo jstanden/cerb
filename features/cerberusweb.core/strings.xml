@@ -492,6 +492,16 @@
 				<seg>classifications</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.classifier.entity">
+			<tuv xml:lang="en_US">
+				<seg>entity</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.classifier.entities">
+			<tuv xml:lang="en_US">
+				<seg>entities</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.classifiers">
 			<tuv xml:lang="en_US">
 				<seg>classifiers</seg>
