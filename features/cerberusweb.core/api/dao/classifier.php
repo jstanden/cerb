@@ -1,5 +1,7 @@
 <?php
 class DAO_Classifier extends Cerb_ORMHelper {
+	const _CACHE_ALL = 'cerb_classifiers';
+	
 	const ID = 'id';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
@@ -19,6 +21,11 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		self::update($id, $fields);
 		
 		return $id;
+	}
+	
+	static function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::_CACHE_ALL);
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
@@ -57,6 +64,8 @@ class DAO_Classifier extends Cerb_ORMHelper {
 				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CLASSIFIER, $batch_ids);
 			}
 		}
+		
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -98,16 +107,15 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	 * @return Model_Classifier[]
 	 */
 	static function getAll($nocache=false) {
-		// [TODO] Cache
-		//$cache = DevblocksPlatform::getCacheService();
-		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+		$cache = DevblocksPlatform::getCacheService();
+		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_Classifier::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
-			//if(!is_array($objects))
-			//	return false;
-				
-			//$cache->save($objects, self::_CACHE_ALL);
-		//}
+			if(!is_array($objects))
+				return false;
+			
+			$cache->save($objects, self::_CACHE_ALL);
+		}
 		
 		return $objects;
 	}
@@ -313,6 +321,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 			)
 		);
 		
+		self::clearCache();
 		return true;
 	}
 	
