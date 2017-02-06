@@ -1,5 +1,7 @@
 <?php
 class DAO_ClassifierClass extends Cerb_ORMHelper {
+	const _CACHE_ALL = 'cerb_classifier_classes';
+	
 	const ID = 'id';
 	const CLASSIFIER_ID = 'classifier_id';
 	const NAME = 'name';
@@ -7,7 +9,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 	const SLOTS_JSON = 'slots_json';
 	const DICTIONARY_SIZE = 'dictionary_size';
 	const TRAINING_COUNT = 'training_count';
-
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -18,6 +20,11 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 		self::update($id, $fields);
 		
 		return $id;
+	}
+	
+	static function clearCache() {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache->remove(self::_CACHE_ALL);
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
@@ -56,6 +63,8 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $batch_ids);
 			}
 		}
+		
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -97,15 +106,15 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 	 * @return Model_ClassifierClass[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::getCacheService();
-		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+		$cache = DevblocksPlatform::getCacheService();
+		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_ClassifierClass::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
-			//if(!is_array($objects))
-			//	return false;
-				
-			//$cache->save($objects, self::_CACHE_ALL);
-		//}
+			if(!is_array($objects))
+				return false;
+			
+			$cache->save($objects, self::_CACHE_ALL);
+		}
 		
 		return $objects;
 	}
@@ -118,13 +127,10 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 		if(empty($id))
 			return null;
 		
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
-		
-		if(isset($objects[$id]))
-			return $objects[$id];
+		$classifications = DAO_ClassifierClass::getAll();
+
+		if(isset($classifications[$id]))
+			return $classifications[$id];
 		
 		return null;
 	}
@@ -136,33 +142,17 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 	 */
 	static function getIds($ids) {
 		if(!is_array($ids))
-			$ids = array($ids);
-
+			$ids = [$ids];
+		
 		if(empty($ids))
-			return array();
-
-		if(!method_exists(get_called_class(), 'getWhere'))
-			return array();
-
-		$db = DevblocksPlatform::getDatabaseService();
-
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-
-		$models = array();
-
-		$results = static::getWhere(sprintf("id IN (%s)",
-			implode(',', $ids)
-		));
-
-		// Sort $models in the same order as $ids
-		foreach($ids as $id) {
-			if(isset($results[$id]))
-				$models[$id] = $results[$id];
-		}
-
-		unset($results);
-
-		return $models;
+			return [];
+		
+		$classifications = DAO_ClassifierClass::getAll();
+		
+		if(empty($classifications))
+			return [];
+		
+		return array_intersect_key($classifications, array_flip($ids));
 	}
 	
 	static function getByClassifierId($classifier_id) {
@@ -238,6 +228,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 			)
 		);
 		
+		self::clearCache();
 		return true;
 	}
 	
