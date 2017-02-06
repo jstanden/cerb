@@ -464,18 +464,21 @@ class _DevblocksBayesClassifierService {
 	}
 	
 	private static function _tagEntitySynonyms($labels, $tag, $words, &$tags) {
-		foreach($labels as $label=> $synonyms) {
+		$context_idx = sprintf('{%s}', $tag);
+		
+		foreach($labels as $label => $synonyms) {
 			foreach($synonyms as $synonym) {
 				$stokens = self::tokenizeWords($synonym);
-				$hits = array_intersect($words, $stokens);
 				
-				// Only if we match the entire phrase
-				if(count($hits) == count($stokens))
-				foreach($hits as $idx => $token) {
-					$context_idx = sprintf('{%s}', $tag);
-					if(!isset($tags[$idx][$context_idx]))
-						$tags[$idx][$context_idx] = [];
-					$tags[$idx][$context_idx][$label] = $label;
+				if(false !== ($pos = self::_findSubsetInArray($stokens, $words))) {
+					foreach(array_keys($stokens) as $n) {
+						$idx = $pos + $n;
+						
+						if(!isset($tags[$idx][$context_idx]))
+							$tags[$idx][$context_idx] = [];
+						
+						$tags[$idx][$context_idx][$label] = $label;
+					}
 				}
 			}
 		}
