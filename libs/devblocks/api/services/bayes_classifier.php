@@ -1,8 +1,6 @@
 <?php
 // [TODO] Unit test the hell out of this
 class _DevblocksBayesClassifierService {
-	static $AVAIL_FREE = ['available', 'free', 'unoccupied'];
-	static $AVAIL_BUSY = ['busy', 'occupied', 'preoccupied', 'unavailable'];
 	static $DAYS_LONG = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 	static $DAYS_LONG_PLURAL = ['mondays', 'tuesdays', 'wednesdays', 'thursdays', 'fridays', 'saturdays', 'sundays'];
 	static $DAYS_NTH = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th', '11th', '12th', '13th', '14th', '15th', '16th', '17th', '18th', '19th', '20th', '21st', '22nd', '23rd', '24th', '25th', '26th', '27th', '28th', '29th', '30th', '31st'];
@@ -572,17 +570,6 @@ class _DevblocksBayesClassifierService {
 		});
 		
 		/**
-		 * Availability (busy, available)
-		 */
-		
-		$availability = [
-			'available' => self::$AVAIL_FREE,
-			'busy' => self::$AVAIL_BUSY,
-		];
-		
-		self::_tagEntitySynonyms($availability, 'avail', $words, $tags);
-		
-		/**
 		 * Contexts (tasks, tickets, etc)
 		 */
 		
@@ -628,67 +615,6 @@ class _DevblocksBayesClassifierService {
 		];
 		
 		self::_tagEntitySynonyms($statuses, 'status', $words, $tags);
-		
-		/**
-		 * Contact methods
-		 */
-			
-		$contact_methods = [
-			'email' => [
-				'email',
-				'emails',
-				'email address',
-				'email addresses',
-			],
-			'mobile' => [
-				'cell',
-				'cells',
-				'cell phone',
-				'cell phones',
-				'cellphone',
-				'cellphones',
-				'mobile',
-				'mobiles',
-				'mobile phone',
-				'mobile phones',
-			],
-			'phone' => [
-				'phone',
-				'phones',
-			],
-			'website' => [
-				'site',
-				'sites',
-				'website',
-				'websites',
-				'url',
-				'urls',
-			],
-			'address' => [
-				'address',
-				'addresses',
-				'mailing address',
-				'mailing addresses',
-				'street address',
-				'street addresses',
-			],
-		];
-		
-		self::_tagEntitySynonyms($contact_methods, 'contact_method', $words, $tags);
-		
-		/**
-		 * Email
-		 */
-		// [TODO]
-		
-		/**
-		 * IP Addresses
-		 */
-		
-		array_walk($words, function(&$token, $idx) use (&$tags) {
-			if(preg_match('#^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$#', $token))
-				$tags[$idx]['{ip}'] = $token;
-		});
 		
 		/**
 		 * Entities (worker, contact, org)
@@ -1185,12 +1111,6 @@ class _DevblocksBayesClassifierService {
 			self::_sequenceToEntity($sequences, 'duration', $words, $tags, $entities);
 		}
 		
-		if(in_array('avail', $types))
-			self::_tagToEntity('avail', $words, $tags, $entities);
-		
-		if(in_array('contact_method', $types))
-			self::_tagToEntity('contact_method', $words, $tags, $entities);
-		
 		if(in_array('context', $types))
 			self::_tagToEntity('context', $words, $tags, $entities);
 		
@@ -1259,36 +1179,6 @@ class _DevblocksBayesClassifierService {
 				unset($entities['org']);
 		}
 		
-		if(in_array('remind', $types)) {
-			$tokens = $words;
-			
-			// [TODO] Windowing (3 words before and after?)
-			
-			foreach($entities as $entity_type => $results) {
-				foreach($results as $result) {
-					if(isset($result['range']))
-					foreach(array_keys($result['range']) as $key) {
-						$tokens[$key] = sprintf('{%s}', $entity_type);
-					}
-				}
-			}
-			
-			$text = implode(' ', $tokens);
-			
-			// [TODO] These patterns should be learnable
-			// [TODO] These can be optimized as a tree
-			$patterns = [
-				'remind me to * \{date\}',
-				'remind me to * \{time\}',
-				'remind me to *$',
-				'add * to my reminders',
-				'remind me about * \{date\}',
-				'remind me about * \{time\}',
-				'remind me about *$',
-				'remind me * \{date\}',
-				'remind me * \{time\}',
-				'remind me *$',
-			];
 		// Custom entities
 		
 		$custom_entities = DAO_ClassifierEntity::getAll();
@@ -1296,21 +1186,9 @@ class _DevblocksBayesClassifierService {
 		foreach($custom_entities as $entity) {
 			$entity_token = strtolower($entity->name);
 			
-			foreach($patterns as $pattern) {
-				$pattern = str_replace('\{remind\}', '(.*?)', DevblocksPlatform::strToRegExp($pattern, true, false));
-				$matches = array();
 			if(!in_array($entity_token, $types))
 				continue;
 				
-				if(preg_match($pattern, $text, $matches)) {
-					$terms = explode(' ', $matches[1]);
-					if(false !== ($pos = self::_findSubsetInArray($terms, $words))) {
-						if(!isset($entities['event']))
-							$entities['event'] = [];
-						
-						$remind = [
-							'range' => array_combine(range($pos, $pos+count($terms)-1), $terms),
-						];
 			switch($entity->type) {
 				case 'list':
 					self::_tagToEntity($entity_token, $words, $tags, $entities);
@@ -1324,8 +1202,6 @@ class _DevblocksBayesClassifierService {
 							if(!isset($entities[$entity_token]))
 								$entities[$entity_token] = [];
 							
-						$entities['remind'][] = $remind;
-						break;
 							$entities[$entity_token][$idx] = [
 								'range' => [
 									$idx => [
@@ -1338,21 +1214,6 @@ class _DevblocksBayesClassifierService {
 							];
 						}
 					}
-				}
-			}
-		}
-		
-		// [TODO] Redundant with 'remind'
-		if(in_array('event', $types)) {
-			$tokens = $words;
-			
-			// [TODO] Windowing (3 words before and after?)
-			
-			foreach($entities as $entity_type => $results) {
-				foreach($results as $result) {
-					if(isset($result['range']))
-					foreach(array_keys($result['range']) as $key) {
-						$tokens[$key] = sprintf('{%s}', $entity_type);
 					break;
 					
 				case 'text':
@@ -1368,39 +1229,6 @@ class _DevblocksBayesClassifierService {
 							}
 						}
 					}
-				}
-			}
-			
-			$text = implode(' ', $tokens);
-			
-			// [TODO] These patterns should be learnable
-			// [TODO] These can be optimized as a tree
-			// [TODO] Lemm 'called' -> named, titled
-			// [TODO] I'm having [lunch] (at) ...
-			// [TODO] I'll be at [lunch] ...
-			$patterns = [
-				'schedule * \{date\}',
-				'schedule * \{time\}',
-				'add * to my calendar',
-				'create an event called * \{date\}',
-				'create an event called * \{time\}',
-			];
-			
-			foreach($patterns as $pattern) {
-				$pattern = str_replace('\{event\}', '(.*?)', DevblocksPlatform::strToRegExp($pattern, true, false));
-				$matches = array();
-				
-				if(preg_match($pattern, $text, $matches)) {
-					$terms = explode(' ', $matches[1]);
-					if(false !== ($pos = self::_findSubsetInArray($terms, $words))) {
-						if(!isset($entities['event']))
-							$entities['event'] = [];
-						
-						$event = [
-							'range' => array_combine(range($pos, $pos+count($terms)-1), $terms),
-						];
-						
-						$entities['event'][] = $event;
 					
 					$text = implode(' ', $tokens);
 					
@@ -1636,11 +1464,6 @@ class _DevblocksBayesClassifierService {
 				$param = [];
 				
 				switch($entity_type) {
-					case 'avail':
-						if(!empty($result['value']))
-							$params[$entity_type] = array_merge($params[$entity_type], array_slice($result['value'], 0, 1));
-						break;
-						
 					case 'contact':
 						@$ids = array_keys($result['value']);
 						
@@ -1686,11 +1509,6 @@ class _DevblocksBayesClassifierService {
 								'updated' => $contact->updated_at,
 							];
 						}
-						break;
-						
-					case 'contact_method':
-						if(!empty($result['value']))
-							$params[$entity_type] = array_merge($params[$entity_type], array_slice($result['value'], 0, 1));
 						break;
 						
 					case 'context':
@@ -1886,19 +1704,6 @@ class _DevblocksBayesClassifierService {
 								'updated' => $org->updated,
 							];
 						}
-						break;
-						
-					case 'remind':
-						if(!isset($params[$entity_type]))
-							$params[$entity_type] = [];
-						
-						$param_key = implode(' ', $result['range']);
-						
-						// [TODO] We should keep a case-sensitive version of the original tokenized string for params
-						$params[$entity_type][$param_key] = [
-							//'value' => implode(' ', array_intersect_key(explode(' ', $text), $result['range'])),
-							'value' => implode(' ', $result['range']),
-						];
 						break;
 						
 					case 'status':
