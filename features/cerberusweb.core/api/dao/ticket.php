@@ -4192,8 +4192,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 						continue;
 					}
 					
-					// A group manager can edit messages
-					if(is_array($dict->group_members) && isset($dict->group_members[$actor->id]) && $dict->group_members[$actor->id]['is_manager']) {
+					// A group member can read messages
+					if(is_array($dict->group_members) && isset($dict->group_members[$actor->id])) {
 						$results[$context_id] = true;
 					}
 				}
@@ -4236,7 +4236,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			// A worker can edit if they're a manager of the group
 			case CerberusContexts::CONTEXT_WORKER:
 				foreach($dicts as $context_id => $dict) {
-					if(is_array($dict->group_members) && isset($dict->group_members[$actor->id]) && $dict->group_members[$actor->id]['is_manager']) {
+					if(is_array($dict->group_members) && isset($dict->group_members[$actor->id])) {
 						$results[$context_id] = true;
 					}
 				}
