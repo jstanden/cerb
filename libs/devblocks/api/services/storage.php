@@ -15,7 +15,7 @@ class _DevblocksStorageManager {
 			return self::$_connections[$hash];
 		}
 		
-		if(null !== ($engine = DevblocksPlatform::getExtension($extension_id, true, true))) {
+		if(null !== ($engine = DevblocksPlatform::getExtension($extension_id, true))) {
 			/* @var $engine Extension_DevblocksStorageEngine */
 			if(!$engine->setOptions($options))
 				return false;
@@ -487,9 +487,6 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	public function setOptions($options=array()) {
 		parent::setOptions($options);
 		
-		if(!isset($this->_options['host']))
-			$this->_options['host'] = null;
-		
 		// Fail, this info is required.
 		if(!isset($this->_options['access_key']))
 			return false;
@@ -498,12 +495,10 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		if(!isset($this->_options['bucket']))
 			return false;
 		
-		$this->_s3 = new S3($this->_options['access_key'], $this->_options['secret_key'], true, $this->_options['host']);
-			
-		if(false === @$this->_s3->getBucket($this->_options['bucket'])) {
-			if(false === @$this->_s3->putBucket($this->_options['bucket'], S3::ACL_PRIVATE)) {
-				return false;
-			}
+		if(!isset($this->_options['host']) || empty($this->_options['host'])) {
+			$this->_s3 = new S3($this->_options['access_key'], $this->_options['secret_key'], true);
+		} else {
+			$this->_s3 = new S3($this->_options['access_key'], $this->_options['secret_key'], true, $this->_options['host']);
 		}
 		
 		return true;

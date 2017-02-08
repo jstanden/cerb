@@ -695,7 +695,9 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 			$profile_id = 0;
 		}
 
-		$storage = DevblocksPlatform::getStorageService($profile);
+		if(false === ($storage = DevblocksPlatform::getStorageService($profile))) {
+			return false;
+		}
 
 		if(is_resource($contents)) {
 			$stats = fstat($contents);
