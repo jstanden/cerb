@@ -339,8 +339,8 @@ switch($step) {
 		// [JAS]: Possible storage engines
 		
 		$engines = array(
-			'myisam' => 'MyISAM (Legacy)',
 			'innodb' => 'InnoDB (Recommended)',
+			'myisam' => 'MyISAM (Legacy)',
 		);
 		
 		$tpl->assign('engines', $engines);
