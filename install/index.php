@@ -378,11 +378,11 @@ switch($step) {
 				}
 				
 				// We need this for fulltext indexing
-				if(!in_array('myisam', $discovered_engines) && mysqli_get_server_version($_db) < 50600) {
+				if(mysqli_get_server_version($_db) < 50600 && (!in_array('myisam', $discovered_engines) || 0 == strcasecmp('innodb', $db_engine))) {
 					$db_passed = false;
 					$errors[] = "The 'MyISAM' storage engine is not enabled and is required for fulltext search in MySQL < 5.6.";
 				}
-
+				
 				// Check user privileges
 				if($db_passed) {
 					// CREATE TABLE
