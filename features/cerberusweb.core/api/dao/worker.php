@@ -965,7 +965,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				break;
 				
 			default:
-				return DAO_Address::getIds(array_keys($objects));
+				return DAO_Worker::getIds(array_keys($objects));
 				break;
 		}
 	}
