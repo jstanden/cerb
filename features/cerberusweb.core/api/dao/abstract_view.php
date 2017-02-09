@@ -2863,7 +2863,7 @@ abstract class C4_AbstractView {
 						
 						// Are we skipping this recipient?
 						if(is_callable($callback_recipient_reject))
-							if(false === $callback_recipient_reject($dict))
+							if($callback_recipient_reject($dict))
 								continue;
 						
 						$subject = $tpl_builder->build($params['subject'], $dict);
