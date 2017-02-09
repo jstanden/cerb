@@ -1305,30 +1305,25 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_ATTACHMENT)))
 			return CerberusContexts::denyEverything($models);
 		
-		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'links');
-		
 		$results = array_fill_keys(array_keys($dicts), false);
 		
 		foreach($dicts as $context_id => $dict) {
-			if(!isset($dict->links) || !is_array($dict->links))
+			if(false == ($links = DAO_Attachment::getLinks($dict->id)) || empty($links))
 				continue;
 			
-			
-			foreach($dict->links as $context => $ids) {
-				if(isset($dict->links[$context])) {
-					if(false == ($mft = DevblocksPlatform::getExtension($context, false)))
-						continue;
-					
-					$class = $mft->class;
-					
-					if(!class_exists($class))
-						continue;
-					
-					if($privs = $class::isReadableByActor($ids, $actor)) {
-						if(false !== array_search(true, $privs)) {
-							$results[$context_id] = true;
-							continue 2;
-						}
+			foreach($links as $context => $ids) {
+				if(false == ($mft = DevblocksPlatform::getExtension($context, false)))
+					continue;
+				
+				$class = $mft->class;
+				
+				if(!class_exists($class))
+					continue;
+				
+				if($privs = $class::isReadableByActor($ids, $actor)) {
+					if(false !== array_search(true, $privs)) {
+						$results[$context_id] = true;
+						continue 2;
 					}
 				}
 			}
