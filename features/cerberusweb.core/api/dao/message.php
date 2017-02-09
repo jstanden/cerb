@@ -2204,7 +2204,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				
 			case 'links':
 				$links = $this->_lazyLoadLinks($context, $context_id);
-				$values = array_merge($values, $fields);
+				$values = array_merge($values, $links);
 				break;
 				
 			default:

@@ -1011,7 +1011,7 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 		switch($token) {
 			case 'links':
 				$links = $this->_lazyLoadLinks($context, $context_id);
-				$values = array_merge($values, $fields);
+				$values = array_merge($values, $links);
 				break;
 			
 			case 'watchers':

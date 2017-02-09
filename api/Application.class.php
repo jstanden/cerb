@@ -2243,8 +2243,8 @@ class Context_Application extends Extension_DevblocksContext {
 
 		switch($token) {
 			case 'links':
-				$links = $this->_lazyLoadLinks($context, $context_id);
-				$values = array_merge($values, $fields);
+				if(false != ($links = $this->_lazyLoadLinks($context, $context_id)) && is_array($links))
+					$values = array_merge($values, $links);
 				break;
 			
 			default:
