@@ -929,25 +929,36 @@ class DAO_Worker extends Cerb_ORMHelper {
 		}
 	}
 	
-	static function autocomplete($term, $as='models') {
+	static function autocomplete($term, $as='models', $query=null) {
+		$url_writer = DevblocksPlatform::getUrlService();
 		$db = DevblocksPlatform::getDatabaseService();
 		$workers = DAO_Worker::getAll();
 		$objects = array();
 		
-		$results = $db->GetArraySlave(sprintf("SELECT id ".
-			"FROM worker ".
-			"WHERE is_disabled = 0 ".
-			"AND (".
-			"first_name LIKE %s ".
-			"OR last_name LIKE %s ".
-			"%s".
-			")",
-			$db->qstr($term.'%'),
-			$db->qstr($term.'%'),
-			(false != strpos($term,' ')
-				? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
-				: '')
-		));
+		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER);
+		
+		$view = $context_ext->getSearchView('autocomplete_worker');
+		$view->is_ephemeral = true;
+		$view->addParamsWithQuickSearch($query, true);
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED, DevblocksSearchCriteria::OPER_EQ, 0));
+		
+		$query_parts = DAO_Worker::getSearchQueryComponents(array(), $view->getParams(), $view->renderSortBy, $view->renderSortAsc);
+		
+		$sql = "SELECT w.id ".
+			$query_parts['join'] .
+			$query_parts['where'] .
+			sprintf('AND (first_name LIKE %s OR last_name LIKE %s %s) ',
+				$db->qstr($term.'%'),
+				$db->qstr($term.'%'),
+				(false != strpos($term,' ')
+					? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
+					: '')
+			).
+			'ORDER BY w.first_name ASC '.
+			'LIMIT 25 '
+			;
+		
+		$results = $db->GetArraySlave($sql);
 		
 		if(is_array($results))
 		foreach($results as $row) {
@@ -2480,7 +2491,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::getUrlService();
-		$results = DAO_Worker::autocomplete($term);
+		$results = DAO_Worker::autocomplete($term, 'models', $query);
 		$list = array();
 
 		if(stristr('unassigned',$term) || stristr('nobody',$term) || stristr('empty',$term) || stristr('no worker',$term)) {

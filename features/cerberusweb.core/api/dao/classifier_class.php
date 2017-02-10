@@ -878,7 +878,9 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		$url_writer = DevblocksPlatform::getUrlService();
 		$list = array();
 		
-		$view = Context_ClassifierClass::getSearchView('autocomplete_classifier');
+		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_CLASSIFIER_CLASS);
+		
+		$view = $context_ext->getSearchView('autocomplete_classifier');
 		$view->renderLimit = 25;
 		$view->renderSortBy = SearchFields_ClassifierClass::NAME;
 		$view->renderSortAsc = true;

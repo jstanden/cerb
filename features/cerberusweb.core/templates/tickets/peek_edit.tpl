@@ -111,7 +111,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" align="right" valign="middle">{'common.owner'|devblocks_translate|capitalize}:</td>
 			<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="group:(id:{$ticket->group_id})" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="group:(id:{$ticket->group_id})" data-autocomplete="group:(id:{$ticket->group_id})" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 				
 				<ul class="bubbles chooser-container">
 					{$owner = $ticket->getOwner()}
@@ -249,6 +249,7 @@ $(function() {
 		// Dates
 		$frm.find('input.input_date').cerbDateInputHelper();
 		
+		// Linked form elements
 		$frm.on('cerb-form-update', function() {
 			$btn_recommend.attr('group_id', $frm.find('select[name=group_id]').val());
 			$btn_recommend.attr('bucket_id', $frm.find('select[name=bucket_id]').val());
@@ -259,7 +260,9 @@ $(function() {
 			$btn_watchers.trigger('refresh');
 			
 			// When the group changes, change the owner chooser defaults
-			$chooser_owner.attr('data-query', 'group:(id:' + $frm.find('select[name=group_id]' + ')').val());
+			var group_id = $frm.find('select[name=group_id]').val();
+			$chooser_owner.attr('data-query', 'group:(id:' + group_id + ')');
+			$chooser_owner.attr('data-autocomplete', 'group:(id:' + group_id + ')');
 		});
 	});
 });
