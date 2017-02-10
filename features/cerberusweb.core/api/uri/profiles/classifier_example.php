@@ -279,7 +279,7 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=classifier_example&id=%d-%s", $row[SearchFields_ClassifierExample::ID], DevblocksPlatform::strToPermalink($row[SearchFields_ClassifierExample::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=classifier_example&id=%d-%s", $row[SearchFields_ClassifierExample::ID], DevblocksPlatform::strToPermalink($row[SearchFields_ClassifierExample::EXPRESSION])), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
