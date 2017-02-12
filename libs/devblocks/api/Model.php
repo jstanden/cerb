@@ -482,8 +482,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		if(0 == ($field_id = intval(substr($param->field,3))))
 			return 0;
 		
+		// Return a soft failure when a filtered custom field has been deleted (i.e. ignore)
 		if(false == ($field = DAO_CustomField::get($field_id)))
-			return 0;
+			return '';
 
 		$field_table = sprintf("cf_%d", $field_id);
 		$value_table = DAO_CustomFieldValue::getValueTableName($field_id);
