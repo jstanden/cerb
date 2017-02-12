@@ -1307,7 +1307,17 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		$results = array_fill_keys(array_keys($dicts), false);
 		
+		// [TODO] We can remove this once we have 'files' as a first-class object (complementary to attachments)
+		@$view_export_file_id = $_SESSION['view_export_file_id'];
+		
 		foreach($dicts as $context_id => $dict) {
+			
+			// [TODO] This temporarily approves files if they were the last worklist export in the session
+			if($view_export_file_id && $view_export_file_id == $context_id) {
+				$results[$context_id] = true;
+				continue;
+			}
+			
 			if(false == ($links = DAO_Attachment::getLinks($dict->id)) || empty($links))
 				continue;
 			

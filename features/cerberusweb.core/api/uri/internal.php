@@ -2432,6 +2432,9 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(false == ($id = DAO_Attachment::create($fields)))
 				return false;
 			
+			// [TODO] This is a temporary workaround to allow workers to view exports they create
+			$_SESSION['view_export_file_id'] = $id;
+			
 			$fp = fopen($cursor['temp_file'], 'r');
 			Storage_Attachments::put($id, $fp);
 			fclose($fp);
