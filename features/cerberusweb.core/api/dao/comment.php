@@ -1461,8 +1461,10 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			$tpl->assign('links', $links);
 			
 			// Timeline
-			$timeline_json = Page_Profiles::getTimelineJson($model->getTimeline());
-			$tpl->assign('timeline_json', $timeline_json);
+			if($model) {
+				$timeline_json = Page_Profiles::getTimelineJson($model->getTimeline());
+				$tpl->assign('timeline_json', $timeline_json);
+			}
 			
 			// Context
 			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
