@@ -843,7 +843,17 @@ var ajax = new cAjaxCalls();
 				//layer = "peek" + Devblocks.uniqueId();
 				layer = $.md5(context + ':' + context_id + ':' + (edit_mode ? 'true' : 'false'));
 			
-			$trigger.click(function() {
+			$trigger.click(function(evt) {
+				var profile_url = $trigger.attr('data-profile-url');
+				
+				// Are they also holding SHIFT or CMD?
+				if((evt.shiftKey || evt.metaKey) && profile_url) {
+					evt.preventDefault();
+					evt.stopPropagation();
+					window.open(profile_url, '_blank');
+					return;
+				}
+				
 				var peek_url = 'c=internal&a=showPeekPopup&context=' + encodeURIComponent(context) + '&context_id=' + encodeURIComponent(context_id);
 
 				// View

@@ -103,9 +103,9 @@
 		  	{/if}
 		  	<br>
 		  	
-				{if $active_worker->hasPriv('core.display.actions.attachments.download')}
-					{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id}
-				{/if}
+			{if $active_worker->hasPriv('core.display.actions.attachments.download')}
+				{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id}
+			{/if}
 		  	
 		  	<table width="100%" cellpadding="0" cellspacing="0" border="0">
 		  		<tr>
