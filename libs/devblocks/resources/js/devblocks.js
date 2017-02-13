@@ -123,7 +123,7 @@ function DevblocksClass() {
 					.append($('<span class="cerb-ajax-spinner"/>'))
 					;
 				ui.panel.html($div);
-			},
+			}
 		};
 	}
 	
