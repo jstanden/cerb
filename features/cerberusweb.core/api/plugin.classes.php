@@ -613,7 +613,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		$dict->$response_placeholder = $response;
 	}
 
-rivate function _execute($verb='get', $url, $params=array(), $body=null, $headers=array(), $options=array(), $http_cert=null) {
+private function _execute($verb='get', $url, $params=array(), $body=null, $headers=array(), $options=array(), $http_cert=null) {
 		if(!empty($params) && is_array($params))
 			$url .= '?' . http_build_query($params);
 		
