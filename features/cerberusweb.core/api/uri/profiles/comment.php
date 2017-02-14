@@ -272,7 +272,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=comment&id=%d-%s", $row[SearchFields_Comment::ID], DevblocksPlatform::strToPermalink($row[SearchFields_Comment::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=comment&id=%d", $row[SearchFields_Comment::ID]), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
