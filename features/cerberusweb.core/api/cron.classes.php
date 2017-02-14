@@ -1162,8 +1162,20 @@ class MailboxCron extends CerberusCronPageExtension {
 			$imap_timeout_read_ms = imap_timeout(IMAP_READTIMEOUT) * 1000; // ms
 			$imap_options = array();
 			
+			// [TODO] Also allow disabling GSSAPI, NTLM from UI (requires patch)
+			$disable_authenticators = [];
+			
 			if($account->auth_disable_plain)
-				$imap_options['DISABLE_AUTHENTICATOR'] = 'PLAIN';
+				$disable_authenticators[] = 'PLAIN';
+			
+			if(defined('APP_MAIL_IMAP_DISABLE_NTLM') && APP_MAIL_IMAP_DISABLE_NTLM)
+				$disable_authenticators[] = 'NTLM';
+			
+			if(defined('APP_MAIL_IMAP_DISABLE_GSSAPI') && APP_MAIL_IMAP_DISABLE_GSSAPI)
+				$disable_authenticators[] = 'GSSAPI';
+			
+			if(!empty($disable_authenticators))
+				$imap_options['DISABLE_AUTHENTICATOR'] = $disable_authenticators;
 			
 			$mailboxes_checked++;
 
