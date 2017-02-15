@@ -20,6 +20,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		// The current session must be a logged-in worker to use this page.
 		if(null == ($worker = CerberusApplication::getActiveWorker()))
 			return false;
+		
 		return true;
 	}
 	
@@ -33,6 +34,9 @@ class ChFilesController extends DevblocksControllerExtension {
 		array_shift($stack); // files
 		$file_id = array_shift($stack); // 123
 		$file_name = array_shift($stack); // plaintext.txt
+		
+		$is_download = isset($request->query['download']) ? true : false;
+		$handled = false;
 		
 		if(40 == strlen($file_id))
 			$file_id = DAO_Attachment::getBySha1Hash($file_id);
@@ -57,9 +61,8 @@ class ChFilesController extends DevblocksControllerExtension {
 			DevblocksPlatform::dieWithHttpError($translate->_('files.error_resource_read'), 500);
 			
 		$file_stats = fstat($fp);
+		$mime_type = strtolower($file->mime_type);
 		
-		$is_download = isset($request->query['download']) ? true : false;
-
 		// Set headers
 		header('Pragma: cache');
 		header('Cache-control: max-age=604800', true); // 1 wk // , must-revalidate
@@ -69,16 +72,51 @@ class ChFilesController extends DevblocksControllerExtension {
 
 		if($is_download) {
 			header('Content-Disposition: attachment; filename=' . urlencode($file->name));
+			
+		} else {
+			@$range = DevblocksPlatform::importGPC($_SERVER['HTTP_RANGE'], 'string', null);
+			
+			if($range) {
+				list($range_unit, $value) = explode('=', $range, 2);
+				$size = $file_stats['size'];
+				
+				if($range_unit != 'bytes')
+					DevblocksPlatform::dieWithHttpError('Bad Request', 400);
+				
+				list($range_from, $range_to) = explode('-', $value, 2);
+				
+				if(!$range_to)
+					$range_to = $size - 1;
+				
+				// HTTP/1.1 206 Partial Content
+				header('HTTP/1.1 206 Partial Content');
+				header("Content-Type: " . $mime_type);
+				header("Content-Length: " . ($range_to - $range_from + 1));
+				header(sprintf("Content-Range: bytes %d-%d/%d", $range_from, $range_to, $size));
+				
+				$block_size = 8192;
+				
+				fseek($fp, $range_from);
+				
+				while(true) {
+					if(ftell($fp) >= $range_to)
+						break;
+					
+					echo fread($fp, $block_size);
+					flush();
+				}
+				
+				fclose($fp);
+				$handled = true;
+			}
 		}
 		
-		$handled = false;
-		
-		switch(strtolower($file->mime_type)) {
+		switch($mime_type) {
 			case 'message/feedback-report':
 			case 'message/rfc822':
 				// Render to the browser as text
 				if(!$is_download)
-					$file->mime_type = 'text/plain';
+					$mime_type = 'text/plain';
 				break;
 			
 			case 'text/html':
@@ -134,7 +172,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		}
 		
 		if(!$handled) {
-			header("Content-Type: " . $file->mime_type);
+			header("Content-Type: " . $mime_type);
 			header("Content-Length: " . $file_stats['size']);
 			fpassthru($fp);
 		}
