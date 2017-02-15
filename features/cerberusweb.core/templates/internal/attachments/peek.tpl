@@ -27,6 +27,38 @@
 
 <div style="clear:both;padding-top:10px;"></div>
 
+{if $is_downloadable}
+<div style="margin:10px;">
+	{if !$dict->mime_type}
+		{* ... do nothing ... *}
+	{elseif in_array($dict->mime_type, [ 'audio/ogg', 'audio/mpeg', 'audio/wav', 'audio/x-wav' ])}
+		<audio controls width="100%">
+			<source src="{devblocks_url full=true}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" type="{$dict->mime_type}">
+			Your browser does not support HTML5 audio.
+		</audio>
+	{elseif in_array($dict->mime_type, [ 'video/mp4', 'video/mpeg', 'video/quicktime' ])}
+		<video controls width="100%">
+			<source src="{devblocks_url full=true}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" type="{$dict->mime_type}">
+			Your browser does not support HTML5 video.
+		</video>
+	{elseif in_array($dict->mime_type, [ 'image/png', 'image/jpg', 'image/jpeg', 'image/gif' ])}
+		<img src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="max-width:100%;border:1px solid rgb(200,200,200);">
+	{elseif in_array($dict->mime_type, [ 'application/json', 'message/rfc822', 'text/css', 'text/csv', 'text/javascript', 'text/plain', 'text/xml' ])}
+		{if $dict->size < 1000000}
+		<iframe src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px;border:1px solid rgb(200,200,200);"></iframe>
+		{/if}
+	{elseif in_array($dict->mime_type, [ 'text/html' ])}
+		{if $dict->size < 1000000}
+		<iframe src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px;border:1px solid rgb(200,200,200);"></iframe>
+		{/if}
+	{elseif in_array($dict->mime_type, [ 'application/pdf' ])}
+		{if $dict->size < 5000000}
+		<object data="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" width="100%" height="350"></object>
+		{/if}
+	{/if}
+</div>
+{/if}
+
 <fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
@@ -89,7 +121,7 @@ $(function() {
 		{if $is_downloadable}
 		$popup.find('button.cerb-peek-download')
 			.on('click', function(e) {
-				window.open('{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				window.open('{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}?download=', '_blank');
 			});
 		{/if}
 		

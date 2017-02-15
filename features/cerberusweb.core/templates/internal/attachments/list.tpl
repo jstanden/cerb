@@ -5,7 +5,7 @@
 <ul class="bubbles" style="display:block;margin:5px 0px 15px 10px;">
 	{foreach from=$attachments item=attachment}
 	<li>
-		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}" data-profile-url="{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}">
 			<b>{$attachment->name}</b>
 			({$attachment->storage_size|devblocks_prettybytes} 
 			- 

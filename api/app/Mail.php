@@ -143,7 +143,7 @@ class CerberusMail {
 			if(isset($custom_headers['from'])) {
 				if(false !== ($custom_froms = imap_rfc822_parse_adrlist($custom_headers['from'], '')) && !empty($custom_froms)) {
 					$from_addy = $custom_froms[0]->mailbox . '@' . $custom_froms[0]->host;
-					$from_personal = ($custom_froms[0]->personal != $from_addy) ? $custom_froms[0]->personal : null;
+					$from_personal = (isset($custom_froms[0]->personal) && $custom_froms[0]->personal != $from_addy) ? $custom_froms[0]->personal : null;
 				}
 				
 				unset($custom_headers['from']);

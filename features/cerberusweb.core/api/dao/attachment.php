@@ -132,13 +132,21 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		return (false !== $db->ExecuteMaster($sql));
 	}
 	
-	static function getLinks($file_id) {
+	static function getLinks($file_id, $only_contexts=null) {
 		$db = DevblocksPlatform::getDatabaseService();
 		$contexts = [];
 		
-		$results = $db->GetArrayMaster(sprintf("SELECT context, context_id FROM attachment_link WHERE attachment_id = %d",
+		$sql = sprintf("SELECT context, context_id FROM attachment_link WHERE attachment_id = %d",
 			$file_id
-		));
+		);
+		
+		if(is_array($only_contexts) && !empty($only_contexts)) {
+			$sql .= sprintf(" AND context IN (%s)",
+				implode(',', $db->qstrArray($only_contexts))
+			);
+		}
+		
+		$results = $db->GetArrayMaster($sql);
 		
 		foreach($results as $row) {
 			if(!isset($contexts[$row['context']]))
@@ -1307,18 +1315,66 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		$results = array_fill_keys(array_keys($dicts), false);
 		
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		// Approve attachments by session (worklist export)
 		// [TODO] We can remove this once we have 'files' as a first-class object (complementary to attachments)
+
 		@$view_export_file_id = $_SESSION['view_export_file_id'];
 		
-		foreach($dicts as $context_id => $dict) {
+		if(isset($results[$view_export_file_id]))
+			$results[$view_export_file_id] = true;
+		
+		// Approve attachments by message links
+		
+		if(false == ($worker = DAO_Worker::get($actor->id)))
+			return CerberusContexts::denyEverything($models);
+		
+		$memberships = $worker->getMemberships();
+		
+		$sql_approve_by_messages = sprintf("select distinct attachment_id ".
+			"from attachment_link ".
+			"where attachment_id in (%s) ".
+			"and context = 'cerberusweb.contexts.message' ".
+			"and context_id in ".
+			"(".
+			"select message.id from message inner join ticket on (message.ticket_id=ticket.id) ".
+			"where message.id in (context_id) ".
+			"and ticket.group_id in (select id from worker_group where is_private = 0 or id in (%s)) ".
+			")",
+			implode(',', array_keys($dicts)),
+			implode(',', array_keys($memberships))
+		);
+		$approved_files = $db->GetArraySlave($sql_approve_by_messages);
+		
+		foreach($approved_files as $approved_file) {
+			$results[$approved_file['attachment_id']] = true;
+		}
+		
+		// Determine which context_ids still aren't approved yet.
+		
+		$remaining = array_filter($results, function($bool) {
+			return !$bool;
+		});
+		
+		// Loop through dictionaries
+		// [TODO] There may eventually be other record types with attachments
+		
+		$only_contexts = [
+			CerberusContexts::CONTEXT_COMMENT,
+			CerberusContexts::CONTEXT_FILE_BUNDLE,
+			CerberusContexts::CONTEXT_KB_ARTICLE,
+			CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE,
+		];
+		
+		foreach(array_keys($remaining) as $context_id) {
+			$dict = $dicts[$context_id];
 			
-			// [TODO] This temporarily approves files if they were the last worklist export in the session
-			if($view_export_file_id && $view_export_file_id == $context_id) {
-				$results[$context_id] = true;
+			// If pre-approved, skip.
+			if($results[$context_id])
 				continue;
-			}
-			
-			if(false == ($links = DAO_Attachment::getLinks($dict->id)) || empty($links))
+				
+			if(false == ($links = DAO_Attachment::getLinks($dict->id, $only_contexts)) || empty($links))
 				continue;
 			
 			foreach($links as $context => $ids) {
