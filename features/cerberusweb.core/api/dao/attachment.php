@@ -1338,7 +1338,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			"and context = 'cerberusweb.contexts.message' ".
 			"and context_id in ".
 			"(".
-			"select context_id from message inner join ticket on (message.ticket_id=ticket.id) ".
+			"select message.id from message inner join ticket on (message.ticket_id=ticket.id) ".
 			"where message.id in (context_id) ".
 			"and ticket.group_id in (select id from worker_group where is_private = 0 or id in (%s)) ".
 			")",
@@ -1351,37 +1351,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			$results[$approved_file['attachment_id']] = true;
 		}
 		
-		// Determine which context_ids aren't approved yet.
-		
-		$remaining = array_filter($results, function($bool) {
-			return !$bool;
-		});
-		
-		// Approve attachments by comment links
-		
-		if(!empty($remaining)) {
-			$sql_approve_by_comments = sprintf("select distinct attachment_id ".
-				"from attachment_link ".
-				"where attachment_id in (%s) ".
-				"and context = 'cerberusweb.contexts.comment' ".
-				"and context_id in ".
-				"(".
-				"select id from comment where context = 'cerberusweb.contexts.message' and context_id in (".
-				"select context_id from message inner join ticket on (message.ticket_id=ticket.id) ".
-				"where comment.id in (context_id) ".
-				"and ticket.group_id in (select id from worker_group where is_private = 0 or id in (%s)) ".
-				")".
-				")",
-				implode(',', array_keys($remaining)),
-				implode(',', array_keys($memberships))
-			);
-			$approved_files = $db->GetArraySlave($sql_approve_by_comments);
-			
-			foreach($approved_files as $approved_file) {
-				$results[$approved_file['attachment_id']] = true;
-			}
-		}
-		
 		// Determine which context_ids still aren't approved yet.
 		
 		$remaining = array_filter($results, function($bool) {
@@ -1392,6 +1361,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		// [TODO] There may eventually be other record types with attachments
 		
 		$only_contexts = [
+			CerberusContexts::CONTEXT_COMMENT,
 			CerberusContexts::CONTEXT_FILE_BUNDLE,
 			CerberusContexts::CONTEXT_KB_ARTICLE,
 			CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE,

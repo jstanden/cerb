@@ -62,6 +62,7 @@ class ChFilesController extends DevblocksControllerExtension {
 			
 		$file_stats = fstat($fp);
 		$mime_type = strtolower($file->mime_type);
+		$size = $file_stats['size'];
 		
 		// Set headers
 		header('Pragma: cache');
@@ -77,21 +78,22 @@ class ChFilesController extends DevblocksControllerExtension {
 			@$range = DevblocksPlatform::importGPC($_SERVER['HTTP_RANGE'], 'string', null);
 			
 			if($range) {
-				list($range_unit, $value) = explode('=', $range, 2);
-				$size = $file_stats['size'];
+				@list($range_unit, $value) = explode('=', $range, 2);
 				
 				if($range_unit != 'bytes')
 					DevblocksPlatform::dieWithHttpError('Bad Request', 400);
 				
-				list($range_from, $range_to) = explode('-', $value, 2);
+				@list($range_from, $range_to) = explode('-', $value, 2);
 				
 				if(!$range_to)
 					$range_to = $size - 1;
 				
+				$length = ($range_to - $range_from) + 1;
+				
 				// HTTP/1.1 206 Partial Content
 				header('HTTP/1.1 206 Partial Content');
 				header("Content-Type: " . $mime_type);
-				header("Content-Length: " . ($range_to - $range_from + 1));
+				header("Content-Length: " . $length);
 				header(sprintf("Content-Range: bytes %d-%d/%d", $range_from, $range_to, $size));
 				
 				$block_size = 8192;
@@ -106,21 +108,25 @@ class ChFilesController extends DevblocksControllerExtension {
 					flush();
 				}
 				
-				fclose($fp);
 				$handled = true;
+				fclose($fp);
 			}
 		}
 		
 		switch($mime_type) {
+			case 'application/json':
 			case 'message/feedback-report':
 			case 'message/rfc822':
+			case 'text/csv':
+			case 'text/javascript':
+			case 'text/css':
+			case 'text/xml':
 				// Render to the browser as text
 				if(!$is_download)
 					$mime_type = 'text/plain';
 				break;
 			
 			case 'text/html':
-				$handled = true;
 				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
 				
 				// If we're downloading the HTML, just pass the raw bytes
@@ -165,9 +171,9 @@ class ChFilesController extends DevblocksControllerExtension {
 					header("Content-Length: " . strlen($clean_html));
 					echo $clean_html;
 				}
-				break;
 				
-			default:
+				$handled = true;
+				fclose($fp);
 				break;
 		}
 		
@@ -175,9 +181,8 @@ class ChFilesController extends DevblocksControllerExtension {
 			header("Content-Type: " . $mime_type);
 			header("Content-Length: " . $file_stats['size']);
 			fpassthru($fp);
+			fclose($fp);
 		}
-		
-		fclose($fp);
 		
 		exit;
 	}
