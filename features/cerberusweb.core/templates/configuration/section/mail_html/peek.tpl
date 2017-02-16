@@ -207,7 +207,7 @@ $(function() {
 							if(!event.response || 0 == event.response)
 								return;
 							
-							$signature.insertAtCursor("![inline-image](" + event.response[0].url + ")");
+							{literal}$signature.insertAtCursor("![inline-image]({{cerb_file_url(" + event.response[0].id + ",'" + event.response[0].name + "')}})");{/literal}
 	
 							// Add an attachment link
 							
@@ -272,7 +272,7 @@ $(function() {
 					key: 'U',
 					className:'image-inline'
 				}
-			);			
+			);
 			
 			delete markitupHTMLSettings.previewParserPath;
 			delete markitupHTMLSettings.previewTemplatePath;

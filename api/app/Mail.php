@@ -1425,17 +1425,15 @@ class CerberusMail {
 					function($matches) use ($base_url, $mail, &$embedded_files, $exclude_files) {
 						if(3 == count($matches)) {
 							$file_parts = explode('/', $matches[2]);
-							@list($file_hash, $file_name) = explode('/', $matches[2], 2);
-							if($file_hash && $file_name) {
-								if($file_id = DAO_Attachment::getBySha1Hash($file_hash, urldecode($file_name))) {
-									if($file = DAO_Attachment::get($file_id)) {
-										
-										if(!in_array($file_id, $exclude_files))
-											$embedded_files[] = $file_id;
-										
-										$cid = $mail->embed(Swift_Image::newInstance($file->getFileContents(), $file->name, $file->mime_type));
-										return sprintf('"%s"', $cid);
-									}
+							@list($file_id, $file_name) = explode('/', $matches[2], 2);
+							if($file_id && $file_name) {
+								if($file = DAO_Attachment::get($file_id)) {
+									
+									if(!in_array($file_id, $exclude_files))
+										$embedded_files[] = $file_id;
+									
+									$cid = $mail->embed(Swift_Image::newInstance($file->getFileContents(), $file->name, $file->mime_type));
+									return sprintf('"%s"', $cid);
 								}
 							}
 						}
@@ -1458,9 +1456,9 @@ class CerberusMail {
 				sprintf('|(\!\[inline-image\]\(%s(.*?)\))|', preg_quote($base_url)),
 				function($matches) use ($base_url) {
 					if(3 == count($matches)) {
-						@list($file_hash, $file_name) = explode('/', $matches[2], 2);
+						@list($file_id, $file_name) = explode('/', $matches[2], 2);
 						
-						if($file_hash && $file_name)
+						if($file_id && $file_name)
 							return sprintf("[Image %s]", urldecode($file_name));
 					}
 					
