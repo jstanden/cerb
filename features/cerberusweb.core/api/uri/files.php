@@ -90,21 +90,26 @@ class ChFilesController extends DevblocksControllerExtension {
 				
 				$length = ($range_to - $range_from) + 1;
 				
-				// HTTP/1.1 206 Partial Content
 				header('HTTP/1.1 206 Partial Content');
 				header("Content-Type: " . $mime_type);
 				header("Content-Length: " . $length);
 				header(sprintf("Content-Range: bytes %d-%d/%d", $range_from, $range_to, $size));
 				
+				flush();
+				
+				$remaining = $length;
 				$block_size = 8192;
 				
 				fseek($fp, $range_from);
 				
 				while(true) {
-					if(ftell($fp) >= $range_to)
+					$read_size = min($remaining, $block_size);
+					
+					if($read_size <= 0)
 						break;
 					
-					echo fread($fp, $block_size);
+					echo fread($fp, $read_size);
+					$remaining -= $read_size;
 					flush();
 				}
 				
