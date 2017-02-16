@@ -261,8 +261,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	static function curlInit($url=null) {
 		$ch = curl_init($url);
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 90);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 90);
 		
 		return $ch;
 	}

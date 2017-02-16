@@ -55,7 +55,7 @@ class ChCronController extends DevblocksControllerExtension {
 		array_shift($stack); // cron
 		$job_ids = array_shift($stack);
 		
-		@set_time_limit(600); // 10 mins
+		@set_time_limit(3600); // 10 mins
 		
 		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_APPLICATION, 0);
 		
