@@ -2930,12 +2930,16 @@ interface IAbstractView_Subtotals {
 
 class CerbQuickSearchLexer {
 	private static function _recurse($token, $key, $node_callback, $after_children_callback=null) {
+		if(!is_object($token))
+			return;
+		
 		if(!is_callable($node_callback))
 			return;
 		
 		if(empty($key) || $token->type == $key)
 			$node_callback($token);
 		
+		if(isset($token->children) && is_array($token->children))
 		foreach($token->children as $child)
 			self::_recurse($child, $key, $node_callback, $after_children_callback);
 		
