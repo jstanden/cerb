@@ -1683,20 +1683,43 @@ class CerberusContexts {
 				if(isset($entry['urls']))
 				foreach($entry['urls'] as $token => $url) {
 					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
-						$url = self::parseContextUrl($url);
+						$url = self::getUrlFromContextUrl($url);
 					} elseif(0 != strcasecmp('http',substr($url,0,4))) {
 						$url = $url_writer->writeNoProxy($url, true);
 					}
-
 					$vars[$token] = '<a href="'.$url.'" style="font-weight:bold;">'.$vars[$token].'</a>';
 				}
 				break;
 
+			case 'html-cards':
+				// HTML formatting and incorporating URLs
+				if(is_array($vars))
+				foreach($vars as $k => $v) {
+					$vars[$k] = DevblocksPlatform::strEscapeHtml($v);
+				}
+
+				if(isset($entry['urls']))
+				foreach($entry['urls'] as $token => $url) {
+					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
+						if(false != ($parts = self::parseContextUrl($url))) {
+							$vars[$token] = sprintf('<a href="javascript:;" class="cerb-peek-trigger" data-context="%s" data-context-id="%d" style="font-weight:bold;">%s</a>',
+								DevblocksPlatform::strEscapeHtml($parts['context']),
+								$parts['id'],
+								DevblocksPlatform::strEscapeHtml($vars[$token])
+							);
+						}
+					} elseif(0 != strcasecmp('http',substr($url,0,4))) {
+						$url = $url_writer->writeNoProxy($url, true);
+						$vars[$token] = '<a href="'.$url.'" style="font-weight:bold;">'.$vars[$token].'</a>';
+					}
+				}
+				break;
+				
 			case 'markdown':
 				if(isset($entry['urls']))
 				foreach($entry['urls'] as $token => $url) {
 					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
-						$url = self::parseContextUrl($url);
+						$url = self::getUrlFromContextUrl($url);
 					} elseif(0 != strcasecmp('http',substr($url,0,4))) {
 						$url = $url_writer->writeNoProxy($url, true);
 					}
@@ -1712,7 +1735,7 @@ class CerberusContexts {
 					break;
 
 				if(0 == strcasecmp('ctx://',substr($url,0,6))) {
-					$url = self::parseContextUrl($url);
+					$url = self::getUrlFromContextUrl($url);
 				} elseif(0 != strcasecmp('http',substr($url,0,4))) {
 					$url = $url_writer->writeNoProxy($url, true);
 				}
@@ -1731,6 +1754,34 @@ class CerberusContexts {
 	}
 
 	static function parseContextUrl($url) {
+		if(0 != strcasecmp('ctx://',substr($url,0,6))) {
+			return false;
+		}
+
+		$context_parts = explode('/', substr($url,6));
+		$context_pair = explode(':', $context_parts[0], 2);
+
+		if(count($context_pair) != 2)
+			return false;
+
+		$context = $context_pair[0];
+		$context_id = $context_pair[1];
+		
+		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+			return false;
+		
+		switch($context) {
+			case CerberusContexts::CONTEXT_TICKET:
+				if(!is_numeric($context_id)) {
+					$context_id = DAO_Ticket::getTicketIdByMask($context_id);
+				}
+				break;
+		}
+		
+		return ['context' => $context, 'id' => $context_id];
+	}
+	
+	static function getUrlFromContextUrl($url) {
 		if(0 != strcasecmp('ctx://',substr($url,0,6))) {
 			return false;
 		}

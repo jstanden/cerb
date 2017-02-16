@@ -9,7 +9,7 @@
 			</td>
 			<td valign="top" width="99%">
 				{$json = json_decode($entry->entry_json, true)}
-				{CerberusContexts::formatActivityLogEntry($json, 'html', ['target']) nofilter}
+				{CerberusContexts::formatActivityLogEntry($json, 'html-cards', ['target']) nofilter}
 			</td>
 		</tr>
 	</tbody>
