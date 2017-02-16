@@ -10,6 +10,7 @@
 			{/if}
 			
 			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$dict->target__context} context.id:{$dict->target_id}"><span class="glyphicons glyphicons-conversation"></span> {'display.ui.reply'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 </div>
@@ -69,6 +70,14 @@ $(function() {
 			})
 			;
 		{/if}
+		
+		// Comments
+		$popup.find('button.cerb-peek-comments-add')
+			.cerbPeekTrigger()
+			.on('cerb-peek-saved', function() {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			;
 		
 		// Peeks
 		$popup.find('.cerb-peek-trigger')
