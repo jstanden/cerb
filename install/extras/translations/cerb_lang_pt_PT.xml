@@ -1493,6 +1493,11 @@
 				<seg>Re-abrir</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.reply">
+			<tuv xml:lang="pt_PT">
+				<seg>Responder</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.reset">
 			<tuv xml:lang="pt_PT">
 				<seg>reiniciar</seg>
@@ -2716,11 +2721,6 @@
 		<tu tuid="display.ui.forward">
 			<tuv xml:lang="pt_PT">
 				<seg>Reencaminhar</seg>
-			</tuv>
-		</tu>
-		<tu tuid="display.ui.reply">
-			<tuv xml:lang="pt_PT">
-				<seg>Responder</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.ui.save_nosend">

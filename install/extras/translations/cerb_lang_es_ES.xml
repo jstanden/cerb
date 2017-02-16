@@ -1488,6 +1488,11 @@
 				<seg>Reabrir</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.reply">
+			<tuv xml:lang="es_ES">
+				<seg>Responder</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.reset">
 			<tuv xml:lang="es_ES">
 				<seg>reiniciar</seg>
@@ -2711,11 +2716,6 @@
 		<tu tuid="display.ui.forward">
 			<tuv xml:lang="es_ES">
 				<seg>Reenviar</seg>
-			</tuv>
-		</tu>
-		<tu tuid="display.ui.reply">
-			<tuv xml:lang="es_ES">
-				<seg>Responder</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.ui.save_nosend">

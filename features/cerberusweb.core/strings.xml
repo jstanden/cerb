@@ -1462,6 +1462,11 @@
 				<seg>Re-open</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.reply">
+			<tuv xml:lang="en_US">
+				<seg>Reply</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.reset">
 			<tuv xml:lang="en_US">
 				<seg>reset</seg>
@@ -3057,11 +3062,6 @@ For example: http://www.cerbweb.com/support/</seg>
 		<tu tuid="display.ui.forward">
 			<tuv xml:lang="en_US">
 				<seg>Forward</seg>
-			</tuv>
-		</tu>
-		<tu tuid="display.ui.reply">
-			<tuv xml:lang="en_US">
-				<seg>Reply</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.ui.save_nosend">

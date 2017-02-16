@@ -94,7 +94,7 @@
 		{if empty($ticket->owner_id)}(<b>t</b>) {'common.assign'|devblocks_translate|lower} {/if}
 		{if !empty($ticket->owner_id)}(<b>u</b>) {'common.unassign'|devblocks_translate|lower} {/if}
 		{if !$expand_all}(<b>a</b>) {'display.button.read_all'|devblocks_translate|lower} {/if} 
-		{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {'display.ui.reply'|devblocks_translate|lower} {/if}  
+		{if $active_worker->hasPriv('core.display.actions.reply')}(<b>r</b>) {'common.reply'|devblocks_translate|lower} {/if}  
 		(<b>p</b>) {'common.print'|devblocks_translate|lower} 
 		(<b>1-9</b>) change tab 
 	</small>

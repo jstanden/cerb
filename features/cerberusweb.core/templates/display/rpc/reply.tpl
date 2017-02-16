@@ -4,7 +4,7 @@
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
-		<td><h2 style="color:rgb(50,50,50);">{if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'display.ui.reply'|devblocks_translate|capitalize}{/if}</h2></td>
+		<td><h2 style="color:rgb(50,50,50);">{if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'common.reply'|devblocks_translate|capitalize}{/if}</h2></td>
 	</tr>
 	<tr>
 		<td width="100%">
