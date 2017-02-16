@@ -115,7 +115,7 @@ $(function() {
 		
 		// View profile
 		$popup.find('.cerb-peek-profile').click(function(e) {
-			if(e.metaKey) {
+			if(e.shiftKey || e.metaKey) {
 				window.open('{devblocks_url}c=profiles&type=calendar&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
 				
 			} else {
