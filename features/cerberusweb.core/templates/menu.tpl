@@ -98,7 +98,7 @@ $(function() {
 					.css('left',$(this).offset().left+10-($menu.width()-$(this).width())+'px')
 				;
 			},
-			timeout:0,
+			timeout:500,
 			out:function(e) {
 				$(this).find('ul:first').hide();
 			}
