@@ -113,6 +113,7 @@ $(function() {
 		
 		var $textarea = $popup.find('textarea[name=comment]')
 			.autosize()
+			.focus()
 			;
 		
 		// @mentions
