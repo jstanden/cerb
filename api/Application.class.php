@@ -1825,15 +1825,16 @@ class CerberusContexts {
 	static public function popActivityDefaultActor() {
 		array_pop(self::$_default_actor_stack);
 
-		if(empty(self::$_default_actor_stack)) {
-			$context = null;
-			$context_id = null;
-
-		} else {
+		self::$_default_actor_context = null;
+		self::$_default_actor_context_id = null;
+		
+		if(!empty(self::$_default_actor_stack)) {
 			$context_pair = end(self::$_default_actor_stack);
 
-			$context = $context_pair['context'];
-			$context_id = $context_pair['context_id'];
+			if(is_array($context_pair) && 2 == count($context_pair)) {
+				self::$_default_actor_context = $context_pair[0];
+				self::$_default_actor_context_id = $context_pair[1];
+			}
 		}
 	}
 	
