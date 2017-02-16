@@ -1702,10 +1702,11 @@ class CerberusContexts {
 				foreach($entry['urls'] as $token => $url) {
 					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
 						if(false != ($parts = self::parseContextUrl($url))) {
-							$vars[$token] = sprintf('<a href="javascript:;" class="cerb-peek-trigger" data-context="%s" data-context-id="%d" style="font-weight:bold;">%s</a>',
-								DevblocksPlatform::strEscapeHtml($parts['context']),
+							$vars[$token] = sprintf('<a href="javascript:;" class="cerb-peek-trigger" data-context="%s" data-context-id="%d" data-profile-url="%s" style="font-weight:bold;">%s</a>',
+								$parts['context'],
 								$parts['id'],
-								DevblocksPlatform::strEscapeHtml($vars[$token])
+								$parts['url'],
+								$vars[$token]
 							);
 						}
 					} elseif(0 != strcasecmp('http',substr($url,0,4))) {
@@ -1778,7 +1779,23 @@ class CerberusContexts {
 				break;
 		}
 		
-		return ['context' => $context, 'id' => $context_id];
+		$url = null;
+		
+		if($context_ext instanceof IDevblocksContextProfile) {
+			$url = $context_ext->profileGetUrl($context_id);
+
+		} else {
+			$meta = $context_ext->getMeta($context_id);
+
+			if(is_array($meta) && isset($meta['permalink']))
+				$url = $meta['permalink'];
+		}
+		
+		return [
+			'context' => $context,
+			'id' => $context_id,
+			'url' => $url,
+		];
 	}
 	
 	static function getUrlFromContextUrl($url) {
