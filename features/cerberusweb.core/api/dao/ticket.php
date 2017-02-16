@@ -3530,14 +3530,19 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__time_elapsed.tpl');
 				break;
-					
+				
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
 			case SearchFields_Ticket::TICKET_UPDATED_DATE:
 			case SearchFields_Ticket::TICKET_REOPEN_AT:
 			case SearchFields_Ticket::TICKET_CLOSED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
-					
+				
+			case SearchFields_Ticket::TICKET_ORG_ID:
+				$tpl->assign('context', CerberusContexts::CONTEXT_ORG);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__chooser.tpl');
+				break;
+				
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 				$options = array(
 					'N' => 'Not Spam',
@@ -4030,6 +4035,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
+				
+			case SearchFields_Ticket::TICKET_ORG_ID:
+				@$context_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',array()), 'integer', array('nonzero','unique'));
+				$criteria = new DevblocksSearchCriteria($field,$oper,$context_ids);
+				break;
 
 			case SearchFields_Ticket::TICKET_GROUP_ID:
 				@$group_ids = DevblocksPlatform::importGPC($_REQUEST['options'],'array');
@@ -4058,7 +4068,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 				if(!empty($org_ids)) {
 					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,$oper,$org_ids));
-				} else { // clear if no buckets provided
+				} else { // clear if no orgs provided
 					$this->removeParam(SearchFields_Ticket::TICKET_ORG_ID);
 				}
 				break;
