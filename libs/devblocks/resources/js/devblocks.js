@@ -1,9 +1,18 @@
 function DevblocksClass() {
-	this.audio = new Audio();
+	this.audio = null;
 	
 	this.playAudioUrl = function(url) {
-		this.audio.src = url;
-		this.audio.play();
+		try {
+			if(null == this.audio)
+				this.audio = new Audio();
+			
+			this.audio.src = url;
+			this.audio.play();
+			
+		} catch(e) {
+			if(window.console)
+				console.log(e);
+		}
 	}
 	
 	// Source: http://stackoverflow.com/a/16693578
