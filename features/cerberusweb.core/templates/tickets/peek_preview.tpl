@@ -70,7 +70,11 @@
 {elseif $comment && $comment instanceof Model_Comment}
 	{$owner_meta = $comment->getOwnerMeta()}
 	
+	{if $comment->context == CerberusContexts::CONTEXT_MESSAGE}
+	<span class="tag" style="background-color:rgb(238,88,31);color:white;margin-right:5px;">{'display.ui.sticky_note'|devblocks_translate|lower}</span>
+	{else}
 	<span class="tag" style="background-color:rgb(71,133,210);color:white;margin-right:5px;">{'common.comment'|devblocks_translate|lower}</span>
+	{/if}
 	
 	<b>
 		{if empty($owner_meta)}

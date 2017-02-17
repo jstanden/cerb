@@ -1,6 +1,5 @@
 {$div_id = "peek{uniqid()}"}
-{$is_readable = Context_Message::isReadableByActor($dict, $active_worker)}
-{$is_writeable = Context_Message::isWriteableByActor($dict, $active_worker)}
+{$peek_context = CerberusContexts::CONTEXT_MESSAGE}
 
 <div id="{$div_id}">
 	<div style="float:left;">
@@ -13,9 +12,7 @@
 			<button type="button" class="cerb-peek-edit" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 			{/if}
 			
-			{if $is_readable}
-			<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-link"></span> {'common.permalink'|devblocks_translate|capitalize}</button>
-			{/if}
+			{if $is_readable}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-link"></span> {'common.permalink'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
@@ -46,11 +43,7 @@
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$peek_context context_id=$dict->id view_id=$view_id}
 
 {if $is_readable}
-<fieldset class="peek cerb-peek-timeline" style="margin:5px 0px 0px 0px;">
-	<div class="cerb-peek-timeline-preview" style="margin:0px 5px;">
-		<span class="cerb-ajax-spinner"></span>
-	</div>
-</fieldset>
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 {/if}
 
 <script type="text/javascript">
@@ -58,6 +51,8 @@ $(function() {
 	var $div = $('#{$div_id}');
 	var $popup = genericAjaxPopupFind($div);
 	var $layer = $popup.attr('data-layer');
+	
+	{if $is_readable}var $timeline = {$timeline_json|default:'{}' nofilter};{/if}
 	
 	$popup.one('popup_open',function(event,ui) {
 		// Title
@@ -80,11 +75,8 @@ $(function() {
 			;
 		{/if}
 		
-		// Preview
+		// Comments
 		{if $is_readable}
-		var $timeline_fieldset = $popup.find('fieldset.cerb-peek-timeline');
-		var $timeline_preview = $popup.find('div.cerb-peek-timeline-preview').width($timeline_fieldset.width());
-		genericAjaxGet($timeline_preview, 'c=profiles&a=handleSectionAction&section=ticket&action=getPeekPreview&context={CerberusContexts::CONTEXT_MESSAGE}&context_id={$dict->id}');
 		{/if}
 		
 		// Searches
@@ -104,6 +96,11 @@ $(function() {
 				document.location='{devblocks_url}c=profiles&type=ticket&id={$dict->ticket_mask}&what=message&msgid={$dict->id}{/devblocks_url}';
 			}
 		});
+		
+		// Timeline
+		{if $is_readable}
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
+		{/if}
 	});
 });
 </script>

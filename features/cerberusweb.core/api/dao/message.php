@@ -726,6 +726,44 @@ class Model_Message {
 	function getTicket() {
 		return DAO_Ticket::get($this->ticket_id);
 	}
+	
+	function getTimeline($is_ascending=true) {
+		$timeline = [
+			$this,
+		];
+		
+		if(false != ($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, $this->id)))
+			$timeline = array_merge($timeline, $comments);
+		
+		usort($timeline, function($a, $b) use ($is_ascending) {
+			if($a instanceof Model_Message) {
+				$a_time = intval($a->created_date);
+			} else if($a instanceof Model_Comment) {
+				$a_time = intval($a->created);
+			} else {
+				$a_time = 0;
+			}
+			
+			if($b instanceof Model_Message) {
+				$b_time = intval($b->created_date);
+			} else if($b instanceof Model_Comment) {
+				$b_time = intval($b->created);
+			} else {
+				$b_time = 0;
+			}
+			
+			if($a_time > $b_time) {
+				return ($is_ascending) ? 1 : -1;
+			} else if ($a_time < $b_time) {
+				return ($is_ascending) ? -1 : 1;
+			} else {
+				return 0;
+			}
+		});
+		
+		return $timeline;
+	}
+	
 };
 
 class Search_MessageContent extends Extension_DevblocksSearchSchema {
@@ -2265,6 +2303,8 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id) && null != ($message = DAO_Message::get($context_id))) {
@@ -2314,6 +2354,18 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			$is_readable = Context_Message::isReadableByActor($dict, $active_worker);
+			$tpl->assign('is_readable', $is_readable);
+			
+			$is_writeable = Context_Message::isWriteableByActor($dict, $active_worker);
+			$tpl->assign('is_writeable', $is_writeable);
+			
+			// Timeline
+			if($is_readable && $message) {
+				$timeline_json = Page_Profiles::getTimelineJson($message->getTimeline());
+				$tpl->assign('timeline_json', $timeline_json);
+			}
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/messages/peek.tpl');
 		}
