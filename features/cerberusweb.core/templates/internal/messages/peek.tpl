@@ -43,6 +43,8 @@
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id links_label="{'common.links'|devblocks_translate|capitalize}"}
 
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$peek_context context_id=$dict->id view_id=$view_id}
+
 {if $is_readable}
 <fieldset class="peek cerb-peek-timeline" style="margin:5px 0px 0px 0px;">
 	<div class="cerb-peek-timeline-preview" style="margin:0px 5px;">

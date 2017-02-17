@@ -28,4 +28,17 @@
 	</table>
 	
 </fieldset>
+
+{if !empty($view_id)}
+<script type="text/javascript">
+$(function() {
+	var $view = $('#view{$view_id}');
+	
+	if(!$view.attr('data-context') == '{CerberusContexts::CONTEXT_NOTIFICATION}')
+		return;
+	
+	genericAjaxGet($view,'c=internal&a=viewRefresh&id={$view_id}');
+});
+</script>
+{/if}
 {/if}

@@ -40,6 +40,12 @@ abstract class C4_AbstractView {
 	
 	public $renderTemplate = null;
 
+	function getContext() {
+		if(false == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($this))))
+			return null;
+		
+		return $context_ext->id;
+	}
 	abstract function getData();
 	function getDataAsObjects($ids=null) { return array(); }
 	function getDataSample($size) {}

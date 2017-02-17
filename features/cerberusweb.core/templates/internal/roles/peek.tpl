@@ -35,6 +35,8 @@
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}
 
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$peek_context context_id=$dict->id view_id=$view_id}
+
 {include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
 <script type="text/javascript">
