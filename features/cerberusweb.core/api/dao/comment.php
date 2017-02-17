@@ -711,7 +711,8 @@ class Model_Comment {
 	}
 	
 	function getTimeline($is_ascending=true) {
-		$timeline = [$this->id => $this];
+		// Load all the comments on the parent record
+		$timeline = DAO_Comment::getByContext($this->context, $this->context_id);
 		
 		usort($timeline, function($a, $b) use ($is_ascending) {
 			$a_time = intval($a->created);
@@ -1462,7 +1463,18 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			
 			// Timeline
 			if($model) {
-				$timeline_json = Page_Profiles::getTimelineJson($model->getTimeline());
+				$timeline = $model->getTimeline();
+				$start_index = null;
+				
+				// Find the current model in thetimeline
+				foreach($timeline as $idx => $object) {
+					if($object instanceof Model_Comment && $object->id == $model->id) {
+						$start_index = $idx;
+						break;
+					}
+				}
+				
+				$timeline_json = Page_Profiles::getTimelineJson($timeline, true, $start_index);
 				$tpl->assign('timeline_json', $timeline_json);
 			}
 			

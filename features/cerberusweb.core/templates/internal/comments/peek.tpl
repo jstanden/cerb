@@ -1,5 +1,5 @@
 {$div_id = "peek{uniqid()}"}
-{$peek_context = 'cerberusweb.contexts.comment'}
+{$peek_context = CerberusContexts::CONTEXT_COMMENT}
 {$is_writeable = Context_Comment::isWriteableByActor($dict, $active_worker)}
 
 <div id="{$div_id}">

@@ -138,7 +138,7 @@ class Page_Profiles extends CerberusPageExtension {
 		return $properties;
 	}
 	
-	static function getTimelineJson($models, $is_ascending=true) {
+	static function getTimelineJson($models, $is_ascending=true, $start_index=null) {
 		$json = array(
 			'objects' => array(),
 			'length' => count($models),
@@ -162,12 +162,20 @@ class Page_Profiles extends CerberusPageExtension {
 			}
 		}
 		
-		if(isset($json['objects']) && is_array($json['objects']))
-		if(false != ($object = end($json['objects']))) {
-			$json['last'] = key($json['objects']);
-			$json['index'] = key($json['objects']);
-			$json['context'] = $object['context'];
-			$json['context_id'] = $object['context_id'];
+		if(isset($json['objects']) && is_array($json['objects'])) {
+			// Move to the end
+			end($json['objects']);
+			
+			if(is_null($start_index) || !isset($json['objects'][$start_index])) {
+				$start_index = key($json['objects']);
+			}
+			
+			if(!is_null($start_index) && false != ($object = $json['objects'][$start_index])) {
+				$json['last'] = key($json['objects']);
+				$json['index'] = $start_index;
+				$json['context'] = $object['context'];
+				$json['context_id'] = $object['context_id'];
+			}
 		}
 		
 		return json_encode($json);
