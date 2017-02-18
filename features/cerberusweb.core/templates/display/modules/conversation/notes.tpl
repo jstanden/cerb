@@ -37,7 +37,7 @@
 				{/if}
 				
 				{if !$readonly}
-					<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this note?')) { genericAjaxGet('','c=internal&a=commentDelete&id={$note->id}');$(this).closest('div.message_note').remove(); } "><span class="glyphicons glyphicons-circle-remove" title="{'common.delete'|devblocks_translate|lower}"></span></button><br>
+					<button type="button" class="cerb-edit-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$note->id}"><span class="glyphicons glyphicons-cogwheel" title="{'common.edit'|devblocks_translate|lower}"></span></button>
 				{/if}
 			</div>
 			
@@ -54,7 +54,7 @@
 $(function() {
 	var $notes = $('#{$divid_notes}');
 	
-	$notes.find('.cerb-peek-trigger').cerbPeekTrigger();
+	$notes.find('.cerb-edit-trigger').cerbPeekTrigger();
 	
 	$notes.find('div.message_note').hover(
 		function() {
