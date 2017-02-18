@@ -127,7 +127,9 @@
 					  		</ul>
 					  	{/if}
 					  	
-					  	{if $active_worker->hasPriv('core.display.actions.note')}<button type="button" onclick="genericAjaxPopup('note', 'c=display&a=showAddNotePopup&message_id={$message->id}');"><span class="glyphicons glyphicons-edit"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>{/if}
+					  	{if $active_worker->hasPriv('core.display.actions.note')}
+					  		<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_MESSAGE} context.id:{$message->id}"><span class="glyphicons glyphicons-edit"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>
+					  	{/if}
 					  	
 					  	{if $active_worker->hasPriv('core.display.actions.reply')}
 					  	<button type="button" class="edit" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
@@ -201,11 +203,17 @@ $(function() {
 	var $msg = $('#{$message->id}t');
 	var $actions = $('#{$message->id}act');
 	
-	// [TODO] Reload events
-	// [TODO] Listeners for peek changes
 	$msg.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		;
+	
+	$msg.find('.cerb-sticky-trigger')
+		.cerbPeekTrigger()
+			.on('cerb-peek-saved', function(e) {
+				e.stopPropagation();
+				genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=0');
+			})
+			;
 	
 	// Edit
 	
@@ -215,7 +223,7 @@ $(function() {
 		})
 		.on('cerb-peek-saved', function(e) {
 			e.stopPropagation();
-			$('#btnMsgMax{$message->id}').click();
+			genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=0');
 		})
 		.on('cerb-peek-deleted', function(e) {
 			e.stopPropagation();
@@ -254,19 +262,3 @@ $(function() {
 	});
 </script>
 {/if}
-
-<script type="text/javascript">
-	// [TODO] Let's see if we can phase this out
-	function C4_ReloadMessageOnSave(msgid, expanded) {
-		if(null==expanded)
-			expanded=false;
-		
-		var $popup = genericAjaxPopupFetch('peek');
-		$popup.one('popup_saved',function(e) {
-			if(expanded) 
-				$('#btnMsgMax' + msgid).click();
-			else 
-				$('#btnMsgMin' + msgid).click();
-		} );
-	}
-</script>
