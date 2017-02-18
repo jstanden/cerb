@@ -197,6 +197,8 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 				'status' => true,
 				'id' => $id,
 				'label' => $comment,
+				'context' => $context,
+				'comment_html' => DevblocksPlatform::strToHyperlinks(DevblocksPlatform::strEscapeHtml($comment)),
 				'view_id' => $view_id,
 			));
 			return;

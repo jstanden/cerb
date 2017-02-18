@@ -66,8 +66,15 @@ $(function() {
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
 				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+				$popup.trigger('peek_saved');
+				
+				if(e.id && e.comment_html) {
+					$('#comment' + e.id).find('pre.emailbody').html(e.comment_html);
+				}
 			})
 			.on('cerb-peek-deleted', function(e) {
+				$popup.trigger('peek_deleted');
+				$('#comment' + e.id).remove();
 				genericAjaxPopupClose($layer);
 			})
 			;

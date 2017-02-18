@@ -1442,6 +1442,12 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			$tpl->display('devblocks:cerberusweb.core::internal/comments/peek_edit.tpl');
 			
 		} else {
+			if(empty($model)) {
+				$tpl->assign('error_message', "This comment no longer exists.");
+				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+				return;
+			}
+			
 			// Counts
 			$activity_counts = array(
 				//'comments' => DAO_Comment::count($context, $context_id),
