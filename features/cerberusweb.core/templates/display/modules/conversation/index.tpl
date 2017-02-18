@@ -114,10 +114,11 @@
 
 	$('#btnComment')
 		.cerbPeekTrigger()
-			.on('cerb-peek-saved', function() {
-				var $tabs = $('#btnComment').closest('div.ui-tabs');
-				if(0 != $tabs) {
-					$tabs.tabs('load', $tabs.tabs('option','active'));
+			.on('cerb-peek-saved', function(e) {
+				if(e.id && e.comment_html) {
+					var $convo = $('#conversation');
+					var $new_comment = $('<div id="comment' + e.id + '"/>').hide();
+					$new_comment.html(e.comment_html).prependTo($convo).fadeIn();
 				}
 			})
 		;

@@ -202,6 +202,7 @@ $(function() {
 $(function() {
 	var $msg = $('#{$message->id}t');
 	var $actions = $('#{$message->id}act');
+	var $notes = $('#{$message->id}notes');
 	
 	$msg.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
@@ -211,7 +212,11 @@ $(function() {
 		.cerbPeekTrigger()
 			.on('cerb-peek-saved', function(e) {
 				e.stopPropagation();
-				genericAjaxGet('{$message->id}t','c=display&a=getMessage&id={$message->id}&hide=0');
+				
+				if(e.id && e.comment_html) {
+					var $new_note = $('<div id="comment' + e.id + '"/>').hide();
+					$new_note.html(e.comment_html).prependTo($notes).fadeIn();
+				}
 			})
 			;
 	

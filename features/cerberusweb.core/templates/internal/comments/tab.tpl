@@ -4,7 +4,9 @@
 
 {* Display Notes *}
 {foreach from=$comments item=comment}
+<div id="comment{$comment->id}">
 	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl"}
+</div>
 {/foreach}
 
 <script type="text/javascript">

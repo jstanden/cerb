@@ -69,7 +69,7 @@ $(function() {
 				$popup.trigger('peek_saved');
 				
 				if(e.id && e.comment_html) {
-					$('#comment' + e.id).find('pre.emailbody').html(e.comment_html);
+					$('#comment' + e.id).html(e.comment_html);
 				}
 			})
 			.on('cerb-peek-deleted', function(e) {
