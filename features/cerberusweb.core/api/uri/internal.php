@@ -3168,7 +3168,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 		
 		// Verify permission
-		if(CerberusContexts::isReadableByActor($job->context, $job->context_id, $active_worker))
+		if(!CerberusContexts::isReadableByActor($job->context, $job->context_id, $active_worker))
 			return;
 
 		// Load the event with this context
