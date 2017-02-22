@@ -377,16 +377,13 @@ switch($step) {
 					$errors[] = sprintf("The '%s' storage engine is not enabled.", $db_engine);
 				}
 				
-				// We need this for fulltext indexing
-				if(mysqli_get_server_version($_db) < 50600 && (!in_array('myisam', $discovered_engines) || 0 == strcasecmp('innodb', $db_engine))) {
-					$db_passed = false;
-					$errors[] = "The 'MyISAM' storage engine is not enabled and is required for fulltext search in MySQL < 5.6.";
-				}
-				
 				// Check user privileges
 				if($db_passed) {
+					// RESET
+					mysqli_query($_db, "DROP TABLE IF EXISTS _installer_test_suite");
+					
 					// CREATE TABLE
-					if($db_passed && false === mysqli_query($_db, "CREATE TABLE IF NOT EXISTS _installer_test_suite (id int)")) {
+					if($db_passed && false === mysqli_query($_db, "CREATE TABLE _installer_test_suite (id int)")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the CREATE privilege.");
 					}
@@ -414,6 +411,11 @@ switch($step) {
 					if($db_passed && false === mysqli_query($_db, "ALTER TABLE _installer_test_suite MODIFY COLUMN id int unsigned")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the ALTER privilege.");
+					}
+					// ADD FULLTEXT INDEX
+					if($db_passed && false === mysqli_query($_db, "ALTER TABLE _installer_test_suite ADD COLUMN content TEXT, ADD FULLTEXT (content)")) {
+						$db_passed = false;
+						$errors[] = sprintf("The database engine doesn't support FULLTEXT indexes.");
 					}
 					// DROP TABLE
 					if($db_passed && false === mysqli_query($_db, "DROP TABLE IF EXISTS _installer_test_suite")) {
