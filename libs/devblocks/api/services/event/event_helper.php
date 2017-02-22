@@ -3877,49 +3877,59 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_send_email.tpl');
 	}
 	
-	static function simulateActionSendEmail($params, DevblocksDictionaryDelegate $dict) {
+	static private function _getEmailsFromTokens($params, $dict, $string_key, $var_key) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-
-		// [TODO] Format (HTML template)
 		
-		@$trigger = $dict->__trigger;
-		@$to_vars = @$params['to_var'];
-		$to = array();
-
-		if(isset($params['to']) && !empty($params['to'])) {
-			if(false === ($to_string = $tpl_builder->build($params['to'], $dict)))
-				return "[ERROR] The 'to' field has invalid placeholders.";
-			
-			$to = DevblocksPlatform::parseCsvString($to_string);
+		$results = [];
+		@$vars = @$params[$var_key];
+		
+		// To
+		
+		if(isset($params[$string_key]) && !empty($params[$string_key])) {
+			if(false !== ($output = $tpl_builder->build($params[$string_key], $dict))) {
+				$results = DevblocksPlatform::parseCsvString($output);
+			}
 		}
 
-		if(is_array($to_vars))
-		foreach($to_vars as $to_var) {
-			if(!isset($dict->$to_var))
+		if(is_array($vars))
+		foreach($vars as $var) {
+			if(!isset($dict->$var))
 				continue;
 			
 			// Security check
-			if(substr($to_var,0,4) != 'var_')
+			if(substr($var,0,4) != 'var_')
 				continue;
 			
-			$address_ids = array();
+			$ids = [];
 			
-			if(is_array($dict->$to_var))
-				$address_ids = array_keys($dict->$to_var);
+			if(is_array($dict->$var))
+				$ids = array_keys($dict->$var);
 
-			if(empty($address_ids))
+			if(empty($ids))
 				continue;
 			
 			$addresses = DAO_Address::getWhere(sprintf("%s IN (%s)",
 				DAO_Address::ID,
-				implode(",", $address_ids)
+				implode(",", $ids)
 			));
 			
 			if(is_array($addresses))
 			foreach($addresses as $addy) { /* @var $addy Model_Address */
-				$to[] = $addy->email;
+				$results[] = $addy->email;
 			}
 		}
+		
+		return $results;
+	}
+	
+	static function simulateActionSendEmail($params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+
+		@$trigger = $dict->__trigger;
+		
+		$to = self::_getEmailsFromTokens($params, $dict, 'to', 'to_var');
+		$cc = self::_getEmailsFromTokens($params, $dict, 'cc', 'cc_var');
+		$bcc = self::_getEmailsFromTokens($params, $dict, 'bcc', 'bcc_var');
 
 		$replyto_addresses = DAO_AddressOutgoing::getAll();
 		$replyto_default = DAO_AddressOutgoing::getDefault();
@@ -3958,6 +3968,7 @@ class DevblocksEventHelper {
 		}
 		
 		$to = array_unique($to);
+		$bcc = array_unique($bcc);
 		
 		if(false === ($subject = $tpl_builder->build($params['subject'], $dict))) {
 			return "[ERROR] The 'subject' field has invalid placeholders.";
@@ -3975,12 +3986,16 @@ class DevblocksEventHelper {
 		
 		$out = sprintf(">>> Sending email\n".
 			"To: %s\n".
+			"%s".
+			"%s".
 			"From: %s\n".
 			"Subject: %s\n".
 			"%s".
 			"\n".
 			"%s\n",
 			implode(",\n  ", $to),
+			(!empty($cc) ? ('Cc: ' . implode(",\n  ", $cc) . "\n") : ''),
+			(!empty($bcc) ? ('Bcc: ' . implode(",\n  ", $bcc) . "\n") : ''),
 			$replyto_addresses[$from_address_id]->email,
 			$subject,
 			(!empty($headers) ? (implode("\n", $headers) . "\n") : ''),
@@ -4023,8 +4038,10 @@ class DevblocksEventHelper {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		
 		@$trigger = $dict->__trigger;
-		@$to_vars = @$params['to_var'];
-		$to = array();
+		
+		$to = self::_getEmailsFromTokens($params, $dict, 'to', 'to_var');
+		$cc = self::_getEmailsFromTokens($params, $dict, 'cc', 'cc_var');
+		$bcc = self::_getEmailsFromTokens($params, $dict, 'bcc', 'bcc_var');
 		
 		// From
 		
@@ -4059,41 +4076,6 @@ class DevblocksEventHelper {
 		if(!isset($replyto_addresses[$from_address_id]))
 			return;
 		
-		// To
-		
-		if(isset($params['to']) && !empty($params['to'])) {
-			if(false !== ($to_string = $tpl_builder->build($params['to'], $dict)))
-				$to = DevblocksPlatform::parseCsvString($to_string);
-		}
-		
-		if(is_array($to_vars))
-		foreach($to_vars as $to_var) {
-			if(!isset($dict->$to_var))
-				continue;
-			
-			// Security check
-			if(substr($to_var,0,4) != 'var_')
-				continue;
-			
-			$address_ids = array();
-			
-			if(is_array($dict->$to_var))
-				$address_ids = array_keys($dict->$to_var);
-			
-			if(empty($address_ids))
-				continue;
-			
-			$addresses = DAO_Address::getWhere(sprintf("%s IN (%s)",
-				DAO_Address::ID,
-				implode(",", $address_ids)
-			));
-			
-			if(is_array($addresses))
-			foreach($addresses as $addy) { /* @var $addy Model_Address */
-				$to[] = $addy->email;
-			}
-		}
-
 		// Properties
 		
 		@$subject = $tpl_builder->build($params['subject'], $dict);
@@ -4159,7 +4141,9 @@ class DevblocksEventHelper {
 			$headers,
 			$format,
 			$html_template_id,
-			$file_ids
+			$file_ids,
+			implode(', ', $cc),
+			implode(', ', $bcc)
 		);
 	}
 	

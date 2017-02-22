@@ -33,6 +33,30 @@
 	</ul>
 </div>
 
+<b>{'message.header.cc'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<input type="text" name="{$namePrefix}[cc]" value="{$params.cc}" size="45" style="width:100%;" class="placeholders">
+	<ul class="bubbles">
+	{foreach from=$trigger->variables item=var_data key=var_key}
+		{if $var_data.type == "ctx_{CerberusContexts::CONTEXT_ADDRESS}"}
+			<li><label><input type="checkbox" name="{$namePrefix}[cc_var][]" value="{$var_key}" {if is_array($params.cc_var) && in_array($var_key, $params.cc_var)}checked="checked"{/if}> (variable) {$var_data.label}</label></li>
+		{/if}
+	{/foreach}
+	</ul>
+</div>
+
+<b>{'message.header.bcc'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<input type="text" name="{$namePrefix}[bcc]" value="{$params.bcc}" size="45" style="width:100%;" class="placeholders">
+	<ul class="bubbles">
+	{foreach from=$trigger->variables item=var_data key=var_key}
+		{if $var_data.type == "ctx_{CerberusContexts::CONTEXT_ADDRESS}"}
+			<li><label><input type="checkbox" name="{$namePrefix}[bcc_var][]" value="{$var_key}" {if is_array($params.bcc_var) && in_array($var_key, $params.bcc_var)}checked="checked"{/if}> (variable) {$var_data.label}</label></li>
+		{/if}
+	{/foreach}
+	</ul>
+</div>
+
 <b>{'message.header.subject'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<input type="text" name="{$namePrefix}[subject]" value="{$params.subject}" size="45" style="width:100%;" class="placeholders">

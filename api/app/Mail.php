@@ -118,11 +118,11 @@ class CerberusMail {
 		return $results;
 	}
 	
-	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array(), $format=null, $html_template_id=null, $file_ids=array()) {
+	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array(), $format=null, $html_template_id=null, $file_ids=array(), $cc=null, $bcc=null) {
 		try {
 			$mail_service = DevblocksPlatform::getMailService();
 			$mail = $mail_service->createMessage();
-	
+			
 			$settings = DevblocksPlatform::getPluginSettingsService();
 			
 			if(empty($from_addy) || empty($from_personal)) {
@@ -136,6 +136,12 @@ class CerberusMail {
 			}
 			
 			$mail->setTo(DevblocksPlatform::parseCsvString($to));
+			
+			if(!empty($cc))
+				$mail->setCc(DevblocksPlatform::parseCsvString($cc));
+			
+			if(!empty($bcc))
+				$mail->setBcc(DevblocksPlatform::parseCsvString($bcc));
 
 			$custom_headers = self::_parseCustomHeaders($custom_headers);
 			
