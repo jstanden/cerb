@@ -1,4 +1,4 @@
-{$attachments = DAO_Attachment::getByContextIds($context, $context_id)}
+{if empty($attachments)}{$attachments = DAO_Attachment::getByContextIds($context, $context_id)}{/if}
 {$attach_uniqid = uniqid()}
 
 {if $attachments}

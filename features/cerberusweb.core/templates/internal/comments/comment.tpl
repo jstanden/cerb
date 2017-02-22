@@ -43,7 +43,7 @@
 	<br clear="all">
 	
 	{* Attachments *}
-	{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_COMMENT}" context_id=$comment->id}
+	{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_COMMENT}" context_id=$comment->id attachments=[]}
 </div>
 
 <script type="text/javascript">

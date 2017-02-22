@@ -4,8 +4,8 @@
   <tbody>
 	<tr>
 	  <td>
-			{$sender_id = $message->address_id}
-			{if isset($message_senders.$sender_id)}
+		{$sender_id = $message->address_id}
+		{if isset($message_senders.$sender_id)}
 			{$sender = $message_senders.$sender_id}
 			{$sender_org_id = $sender->contact_org_id}
 			{$sender_org = $message_sender_orgs.$sender_org_id}
@@ -13,8 +13,18 @@
 			{$sender_worker = $message->getWorker()}
 			{$is_outgoing = $message->is_outgoing}
 			{$is_not_sent = $message->is_not_sent}
-
-			<div class="toolbar-minmax" style="display:none;float:right;">
+			
+			{if $expanded}
+			{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id)}
+			{else}
+			{$attachments = []}
+			{/if}
+			
+			<div class="toolbar-minmax" style="float:right;{if !$expanded}display:none;{/if}">
+				{if $expanded && $attachments}
+				<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-query="on.message:(id:{$message->id})"><span class="glyphicons glyphicons-paperclip"></span></button>
+				{/if}
+				
 				{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}&jump=message&jump_id={$message->id}{/devblocks_url}"}
 				<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 				
@@ -104,7 +114,7 @@
 		  	<br>
 		  	
 			{if $active_worker->hasPriv('core.display.actions.attachments.download')}
-				{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id}
+				{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id attachments=$attachments}
 			{/if}
 		  	
 		  	<table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -182,14 +192,22 @@
 
 <script type="text/javascript">
 $(function() {
-	$('#{$message->id}t').hover(
+	var $msg = $('#{$message->id}t').unbind();
+	
+	{if !$expanded}
+	$msg.hover(
 		function() {
-			$(this).find('div.toolbar-minmax').show();
+			$msg.find('div.toolbar-minmax').show();
 		},
 		function() {
-			$(this).find('div.toolbar-minmax').hide();
+			$msg.find('div.toolbar-minmax').hide();
 		}
 	);
+	{/if}
+	
+	$msg.find('.cerb-search-trigger')
+		.cerbSearchTrigger()
+		;
 	
 	if($('#{$message->id}act').visible()) {
 		$('#{$message->id}skip').hide();
