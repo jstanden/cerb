@@ -71,7 +71,7 @@ if(!empty($ini_upload_tmp_dir)) {
 
 // Memory Limit
 $memory_limit = ini_get("memory_limit");
-if ($memory_limit == '') { // empty string means failure or not defined, assume no compiled memory limits
+if ($memory_limit == '' || $memory_limit == -1) { // empty string means failure or not defined, assume no compiled memory limits
 	$results['memory_limit'] = true;
 } else {
 	$ini_memory_limit = parse_bytes_string($memory_limit);

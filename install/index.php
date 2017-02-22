@@ -156,7 +156,7 @@ switch($step) {
 		}
 
 		$memory_limit = ini_get("memory_limit");
-		if ($memory_limit == '') { // empty string means failure or not defined, assume no compiled memory limits
+		if ($memory_limit == '' || $memory_limit == -1) { // empty string means failure or not defined, assume no compiled memory limits
 			$results['memory_limit'] = true;
 		} else {
 			$ini_memory_limit = DevblocksPlatform::parseBytesString($memory_limit);
@@ -370,7 +370,7 @@ switch($step) {
 					$discovered_engines[] = strtolower($row['Engine']);
 				}
 				mysqli_free_result($rs);
-
+				
 				// Check the preferred DB engine
 				if(!in_array($db_engine, $discovered_engines)) {
 					$db_passed = false;
