@@ -160,15 +160,19 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 				$status['plugins'] = array();
 				$plugins = DevblocksPlatform::getPluginRegistry();
+				$plugins_enabled = 0;
 				unset($plugins['cerberusweb.core']);
 				unset($plugins['devblocks.core']);
-				$status['counts']['plugins_enabled'] = count($plugins);
 				ksort($plugins);
 				
 				foreach($plugins as $plugin) {
-					if($plugin->enabled)
+					if($plugin->enabled) {
 						$status['plugins'][] = $plugin->id;
+						$plugins_enabled++;
+					}
 				}
+				
+				$status['counts']['plugins_enabled'] = $plugins_enabled;
 				
 				// Tables
 				
