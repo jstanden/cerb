@@ -118,6 +118,8 @@ class ChDebugController extends DevblocksControllerExtension  {
 				$status = array(
 					'counts' => array(
 						'attachments' => intval($db->GetOneMaster('SELECT count(id) FROM attachment')),
+						'bots' => intval($db->GetOneMaster('SELECT count(id) FROM bot')),
+						'bot_behaviors' => intval($db->GetOneMaster('SELECT count(id) FROM trigger_event')),
 						'buckets' => intval($db->GetOneMaster('SELECT count(id) FROM bucket')),
 						'comments' => intval($db->GetOneMaster('SELECT count(id) FROM comment')),
 						'custom_fields' => intval($db->GetOneMaster('SELECT count(id) FROM custom_field')),
@@ -135,15 +137,17 @@ class ChDebugController extends DevblocksControllerExtension  {
 						'portals' => intval(@$db->GetOneMaster('SELECT count(id) FROM community_tool')),
 						'tickets' => intval($db->GetOneMaster('SELECT count(id) FROM ticket')),
 						'tickets_status' => $tickets_by_status,
-						'va' => intval($db->GetOneMaster('SELECT count(id) FROM bot')),
-						'va_behaviors' => intval($db->GetOneMaster('SELECT count(id) FROM trigger_event')),
 						'webhooks' => intval($db->GetOneMaster('SELECT count(id) FROM webhook_listener')),
 						'workers' => intval($db->GetOneMaster('SELECT count(id) FROM worker')),
 						'workers_active_15m' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-900))),
 						'workers_active_30m' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-1800))),
 						'workers_active_1h' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-3600))),
+						'workers_active_12h' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-43200))),
 						'workers_active_24h' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-86400))),
 						'workers_active_1w' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-604800))),
+						'workspace_pages' => intval($db->GetOneMaster('SELECT count(id) FROM workspace_page')),
+						'workspace_tabs' => intval($db->GetOneMaster('SELECT count(id) FROM workspace_tab')),
+						'workspace_widgets' => intval($db->GetOneMaster('SELECT count(id) FROM workspace_widget')),
 					),
 					'storage_bytes' => array(
 						'attachment' => intval($db->GetOneMaster('SELECT sum(storage_size) FROM attachment')),
