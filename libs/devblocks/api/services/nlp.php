@@ -93,7 +93,7 @@ class _DevblocksNaturalLanguageManager {
 	
 	// [TODO] $strict could be replace with TYPES (time suffix, day names, etc)
 	private function _isTemporalWord($idx, $words, $strict=false) {
-		$word = strtolower($words[$idx]);
+		$word = DevblocksPlatform::strLower($words[$idx]);
 		
 		// Remove punctuation
 		$word = trim($word, ',.!?"\'');
@@ -146,7 +146,7 @@ class _DevblocksNaturalLanguageManager {
 		// Check bigrams
 		
 		if($idx + 1 < count($words)) {
-			$next_word = strtolower($words[$idx+1]);
+			$next_word = DevblocksPlatform::strLower($words[$idx+1]);
 		
 			// e.g. 15 mins, +2 days
 			if(is_numeric(ltrim($word, '+-')) && $this->_isTemporalWord($idx+1, $words, true))

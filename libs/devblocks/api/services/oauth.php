@@ -175,7 +175,7 @@ class _DevblocksOAuthService {
 		$results = array();
 		
 		// Handle JSON or FORM responses
-		switch(trim(strtolower($content_type))) {
+		switch(trim(DevblocksPlatform::strLower($content_type))) {
 			case 'application/json':
 				$results = json_decode($out, true);
 				break;
@@ -196,7 +196,7 @@ class _DevblocksOAuthService {
 		if(!$this->_token)
 			return false;
 		
-		$method = strtoupper($method);
+		$method = DevblocksPlatform::strUpper($method);
 		
 		$ch = DevblocksPlatform::curlInit($url);
 		
@@ -232,7 +232,7 @@ class _DevblocksOAuthService {
 		$results = array();
 		
 		// Handle JSON or FORM responses
-		switch(trim(strtolower($content_type))) {
+		switch(trim(DevblocksPlatform::strLower($content_type))) {
 			case 'application/json':
 				$results = json_decode($out, true);
 				break;
@@ -250,7 +250,7 @@ class _DevblocksOAuthService {
 	public function getSignatureForHttpRequest($method, $url, $params) {
 		$query_string = urldecode(http_build_query($params, '', '&'));
 		
-		$string_to_sign = sprintf('%s&%s&%s', strtoupper($method), rawurlencode($url), rawurlencode($query_string));
+		$string_to_sign = sprintf('%s&%s&%s', DevblocksPlatform::strUpper($method), rawurlencode($url), rawurlencode($query_string));
 		
 		$signing_key = sprintf("%s&%s",
 			rawurlencode($this->_consumer_secret),
@@ -271,7 +271,7 @@ class _DevblocksOAuthService {
 			
 			if(0 == strcasecmp($k, 'Content-Type')) {
 				@list($content_type, $encoding) = explode(';', $v);
-				return trim(strtolower($content_type));
+				return trim(DevblocksPlatform::strLower($content_type));
 			}
 		}
 		
@@ -302,7 +302,7 @@ class _DevblocksOAuthService {
 			}
 		}
 		
-		$method = strtoupper($verb);
+		$method = DevblocksPlatform::strUpper($verb);
 		
 		$oauth_headers = array(
 			'oauth_consumer_key' => $this->_consumer_key,
@@ -370,7 +370,7 @@ class _DevblocksOAuthService {
 			$postdata = array();
 		}
 		
-		$method = strtoupper($method);
+		$method = DevblocksPlatform::strUpper($method);
 		
 		$ch = DevblocksPlatform::curlInit($url);
 		

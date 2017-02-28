@@ -1310,9 +1310,9 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 					return false;
 				
 				foreach($value as &$v) {
-					if(substr(strtolower($v), 0, 1) == 'm') {
+					if(substr(DevblocksPlatform::strLower($v), 0, 1) == 'm') {
 						$v = 'M';
-					} else if(substr(strtolower($v), 0, 1) == 'f') {
+					} else if(substr(DevblocksPlatform::strLower($v), 0, 1) == 'f') {
 						$v = 'F';
 					} else {
 						$v = '';

@@ -310,7 +310,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								continue;
 							
 							$var_name = 'var_' . DevblocksPlatform::strAlphaNum(DevblocksPlatform::strToPermalink($v,'_'),'_');
-							$key = strtolower(!empty($var_keys[$idx]) ? $var_keys[$idx] : $var_name);
+							$key = DevblocksPlatform::strLower(!empty($var_keys[$idx]) ? $var_keys[$idx] : $var_name);
 							
 							// Variable params
 							@$var_idx = $var_idxs[$idx];

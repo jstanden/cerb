@@ -52,8 +52,8 @@ class CerberusMail {
 		
 		if(is_array($parsed))
 		foreach($parsed as $parsed_addy) {
-			@$mailbox = strtolower($parsed_addy->mailbox);
-			@$host = strtolower($parsed_addy->host);
+			@$mailbox = DevblocksPlatform::strLower($parsed_addy->mailbox);
+			@$host = DevblocksPlatform::strLower($parsed_addy->host);
 			@$personal = isset($parsed_addy->personal) ? $parsed_addy->personal : null;
 			
 			if(empty($mailbox) || empty($host))
@@ -109,7 +109,7 @@ class CerberusMail {
 		foreach($headers as $header) {
 			@list($name, $value) = explode(':', $header);
 			
-			$name = trim(strtolower($name));
+			$name = trim(DevblocksPlatform::strLower($name));
 			$value = trim($value);
 			
 			$results[$name] = $value;
@@ -755,7 +755,7 @@ class CerberusMail {
 				
 				if(is_array($requesters))
 				foreach($requesters as $requester) { /* @var $requester Model_Address */
-					$first_email = strtolower($requester->email);
+					$first_email = DevblocksPlatform::strLower($requester->email);
 					$first_split = explode('@', $first_email);
 			
 					if(!is_array($first_split) || count($first_split) != 2)

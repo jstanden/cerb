@@ -750,7 +750,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				$values = array();
 				
 				foreach($patterns as $pattern) {
-					switch(strtolower(substr($pattern,0,1))) {
+					switch(DevblocksPlatform::strLower(substr($pattern,0,1))) {
 						case 'n':
 							$values[0] = true;
 							break;

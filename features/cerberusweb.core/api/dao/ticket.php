@@ -3212,7 +3212,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				$worker_id = 0;
 				
-				switch(strtolower($v)) {
+				switch(DevblocksPlatform::strLower($v)) {
 					case 'current':
 						$worker_id = '{{current_worker_id}}';
 						break;
@@ -3342,7 +3342,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				// Normalize status labels
 				foreach($states as $idx => $status) {
-					switch(substr(strtolower($status), 0, 1)) {
+					switch(substr(DevblocksPlatform::strLower($status), 0, 1)) {
 						case 's':
 							$values['S'] = true;
 							break;
@@ -3373,7 +3373,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				// Normalize status labels
 				foreach($value as $idx => $status) {
-					switch(substr(strtolower($status), 0, 1)) {
+					switch(substr(DevblocksPlatform::strLower($status), 0, 1)) {
 						case 'o':
 							$values['open'] = true;
 							break;
@@ -5143,7 +5143,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			// Status
 			
 			if(isset($meta['virtual_fields']['_status'])) {
-				switch(strtolower($meta['virtual_fields']['_status'])) {
+				switch(DevblocksPlatform::strLower($meta['virtual_fields']['_status'])) {
 					case 'open':
 						$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
 						break;

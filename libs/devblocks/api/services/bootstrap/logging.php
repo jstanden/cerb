@@ -70,7 +70,7 @@ class _DevblocksLogManager {
 			$args = array('');
 
 		$out = sprintf("[%s] %s%s<BR>\n",
-			strtoupper($name),
+			DevblocksPlatform::strUpper($name),
 			(!empty($this->_prefix) ? ('['.$this->_prefix.'] ') : ''),
 			$args[0]
 		);
@@ -81,7 +81,7 @@ class _DevblocksLogManager {
 		if(isset(self::$_log_levels[$name])) {
 			if(self::$_log_levels[$name] <= $this->_log_level) {
 				$out = sprintf("[%s] %s%s<BR>\n",
-					strtoupper($name),
+					DevblocksPlatform::strUpper($name),
 					(!empty($this->_prefix) ? ('['.$this->_prefix.'] ') : ''),
 					DevblocksPlatform::strEscapeHtml($args[0])
 				);

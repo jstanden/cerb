@@ -165,7 +165,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 		foreach($filters as $k => $filter) {
 			switch($k) {
 				case 'quote_mood':
-					switch(strtolower($filter[2])) {
+					switch(DevblocksPlatform::strLower($filter[2])) {
 						case 'praise':
 							$filter[0] = 'quote_mood_id';
 							$filter[2] = 1;
@@ -305,7 +305,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 					break;
 					
 				case 'quote_mood':
-					switch(strtolower($value)) {
+					switch(DevblocksPlatform::strLower($value)) {
 						case 'praise':
 							unset($putfields['quote_mood_id']);
 							$putfield = 'quote_mood_id';
@@ -380,7 +380,7 @@ class ChRest_Feedback extends Extension_RestController implements IExtensionRest
 					break;
 					
 				case 'quote_mood':
-					switch(strtolower($value)) {
+					switch(DevblocksPlatform::strLower($value)) {
 						case 'praise':
 							unset($postfields['quote_mood_id']);
 							$postfield = 'quote_mood_id';

@@ -2282,7 +2282,7 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 	}
 	
 	protected function escapeNamespace($namespace) {
-		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
+		return DevblocksPlatform::strLower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
 	}
 
 	public function _getTextFromDoc(array $doc) {
@@ -2468,7 +2468,7 @@ abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 	}
 
 	protected function escapeNamespace($namespace) {
-		return strtolower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
+		return DevblocksPlatform::strLower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
 	}
 };
 

@@ -69,7 +69,7 @@ class CerberusInstaller {
 			if(preg_match('/^define\([\'\"](.*?)[\'\"].*?\,.*?[\'\"](.*?)[\'\"]\).*?$/i', $line, $matches)) {
 				$token = $matches[1];
 				
-				switch(strtoupper($token)) {
+				switch(mb_strtoupper($token)) {
 					case "APP_DB_ENGINE":
 						$value = $db_engine;
 						break;

@@ -61,7 +61,7 @@ class ChFilesController extends DevblocksControllerExtension {
 			DevblocksPlatform::dieWithHttpError($translate->_('files.error_resource_read'), 500);
 			
 		$file_stats = fstat($fp);
-		$mime_type = strtolower($file->mime_type);
+		$mime_type = DevblocksPlatform::strLower($file->mime_type);
 		$size = $file_stats['size'];
 		
 		// Set headers

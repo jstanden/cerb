@@ -107,8 +107,8 @@ class _DevblocksTranslationManager {
 		if(is_array($codes))
 		foreach($codes as $code) {
 			$data = explode('_', $code);
-			@$lang = $langs[strtolower($data[0])];
-			@$terr = $countries[strtoupper($data[1])];
+			@$lang = $langs[DevblocksPlatform::strLower($data[0])];
+			@$terr = $countries[DevblocksPlatform::strUpper($data[1])];
 
 			$lang_codes[$code] = (!empty($lang) && !empty($terr))
 				? ($lang . ' (' . $terr . ')')

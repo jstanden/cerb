@@ -121,7 +121,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 			curl_close($ch);
 			
 			// Make sure this is only image content
-			if(substr(strtolower($info['content_type']),0,6) != 'image/')
+			if(substr(DevblocksPlatform::strLower($info['content_type']),0,6) != 'image/')
 				throw new DevblocksException("Only image types may be fetched.");
 			
 			$response['status'] = true;
@@ -361,7 +361,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				throw new Exception();
 			
 			// Only image mime types
-			if(!isset($info['content_type']) || substr(strtolower($info['content_type']),0,6) != 'image/')
+			if(!isset($info['content_type']) || substr(DevblocksPlatform::strLower($info['content_type']),0,6) != 'image/')
 				throw new Exception();
 			
 			// Max image size 75KB

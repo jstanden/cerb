@@ -312,7 +312,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'header':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$header = strtolower($params['header']);
+				@$header = DevblocksPlatform::strLower($params['header']);
 				@$param_value = $params['value'];
 
 				if(!isset($dict->headers[$header])) {
@@ -775,7 +775,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'set_header':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				
-				$header = strtolower($tpl_builder->build($params['header'], $dict));
+				$header = DevblocksPlatform::strLower($tpl_builder->build($params['header'], $dict));
 				$value = $tpl_builder->build($params['value'], $dict);
 				
 				@$parser_model = $dict->_parser_model;
@@ -793,7 +793,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				}
 				
 				// Are we changing any threading headers?
-				if(in_array(strtolower($header), array('subject', 'in-reply-to', 'references')))
+				if(in_array(DevblocksPlatform::strLower($header), array('subject', 'in-reply-to', 'references')))
 					$dict->pre_actions['headers_dirty'] = true;
 				
 				break;

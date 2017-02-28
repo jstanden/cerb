@@ -852,7 +852,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 					return false;
 				
 				// Normalize status labels
-				switch(substr(strtolower($term), 0, 1)) {
+				switch(substr(DevblocksPlatform::strLower($term), 0, 1)) {
 					case 'a':
 					case 'y':
 					case '1':

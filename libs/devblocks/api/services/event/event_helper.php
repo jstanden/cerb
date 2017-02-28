@@ -398,7 +398,7 @@ class DevblocksEventHelper {
 				
 				$possible_values = array_map('strtolower', $custom_field->params['options']);
 				
-				if(false !== ($value_idx = array_search(strtolower($value), $possible_values))) {
+				if(false !== ($value_idx = array_search(DevblocksPlatform::strLower($value), $possible_values))) {
 					$value = $custom_field->params['options'][$value_idx];
 				} else {
 					$out .= sprintf("[ERROR] The given value (%s) doesn't exist in the picklist. Ignoring.", $value);
@@ -966,7 +966,7 @@ class DevblocksEventHelper {
 			
 			$out = sprintf(">>> Putting %d objects in %s list '%s':\n",
 				count($objects),
-				strtolower($context_ext->name),
+				DevblocksPlatform::strLower($context_ext->name),
 				$token
 			);
 			
@@ -986,7 +986,7 @@ class DevblocksEventHelper {
 				);
 			}
 
-			$obj_name = DevblocksPlatform::strToPermalink(strtolower($context_ext->name),'_');
+			$obj_name = DevblocksPlatform::strToPermalink(DevblocksPlatform::strLower($context_ext->name),'_');
 			
 			$out .= "\nTo use the list as placeholders:\n";
 			

@@ -365,7 +365,7 @@ class ChSignInPage extends CerberusPageExtension {
 		$stack = $request->path;
 		@array_shift($stack); // login
 		@array_shift($stack); // signout
-		@$option = strtolower(array_shift($stack));
+		@$option = DevblocksPlatform::strLower(array_shift($stack));
 		
 		/*
 		 * Log activity (worker.logged_out)

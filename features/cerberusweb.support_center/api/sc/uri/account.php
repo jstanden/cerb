@@ -503,7 +503,7 @@ class UmScAccountController extends Extension_UmScController {
 			if(null == $active_contact)
 				return;
 	
-			@$add_email = strtolower(DevblocksPlatform::importGPC($_REQUEST['add_email'],'string',''));
+			@$add_email = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_REQUEST['add_email'],'string',''));
 			
 			// Validate
 			$address_parsed = imap_rfc822_parse_adrlist($add_email,'host');

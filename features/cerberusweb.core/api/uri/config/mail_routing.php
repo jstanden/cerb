@@ -193,7 +193,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 				case 'header4':
 				case 'header5':
 					if(null != (@$header = DevblocksPlatform::importGPC($_POST[$rule],'string',null)))
-						$criteria['header'] = strtolower($header);
+						$criteria['header'] = DevblocksPlatform::strLower($header);
 					break;
 					
 				case 'body':

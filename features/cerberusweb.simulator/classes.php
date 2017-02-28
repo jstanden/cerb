@@ -417,7 +417,7 @@ class PageSection_SetupSimulator extends Extension_PageSection {
 					$params
 				);
 				
-				$website = strtolower($website);
+				$website = DevblocksPlatform::strLower($website);
 				
 				shuffle($countries);
 				

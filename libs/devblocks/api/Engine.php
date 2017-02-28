@@ -605,7 +605,7 @@ abstract class DevblocksEngine {
 				break;
 		}
 
-		$method = strtoupper(@$_SERVER['REQUEST_METHOD']);
+		$method = DevblocksPlatform::strUpper(@$_SERVER['REQUEST_METHOD']);
 		
 		$request = new DevblocksHttpRequest($parts,$queryArgs,$method);
 		$request->csrf_token = isset($_SERVER['HTTP_X_CSRF_TOKEN']) ? $_SERVER['HTTP_X_CSRF_TOKEN'] : @$_REQUEST['_csrf_token'];

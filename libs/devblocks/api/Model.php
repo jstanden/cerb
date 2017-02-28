@@ -721,7 +721,7 @@ class DevblocksSearchCriteria {
 						$values = 'never';
 						
 					} else {
-						$values = explode(' to ', strtolower($token->value), 2);
+						$values = explode(' to ', DevblocksPlatform::strLower($token->value), 2);
 						
 						if(1 == count($values))
 							$values[] = 'now';
@@ -941,7 +941,7 @@ class DevblocksSearchCriteria {
 			}
 		}
 		
-		if(1 == count($terms) && in_array(strtolower($terms[0]), array('any','anyone','anybody'))) {
+		if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), array('any','anyone','anybody'))) {
 			@$is_cfield = $search_field['options']['cf_id'];
 			if($is_cfield) {
 				$oper = self::OPER_IS_NOT_NULL;
@@ -951,7 +951,7 @@ class DevblocksSearchCriteria {
 				$value = 0;
 			}
 			
-		} else if(1 == count($terms) && in_array(strtolower($terms[0]), array('blank','empty','no','none','noone','nobody'))) {
+		} else if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), array('blank','empty','no','none','noone','nobody'))) {
 			@$is_cfield = $search_field['options']['cf_id'];
 			if($is_cfield) {
 				$oper = self::OPER_IS_NULL;
@@ -1111,11 +1111,11 @@ class DevblocksSearchCriteria {
 			}
 		}
 		
-		if(1 == count($terms) && in_array(strtolower($terms[0]), array('any','yes'))) {
+		if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), array('any','yes'))) {
 			$oper = self::OPER_IS_NOT_NULL;
 			$value = array();
 			
-		} else if(1 == count($terms) && in_array(strtolower($terms[0]), array('none','no'))) {
+		} else if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), array('none','no'))) {
 			$oper = self::OPER_IS_NULL;
 			$value = array();
 			

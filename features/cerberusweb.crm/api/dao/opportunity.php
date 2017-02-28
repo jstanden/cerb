@@ -121,7 +121,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		foreach($do as $k => $v) {
 			switch($k) {
 				case 'status':
-					switch(strtolower($v)) {
+					switch(DevblocksPlatform::strLower($v)) {
 						case 'open':
 							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 0;
 							$change_fields[DAO_CrmOpportunity::IS_WON] = 0;

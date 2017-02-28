@@ -174,10 +174,10 @@ class DevblocksPlatform extends DevblocksEngine {
 				
 			case 'bool':
 			case 'boolean':
-				if(is_string($value) && in_array(strtolower($value), array('true', 'false')))
+				if(is_string($value) && in_array(DevblocksPlatform::strLower($value), array('true', 'false')))
 					return (0 == strcasecmp($value, 'true')) ? true : false;
 					
-				if(is_string($value) && in_array(strtolower($value), array('yes', 'no')))
+				if(is_string($value) && in_array(DevblocksPlatform::strLower($value), array('yes', 'no')))
 					return (0 == strcasecmp($value, 'yes')) ? true : false;
 				
 				$value = !empty($value) ? true : false;
@@ -324,7 +324,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				return false;
 			
 			$value = intval($matches[1]);
-			$unit = strtolower(trim($matches[2]));
+			$unit = DevblocksPlatform::strLower(trim($matches[2]));
 			
 			switch($unit) {
 				default:
@@ -464,6 +464,14 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Return as a dot-delimited string
 		return implode('.', $parts);
+	}
+	
+	static function strUpper($string) {
+		return mb_convert_case($string, MB_CASE_UPPER);
+	}
+	
+	static function strLower($string) {
+		return mb_convert_case($string, MB_CASE_LOWER);
 	}
 	
 	static function strStartsWith($string, $prefixes) {
@@ -678,7 +686,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$pads = 0;
 		
 		// Iterate each letter of base32
-		foreach(str_split(strtoupper($str), 1) as $idx => $letter) {
+		foreach(str_split(DevblocksPlatform::strUpper($str), 1) as $idx => $letter) {
 			// If padding, skip
 			if($letter == '=') {
 				$pads++;
@@ -1147,7 +1155,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(null == (@$xml = simplexml_load_string($data)))
 			return false;
 			
-		$root_tag = strtolower(dom_import_simplexml($xml)->tagName);
+		$root_tag = DevblocksPlatform::strLower(dom_import_simplexml($xml)->tagName);
 		
 		if('feed'==$root_tag && count($xml->entry)) { // Atom
 			$feed = array(

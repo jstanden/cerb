@@ -80,7 +80,7 @@ if(!isset($tables['mail_transport'])) {
 	if(is_array($previous_params))
 	foreach($previous_params as $row) {
 		// Strip the smtp_ prefix off the key
-		$key = strtolower(substr($row['setting'], 5));
+		$key = mb_convert_case(substr($row['setting'], 5), MB_CASE_LOWER);
 		
 		switch($key) {
 			case 'enc';
