@@ -939,6 +939,8 @@ class CerberusMail {
 			
 			if($e instanceof Swift_TransportException && !$last_error_message) {
 				$last_error_message = $e->getMessage();
+			} elseif($e instanceof Swift_RfcComplianceException && !$last_error_message) {
+				$last_error_message = $e->getMessage();
 			}
 			
 			// If we have an error message, log it on the draft
