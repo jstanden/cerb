@@ -192,7 +192,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 				if($contact_id && false == DAO_Contact::get($contact_id))
 					throw new Exception_DevblocksAjaxValidationError('The given contact record is invalid.', 'contact_id');
 				
-				if($org_id && false == DAO_Contact::get($org_id))
+				if($org_id && false == DAO_ContactOrg::get($org_id))
 					throw new Exception_DevblocksAjaxValidationError('The given organization record is invalid.', 'org_id');
 				
 				$fields[DAO_Address::EMAIL] = $email;
