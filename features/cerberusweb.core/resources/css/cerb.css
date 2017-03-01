@@ -870,7 +870,7 @@ DIV.help-box H1 {
 DIV.help-box P {
   margin: 0px 0px 5px 5px;
 }
-DIV.help-box A.callout {
+DIV.help-box A {
   font-weight: bold;
   color: #323232;
 }

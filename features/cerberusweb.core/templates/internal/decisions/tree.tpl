@@ -3,6 +3,14 @@
 {$tree_hier = $tree_data.tree}
 {$tree_depths = $tree_data.depths}
 
+{if empty($tree_nodes) && $is_writeable}
+<div class="help-box">
+<h1>Let's build this behavior!</h1>
+Click on the <div class="badge badge-lightgray" style="color:black;font-weight:bold;">{$event->name}</div> event below to add decisions, actions, loops, and subroutines to your behavior. 
+For more information, see <a href="https://cerb.ai/docs/bots/" target="_blank">Bots</a> in the <a href="https://cerb.ai/docs/home/" target="_blank">documentation</a>.
+</div>
+{/if}
+
 <div class="node trigger" style="margin-left:10px;{if $trigger->is_disabled}opacity:0.5;{/if}">
 	<input type="hidden" name="node_id" value="0">
 	<div class="badge badge-lightgray">
