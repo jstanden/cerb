@@ -173,9 +173,9 @@ $(function() {
 	
 	// Impersonate
 	
-	$('#btnProfileWorkerPossess').bind('click', function() {
+	$('#btnProfileWorkerPossess').click(function() {
 		genericAjaxGet('','c=internal&a=su&worker_id={$worker->id}',function(o) {
-			window.location.reload();
+			window.location = window.location;
 		});
 	});
 });

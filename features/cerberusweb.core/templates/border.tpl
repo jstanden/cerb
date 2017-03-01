@@ -48,7 +48,7 @@ $().ready(function(e) {
 	{if !empty($visit) && $visit->isImposter()}
 	$('#aImposter').click(function(e) {
 		genericAjaxGet('','c=internal&a=suRevert',function(o) {
-			window.location.reload();
+			window.location = window.location;
 		});
 	});
 	{/if}
