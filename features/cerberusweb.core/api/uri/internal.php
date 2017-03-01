@@ -3170,7 +3170,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Verify permission
 		if(!CerberusContexts::isReadableByActor($job->context, $job->context_id, $active_worker))
 			return;
-
+		
 		// Load the event with this context
 		if(null == ($event = $trigger->getEvent()))
 			return;
@@ -4220,7 +4220,7 @@ class ChInternalController extends DevblocksControllerExtension {
 							break;
 					}
 					
-					echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
+					echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body style="margin:0;">',
 						LANG_CHARSET_CODE
 					);
 					echo DevblocksPlatform::purifyHTML($output, true);

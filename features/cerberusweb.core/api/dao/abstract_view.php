@@ -3724,7 +3724,7 @@ class C4_AbstractViewLoader {
 	static function unserializeViewFromAbstractJson($view_model, $view_id) {
 		if(!isset($view_model['context']))
 			return false;
-			
+		
 		$view_context = $view_model['context'];
 		
 		if(empty($view_context))
