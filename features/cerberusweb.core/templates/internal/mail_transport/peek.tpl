@@ -98,7 +98,16 @@ $(function() {
 		$popup.find('button.delete').click(function() {
 			var $frm=$popup.find('form');
 			$frm.find('input:hidden[name=do_delete]').val('1');
-			$frm.find('button.submit').click();
+			
+			genericAjaxPost(
+				$popup.find('form.peek-mail-transport'),
+				null,
+				'c=config&a=handleSectionAction&section=mail_smtp&action=saveTransportPeek',
+				function() {
+					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+					genericAjaxPopupClose('peek', 'mail_transport_save');
+				}
+			);
 		});
 		
 		$popup.find('button.submit').click(function() {
@@ -122,7 +131,6 @@ $(function() {
 								genericAjaxPopupClose('peek', 'mail_transport_save');
 							}
 						);
-						
 					}
 				}
 			);
