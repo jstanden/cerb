@@ -2661,7 +2661,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$results = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
 					return $results;
 				};
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'context_id[]');
 				break;
 				
 			case SearchFields_Ticket::TICKET_GROUP_ID:
@@ -4035,7 +4035,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
-				
+			
 			case SearchFields_Ticket::TICKET_ORG_ID:
 				@$context_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',array()), 'integer', array('nonzero','unique'));
 				$criteria = new DevblocksSearchCriteria($field,$oper,$context_ids);
@@ -4060,16 +4060,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_BUCKET_ID,$oper,$bucket_ids));
 				} else { // clear if no buckets provided
 					$this->removeParam(SearchFields_Ticket::TICKET_BUCKET_ID);
-				}
-				break;
-				
-			case SearchFields_Ticket::TICKET_ORG_ID:
-				@$org_ids = DevblocksPlatform::importGPC($_REQUEST['options'],'array');
-
-				if(!empty($org_ids)) {
-					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,$oper,$org_ids));
-				} else { // clear if no orgs provided
-					$this->removeParam(SearchFields_Ticket::TICKET_ORG_ID);
 				}
 				break;
 				
