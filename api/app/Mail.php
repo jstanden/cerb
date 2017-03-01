@@ -234,6 +234,7 @@ class CerberusMail {
 		 'group_id'
 		 'bucket_id'
 		 'worker_id'
+		 'owner_id'
 		 'org_id'
 		 'to'
 		 'cc'
