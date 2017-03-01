@@ -1603,6 +1603,11 @@
 				<seg>signature</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.simulator">
+			<tuv xml:lang="en_US">
+				<seg>simulator</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.size">
 			<tuv xml:lang="en_US">
 				<seg>size</seg>

@@ -24,6 +24,10 @@
 			{/if}
 			{if $dict->id}
 				<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>
+				
+				{if $is_writeable}
+				<button type="button" class="cerb-peek-simulator"><span class="glyphicons glyphicons-play"></span> {'common.simulator'|devblocks_translate|capitalize}</button>
+				{/if}
 			{/if}
 		</div>
 	</div>
@@ -112,6 +116,11 @@ $(function() {
 			} else {
 				document.location='{devblocks_url}c=profiles&type=behavior&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
 			}
+		});
+		
+		// View profile
+		$popup.find('.cerb-peek-simulator').click(function(e) {
+			genericAjaxPopup('simulate_behavior','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$dict->id}','reuse',false,'50%');
 		});
 		
 		// Timeline
