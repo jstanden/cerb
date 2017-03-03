@@ -1171,6 +1171,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'created' => $prefix.$translate->_('common.created'),
+			'event_json' => $prefix.'event JSON',
 			'is_read' => $prefix.'is read',
 			'target__label' => $prefix.$translate->_('common.target'),
 			'activity_point' => $prefix.$translate->_('dao.context_activity_log.activity_point'),
@@ -1184,6 +1185,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'created' => Model_CustomField::TYPE_DATE,
+			'event_json' => Model_CustomField::TYPE_SINGLE_LINE,
 			'is_read' => Model_CustomField::TYPE_CHECKBOX,
 			'target__label' => 'context_url',
 			'activity_point' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1213,6 +1215,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			$token_values['_label'] = trim(strtr(CerberusContexts::formatActivityLogEntry($entry,'text'),"\r\n",' '));
 			$token_values['activity_point'] = $notification->activity_point;
 			$token_values['created'] = $notification->created_date;
+			$token_values['event_json'] = $notification->entry_json;
 			$token_values['id'] = $notification->id;
 			$token_values['is_read'] = $notification->is_read;
 			$token_values['message'] = CerberusContexts::formatActivityLogEntry($entry,'text');
