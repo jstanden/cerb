@@ -3079,6 +3079,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS),
 				),
+			'reopen' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_REOPEN_AT),
+				),
 			'resolution.first' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
