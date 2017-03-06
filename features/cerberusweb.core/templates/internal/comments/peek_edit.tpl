@@ -48,7 +48,7 @@
 	
 	<div>
 		<label>
-			{'common.comment'|devblocks_translate|capitalize}:</b>
+			{'common.comment'|devblocks_translate|capitalize}:
 		</label>
 		<textarea name="comment" rows="2" cols="60" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}" autofocus="autofocus">{$model->comment}</textarea>
 		<button type="button" onclick="ajax.chooserSnippet('snippets',$('#{$form_id} textarea[name=comment]'), { '{$context}':'{$context_id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|lower}</button>
@@ -59,6 +59,17 @@
 		<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
 		<ul class="chooser-container bubbles"></ul>
 	</div>
+	
+	{if $model->id}
+	<div>
+		<label>{'common.options'|devblocks_translate|capitalize}:</label>
+		<div style="margin-left: 10px;">
+			<label style="font-weight:normal;">
+				<input type="checkbox" name="options[update_timestamp]" value="1"> Update the comment timestamp
+			</label>
+		</div>
+	</div>
+	{/if}
 </div>
 
 {if !empty($custom_fields)}
