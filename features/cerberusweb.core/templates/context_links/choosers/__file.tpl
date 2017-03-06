@@ -28,10 +28,6 @@ $(function() {
 	
 	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
 	
-	// Tabs
-	
-	$popup.find('#fileChooserTabs').tabs();
-	
 	// Bundle chooser
 	
 	$popup.find('button.chooser-file-bundle').each(function() {
@@ -69,13 +65,17 @@ $(function() {
 	
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
-		$(this).dialog('option','title','File Chooser');
+		$popup.dialog('option','title','File Chooser');
+		
+		// We have to use a timeout here since markitup steals focus
+		setTimeout(function() {
+			$popup.find('input').focus();
+		}, 100);
 	});
 	
 	$popup.one('dialogclose', function(event) {
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});
-	
 });
 </script>
