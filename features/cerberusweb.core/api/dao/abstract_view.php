@@ -1616,6 +1616,21 @@ abstract class C4_AbstractView {
 		
 		$menu['(operators)'] = $oper_menu;
 		
+		// Placeholders
+		
+		$placeholders_menu = new DevblocksMenuItemPlaceholder();
+		$labels = $this->getPlaceholderLabels();
+		
+		if(!empty($labels)) {
+			$keys = array_map(function($key) {
+				return '{{' . $key . '}}';
+			}, array_keys($labels));
+			
+			$labels = array_combine($keys, array_column($labels, 'label'));
+			$placeholders_menu->children = Extension_DevblocksContext::getPlaceholderTree($labels, ' ', '_');
+			$menu['(placeholders)'] = $placeholders_menu;
+		}
+		
 		// Fields
 		
 		$fields_menu = new DevblocksMenuItemPlaceholder();
@@ -1732,21 +1747,6 @@ abstract class C4_AbstractView {
 			
 			foreach($tree as $k => $v)
 				$menu[$k] = $v;
-		}
-		
-		// Placeholders
-		
-		$placeholders_menu = new DevblocksMenuItemPlaceholder();
-		$labels = $this->getPlaceholderLabels();
-		
-		if(!empty($labels)) {
-			$keys = array_map(function($key) {
-				return '{{' . $key . '}}';
-			}, array_keys($labels));
-			
-			$labels = array_combine($keys, array_column($labels, 'label'));
-			$placeholders_menu->children = Extension_DevblocksContext::getPlaceholderTree($labels, ' ', '_');
-			$menu['(placeholders)'] = $placeholders_menu;
 		}
 		
 		return $menu;
