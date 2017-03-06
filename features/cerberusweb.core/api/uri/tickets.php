@@ -493,6 +493,11 @@ class ChTicketsPage extends CerberusPageExtension {
 			// Run hash commands
 			if(!empty($hash_commands))
 				$this->_handleComposeHashCommands($hash_commands, $ticket_id, $active_worker);
+				
+			// Watchers
+			@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST ['add_watcher_ids'], 'array', []), 'integer', ['unique','nonzero']);
+			if(!empty($add_watcher_ids))
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $add_watcher_ids);
 			
 			// Preferences
 			
