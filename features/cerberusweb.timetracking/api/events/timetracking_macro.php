@@ -22,4 +22,10 @@ class Event_TimeTrackingMacro extends AbstractEvent_TimeTracking {
 			)
 		);
 	}
+	
+	function renderEventParams(Model_TriggerEvent $trigger=null) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('trigger', $trigger);
+		$tpl->display('devblocks:cerberusweb.core::events/record/params_macro_default.tpl');
+	}
 };

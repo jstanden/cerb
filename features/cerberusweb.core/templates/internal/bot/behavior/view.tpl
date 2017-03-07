@@ -112,7 +112,7 @@ Click on the <span class="glyphicons glyphicons-circle-plus"></span> icon below 
 					{$event->name}
 					{/if}
 				</td>
-			{elseif in_array($column, ["t_is_disabled","t_is_private"])}
+			{elseif in_array($column, ["t_is_disabled"])}
 				<td>
 					{if !empty($result.$column)}
 						{'common.yes'|devblocks_translate|lower}

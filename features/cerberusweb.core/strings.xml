@@ -962,6 +962,11 @@
 				<seg>Is Closed</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.is_private">
+			<tuv xml:lang="en_US">
+				<seg>Is Private</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.keyboard">
 			<tuv xml:lang="en_US">
 				<seg>Keyboard</seg>
@@ -2120,11 +2125,6 @@
 		<tu tuid="dao.trigger_event.is_disabled">
 			<tuv xml:lang="en_US">
 				<seg>Is Disabled</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.trigger_event.is_private">
-			<tuv xml:lang="en_US">
-				<seg>Is Private</seg>
 			</tuv>
 		</tu>
 

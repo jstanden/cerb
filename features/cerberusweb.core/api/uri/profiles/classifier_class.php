@@ -123,7 +123,7 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 			
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getReadableByActor(
+		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
 			$active_worker,
 			'event.macro.classifier_class'
 		);

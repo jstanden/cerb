@@ -77,12 +77,6 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			'value' => $trigger_event->is_disabled,
 		);
 	
-		$properties['is_private'] = array(
-			'label' => mb_ucfirst($translate->_('common.private')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $trigger_event->is_private,
-		);
-	
 		// Custom Fields
 
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_BEHAVIOR, $trigger_event->id)) or array();
@@ -252,7 +246,6 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						$fields = array(
 							DAO_TriggerEvent::TITLE => $json['behavior']['title'],
 							DAO_TriggerEvent::EVENT_POINT => $event_point,
-							DAO_TriggerEvent::IS_PRIVATE => @$json['behavior']['is_private'] ? 1 : 0,
 							DAO_TriggerEvent::VARIABLES_JSON => isset($json['behavior']['variables']) ? json_encode($json['behavior']['variables']) : '',
 							DAO_TriggerEvent::EVENT_PARAMS_JSON => isset($json['behavior']['event']['params']) ? json_encode($json['behavior']['event']['params']) : '',
 							DAO_TriggerEvent::BOT_ID => $bot->id,
@@ -287,7 +280,6 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 					case 'build':
 						@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
 						@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
-						@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'integer', 0);
 						@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer', 0);
 						@$event_params = DevblocksPlatform::importGPC($_REQUEST['event_params'],'array', array());
 						@$json = DevblocksPlatform::importGPC($_REQUEST['json'],'integer', 0);
@@ -358,7 +350,6 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								DAO_TriggerEvent::EVENT_POINT => $event_point,
 								DAO_TriggerEvent::TITLE => $title,
 								DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
-								DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
 								DAO_TriggerEvent::PRIORITY => $priority,
 								DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
 								DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),
@@ -393,7 +384,6 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							DAO_TriggerEvent::update($behavior->id, array(
 								DAO_TriggerEvent::TITLE => $title,
 								DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
-								DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
 								DAO_TriggerEvent::PRIORITY => $priority,
 								DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
 								DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),

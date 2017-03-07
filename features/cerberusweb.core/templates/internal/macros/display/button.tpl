@@ -11,7 +11,7 @@
 	{foreach from=$bots item=bot}
 		{capture name=behaviors}
 		{foreach from=$macros item=behavior key=behavior_id}
-		{if $behavior->bot_id == $bot->id && !$behavior->is_private}
+		{if $behavior->bot_id == $bot->id}
 			<li class="item item-behavior">
 				<div style="margin-left:20px;">
 					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&context={$context}&context_id={$context_id}&macro={$behavior->id}&return_url={$return_url|escape:'url'}',$(this).closest('ul').get(),false,'50%');$(this).closest('ul.cerb-popupmenu').hide();">

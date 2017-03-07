@@ -1,9 +1,7 @@
 {capture name=macro_behaviors}
 {foreach from=$macros item=v key=k}
-{if !$v->is_private}
 	{$bot = $v->getBot()}
 	<option value="{$k}">[{$bot->name}] {$v->title}</option>
-{/if}
 {/foreach}
 {/capture}
 

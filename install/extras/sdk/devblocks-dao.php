@@ -1833,7 +1833,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getReadableByActor(
+		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
 			$active_worker,
 			'event.macro.<?php echo $table_name; ?>'
 		);

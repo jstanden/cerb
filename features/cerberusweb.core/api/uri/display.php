@@ -670,7 +670,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		// [TODO] Filter by $ticket->group_id
 		$macros = DAO_TriggerEvent::getReadableByActor(
 			$active_worker,
-			Event_MailDuringUiReplyByWorker::ID
+			Event_MailDuringUiReplyByWorker::ID,
+			false,
+			'worker'
 		);
 		$tpl->assign('macros', $macros);
 		
@@ -682,7 +684,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			// [TODO] Filter by $ticket->group_id
 			$macros = DAO_TriggerEvent::getReadableByActor(
 				$active_worker,
-				Event_MailBeforeUiReplyByWorker::ID
+				Event_MailBeforeUiReplyByWorker::ID,
+				false,
+				'worker'
 			);
 
 			if(is_array($macros))

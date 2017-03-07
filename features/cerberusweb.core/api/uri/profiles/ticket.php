@@ -225,11 +225,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getReadableByActor(
+		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
 			$active_worker,
 			'event.macro.ticket'
 		);
-
+		
 		// Filter macros to only those owned by the ticket's group
 		
 		$macros = array_filter($macros, function($macro) use ($ticket) { /* @var $macro Model_TriggerEvent */
@@ -345,7 +345,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getReadableByActor(
+		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
 			$active_worker,
 			'event.macro.ticket'
 		);

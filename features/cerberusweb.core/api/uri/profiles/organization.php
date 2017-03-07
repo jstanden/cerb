@@ -155,7 +155,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getReadableByActor(
+		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
 			$active_worker,
 			'event.macro.org'
 		);
@@ -329,7 +329,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getReadableByActor(
+		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
 			$active_worker,
 			'event.macro.org'
 		);

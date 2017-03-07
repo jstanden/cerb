@@ -102,7 +102,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getReadableByActor(
+		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
 			$active_worker,
 			'event.macro.timetracking'
 		);
@@ -360,7 +360,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		
 		// Macros
 		
-		$macros = DAO_TriggerEvent::getReadableByActor(
+		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
 			$active_worker,
 			'event.macro.timetracking'
 		);
