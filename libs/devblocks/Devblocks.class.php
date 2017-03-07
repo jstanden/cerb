@@ -1069,6 +1069,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$config->set('Core.ConvertDocumentToFragment', true);
 		$config->set('HTML.Doctype', 'HTML 4.01 Transitional');
 		$config->set('CSS.AllowTricky', true);
+		$config->set('Attr.EnableID', true);
 		
 		// Remove class attributes if we inlined CSS styles
 		if($inline_css) {
