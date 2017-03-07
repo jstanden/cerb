@@ -3956,10 +3956,10 @@ class DevblocksEventHelper {
 			}
 		}
 		
-		if(empty($from_address_id))
+		if(empty($from_address_id) || !isset($replyto_addresses[$from_address_id]))
 			$from_address_id = $replyto_default->address_id;
 
-		if(!isset($replyto_addresses[$from_address_id])) {
+		if(empty($from_address_id)) {
 			return "[ERROR] The 'from' address is invalid.";
 		}
 		
@@ -4070,10 +4070,10 @@ class DevblocksEventHelper {
 			}
 		}
 		
-		if(empty($from_address_id))
+		if(empty($from_address_id) || !isset($replyto_addresses[$from_address_id]))
 			$from_address_id = $replyto_default->address_id;
 		
-		if(!isset($replyto_addresses[$from_address_id]))
+		if(empty($from_address_id))
 			return;
 		
 		// Properties
