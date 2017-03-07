@@ -100,8 +100,8 @@
 			<tr style="margin-top:10px;">
 				<td width="1%" nowrap="nowrap"><b>Visibility:</b></td>
 				<td width="99%">
-					<label><input type="radio" name="is_private" value="0" {if empty($model->is_private)}checked="checked"{/if}> {'common.public'|devblocks_translate|capitalize}</label>
-					<label><input type="radio" name="is_private" value="1" {if !empty($model->is_private)}checked="checked"{/if}> {'common.private'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_private" value="0" {if empty($model->is_private)}checked="checked"{/if}> {'common.everyone'|devblocks_translate|capitalize}</label>
+					<label><input type="radio" name="is_private" value="1" {if !empty($model->is_private)}checked="checked"{/if}> {'common.bots'|devblocks_translate|capitalize}</label>
 				</td>
 			</tr>
 			
