@@ -3026,6 +3026,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_MESSAGE],
 					)
 				),
+			'messages.count' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_NUM_MESSAGES),
+				),
 			'org' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
