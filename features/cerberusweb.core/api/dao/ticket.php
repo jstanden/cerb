@@ -2661,7 +2661,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$results = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
 					return $results;
 				};
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'context_id[]');
 				break;
 				
 			case SearchFields_Ticket::TICKET_GROUP_ID:
@@ -3079,6 +3079,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS),
 				),
+			'reopen' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_REOPEN_AT),
+				),
 			'resolution.first' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -3212,7 +3217,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				$worker_id = 0;
 				
-				switch(strtolower($v)) {
+				switch(DevblocksPlatform::strLower($v)) {
 					case 'current':
 						$worker_id = '{{current_worker_id}}';
 						break;
@@ -3342,7 +3347,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				// Normalize status labels
 				foreach($states as $idx => $status) {
-					switch(substr(strtolower($status), 0, 1)) {
+					switch(substr(DevblocksPlatform::strLower($status), 0, 1)) {
 						case 's':
 							$values['S'] = true;
 							break;
@@ -3373,7 +3378,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				// Normalize status labels
 				foreach($value as $idx => $status) {
-					switch(substr(strtolower($status), 0, 1)) {
+					switch(substr(DevblocksPlatform::strLower($status), 0, 1)) {
 						case 'o':
 							$values['open'] = true;
 							break;
@@ -4035,7 +4040,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
-				
+			
 			case SearchFields_Ticket::TICKET_ORG_ID:
 				@$context_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',array()), 'integer', array('nonzero','unique'));
 				$criteria = new DevblocksSearchCriteria($field,$oper,$context_ids);
@@ -4060,16 +4065,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_BUCKET_ID,$oper,$bucket_ids));
 				} else { // clear if no buckets provided
 					$this->removeParam(SearchFields_Ticket::TICKET_BUCKET_ID);
-				}
-				break;
-				
-			case SearchFields_Ticket::TICKET_ORG_ID:
-				@$org_ids = DevblocksPlatform::importGPC($_REQUEST['options'],'array');
-
-				if(!empty($org_ids)) {
-					$this->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,$oper,$org_ids));
-				} else { // clear if no orgs provided
-					$this->removeParam(SearchFields_Ticket::TICKET_ORG_ID);
 				}
 				break;
 				
@@ -5143,7 +5138,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			// Status
 			
 			if(isset($meta['virtual_fields']['_status'])) {
-				switch(strtolower($meta['virtual_fields']['_status'])) {
+				switch(DevblocksPlatform::strLower($meta['virtual_fields']['_status'])) {
 					case 'open':
 						$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
 						break;

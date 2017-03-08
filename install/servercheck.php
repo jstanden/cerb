@@ -19,7 +19,7 @@ function parse_bytes_string($string) {
 		
 	} else {
 		$value = intval($string);
-		$unit = strtolower(substr($string, -1));
+		$unit = mb_strtolower(substr($string, -1));
 		 
 		switch($unit) {
 			default:

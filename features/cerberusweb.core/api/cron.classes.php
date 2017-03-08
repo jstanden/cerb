@@ -548,7 +548,7 @@ class ImportCron extends CerberusCronPageExtension {
 			
 			if(is_array($workers))
 			foreach($workers as $worker) { /* @var $worker Model_Worker */
-				$email_to_worker_id[strtolower($worker->getEmailString())] = intval($worker->id);
+				$email_to_worker_id[DevblocksPlatform::strLower($worker->getEmailString())] = intval($worker->id);
 			}
 		}
 		
@@ -559,7 +559,7 @@ class ImportCron extends CerberusCronPageExtension {
 
 			if(is_array($groups))
 			foreach($groups as $group) {
-				$group_name_to_id[strtolower($group->name)] = intval($group->id);
+				$group_name_to_id[DevblocksPlatform::strLower($group->name)] = intval($group->id);
 			}
 		}
 		
@@ -571,7 +571,7 @@ class ImportCron extends CerberusCronPageExtension {
 			if(is_array($buckets))
 			foreach($buckets as $bucket) { /* @var $bucket Model_Bucket */
 				// Hash by group ID and bucket name
-				$hash = md5($bucket->group_id . strtolower($bucket->name));
+				$hash = md5($bucket->group_id . DevblocksPlatform::strLower($bucket->name));
 				$bucket_name_to_id[$hash] = intval($bucket->id);
 			}
 		}
@@ -596,7 +596,7 @@ class ImportCron extends CerberusCronPageExtension {
 			if(null != ($iDestGroup = DAO_Group::getDefaultGroup()))
 				$iDestGroupId = $iDestGroup->id;
 			
-		} elseif(null == ($iDestGroupId = @$group_name_to_id[strtolower($sGroup)])) {
+		} elseif(null == ($iDestGroupId = @$group_name_to_id[DevblocksPlatform::strLower($sGroup)])) {
 			$iDestGroupId = DAO_Group::create(array(
 				DAO_Group::NAME => $sGroup,
 			));
@@ -611,10 +611,10 @@ class ImportCron extends CerberusCronPageExtension {
 			// Rehash
 			$groups = DAO_Group::getAll(true);
 			$group = $groups[$iDestGroupId];
-			$group_name_to_id[strtolower($sGroup)] = $iDestGroupId;
+			$group_name_to_id[DevblocksPlatform::strLower($sGroup)] = $iDestGroupId;
 			
 			foreach($group->getBuckets() as $bucket_id => $bucket) {
-				$hash = md5($bucket->group_id . strtolower($bucket->name));
+				$hash = md5($bucket->group_id . DevblocksPlatform::strLower($bucket->name));
 				$bucket_name_to_id[$hash] = $bucket_id;
 			}
 		}
@@ -625,7 +625,7 @@ class ImportCron extends CerberusCronPageExtension {
 			$iDestBucket = $destGroup->getDefaultBucket();
 			$iDestBucketId = $iDestBucket->id;
 			
-		} elseif(null == ($iDestBucketId = @$bucket_name_to_id[md5($iDestGroupId.strtolower($sBucket))])) {
+		} elseif(null == ($iDestBucketId = @$bucket_name_to_id[md5($iDestGroupId.DevblocksPlatform::strLower($sBucket))])) {
 			$fields = array(
 				DAO_Bucket::NAME => $sBucket,
 				DAO_Bucket::GROUP_ID => $iDestGroupId,
@@ -636,7 +636,7 @@ class ImportCron extends CerberusCronPageExtension {
 			
 			// Rehash
 			DAO_Bucket::getAll(true);
-			$hash = md5($iDestGroupId . strtolower($sBucket));
+			$hash = md5($iDestGroupId . DevblocksPlatform::strLower($sBucket));
 			$bucket_name_to_id[$hash] = $iDestBucketId;
 		}
 			
@@ -667,7 +667,7 @@ class ImportCron extends CerberusCronPageExtension {
 		
 		$statusId = 0;
 		
-		switch(strtolower($sStatus)) {
+		switch(DevblocksPlatform::strLower($sStatus)) {
 			case 'waiting':
 				$statusId = 1;
 				break;
@@ -724,7 +724,7 @@ class ImportCron extends CerberusCronPageExtension {
 					$rawHeaders = '';
 				
 					foreach($eHeaders->children() as $eHeader) { /* @var $eHeader SimpleXMLElement */
-						$header_key = strtolower($eHeader->getName());
+						$header_key = DevblocksPlatform::strLower($eHeader->getName());
 						$header_val = (string) $eHeader;
 						$rawHeaders .= $header_key . ': ' . $header_val . "\r\n";
 					}
@@ -748,7 +748,7 @@ class ImportCron extends CerberusCronPageExtension {
 					continue;
 				}
 	
-				@$msgWorkerId = intval($email_to_worker_id[strtolower($msgFromInst->email)]);
+				@$msgWorkerId = intval($email_to_worker_id[DevblocksPlatform::strLower($msgFromInst->email)]);
 				
 				$fields = array(
 					DAO_Message::TICKET_ID => $ticket_id,
@@ -819,7 +819,7 @@ class ImportCron extends CerberusCronPageExtension {
 				
 				// Content-type specific handling
 				if(isset($eMessage->content['content-type'])) { // do we have a content-type?
-					if(strtolower($eMessage->content['content-type']) == 'html') { // html?
+					if(DevblocksPlatform::strLower($eMessage->content['content-type']) == 'html') { // html?
 						// Force to plaintext part
 						$sMessageContent = DevblocksPlatform::stripHTML($sMessageContent);
 					}
@@ -897,7 +897,7 @@ class ImportCron extends CerberusCronPageExtension {
 				if(empty($rfcAddress->host) || $rfcAddress->host == 'host') {
 					continue;
 				}
-				$addresses[] =  trim(strtolower($rfcAddress->mailbox.'@'.$rfcAddress->host));
+				$addresses[] =  trim(DevblocksPlatform::strLower($rfcAddress->mailbox.'@'.$rfcAddress->host));
 			}
 			
 			if(empty($addresses)) {

@@ -330,7 +330,7 @@ class Model_MailToGroupRule {
 					case 'header3':
 					case 'header4':
 					case 'header5':
-						@$header = strtolower($crit['header']);
+						@$header = DevblocksPlatform::strLower($crit['header']);
 						@$header_value = is_array($message_headers[$header]) ? implode(" ", $message_headers[$header]) : (string) $message_headers[$header];
 						
 						if(empty($header)) {

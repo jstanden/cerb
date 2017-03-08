@@ -502,6 +502,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
+		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 		@$cc = DevblocksPlatform::importGPC($_REQUEST['cc'],'string','');
 		@$bcc = DevblocksPlatform::importGPC($_REQUEST['bcc'],'string','');
@@ -545,6 +546,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			'group_id' => $group_id,
 			'bucket_id' => $bucket_id,
 			'org_id' => $org_id,
+			'owner_id' => $owner_id,
 			'to' => $to,
 			'subject' => $subject,
 			'content' => $content,

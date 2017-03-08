@@ -869,6 +869,26 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testStrUpper() {
+		$expected = "Ü";
+		$actual = DevblocksPlatform::strUpper("ü");
+		$this->assertEquals($expected, $actual);
+		
+		$expected = "THIS IS SOME TEXT!";
+		$actual = DevblocksPlatform::strUpper("this is some text!");
+		$this->assertEquals($expected, $actual);
+	}
+	
+	public function testStrLower() {
+		$expected = "ü";
+		$actual = DevblocksPlatform::strLower("Ü");
+		$this->assertEquals($expected, $actual);
+		
+		$expected = "this is some text!";
+		$actual = DevblocksPlatform::strLower("THIS IS SOME TEXT!");
+		$this->assertEquals($expected, $actual);
+	}
+	
 	public function testStrBase32Encode() {
 		$expected = 'I5UXMZJANVSSAJBRGAYDAMBAN5TCAQKBKBGCA43UN5RWWLBAOBWGKYLTMUQQ====';
 		$actual = DevblocksPlatform::strBase32Encode('Give me $10000 of AAPL stock, please!');
@@ -1101,12 +1121,12 @@ END;
 	public function testStrToPermalink() {
 		// With defaults
 		$expected = 'devs-1000-ways-to-improve-sales';
-		$actual = strtolower(DevblocksPlatform::strToPermalink('Devs: 1000 Ways to Improve Sales'));
+		$actual = DevblocksPlatform::strLower(DevblocksPlatform::strToPermalink('Devs: 1000 Ways to Improve Sales'));
 		$this->assertEquals($expected, $actual);
 		
 		// With underscores
 		$expected = 'devs_1000_ways_to_improve_sales';
-		$actual = strtolower(DevblocksPlatform::strToPermalink('Devs: 1000 Ways to Improve Sales!', '_'));
+		$actual = DevblocksPlatform::strLower(DevblocksPlatform::strToPermalink('Devs: 1000 Ways to Improve Sales!', '_'));
 		$this->assertEquals($expected, $actual);
 	}
 	

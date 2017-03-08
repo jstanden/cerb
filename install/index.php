@@ -367,7 +367,7 @@ switch($step) {
 				
 				$discovered_engines = array();
 				while($row = mysqli_fetch_assoc($rs)) {
-					$discovered_engines[] = strtolower($row['Engine']);
+					$discovered_engines[] = mb_strtolower($row['Engine']);
 				}
 				mysqli_free_result($rs);
 				

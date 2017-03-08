@@ -292,7 +292,7 @@ class ChRest_Contexts extends Extension_RestController {
 	
 	private function postActivityCreate() {
 		@$on = DevblocksPlatform::importGPC($_POST['on'], 'string', '');
-		@$activity_point = strtolower(DevblocksPlatform::importGPC($_POST['activity_point'], 'string', ''));
+		@$activity_point = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_POST['activity_point'], 'string', ''));
 		@$variables_json = DevblocksPlatform::importGPC($_POST['variables'], 'string', '');
 		@$urls_json = DevblocksPlatform::importGPC($_POST['urls'], 'string', '');
 

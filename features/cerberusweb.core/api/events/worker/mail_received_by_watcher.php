@@ -348,7 +348,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			case 'ticket_latest_message_headers':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$header = rtrim(strtolower($params['header']), ':');
+				@$header = rtrim(DevblocksPlatform::strLower($params['header']), ':');
 				@$param_value = $params['value'];
 				
 				// Lazy load

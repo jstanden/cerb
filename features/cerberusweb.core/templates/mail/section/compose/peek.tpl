@@ -142,16 +142,14 @@
 				{'common.owner'|devblocks_translate|capitalize}:
 			</td>
 			<td width="99%">
-				<select name="owner_id">
-					<option value="0"></option>
+				<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="owner_id" data-autocomplete="" data-autocomplete-if-empty="true" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="bubbles chooser-container">
 					{foreach from=$workers item=v key=k}
-					{if !$v->is_disabled}
-					<option value="{$k}" {if $draft->params.owner_id==$k}selected="selected"{/if}>{$v->getName()}</option>
+					{if !$v->is_disabled && $draft->params.owner_id == $v->id}
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"><input type="hidden" name="owner_id" value="{$v->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v->id}">{$v->getName()}</a></li>
 					{/if}
 					{/foreach}
-				</select>
-				<button type="button" onclick="$(this).prev('select[name=owner_id]').val('{$active_worker->id}');">{'common.me'|devblocks_translate|lower}</button>
-				<button type="button" onclick="$(this).prevAll('select[name=owner_id]').first().val('0');">{'common.nobody'|devblocks_translate|lower}</button>
+				</ul>
 			</td>
 		</tr>
 		<tr>
@@ -159,8 +157,8 @@
 				{'common.watchers'|devblocks_translate|capitalize}:
 			</td>
 			<td width="99%">
-				<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="chooser-container bubbles" style="display:block;">
+				<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="add_watcher_ids[]" data-autocomplete=""><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="bubbles chooser-container" style="display:block;">
 					{if $draft->params.add_watcher_ids && is_array($draft->params.add_watcher_ids)}
 					{foreach from=$draft->params.add_watcher_ids item=watcher_id}
 						{$watcher = DAO_Worker::get($watcher_id)}
@@ -227,13 +225,7 @@
 
 		ajax.orgAutoComplete('#frmComposePeek{$random} input:text[name=org_name]');
 		
-		$frm.find('button.chooser_worker').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
-		});
-		
-		$frm.find('button.chooser_watcher').each(function() {
-			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
-		});
+		$frm.find('button.chooser-abstract').cerbChooserTrigger();
 		
 		$frm.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');

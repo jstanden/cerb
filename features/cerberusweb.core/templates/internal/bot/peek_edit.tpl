@@ -70,7 +70,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'worker.at_mention_name'|devblocks_translate}:</b></td>
 			<td width="99%">
-				<input type="text" name="at_mention_name" value="{$model->at_mention_name}" style="width:98%;" autofocus="autofocus" spellcheck="false" placeholder="mybot">
+				<input type="text" name="at_mention_name" value="{$model->at_mention_name}" style="width:98%;" spellcheck="false" placeholder="mybot">
 			</td>
 		</tr>
 		

@@ -1,5 +1,5 @@
 <?php
-define('SMARTY_RESOURCE_CHAR_SET', strtoupper(LANG_CHARSET_CODE));
+define('SMARTY_RESOURCE_CHAR_SET', DevblocksPlatform::strUpper(LANG_CHARSET_CODE));
 require(DEVBLOCKS_PATH . 'libs/smarty/Smarty.class.php');
 
 /**

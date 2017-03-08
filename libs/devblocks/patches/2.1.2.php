@@ -11,7 +11,7 @@ list($columns, $indexes) = $db->metaTable($prefix.'plugin');
 if(!isset($columns['description']))
 	return FALSE;
 
-if(substr(strtolower($columns['description']['type']),0,7) == 'varchar') {
+if(substr(mb_strtolower($columns['description']['type']),0,7) == 'varchar') {
 	$db->ExecuteMaster("ALTER TABLE ${prefix}plugin MODIFY COLUMN description TEXT");
 }
 

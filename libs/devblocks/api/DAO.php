@@ -274,7 +274,7 @@ abstract class DevblocksORMHelper {
 		
 		$outer_wheres = array();
 		$group_wheres = array();
-		@$group_oper = strtoupper(array_shift($param));
+		@$group_oper = DevblocksPlatform::strUpper(array_shift($param));
 		$sql = '';
 		$where = '';
 		
@@ -722,7 +722,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		$namespaces = $xml->getNamespaces(true);
 		
 		foreach($xml->body->tu as $tu) { /* @var $tu SimpleXMLElement */
-			$msgid = strtolower((string) $tu['tuid']);
+			$msgid = DevblocksPlatform::strLower((string) $tu['tuid']);
 			foreach($tu->tuv as $tuv) { /* @var $tuv SimpleXMLElement */
 				$attribs = $tuv->attributes($namespaces['xml']);
 				$lang = (string) $attribs['lang'];
@@ -794,8 +794,8 @@ class DAO_Translation extends DevblocksORMHelper {
 		foreach($results as $row) {
 			$code = $row['lang_code'];
 			$data = explode('_', $code);
-			@$lang = $langs[strtolower($data[0])];
-			@$terr = $countries[strtoupper($data[1])];
+			@$lang = $langs[DevblocksPlatform::strLower($data[0])];
+			@$terr = $countries[DevblocksPlatform::strUpper($data[1])];
 
 			$lang_codes[$code] = (!empty($lang) && !empty($terr))
 				? ($lang . ' (' . $terr . ')')

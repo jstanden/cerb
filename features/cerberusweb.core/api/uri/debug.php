@@ -118,6 +118,8 @@ class ChDebugController extends DevblocksControllerExtension  {
 				$status = array(
 					'counts' => array(
 						'attachments' => intval($db->GetOneMaster('SELECT count(id) FROM attachment')),
+						'bots' => intval($db->GetOneMaster('SELECT count(id) FROM bot')),
+						'bot_behaviors' => intval($db->GetOneMaster('SELECT count(id) FROM trigger_event')),
 						'buckets' => intval($db->GetOneMaster('SELECT count(id) FROM bucket')),
 						'comments' => intval($db->GetOneMaster('SELECT count(id) FROM comment')),
 						'custom_fields' => intval($db->GetOneMaster('SELECT count(id) FROM custom_field')),
@@ -135,15 +137,17 @@ class ChDebugController extends DevblocksControllerExtension  {
 						'portals' => intval(@$db->GetOneMaster('SELECT count(id) FROM community_tool')),
 						'tickets' => intval($db->GetOneMaster('SELECT count(id) FROM ticket')),
 						'tickets_status' => $tickets_by_status,
-						'va' => intval($db->GetOneMaster('SELECT count(id) FROM bot')),
-						'va_behaviors' => intval($db->GetOneMaster('SELECT count(id) FROM trigger_event')),
 						'webhooks' => intval($db->GetOneMaster('SELECT count(id) FROM webhook_listener')),
 						'workers' => intval($db->GetOneMaster('SELECT count(id) FROM worker')),
-						'workers_active_15m' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT user_id) AS hits FROM devblocks_session WHERE user_id != 0 AND refreshed_at >= %d', time()-900))),
-						'workers_active_30m' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT user_id) AS hits FROM devblocks_session WHERE user_id != 0 AND refreshed_at >= %d', time()-1800))),
-						'workers_active_1h' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT user_id) AS hits FROM devblocks_session WHERE user_id != 0 AND refreshed_at >= %d', time()-3600))),
-						'workers_active_24h' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT user_id) AS hits FROM devblocks_session WHERE user_id != 0 AND refreshed_at >= %d', time()-86400))),
-						'workers_active_1w' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT user_id) AS hits FROM devblocks_session WHERE user_id != 0 AND refreshed_at >= %d', time()-604800))),
+						'workers_active_15m' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-900))),
+						'workers_active_30m' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-1800))),
+						'workers_active_1h' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-3600))),
+						'workers_active_12h' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-43200))),
+						'workers_active_24h' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-86400))),
+						'workers_active_1w' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-604800))),
+						'workspace_pages' => intval($db->GetOneMaster('SELECT count(id) FROM workspace_page')),
+						'workspace_tabs' => intval($db->GetOneMaster('SELECT count(id) FROM workspace_tab')),
+						'workspace_widgets' => intval($db->GetOneMaster('SELECT count(id) FROM workspace_widget')),
 					),
 					'storage_bytes' => array(
 						'attachment' => intval($db->GetOneMaster('SELECT sum(storage_size) FROM attachment')),
@@ -160,15 +164,19 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 				$status['plugins'] = array();
 				$plugins = DevblocksPlatform::getPluginRegistry();
+				$plugins_enabled = 0;
 				unset($plugins['cerberusweb.core']);
 				unset($plugins['devblocks.core']);
-				$status['counts']['plugins_enabled'] = count($plugins);
 				ksort($plugins);
 				
 				foreach($plugins as $plugin) {
-					if($plugin->enabled)
+					if($plugin->enabled) {
 						$status['plugins'][] = $plugin->id;
+						$plugins_enabled++;
+					}
 				}
+				
+				$status['counts']['plugins_enabled'] = $plugins_enabled;
 				
 				// Tables
 				

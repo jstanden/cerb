@@ -258,7 +258,7 @@ if(isset($columns['header']) && isset($columns['pattern'])) {
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		@$id = intval($row['id']);
-		@$header = strtolower($row['header']);
+		@$header = mb_convert_case($row['header'], MB_CASE_LOWER);
 		@$pattern = $row['pattern'];
 		$criterion = array();
 		

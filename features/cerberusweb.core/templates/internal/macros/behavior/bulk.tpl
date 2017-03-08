@@ -1,4 +1,13 @@
-{if !empty($macros)}
+{capture name=macro_behaviors}
+{foreach from=$macros item=v key=k}
+{if !$v->is_private}
+	{$bot = $v->getBot()}
+	<option value="{$k}">[{$bot->name}] {$v->title}</option>
+{/if}
+{/foreach}
+{/capture}
+
+{if strlen(trim($smarty.capture.macro_behaviors))}
 <fieldset class="peek">
 	<legend>Schedule Behavior</legend>
 
@@ -10,9 +19,7 @@
 			<td width="99%" nowrap="nowrap" valign="top">
 				<select name="behavior_id" onchange="$div=$(this).next('div');$val=$(this).val();if($val.length==0){ $div.html(''); return; };genericAjaxGet($div,'c=internal&a=showScheduleBehaviorBulkParams&trigger_id=' + $val);">
 				<option value=""></option>
-				{foreach from=$macros item=v key=k}
-					<option value="{$k}">{$v->title}</option>
-				{/foreach}
+				{$smarty.capture.macro_behaviors nofilter}
 				</select>
 				<div>
 				</div>

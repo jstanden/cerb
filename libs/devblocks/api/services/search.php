@@ -65,7 +65,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 			return "Failed to query the search tables.";
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$indexes[strtolower($row['Index'])] = strtolower($row['Type']);
+			$indexes[DevblocksPlatform::strLower($row['Index'])] = DevblocksPlatform::strLower($row['Type']);
 		}
 		
 		mysqli_free_result($rs);

@@ -493,6 +493,11 @@ class ChTicketsPage extends CerberusPageExtension {
 			// Run hash commands
 			if(!empty($hash_commands))
 				$this->_handleComposeHashCommands($hash_commands, $ticket_id, $active_worker);
+				
+			// Watchers
+			@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST ['add_watcher_ids'], 'array', []), 'integer', ['unique','nonzero']);
+			if(!empty($add_watcher_ids))
+				CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $add_watcher_ids);
 			
 			// Preferences
 			
@@ -867,6 +872,9 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$fields = array(
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
+			DAO_Ticket::SPAM_SCORE => 0.0001,
+			DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::NOT_SPAM,
+			DAO_Ticket::UPDATED_DATE => time(),
 		);
 		
 		//====================================
@@ -878,7 +886,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		foreach($ticket_ids as $ticket_id) {
 			$last_action->ticket_ids[$ticket_id] = array(
 				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
-				DAO_Ticket::SPAM_SCORE => 0.0001, // [TODO] Fix
+				DAO_Ticket::SPAM_SCORE => 0.5000,
 				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 			);
 		}
@@ -916,6 +924,9 @@ class ChTicketsPage extends CerberusPageExtension {
 
 		$fields = array(
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
+			DAO_Ticket::SPAM_SCORE => 0.9999,
+			DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::SPAM,
+			DAO_Ticket::UPDATED_DATE => time(),
 		);
 		
 		//====================================
@@ -927,7 +938,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		foreach($ticket_ids as $ticket_id) {
 			$last_action->ticket_ids[$ticket_id] = array(
 				DAO_Ticket::SPAM_TRAINING => CerberusTicketSpamTraining::BLANK,
-				DAO_Ticket::SPAM_SCORE => 0.5000, // [TODO] Fix
+				DAO_Ticket::SPAM_SCORE => 0.5000,
 				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 			);
 		}

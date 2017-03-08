@@ -584,7 +584,7 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 			return;
 		}
 		
-		switch(strtolower($format)) {
+		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
 				break;
@@ -723,7 +723,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 	// Export
 	
 	function exportData(Model_WorkspaceWidget $widget, $format=null) {
-		switch(strtolower($format)) {
+		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
 				break;
@@ -893,7 +893,7 @@ class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWo
 	// Export
 	
 	function exportData(Model_WorkspaceWidget $widget, $format=null) {
-		switch(strtolower($format)) {
+		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
 				break;
@@ -1049,7 +1049,7 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 			return;
 		}
 		
-		switch(strtolower($format)) {
+		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
 				break;
@@ -1156,7 +1156,7 @@ class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICe
 	// Export
 	
 	function exportData(Model_WorkspaceWidget $widget, $format=null) {
-		switch(strtolower($format)) {
+		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
 				break;
@@ -1359,7 +1359,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 			return;
 		}
 		
-		switch(strtolower($format)) {
+		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
 				break;
@@ -1610,7 +1610,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 			return;
 		}
 		
-		switch(strtolower($format)) {
+		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
 				break;
@@ -1794,7 +1794,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		if(false == ($view = $this->getView($widget)))
 			return false;
 		
-		switch(strtolower($format)) {
+		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCSV($widget, $view);
 				break;
@@ -2100,7 +2100,7 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 			return;
 		}
 		
-		switch(strtolower($format)) {
+		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
 				break;
@@ -2300,7 +2300,7 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 			return;
 		}
 		
-		switch(strtolower($format)) {
+		switch(DevblocksPlatform::strLower($format)) {
 			case 'csv':
 				return $this->_exportDataAsCsv($widget);
 				break;

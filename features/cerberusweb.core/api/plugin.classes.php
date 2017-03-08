@@ -294,13 +294,13 @@ class WgmCerb_API {
 		$url_parts = parse_url($url);
 		$url_path = $url_parts['path'];
 		
-		$verb = strtoupper($verb);
+		$verb = DevblocksPlatform::strUpper($verb);
 
 		$url_query = '';
 		if(isset($url_parts['query']) && !empty($url_parts))
 			$url_query = $this->_sortQueryString($url_parts['query']);
 
-		$secret = strtolower(md5($this->_secret_key));
+		$secret = DevblocksPlatform::strLower(md5($this->_secret_key));
 
 		$string_to_sign = "$verb\n$http_date\n$url_path\n$url_query\n$postfields\n$secret\n";
 		$hash = md5($string_to_sign);
@@ -314,7 +314,7 @@ class WgmCerb_API {
 		$header = array();
 		$ch = DevblocksPlatform::curlInit();
 
-		$verb = strtoupper($verb);
+		$verb = DevblocksPlatform::strUpper($verb);
 		$http_date = gmdate(DATE_RFC822);
 
 		$header[] = 'Date: '.$http_date;
@@ -374,7 +374,7 @@ class WgmCerb_API {
 		$info = curl_getinfo($ch);
 		
 		// Content-type handling
-		@list($content_type, $content_type_opts) = explode(';', strtolower($info['content_type']));
+		@list($content_type, $content_type_opts) = explode(';', DevblocksPlatform::strLower($info['content_type']));
 		
 		curl_close($ch);
 		
@@ -630,7 +630,7 @@ private function _execute($verb='get', $url, $params=array(), $body=null, $heade
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		}
 
-		switch(strtolower($verb)) {
+		switch(DevblocksPlatform::strLower($verb)) {
 			case 'get':
 				break;
 				
@@ -678,7 +678,7 @@ private function _execute($verb='get', $url, $params=array(), $body=null, $heade
 			
 		} elseif (isset($info['content_type'])) {
 			// Split content_type + charset in the header
-			@list($content_type, $content_charset) = explode(';', strtolower($info['content_type']));
+			@list($content_type, $content_charset) = explode(';', DevblocksPlatform::strLower($info['content_type']));
 			
 			// Auto-convert the response body based on the type
 			if(!(isset($options['raw_response_body']) && $options['raw_response_body'])) {

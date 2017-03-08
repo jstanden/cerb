@@ -595,7 +595,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 			$info = curl_getinfo($ch);
 			
 			//@$status = $info['http_code'];
-			@$content_type = strtolower($info['content_type']);
+			@$content_type = DevblocksPlatform::strLower($info['content_type']);
 			
 			$data = array(
 				'raw_data' => $raw_data,

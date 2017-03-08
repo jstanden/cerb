@@ -128,7 +128,7 @@ class _DevblocksBayesClassifierService {
 		$custom_entities = DAO_ClassifierEntity::getAll();
 		
 		foreach($custom_entities as $entity) {
-			$entities[strtolower($entity->name)] = [
+			$entities[DevblocksPlatform::strLower($entity->name)] = [
 				'label' => $entity->name,
 				'description' => $entity->description,
 			];
@@ -179,7 +179,7 @@ class _DevblocksBayesClassifierService {
 		// Change symbols to words
 		$text = str_replace(['º','°'], [' degrees ', ' degrees '], $text);
 		
-		$text = strtolower($text);
+		$text = DevblocksPlatform::strLower($text);
 		
 		// [TODO] Normalize 5pm -> 5 pm
 		// [TODO] Normalize 1hr -> 1 hr
@@ -207,7 +207,7 @@ class _DevblocksBayesClassifierService {
 	
 	// [TODO] Configurable
 	static function tokenizeStrings($text) {
-		$text = strtolower($text);
+		$text = DevblocksPlatform::strLower($text);
 		
 		// Strip punctuation
 		$text = DevblocksPlatform::strAlphaNum($text, ' ');
@@ -747,12 +747,12 @@ class _DevblocksBayesClassifierService {
 					if(empty($label_map) || !is_array($label_map))
 						break;
 					
-					self::_tagEntitySynonyms($label_map, strtolower($entity->name), $words, $tags);
+					self::_tagEntitySynonyms($label_map, DevblocksPlatform::strLower($entity->name), $words, $tags);
 					break;
 					
 				case 'regexp':
 					@$pattern = $entity->params['pattern'];
-					$entity_name = strtolower($entity->name);
+					$entity_name = DevblocksPlatform::strLower($entity->name);
 					
 					if(empty($pattern))
 						break;
@@ -1197,7 +1197,7 @@ class _DevblocksBayesClassifierService {
 		$custom_entities = DAO_ClassifierEntity::getAll();
 		
 		foreach($custom_entities as $entity) {
-			$entity_token = strtolower($entity->name);
+			$entity_token = DevblocksPlatform::strLower($entity->name);
 			
 			if(!in_array($entity_token, $types))
 				continue;

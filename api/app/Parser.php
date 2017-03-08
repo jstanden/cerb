@@ -78,7 +78,7 @@ class CerberusParserMessage {
 						break;
 					
 					// Change the inbound In-Reply-To: header to that of the bounce
-					if(in_array(strtolower($bounce_froms[0]->mailbox), array('postmaster', 'mailer-daemon'))) {
+					if(in_array(DevblocksPlatform::strLower($bounce_froms[0]->mailbox), array('postmaster', 'mailer-daemon'))) {
 						$this->headers['in-reply-to'] = $mime->data['headers']['message-id'];
 					}
 					
@@ -631,7 +631,7 @@ class CerberusParser {
 			$results = array();
 		
 		// Normalize charsets
-		switch(strtolower($part->data['charset'])) {
+		switch(DevblocksPlatform::strLower($part->data['charset'])) {
 			case 'gb2312':
 				$part->data['charset'] = 'gbk';
 				break;
@@ -640,7 +640,7 @@ class CerberusParser {
 		$do_ignore = false;
 		$do_recurse = true;
 		
-		switch(strtolower($part->data['content-type'])) {
+		switch(DevblocksPlatform::strLower($part->data['content-type'])) {
 			case 'multipart/alternative':
 			case 'multipart/mixed':
 			case 'multipart/related':
@@ -695,7 +695,7 @@ class CerberusParser {
 				continue;
 			}
 			
-			$content_type = strtolower(isset($section->data['content-type']) ? $section->data['content-type'] : '');
+			$content_type = DevblocksPlatform::strLower(isset($section->data['content-type']) ? $section->data['content-type'] : '');
 			$content_filename = self::_getMimePartFilename($section);
 			
 			if(empty($content_filename)) {
@@ -756,7 +756,7 @@ class CerberusParser {
 							$content_filename = sprintf("image_%s", uniqid());
 						}
 						
-						switch(strtolower($content_type)) {
+						switch(DevblocksPlatform::strLower($content_type)) {
 							case 'image/gif':
 								$content_filename .= ".gif";
 								break;
@@ -789,7 +789,7 @@ class CerberusParser {
 				continue;
 			}
 			
-			$content_type = strtolower(isset($section->data['content-type']) ? $section->data['content-type'] : '');
+			$content_type = DevblocksPlatform::strLower(isset($section->data['content-type']) ? $section->data['content-type'] : '');
 			$content_filename = self::_getMimePartFilename($section);
 			
 			$attach = new ParseFileBuffer($section);
@@ -1109,7 +1109,7 @@ class CerberusParser {
 							
 						} elseif(preg_match('/^#status (.*)/', $line, $matches)) {
 							$state = '#status';
-							switch(strtolower($matches[1])) {
+							switch(DevblocksPlatform::strLower($matches[1])) {
 								case 'o':
 								case 'open':
 									$properties['status_id'] = Model_Ticket::STATUS_OPEN;
@@ -1518,7 +1518,7 @@ class CerberusParser {
 	}
 	
 	static function convertEncoding($text, $charset=null) {
-		$charset = strtolower($charset);
+		$charset = DevblocksPlatform::strLower($charset);
 		
 		// Otherwise, fall back to mbstring's auto-detection
 		mb_detect_order('iso-2022-jp-ms, iso-2022-jp, utf-8, iso-8859-1, windows-1252');

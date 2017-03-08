@@ -171,8 +171,8 @@ class Ch_RestPreferencesTab extends Extension_PreferenceTab {
 		@$generate_new_keys = DevblocksPlatform::importGPC($_REQUEST['regenerate_keys'],'integer',0);
 		
 		if(empty($id) || $generate_new_keys) {
-			$fields[DAO_WebApiCredentials::ACCESS_KEY] = strtolower(CerberusApplication::generatePassword(12));
-			$fields[DAO_WebApiCredentials::SECRET_KEY] = strtolower(CerberusApplication::generatePassword(32));
+			$fields[DAO_WebApiCredentials::ACCESS_KEY] = DevblocksPlatform::strLower(CerberusApplication::generatePassword(12));
+			$fields[DAO_WebApiCredentials::SECRET_KEY] = DevblocksPlatform::strLower(CerberusApplication::generatePassword(32));
 		}
 		
 		if(empty($id)) { // Create
@@ -248,7 +248,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: worker)"));
 		}
 
-		$secret = strtolower(md5($credential->secret_key));
+		$secret = DevblocksPlatform::strLower(md5($credential->secret_key));
 		$string_to_sign = "$string_to_sign_prefix\n$secret\n";
 		$compare_hash = md5($string_to_sign);
 
@@ -574,7 +574,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 		}
 		
 		// Verb Actions
-		$method = strtolower($verb) .'Action';
+		$method = DevblocksPlatform::strLower($verb) .'Action';
 		if(method_exists($this,$method)) {
 			call_user_func(array(&$this,$method), $stack);
 		}

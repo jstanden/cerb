@@ -100,9 +100,9 @@
 						{if $owner_context->id == CerberusContexts::CONTEXT_APPLICATION}
 						<b class="subject">{$meta.name}</b>
 						{else}
-						<a href="javascript:;" class="subject cerb-peek-trigger no-underline" data-context="{$result.c_owner_context}" data-context-id="{$result.c_owner_context_id}">{$meta.name}</a>
+						<a href="javascript:;" class="subject cerb-peek-trigger no-underline" data-context="{$result.c_owner_context}" data-context-id="{$result.c_owner_context_id}" data-profile-url="{$meta.permalink}">{$meta.name}</a>
 						{/if}
-						<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+						<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}" data-profile-url="{devblocks_url}c=profiles&what=comment&id={$result.c_id}{/devblocks_url}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 					</div>
 				
 					<div>
@@ -125,7 +125,7 @@
 				<td>
 					{$target = $targets.{$result.c_context}.{$result.c_context_id}}
 					{if $target}
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{$target->_context}" data-context-id="{$target->id}">{$target->_label|truncate:64}</a>
+						<a href="javascript:;" class="cerb-peek-trigger" data-context="{$target->_context}" data-context-id="{$target->id}" data-profile-url="{if isset($target->url)}{$target->url}{elseif isset($target->record_url)}{$target->record_url}{/if}">{$target->_label|truncate:64}</a>
 					{/if}
 				</td>
 			{else}

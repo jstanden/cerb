@@ -326,8 +326,8 @@ class CerberusSimulatorGenerator {
 		$emailaddress = sprintf("\"%s %s\" <%s.%s@cerberusdemo.com>",
 			$firstname,
 			$lastname,
-			strtolower($firstname),
-			strtolower($lastname)
+			DevblocksPlatform::strLower($firstname),
+			DevblocksPlatform::strLower($lastname)
 		);
 		
 //		return array(

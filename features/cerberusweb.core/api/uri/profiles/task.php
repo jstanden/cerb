@@ -205,6 +205,11 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 					
 					if(false == ($id = DAO_Task::create($fields, $custom_fields)))
 						return false;
+					
+					// Watchers
+					@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST ['add_watcher_ids'], 'array', []), 'integer', ['unique','nonzero']);
+					if(!empty($add_watcher_ids))
+						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $id, $add_watcher_ids);
 	
 					// View marquee
 					if(!empty($id) && !empty($view_id)) {

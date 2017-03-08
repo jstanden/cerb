@@ -70,7 +70,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 			return false;
 		
 		// We're given a data URL
-		if(strtolower(substr($imagedata,0,5)) == 'data:') {
+		if(DevblocksPlatform::strLower(substr($imagedata,0,5)) == 'data:') {
 			$imagedata = substr($imagedata, 5);
 			
 			// Are we deleting it?
@@ -79,7 +79,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 				$imagedata = '';
 				
 			// Is it a base64-encoded png?
-			} else if(strtolower(substr($imagedata,0,17)) == 'image/png;base64,') {
+			} else if(DevblocksPlatform::strLower(substr($imagedata,0,17)) == 'image/png;base64,') {
 				$content_type = 'image/png';
 				
 				// Decode it to binary

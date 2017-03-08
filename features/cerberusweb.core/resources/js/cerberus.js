@@ -1244,6 +1244,7 @@ var ajax = new cAjaxCalls();
 						var evt = jQuery.Event('bubble-create');
 						evt.label = $account.attr('data-worker-name');
 						evt.value = $account.attr('data-worker-id');
+						evt.icon = $account.closest('td').find('img:first').attr('src');
 						$ul.trigger(evt);
 					})
 					.insertAfter($trigger)

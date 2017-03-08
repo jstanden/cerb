@@ -512,7 +512,7 @@ class Model_<?php echo $class_name; ?> {
 
 <textarea style="width: 98%; height: 200px;">
 class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
-	const DEFAULT_ID = '<?php echo strtolower($class_name); ?>';
+	const DEFAULT_ID = '<?php echo mb_strtolower($class_name); ?>';
 
 	function __construct() {
 		$this->id = self::DEFAULT_ID;
@@ -1464,7 +1464,7 @@ $(function() {
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 	
 	<div>
-		Are you sure you want to permanently delete this <?php echo strtolower($object_name); ?>?
+		Are you sure you want to permanently delete this <?php echo mb_strtolower($object_name); ?>?
 	</div>
 	
 	<button type="button" class="delete red"></span> {'common.yes'|devblocks_translate|capitalize}</button>

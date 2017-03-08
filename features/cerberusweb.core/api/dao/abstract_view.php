@@ -643,7 +643,7 @@ abstract class C4_AbstractView {
 				// Use abstract popups if we can
 				if($ctx instanceof IDevblocksContextPeek) {
 					$string = sprintf("New %s created: <a href='javascript:;' class='cerb-peek-trigger' data-context='%s' data-context-id='%d'><b>%s</b></a>",
-						DevblocksPlatform::strEscapeHtml(strtolower($ctx->manifest->name)),
+						DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($ctx->manifest->name)),
 						DevblocksPlatform::strEscapeHtml($context),
 						DevblocksPlatform::strEscapeHtml($context_id),
 						DevblocksPlatform::strEscapeHtml($meta['name'])
@@ -652,7 +652,7 @@ abstract class C4_AbstractView {
 				// Otherwise, try linking to profile pages
 				} elseif(!empty($meta['permalink'])) {
 					$string = sprintf("New %s created: <a href='%s'><b>%s</b></a>",
-						DevblocksPlatform::strEscapeHtml(strtolower($ctx->manifest->name)),
+						DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($ctx->manifest->name)),
 						DevblocksPlatform::strEscapeHtml($meta['permalink']),
 						DevblocksPlatform::strEscapeHtml($meta['name'])
 					);
@@ -660,7 +660,7 @@ abstract class C4_AbstractView {
 				// Lastly, just output some text
 				} else {
 					$string = sprintf("New %s created: <b>%s</b>",
-						DevblocksPlatform::strEscapeHtml(strtolower($ctx->manifest->name)),
+						DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($ctx->manifest->name)),
 						DevblocksPlatform::strEscapeHtml($meta['name'])
 					);
 				}
@@ -680,7 +680,7 @@ abstract class C4_AbstractView {
 		if(null != ($ctx = Extension_DevblocksContext::get($context))) {
 			$string = sprintf("Imported <b>%d %s</b> record%s.",
 				$count,
-				strtolower($ctx->manifest->name),
+				DevblocksPlatform::strLower($ctx->manifest->name),
 				($count == 1 ? '' : 's')
 			);
 		}
@@ -939,19 +939,19 @@ abstract class C4_AbstractView {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
 				strip_tags($list_of_strings),
 				count($strings),
-				strtolower($label_plural)
+				DevblocksPlatform::strLower($label_plural)
 			);
 		}
 		
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_IS_NULL:
 				echo sprintf("There are no <b>%s</b>",
-					DevblocksPlatform::strEscapeHtml(strtolower($label_plural))
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($label_plural))
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
 				echo sprintf("There are <b>%s</b>",
-					DevblocksPlatform::strEscapeHtml(strtolower($label_plural))
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($label_plural))
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IN:
@@ -987,19 +987,19 @@ abstract class C4_AbstractView {
 			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
 				strip_tags($list_of_strings),
 				count($strings),
-				strtolower($label_plural)
+				DevblocksPlatform::strLower($label_plural)
 			);
 		}
 		
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_IS_NULL:
 				echo sprintf("There are no <b>%s</b>",
-					DevblocksPlatform::strEscapeHtml(strtolower($label_plural))
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($label_plural))
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
 				echo sprintf("There are <b>%s</b>",
-					DevblocksPlatform::strEscapeHtml(strtolower($label_plural))
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($label_plural))
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IN:
@@ -1616,6 +1616,21 @@ abstract class C4_AbstractView {
 		
 		$menu['(operators)'] = $oper_menu;
 		
+		// Placeholders
+		
+		$placeholders_menu = new DevblocksMenuItemPlaceholder();
+		$labels = $this->getPlaceholderLabels();
+		
+		if(!empty($labels)) {
+			$keys = array_map(function($key) {
+				return '{{' . $key . '}}';
+			}, array_keys($labels));
+			
+			$labels = array_combine($keys, array_column($labels, 'label'));
+			$placeholders_menu->children = Extension_DevblocksContext::getPlaceholderTree($labels, ' ', '_');
+			$menu['(placeholders)'] = $placeholders_menu;
+		}
+		
 		// Fields
 		
 		$fields_menu = new DevblocksMenuItemPlaceholder();
@@ -1732,21 +1747,6 @@ abstract class C4_AbstractView {
 			
 			foreach($tree as $k => $v)
 				$menu[$k] = $v;
-		}
-		
-		// Placeholders
-		
-		$placeholders_menu = new DevblocksMenuItemPlaceholder();
-		$labels = $this->getPlaceholderLabels();
-		
-		if(!empty($labels)) {
-			$keys = array_map(function($key) {
-				return '{{' . $key . '}}';
-			}, array_keys($labels));
-			
-			$labels = array_combine($keys, array_column($labels, 'label'));
-			$placeholders_menu->children = Extension_DevblocksContext::getPlaceholderTree($labels, ' ', '_');
-			$menu['(placeholders)'] = $placeholders_menu;
 		}
 		
 		return $menu;
@@ -3724,7 +3724,7 @@ class C4_AbstractViewLoader {
 	static function unserializeViewFromAbstractJson($view_model, $view_id) {
 		if(!isset($view_model['context']))
 			return false;
-			
+		
 		$view_context = $view_model['context'];
 		
 		if(empty($view_context))

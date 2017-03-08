@@ -57,8 +57,8 @@ class DAO_Address extends Cerb_ORMHelper {
 		if(empty($address->host) || $address->host == 'host')
 			return NULL;
 		
-		$full_address = trim(strtolower($address->mailbox.'@'.$address->host));
-			
+		$full_address = trim(DevblocksPlatform::strLower($address->mailbox.'@'.$address->host));
+		
 		// Make sure the address doesn't exist already
 		if(null == ($check = self::getByEmail($full_address))) {
 			$sql = sprintf("INSERT INTO address (email,host,contact_id,contact_org_id,num_spam,num_nonspam,is_banned,is_defunct,updated) ".
@@ -300,7 +300,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		
 		$results = self::getWhere(sprintf("%s = %s",
 			self::EMAIL,
-			$db->qstr(strtolower($email))
+			$db->qstr(DevblocksPlatform::strLower($email))
 		));
 
 		if(!empty($results))

@@ -153,6 +153,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 			@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 			@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array()), 'int');
+			@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 			
 			if(empty($comment))
 				throw new Exception_DevblocksAjaxValidationError("The 'Comment' field is required.", 'comment');
@@ -181,6 +182,10 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 				$fields = array(
 					DAO_Comment::COMMENT => $comment,
 				);
+				
+				if(isset($options['update_timestamp']) && $options['update_timestamp'])
+					$fields[DAO_Comment::CREATED] = time();
+				
 				DAO_Comment::update($id, $fields);
 			}
 			
