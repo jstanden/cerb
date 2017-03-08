@@ -954,51 +954,6 @@ EOF;
 		@$skip = DevblocksPlatform::importGPC($_POST['skip'],'integer',0);
 		
 		if(!empty($form_submit)) {
-			@$contact_name = str_replace(array("\r","\n"),'',stripslashes($_REQUEST['contact_name']));
-			@$contact_email = str_replace(array("\r","\n"),'',stripslashes($_REQUEST['contact_email']));
-			@$contact_company = stripslashes($_REQUEST['contact_company']);
-			
-			if(empty($skip) && !empty($contact_name)) {
-				@$contact_phone = stripslashes($_REQUEST['contact_phone']);
-				@$contact_refer = stripslashes($_REQUEST['contact_refer']);
-				@$q1 = stripslashes($_REQUEST['q1']);
-				@$q2 = stripslashes($_REQUEST['q2']);
-				@$q3 = stripslashes($_REQUEST['q3']);
-				@$q4 = stripslashes($_REQUEST['q4']);
-				@$q5 = stripslashes($_REQUEST['q5']);
-				@$comments = stripslashes($_REQUEST['comments']);
-				
-				if(isset($_REQUEST['form_submit'])) {
-				  $msg = sprintf(
-				    "Contact Name: %s\r\n".
-				    "Organization: %s\r\n".
-				    "Referred by: %s\r\n".
-				    "Phone: %s\r\n".
-				    "\r\n".
-				    "#1: Briefly, what does your organization do?\r\n%s\r\n\r\n".
-				    "#2: How is your team currently handling e-mail management?\r\n%s\r\n\r\n".
-				    "#3: Are you considering both free and commercial solutions?\r\n%s\r\n\r\n".
-				    "#4: What will be your first important milestone?\r\n%s\r\n\r\n".
-				    "#5: How many workers do you expect to use the helpdesk simultaneously?\r\n%s\r\n\r\n".
-				    "\r\n".
-				    "Additional Comments: \r\n%s\r\n\r\n"
-				    ,
-				    $contact_name,
-				    $contact_company,
-				    $contact_refer,
-				    $contact_phone,
-				    $q1,
-				    $q2,
-				    $q3,
-				    $q4,
-				    $q5,
-				    $comments
-				  );
-
-				  CerberusMail::quickSend('aboutme@cerberusweb.com',"About: $contact_name of $contact_company",$msg, $contact_email, $contact_name);
-				}
-			}
-			
 			$tpl->assign('step', STEP_FINISHED);
 			$tpl->display('steps/redirect.tpl');
 			exit;
@@ -1011,7 +966,6 @@ EOF;
 		$tpl->assign('template', 'steps/step_upgrade.tpl');
 		break;
 		
-	// [TODO] Delete the /install/ directory (security)
 	case STEP_FINISHED:
 		
 		// Set up the default cron jobs

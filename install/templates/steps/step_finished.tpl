@@ -11,10 +11,10 @@
 <h3>Welcome to the community!</h3>
 
 <div style="margin-left:20px;">
-	<b>Cerb</b> is the culmination of over 14 years of research &amp; development.  
+	<b>Cerb</b> is the result of over 15 years of research &amp; development.  
 	The software will likely introduce some concepts that are completely new to you and your team.  
 	<br>
-	The best places to become familiar with Cerb are the <a href="https://vimeo.com/channels/cerb" target="_blank"><b>training videos</b></a> and the <a href="https://cerb.ai/docs/" target="_blank"><b>online documentation</b></a>.<br>
+	The best place to become familiar with Cerb is the <a href="https://cerb.ai/docs/home/" target="_blank"><b>online documentation</b></a>.<br>
 </div>
 
 <h3>Your new copy of Cerb is ready for business!</h3>
