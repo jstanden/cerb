@@ -274,7 +274,9 @@ class _DevblocksTemplateManager {
 					// If we don't have more lines, add a new one
 					if(!empty($overflow)) {
 						if(isset($bins[$i]['lines'][$l+1])) {
-							if(mb_strlen($bins[$i]['lines'][$l+1]) == 0) {
+							$next_line = $bins[$i]['lines'][$l+1];
+							
+							if(mb_strlen($next_line) == 0 || DevblocksPlatform::strIsListItem($next_line)) {
 								array_splice($bins[$i]['lines'], $l+1, 0, $overflow);
 							} else {
 								$bins[$i]['lines'][$l+1] = $overflow . " " . $bins[$i]['lines'][$l+1];

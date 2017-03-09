@@ -496,6 +496,17 @@ class DevblocksPlatform extends DevblocksEngine {
 		return false;
 	}
 	
+	static function strIsListItem($string) {
+		// Is it using a typical list item delimiter to start?
+		if(DevblocksPlatform::strStartsWith(ltrim($string), ['*','-','#']))
+			return true;
+		
+		if(preg_match('/^\(*\d+\.*\)*/', ltrim($string)))
+			return true;
+		
+		return false;
+	}
+	
 	/**
 	 * 
 	 * @param string $version
