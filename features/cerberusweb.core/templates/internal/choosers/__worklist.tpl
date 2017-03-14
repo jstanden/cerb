@@ -28,13 +28,11 @@ $(function() {
 			$worklist.css('background-color','rgb(100,100,100)');
 			
 			var $header = $worklist.find('> tbody > tr:first > td:first > span.title');
-			$header.css('font-size', '14px');
 			var $header_links = $worklist.find('> tbody > tr:first td:nth(1)');
 			$header_links.children().each(function(e) {
 				if(!$(this).is('a.minimal'))
 					$(this).remove();
 			});
-			$header_links.find('a').css('font-size','11px');
 
 			var $worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
 			$worklist_body.find('a.subject').each(function() {

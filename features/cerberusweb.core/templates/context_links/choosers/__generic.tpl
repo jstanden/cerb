@@ -23,38 +23,36 @@ $(function() {
 	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
 	
 	$popup.one('popup_open',function(event,ui) {
+		$popup.css('overflow', 'inherit');
 		event.stopPropagation();
 
-		$popup = $(this);
-		
-		$(this).dialog('option','title','{$context->manifest->name|escape:'javascript' nofilter} Chooser');
+		$popup.dialog('option','title','{$context->manifest->name|escape:'javascript' nofilter} Chooser');
 		
 		$popup.find('input:text:first').focus();
 
 		// Progressive de-enhancement
 		
 		var on_refresh = function() {
-			$worklist = $('#view{$view->id}').find('TABLE.worklist');
+			var $view = $('#view{$view->id}');
+			var $worklist = $view.find('TABLE.worklist');
 			$worklist.css('background','none');
 			$worklist.css('background-color','rgb(100,100,100)');
 			
-			$header = $worklist.find('> tbody > tr:first > td:first > span.title');
-			$header.css('font-size', '14px');
-			$header_links = $worklist.find('> tbody > tr:first td:nth(1)');
+			var $header = $worklist.find('> tbody > tr:first > td:first > span.title');
+			var $header_links = $worklist.find('> tbody > tr:first td:nth(1)');
 			$header_links.children().each(function(e) {
 				if(!$(this).is('a.minimal, input:checkbox'))
 					$(this).remove();
 			});
-			$header_links.find('a').css('font-size','11px');
 
-			$worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
+			var $worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
 			$worklist_body.find('a.subject').each(function() {
 				$txt = $('<b class="subject"></b>').text($(this).text());
 				$txt.insertBefore($(this));
 				$(this).remove();
 			});
 			
-			$actions = $('#{$view->id}_actions');
+			var $actions = $('#{$view->id}_actions');
 			$actions.html('');
 			
 			// If there is a marquee, add its record to the selection
@@ -92,7 +90,7 @@ $(function() {
 		
 		on_refresh();
 
-		$(this).delegate('DIV[id^=view]','view_refresh', on_refresh);
+		$popup.delegate('DIV[id^=view]','view_refresh', on_refresh);
 		
 		$('#view{$view->id}').delegate('TABLE.worklistBody input:checkbox', 'check', function(event) {
 			var checked = $(this).is(':checked');

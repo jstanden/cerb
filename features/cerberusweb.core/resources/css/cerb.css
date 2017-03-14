@@ -1810,7 +1810,6 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
   background: linear-gradient(top, #eff9ff, white);
   border-color: #79b7e7;
   border-bottom: none;
-  z-index: 2;
 }
 
 .ui-tabs .ui-tabs-nav li.ui-tabs-active a {
