@@ -403,7 +403,23 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 				break;
 				
-
+			case 'set_status':
+				@$to_status = $params['status'];
+				@$current_status = $dict->task_status;
+				
+				switch($to_status) {
+					case 'active':
+					case 'completed':
+						$dict->task_status = $to_status;
+						break;
+				}
+				
+				$out = sprintf(">>> Setting status to: %s\n",
+					$dict->task_status
+				);
+				return $out;
+				break;
+				
 			default:
 				if(preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token))
 					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
@@ -465,15 +481,11 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_status':
-				@$to_status = $params['status'];
-				@$current_status = $dict->task_status;
-				
-				if($to_status == $current_status)
-					break;
+				$this->simulateAction($token, $trigger, $params, $dict);
 				
 				$fields = array();
 					
-				switch($to_status) {
+				switch($dict->task_status) {
 					case 'active':
 						$fields = array(
 							DAO_Task::IS_COMPLETED => 0,
@@ -489,7 +501,6 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				}
 				
 				if(!empty($fields)) {
-					$dict->task_status = $to_status;
 					DAO_Task::update($task_id, $fields);
 				}
 				break;
