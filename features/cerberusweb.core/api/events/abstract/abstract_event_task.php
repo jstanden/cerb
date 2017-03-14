@@ -221,6 +221,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'send_email' => array('label' => 'Send email'),
 				'set_due_date' => array('label' => 'Set task due date'),
 				'set_importance' => array('label' => 'Set task importance'),
+				'set_owner' => array('label' => 'Set task owner'),
 				'set_status' => array('label' => 'Set task status'),
 				'set_links' => array('label' => 'Set links'),
 			)
@@ -271,6 +272,19 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				
 			case 'set_importance':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_number.tpl');
+				break;
+				
+			case 'set_owner':
+				$workers = DAO_Worker::getAllActive();
+				$tpl->assign('workers', $workers);
+
+				$tpl->assign('trigger', $trigger);
+				
+				$event = $trigger->getEvent();
+				$values_to_contexts = $event->getValuesContexts($trigger);
+				$tpl->assign('values_to_contexts', $values_to_contexts);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
 				break;
 				
 			case 'set_status':
@@ -349,6 +363,41 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				);
 				return $out;
 				break;
+			
+			case 'set_owner':
+				@$owner_id = $params['worker_id'];
+				
+				if(empty($task_id))
+					return false;
+				
+				$out = ">>> Setting owner to:\n";
+		
+				// Placeholder?
+				if(!is_numeric($owner_id) && $dict->exists($owner_id)) {
+					if(is_numeric($dict->$owner_id)) {
+						@$owner_id = $dict->$owner_id;
+						
+					} elseif (is_array($dict->$owner_id)) {
+						@$owner_id = key($dict->$owner_id);
+					}
+				}
+				
+				$owner_id = intval($owner_id);
+				
+				if(empty($owner_id)) {
+					$out .= "(nobody)\n";
+					
+				} else {
+					if(null != ($owner_model = DAO_Worker::get($owner_id))) {
+						$out .= $owner_model->getName() . "\n";
+					}
+				}
+				
+				$dict->scrubKeys('task_owner_');
+				$dict->task_owner__context = CerberusContexts::CONTEXT_WORKER;
+				$dict->task_owner_id = $owner_id;
+				return $out;
+				break;
 				
 			case 'set_links':
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
@@ -407,6 +456,12 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				));
 				break;
 				
+			case 'set_owner':
+				$this->simulateAction($token, $trigger, $params, $dict);
+				
+				DAO_Task::update($task_id, array(
+					DAO_Task::OWNER_ID => intval($dict->task_owner_id),
+				));
 				break;
 				
 			case 'set_status':
