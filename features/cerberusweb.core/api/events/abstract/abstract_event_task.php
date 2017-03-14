@@ -464,6 +464,8 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				DAO_Task::update($task_id, array(
 					DAO_Task::DUE_DATE => $dict->task_due,
 				));
+				break;
+				
 			case 'set_importance':
 				$this->simulateAction($token, $trigger, $params, $dict);
 				
