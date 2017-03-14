@@ -44,6 +44,17 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 			'value' => null,
 		);
 		
+		if($task->owner_id) {
+			$properties['owner_id'] = array(
+				'label' => mb_ucfirst($translate->_('common.owner')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $task->owner_id,
+				'params' => [
+					'context' => CerberusContexts::CONTEXT_WORKER,
+				]
+			);
+		}
+		
 		if(!$task->is_completed) {
 			$properties['due_date'] = array(
 				'label' => mb_ucfirst($translate->_('task.due_date')),

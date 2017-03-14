@@ -54,7 +54,7 @@
 			{if $k == 'status'}
 				<b>{'common.status'|devblocks_translate|capitalize}:</b>
 				{if $task->is_completed}
-					<span class="glyphicons glyphicons-circle-ok" style="vertical-align:middle;"></span> <span style="color:rgb(0,150,0);font-weight:bold;">{'task.is_completed'|devblocks_translate|capitalize}</span>
+					<span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,150,0);"></span> <span style="color:rgb(0,150,0);font-weight:bold;">{'task.is_completed'|devblocks_translate|capitalize}</span>
 				{else}
 					{'status.open'|devblocks_translate|capitalize}
 				{/if}
