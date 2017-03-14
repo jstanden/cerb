@@ -56,6 +56,38 @@ $(function() {
 			
 			$actions = $('#{$view->id}_actions');
 			$actions.html('');
+			
+			// If there is a marquee, add its record to the selection
+			var $marquee = $view.find('div.cerb-view-marquee');
+			
+			if($marquee.length > 0) {
+				var $marquee_trigger = $marquee.find('a.cerb-peek-trigger');
+				var $buffer = $('form#chooser{$view->id} UL.buffer');
+				
+				var $label = $marquee_trigger.text();
+				var $value = $marquee_trigger.attr('data-context-id');
+				
+				if($label.length > 0 && $value.length > 0) {
+					if(0==$buffer.find('input:hidden[value="'+$value+'"]').length) {
+						var $li = $('<li></li>').text($label);
+
+						var $hidden = $('<input type="hidden">');
+						$hidden.attr('name', 'to_context_id[]');
+						$hidden.attr('title', $label);
+						$hidden.attr('value', $value);
+						$hidden.appendTo($li);
+						
+						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
+						$a.appendTo($li);
+						
+						$buffer.append($li);
+					}
+					
+					{if $single}
+					$buffer.closest('form').find('button.submit').click();
+					{/if}
+				}
+			}
 		}
 		
 		on_refresh();
