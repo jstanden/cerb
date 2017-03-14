@@ -629,14 +629,14 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function filter_bytes_pretty($string, $precision='0') {
-		if(!is_string($string))
+		if(!is_string($string) && !is_numeric($string))
 			return '';
 		
 		return DevblocksPlatform::strPrettyBytes($string, $precision);
 	}
 	
 	function filter_date_pretty($string, $is_delta=false) {
-		if(!is_string($string))
+		if(!is_string($string) && !is_numeric($string))
 			return '';
 		
 		return DevblocksPlatform::strPrettyTime($string, $is_delta);
