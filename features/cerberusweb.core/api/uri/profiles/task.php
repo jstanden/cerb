@@ -55,6 +55,12 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 			);
 		}
 		
+		$properties['importance'] = array(
+			'label' => mb_ucfirst($translate->_('common.importance')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $task->importance,
+		);
+		
 		if(!$task->is_completed) {
 			$properties['due_date'] = array(
 				'label' => mb_ucfirst($translate->_('task.due_date')),

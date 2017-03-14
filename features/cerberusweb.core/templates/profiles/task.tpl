@@ -61,6 +61,11 @@
 			{elseif $k == 'due_date'}
 				<b>{'task.due_date'|devblocks_translate|capitalize}:</b>
 				<abbr title="{$task->due_date|devblocks_date}" style="{if !$task->is_completed && $task->due_date < time()}font-weight:bold;color:rgb(150,0,0);{/if}">{$task->due_date|devblocks_prettytime}</abbr>
+			{elseif $k == 'importance'}
+				<b>{'common.importance'|devblocks_translate|capitalize}:</b>
+				<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">
+					<div style="position:relative;margin-left:-5px;top:-1px;left:{$task->importance}%;width:10px;height:10px;border-radius:10px;background-color:{if $task->importance < 50}rgb(0,200,0);{elseif $task->importance > 50}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
+				</div>
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
 			{/if}
