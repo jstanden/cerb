@@ -70,6 +70,41 @@ class DevblocksEventHelper {
 		return $value;
 	}
 	
+	public static function getWorkerValues($trigger) {
+		$values = [
+			0 => ['name' => '(' . DevblocksPlatform::translate('common.nobody', DevblocksPlatform::TRANSLATE_LOWER) . ')'],
+		];
+		
+		$workers = DAO_Worker::getAllActive();
+		
+		foreach($workers as $worker) {
+			$values[$worker->id] = ['name' => $worker->getName()];
+		}
+		
+		$event = $trigger->getEvent();
+		$values_to_contexts = $event->getValuesContexts($trigger);
+		
+		foreach($values_to_contexts as $val_key => $context_data) {
+			if($context_data['context'] == CerberusContexts::CONTEXT_WORKER && !$context_data['is_multiple']) {
+				$values[$val_key] = [
+					'name' => (DevblocksPlatform::strStartsWith($context_data['label'], '(') ? '' : '(placeholder) ') . $context_data['label'],
+					'context' => $context_data['context']
+				];
+			}
+		}
+		
+		foreach($trigger->variables as $var_key => $var_data) {
+			if($var_data['type'] != Model_CustomField::TYPE_WORKER)
+				continue;
+			
+			$values[$var_key] = ['name' => '(variable) ' . $var_data['label']];
+		}
+		
+		DevblocksPlatform::sortObjects($values, '[name]');
+
+		return $values;
+	}
+	
 	public static function renderSimulatorTarget($context, $context_id, $trigger, $event_model) {
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -206,8 +241,9 @@ class DevblocksEventHelper {
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
-				$workers = DAO_Worker::getAllActive();
-				$tpl->assign('workers', $workers);
+				$worker_values = DevblocksEventHelper::getWorkerValues($trigger);
+				$tpl->assign('worker_values', $worker_values);
+				
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
 				break;
 		}
@@ -2818,11 +2854,8 @@ class DevblocksEventHelper {
 	 */
 	
 	static function renderActionSetTicketOwner($trigger) {
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl->assign('workers', DAO_Worker::getAllActive());
-		
-		$event = $trigger->getEvent();
-		$tpl->assign('values_to_contexts', $event->getValuesContexts($trigger));
+		$worker_values = DevblocksEventHelper::getWorkerValues($trigger);
+		$tpl->assign('worker_values', $worker_values);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
 	}

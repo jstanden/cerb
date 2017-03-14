@@ -275,14 +275,8 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_owner':
-				$workers = DAO_Worker::getAllActive();
-				$tpl->assign('workers', $workers);
-
-				$tpl->assign('trigger', $trigger);
-				
-				$event = $trigger->getEvent();
-				$values_to_contexts = $event->getValuesContexts($trigger);
-				$tpl->assign('values_to_contexts', $values_to_contexts);
+				$worker_values = DevblocksEventHelper::getWorkerValues($trigger);
+				$tpl->assign('worker_values', $worker_values);
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
 				break;
