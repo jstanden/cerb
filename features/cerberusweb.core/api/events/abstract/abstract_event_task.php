@@ -220,6 +220,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create ticket'),
 				'send_email' => array('label' => 'Send email'),
 				'set_due_date' => array('label' => 'Set task due date'),
+				'set_importance' => array('label' => 'Set task importance'),
 				'set_status' => array('label' => 'Set task status'),
 				'set_links' => array('label' => 'Set links'),
 			)
@@ -266,6 +267,10 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				
 			case 'set_due_date':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
+				break;
+				
+			case 'set_importance':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_number.tpl');
 				break;
 				
 			case 'set_status':
@@ -331,6 +336,19 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				);
 				return $out;
 				break;
+			
+			case 'set_importance':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$value = $tpl_builder->build($params['value'], $dict);
+				$value = DevblocksPlatform::intClamp($value, 0, 100);
+				
+				$dict->task_importance = $value;
+				
+				$out = sprintf(">>> Setting task importance to: %d\n",
+					$dict->task_importance
+				);
+				return $out;
+				break;
 				
 			case 'set_links':
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
@@ -381,6 +399,13 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				DAO_Task::update($task_id, array(
 					DAO_Task::DUE_DATE => $dict->task_due,
 				));
+			case 'set_importance':
+				$this->simulateAction($token, $trigger, $params, $dict);
+				
+				DAO_Task::update($task_id, array(
+					DAO_Task::IMPORTANCE => $dict->task_importance,
+				));
+				break;
 				
 				break;
 				
