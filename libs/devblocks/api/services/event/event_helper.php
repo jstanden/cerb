@@ -3527,12 +3527,16 @@ class DevblocksEventHelper {
 		
 		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-				
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		
-		$title = $tpl_builder->build($params['title'], $dict);
-
-		$due_date = $tpl_builder->build($params['due_date'], $dict);
+ 		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
+		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
+		$owner_id = array_shift($owner_ids) ?: 0;
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$workers = DAO_Worker::getAll();
+		
+		@$title = $tpl_builder->build($params['title'], $dict);
+		@$due_date = $tpl_builder->build($params['due_date'], $dict);
 		
 		if(!is_numeric($due_date))
 			$due_date = intval(@strtotime($due_date));
@@ -3548,6 +3552,12 @@ class DevblocksEventHelper {
 			$params['due_date']
 		);
 
+		if(!empty($owner_id) && isset($workers[$owner_id])) {
+			$out .= sprintf("Owner: %s\n",
+				$workers[$owner_id]->getName()
+			);
+		}
+		
 		// Custom fields
 		$out .= DevblocksEventHelper::simulateActionCreateRecordSetCustomFields($params, $dict);
 		
@@ -3607,11 +3617,15 @@ class DevblocksEventHelper {
 		
 		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-				
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$title = $tpl_builder->build($params['title'], $dict);
 		
-		$due_date = $tpl_builder->build($params['due_date'], $dict);
+ 		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
+		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
+		$owner_id = array_shift($owner_ids) ?: 0;
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		
+		@$title = $tpl_builder->build($params['title'], $dict);
+		@$due_date = $tpl_builder->build($params['due_date'], $dict);
 		
 		if(!is_numeric($due_date))
 			$due_date = intval(@strtotime($due_date));
@@ -3622,6 +3636,7 @@ class DevblocksEventHelper {
 			DAO_Task::TITLE => $title,
 			DAO_Task::UPDATED_DATE => time(),
 			DAO_Task::DUE_DATE => $due_date,
+			DAO_Task::OWNER_ID => $owner_id,
 		);
 		
 		if(false == ($task_id = DAO_Task::create($fields)))
@@ -4559,7 +4574,9 @@ class DevblocksEventHelper {
 	static function mergeWorkerVars($worker_ids, DevblocksDictionaryDelegate $dict, $include_inactive=false) {
 		$workers = DAO_Worker::getAll();
 		
-		if(is_array($worker_ids))
+		if(!is_array($worker_ids))
+			$worker_ids = [$worker_ids];
+		
 		foreach($worker_ids as $k => $worker_id) {
 			if(!is_numeric($worker_id)) {
 				$key = $worker_id;

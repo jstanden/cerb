@@ -8,6 +8,16 @@
 	<input type="text" name="{$namePrefix}[due_date]" size="45" value="{$params.due_date}" class="input_date placeholders">
 </div>
 
+<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_picker.tpl" param_name="owner_id" values_to_contexts=$values_to_contexts single=true}
+</div>
+
+<b>{'common.comment'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<textarea name="{$namePrefix}[comment]" cols="45" rows="5" style="width:100%;" class="placeholders">{$params.comment}</textarea>
+</div>
+
 {if !empty($custom_fields)}
 <fieldset class="peek">
 	<legend>{'common.custom_fields'|devblocks_translate|capitalize}:</legend>
@@ -16,11 +26,6 @@
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_add_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TASK field_wrapper="{$namePrefix}"}
-
-<b>{'common.comment'|devblocks_translate|capitalize}:</b>
-<div style="margin-left:10px;margin-bottom:0.5em;">
-	<textarea name="{$namePrefix}[comment]" cols="45" rows="5" style="width:100%;" class="placeholders">{$params.comment}</textarea>
-</div>
 
 <b>{'common.notify_workers'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
