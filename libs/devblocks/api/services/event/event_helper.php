@@ -3748,7 +3748,10 @@ class DevblocksEventHelper {
 		
 		@$status_id = $params['status_id'];
 		@$reopen_at = $params['reopen_at'];
-		@$owner_id = $params['owner_id'];
+		
+ 		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
+		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
+		$owner_id = array_shift($owner_ids) ?: 0;
 		
 		$out = sprintf(">>> Creating ticket\n".
 			"Group: %s <%s>\n".
@@ -3816,7 +3819,6 @@ class DevblocksEventHelper {
 		@$group_id = $params['group_id'];
 		@$status_id = $params['status_id'];
 		@$reopen_at = $params['reopen_at'];
-		@$owner_id = $params['owner_id'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
 			return;
@@ -3828,11 +3830,15 @@ class DevblocksEventHelper {
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
 		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $dict);
 		
+ 		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
+		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
+		$owner_id = array_shift($owner_ids) ?: 0;
+		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$requesters = $tpl_builder->build($params['requesters'], $dict);
 		$subject = $tpl_builder->build($params['subject'], $dict);
 		$content = $tpl_builder->build($params['content'], $dict);
-				
+		
 		$message = new CerberusParserMessage();
 		$message->headers['date'] = date('r');
 		$message->headers['to'] = $group_replyto->email;
