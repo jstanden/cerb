@@ -653,7 +653,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 		$tpl->assign('pref_errors', $pref_errors);
 
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('preferences')));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences')));
 	}
 
 	function resendConfirmationAction() {

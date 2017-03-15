@@ -1,4 +1,4 @@
-<form action="{devblocks_url}c=preferences{/devblocks_url}" method="post" id="frmWorkerSettings">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmWorkerSettings">
 <input type="hidden" name="c" value="preferences">
 <input type="hidden" name="a" value="saveDefaults">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
