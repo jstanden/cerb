@@ -26,7 +26,7 @@ if(!extension_loaded('mysqli')) {
 }
 
 @set_time_limit(3600); // 1hr
-require('../framework.config.php');
+require_once('../framework.config.php');
 require_once(DEVBLOCKS_PATH . 'Devblocks.class.php');
 require_once(APP_PATH . '/api/Application.class.php');
 require_once(APP_PATH . '/install/classes.php');
@@ -318,14 +318,12 @@ switch($step) {
 		@$db_user = DevblocksPlatform::importGPC($_POST['db_user'],'string');
 		@$db_pass = DevblocksPlatform::importGPC($_POST['db_pass'],'string');
 
-		@$db = DevblocksPlatform::getDatabaseService();
-		if(!is_null($db)) {
+		if(defined('APP_DB_HOST') && defined('APP_DB_DATABASE') && APP_DB_HOST && APP_DB_DATABASE) {
 			// If we've been to this step, skip past framework.config.php
 			$tpl->assign('step', STEP_INIT_DB);
 			$tpl->display('steps/redirect.tpl');
 			exit;
 		}
-		unset($db);
 		
 		// [JAS]: Detect available database drivers
 		
@@ -452,8 +450,7 @@ switch($step) {
 			
 			// If passed, write config file and continue
 			if($db_passed) {
-				@$row = mysqli_fetch_row(mysqli_query($_db, "SHOW VARIABLES LIKE 'character_set_database'"));
-				$encoding = (is_array($row) && 0==strcasecmp($row[1],'utf8')) ? 'utf8' : 'latin1';
+				$encoding = 'utf8';
 				
 				// Write database settings to framework.config.php
 				$result = CerberusInstaller::saveFrameworkConfig($db_driver, $db_engine, $encoding, $db_server, $db_name, $db_user, $db_pass);
@@ -465,6 +462,7 @@ switch($step) {
 					$tpl->assign('template', 'steps/step_config_file.tpl');
 					
 				} else { // skip the config writing step
+					usleep(2500000);
 					$tpl->assign('step', STEP_INIT_DB);
 					$tpl->display('steps/redirect.tpl');
 					exit;
@@ -522,10 +520,13 @@ switch($step) {
 
 	// Initialize the database
 	case STEP_INIT_DB:
-		$tables = array();
+		if(false == ($db = DevblocksPlatform::getDatabaseService()) || !$db || !method_exists($db, 'metaTables')) {
+			$tpl->assign('error', "Can't connect to the database.");
+			$tpl->assign('template', 'steps/step_init_db.tpl');
+			break;
+		}
 		
-		if(false != ($db = DevblocksPlatform::getDatabaseService()))
-			$tables = $db->metaTables();
+		$tables = $db->metaTables();
 		
 		// [TODO] Add current user to patcher/upgrade authorized IPs
 		
@@ -536,6 +537,7 @@ switch($step) {
 			} catch(Exception $e) {
 				$tpl->assign('error', $e->getMessage());
 				$tpl->assign('template', 'steps/step_init_db.tpl');
+				break;
 			}
 			
 			// Read in plugin information from the filesystem to the database
@@ -582,7 +584,7 @@ switch($step) {
 			} catch(Exception $e) {
 				$tpl->assign('error', $e->getMessage());
 				$tpl->assign('template', 'steps/step_init_db.tpl');
-				exit;
+				break;
 			}
 			
 		} else { // upgrade / patch
