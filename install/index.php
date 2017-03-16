@@ -25,6 +25,11 @@ if(!extension_loaded('mysqli')) {
 	die("Cerb requires the 'mysqli' PHP extension.  Please enable it.");
 }
 
+if(!extension_loaded('mbstring')) {
+	header('Status: 500');
+	die("Cerb requires the 'mbstring' PHP extension.  Please enable it.");
+}
+
 @set_time_limit(3600); // 1hr
 require_once('../framework.config.php');
 require_once(DEVBLOCKS_PATH . 'Devblocks.class.php');
