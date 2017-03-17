@@ -3241,6 +3241,7 @@ class DevblocksEventHelper {
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $dict);
+		$url = $tpl_builder->build($params['url'], $dict);
 
 		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
@@ -3270,9 +3271,9 @@ class DevblocksEventHelper {
 				}
 			}
 			
-		} elseif(!empty($params['url'])) {
+		} elseif(!empty($url)) {
 			$out .= sprintf("\n>>> Link to:\n%s\n",
-				$params['url']
+				$url
 			);
 			
 		}
@@ -3314,7 +3315,7 @@ class DevblocksEventHelper {
 		
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $dict);
-		@$url = DevblocksPlatform::importVar($params['url'],'string','');
+		$url = $tpl_builder->build($params['url'], $dict);
 		
 		// On: Are we notifying about something else?
 		
