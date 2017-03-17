@@ -1684,10 +1684,13 @@ class CerberusContexts {
 				foreach($entry['urls'] as $token => $url) {
 					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
 						$url = self::getUrlFromContextUrl($url);
-					} elseif(0 != strcasecmp('http',substr($url,0,4))) {
+						$vars[$token] = '<a href="'.$url.'" style="font-weight:bold;">'.$vars[$token].'</a>';
+					} elseif(0 == strcasecmp('http',substr($url,0,4))) {
+						$vars[$token] = '<a href="'.$url.'" target="_blank" style="font-weight:bold;">'.$vars[$token].'</a>';
+					} else {
 						$url = $url_writer->writeNoProxy($url, true);
+						$vars[$token] = '<a href="'.$url.'" style="font-weight:bold;">'.$vars[$token].'</a>';
 					}
-					$vars[$token] = '<a href="'.$url.'" style="font-weight:bold;">'.$vars[$token].'</a>';
 				}
 				break;
 
@@ -1709,7 +1712,10 @@ class CerberusContexts {
 								$vars[$token]
 							);
 						}
-					} elseif(0 != strcasecmp('http',substr($url,0,4))) {
+					} elseif(0 == strcasecmp('http',substr($url,0,4))) {
+						$vars[$token] = '<a href="'.$url.'" target="_blank" style="font-weight:bold;">'.$vars[$token].'</a>';
+						
+					} else {
 						$url = $url_writer->writeNoProxy($url, true);
 						$vars[$token] = '<a href="'.$url.'" style="font-weight:bold;">'.$vars[$token].'</a>';
 					}
@@ -1721,11 +1727,13 @@ class CerberusContexts {
 				foreach($entry['urls'] as $token => $url) {
 					if(0 == strcasecmp('ctx://',substr($url,0,6))) {
 						$url = self::getUrlFromContextUrl($url);
-					} elseif(0 != strcasecmp('http',substr($url,0,4))) {
+						$vars[$token] = '['.$vars[$token].']('.$url.')';
+					} elseif(0 == strcasecmp('http',substr($url,0,4))) {
+						$vars[$token] = '['.$vars[$token].']('.$url.')';
+					} else {
 						$url = $url_writer->writeNoProxy($url, true);
+						$vars[$token] = '['.$vars[$token].']('.$url.')';
 					}
-
-					$vars[$token] = '['.$vars[$token].']('.$url.')';
 				}
 				break;
 
@@ -1737,11 +1745,13 @@ class CerberusContexts {
 
 				if(0 == strcasecmp('ctx://',substr($url,0,6))) {
 					$url = self::getUrlFromContextUrl($url);
-				} elseif(0 != strcasecmp('http',substr($url,0,4))) {
+					$entry['message'] .= ' <' . $url . '>';
+				} elseif(0 == strcasecmp('http',substr($url,0,4))) {
+					$entry['message'] .= ' <' . $url . '>';
+				} else {
 					$url = $url_writer->writeNoProxy($url, true);
+					$entry['message'] .= ' <' . $url . '>';
 				}
-
-				$entry['message'] .= ' <' . $url . '>';
 				break;
 
 			default:
