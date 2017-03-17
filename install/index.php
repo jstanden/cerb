@@ -924,10 +924,10 @@ If these default groups don't meet your needs, feel free to change them by click
 Simply reply to this message if you have any questions.  Our response will show up on this page as a new message.
 
 For project news, training resources, sneak peeks of development progress, tips & tricks, and more:
+ * https://cerb.ai/docs/home/
  * http://www.facebook.com/cerbapp
- * http://twitter.com/cerb_app
+ * http://twitter.com/cerb_ai
  * https://vimeo.com/channels/cerb
- * http://cerbweb.com/book/latest/worker_guide/
 
 Enjoy!
 -- 
