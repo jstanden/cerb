@@ -949,6 +949,8 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 <b>api/dao/<?php echo $table_name; ?>.php</b><br>
 <textarea style="width:98%;height:200px;">
 class Context_<?php echo $class_name;?> extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	const ID = '<?php echo $ctx_ext_id; ?>';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1487,7 +1489,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{'<?php echo $object_name; ?>'|escape:'javascript' nofilter}");
+		$popup.dialog('option','title',"{'<?php echo $object_name; ?>'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
@@ -1761,14 +1763,14 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		@array_shift($stack); // profiles
 		@array_shift($stack); // <?php echo $table_name; ?> 
 		$id = array_shift($stack); // 123
-
+		
 		@$id = intval($id);
 		
 		if(null == ($<?php echo $table_name; ?> = DAO_<?php echo $class_name; ?>::get($id))) {
 			return;
 		}
 		$tpl->assign('<?php echo $table_name; ?>', $<?php echo $table_name; ?>);
-	
+		
 		// Tab persistence
 		
 		$point = 'profiles.<?php echo $table_name; ?>.tab';
@@ -1778,26 +1780,25 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 			$tab_selected = $visit->get($point, '');
 		}
 		$tpl->assign('tab_selected', $tab_selected);
-	
+		
 		// Properties
-			
+		
 		$properties = array();
-			
+		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $<?php echo $table_name; ?>->name,
 		);
-			
+		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $<?php echo $table_name; ?>->updated_at,
 		);
-			
-	
+		
 		// Custom Fields
-
+		
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('<?php echo $ctx_ext_id; ?>', $<?php echo $table_name; ?>->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
@@ -1807,7 +1808,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
-
+		
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets('<?php echo $ctx_ext_id; ?>', $<?php echo $table_name; ?>->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
@@ -1829,7 +1830,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		// Properties
 		
 		$tpl->assign('properties', $properties);
-			
+		
 		// Macros
 		
 		$macros = DAO_TriggerEvent::getReadableByActor(
@@ -1837,7 +1838,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 			'event.macro.<?php echo $table_name; ?>'
 		);
 		$tpl->assign('macros', $macros);
-
+		
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, '<?php echo $ctx_ext_id; ?>');
 		$tpl->assign('tab_manifests', $tab_manifests);
@@ -1869,6 +1870,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+				@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'], 'string', '');
 				
 				if(empty($name))
 					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
