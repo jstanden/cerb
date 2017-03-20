@@ -51,6 +51,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$view->renderPage = 0;
 		$view->renderLimit = 250;
 		$pos = 0;
+		$max_pages = 4;
 		
 		do {
 			$models = array();
@@ -65,7 +66,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					'title' => $view->name,
 					'created' => time(),
 					'worker_id' => $active_worker->id,
-					'total' => $total,
+					'total' => min($total, $max_pages * $view->renderLimit),
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=tickets', true),
 				);
 				$models[] = $model;
@@ -95,7 +96,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			$view->renderPage++;
 			
-		} while(!empty($results));
+		} while(!empty($results) && $view->renderPage <= $max_pages);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
@@ -124,6 +125,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$view->renderPage = 0;
 		$view->renderLimit = 250;
 		$pos = 0;
+		$max_pages = 4;
 		
 		do {
 			$models = array();
@@ -138,7 +140,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					'title' => $view->name,
 					'created' => time(),
 					//'worker_id' => $active_worker->id,
-					'total' => $total,
+					'total' => min($total, $max_pages * $view->renderLimit),
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=tickets&tab=messages', true),
 //					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
@@ -166,7 +168,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			$view->renderPage++;
 			
-		} while(!empty($results));
+		} while(!empty($results) && $view->renderPage <= $max_pages);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
