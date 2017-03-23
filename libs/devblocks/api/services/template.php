@@ -212,7 +212,11 @@ class _DevblocksTemplateManager {
 		return DevblocksPlatform::strToHyperlinks($string);
 	}
 	
-	static function modifier_devblocks_email_quote($string, $wrap_to=76) {
+	static function modifier_devblocks_email_quote($string, $wrap_to=76, $max_length=50000) {
+		// Max length on what we're quoting
+		if($max_length)
+			$string = substr($string, 0, $max_length);
+		
 		$lines = DevblocksPlatform::parseCrlfString($string, true);
 		$bins = array();
 		$last_prefix = null;
