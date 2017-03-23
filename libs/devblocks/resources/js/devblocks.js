@@ -242,6 +242,9 @@ function DevblocksClass() {
 		});
 	}
 	
+	this.triggerEvent = function(element, e) {
+		$(element).trigger(e);
+	}
 };
 var Devblocks = new DevblocksClass();
 
