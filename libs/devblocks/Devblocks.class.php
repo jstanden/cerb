@@ -734,9 +734,10 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function stripHTML($str, $strip_whitespace=true, $skip_blockquotes=false) {
-		
-		// Pre-process some HTML entities that confuse UTF-8
+	static function stripHTML($str, $strip_whitespace=true, $skip_blockquotes=false, $max_length = 500000) {
+		if($max_length && strlen($str) > $max_length) {
+			$str = substr($str, 0, $max_length);
+		}
 		
 		// Handle XHTML variations
 		$str = preg_replace(
