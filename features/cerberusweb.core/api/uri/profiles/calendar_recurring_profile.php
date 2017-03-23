@@ -134,7 +134,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 			),
 		);
 		
-		if(isset($calendar_recurring_profile->calendar_id)) {
+		if(!empty($calendar_recurring_profile->calendar_id)) {
 			$properties_links[CerberusContexts::CONTEXT_CALENDAR] = array(
 				$calendar_recurring_profile->calendar_id => 
 					DAO_ContextLink::getContextLinkCounts(

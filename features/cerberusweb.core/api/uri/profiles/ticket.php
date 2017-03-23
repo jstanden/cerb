@@ -206,7 +206,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			),
 		);
 		
-		if(isset($ticket->org_id)) {
+		if(!empty($ticket->org_id)) {
 			$properties_links[CerberusContexts::CONTEXT_ORG] = array(
 				$ticket->org_id => 
 					DAO_ContextLink::getContextLinkCounts(

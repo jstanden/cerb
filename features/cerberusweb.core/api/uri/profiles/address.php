@@ -116,7 +116,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			),
 		);
 		
-		if(isset($address->contact_org_id)) {
+		if(!empty($address->contact_org_id)) {
 			$properties_links[CerberusContexts::CONTEXT_ORG] = array(
 				$address->contact_org_id => 
 					DAO_ContextLink::getContextLinkCounts(

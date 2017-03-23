@@ -126,7 +126,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 			),
 		);
 		
-		if(isset($opp->primary_email_id)) {
+		if(!empty($opp->primary_email_id)) {
 			$properties_links[CerberusContexts::CONTEXT_ADDRESS] = array(
 				$opp->primary_email_id => 
 					DAO_ContextLink::getContextLinkCounts(

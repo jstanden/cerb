@@ -96,7 +96,7 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 			),
 		);
 		
-		if(isset($event->calendar_id)) {
+		if(!empty($event->calendar_id)) {
 			$properties_links[CerberusContexts::CONTEXT_CALENDAR] = array(
 				$event->calendar_id => 
 					DAO_ContextLink::getContextLinkCounts(
