@@ -110,14 +110,14 @@
 		</fieldset>
 		{/if}
 
-		{if 0==$attachments_mode || (1==$attachments_mode && !empty($active_contact))}
+		{if 0 == $attachments_mode || (1 == $attachments_mode && !empty($active_contact))}
 		<fieldset>
 			<legend>Attachments:</legend>
 			<input type="file" name="attachments[]" multiple="multiple"><br>
 		</fieldset>
 		{/if}
 		
-		{if $captcha_enabled}
+		{if 1 == $captcha_enabled || (2 == $captcha_enabled && empty($active_contact))}
 		<fieldset>
 			<legend>{'portal.public.captcha_instructions'|devblocks_translate}</legend>
 			{'portal.sc.public.contact.text'|devblocks_translate} <input type="text" id="captcha" name="captcha" class="question" value="" size="10" autocomplete="off"><br>

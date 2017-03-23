@@ -3318,16 +3318,6 @@
 				<seg>(helpdesk e-mailadres, leeg laten voor %s)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.disabled">
-			<tuv xml:lang="nl_NL">
-				<seg>Uitgeschakeld</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.enabled">
-			<tuv xml:lang="nl_NL">
-				<seg>Ingeschakeld</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.favicon_url">
 			<tuv xml:lang="nl_NL">
 				<seg/>
@@ -3499,19 +3489,9 @@
 				<seg>Sta bijlages van:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.anybody">
-			<tuv xml:lang="nl_NL">
-				<seg>Iedereen</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments.logged_in">
 			<tuv xml:lang="nl_NL">
 				<seg>Ingelogde bezoekers</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.nobody">
-			<tuv xml:lang="nl_NL">
-				<seg>Niemand</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.reason_contacting">

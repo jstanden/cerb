@@ -3323,16 +3323,6 @@
 				<seg>(адрес электронной почты хелпдеска, если отсутствует то %s)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.disabled">
-			<tuv xml:lang="ru_RU">
-				<seg>Выключен</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.enabled">
-			<tuv xml:lang="ru_RU">
-				<seg>Включен</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.favicon_url">
 			<tuv xml:lang="ru_RU">
 				<seg/>
@@ -3503,19 +3493,9 @@
 				<seg>Разрешить вложения из:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.anybody">
-			<tuv xml:lang="ru_RU">
-				<seg>Anybody</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments.logged_in">
 			<tuv xml:lang="ru_RU">
 				<seg>Logged in visitors</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.nobody">
-			<tuv xml:lang="ru_RU">
-				<seg>Nobody</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.reason_contacting">

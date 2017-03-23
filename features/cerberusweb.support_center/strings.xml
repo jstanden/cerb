@@ -30,12 +30,6 @@
 		<tu tuid='portal.cfg.deliver_to_hint'>
 			<tuv xml:lang="en_US"><seg>(helpdesk email address, blank for %s)</seg></tuv>
 		</tu>
-		<tu tuid='portal.cfg.disabled'>
-			<tuv xml:lang="en_US"><seg>Disabled</seg></tuv>
-		</tu>
-		<tu tuid='portal.cfg.enabled'>
-			<tuv xml:lang="en_US"><seg>Enabled</seg></tuv>
-		</tu>
 		<tu tuid='portal.cfg.favicon_url'>
 			<tuv xml:lang="en_US"><seg>Favicon URL:</seg></tuv>
 		</tu>
@@ -121,14 +115,8 @@
 		<tu tuid='portal.sc.cfg.open_ticket.attachments'>
 			<tuv xml:lang="en_US"><seg>Allow attachments from:</seg></tuv>
 		</tu>
-		<tu tuid='portal.sc.cfg.open_ticket.attachments.anybody'>
-			<tuv xml:lang="en_US"><seg>Anybody</seg></tuv>
-		</tu>
 		<tu tuid='portal.sc.cfg.open_ticket.attachments.logged_in'>
 			<tuv xml:lang="en_US"><seg>Logged in visitors</seg></tuv>
-		</tu>
-		<tu tuid='portal.sc.cfg.open_ticket.attachments.nobody'>
-			<tuv xml:lang="en_US"><seg>Nobody</seg></tuv>
 		</tu>
 		<tu tuid='portal.sc.cfg.reason_contacting'>
 			<tuv xml:lang="en_US"><seg>Reason for contacting:</seg></tuv>

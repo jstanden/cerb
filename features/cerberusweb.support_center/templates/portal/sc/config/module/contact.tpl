@@ -4,15 +4,16 @@
 <br>
 
 <b>{'portal.sc.cfg.open_ticket.attachments'|devblocks_translate}</b><br>
-<label><input type="radio" name="attachments_mode" value="0" {if !$attachments_mode}checked="checked"{/if}> {'portal.sc.cfg.open_ticket.attachments.anybody'|devblocks_translate}</label>
+<label><input type="radio" name="attachments_mode" value="0" {if !$attachments_mode}checked="checked"{/if}> {'common.everyone'|devblocks_translate|capitalize}</label>
 <label><input type="radio" name="attachments_mode" value="1" {if 1==$attachments_mode}checked="checked"{/if}> {'portal.sc.cfg.open_ticket.attachments.logged_in'|devblocks_translate}</label>
-<label><input type="radio" name="attachments_mode" value="2" {if 2==$attachments_mode}checked="checked"{/if}> {'portal.sc.cfg.open_ticket.attachments.nobody'|devblocks_translate}</label>
+<label><input type="radio" name="attachments_mode" value="2" {if 2==$attachments_mode}checked="checked"{/if}> {'common.nobody'|devblocks_translate|capitalize}</label>
 <br>
 <br>
 
 <b>{'portal.cfg.captcha'|devblocks_translate}</b> {'portal.cfg.captcha_hint'|devblocks_translate}<br>
-<label><input type="radio" name="captcha_enabled" value="1" {if $captcha_enabled}checked="checked"{/if}> {'portal.cfg.enabled'|devblocks_translate}</label>
-<label><input type="radio" name="captcha_enabled" value="0" {if !$captcha_enabled}checked="checked"{/if}> {'portal.cfg.disabled'|devblocks_translate}</label>
+<label><input type="radio" name="captcha_enabled" value="1" {if 1 == $captcha_enabled}checked="checked"{/if}> {'common.everyone'|devblocks_translate|capitalize}</label>
+<label><input type="radio" name="captcha_enabled" value="2" {if 2 == $captcha_enabled}checked="checked"{/if}> {'common.anonymous'|devblocks_translate|capitalize}</label>
+<label><input type="radio" name="captcha_enabled" value="0" {if !$captcha_enabled}checked="checked"{/if}> {'common.nobody'|devblocks_translate|capitalize}</label>
 <br>
 <br>
 

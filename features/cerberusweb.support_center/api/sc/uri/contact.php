@@ -317,7 +317,8 @@ class UmScContactController extends Extension_UmScController {
 		}
 		
 		// Sender and CAPTCHA required
-		if(empty($sFrom) || ($captcha_enabled && !empty($captcha_session) && 0 != strcasecmp($sCaptcha, $captcha_session))) {
+		$captcha_required = (1 == $captcha_enabled || (2 == $captcha_enabled && empty($active_contact)));
+		if(empty($sFrom) || ($captcha_required && !empty($captcha_session) && 0 != strcasecmp($sCaptcha, $captcha_session))) {
 			
 			if(empty($sFrom)) {
 				$umsession->setProperty('support.write.last_error','Invalid email address.');

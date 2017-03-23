@@ -3318,16 +3318,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.disabled">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.enabled">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.favicon_url">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -3498,17 +3488,7 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.anybody">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments.logged_in">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.nobody">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

@@ -735,7 +735,7 @@
 		</tu>
 		<tu tuid="common.anybody">
 			<tuv xml:lang="pt_PT">
-				<seg>qualquer um</seg>
+				<seg>Qualquer</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.assign">
@@ -3333,16 +3333,6 @@
 				<seg>(endereço de email do helpdesk, deixar em branco para %s)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.disabled">
-			<tuv xml:lang="pt_PT">
-				<seg>Inactivo</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.enabled">
-			<tuv xml:lang="pt_PT">
-				<seg>Activo</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.favicon_url">
 			<tuv xml:lang="pt_PT">
 				<seg/>
@@ -3513,19 +3503,9 @@
 				<seg>Permitir anexos de:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.anybody">
-			<tuv xml:lang="pt_PT">
-				<seg>Qualquer</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments.logged_in">
 			<tuv xml:lang="pt_PT">
 				<seg>Visitantes em sessão</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.nobody">
-			<tuv xml:lang="pt_PT">
-				<seg>Ninguém</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.reason_contacting">

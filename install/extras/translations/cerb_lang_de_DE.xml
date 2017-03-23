@@ -738,9 +738,9 @@
 				<seg>jeder</seg>
 			</tuv>
 		</tu>
-		<tu changeid="jstanden" changedate="20141217T224803Z" tuid="common.anybody">
+		<tu tuid="common.anybody">
 			<tuv xml:lang="de_DE">
-				<seg>jemand</seg>
+				<seg>Jedermann</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.assign">
@@ -3323,16 +3323,6 @@
 				<seg>(Helpdesk-Email, leer für %s)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.disabled">
-			<tuv xml:lang="de_DE">
-				<seg>Deaktiviert</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.enabled">
-			<tuv xml:lang="de_DE">
-				<seg>Aktiviert</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.favicon_url">
 			<tuv xml:lang="de_DE">
 				<seg/>
@@ -3503,19 +3493,9 @@
 				<seg>Erlaube Anhänge von:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.anybody">
-			<tuv xml:lang="de_DE">
-				<seg>Jedermann</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments.logged_in">
 			<tuv xml:lang="de_DE">
 				<seg>Eingeloggte Besucher</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.nobody">
-			<tuv xml:lang="de_DE">
-				<seg>Niemand</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.reason_contacting">

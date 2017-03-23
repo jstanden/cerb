@@ -3328,16 +3328,6 @@
 				<seg>(dirección de correo electrónico del helpdesk, dejar vacío para %s)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.disabled">
-			<tuv xml:lang="es_ES">
-				<seg>Deshabilitado</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.enabled">
-			<tuv xml:lang="es_ES">
-				<seg>Habilitado</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.favicon_url">
 			<tuv xml:lang="es_ES">
 				<seg/>
@@ -3508,19 +3498,9 @@
 				<seg>Permitir adjuntos de:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.anybody">
-			<tuv xml:lang="es_ES">
-				<seg>Cualquiera</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.sc.cfg.open_ticket.attachments.logged_in">
 			<tuv xml:lang="es_ES">
 				<seg>Visitantes identificados</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.sc.cfg.open_ticket.attachments.nobody">
-			<tuv xml:lang="es_ES">
-				<seg>Nadie</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.reason_contacting">
