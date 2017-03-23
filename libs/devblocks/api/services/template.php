@@ -223,6 +223,11 @@ class _DevblocksTemplateManager {
 		
 		// Sort lines into bins
 		foreach($lines as $i => $line) {
+			// If a line is all whitespace and quotes, and the previous line is the same, skip it
+			if($i && preg_match("/^[ >]+$/", $lines[$i-1], $matches) && preg_match("/^[ >]+$/", $line, $matches)) {
+				continue;
+			}
+			
 			$prefix = '';
 
 			if(preg_match("/^((\> )+)/", $line, $matches))
