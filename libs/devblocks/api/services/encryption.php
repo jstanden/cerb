@@ -19,9 +19,15 @@ class _DevblocksEncryptionService {
 		if(!$key_ascii)
 			$key_ascii = $this->_getSystemKey();
 		
-		$key = Defuse\Crypto\Key::loadFromAsciiSafeString($key_ascii);
-		$raw_ciphertext = Defuse\Crypto\Crypto::encrypt($data, $key, true);
-		$ciphertext = base64_encode($raw_ciphertext);
+		try {
+			$key = Defuse\Crypto\Key::loadFromAsciiSafeString($key_ascii);
+			$raw_ciphertext = Defuse\Crypto\Crypto::encrypt($data, $key, true);
+			$ciphertext = base64_encode($raw_ciphertext);
+			
+		} catch (Exception $e) {
+			return false;
+		}
+		
 		return $ciphertext;
 	}
 	
@@ -29,8 +35,14 @@ class _DevblocksEncryptionService {
 		if(!$key_ascii)
 			$key_ascii = $this->_getSystemKey();
 		
-		$key = Defuse\Crypto\Key::loadFromAsciiSafeString($key_ascii);
-		$plaintext = Defuse\Crypto\Crypto::decrypt(base64_decode($ciphertext), $key, true);
+		try {
+			$key = Defuse\Crypto\Key::loadFromAsciiSafeString($key_ascii);
+			$plaintext = Defuse\Crypto\Crypto::decrypt(base64_decode($ciphertext), $key, true);
+			
+		} catch (Exception $e) {
+			return false;
+		}
+		
 		return $plaintext;
 	}
 	
