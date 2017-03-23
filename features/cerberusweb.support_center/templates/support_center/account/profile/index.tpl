@@ -325,7 +325,7 @@ $(function() {
 	});
 	
 	$form.find('button.submit').click(function() {
-		if(0 == $(img).attr('src').length) {
+		if(!img || !$(img).attr('src') || 0 == $(img).attr('src').length) {
 			$imagedata.val('data:null');
 		} else {
 			$imagedata.val(canvas.toDataURL());
@@ -339,6 +339,8 @@ $(function() {
 	{if $imagedata}
 		img.src = "{$imagedata}";
 		$canvas.trigger('avatar-redraw');
+	{else}
+		img.src = "";
 	{/if}
 });
 </script>
