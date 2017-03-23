@@ -169,16 +169,16 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$types['subject'] = Model_CustomField::TYPE_SINGLE_LINE;
 		$types['body'] = Model_CustomField::TYPE_MULTI_LINE;
 		$types['encoding'] = Model_CustomField::TYPE_SINGLE_LINE;
-	
-		$types['attachment_mimetype'] = Model_CustomField::TYPE_SINGLE_LINE;
-		$types['attachment_name'] = Model_CustomField::TYPE_SINGLE_LINE;
-		$types['attachment_size'] = 'size_bytes';
+		
+		$types['attachment_mimetype'] = null; // Leave this null
+		$types['attachment_name'] = null;  // Leave this null
+		$types['attachment_size'] = null;  // Leave this null
 		$types['attachment_count'] = Model_CustomField::TYPE_NUMBER;
 		$types['header'] = null;
 		$types['is_new'] = Model_CustomField::TYPE_CHECKBOX;
 		$types['recipients'] = null;
 		$types['sender_is_worker'] = Model_CustomField::TYPE_CHECKBOX;
-
+		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
 		return $conditions;
