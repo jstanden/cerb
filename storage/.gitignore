@@ -3,6 +3,7 @@ attachments
 context_avatar
 message_content
 tmp/cache
+tmp/mime*
 tmp/templates_c
 tmp/__Twig*
 version.php

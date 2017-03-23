@@ -559,6 +559,9 @@ class ParseFileBuffer extends ParserFile {
 		$this->setTempFile(ParserFile::makeTempFilename(), @$section->data['content-type']);
 		$fp = fopen($this->getTempFile(),'wb');
 
+		if(isset($section->data))
+			$this->info = $section->data;
+		
 		if($fp && $section) {
 			$section->extract_body(MAILPARSE_EXTRACT_STREAM, $fp);
 		}
