@@ -167,7 +167,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			return true;
 		});
 		
-		return CerberusContexts::filterModelsByActorWriteable('Context_Calendar', $calendar, $actor);
+		return CerberusContexts::filterModelsByActorWriteable('Context_Calendar', $calendars, $actor);
 	}
 	
 	static function getOwnedByWorker($worker) {
