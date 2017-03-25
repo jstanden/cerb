@@ -872,15 +872,22 @@ var ajax = new cAjaxCalls();
 				// Open peek
 				var $peek = genericAjaxPopup(layer,peek_url,null,false,width);
 				
-				$trigger.trigger('cerb-peek-opened');
+				var peek_open_event = new jQuery.Event('cerb-peek-opened');
+				peek_open_event.peek_layer = layer;
+				peek_open_event.peek_context = context;
+				peek_open_event.peek_context_id = context_id;
+				peek_open_event.popup_ref = $peek;
+				$trigger.trigger(peek_open_event);
 				
 				$peek.on('peek_saved', function(e) {
 					e.type = 'cerb-peek-saved';
+					e.context = context;
 					$trigger.trigger(e);
 				});
 				
 				$peek.on('peek_deleted', function(e) {
 					e.type = 'cerb-peek-deleted';
+					e.context = context;
 					$trigger.trigger(e);
 				});
 				
