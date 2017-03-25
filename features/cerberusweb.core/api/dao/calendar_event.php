@@ -1143,6 +1143,10 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 								$model->calendar_id = intval($v);
 								break;
 								
+							case 'end':
+								$model->date_end = intval($v);
+								break;
+								
 							case 'start':
 								$model->date_start = intval($v);
 								break;

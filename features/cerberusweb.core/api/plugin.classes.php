@@ -46,7 +46,7 @@ class ChPageController extends DevblocksControllerExtension {
 		if(null != ($page_manifest = CerberusApplication::getPageManifestByUri($controller))) {
 			$page = $page_manifest->createInstance(); /* @var $page CerberusPageExtension */
 		}
-
+		
 		if(empty($page)) {
 			switch($controller) {
 				case "portal":

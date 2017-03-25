@@ -548,6 +548,10 @@ class Model_ConnectedAccount {
 	public $created_at;
 	public $updated_at;
 	
+	public function getExtension() {
+		return Extension_ServiceProvider::get($this->extension_id);
+	}
+	
 	public function decryptParams($actor=null) {
 		if($actor && !Context_ConnectedAccount::isReadableByActor($this, $actor))
 			return false;
@@ -557,7 +561,7 @@ class Model_ConnectedAccount {
 		if(false == ($json = $encrypt->decrypt($this->params_json_encrypted)))
 			return false;
 		
-		if(false == ($params = json_decode($json, true)))
+		if(!$json || false == ($params = json_decode($json, true)))
 			return false;
 		
 		return $params;
