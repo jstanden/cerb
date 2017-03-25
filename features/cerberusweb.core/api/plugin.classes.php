@@ -598,7 +598,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(!empty($params) && is_array($params))
 			$url .= '?' . http_build_query($params);
 		
-		$ch = DevblocksPlatform::curlInit($url);
+		$ch = DevblocksPlatform::curlInit();
 		
 		if(isset($options['ignore_ssl_validation']) && $options['ignore_ssl_validation']) {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -632,6 +632,8 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			if(false == $connected_account->authenticateHttpRequest($ch, $verb, $url, $body, $headers, CerberusContexts::getCurrentActor()))
 				return false;
 		}
+		
+		curl_setopt($ch, CURLOPT_URL, $url);
 		
 		if(!empty($headers))
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
