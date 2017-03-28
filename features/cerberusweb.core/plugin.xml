@@ -341,6 +341,7 @@
 		</file>
 		
 		<file path="api/dao/group.php">
+			<class name="Context_Group" />
 			<class name="DAO_Group" />
 			<class name="DAO_GroupSettings" />
 			<class name="Model_Group" />
@@ -434,6 +435,7 @@
 		</file>
 		
 		<file path="api/dao/task.php">
+			<class name="Context_Task" />
 			<class name="DAO_Task" />
 			<class name="Model_Task" />
 			<class name="SearchFields_Task" />
@@ -441,6 +443,7 @@
 		</file>
 		
 		<file path="api/dao/ticket.php">
+			<class name="Context_Ticket" />
 			<class name="DAO_Ticket" />
 			<class name="Model_Ticket" />
 			<class name="SearchFields_Ticket" />
