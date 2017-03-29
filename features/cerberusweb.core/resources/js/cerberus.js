@@ -898,6 +898,46 @@ var ajax = new cAjaxCalls();
 		});
 	};
 
+	// Abstract query builder
+	
+	$.fn.cerbQueryTrigger = function(options) {
+		return this.each(function() {
+			var $trigger = $(this);
+			
+			if(!($trigger.is('input[type=text]')))
+				return;
+			
+			$trigger
+				.css('color', 'rgb(100,100,100)')
+				.css('cursor', 'text')
+				.attr('readonly', 'readonly')
+				.attr('placeholder', '(click to edit)')
+			;
+			
+			// Context
+			
+			$trigger.on('click keypress', function(e) {
+				e.stopPropagation();
+				
+				var width = $(window).width()-100;
+				var q = $trigger.val();
+				var context = $trigger.attr('data-context');
+				
+				if(!(typeof context == "string") || 0 == context.length)
+					return;
+				
+				var $chooser = genericAjaxPopup("chooser" + Devblocks.uniqueId(),'c=internal&a=chooserOpenParams&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q),null,true,width);
+				
+				$chooser.on('chooser_save',function(event) {
+					$trigger.val(event.worklist_quicksearch);
+					
+					event.type = 'cerb-query-saved';
+					$trigger.trigger(event);
+				});
+			});
+		});
+	}
+	
 	// Abstract template builder
 	
 	$.fn.cerbTemplateTrigger = function(options) {
