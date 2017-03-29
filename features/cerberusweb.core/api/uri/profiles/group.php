@@ -100,26 +100,6 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.group'
-		);
-
-		// Filter macros to only those owned by the current group
-		
-		$macros = array_filter($macros, function($macro) use ($group) { /* @var $macro Model_TriggerEvent */
-			$va = $macro->getBot(); /* @var $va Model_Bot */
-			
-			if($va->owner_context == CerberusContexts::CONTEXT_GROUP && $va->owner_context_id != $group->id)
-				return false;
-			
-			return true;
-		});
-		
-		$tpl->assign('macros', $macros);
-
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_GROUP);
 		$tpl->assign('tab_manifests', $tab_manifests);

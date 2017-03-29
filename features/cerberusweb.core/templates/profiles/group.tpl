@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_GROUP}
 {$page_context_id = $group->id}
+{$is_writeable = Context_Group::isWriteableByActor($group, $active_worker)}
 
 {$members = $group->getMembers()}
 {$buckets = $group->getBuckets()}
@@ -16,17 +17,14 @@
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 			<!-- Macros -->
-			{if $active_worker->isGroupManager($group->id) || $active_worker->is_superuser}
-				{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
-					{devblocks_url assign=return_url full=true}c=profiles&tab=group&id={$page_context_id}-{$group->name|devblocks_permalink}{/devblocks_url}
-					{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
-				{/if}
+			{if $is_writeable}
+			{devblocks_url assign=return_url full=true}c=profiles&tab=group&id={$page_context_id}-{$group->name|devblocks_permalink}{/devblocks_url}
+			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.group" return_url=$return_url}
 			{/if}
 		
-			{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
-				<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			{if $is_writeable}
+			<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
-			
 		</form>
 		
 		{if $pref_keyboard_shortcuts}
@@ -150,8 +148,6 @@ $(function() {
 		})
 		;
 	{/if}
-	
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 

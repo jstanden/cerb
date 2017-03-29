@@ -110,14 +110,6 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 			
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.bucket'
-		);
-		$tpl->assign('macros', $macros);
-
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_BUCKET);
 		$tpl->assign('tab_manifests', $tab_manifests);

@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_TASK}
 {$page_context_id = $task->id}
+{$is_writeable = Context_Task::isWriteableByActor($task, $active_worker)}
 
 <div style="float:left;">
 	<h1>{$task->title}</h1>
@@ -26,11 +27,15 @@
 		</span>
 
 		<!-- Macros -->
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=task&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.task" return_url=$return_url}
+		{/if}
 
 		<!-- Edit -->
+		{if $is_writeable}
 		<button type="button" id="btnDisplayTaskEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_TASK}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{/if}
 
 		<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location='{devblocks_url}c=profiles&type=task&id={$page_context_id}-{$task->title|devblocks_permalink}{/devblocks_url}';">&nbsp;<span class="glyphicons glyphicons-refresh"></span></a>&nbsp;</button>
 	</form>
@@ -129,9 +134,6 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
-	
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
-	
 });
 </script>
 

@@ -109,17 +109,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		// Properties
 		
 		$tpl->assign('properties', $properties);
-			
-		// Macros
 		
-		/*
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.snippet'
-		);
-		$tpl->assign('macros', $macros);
-		*/
-
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_SNIPPET);
 		$tpl->assign('tab_manifests', $tab_manifests);

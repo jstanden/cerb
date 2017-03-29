@@ -223,26 +223,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.ticket'
-		);
-		
-		// Filter macros to only those owned by the ticket's group
-		
-		$macros = array_filter($macros, function($macro) use ($ticket) { /* @var $macro Model_TriggerEvent */
-			$va = $macro->getBot(); /* @var $va Model_Bot */
-			
-			if($va->owner_context == CerberusContexts::CONTEXT_GROUP && $va->owner_context_id != $ticket->group_id)
-				return false;
-			
-			return true;
-		});
-		
-		$tpl->assign('macros', $macros);
-		
 		// Requesters
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket->id);
 		$tpl->assign('requesters', $requesters);

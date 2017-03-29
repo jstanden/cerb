@@ -21,8 +21,10 @@
 			</span>
 			
 			<!-- Macros -->
+			{if $is_writeable}
 			{devblocks_url assign=return_url full=true}c=profiles&type=bot&id={$page_context_id}-{$model->name|devblocks_permalink}{/devblocks_url}
-			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.bot" return_url=$return_url}
+			{/if}
 			
 			<!-- Edit -->
 			{if $is_writeable}
@@ -141,8 +143,6 @@ $(function() {
 		})
 		;
 	{/if}
-	
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 

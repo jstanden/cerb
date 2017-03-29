@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}
 {$page_context_id = $model->id}
+{$is_writeable = Context_ClassifierExample::isWriteableByActor($model, $active_worker)}
 
 <div style="float:left;" class="cerb-expression-editor">
 	<div class="expression">
@@ -21,11 +22,15 @@
 		<!-- Toolbar -->
 		
 		<!-- Macros -->
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=classifier_example&id={$page_context_id}-{$model->expression|devblocks_permalink}{/devblocks_url}
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+		{/if}
 		
 		<!-- Edit -->
+		{if $is_writeable}
 		<button type="button" id="btnDisplayClassifierExampleEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</button>
+		{/if}
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -98,8 +103,6 @@ $(function() {
 			document.location.reload();
 		});
 	});
-
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 

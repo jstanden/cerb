@@ -153,14 +153,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ORG);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.org'
-		);
-		$tpl->assign('macros', $macros);
-
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/organization.tpl');
 	}

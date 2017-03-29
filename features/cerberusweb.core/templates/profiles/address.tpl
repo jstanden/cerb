@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_ADDRESS}
 {$page_context_id = $address->id}
+{$is_writeable = Context_Address::isWriteableByActor($address, $active_worker)}
 
 <div style="float:left;margin-right:10px;">
 	<img src="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}" style="height:75px;width:75px;border-radius:5px;">
@@ -25,11 +26,15 @@
 			</span>
 		
 			<!-- Macros -->
+			{if $is_writeable}
 			{devblocks_url assign=return_url full=true}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}
-			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
+			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.address" return_url=$return_url}
+			{/if}
 		
 			<!-- Toolbar -->
+			{if $is_writeable}
 			<button type="button" id="btnDisplayAddyEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			{/if}
 		</form>
 		
 		{if $pref_keyboard_shortcuts}
@@ -113,8 +118,6 @@ $(function() {
 			document.location.href = '{devblocks_url}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}';
 		});
 	});
-	
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 

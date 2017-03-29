@@ -117,14 +117,6 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 			
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.connected_account'
-		);
-		$tpl->assign('macros', $macros);
-
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT);
 		$tpl->assign('tab_manifests', $tab_manifests);

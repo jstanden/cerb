@@ -101,14 +101,6 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 			
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.file_bundle'
-		);
-		$tpl->assign('macros', $macros);
-
 		// Attachments
 		
 		$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_FILE_BUNDLE, $file_bundle->id);

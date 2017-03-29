@@ -147,14 +147,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.crm.opportunity'
-		);
-		$tpl->assign('macros', $macros);
-		
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_OPPORTUNITY);
 		$tpl->assign('tab_manifests', $tab_manifests);

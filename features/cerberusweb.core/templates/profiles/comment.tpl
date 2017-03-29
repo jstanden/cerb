@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_COMMENT}
 {$page_context_id = $comment->id}
+{$is_writeable = Context_Comment::isWriteableByActor($comment, $active_worker)}
 
 <div style="float:left">
 	<div style="float:left;margin:0px 10px 0px 0px;">
@@ -33,11 +34,17 @@
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 		<!-- Macros -->
+		{*
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=comment&id={$page_context_id}-{$comment->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.comment" return_url=$return_url}
+		{/if}
+		*}
 		
 		<!-- Edit -->
+		{if $is_writeable}
 		<button type="button" id="btnDisplayCommentEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{/if}
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -121,8 +128,6 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
-	
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 

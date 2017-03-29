@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_WORKER}
 {$page_context_id = $worker->id}
+{$is_writeable = Context_Worker::isWriteableByActor($worker, $active_worker)}
 
 {$memberships = $worker->getMemberships()}
 
@@ -34,15 +35,17 @@
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			
 			<!-- Macros -->
-			{if $active_worker->is_superuser || $worker->id == $active_worker->id}
-				{if !empty($page_context) && !empty($page_context_id) && !empty($macros)}
-					{devblocks_url assign=return_url full=true}c=profiles&tab=worker&id={$page_context_id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}
-					{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
-				{/if}
+			{if $is_writeable}
+				{devblocks_url assign=return_url full=true}c=profiles&tab=worker&id={$page_context_id}-{$worker->getName()|devblocks_permalink}{/devblocks_url}
+				{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.worker" return_url=$return_url}
 			{/if}
-		
+			
 			{if $active_worker->is_superuser && $worker->id != $active_worker->id}<button type="button" id="btnProfileWorkerPossess"><span class="glyphicons glyphicons-user"></span> Impersonate</button>{/if}
-			{if $active_worker->is_superuser}<button type="button" id="btnProfileWorkerEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>{/if}
+			
+			{if $is_writeable}
+			<button type="button" id="btnProfileWorkerEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			{/if}
+			
 			{if !$active_worker->is_superuser && $worker->id == $active_worker->id}<button type="button" id="btnProfileWorkerSettings" title="{'common.settings'|devblocks_translate|capitalize}" onclick="document.location='{devblocks_url}c=preferences{/devblocks_url}';"><span class="glyphicons glyphicons-cogwheel"></span></button>{/if}
 		</form>
 		
@@ -179,8 +182,6 @@ $(function() {
 		});
 	});
 });
-
-{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 </script>
 
 <script type="text/javascript">

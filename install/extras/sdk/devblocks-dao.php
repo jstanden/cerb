@@ -1831,14 +1831,6 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		
 		$tpl->assign('properties', $properties);
 		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.<?php echo $table_name; ?>'
-		);
-		$tpl->assign('macros', $macros);
-		
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, '<?php echo $ctx_ext_id; ?>');
 		$tpl->assign('tab_manifests', $tab_manifests);
@@ -2045,8 +2037,10 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		</span>
 		
 		<!-- Macros -->
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=<?php echo $table_name; ?>&id={$page_context_id}-{$<?php echo $table_name; ?>->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.<?php echo $table_name; ?>" return_url=$return_url}
+		{/if}
 		
 		<!-- Edit -->
 		{if $is_writeable}
@@ -2137,8 +2131,6 @@ $(function() {
 		})
 		;
 	{/if}
-	
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 

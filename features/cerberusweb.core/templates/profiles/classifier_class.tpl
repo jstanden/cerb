@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS}
 {$page_context_id = $classifier_class->id}
+{$is_writeable = Context_ClassifierClass::isWriteableByActor($classifier_class, $active_worker)}
 
 <div style="float:left">
 	<h1>{$classifier_class->name}</h1>
@@ -24,11 +25,17 @@
 		</span>
 		
 		<!-- Macros -->
+		{*
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=classifier_class&id={$page_context_id}-{$classifier_class->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.classifier_class" return_url=$return_url}
+		{/if}
+		*}
 		
 		<!-- Edit -->
+		{if $is_writeable}
 		<button type="button" id="btnDisplayClassifierClassEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</button>
+		{/if}
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -101,14 +108,12 @@ $(function() {
 	var tabs = $("#classifier_classTabs").tabs(tabOptions);
 	
 	$('#btnDisplayClassifierClassEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
+		var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
 		$popup.one('classifier_class_save', function(event) {
 			event.stopPropagation();
 			document.location.reload();
 		});
 	});
-
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 

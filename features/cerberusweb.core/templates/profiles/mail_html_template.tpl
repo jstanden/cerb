@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}
 {$page_context_id = $mail_html_template->id}
+{$is_writeable = Context_MailHtmlTemplate::isWriteableByActor($mail_html_template, $active_worker)}
 
 <div style="float:left">
 	<h1>{$mail_html_template->name}</h1>
@@ -26,11 +27,15 @@
 		*}
 		
 		<!-- Macros -->
+		{*
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=html_template&id={$page_context_id}-{$mail_html_template->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.mail_html_template" return_url=$return_url}
+		{/if}
+		*}
 		
 		<!-- Edit -->
-		{if $active_worker->is_superuser}
+		{if $is_writeable}
 		<button type="button" id="btnDisplayMailHtmlTemplateEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -117,8 +122,6 @@
 			.on('cerb-peek-closed', function(e) {
 			})
 			;
-		
-		{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 	});
 </script>
 

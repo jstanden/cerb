@@ -90,14 +90,6 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 			
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.mail_html_template'
-		);
-		$tpl->assign('macros', $macros);
-
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE);
 		$tpl->assign('tab_manifests', $tab_manifests);

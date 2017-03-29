@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_TICKET}
 {$page_context_id = $ticket->id}
+{$is_writeable = Context_Ticket::isWriteableByActor($ticket, $active_worker)}
 
 {if !empty($merge_parent)}
 	<div class="help-box">
@@ -48,11 +49,15 @@
 		</span>
 		
 		<!-- Macros -->
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=ticket&id={$ticket->mask}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.ticket" return_url=$return_url}
+		{/if}
 		
-		<!-- Edit -->		
+		<!-- Edit -->
+		{if $is_writeable}
 		<button type="button" id="btnDisplayTicketEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$ticket->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{/if}
 		
 		{if $ticket->status_id != Model_Ticket::STATUS_DELETED}
 			{if $ticket->status_id == Model_Ticket::STATUS_CLOSED}
@@ -233,10 +238,6 @@ $(function() {
 
 // Page title
 document.title = "[#{$ticket->mask|escape:'javascript' nofilter}] {$ticket->subject|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
-
-// Menu
-
-{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 </script>
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_common_scripts.tpl"}

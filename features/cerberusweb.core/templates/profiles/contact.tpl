@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_CONTACT}
 {$page_context_id = $contact->id}
+{$is_writeable = Context_Contact::isWriteableByActor($contact, $active_worker)}
 
 <div style="float:left;margin-right:10px;">
 	<img src="{devblocks_url}c=avatars&context=contact&context_id={$contact->id}{/devblocks_url}?v={$contact->updated_at}" style="height:75px;width:75px;border-radius:5px;">
@@ -20,11 +21,15 @@
 			</span>
 			
 			<!-- Macros -->
+			{if $is_writeable}
 			{devblocks_url assign=return_url full=true}c=profiles&type=contact&id={$page_context_id}-{$contact->name|devblocks_permalink}{/devblocks_url}
-			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.contact" return_url=$return_url}
+			{/if}
 			
 			<!-- Edit -->
+			{if $is_writeable}
 			<button type="button" id="btnDisplayContactEdit" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</button>
+			{/if}
 		</form>
 		
 		{if $pref_keyboard_shortcuts}
@@ -119,8 +124,6 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
-	
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 

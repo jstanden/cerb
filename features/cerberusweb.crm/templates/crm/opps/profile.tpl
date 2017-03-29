@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_OPPORTUNITY}
 {$page_context_id = $opp->id}
+{$is_writeable = Context_Opportunity::isWriteableByActor($opp, $active_worker)}
 
 <div style="float:left;">
 	<h1>{$opp->name}</h1>
@@ -20,14 +21,16 @@
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-		</span>		
+		</span>
 		
 		<!-- Macros -->
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=opportunity&id={$page_context_id}-{$opp->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}		
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.crm.opportunity" return_url=$return_url}
+		{/if}
 		
 		<!-- Edit -->
-		{if $active_worker->hasPriv('crm.opp.actions.update_all')}
+		{if $is_writeable}
 		<button type="button" id="btnDisplayOppEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_OPPORTUNITY}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -126,8 +129,6 @@ $(function() {
 		})
 		;
 });
-
-{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 </script>
 
 <script type="text/javascript">

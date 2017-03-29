@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_BUCKET}
 {$page_context_id = $bucket->id}
+{$is_writeable = Context_Bucket::isWriteableByActor($bucket, $active_worker)}
 
 <div style="float:left">
 	<h1>{$bucket->name}</h1>
@@ -17,11 +18,15 @@
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 		<!-- Macros -->
+		{*
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=bucket&id={$page_context_id}-{$bucket->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.bucket" return_url=$return_url}
+		{/if}
+		*}
 		
 		<!-- Edit -->
-		{if $active_worker->isGroupManager($bucket->group_id)}
+		{if $is_writeable}
 		<button type="button" id="btnDisplayBucketEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -98,8 +103,6 @@ $(function() {
 			document.location.reload();
 		});
 	});
-
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 

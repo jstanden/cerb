@@ -133,14 +133,6 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.address'
-		);
-		$tpl->assign('macros', $macros);
-		
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ADDRESS);
 		$tpl->assign('tab_manifests', $tab_manifests);

@@ -1,5 +1,6 @@
 {$page_context = CerberusContexts::CONTEXT_MAILBOX}
 {$page_context_id = $mailbox->id}
+{$is_writeable = Context_Mailbox::isWriteableByActor($mailbox, $active_worker)}
 
 <div style="float:left">
 	<h1>{$mailbox->name}</h1>
@@ -24,11 +25,17 @@
 		</span>
 		
 		<!-- Macros -->
+		{*
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=mailbox&id={$page_context_id}-{$mailbox->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.mailbox" return_url=$return_url}
+		{/if}
+		*}
 		
 		<!-- Edit -->
+		{if $is_writeable}
 		<button type="button" id="btnDisplayMailboxEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</button>
+		{/if}
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -103,8 +110,6 @@ $(function() {
 			document.location.reload();
 		});
 	});
-
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 
