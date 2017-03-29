@@ -49,7 +49,7 @@
 
 		<!-- Community Portals -->
 		
-		<extension point="usermeet.tool">
+		<extension point="cerb.portal">
 			<id>wgm.example.community_portal.tool</id>
 			<name>Example Community Portal</name>
 			<class>

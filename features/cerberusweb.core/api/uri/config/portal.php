@@ -28,7 +28,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 			@$code = array_shift($stack); // code
 			$tool = DAO_CommunityTool::getByCode($code);
 			$tpl->assign('tool', $tool);
-			$tpl->assign('tool_manifests', DevblocksPlatform::getExtensions('usermeet.tool', false));
+			$tpl->assign('tool_manifests', DevblocksPlatform::getExtensions('cerb.portal', false));
 
 			@$tab_selected = array_shift($stack);
 			if(empty($tab_selected))
@@ -93,7 +93,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 				
 			} else {
 				$manifest = DevblocksPlatform::getExtension($instance->extension_id, false, true);
-				$tool = $manifest->createInstance(); /* @var $tool Extension_UsermeetTool */
+				$tool = $manifest->createInstance(); /* @var $tool Extension_CommunityPortal */
 				
 				// Update the tool name if it has changed
 				if(0 != strcmp($instance->name,$name))

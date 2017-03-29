@@ -53,7 +53,7 @@ class UmScEventListener extends DevblocksEventListenerExtension {
 	}
 };
 
-class UmScApp extends Extension_UsermeetTool {
+class UmScApp extends Extension_CommunityPortal {
 	const PARAM_PAGE_TITLE = 'common.page_title';
 	const PARAM_LOGO_URL = 'common.logo_url';
 	const PARAM_FAVICON_URL = 'common.favicon_url';

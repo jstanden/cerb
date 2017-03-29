@@ -1,6 +1,6 @@
 <?php
-if (class_exists('Extension_UsermeetTool',true)):
-class ExCommunityPortal extends Extension_UsermeetTool {
+if (class_exists('Extension_CommunityPortal',true)):
+class ExCommunityPortal extends Extension_CommunityPortal {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$umsession = ChPortalHelper::getSession();

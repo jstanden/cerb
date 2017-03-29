@@ -736,7 +736,7 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	public function saveConfigurationAction() {}
 };
 
-abstract class Extension_UsermeetTool extends DevblocksExtension implements DevblocksHttpRequestHandler {
+abstract class Extension_CommunityPortal extends DevblocksExtension implements DevblocksHttpRequestHandler {
 	private $portal = '';
 	
 	/*
@@ -764,7 +764,7 @@ abstract class Extension_UsermeetTool extends DevblocksExtension implements Devb
 			case NULL:
 				// [TODO] Index/page render
 				break;
-//
+
 			default:
 				// Default action, call arg as a method suffixed with Action
 				if(method_exists($this,$action)) {

@@ -110,7 +110,7 @@
 
 		<!-- Usermeet Tools -->
 		
-		<extension point="usermeet.tool">
+		<extension point="cerb.portal">
 			<id>sc.tool</id>
 			<name>Support Center</name>
 			<class>

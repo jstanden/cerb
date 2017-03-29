@@ -49,7 +49,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 				@$tool = $manifest->createInstance();
 			}
 			
-			if(!is_null($tool)) { /* @var $app Extension_UsermeetTool */
+			if(!is_null($tool)) { /* @var $app Extension_CommunityPortal */
 				$delegate_request = new DevblocksHttpRequest($stack);
 				$delegate_request->csrf_token = $request->csrf_token;
 				return $tool->handleRequest($delegate_request);
@@ -77,7 +77,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 		if(null != ($tool = DAO_CommunityTool::getByCode($code))) {
 			// [TODO] Don't double instance any apps (add instance registry to ::getExtension?)
 			$manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true);
-			if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_UsermeetTool */
+			if(null != ($tool = $manifest->createInstance())) { /* @var $app Extension_CommunityPortal */
 				$tool->writeResponse(new DevblocksHttpResponse($stack));
 			}
 		} else {

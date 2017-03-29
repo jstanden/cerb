@@ -710,7 +710,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		$tpl->assign('view', $this);
 
 		// Tool Manifests
-		$tools = DevblocksPlatform::getExtensions('usermeet.tool', false);
+		$tools = DevblocksPlatform::getExtensions('cerb.portal', false);
 		$tpl->assign('tool_extensions', $tools);
 		
 		// Custom fields
@@ -732,7 +732,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 				
 			case SearchFields_CommunityTool::EXTENSION_ID:
 				$options = array();
-				$portals = DevblocksPlatform::getExtensions('usermeet.tool', false);
+				$portals = DevblocksPlatform::getExtensions('cerb.portal', false);
 
 				foreach($portals as $ext_id => $ext) {
 					$options[$ext_id] = $ext->name;
@@ -760,7 +760,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 
 		switch($field) {
 			case SearchFields_CommunityTool::EXTENSION_ID:
-				$portals = DevblocksPlatform::getExtensions('usermeet.tool', false);
+				$portals = DevblocksPlatform::getExtensions('cerb.portal', false);
 				$strings = array();
 				
 				foreach($values as $val) {
