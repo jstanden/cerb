@@ -822,25 +822,6 @@ abstract class Extension_ServiceProvider extends DevblocksExtension {
 		return null;
 	}
 	
-	protected function _renderPopupAuthForm() {
-		if(!($this instanceof IServiceProvider_Popup))
-			return false;
-		
-		$tpl = DevblocksPlatform::getTemplateService();
-		$session = DevblocksPlatform::getSessionService();
-		$settings = DevblocksPlatform::getPluginSettingsService();
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		$visit = $session->getVisit();
-		
-		$tpl->assign('ext', $this);
-		$tpl->assign('active_worker', $active_worker);
-		$tpl->assign('settings', $settings);
-		$tpl->assign('session', $_SESSION);
-		$tpl->assign('visit', $visit);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/connected_account/popup_shell.tpl');
-	}
-	
-	abstract function renderPopup();
+	abstract function renderConfigForm(Model_ConnectedAccount $account);
+	abstract function saveConfigForm(Model_ConnectedAccount $account, array &$params);
 };

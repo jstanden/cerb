@@ -9,9 +9,7 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
-	
+<fieldset class="peek" style="background:none;border:0;">
 	<table cellspacing="0" cellpadding="2" border="0" width="98%">
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
@@ -19,20 +17,37 @@
 				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 			</td>
 		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.service'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="hidden" name="extension_id" value="{$model->extension_id}">
+				{$ext = $model->getExtension()}
+				{if $ext}
+					{$ext->manifest->name}
+				{else}
+					{$model->extension_id}
+				{/if}
+			</td>
+		</tr>
+		
+		{if $active_worker->is_superuser}
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top">
+				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+			</td>
+			<td width="99%">
+				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+			</td>
+		</tr>
+		{/if}
 	</table>
-	
-	{if $active_worker->is_superuser}
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">
-			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-		</td>
-		<td width="99%">
-			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-		</td>
-	</tr>
-	{/if}
-	
 </fieldset>
+
+{$extension = $model->getExtension()}
+{if $extension}
+	{$extension->renderConfigForm($model)}
+{/if}
 
 {if !empty($custom_fields)}
 <fieldset class="peek">
@@ -89,10 +104,6 @@ $(function() {
 			$(e.target).closest('li').remove();
 			$ul.hide();
 			$owners_menu.show();
-			
-			$events.each(function() {
-				$(this).hide();
-			});
 		});
 		
 		$owners_menu.menu({
@@ -118,18 +129,10 @@ $(function() {
 				$ul.find('> *').remove();
 				$ul.append($li);
 				$ul.show();
-				
-				// Contextual events
-				$events.each(function() {
-					var contexts = $(this).attr('contexts').split(' ');
-					
-					if($.inArray(context_data[0], contexts) != -1)
-						$(this).show();
-					else
-						$(this).hide();
-				});
 			}
 		});
 	});
+	
+	$frm.find('input:text:first').focus();
 });
 </script>

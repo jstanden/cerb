@@ -236,12 +236,8 @@ interface IServiceProvider_HttpRequestSigner {
 }
 
 interface IServiceProvider_OAuth {
+	function oauthRender();
 	function oauthCallback();
-}
-
-interface IServiceProvider_Popup {
-	function renderAuthForm();
-	function saveAuthFormAndReturnJson();
 }
 
 class WgmCerb_API {
@@ -391,58 +387,48 @@ class WgmCerb_API {
 	}
 };
 
-class ServiceProvider_Cerb extends Extension_ServiceProvider implements IServiceProvider_Popup, IServiceProvider_HttpRequestSigner {
+class ServiceProvider_Cerb extends Extension_ServiceProvider implements IServiceProvider_HttpRequestSigner {
 	const ID = 'core.service.provider.cerb';
 	
-	function renderPopup() {
-		$this->_renderPopupAuthForm();
-	}
-	
-	function renderAuthForm() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		
+	function renderConfigForm(Model_ConnectedAccount $account) {
 		$tpl = DevblocksPlatform::getTemplateService();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl->assign('view_id', $view_id);
+		$params = $account->decryptParams($active_worker);
+		$tpl->assign('params', $params);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/connected_account/providers/cerb.tpl');
 	}
 	
-	function saveAuthFormAndReturnJson() {
-		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
-		
+	function saveConfigForm(Model_ConnectedAccount $account, array &$params) {
+		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+	
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!isset($params['base_url']) || empty($params['base_url']))
-			return json_encode(array('status' => false, 'error' => "The 'Base URL' is required."));
+		if(!isset($edit_params['base_url']) || empty($edit_params['base_url']))
+			return "The 'Base URL' is required.";
 		
-		if(!isset($params['access_key']) || empty($params['access_key']))
-			return json_encode(array('status' => false, 'error' => "The 'Access Key' is required."));
+		if(!isset($edit_params['access_key']) || empty($edit_params['access_key']))
+			return "The 'Access Key' is required.";
 		
-		if(!isset($params['secret_key']) || empty($params['secret_key']))
-			return json_encode(array('status' => false, 'error' => "The 'Secret Key' is required."));
+		if(!isset($edit_params['secret_key']) || empty($edit_params['secret_key']))
+			return "The 'Secret Key' is required.";
 		
 		// Test the credentials
-		$cerb = new WgmCerb_API($params['base_url'], $params['access_key'], $params['secret_key']);
+		$cerb = new WgmCerb_API($edit_params['base_url'], $edit_params['access_key'], $edit_params['secret_key']);
 		
 		$json = $cerb->get('workers/me.json');
 		
 		if(!is_array($json) || !isset($json['__status']))
-			return json_encode(array('status' => false, 'error' => "Unable to connect to the API. Please check your URL."));
+			return "Unable to connect to the API. Please check your URL.";
 		
 		if($json['__status'] == 'error')
-			return json_encode(array('status' => false, 'error' => $json['message']));
+			return $json['message'];
 		
-		$id = DAO_ConnectedAccount::create(array(
-			DAO_ConnectedAccount::NAME => sprintf('Cerb API: %s (%s)', $json['full_name'], $params['access_key']),
-			DAO_ConnectedAccount::EXTENSION_ID => ServiceProvider_Cerb::ID,
-			DAO_ConnectedAccount::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-			DAO_ConnectedAccount::OWNER_CONTEXT_ID => $active_worker->id,
-		));
+		foreach($edit_params as $k => $v)
+			$params[$k] = $v;
 		
-		DAO_ConnectedAccount::setAndEncryptParams($id, $params);
-		
-		return json_encode(array('status' => true, 'id' => $id));
+		return true;
 	}
 	
 	function authenticateHttpRequest(Model_ConnectedAccount $account, &$ch, &$verb, &$url, &$body, &$headers) {

@@ -171,13 +171,24 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', null);
+				@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', null);
 				
-				if(empty($id)) { // New
-					throw new Exception_DevblocksAjaxValidationError("This form can't create new accounts.");
-					
-				} else { // Edit
-					if(empty($name))
-						throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
+				$account = new Model_ConnectedAccount();
+				$account->id = 0;
+				$account->extension_id = $extension_id;
+				
+				if(empty($name))
+					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
+				
+				// Edit
+				if($id) {
+					if(false == ($account = DAO_ConnectedAccount::get($id))
+						|| !Context_ConnectedAccount::isWriteableByActor($account, $active_worker)
+						)
+						throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this record.");
+						
+					if(false == ($extension = $account->getExtension()))
+						throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
 					
 					$fields = array(
 						DAO_ConnectedAccount::NAME => $name,
@@ -208,20 +219,76 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 						$fields[DAO_ConnectedAccount::OWNER_CONTEXT] = $owner_ctx;
 						$fields[DAO_ConnectedAccount::OWNER_CONTEXT_ID] = $owner_ctx_id;
 					}
+				
+				// Create
+				} else {
+					if(false == ($extension = Extension_ServiceProvider::get($extension_id)))
+						throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
 					
-					DAO_ConnectedAccount::update($id, $fields);
+					$fields = array(
+						DAO_ConnectedAccount::NAME => $name,
+						DAO_ConnectedAccount::UPDATED_AT => time(),
+						DAO_ConnectedAccount::EXTENSION_ID => $extension_id,
+					);
+					
+					// Owner (only admins)
+					if(!empty($owner) && $active_worker->is_superuser) {
+						$owner_ctx = '';
+						@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+						
+						// Make sure we're given a valid ctx
+						
+						switch($owner_ctx) {
+							case CerberusContexts::CONTEXT_APPLICATION:
+							case CerberusContexts::CONTEXT_ROLE:
+							case CerberusContexts::CONTEXT_GROUP:
+							case CerberusContexts::CONTEXT_WORKER:
+								$fields[DAO_ConnectedAccount::OWNER_CONTEXT] = $owner_ctx;
+								$fields[DAO_ConnectedAccount::OWNER_CONTEXT_ID] = $owner_ctx_id;
+								break;
+						}
+					}
+					
+					// Use the current worker as the owner by default
+					if(!isset($fields[DAO_ConnectedAccount::OWNER_CONTEXT])) {
+						$fields[DAO_ConnectedAccount::OWNER_CONTEXT] = CerberusContexts::CONTEXT_WORKER;
+						$fields[DAO_ConnectedAccount::OWNER_CONTEXT_ID] = $active_worker->id;
+					}
 				}
 				
-				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $id, $field_ids);
+				// Custom params
+					
+				$params = $account->decryptParams($active_worker) ?: [];
 				
-				echo json_encode(array(
-					'status' => true,
-					'id' => $id,
-					'label' => $name,
-					'view_id' => $view_id,
-				));
+				if(true !== ($result = $extension->saveConfigForm($account, $params)))
+					throw new Exception_DevblocksAjaxValidationError($result);
+				
+				if(empty($id)) {
+					$id = DAO_ConnectedAccount::create($fields);
+					
+					if($view_id && $id) {
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $id);
+					}
+					
+				} else {
+					DAO_ConnectedAccount::update($id, $fields);
+				}
+
+				if($id) {
+					// Encrypt params
+					DAO_ConnectedAccount::setAndEncryptParams($id, $params);
+					
+					// Custom fields
+					@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $id, $field_ids);
+				
+					echo json_encode(array(
+						'status' => true,
+						'id' => $id,
+						'label' => $name,
+						'view_id' => $view_id,
+					));
+				}
 				return;
 			}
 			
@@ -318,39 +385,13 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 	function authAction() {
 		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
 		
-		// [TODO] Verify auth
-		
 		// Load the extension
 		if(false == ($ext = Extension_ServiceProvider::get($extension_id)))
 			DevblocksPlatform::dieWithHttpError("Invalid extension.");
 		
-		$ext->renderPopup();
-	}
-	
-	function saveAuthFormJsonAction() {
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'], 'string', '');
-		
-		header('Content-Type: application/json; charset=' . LANG_CHARSET_CODE);
-		
-		// Load the extension
-		if(false == ($ext = Extension_ServiceProvider::get($extension_id))) {
-			echo json_encode(array(
-				'status' => false,
-				'error' => "Invalid extension.",
-			));
+		if(!$ext instanceof IServiceProvider_OAuth)
 			return;
-		}
-		
-		if(!($ext instanceof IServiceProvider_Popup)) {
-			echo json_encode(array(
-				'status' => false,
-				'error' => "Invalid extension.",
-			));
-			return;
-		}
-		
-		/* @var $ext IServiceProvider_Popup */
-		$json = $ext->saveAuthFormAndReturnJson();
-		echo $json;
+			
+		$ext->oauthRender();
 	}
 };

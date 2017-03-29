@@ -1234,13 +1234,31 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		
 		if(!empty($context_id)) {
 			$model = DAO_ConnectedAccount::get($context_id);
+		} else {
+			$model = new Model_ConnectedAccount();
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(isset($model))
-				$tpl->assign('model', $model);
+			if(!empty($edit)) {
+				$tokens = explode(' ', trim($edit));
+				
+				foreach($tokens as $token) {
+					@list($k,$v) = explode(':', $token);
+					
+					if(empty($k) || empty($v))
+						continue;
+					
+					switch($k) {
+						case 'service':
+							$model->extension_id = $v;
+							break;
+					}
+				}
+			}
 			
-			if(empty($context_id)) {
+			$tpl->assign('model', $model);
+			
+			if(empty($context_id) && empty($model->extension_id)) {
 				$services = Extension_ServiceProvider::getAll(false);
 				$tpl->assign('services', $services);
 				
