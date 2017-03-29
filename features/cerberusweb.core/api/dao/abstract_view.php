@@ -2988,8 +2988,22 @@ class CerbQuickSearchLexer {
 	static function buildParams($token, &$parent) {
 		switch($token->type) {
 			case 'T_GROUP':
+				// Sanitize
+				switch($token->value) {
+					case DevblocksSearchCriteria::GROUP_OR:
+					case DevblocksSearchCriteria::GROUP_OR_NOT:
+					case DevblocksSearchCriteria::GROUP_AND:
+					case DevblocksSearchCriteria::GROUP_AND_NOT:
+						$token->value = $token->value;
+						break;
+						
+					default:
+						$token->value = DevblocksSearchCriteria::GROUP_AND;
+						break;
+				}
+				
 				$param = array(
-					$token->value == 'OR' ? DevblocksSearchCriteria::GROUP_OR : DevblocksSearchCriteria::GROUP_AND,
+					$token->value,
 				);
 				foreach($token->children as $child)
 					self::buildParams($child, $param);
@@ -3032,7 +3046,7 @@ class CerbQuickSearchLexer {
 		
 		// Tokenize symbols
 		
-		$query = str_replace(array(' OR ',' AND ','(',')','[',']','"'), array(' <$OR> ',' <$AND> ',' <$PO> ',' <$PC> ',' <$BO> ',' <$BC> '), $query);
+		$query = str_replace(array(' OR ',' AND ','!(','(',')','[',']','"'), array(' <$OR> ',' <$AND> ',' <$PON> ',' <$PO> ',' <$PC> ',' <$BO> ',' <$BC> '), $query);
 		
 		// Cap at two continuous whitespace chars
 		
@@ -3094,6 +3108,10 @@ class CerbQuickSearchLexer {
 							case '<$PO>':
 								$token_type = 'T_PARENTHETICAL_OPEN';
 								$token_value = '(';
+								break;
+							case '<$PON>':
+								$token_type = 'T_PARENTHETICAL_OPEN_NEG';
+								$token_value = '!(';
 								break;
 							case '<$PC>':
 								$token_type = 'T_PARENTHETICAL_CLOSE';
@@ -3161,6 +3179,7 @@ class CerbQuickSearchLexer {
 		
 		while($token = current($tokens)) {
 			switch($token->type) {
+				case 'T_PARENTHETICAL_OPEN_NEG':
 				case 'T_PARENTHETICAL_OPEN':
 					$opens[] = key($tokens);
 					next($tokens);
@@ -3172,15 +3191,12 @@ class CerbQuickSearchLexer {
 					$cut = array_splice($tokens, $start, $len, array(array()));
 					
 					// Remove the wrappers
-					array_shift($cut);
+					$open_token = array_shift($cut);
 					array_pop($cut);
 					
-					// If we only had one element in the group, don't bother grouping
-					if(count($cut) == 1) {
-						$tokens[$start] = $cut[0];
-					} else {
-						$tokens[$start] = new CerbQuickSearchLexerToken('T_GROUP', null, $cut);
-					}
+					$value = ($open_token->type == 'T_PARENTHETICAL_OPEN_NEG') ? '!' : null;
+					$tokens[$start] = new CerbQuickSearchLexerToken('T_GROUP', $value, $cut);
+
 					reset($tokens);
 					break;
 					
@@ -3273,15 +3289,35 @@ class CerbQuickSearchLexer {
 			// [TODO] Operator precedence AND -> OR
 			// [TODO] Handle 'a OR b AND c'
 			
+			$not = ($token->value == '!') ? true : false;
+			$token->value = null;
+			
 			foreach($token->children as $k => $child) {
 				switch($child->type) {
 					case 'T_BOOL':
-						if(empty($token->value))
-							$token->value = $child->value ?: 'AND';
+						if(empty($token->value)) {
+							$oper = 'AND';
+							
+							switch($child->value) {
+								case 'OR':
+									$oper = ($not) ? 'OR NOT' : 'OR';
+									break;
+									
+								default:
+									$oper = ($not) ? 'AND NOT' : 'AND';
+									break;
+							}
+							
+							$token->value = $oper;
+						}
+						
 						unset($token->children[$k]);
 						break;
 				}
 			}
+			
+			if(empty($token->value))
+				$token->value = ($not) ? 'AND NOT' : 'AND';
 		});
 		
 		$params = null;
@@ -3363,8 +3399,24 @@ class CerbQuickSearchLexer {
 					break;
 					
 				case 'T_GROUP':
-					$string .= '(';
-					$group_stack[] = $token->value;
+					if(DevblocksPlatform::strEndsWith($token->value,'NOT')) {
+						$string .= '!(';
+					} else {
+						$string .= '(';
+					}
+					
+					// The separators are always OR/AND, we use NOT for the overall group in !(
+					switch($token->value) {
+						case DevblocksSearchCriteria::GROUP_OR:
+						case DevblocksSearchCriteria::GROUP_OR_NOT:
+							$oper = DevblocksSearchCriteria::GROUP_OR;
+							break;
+						default:
+							$oper = DevblocksSearchCriteria::GROUP_AND;
+							break;
+					}
+					
+					$group_stack[] = $oper;
 					break;
 					
 				case 'T_ARRAY':

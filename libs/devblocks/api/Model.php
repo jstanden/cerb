@@ -110,20 +110,28 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		$search = Extension_DevblocksSearchSchema::get($schema);
 		$query = $search->getQueryFromParam($param);
 		
+		$not = false;
+		if(DevblocksPlatform::strStartsWith($query, '!')) {
+			$not = true;
+			$query = mb_substr($query, 1);
+		}
+		
 		if(false === ($ids = $search->query($query, array('context_crc32' => sprintf("%u", crc32($from_context)))))) {
 			return '0';
 		
 		} elseif(is_array($ids)) {
 			$from_ids = DAO_Comment::getContextIdsByContextAndIds($from_context, $ids);
 			
-			return sprintf('%s IN (%s)',
+			return sprintf('%s %sIN (%s)',
 				$pkey,
+				$not ? 'NOT ' : '',
 				implode(', ', (!empty($from_ids) ? $from_ids : array(-1)))
 			);
 			
 		} elseif(is_string($ids)) {
-			return sprintf("%s IN (SELECT context_id FROM comment INNER JOIN %s ON (%s.id=comment.id))",
+			return sprintf("%s %sIN (SELECT context_id FROM comment INNER JOIN %s ON (%s.id=comment.id))",
 				$pkey,
+				$not ? 'NOT ' : '',
 				$ids,
 				$ids
 			);
@@ -134,6 +142,12 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 			$query = $param->value;
+			
+			$not = false;
+			if(DevblocksPlatform::strStartsWith($query, '!')) {
+				$not = true;
+				$query = mb_substr($query, 1);
+			}
 			
 			if(false == ($ext_attachments = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
 				return;
@@ -159,8 +173,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['sort']
 				;
 			
-			return sprintf("%s IN (SELECT context_id FROM attachment_link WHERE attachment_id IN (%s)) ",
+			return sprintf("%s %sIN (SELECT context_id FROM attachment_link WHERE attachment_id IN (%s)) ",
 				Cerb_OrmHelper::escape($join_key),
+				$not ? 'NOT ' : '',
 				$sql
 			);
 		}
@@ -207,6 +222,12 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 			$query = $param->value;
 			
+			$not = false;
+			if(DevblocksPlatform::strStartsWith($query, '!')) {
+				$not = true;
+				$query = mb_substr($query, 1);
+			}
+			
 			if(false == ($ext = Extension_DevblocksContext::get($context)))
 				return;
 			
@@ -237,8 +258,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['sort']
 				;
 			
-			return sprintf("%s IN (%s) ",
+			return sprintf("%s %sIN (%s) ",
 				Cerb_OrmHelper::escape($join_key),
+				$not ? 'NOT ' : '',
 				$sql
 			);
 		}
@@ -348,6 +370,12 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
 				return;
 			
+			$not = false;
+			if(DevblocksPlatform::strStartsWith($query, '!')) {
+				$not = true;
+				$query = mb_substr($query, 1);
+			}
+			
 			$view = $ext->getSearchView(uniqid());
 			$view->is_ephemeral = true;
 			$view->setAutoPersist(false);
@@ -375,8 +403,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['sort']
 				;
 			
-			return sprintf("%s IN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s AND to_context_id IN (%s)) ",
+			return sprintf("%s %sIN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s AND to_context_id IN (%s)) ",
 				$pkey,
+				$not ? 'NOT ' : '',
 				Cerb_ORMHelper::qstr($from_context),
 				Cerb_ORMHelper::qstr($ext->id),
 				$sql
@@ -627,8 +656,10 @@ class DevblocksSearchCriteria {
 	const OPER_FALSE = '0';
 	const OPER_CUSTOM = 'custom';
 	
-	const GROUP_OR = 'OR';
 	const GROUP_AND = 'AND';
+	const GROUP_AND_NOT = 'AND NOT';
+	const GROUP_OR = 'OR';
+	const GROUP_OR_NOT = 'OR NOT';
 	
 	const TYPE_BOOL = 'bool';
 	const TYPE_DATE = 'date';
