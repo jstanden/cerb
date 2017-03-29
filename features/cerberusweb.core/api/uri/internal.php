@@ -1004,6 +1004,29 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/choosers/__worklist.tpl');
 	}
 	
+	function editorOpenTemplateAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$template = DevblocksPlatform::importGPC($_REQUEST['template'],'string');
+
+		$tpl = DevblocksPlatform::getTemplateService();
+		
+		if(false == ($context_ext = DevblocksPlatform::getExtension($context, true)))
+			return;
+		
+		$tpl->assign('context_ext', $context_ext);
+		$tpl->assign('template', $template);
+		
+		// Load the context dictionary for scope
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext($context_ext->id, null, $labels, $null, '', true, false);
+
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+		$tpl->assign('placeholders', $placeholders);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/editors/__template.tpl');
+	}
+	
 	function serializeViewAction() {
 		header("Content-type: application/json");
 		

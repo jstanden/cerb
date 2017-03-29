@@ -897,7 +897,40 @@ var ajax = new cAjaxCalls();
 			;
 		});
 	};
+
+	// Abstract template builder
 	
+	$.fn.cerbTemplateTrigger = function(options) {
+		return this.each(function() {
+			var $trigger = $(this)
+				.css('color', 'rgb(100,100,100)')
+				.css('cursor', 'text')
+				.attr('readonly', 'readonly')
+			;
+			
+			if(!($trigger.is('textarea')))
+				return;
+			
+			var context = $trigger.attr('data-context');
+			var template = $trigger.val();
+			var width = $(window).width()-100;
+			
+			// Context
+			if(!(typeof context == "string") || 0 == context.length)
+				return;
+			
+			$trigger.on('click', function() {
+				var $chooser = genericAjaxPopup("template" + Devblocks.uniqueId(),'c=internal&a=editorOpenTemplate&context=' + encodeURIComponent(context) + '&template=' + encodeURIComponent(template),null,true,width);
+				
+				$chooser.on('template_save',function(event) {
+					$trigger.val(event.template);
+					event.type = 'cerb-template-saved';
+					$trigger.trigger(event);
+				});
+			});
+		});
+	}
+
 	// Abstract peeks
 	
 	$.fn.cerbPeekTrigger = function(options) {
