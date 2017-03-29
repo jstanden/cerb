@@ -1,6 +1,6 @@
 {if !empty($properties_links)}
 {$uniqid = uniqid()}
-<div id="{$uniqid}">
+<div id="{$uniqid}" class="cerb-links-container">
 {$link_ctxs = Extension_DevblocksContext::getAll(false)}
 
 {* Loop through the link contexts *}
@@ -95,6 +95,11 @@ $(function() {
 		
 		$popup.on('links_save', function(e) {
 			$div.find('fieldset').trigger('cerb-redraw');
+			
+			var evt = jQuery.Event('cerb-links-changed');
+			evt.context = from_context;
+			evt.context_id = from_context_id;
+			$div.trigger(evt);
 		});
 	});
 	
@@ -159,6 +164,11 @@ $(function() {
 				options.cache = false;
 				options.success = function(json) {
 					$div.find('fieldset').trigger('cerb-redraw');
+					
+					var evt = jQuery.Event('cerb-links-changed');
+					evt.context = from_context;
+					evt.context_id = from_context_id;
+					$div.trigger(evt);
 				};
 				
 				if(null == options.headers)
