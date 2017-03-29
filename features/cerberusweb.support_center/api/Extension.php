@@ -113,16 +113,15 @@ abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
 	/**
 	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
 	 */
-//	function renderConfigForm() {
-//	}
+	function renderConfigForm(Model_CommunityTool $instance) {
+		echo "(no configuration options)";
+	}
 	
 	/**
 	 * Receives posted config form, saves to manifest
 	 */
-//	function saveConfiguration() {
-//		$field_value = DevblocksPlatform::importGPC($_POST['field_value']);
-//		$this->params['field_name'] = $field_value;
-//	}
+	function saveConfiguration(Model_CommunityTool $instance) {
+	}
 	
 	abstract function writeResponse(DevblocksHttpResponse $response);
 	

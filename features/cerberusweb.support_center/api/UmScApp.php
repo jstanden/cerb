@@ -120,14 +120,14 @@ class UmScApp extends Extension_CommunityPortal {
 		return $visible_only ? $_visible_modules : $_all_modules;
 	}
 	
-	public static function getLoginExtensions() {
-		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator');
+	public static function getLoginExtensions($as_instances=false) {
+		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator', $as_instances);
 		DevblocksPlatform::sortObjects($login_extensions, 'name');
 		return $login_extensions;
 	}
 	
-	public static function getLoginExtensionsEnabled($instance_id) {
-		$login_extensions = self::getLoginExtensions();
+	public static function getLoginExtensionsEnabled($instance_id, $as_instances=false) {
+		$login_extensions = self::getLoginExtensions($as_instances);
 		
 		$enabled = array();
 

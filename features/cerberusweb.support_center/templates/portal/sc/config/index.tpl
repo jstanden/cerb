@@ -70,6 +70,20 @@
 {/foreach}
 
 <script type="text/javascript">
-	$('FIELDSET#setupPortalModules DIV.container')
-	.sortable({ items: 'DIV.drag', placeholder:'ui-state-highlight' });
+$(function() {
+	var $modules = $('FIELDSET#setupPortalModules');
+	var $form = $modules.closest('form');
+	
+	$modules.find('DIV.container')
+		.sortable({ items: 'DIV.drag', placeholder:'ui-state-highlight' })
+	;
+	
+	$form.find('.cerb-peek-trigger')
+		.cerbPeekTrigger()
+	;
+	
+	$form.find('.cerb-chooser-trigger')
+		.cerbChooserTrigger()
+	;
+});
 </script>

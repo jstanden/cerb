@@ -87,14 +87,14 @@ class UmScLoginController extends Extension_UmScController {
 		$tpl = DevblocksPlatform::getTemplateSandboxService();
 
 		// Login extensions
-		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator');
+		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator', true);
 		if(!empty($login_extensions)) {
 			DevblocksPlatform::sortObjects($login_extensions, 'name');
 			$tpl->assign('login_extensions', $login_extensions);
 		}
 
 		// Enabled login extensions
-		$login_extensions_enabled = UmScApp::getLoginExtensionsEnabled($instance->code);
+		$login_extensions_enabled = UmScApp::getLoginExtensionsEnabled($instance->code, true);
 		$tpl->assign('login_extensions_enabled', $login_extensions_enabled);
 		
 		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/login.tpl");
@@ -103,12 +103,18 @@ class UmScLoginController extends Extension_UmScController {
 	function saveConfiguration(Model_CommunityTool $instance) {
 		@$login_extensions_enabled = DevblocksPlatform::importGPC($_POST['login_extensions'],'array',array());
 
-		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator', false);
+		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator', true);
 		
 		// Validate
 		foreach($login_extensions_enabled as $idx => $login_extension_enabled) {
-			if(!isset($login_extensions[$login_extension_enabled]))
+			@$login_extension = $login_extensions[$login_extension_enabled];
+			
+			if(!$login_extension) {
 				unset($login_extensions_enabled[$idx]);
+				continue;
+			}
+			
+			$login_extension->saveConfiguration($instance);
 		}
 
 		DAO_CommunityToolProperty::set($instance->code, UmScApp::PARAM_LOGIN_EXTENSIONS, implode(',', $login_extensions_enabled));
