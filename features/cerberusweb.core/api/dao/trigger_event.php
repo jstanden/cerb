@@ -1656,7 +1656,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 	}
 };
 
-class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_', $ignore_admins);
 	}
@@ -1665,6 +1665,31 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_', $ignore_admins);
 	}
 	
+	function autocomplete($term, $query=null) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		$list = array();
+		
+		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BEHAVIOR);
+		
+		$view = $context_ext->getSearchView('autocomplete_behavior');
+		$view->renderLimit = 25;
+		$view->renderSortBy = SearchFields_TriggerEvent::PRIORITY;
+		$view->renderSortAsc = true;
+		$view->is_ephemeral = true;
+		
+		$view->addParamsWithQuickSearch($query, true);
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_TriggerEvent::TITLE,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'));
+		
+		list($results, $null) = $view->getData();
+		
+		foreach($results AS $row){
+			$entry = new stdClass();
+			$entry->label = $row[SearchFields_TriggerEvent::TITLE];
+			$entry->value = $row[SearchFields_TriggerEvent::ID];
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getRandom() {
