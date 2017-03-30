@@ -2522,15 +2522,16 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateComment($params, DevblocksDictionaryDelegate $dict, $on_default) {
-		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
-		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-
 		$trigger = $dict->__trigger;
 		$event = $trigger->getEvent();
 		
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $dict);
+
+		$notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($content));
+		$notify_worker_ids = array_merge($notify_worker_ids, (isset($params['notify_worker_id']) ? $params['notify_worker_id'] : []));
+		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 
 		$out = sprintf(">>> Writing a comment:\n".
 			"\n".
@@ -2581,17 +2582,18 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateComment($params, DevblocksDictionaryDelegate $dict, $default_on) {
-		$notify_worker_ids = isset($params['notify_worker_id']) ? $params['notify_worker_id'] : array();
-		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
-
 		// Event
 		$trigger = $dict->__trigger; /* @var $trigger Model_TriggerEvent */
 		$event = $trigger->getEvent();
-
+		
 		// Translate message tokens
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$content = $tpl_builder->build($params['content'], $dict);
-
+		
+		$notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($content));
+		$notify_worker_ids = array_merge($notify_worker_ids, (isset($params['notify_worker_id']) ? $params['notify_worker_id'] : []));
+		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
+		
 		// Fields
 		
 		$fields = array(

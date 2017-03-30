@@ -31,6 +31,19 @@
 <script type="text/javascript">
 $(function() {
 	var $action = $('fieldset#{$namePrefix}');
-	$action.find('textarea').autosize();
+	var $textarea = $action.find('textarea').first();
+	
+	$textarea.autosize();
+	
+	var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
+
+	$textarea.atwho({
+		at: '@',
+		{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
+		{literal}insertTpl: '@${at_mention}',{/literal}
+		data: atwho_workers,
+		searchKey: '_index',
+		limit: 10
+	});
 });
 </script>
