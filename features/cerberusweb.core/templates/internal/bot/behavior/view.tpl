@@ -4,6 +4,13 @@
 {$total = $results[1]}
 {$data = $results[0]}
 
+{if !$total}
+<div class="help-box">
+<h1>Add a new behavior</h1>
+Click on the <span class="glyphicons glyphicons-circle-plus"></span> icon below to add a new <a href="https://cerb.ai/docs/bots/" target="_blank">behavior</a> to the worklist.
+</div>
+{/if}
+
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
