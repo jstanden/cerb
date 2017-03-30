@@ -28,6 +28,13 @@
 
 <div style="clear:both;padding-top:10px;"></div>
 
+{if $is_writeable && !$activity_counts.behaviors}
+<div class="help-box">
+<h1>Add a behavior</h1>
+Click on the <div class="badge badge-lightgray" style="color:black;font-weight:bold;">Behaviors</div> button below to start building your <a href="https://cerb.ai/docs/bots/" target="_blank">bot</a>.
+</div>
+{/if}
+
 <fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
