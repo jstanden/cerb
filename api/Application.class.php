@@ -1421,12 +1421,12 @@ class CerberusContexts {
 		return $context_ext::isWriteableByActor($models, $actor);
 	}
 	
-	public static function isReadableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_') {
+	public static function isReadableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_', $ignore_admins=false) {
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 		
 		// Admins can do whatever they want
-		if(CerberusContexts::isActorAnAdmin($actor))
+		if(!$ignore_admins && CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
@@ -1504,12 +1504,12 @@ class CerberusContexts {
 		}
 	}
 	
-	public static function isWriteableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_') {
+	public static function isWriteableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_', $ignore_admins=false) {
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			CerberusContexts::denyEverything($models);
 		
 		// Admins can do whatever they want
-		if(CerberusContexts::isActorAnAdmin($actor))
+		if(!$ignore_admins && CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))

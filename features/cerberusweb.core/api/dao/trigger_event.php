@@ -78,11 +78,11 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		return $behaviors;
 	}
 	
-	static function getReadableByActor($actor, $event_point=null, $with_disabled=false, $scope=null) {
-		$macros = array();
-
-		$bots = DAO_Bot::getReadableByActor($actor);
-
+	static function getReadableByActor($actor, $event_point=null, $with_disabled=false, $scope=null, $ignore_admins=false) {
+		$macros = [];
+		
+		$bots = DAO_Bot::getReadableByActor($actor, $ignore_admins);
+		
 		if(is_array($bots))
 		foreach($bots as $bot) { /* @var $bot Model_Bot */
 			if(!$with_disabled && $bot->is_disabled)
@@ -134,7 +134,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	
 	static function getUsableMacrosByWorker($actor, $event_point) {
 		// This filters out 'only bot' macros
-		$behaviors = DAO_TriggerEvent::getReadableByActor($actor, $event_point, false, 'worker');
+		$behaviors = DAO_TriggerEvent::getReadableByActor($actor, $event_point, false, 'worker', true);
 		return $behaviors;
 	}
 	
@@ -534,10 +534,23 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			$actor_context = $param->value['context'];
 			$actor_id = $param->value['id'];
 			
-			if(empty($actor_context))
-				return '0';
+			$scope = null;
 			
-			$behaviors = DAO_TriggerEvent::getReadableByActor([$actor_context, $actor_id]);
+			switch($actor_context) {
+				case CerberusContexts::CONTEXT_BOT:
+					break;
+					
+				case CerberusContexts::CONTEXT_WORKER:
+					// Don't show admins everything with this filter
+					$scope = 'worker';
+					break;
+					
+				default:
+					return 0;
+					break;
+			}
+			
+			$behaviors = DAO_TriggerEvent::getReadableByActor([$actor_context, $actor_id], null, false, $scope, true);
 			
 			if(empty($behaviors))
 				return '0';
@@ -1644,12 +1657,14 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
-	static function isReadableByActor($models, $actor) {
-		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_');
+	static function isReadableByActor($models, $actor, $ignore_admins=false) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_', $ignore_admins);
 	}
 	
-	static function isWriteableByActor($models, $actor) {
-		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_');
+	static function isWriteableByActor($models, $actor, $ignore_admins=false) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_', $ignore_admins);
+	}
+	
 	}
 	
 	function getRandom() {

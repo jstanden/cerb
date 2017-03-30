@@ -224,9 +224,9 @@ class DAO_Bot extends Cerb_ORMHelper {
 		return $results;
 	}
 	
-	static function getReadableByActor($actor) {
+	static function getReadableByActor($actor, $ignore_admins=false) {
 		$bots = DAO_Bot::getAll();
-		$privs = Context_Bot::isReadableByActor($bots, $actor);
+		$privs = Context_Bot::isReadableByActor($bots, $actor, $ignore_admins);
 		return array_intersect_key($bots, array_flip(array_keys($privs, true)));
 	}
 	
@@ -250,9 +250,9 @@ class DAO_Bot extends Cerb_ORMHelper {
 		return array_intersect_key($bots, array_flip(array_keys($privs, true)));
 	}
 	
-	static function getWriteableByActor($actor) {
+	static function getWriteableByActor($actor, $ignore_admins=false) {
 		$bots = DAO_Bot::getAll();
-		$privs = Context_Bot::isWriteableByActor($bots, $actor);
+		$privs = Context_Bot::isWriteableByActor($bots, $actor, $ignore_admins);
 		return array_intersect_key($bots, array_flip(array_keys($privs, true)));
 	}
 	
@@ -1064,12 +1064,12 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 };
 
 class Context_Bot extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
-	static function isReadableByActor($models, $actor) {
-		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BOT, $models);
+	static function isReadableByActor($models, $actor, $ignore_admins=false) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BOT, $models, 'owner_', $ignore_admins);
 	}
 	
-	static function isWriteableByActor($models, $actor) {
-		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BOT, $models);
+	static function isWriteableByActor($models, $actor, $ignore_admins=false) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BOT, $models, 'owner_', $ignore_admins);
 	}
 	
 	function getRandom() {
