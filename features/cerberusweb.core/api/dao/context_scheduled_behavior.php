@@ -371,7 +371,14 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	}
 
 	static function buildVariables($var_keys, $var_vals, $trigger) {
-		$vars = array();
+		$vars = [];
+		
+		if(!is_array($var_keys) || !is_array($var_vals))
+			return [];
+		
+		if(empty($var_keys) || empty($var_vals))
+			return [];
+		
 		foreach($var_keys as $var) {
 			if(isset($var_vals[$var])) {
 				@$var_mft = $trigger->variables[$var];

@@ -1904,8 +1904,8 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY),
 					'examples' => array(
-						'(noon to 1pm)',
-						'(now to +15 mins)',
+						'"noon to 1pm"',
+						'"now to +15 mins"',
 					),
 				),
 			'isBusy' => 
@@ -1913,8 +1913,8 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY),
 					'examples' => array(
-						'noon to 1pm',
-						'now to +15 mins',
+						'"noon to 1pm"',
+						'"now to +15 mins"',
 					),
 				),
 			'isDisabled' => 

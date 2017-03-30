@@ -661,7 +661,7 @@ class Model_TriggerEvent {
 				settype($value, 'integer');
 				
 				if(false == ($worker = DAO_Worker::get($value)))
-					throw new Exception(sprintf("The worklist variable '%s' can not be set to invalid worker #%d.",
+					throw new Exception(sprintf("The worker variable '%s' can not be set to invalid worker #%d.",
 						$var['key'],
 						$value
 					));
@@ -689,8 +689,7 @@ class Model_TriggerEvent {
 				
 			default:
 				if('ctx_' == substr($var['type'], 0, 4)) {
-					$objects = array();
-
+					$objects = [];
 					$json = null;
 					
 					if(is_array($value)) {
