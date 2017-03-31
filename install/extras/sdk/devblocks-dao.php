@@ -2,7 +2,7 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, Webgroup Media LLC <jeff@webgroupmedia.com>
- * @version 2016-12-28
+ * @version 2017-03-30
  */
 
 $plugin_id = 'example.plugin';
@@ -28,14 +28,14 @@ foreach ( $tables as $table_name => $field_strs ) {
 	
 	$schema = trim ( $field_strs );
 	$schema = str_replace ( array (
-			"\r" 
+		"\r" 
 	), array (
-			"\n" 
+		"\n" 
 	), $schema );
 	$schema = str_replace ( array (
-			"\n\n" 
+		"\n\n" 
 	), array (
-			"\n" 
+		"\n" 
 	), $schema );
 	
 	foreach ( explode ( "\n", $schema ) as $field_str ) {
@@ -1490,6 +1490,7 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'<?php echo $object_name; ?>'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
 
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
