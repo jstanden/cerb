@@ -127,6 +127,9 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 				break;
 		}
 		
+		if(!CerberusContexts::isWriteableByActor($owner_context, $owner_context_id, $active_worker))
+			return;
+		
 		if(empty($owner_context))
 			return;
 		

@@ -315,7 +315,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	
 	static function getOwnerTree(array $contexts=['app','bot','group','role','worker']) {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$bots = DAO_Bot::getAll();
+		
+		$bots = DAO_Bot::getWriteableByActor($active_worker);
 		$groups = DAO_Group::getAll();
 		$roles = DAO_WorkerRole::getAll();
 		$workers = DAO_Worker::getAllActive();
@@ -333,7 +334,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		// Apps
 		
-		if(in_array('app', $contexts)) {
+		if(in_array('app', $contexts) && $active_worker->is_superuser) {
 			$item = new DevblocksMenuItemPlaceholder();
 			$item->label = 'Cerb';
 			$item->l = 'Cerb';
@@ -363,6 +364,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			$groups_menu = new DevblocksMenuItemPlaceholder();
 			
 			foreach($groups as $group) {
+				if(!$active_worker->isGroupManager($group->id))
+					continue;
+				
 				$item = new DevblocksMenuItemPlaceholder();
 				$item->label = $group->name;
 				$item->l = $item->label;
@@ -375,7 +379,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		// Roles
 		
-		if(in_array('role', $contexts)) {
+		if(in_array('role', $contexts) && $active_worker->is_superuser) {
 			$roles_menu = new DevblocksMenuItemPlaceholder();
 			
 			foreach($roles as $role) {
@@ -395,6 +399,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			$workers_menu = new DevblocksMenuItemPlaceholder();
 			
 			foreach($workers as $worker) {
+				if(!($active_worker->is_superuser || $active_worker->id == $worker->id))
+					continue;
+				
 				$item = new DevblocksMenuItemPlaceholder();
 				$item->label = $worker->getName();
 				$item->l = $item->label;

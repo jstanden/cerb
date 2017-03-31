@@ -843,6 +843,11 @@ class Page_Custom extends CerberusPageExtension {
 					$owner_context = null;
 			}
 			
+			if(!CerberusContexts::isWriteableByActor($owner_context, $owner_context_id, $active_worker)) {
+				$owner_context = null;
+				$owner_context_id = null;
+			}
+			
 			if(!empty($owner_context)) {
 				$fields[DAO_WorkspacePage::OWNER_CONTEXT] = $owner_context;
 				$fields[DAO_WorkspacePage::OWNER_CONTEXT_ID] = $owner_context_id;
@@ -912,6 +917,8 @@ class Page_Custom extends CerberusPageExtension {
 			}
 			
 			// [TODO] Check $active_worker access to this context
+			if(!CerberusContexts::isWriteableByActor($owner_context, $owner_context_id, $active_worker))
+				throw new Exception();
 			
 			if(empty($owner_context))
 				throw new Exception();

@@ -82,6 +82,8 @@ $(function() {
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
+		// Owners
+		
 		var $owners_menu = $popup.find('ul.owners-menu');
 		var $ul = $owners_menu.siblings('ul.chooser-container');
 		
