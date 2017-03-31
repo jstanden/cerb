@@ -3799,11 +3799,12 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
 
 		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('field_name', 'behavior_params');
 		
 		if(null != ($trigger = DAO_TriggerEvent::get($trigger_id)))
-			$tpl->assign('macro_params', $trigger->variables);
+			$tpl->assign('variables', $trigger->variables);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/macros/behavior/bulk_params.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/behavior_variables_entry.tpl');
 	}
 	
 	function doDecisionAddConditionAction() {
