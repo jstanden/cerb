@@ -352,9 +352,19 @@
 				<seg>Behavior</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.behavior.bot">
+			<tuv xml:lang="en_US">
+				<seg>Bot Behavior</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.behaviors">
 			<tuv xml:lang="en_US">
 				<seg>Behaviors</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.behaviors.bot">
+			<tuv xml:lang="en_US">
+				<seg>Bot Behaviors</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.bot">

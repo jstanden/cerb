@@ -69,56 +69,6 @@
 					{$headers = $message->getHeaders()}
 					<button name="saveDraft" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
 					
-					{* Bots *}
-					{if !empty($macros)}
-					<button type="button" title="(Ctrl+Shift+B)" class="split-left" onclick="$(this).next('button').click();"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button><!--  
-					--><button type="button" title="(Ctrl+Shift+B)" class="split-right" id="btnReplyMacros{$message->id}"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
-					<ul class="cerb-popupmenu cerb-float" id="menuReplyMacros{$message->id}">
-						<li style="background:none;">
-							<input type="text" size="32" class="input_search filter">
-						</li>
-						
-						{$vas = DAO_Bot::getAll()}
-						
-						{foreach from=$vas item=va}
-							{capture name=behaviors}
-							{foreach from=$macros item=macro key=macro_id}
-							{if $macro->bot_id == $va->id}
-							<li class="item item-behavior">
-								<div style="margin-left:10px;">
-									{if $macro->has_public_vars}
-									<a href="javascript:;" onclick="genericAjaxPopup('peek','c=display&a=showMacroReplyPopup&ticket_id={$message->ticket_id}&message_id={$message->id}&macro={$macro->id}',$(this).closest('ul').get(),false,'400');$(this).closest('ul.cerb-popupmenu').hide();">
-									{else}
-									<a href="javascript:;" onclick="genericAjaxGet('','c=display&a=getMacroReply&ticket_id={$message->ticket_id}&message_id={$message->id}&macro={$macro->id}', function(js) { $script=$('<div></div>').html(js); $('BODY').append($script); });$(this).closest('ul.cerb-popupmenu').hide();">
-									{/if}
-										{if !empty($macro->title)}
-											{$macro->title}
-										{else}
-											{$event = DevblocksPlatform::getExtension($macro->event_point, false)}
-											{$event->name}
-										{/if}
-									</a>
-								</div>
-							</li>
-							{/if}
-							{/foreach}
-							{/capture}
-							
-							{if strlen(trim($smarty.capture.behaviors))}
-							<li class="item-va">
-								<div>
-									<a href="javascript:;" style="color:black;" tabindex="-1">{$va->name}</a>
-								</div>
-							</li>
-							{$smarty.capture.behaviors nofilter}
-							{/if}
-						{/foreach}
-						
-					</ul>
-					{/if}
-					
-					<button id="btnInsertReplySig{$message->id}" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if} onclick="$('#reply_{$message->id}').insertAtCursor('#signature\n');"><span class="glyphicons glyphicons-edit"></span> {'display.reply.insert_sig'|devblocks_translate|capitalize}</button>
-					
 					{* Plugin Toolbar *}
 					{if !empty($reply_toolbaritems)}
 						{foreach from=$reply_toolbaritems item=renderer}
@@ -128,9 +78,16 @@
 				</fieldset>
 				
 				<fieldset style="display:inline-block;margin-bottom:0;">
+					<legend>{'common.behaviors.bot'|devblocks_translate|capitalize}</legend>
+					<div>
+						<input type="text" size="25" class="context-behaviors autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+B)"{/if}>
+						<button type="button" id="btnReplyMacros{$message->id}" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="event:{Event_MailDuringUiReplyByWorker::ID} usableBy.worker:{$active_worker->id}" data-single="true"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button>
+					</div>
+				</fieldset>
+				
+				<fieldset style="display:inline-block;margin-bottom:0;">
 					<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
 					<div>
-						Insert: 
 						<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
 						<button type="button" onclick="ajax.chooserSnippet('chooser{$message->id}',$('#reply_{$message->id}'), { '{CerberusContexts::CONTEXT_TICKET}':'{$ticket->id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="glyphicons glyphicons-search"></span></button>
 						<button type="button" onclick="var txt = encodeURIComponent($('#reply_{$message->id}').selection('get')); genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_SNIPPET}&context_id=0&edit=1&text=' + txt,null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></button>
@@ -725,6 +682,71 @@
 		
 		$frm.validate();
 		
+		// Bots
+		
+		var $bot_trigger = $('#btnReplyMacros{$message->id}')
+			.click(function(e) {
+				var $trigger = $(this);
+				var context = $trigger.attr('data-context');
+				var q = $trigger.attr('data-query');
+				var single = $trigger.attr('data-single') != null ? '1' : '';
+				var width = $(window).width()-100;
+				
+				var $chooser = genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&single=' + encodeURIComponent(single),null,true,width);
+	
+				$chooser.on('chooser_save', function(evt) {
+					var behavior_id = evt.values[0];
+					
+					if(!behavior_id)
+						return;
+					
+					var newEvent = new jQuery.Event('cerb-behavior-select');
+					newEvent.behavior_id = behavior_id;
+					$trigger.trigger(newEvent);
+				})
+			})
+			.on('cerb-behavior-select', function(evt) {
+				var behavior_id = evt.behavior_id;
+				
+				genericAjaxGet('','c=display&a=getMacroReply&ticket_id={$message->ticket_id}&message_id={$message->id}&macro=' + encodeURIComponent(behavior_id), function(json) {
+					if(undefined != json.html) {
+						var $script = $('<div></div>').html(json.html);
+						$('BODY').append($script);
+						
+					} else if(undefined != json.has_variables) {
+						genericAjaxPopup('peek','c=display&a=showMacroReplyPopup&ticket_id={$message->ticket_id}&message_id={$message->id}&macro=' + encodeURIComponent(behavior_id), null, false, '50%');
+					}
+				});
+			})
+		;
+		
+		{$query = "event:{Event_MailDuringUiReplyByWorker::ID} usableBy.worker:{$active_worker->id}"}
+		$frm.find('input:text.context-behaviors').autocomplete({
+			delay: 300,
+			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context={CerberusContexts::CONTEXT_BEHAVIOR}&query={$query|escape}&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
+			minLength: 1,
+			focus:function(event, ui) {
+				return false;
+			},
+			autoFocus:true,
+			select:function(event, ui) {
+				var $this = $(this);
+				var $textarea = $('#reply_{$message->id}');
+				
+				var value = ui.item.value;
+				
+				if(!value || 0 == value.length)
+					return;
+				
+				var newEvent = new jQuery.Event('cerb-behavior-select');
+				newEvent.behavior_id = value;
+				$bot_trigger.trigger(newEvent);
+				
+				$this.val('');
+				return false;
+			}
+		});
+		
 		// Draft
 		
 		$frm.find('button[name=saveDraft]')
@@ -903,7 +925,7 @@
 				case 66: // (B) Insert Behavior
 					try {
 						event.preventDefault();
-						$('#btnReplyMacros{$message->id}').click();
+						$('#reply{$message->id}_part1').find('.context-behaviors').focus();
 					} catch(ex) { } 
 					break;
 				case 74: // (J) Jump to first blank line
@@ -1015,8 +1037,4 @@
 		});
 		{/if}
 	});
-</script>
-
-<script type="text/javascript">
-{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_menu="#menuReplyMacros{$message->id}" selector_button="#btnReplyMacros{$message->id}"}
 </script>

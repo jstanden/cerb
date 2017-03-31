@@ -624,6 +624,16 @@ class Model_TriggerEvent {
 	
 	private $_nodes = array();
 	
+	public function hasPublicVariables() {
+		if(is_array($this->variables))
+		foreach($this->variables as $k => $v) {
+			if(isset($v['is_private']) && !$v['is_private'])
+				return true;
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * @return Extension_DevblocksEvent
 	 */

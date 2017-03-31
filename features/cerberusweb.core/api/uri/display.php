@@ -665,17 +665,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
 		
-		// VA macros
-		
-		// [TODO] Filter by $ticket->group_id
-		$macros = DAO_TriggerEvent::getReadableByActor(
-			$active_worker,
-			Event_MailDuringUiReplyByWorker::ID,
-			false,
-			'worker'
-		);
-		$tpl->assign('macros', $macros);
-		
 		// VA behavior
 		
 		if(null != $active_worker) {
@@ -1162,6 +1151,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		header('Content-Type: application/json');
+		
 		try {
 			if(null == ($macro = DAO_TriggerEvent::get($macro_id)))
 				throw new Exception("Missing macro.");
@@ -1169,14 +1160,26 @@ class ChDisplayPage extends CerberusPageExtension {
 		} catch(Exception $e) {
 			return;
 		}
-			
-		// Verify permission
-		$editable = Context_Ticket::isWriteableByActor($ticket_id, $active_worker);
 		
-		if(!$editable)
+		// Can use behavior
+		if(false == Context_TriggerEvent::isReadableByActor($macro, $active_worker))
 			return;
-
+		
+		// Can modify target
+		if(false == Context_Ticket::isWriteableByActor($ticket_id, $active_worker))
+			return;
+		
 		$event = $macro->getEvent();
+		
+		if(!($event instanceof Event_MailDuringUiReplyByWorker))
+			return;
+		
+		// If these are required and empty, prompt for them
+		if($macro->hasPublicVariables() && !isset($_REQUEST['var_keys'])) {
+			echo json_encode(['has_variables'=>true]);
+			return;
+		}
+		
 		$conditions = $event->getConditions($macro);
 		
 		$actions = array();
@@ -1184,22 +1187,38 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Variables
 		@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_keys'],'array',array());
 		@$var_vals = DevblocksPlatform::importGPC($_REQUEST['var_vals'],'array',array());
-
-		// [TODO] Abstract this?
+		
 		$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $macro);
 		
-		Event_MailDuringUiReplyByWorker::trigger($macro_id, $message_id, $active_worker->id, $actions, $vars);
-
-		// [TODO] Move script block to template?
-		if(isset($actions['jquery_scripts'])) {
-			echo '<script type="text/javascript">';
-			echo '$("#reply' . $message_id . '_part1").closest("div.reply_frame").each(function(e) { try {';
-			echo implode("\n", $actions['jquery_scripts']);
-			echo ' } catch(e) {} });';
-			echo '</script>';
+		// Format variables
+		
+		foreach($vars as $var_key => $var_val) {
+			if(!isset($macro->variables[$var_key]))
+				continue;
+			
+			try {
+				$vars[$var_key] = $macro->formatVariable($macro->variables[$var_key], $var_val);
+			} catch(Exception $e) {
+				error_log($e->getMessage());
+			}
 		}
 		
-		exit;
+		Event_MailDuringUiReplyByWorker::trigger($macro_id, $message_id, $active_worker->id, $actions, $vars);
+		
+		$html = '';
+		
+		if(isset($actions['jquery_scripts'])) {
+			$html .= '<script type="text/javascript">'. PHP_EOL .
+				'$("#reply' . $message_id . '_part1").closest("div.reply_frame").each(function(e) { try {'. PHP_EOL .
+				implode("\n", $actions['jquery_scripts']).
+				PHP_EOL.
+				' } catch(e) {} });'. PHP_EOL .
+				'</script>' . PHP_EOL
+			;
+		}
+		
+		echo json_encode(['html' => $html]);
+		return;
 	}
 	
 	function showConversationAction() {

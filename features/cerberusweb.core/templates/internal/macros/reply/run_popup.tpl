@@ -52,8 +52,15 @@ $(function() {
 		{/if}
 		
 		$popup.find('button.submit').click(function() {
-			genericAjaxPost('frmRunBehaviorPopup', '', null, function(js) {
-				$('<div></div>').html(js).appendTo($('body'));
+			genericAjaxPost('frmRunBehaviorPopup', '', null, function(json) {
+				if(undefined == json.html)
+					return;
+				
+				if(json.html) {
+					var $script = $('<div></div>').html(json.html);
+					$('body').append($script);
+				}
+				
 				genericAjaxPopupClose($popup);
 			});
 		});
