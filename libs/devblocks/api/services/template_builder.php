@@ -441,6 +441,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return array(
 			new Twig_SimpleFunction('array_diff', [$this, 'function_array_diff']),
 			new Twig_SimpleFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
+			new Twig_SimpleFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
 			new Twig_SimpleFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
 			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
 			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
@@ -466,6 +467,26 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return sprintf('<img src="%s" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;">',
 			$url
 		);
+	}
+	
+	function function_cerb_avatar_url($context, $id, $updated=0) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
+		if(false == ($context_ext = Extension_DevblocksContext::get($id)))
+			return null;
+		
+		if(false == ($aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest)))
+			return null;
+		
+		$type = @$aliases['uri'] ?: $context_ext->manifest->id;
+		
+		$url = $url_writer->write(sprintf('c=avatars&type=%s&id=%d', rawurlencode($type), $id), true, true);
+		
+		if($updated)
+			$url .= '?v=' . intval($updated);
+		
+		return $url;
 	}
 	
 	function function_cerb_file_url($id) {
