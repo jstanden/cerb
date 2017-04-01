@@ -1138,10 +1138,10 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="contact" value="singular short" />
-						<data key="contacts" value="plural short" />
-						<data key="person" value="singular short" />
-						<data key="people" value="plural short" />
+						<data key="contact" value="singular" />
+						<data key="contacts" value="plural" />
+						<data key="person" value="singular" />
+						<data key="people" value="plural" />
 					</value>
 				</param>
 				<param key="alias" value="contact" />
