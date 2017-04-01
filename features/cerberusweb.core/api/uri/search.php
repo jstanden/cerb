@@ -105,9 +105,12 @@ class Page_Search extends CerberusPageExtension {
 		if(isset($_REQUEST['q']))
 			$view->addParamsWithQuickSearch($query, true);
 		
+		$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
+		$label = @$aliases['plural'] ?: $context_ext->manifest->name;
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('context_ext', $context_ext);
-		$tpl->assign('popup_title', $context_ext->manifest->name . ' Search');
+		$tpl->assign('popup_title', DevblocksPlatform::translateCapitalized('common.search') . ': ' . mb_convert_case($label, MB_CASE_TITLE));
 		$tpl->assign('quick_search_query', $query);
 		$tpl->assign('view', $view);
 		
