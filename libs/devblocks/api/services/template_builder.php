@@ -440,6 +440,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	public function getFunctions() {
 		return array(
 			new Twig_SimpleFunction('array_diff', [$this, 'function_array_diff']),
+			new Twig_SimpleFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
 			new Twig_SimpleFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
 			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
 			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
@@ -457,6 +458,14 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return;
 		
 		return array_diff($arr1, $arr2);
+	}
+	
+	function function_cerb_avatar_image($context, $id, $updated=0) {
+		$url = $this->function_cerb_avatar_url($context, $id, $updated);
+		
+		return sprintf('<img src="%s" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;">',
+			$url
+		);
 	}
 	
 	function function_cerb_file_url($id) {
