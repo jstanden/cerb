@@ -146,7 +146,7 @@ class DAO_Skillset extends Cerb_ORMHelper {
 		
 		$results = array();
 		
-		$skill_to_context = $db->GetArray(sprintf("SELECT cts.skill_id, cts.skill_level FROM context_to_skill cts WHERE context = %s and context_id = %d",
+		$skill_to_context = $db->GetArraySlave(sprintf("SELECT cts.skill_id, cts.skill_level FROM context_to_skill cts WHERE context = %s and context_id = %d",
 			$db->qstr($context),
 			$context_id
 		));

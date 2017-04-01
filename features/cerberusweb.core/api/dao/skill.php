@@ -158,7 +158,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 		// [TODO] Do we cache this for workers?
 		// [TODO] Or do we pull worker skill levels separately?
 		
-		$results = $db->GetArray(sprintf("SELECT skill_id, skill_level FROM context_to_skill WHERE context = %s AND context_id = %d",
+		$results = $db->GetArraySlave(sprintf("SELECT skill_id, skill_level FROM context_to_skill WHERE context = %s AND context_id = %d",
 			$db->qstr($context),
 			$context_id
 		));

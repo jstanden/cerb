@@ -100,7 +100,7 @@ class DAO_ContextRecommendation extends Cerb_ORMHelper {
 		$workers = DAO_Worker::getAll();
 		$recommendations = array();
 		
-		$results = $db->GetArray(sprintf("SELECT worker_id FROM context_recommendation WHERE context = %s AND context_id = %d",
+		$results = $db->GetArraySlave(sprintf("SELECT worker_id FROM context_recommendation WHERE context = %s AND context_id = %d",
 			$db->qstr($context),
 			$context_id
 		));
@@ -128,7 +128,7 @@ class DAO_ContextRecommendation extends Cerb_ORMHelper {
 		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int', array('nonzero', 'unique'));
 		
 		if(!empty($context_ids)) {
-			$results = $db->GetArray(sprintf("SELECT context_id, worker_id FROM context_recommendation WHERE context = %s AND context_id IN (%s)",
+			$results = $db->GetArraySlave(sprintf("SELECT context_id, worker_id FROM context_recommendation WHERE context = %s AND context_id IN (%s)",
 				$db->qstr($context),
 				implode(',', $context_ids)
 			));

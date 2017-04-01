@@ -273,7 +273,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 				implode(',', DAO_KbCategory::getDescendents($category_id, $tree)),
 				$limit
 			);
-			$results = $db->GetArray($sql);
+			$results = $db->GetArraySlave($sql);
 			
 			if(is_array($results))
 			foreach($results as $result) {

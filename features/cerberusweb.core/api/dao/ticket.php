@@ -1340,7 +1340,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"ORDER BY a.email ASC ",
 			$ticket_id
 		);
-		$results = $db->GetArray($sql);
+		$results = $db->GetArraySlave($sql);
 
 		if(is_array($results))
 		foreach($results as $result) {

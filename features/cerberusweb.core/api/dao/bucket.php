@@ -220,7 +220,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::getDatabaseService();
 		$responsibilities = array();
 		
-		$results = $db->GetArray(sprintf("SELECT worker_id, responsibility_level FROM worker_to_bucket WHERE bucket_id = %d",
+		$results = $db->GetArraySlave(sprintf("SELECT worker_id, responsibility_level FROM worker_to_bucket WHERE bucket_id = %d",
 			$bucket_id
 		));
 		
