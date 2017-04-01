@@ -15,6 +15,117 @@ class _DevblocksTemplateBuilder {
 		
 		if(class_exists('_DevblocksTwigExtensions', true)) {
 			$this->_twig->addExtension(new _DevblocksTwigExtensions());
+			
+			// Sandbox Twig
+			
+			$tags = [
+				//'autoescape',
+				//'block',
+				'do',
+				//'embed',
+				//'extends',
+				'filter',
+				//'flush',
+				'for',
+				//'from',
+				'if',
+				//'import',
+				//'include',
+				//'macro',
+				'sandbox',
+				'set',
+				'spaceless',
+				//'use',
+				'verbatim',
+				'with',
+			];
+			
+			$filters = [
+				'base64_encode',
+				'base64_decode',
+				'bytes_pretty',
+				'date_pretty',
+				'json_pretty',
+				'md5',
+				'parse_emails',
+				'quote',
+				'regexp',
+				'secs_pretty',
+				'split_crlf',
+				'split_csv',
+				'truncate',
+				'url_decode',
+				
+				'abs',
+				'batch',
+				'capitalize',
+				'convert_encoding',
+				'date',
+				'date_modify',
+				'default',
+				'escape',
+				'first',
+				'format',
+				'join',
+				'json_encode',
+				'keys',
+				'last',
+				'length',
+				'lower',
+				'merge',
+				'nl2br',
+				'number_format',
+				'raw',
+				'replace',
+				'reverse',
+				'round',
+				'slice',
+				'sort',
+				'split',
+				'striptags',
+				'title',
+				'trim',
+				'upper',
+				'url_encode',
+			];
+			
+			$functions = [
+				'array_diff',
+				'cerb_avatar_image',
+				'cerb_avatar_url',
+				'cerb_file_url',
+				'cerb_url',
+				'dict_set',
+				'json_decode',
+				'jsonpath_set',
+				'regexp_match_all',
+				'xml_decode',
+				'xml_encode',
+				'xml_path',
+				'xml_path_ns',
+				
+				'attribute',
+				//'block',
+				//'constant',
+				'cycle',
+				'date',
+				//'dump',
+				//'include',
+				'max',
+				'min',
+				//'parent',
+				'random',
+				'range',
+				//'source',
+				//'template_from_string',
+			];
+			
+			$methods = [];
+			$properties = [];
+			
+			$policy = new Twig_Sandbox_SecurityPolicy($tags, $filters, $methods, $properties, $functions);
+			$sandbox = new Twig_Extension_Sandbox($policy, true);
+			$this->_twig->addExtension($sandbox);
 		}
 	}
 	
