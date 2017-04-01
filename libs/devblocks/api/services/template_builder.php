@@ -443,6 +443,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
 			new Twig_SimpleFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
 			new Twig_SimpleFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
+			new Twig_SimpleFunction('cerb_url', [$this, 'function_cerb_url']),
 			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
 			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
 			new Twig_SimpleFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
@@ -496,6 +497,11 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return null;
 		
 		return $url_writer->write(sprintf('c=files&id=%d&name=%s', $id, rawurlencode($file->name)), true, true);
+	}
+	
+	function function_cerb_url($url, $full=true, $proxy=true) {
+		$url_writer = DevblocksPlatform::getUrlService();
+		return $url_writer->write($url, $full, $proxy);
 	}
 	
 	function function_json_decode($str) {
