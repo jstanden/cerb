@@ -124,6 +124,31 @@ var atwho_twig_commands = [
 	{ name: "{% with %}\n{% endwith %}\n", content: "Define temporary values in an inner scope" },
 ];
 
+var atwho_twig_functions = [
+	{ name: "{{array_diff(arr1,arr2)}}", content: "Find the difference of two arrays" },
+	{ name: "{{cerb_avatar_image(context,id,updated)}}", content: "Render avatar image tag" },
+	{ name: "{{cerb_avatar_url(context,id,updated)}}", content: "Generate an avatar URL" },
+	{ name: "{{cerb_file_url(file_id,full,proxy)}}", content: "Generate a file URL" },
+	{ name: "{{cerb_url('c=controller&a=action&p=param')}}", content: "Generate a URL" },
+	{ name: "{{dict_set(obj,keypath,value)}}", content: "Set a nested value on an object" },
+	{ name: "{{json_decode(string)}}", content: "Decode a JSON encoded string" },
+	{ name: "{{jsonpath_set(json,keypath,value)}}", content: "Set a nested key value in a JSON object" },
+	{ name: "{{regexp_match_all(pattern,text,group)}}", content: "Extract regular expression matches from text" },
+	{ name: "{{xml_decode(string,namespaces)}}", content: "Convert text to an XML object" },
+	{ name: "{{xml_encode(xml)}}", content: "Convert an XML object to text" },
+	{ name: "{{xml_path(xml,path,element)}}", content: "Extract an element from an XML object by XPath" },
+	{ name: "{{xml_path_ns(xml,prefix,ns)}}", content: "Register an XML namespace using a prefix" },
+
+	{ name: "{{attribute(object,attr)}}", content: "Dynamically retrieve an attribute on an object" },
+	{ name: "{{cycle(position)}}", content: "Cycle through a list of positions on an array" },
+	{ name: "{{date(date,timezone)}}", content: "Create a date object" },
+	//{ name: "{{dump(var)}}", content: "Debug the contents of a variable" },
+	{ name: "{{max(array)}}", content: "Return the largest value in an array" },
+	{ name: "{{min(array)}}", content: "Return the smallest value in an array" },
+	{ name: "{{random(values)}}", content: "Return a random number or array member" },
+	{ name: "{{range(low,high,step)}}", content: "Create a numeric sequence array" },
+];
+
 var atwho_twig_modifiers = [
 	{ name: "capitalize", content: "Capitalize text" },
 	{ name: "date('F d, Y')", content: "Format timestamp as a date" },
