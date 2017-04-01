@@ -113,10 +113,15 @@ var markitupHTMLDefaults = {
 }
 
 var atwho_twig_commands = [
+	{ name: "{% do 1 + 2 %}", content: "Perform an operation without output" },
 	{ name: "{% if placeholder %}{% else %}{% endif %}", content: "If...else" },
+	{ name: "{% filter upper %}\n{% endfilter %}", content: "Apply filters to a block of text" },
 	{ name: "{% for placeholder in array %}\n{% endfor %}", content: "For loop" },
 	{ name: "{% set var = 'Value' %}", content: "Set temporary variable" },
-	{ name: "{% spaceless%}\n{% endspaceless %}\n", content: "Ignore whitespace" },
+	{ name: "{% spaceless %}\n{% endspaceless %}\n", content: "Ignore whitespace" },
+	{ name: "{% set obj = dict_set(obj,keypath,value) %}", content: "Set a nested value on an object" },
+	{ name: "{% verbatim %}\n{% endverbatim %}\n", content: "Ignore scripting code in a text block" },
+	{ name: "{% with %}\n{% endwith %}\n", content: "Define temporary values in an inner scope" },
 ];
 
 var atwho_twig_modifiers = [
