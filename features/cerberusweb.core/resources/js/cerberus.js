@@ -857,6 +857,41 @@ var ajax = new cAjaxCalls();
 		});
 	}
 	
+	$.fn.cerbTwigCodeCompletion = function(options) {
+		return this.each(function() {
+			var $trigger = $(this);
+			
+			$trigger
+				.atwho({
+					at: '{%',
+					limit: 20,
+					displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',
+					insertTpl: '${name}',
+					data: atwho_twig_commands,
+					suffix: ''
+				})
+				.atwho({
+					at: '{{',
+					limit: 20,
+					displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',
+					insertTpl: '${name}',
+					data: atwho_twig_functions,
+					suffix: ''
+				})
+				.atwho({
+					at: '|',
+					limit: 20,
+					startWithSpace: false,
+					searchKey: "content",
+					displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',
+					insertTpl: '|${name}',
+					data: atwho_twig_modifiers,
+					suffix: ''
+				})
+			;
+		});
+	};
+	
 	// Abstract peeks
 	
 	$.fn.cerbPeekTrigger = function(options) {

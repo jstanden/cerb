@@ -180,24 +180,7 @@ $(function() {
 		// Placeholders
 		
 		$popup.find(':text.placeholders, textarea.placeholders')
-			.atwho({
-				{literal}at: '{%',{/literal}
-				limit: 20,
-				{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
-				{literal}insertTpl: '${name}',{/literal}
-				data: atwho_twig_commands,
-				suffix: ''
-			})
-			.atwho({
-				{literal}at: '|',{/literal}
-				limit: 20,
-				startWithSpace: false,
-				searchKey: "content",
-				{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
-				{literal}insertTpl: '|${name}',{/literal}
-				data: atwho_twig_modifiers,
-				suffix: ''
-			})
+			.cerbTwigCodeCompletion()
 			;
 		
 		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
@@ -350,24 +333,7 @@ $(function() {
 					});
 					
 					$html.find(':text.placeholders, textarea.placeholders')
-						.atwho({
-							{literal}at: '{%',{/literal}
-							limit: 20,
-							{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
-							{literal}insertTpl: '${name}',{/literal}
-							data: atwho_twig_commands,
-							suffix: ''
-						})
-						.atwho({
-							{literal}at: '|',{/literal}
-							limit: 20,
-							startWithSpace: false,
-							searchKey: "content",
-							{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
-							{literal}insertTpl: '|${name}',{/literal}
-							data: atwho_twig_modifiers,
-							suffix: ''
-						})
+						.cerbTwigCodeCompletion()
 						;
 					
 					$frm.find('input[name=seq]').val(1+seq);

@@ -22,24 +22,7 @@ $(function() {
 	
 	// Snippet syntax
 	$textarea
-		.atwho({
-			{literal}at: '{%',{/literal}
-			limit: 20,
-			{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
-			{literal}insertTpl: '${name}',{/literal}
-			data: atwho_twig_commands,
-			suffix: ''
-		})
-		.atwho({
-			{literal}at: '|',{/literal}
-			limit: 20,
-			startWithSpace: false,
-			searchKey: "content",
-			{literal}displayTpl: '<li>${content} <small style="margin-left:10px;">${name}</small></li>',{/literal}
-			{literal}insertTpl: '|${name}',{/literal}
-			data: atwho_twig_modifiers,
-			suffix: ''
-		})
+		.cerbTwigCodeCompletion()
 		;
 })
 </script>
