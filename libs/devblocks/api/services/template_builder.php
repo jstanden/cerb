@@ -1,4 +1,23 @@
 <?php
+class _DevblocksTwigSecurityPolicy extends Twig_Sandbox_SecurityPolicy {
+	function checkMethodAllowed($obj, $method) {
+		if ($obj instanceof Twig_TemplateInterface || $obj instanceof Twig_Markup) {
+			return true;
+		}
+		
+		throw new Twig_Sandbox_SecurityError(sprintf('Calling "%s" method on a "%s" object is not allowed.', $method, get_class($obj)));
+	}
+	
+	function checkPropertyAllowed($obj, $property) {
+		// Everything in our dictionary is okay
+		if($obj instanceof DevblocksDictionaryDelegate)
+			return;
+		
+		// Deny everything else
+		throw new Twig_Sandbox_SecurityError(sprintf('Calling "%s" property on a "%s" object is not allowed.', $property, get_class($obj)));
+	}
+}
+
 class _DevblocksTemplateBuilder {
 	private $_twig = null;
 	private $_errors = array();
@@ -123,7 +142,7 @@ class _DevblocksTemplateBuilder {
 			$methods = [];
 			$properties = [];
 			
-			$policy = new Twig_Sandbox_SecurityPolicy($tags, $filters, $methods, $properties, $functions);
+			$policy = new _DevblocksTwigSecurityPolicy($tags, $filters, $methods, $properties, $functions);
 			$sandbox = new Twig_Extension_Sandbox($policy, true);
 			$this->_twig->addExtension($sandbox);
 		}
