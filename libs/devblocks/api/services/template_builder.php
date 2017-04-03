@@ -120,8 +120,8 @@ class _DevblocksTemplateBuilder {
 				'regexp_match_all',
 				'xml_decode',
 				'xml_encode',
-				'xml_path',
-				'xml_path_ns',
+				'xml_xpath',
+				'xml_xpath_ns',
 				
 				'attribute',
 				//'block',
