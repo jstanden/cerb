@@ -1593,10 +1593,37 @@ abstract class C4_AbstractView {
 	
 	// [TODO] Cache this?
 	function getQuickSearchMenu() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(!$this instanceof IAbstractView_QuickSearch)
 			return;
 		
 		$menu = array();
+		
+		$view_context = $this->getContext();
+		
+		// Saved searches
+		
+		if(false != ($view_context = $this->getContext())) { 
+			$presets_menu = new DevblocksMenuItemPlaceholder();
+
+			// Load saved searches for this context type
+			$searches = DAO_ContextSavedSearch::getUsableByActor($active_worker, $view_context);
+			
+			if(is_array($searches))
+			foreach($searches as $search) {
+				if(empty($search->query))
+					continue;
+				
+				$item = new DevblocksMenuItemPlaceholder();
+				$item->label = $search->name;
+				$item->l = $search->name;
+				$item->key = $search->query;
+				$presets_menu->children[$search->id] = $item;
+			}
+			
+			$menu['(saved searches)'] = $presets_menu;
+		}
 		
 		// Operators
 		

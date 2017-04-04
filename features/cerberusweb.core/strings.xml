@@ -1417,6 +1417,16 @@
 				<seg>public</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.queries">
+			<tuv xml:lang="en_US">
+				<seg>Queries</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.query">
+			<tuv xml:lang="en_US">
+				<seg>Query</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.quick_compose">
 			<tuv xml:lang="en_US">
 				<seg>Quick Compose</seg>

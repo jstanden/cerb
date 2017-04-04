@@ -60,7 +60,7 @@
 		<patch version="7.1.0" revision="1141" file="patches/7.x/7.1.0.php" />
 		<patch version="7.2.0" revision="1167" file="patches/7.x/7.2.0.php" />
 		<patch version="7.3.0" revision="1190" file="patches/7.x/7.3.0.php" />
-		<patch version="7.4.0" revision="1200" file="patches/7.x/7.4.0.php" />
+		<patch version="7.4.0" revision="1201" file="patches/7.x/7.4.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -289,6 +289,14 @@
 		
 		<file path="api/dao/context_recommendation.php">
 			<class name="DAO_ContextRecommendation" />
+		</file>
+		
+		<file path="api/dao/context_saved_search.php">
+			<class name="Context_ContextSavedSearch" />
+			<class name="DAO_ContextSavedSearch" />
+			<class name="Model_ContextSavedSearch" />
+			<class name="SearchFields_ContextSavedSearch" />
+			<class name="View_ContextSavedSearch" />
 		</file>
 		
 		<file path="api/dao/context_scheduled_behavior.php">
@@ -1280,6 +1288,40 @@
 						<!-- <data key="search" /> -->
 						<data key="va_variable" />
 						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.context.saved.search</id>
+			<name>Saved Search</name>
+			<class>
+				<file>api/dao/context_saved_search.php</file>
+				<name>Context_ContextSavedSearch</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="saved search" value="singular" />
+						<data key="saved searches" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="saved_search" />
+				<param key="dao_class" value="DAO_ContextSavedSearch" />
+				<param key="view_class" value="View_ContextSavedSearch" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="create" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
+						<!--
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="snippets" />
+						-->
 					</value>
 				</param>
 			</params>
@@ -4112,6 +4154,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="contact" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.context_saved_search</id>
+				<name>Saved Search Section</name>
+				<class>
+					<file>api/uri/profiles/context_saved_search.php</file>
+					<name>PageSection_ProfilesContextSavedSearch</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="saved_search" />
 				</params>
 			</extension>
 			
