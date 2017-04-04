@@ -111,11 +111,11 @@ class CerberusApplication extends DevblocksApplication {
 		return $bots;
 	}
 	
-	static function getWorkersByAtMentionsText($text) {
+	static function getWorkersByAtMentionsText($text, $with_searches=true) {
 		$workers = array();
 
 		if(false !== ($at_mentions = DevblocksPlatform::parseAtMentionString($text))) {
-			$workers = DAO_Worker::getByAtMentions($at_mentions);
+			$workers = DAO_Worker::getByAtMentions($at_mentions, $with_searches);
 		}
 
 		return $workers;
@@ -218,16 +218,33 @@ class CerberusApplication extends DevblocksApplication {
 		return json_encode($list);
 	}
 	
-	static function getAtMentionsWorkerDictionaryJson() {
+	static function getAtMentionsWorkerDictionaryJson($with_searches=true) {
 		$workers = DAO_Worker::getAllActive();
-
-		$list = array();
-
+		$list = [];
+		
+		if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+			$searches = DAO_ContextSavedSearch::getUsableByActor($active_worker, CerberusContexts::CONTEXT_WORKER);
+			
+			foreach($searches as $search) {
+				if(empty($search->tag))
+					continue;
+				
+				$list[DevblocksPlatform::strLower($search->tag)] = array(
+					'id' => $search->id,
+					'name' => DevblocksPlatform::strEscapeHtml($search->name),
+					'email' => DevblocksPlatform::strEscapeHtml(null),
+					'title' => DevblocksPlatform::strEscapeHtml(null),
+					'at_mention' => DevblocksPlatform::strEscapeHtml($search->tag),
+					'_index' => DevblocksPlatform::strEscapeHtml($search->name . ' ' . $search->tag),
+				);
+			}
+		}
+		
 		foreach($workers as $worker) {
 			if(empty($worker->at_mention_name))
 				continue;
 			
-			$list[] = array(
+			$list[DevblocksPlatform::strLower($worker->at_mention_name)] = array(
 				'id' => $worker->id,
 				'name' => DevblocksPlatform::strEscapeHtml($worker->getName()),
 				'email' => DevblocksPlatform::strEscapeHtml($worker->getEmailString()),
@@ -237,7 +254,7 @@ class CerberusApplication extends DevblocksApplication {
 			);
 		}
 
-		return json_encode($list);
+		return json_encode(array_values($list));
 	}
 
 	/**

@@ -234,21 +234,49 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return self::_createObjectsFromResultSet($rs);
 	}
 	
-	static function getByAtMentions($at_mentions) {
+	static function getMentions() {
+		$workers = DAO_Worker::getAllActive();
+		$mentions = array_column(DevblocksPlatform::objectsToArrays($workers), 'at_mention_name', 'id');
+		
+		foreach($mentions as &$mention)
+			$mention = DevblocksPlatform::strLower($mention);
+		
+		return array_flip($mentions);
+	}
+	
+	static function getByAtMentions($at_mentions, $with_searches=true) {
 		if(!is_array($at_mentions) && is_string($at_mentions))
 			$at_mentions = array($at_mentions);
 		
-		$workers = DAO_Worker::getAllActive();
+		$workers = [];
+		$all_workers = DAO_Worker::getAllActive();
+		$mentions_to_worker_id = DAO_Worker::getMentions();
 		
-		$workers = array_filter($workers, function($worker) use ($at_mentions) {
-			foreach($at_mentions as $at_mention) {
-				if($worker->at_mention_name && 0 == strcasecmp(ltrim($at_mention, '@'), $worker->at_mention_name)) {
-					return true;
+		foreach($at_mentions as $idx => $at_mention) {
+			$at_mention = ltrim($at_mention, '@');
+			
+			// Check workers first
+			if(isset($mentions_to_worker_id[$at_mention])) {
+				$worker_id = $mentions_to_worker_id[$at_mention];
+				
+				if(isset($all_workers[$worker_id])) {
+					$workers[$worker_id] = $all_workers[$worker_id];
+					continue;
 				}
 			}
 			
-			return false;
-		});
+			// Then check saved searches
+			if(false != ($search = DAO_ContextSavedSearch::getByTag($at_mention))) {
+				if(false == ($results = $search->getResults()))
+					continue;
+				
+				$worker_ids = array_keys($results);
+				
+				if(!empty($worker_ids)) {
+					$workers = $workers + array_intersect_key($all_workers, array_flip($worker_ids));
+				}
+			}
+		}
 		
 		return $workers;
 	}
