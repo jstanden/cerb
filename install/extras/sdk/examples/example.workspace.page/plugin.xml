@@ -11,7 +11,7 @@
  	<!-- Requirements -->
 
 	<requires>
-		<app_version min="7.3" max="7.3.99" />
+		<app_version min="7.4" max="7.4.99" />
 	</requires>
  
 	<!-- Plugin Dependencies -->
