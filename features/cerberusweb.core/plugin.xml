@@ -2307,7 +2307,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.interaction.chat.worker</id>
-			<name>[UI] New chat message from worker</name>
+			<name>[Conversations] New chat message received from worker</name>
 			<class>
 				<file>api/events/interaction/interaction_chat_worker.php</file>
 				<name>Event_InteractionChatWorker</name>
