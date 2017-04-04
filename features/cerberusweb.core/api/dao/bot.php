@@ -233,14 +233,14 @@ class DAO_Bot extends Cerb_ORMHelper {
 	static function getReadableByActorAndInteraction($actor, $interaction) {
 		$bots = DAO_Bot::getAll();
 		
-		$bots = array_filter($bots, function($bot) { /* @var $bot Model_Bot */
+		$bots = array_filter($bots, function($bot) use ($interaction) { /* @var $bot Model_Bot */
 			if(!$bot->at_mention_name)
 				return false;
 			
 			if(!isset($bot->params['interactions']))
 				return false;
 			
-			if(!isset($bot->params['interactions']['worker']) || empty($bot->params['interactions']['worker']))
+			if(!isset($bot->params['interactions'][$interaction]) || empty($bot->params['interactions'][$interaction]))
 				return false;
 			
 			return true;
