@@ -88,6 +88,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		
 		if('dao'==$type) {
 			$tokens = array(
+				'auth' => DAO_Worker::AUTH_EXTENSION_ID,
 				'email_id' => DAO_Worker::EMAIL_ID,
 				'first_name' => DAO_Worker::FIRST_NAME,
 				'is_disabled' => DAO_Worker::IS_DISABLED,
@@ -103,6 +104,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'fieldsets' => SearchFields_Worker::VIRTUAL_HAS_FIELDSET,
 				'links' => SearchFields_Worker::VIRTUAL_CONTEXT_LINK,
 					
+				'auth' => SearchFields_Worker::AUTH_EXTENSION_ID,
 				'first_name' => SearchFields_Worker::FIRST_NAME,
 				'is_disabled' => SearchFields_Worker::IS_DISABLED,
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
@@ -117,6 +119,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			
 		} else {
 			$tokens = array(
+				'auth' => SearchFields_Worker::AUTH_EXTENSION_ID,
 				'id' => SearchFields_Worker::ID,
 				'email_id' => SearchFields_Worker::EMAIL_ID,
 				'email' => SearchFields_Worker::EMAIL_ADDRESS,
@@ -133,6 +136,15 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			return $tokens[$token];
 		
 		return NULL;
+	}
+	
+	private function _validateFields($fields, $id=0) {
+		if(isset($fields[DAO_Worker::AUTH_EXTENSION_ID])) {
+			if(false == ($login_ext = Extension_LoginAuthenticator::get($fields[DAO_Worker::AUTH_EXTENSION_ID], false))) {
+				$this->error(self::ERRNO_CUSTOM, "The 'auth' field specifies an invalid extension.");
+			}
+		}
+		
 	}
 	
 	function getId($id) {
@@ -253,8 +265,9 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		// Validate the ID
 		if(null == DAO_Worker::get($id))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid worker ID '%d'", $id));
-			
+		
 		$putfields = array(
+			'auth' => 'string',
 			'email_id' => 'integer',
 			'first_name' => 'string',
 			'is_disabled' => 'bit',
@@ -282,6 +295,9 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			$fields[$field] = $value;
 		}
 		
+		// Validate $fields
+		$this->_validateFields($fields, $id);
+		
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
 		if(is_array($customfields))
@@ -306,6 +322,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(
+			'auth' => 'string',
 			'email_id' => 'integer',
 			'first_name' => 'string',
 			'is_disabled' => 'bit',
@@ -354,7 +371,11 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
-		$fields[DAO_Worker::AUTH_EXTENSION_ID] = 'login.password';
+		if(!isset($fields[DAO_Worker::AUTH_EXTENSION_ID]))
+			$fields[DAO_Worker::AUTH_EXTENSION_ID] = 'login.password';
+		
+		// Validate $fields
+		$this->_validateFields($fields);
 		
 		// Create
 		if(false != ($id = DAO_Worker::create($fields))) {
