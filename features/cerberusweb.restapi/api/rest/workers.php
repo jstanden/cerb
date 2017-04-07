@@ -92,6 +92,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'dob' => DAO_Worker::DOB,
 				'email_id' => DAO_Worker::EMAIL_ID,
 				'first_name' => DAO_Worker::FIRST_NAME,
+				'gender' => DAO_Worker::GENDER,
 				'is_disabled' => DAO_Worker::IS_DISABLED,
 				'is_superuser' => DAO_Worker::IS_SUPERUSER,
 				'last_name' => DAO_Worker::LAST_NAME,
@@ -107,6 +108,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 					
 				'auth' => SearchFields_Worker::AUTH_EXTENSION_ID,
 				'first_name' => SearchFields_Worker::FIRST_NAME,
+				'gender' => SearchFields_Worker::GENDER,
 				'is_disabled' => SearchFields_Worker::IS_DISABLED,
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
 				'last_name' => SearchFields_Worker::LAST_NAME,
@@ -126,6 +128,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'email_id' => SearchFields_Worker::EMAIL_ID,
 				'email' => SearchFields_Worker::EMAIL_ADDRESS,
 				'first_name' => SearchFields_Worker::FIRST_NAME,
+				'gender' => SearchFields_Worker::GENDER,
 				'is_disabled' => SearchFields_Worker::IS_DISABLED,
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
 				'last_name' => SearchFields_Worker::LAST_NAME,
@@ -152,6 +155,13 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			
 			if(!is_string($dob) || !preg_match('#\d{4}\-\d{1,2}\-{1,2}#', $dob) || false == @strtotime($dob))
 				$this->error(self::ERRNO_CUSTOM, "The 'dob' field is not a valid YYYY-MM-DD date.");
+		}
+		
+		if(isset($fields[DAO_Worker::GENDER])) {
+			$fields[DAO_Worker::GENDER] = DevblocksPlatform::strUpper($fields[DAO_Worker::GENDER]);
+			
+			if(!in_array($fields[DAO_Worker::GENDER], ['','M','F']))
+				$this->error(self::ERRNO_CUSTOM, "The 'gender' field must be '', 'M' or 'F'.");
 		}
 		
 	}
@@ -280,6 +290,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'dob' => 'string',
 			'email_id' => 'integer',
 			'first_name' => 'string',
+			'gender' => 'string',
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
 			'last_name' => 'string',
@@ -336,6 +347,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'dob' => 'string',
 			'email_id' => 'integer',
 			'first_name' => 'string',
+			'gender' => 'string',
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
 			'last_name' => 'string',
