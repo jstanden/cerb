@@ -101,6 +101,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'mobile' => DAO_Worker::MOBILE,
 				'password' => 'password',
 				'phone' => DAO_Worker::PHONE,
+				'timezone' => DAO_Worker::TIMEZONE,
 				'title' => DAO_Worker::TITLE,
 				'updated' => DAO_Worker::UPDATED,
 			);
@@ -117,6 +118,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
 				'last_name' => SearchFields_Worker::LAST_NAME,
 				'location' => SearchFields_Worker::LOCATION,
+				'timezone' => SearchFields_Worker::TIMEZONE,
 				'title' => SearchFields_Worker::TITLE,
 			);
 			
@@ -141,6 +143,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'mention' => SearchFields_Worker::AT_MENTION_NAME,
 				'mobile' => SearchFields_Worker::MOBILE,
 				'phone' => SearchFields_Worker::PHONE,
+				'timezone' => SearchFields_Worker::TIMEZONE,
 				'title' => SearchFields_Worker::TITLE,
 				'updated' => SearchFields_Worker::UPDATED,
 			);
@@ -182,6 +185,14 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				$this->error(self::ERRNO_CUSTOM, "The 'gender' field must be '', 'M' or 'F'.");
 		}
 		
+		if(isset($fields[DAO_Worker::TIMEZONE])) {
+			$date = DevblocksPlatform::getDateService();
+			$timezones = $date->getTimezones();
+			
+			if(!in_array($fields[DAO_Worker::TIMEZONE], $timezones)) {
+				$this->error(self::ERRNO_CUSTOM, "The 'timezone' field specifies an invalid time zone.");
+			}
+		}
 	}
 	
 	function getId($id) {
@@ -316,6 +327,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'mention' => 'string',
 			'mobile' => 'string',
 			'phone' => 'string',
+			'timezone' => 'string',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);
@@ -377,6 +389,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'mention' => 'string',
 			'mobile' => 'string',
 			'phone' => 'string',
+			'timezone' => 'string',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);
