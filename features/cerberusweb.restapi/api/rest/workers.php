@@ -96,6 +96,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'is_disabled' => DAO_Worker::IS_DISABLED,
 				'is_superuser' => DAO_Worker::IS_SUPERUSER,
 				'last_name' => DAO_Worker::LAST_NAME,
+				'location' => DAO_Worker::LOCATION,
 				'password' => 'password',
 				'title' => DAO_Worker::TITLE,
 				'updated' => DAO_Worker::UPDATED,
@@ -112,6 +113,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'is_disabled' => SearchFields_Worker::IS_DISABLED,
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
 				'last_name' => SearchFields_Worker::LAST_NAME,
+				'location' => SearchFields_Worker::LOCATION,
 				'title' => SearchFields_Worker::TITLE,
 			);
 			
@@ -132,6 +134,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'is_disabled' => SearchFields_Worker::IS_DISABLED,
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
 				'last_name' => SearchFields_Worker::LAST_NAME,
+				'location' => SearchFields_Worker::LOCATION,
 				'title' => SearchFields_Worker::TITLE,
 				'updated' => SearchFields_Worker::UPDATED,
 			);
@@ -294,6 +297,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
 			'last_name' => 'string',
+			'location' => 'string',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);
@@ -351,6 +355,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
 			'last_name' => 'string',
+			'location' => 'string',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);
