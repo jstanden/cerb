@@ -97,6 +97,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'is_superuser' => DAO_Worker::IS_SUPERUSER,
 				'last_name' => DAO_Worker::LAST_NAME,
 				'location' => DAO_Worker::LOCATION,
+				'mention' => DAO_Worker::AT_MENTION_NAME,
 				'password' => 'password',
 				'title' => DAO_Worker::TITLE,
 				'updated' => DAO_Worker::UPDATED,
@@ -135,6 +136,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
 				'last_name' => SearchFields_Worker::LAST_NAME,
 				'location' => SearchFields_Worker::LOCATION,
+				'mention' => SearchFields_Worker::AT_MENTION_NAME,
 				'title' => SearchFields_Worker::TITLE,
 				'updated' => SearchFields_Worker::UPDATED,
 			);
@@ -147,6 +149,15 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 	}
 	
 	private function _validateFields($fields, $id=0) {
+		if(isset($fields[DAO_Worker::AT_MENTION_NAME])) {
+			$mentions = DAO_Worker::getMentions();
+			$mention = DevblocksPlatform::strLower($fields[DAO_Worker::AT_MENTION_NAME]);
+			
+			if(isset($mentions[$mention]) && $mentions[$mention] != $id) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("The 'mention' of '%s' is already used.", $mention));
+			}
+		}
+		
 		if(isset($fields[DAO_Worker::AUTH_EXTENSION_ID])) {
 			if(false == ($login_ext = Extension_LoginAuthenticator::get($fields[DAO_Worker::AUTH_EXTENSION_ID], false))) {
 				$this->error(self::ERRNO_CUSTOM, "The 'auth' field specifies an invalid extension.");
@@ -298,6 +309,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'is_superuser' => 'bit',
 			'last_name' => 'string',
 			'location' => 'string',
+			'mention' => 'string',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);
@@ -356,6 +368,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'is_superuser' => 'bit',
 			'last_name' => 'string',
 			'location' => 'string',
+			'mention' => 'string',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);
