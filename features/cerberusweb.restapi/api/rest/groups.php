@@ -18,6 +18,17 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 	}
 	
 	function putAction($stack) {
+		@$action = array_shift($stack);
+		
+		// Looking up a single ID?
+		if(is_numeric($action)) {
+			$this->putId(intval($action));
+			
+		} else { // actions
+			switch($action) {
+			}
+		}
+		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
@@ -25,6 +36,10 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 		@$action = array_shift($stack);
 		
 		switch($action) {
+			case 'create':
+				$this->postCreate();
+				break;
+				
 			case 'search':
 				$this->postSearch();
 				break;
@@ -39,17 +54,16 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 	
 	private function getId($id) {
 		$worker = CerberusApplication::getActiveWorker();
-		$memberships = $worker->getMemberships();
+		
+		if(!Context_Group::isReadableByActor($id, $worker))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Permission denied for group id '%d'", $id));
 		
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
+		
 		if(is_array($container) && isset($container['results']) && isset($container['results'][$id])) {
-			if(!in_array($id, array_keys($memberships))) {
-				$this->error(self::ERRNO_CUSTOM, sprintf("Permission denied for group id '%d'", $id));
-			} else {
-				$this->success($container['results'][$id]);
-			}
+			$this->success($container['results'][$id]);
 		}
 		
 		// Error
@@ -67,6 +81,7 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 			$tokens = array(
 				'created' => DAO_Group::CREATED,
 				'name' => DAO_Group::NAME,
+				'is_private' => DAO_Group::IS_PRIVATE,
 				'updated' => DAO_Group::UPDATED,
 			);
 			
@@ -85,6 +100,7 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 			$tokens = array(
 				'created' => SearchFields_Group::CREATED,
 				'id' => SearchFields_Group::ID,
+				'is_private' => SearchFields_Group::IS_PRIVATE,
 				'name' => SearchFields_Group::NAME,
 				'updated' => SearchFields_Group::UPDATED,
 			);
@@ -196,5 +212,97 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
+	}
+	
+	function putId($id) {
+		$worker = CerberusApplication::getActiveWorker();
+		
+		// ACL
+		if(!$worker->is_superuser)
+			$this->error(self::ERRNO_ACL);
+		
+		// Validate the ID
+		if(null == DAO_Group::get($id))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid group ID '%d'", $id));
+		
+		$putfields = array(
+			'is_private' => 'bit',
+			'name' => 'string',
+		);
+
+		$fields = array();
+
+		foreach($putfields as $putfield => $type) {
+			if(!isset($_POST[$putfield]))
+				continue;
+			
+			@$value = DevblocksPlatform::importGPC($_POST[$putfield], 'string', '');
+			
+			if(null == ($field = self::translateToken($putfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $putfield));
+			}
+			
+			// Sanitize
+			$value = DevblocksPlatform::importVar($value, $type);
+			
+			$fields[$field] = $value;
+		}
+		
+		// Handle custom fields
+		$customfields = $this->_handleCustomFields($_POST);
+		if(is_array($customfields))
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_GROUP, $id, $customfields, true, true, true);
+		
+		// Update
+		DAO_Group::update($id, $fields);
+		
+		$this->getId($id);
+	}
+	
+	function postCreate() {
+		$worker = CerberusApplication::getActiveWorker();
+		
+		// ACL
+		if(!$worker->is_superuser)
+			$this->error(self::ERRNO_ACL);
+		
+		$postfields = array(
+			'is_private' => 'bit',
+			'name' => 'string',
+		);
+
+		$fields = array();
+		
+		foreach($postfields as $postfield => $type) {
+			if(!isset($_POST[$postfield]))
+				continue;
+				
+			@$value = DevblocksPlatform::importGPC($_POST[$postfield], 'string', '');
+				
+			if(null == ($field = self::translateToken($postfield, 'dao'))) {
+				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $postfield));
+			}
+
+			// Sanitize
+			$value = DevblocksPlatform::importVar($value, $type);
+			
+			$fields[$field] = $value;
+		}
+		
+		// Check required fields
+		$reqfields = array(
+			'name',
+		);
+		$this->_handleRequiredFields($reqfields, $fields);
+		
+		// Create
+		if(false != ($id = DAO_Group::create($fields))) {
+			// Handle custom fields
+			$customfields = $this->_handleCustomFields($_POST);
+			if(is_array($customfields))
+				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_GROUP, $id, $customfields, true, true, true);
+			
+			$this->getId($id);
+		}
 	}
 };
