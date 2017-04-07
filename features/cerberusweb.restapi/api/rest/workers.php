@@ -98,6 +98,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'last_name' => DAO_Worker::LAST_NAME,
 				'location' => DAO_Worker::LOCATION,
 				'mention' => DAO_Worker::AT_MENTION_NAME,
+				'mobile' => DAO_Worker::MOBILE,
 				'password' => 'password',
 				'title' => DAO_Worker::TITLE,
 				'updated' => DAO_Worker::UPDATED,
@@ -137,6 +138,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'last_name' => SearchFields_Worker::LAST_NAME,
 				'location' => SearchFields_Worker::LOCATION,
 				'mention' => SearchFields_Worker::AT_MENTION_NAME,
+				'mobile' => SearchFields_Worker::MOBILE,
 				'title' => SearchFields_Worker::TITLE,
 				'updated' => SearchFields_Worker::UPDATED,
 			);
@@ -310,6 +312,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'last_name' => 'string',
 			'location' => 'string',
 			'mention' => 'string',
+			'mobile' => 'string',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);
@@ -369,6 +372,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'last_name' => 'string',
 			'location' => 'string',
 			'mention' => 'string',
+			'mobile' => 'string',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);
