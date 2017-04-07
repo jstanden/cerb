@@ -95,6 +95,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'gender' => DAO_Worker::GENDER,
 				'is_disabled' => DAO_Worker::IS_DISABLED,
 				'is_superuser' => DAO_Worker::IS_SUPERUSER,
+				'language' => DAO_Worker::LANGUAGE,
 				'last_name' => DAO_Worker::LAST_NAME,
 				'location' => DAO_Worker::LOCATION,
 				'mention' => DAO_Worker::AT_MENTION_NAME,
@@ -116,6 +117,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'gender' => SearchFields_Worker::GENDER,
 				'is_disabled' => SearchFields_Worker::IS_DISABLED,
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
+				'language' => SearchFields_Worker::LANGUAGE,
 				'last_name' => SearchFields_Worker::LAST_NAME,
 				'location' => SearchFields_Worker::LOCATION,
 				'timezone' => SearchFields_Worker::TIMEZONE,
@@ -138,6 +140,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'gender' => SearchFields_Worker::GENDER,
 				'is_disabled' => SearchFields_Worker::IS_DISABLED,
 				'is_superuser' => SearchFields_Worker::IS_SUPERUSER,
+				'language' => SearchFields_Worker::LANGUAGE,
 				'last_name' => SearchFields_Worker::LAST_NAME,
 				'location' => SearchFields_Worker::LOCATION,
 				'mention' => SearchFields_Worker::AT_MENTION_NAME,
@@ -183,6 +186,17 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			
 			if(!in_array($fields[DAO_Worker::GENDER], ['','M','F']))
 				$this->error(self::ERRNO_CUSTOM, "The 'gender' field must be '', 'M' or 'F'.");
+		}
+		
+		if(isset($fields[DAO_Worker::LANGUAGE])) {
+			$lang = $fields[DAO_Worker::LANGUAGE];
+			
+			$translate = DevblocksPlatform::getTranslationService();
+			$languages = $translate->getLocaleCodes();
+			
+			if(!in_array($lang, $languages)) {
+				$this->error(self::ERRNO_CUSTOM, "The 'language' field specifies an invalid langage code.");
+			}
 		}
 		
 		if(isset($fields[DAO_Worker::TIMEZONE])) {
@@ -322,6 +336,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'gender' => 'string',
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
+			'language' => 'string',
 			'last_name' => 'string',
 			'location' => 'string',
 			'mention' => 'string',
@@ -384,6 +399,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'gender' => 'string',
 			'is_disabled' => 'bit',
 			'is_superuser' => 'bit',
+			'language' => 'string',
 			'last_name' => 'string',
 			'location' => 'string',
 			'mention' => 'string',
