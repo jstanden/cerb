@@ -26,6 +26,9 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 			
 		} else { // actions
 			switch($action) {
+				case 'members':
+					$this->putMembers();
+					break;
 			}
 		}
 		
@@ -257,6 +260,64 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 		DAO_Group::update($id, $fields);
 		
 		$this->getId($id);
+	}
+	
+	function putMembers() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$json = DevblocksPlatform::importGPC($_POST['json'],'string','');
+		$groups = DAO_Group::getAll();
+		$workers = DAO_Worker::getAll();
+		
+		if(false == ($json = json_decode($json, true)) || !is_array($json))
+			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid JSON content in 'json' field."));
+		
+		if(!isset($json['groups']))
+			$this->error(self::ERRNO_CUSTOM, sprintf("The JSON should have a 'groups' key at the top level."));
+		
+		$given_groups = $json['groups'];
+		$invalid_ids = array_keys(array_diff_key($given_groups, $groups));
+		
+		if($invalid_ids)
+			$this->error(self::ERRNO_CUSTOM, sprintf("The JSON specifies invalid group IDs: %s", implode(',', $invalid_ids)));
+		
+		// Check group permissions
+		if(in_array(false, Context_Group::isWriteableByActor(array_keys($given_groups), $active_worker)))
+			$this->error(self::ERRNO_CUSTOM, 'You must be an admin, or a manager of all of these groups.');
+		
+		foreach($given_groups as $group_id => $group_data) {
+			if(!is_array($group_data) || !isset($group_data['workers']))
+				$this->error(self::ERRNO_CUSTOM, sprintf("The JSON specifies invalid data for group %s", $group_id));
+			
+			$members = $group_data['workers'];
+			
+			$invalid_ids = array_keys(array_diff_key($members, $workers));
+			
+			if($invalid_ids)
+				$this->error(self::ERRNO_CUSTOM, sprintf("The JSON specifies invalid workers for group %d: %s", $group_id, implode(',', $invalid_ids)));
+			
+			foreach($members as $worker_id => $action) {
+				switch(DevblocksPlatform::strLower($action)) {
+					case 'manager':
+						DAO_Group::setGroupMember($group_id, $worker_id, true);
+						break;
+					case 'member':
+						DAO_Group::setGroupMember($group_id, $worker_id, false);
+						break;
+					case 'remove':
+						DAO_Group::unsetGroupMember($group_id, $worker_id);
+						break;
+				}
+			}
+		}
+		
+		DAO_Group::clearCache();
+		
+		// [TODO] Return the members/managers for the specified groups
+		
+		$container = [];
+		
+		$this->success($container);
 	}
 	
 	function postCreate() {
