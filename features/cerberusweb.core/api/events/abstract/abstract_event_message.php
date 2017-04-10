@@ -20,6 +20,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 	
 	/**
 	 *
+	 * @param Model_TriggerEvent $trigger
 	 * @param integer $context_id
 	 * @param integer $group_id
 	 * @return Model_DevblocksEvent

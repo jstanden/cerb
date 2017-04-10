@@ -686,7 +686,7 @@ class ChDisplayPage extends CerberusPageExtension {
 
 			if(is_array($macros))
 			foreach($macros as $macro)
-				Event_MailBeforeUiReplyByWorker::trigger($macro->id, $message->id, $actions);
+				Event_MailBeforeUiReplyByWorker::trigger($macro->id, $message->id, $active_worker->id, $actions);
 
 			if(isset($actions['jquery_scripts']) && is_array($actions['jquery_scripts'])) {
 				$tpl->assign('jquery_scripts', $actions['jquery_scripts']);
