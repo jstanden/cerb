@@ -50,7 +50,7 @@
 		<label>
 			{'common.comment'|devblocks_translate|capitalize}:
 		</label>
-		<textarea name="comment" rows="2" cols="60" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}" autofocus="autofocus">{$model->comment}</textarea>
+		<textarea name="comment" rows="10" cols="60" style="width:98%;height:150px;" placeholder="{'comment.notify.at_mention'|devblocks_translate}" autofocus="autofocus">{$model->comment}</textarea>
 		<button type="button" onclick="ajax.chooserSnippet('snippets',$('#{$form_id} textarea[name=comment]'), { '{$context}':'{$context_id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|lower}</button>
 	</div>
 	
@@ -110,12 +110,12 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.comment'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-
+		
 		// Buttons
 		
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-
+		
 		$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			;
@@ -123,14 +123,13 @@ $(function() {
 		// Editor
 		
 		var $textarea = $popup.find('textarea[name=comment]')
-			.autosize()
 			.focus()
 			;
 		
 		// @mentions
 		
 		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-
+		
 		$textarea.atwho({
 			at: '@',
 			{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}

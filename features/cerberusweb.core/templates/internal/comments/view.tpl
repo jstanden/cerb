@@ -106,7 +106,7 @@
 					</div>
 				
 					<div>
-						<pre class="emailbody">{$result.c_comment|trim|escape|devblocks_hyperlinks nofilter}</pre>
+						<pre class="emailbody">{$result.c_comment|trim|truncate:1000|escape|devblocks_hyperlinks nofilter}</pre>
 					</div>
 				</div>
 			</td>
@@ -116,13 +116,13 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif in_array($column, ["c_created"])}
-				<td>
+				<td data-column="{$column}">
 					{if !empty($result.$column)}
 						<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 					{/if}
 				</td>
 			{elseif in_array($column, ["*_target"])}
-				<td>
+				<td data-column="{$column}">
 					{$target = $targets.{$result.c_context}.{$result.c_context_id}}
 					{if $target}
 						<a href="javascript:;" class="cerb-peek-trigger" data-context="{$target->_context}" data-context-id="{$target->id}" data-profile-url="{if isset($target->url)}{$target->url}{elseif isset($target->record_url)}{$target->record_url}{/if}">{$target->_label|truncate:64}</a>

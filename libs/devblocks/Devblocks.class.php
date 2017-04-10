@@ -1335,7 +1335,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 */
 	static function strToHyperlinks($string) {
 		// Bail out if we're asked to auto-hyperlink a huge block of text
-		if(strlen($string) > 512000)
+		if(strlen($string) > 100000)
 			return $string;
 		
 		return preg_replace_callback('@([^\s]+){0,1}(https?://(.*?))((?:[>"\.\?,\)]{0,1}(\s|$))|(&(?:quot|gt);))@i', function($matches) {

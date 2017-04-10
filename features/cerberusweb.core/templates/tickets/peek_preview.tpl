@@ -105,7 +105,7 @@
 	<div style="clear:both;"></div>
 	
 	<div style="margin:2px;padding:5px;">
-		<pre class="emailbody">{$comment->comment|trim|escape|devblocks_hyperlinks nofilter}</pre>
+		<pre class="emailbody">{$comment->comment|truncate:5000|trim|escape|devblocks_hyperlinks nofilter}</pre>
 	</div>
 	
 	{* Attachments *}
