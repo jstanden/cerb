@@ -3,7 +3,7 @@
 		<option value="" {if !$params.mode}selected="selected"{/if}> Terminate</option>
 		
 		{if $is_resumable}
-		<option value="" {if 'suspend' == $params.mode}selected="selected"{/if}> Resume at this point when new input is received</option>
+		<option value="suspend" {if 'suspend' == $params.mode}selected="selected"{/if}> Resume at this point when new input is received</option>
 		{/if}
 	</select>
 </div>
