@@ -1183,7 +1183,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		// [TODO] Abstract this?
 		$vars = DAO_ContextScheduledBehavior::buildVariables($var_keys, $var_vals, $macro);
 		
-		Event_MailDuringUiReplyByWorker::trigger($macro_id, $message_id, $actions, $vars);
+		Event_MailDuringUiReplyByWorker::trigger($macro_id, $message_id, $active_worker->id, $actions, $vars);
 
 		// [TODO] Move script block to template?
 		if(isset($actions['jquery_scripts'])) {

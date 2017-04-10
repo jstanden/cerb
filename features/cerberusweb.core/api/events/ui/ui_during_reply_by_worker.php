@@ -23,13 +23,14 @@ class Event_MailDuringUiReplyByWorker extends AbstractEvent_Message {
 		$this->_event_id = self::ID;
 	}
 	
-	static function trigger($trigger_id, $context_id, &$actions, $variables=array()) {
+	static function trigger($trigger_id, $context_id, $worker_id, &$actions, $variables=array()) {
 		$events = DevblocksPlatform::getEventService();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
 				array(
 					'context_id' => $context_id,
+					'worker_id' => $worker_id,
 					'_caller_actions' => &$actions,
 					'_variables' => $variables,
 					'_whisper' => array(
@@ -38,6 +39,73 @@ class Event_MailDuringUiReplyByWorker extends AbstractEvent_Message {
 				)
 			)
 		);
+	}
+	
+	/**
+	 *
+	 * @param Model_TriggerEvent $trigger
+	 * @param integer $context_id
+	 * @param integer $group_id
+	 * @return Model_DevblocksEvent
+	 */
+	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null, $group_id=null) {
+		$event_model = parent::generateSampleEventModel($trigger, $context_id, $group_id);
+		
+		if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+			$worker_id = $active_worker->id;
+		} else {
+			$worker_id = DAO_Worker::random();
+		}
+		
+		$event_model->params['worker_id'] = $worker_id;
+		
+		return $event_model;
+	}
+	
+	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+		parent::setEvent($event_model, $trigger);
+		
+		$labels = $this->getLabels($trigger);
+		$values = $this->getValues();
+		
+		// Add the worker_id
+		@$worker_id = $event_model->params['worker_id'];
+		
+		/**
+		 * Current worker
+		 */
+		$worker_labels = array();
+		$worker_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, 'Current Worker:', true);
+				
+			// Merge
+			CerberusContexts::merge(
+				'current_worker_',
+				'',
+				$worker_labels,
+				$worker_values,
+				$labels,
+				$values
+			);
+		
+		$this->setLabels($labels);
+		$this->setValues($values);
+	}
+	
+	function getValuesContexts($trigger) {
+		$vals_to_ctx = parent::getValuesContexts($trigger);
+		
+		$vals = [
+			'current_worker_id' => array(
+				'label' => 'Current worker',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+		];
+		
+		$vals_to_ctx = array_merge($vals_to_ctx, $vals);
+		DevblocksPlatform::sortObjects($vals_to_ctx, '[label]');
+		
+		return $vals_to_ctx;
 	}
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
