@@ -2856,6 +2856,8 @@ class DevblocksEventHelper {
 	 */
 	
 	static function renderActionSetTicketOwner($trigger) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		
 		$worker_values = DevblocksEventHelper::getWorkerValues($trigger);
 		$tpl->assign('worker_values', $worker_values);
 		
