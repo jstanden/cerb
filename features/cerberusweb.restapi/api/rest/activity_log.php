@@ -38,7 +38,7 @@ class Rest_ActivityLog extends Extension_RestController implements IExtensionRes
 			
 		} elseif ('subtotal'==$type) {
 			$tokens = array(
-				//'fieldsets' => SearchFields_ContextActivityLog::VIRTUAL_HAS_FIELDSET,
+				'activity' => SearchFields_ContextActivityLog::ACTIVITY_POINT,
 			);
 			
 			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_ACTIVITY_LOG);
