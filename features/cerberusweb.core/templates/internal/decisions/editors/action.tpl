@@ -22,13 +22,13 @@
 <div class="actions">
 
 {$seq = null}
-{if isset($model->params.actions) && is_array($model->params.actions)}
+{if $model && isset($model->params.actions) && is_array($model->params.actions)}
 {foreach from=$model->params.actions item=params key=seq}
 <fieldset id="action{$seq}">
 	<legend style="cursor:move;">
 		<a href="javascript:;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
-		{if $actions.{$params.action}}
-			{$actions.{$params.action}.label}
+		{if $actions[$params.action]}
+			{$actions[$params.action].label}
 		{else}
 			(missing action: {$params.action})
 		{/if}
