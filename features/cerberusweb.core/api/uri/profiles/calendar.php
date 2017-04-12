@@ -170,7 +170,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 				if(empty($owner_context))
 					throw new Exception_DevblocksAjaxValidationError("The 'Owner' field is required.", 'owner');
 				
-				if(!CerberusContexts::isWriteableByActor($owner_context, $owner_context_id, $active_worker))
+				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
 				
 				// Clean params

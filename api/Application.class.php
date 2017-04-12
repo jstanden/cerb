@@ -1246,6 +1246,24 @@ class CerberusContexts {
 		return false;
 	}
 	
+	public static function isOwnableBy($owner_context, $owner_context_id, $actor) {
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return false;
+		
+		// Admins can do whatever they want
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return true;
+		
+		// Workers can own records, even though they can't write themselves
+		if(
+			$owner_context == CerberusContexts::CONTEXT_WORKER
+			&& $actor->_context == CerberusContexts::CONTEXT_WORKER
+			&& $actor->id == $owner_context_id
+		) return true;
+		
+		return self::isWriteableByActor($owner_context, $owner_context_id, $actor);
+	}
+	
 	public static function polymorphModelsToDictionaries($models, $context) {
 		// Normalize objects/primatives into an array
 		if(!is_array($models)) {
