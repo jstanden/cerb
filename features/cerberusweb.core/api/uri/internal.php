@@ -2324,7 +2324,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('view', $view);
 
-		$context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true);
+		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
+			return false;
+		
 		$tokens = $context_ext->getCardProperties();
 
 		// Push _label into the front of $tokens if not set

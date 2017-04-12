@@ -1084,7 +1084,7 @@
 				</param>
 				<param key="alias" value="attachment" />
 				<param key="dao_class" value="DAO_Attachment" />
-				<param key="view_class" value="" />
+				<param key="view_class" value="View_Attachment" />
 				<param key="options">
 					<value>
 						<data key="cards" />
