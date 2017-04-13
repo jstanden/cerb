@@ -2518,10 +2518,13 @@ abstract class C4_AbstractView {
 		
 		$cfield_select_sql = null;
 		
+		$is_multiple_value_cfield = in_array($cfield->type,[Model_CustomField::TYPE_MULTI_CHECKBOX]);
+		
 		$cfield_key = $search_class::getCustomFieldContextWhereKey($cfield->context);
 			
 		if($cfield_key) {
-			$cfield_select_sql .= sprintf("(SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d ORDER BY field_value%s)",
+			$cfield_select_sql .= sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d ORDER BY field_value%s)",
+				($is_multiple_value_cfield ? 'GROUP_CONCAT(field_value SEPARATOR "||")' : 'field_value'),
 				DAO_CustomFieldValue::getValueTableName($field_id),
 				Cerb_ORMHelper::qstr($cfield->context),
 				$cfield_key,
@@ -2630,6 +2633,28 @@ abstract class C4_AbstractView {
 				$results = $db->GetArraySlave($sql);
 //				$total = count($results);
 //				$total = ($total < 20) ? $total : $db->GetOneSlave("SELECT FOUND_ROWS()");
+
+				// Expand multi-value results
+				
+				if($is_multiple_value_cfield) {
+					$counts = [];
+					foreach($results as $result) {
+						if(false == ($values = explode('||', $result[$field_key])))
+							continue;
+						
+						foreach($values as $value) {
+							if(!isset($counts[$value]))
+								$counts[$value] = [
+									'hits' => 0,
+									$field_key => $value,
+								];
+							
+							$counts[$value]['hits'] += $result['hits'];
+						}
+					}
+					
+					$results = $counts;
+				}
 				
 				if(is_array($results))
 				foreach($results as $result) {
