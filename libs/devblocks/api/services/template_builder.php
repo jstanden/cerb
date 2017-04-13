@@ -13,6 +13,10 @@ class _DevblocksTwigSecurityPolicy extends Twig_Sandbox_SecurityPolicy {
 		if($obj instanceof DevblocksDictionaryDelegate)
 			return;
 		
+		// Allow SimpleXMLElement objects
+		if($obj instanceof SimpleXMLElement)
+			return;
+		
 		// Deny everything else
 		throw new Twig_Sandbox_SecurityError(sprintf('Calling "%s" property on a "%s" object is not allowed.', $property, get_class($obj)));
 	}
