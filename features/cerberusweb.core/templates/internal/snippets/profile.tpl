@@ -74,7 +74,7 @@
 	<ul>
 		{$tabs = [content, activity, comments]}
 
-		<li><a href="{devblocks_url}ajax.php?c=&a=&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.content'|devblocks_translate|capitalize}</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=snippet&action=showTabContent&point={$point}&context_id={$page_context_id}{/devblocks_url}">{'common.content'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
 
