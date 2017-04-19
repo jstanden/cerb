@@ -698,6 +698,18 @@ class DevblocksSearchCriteria {
 
 		@$param_key = $search_fields[$field]['options']['param_key'];
 		
+		// Handle searches for NULL/!NULL
+		if(1 == count($tokens) && false != ($token = reset($tokens)) && in_array(DevblocksPlatform::strLower($token->value), ['null','!null'])) {
+			$not = (0 == strcasecmp($token->value, '!null'));
+			$oper = $not ? DevblocksSearchCriteria::OPER_IS_NOT_NULL : DevblocksSearchCriteria::OPER_IS_NULL;
+			
+			return new DevblocksSearchCriteria(
+				$param_key,
+				$oper,
+				null
+			);
+		}
+		
 		switch($search_field['type']) {
 			case DevblocksSearchCriteria::TYPE_BOOL:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getBooleanParamFromTokens($param_key, $tokens)))
