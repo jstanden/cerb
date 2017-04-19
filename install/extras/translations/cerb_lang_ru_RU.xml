@@ -1483,6 +1483,11 @@
 				<seg>Открыть заново</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.reopen_at">
+			<tuv xml:lang="ru_RU">
+				<seg>Открыть заново</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.reply">
 			<tuv xml:lang="ru_RU">
 				<seg>Ответить</seg>
@@ -4447,6 +4452,11 @@ login &lt;ftp&#13;
 				<seg>Слово</seg>
 			</tuv>
 		</tu>
+		<tu tuid="status.active">
+			<tuv xml:lang="ru_RU">
+				<seg>Активно</seg>
+			</tuv>
+		</tu>
 		<tu tuid="status.closed">
 			<tuv xml:lang="ru_RU">
 				<seg>Закрытая</seg>
@@ -4480,16 +4490,6 @@ login &lt;ftp&#13;
 		<tu tuid="task.due_date">
 			<tuv xml:lang="ru_RU">
 				<seg>Дата окончания</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.is_completed">
-			<tuv xml:lang="ru_RU">
-				<seg>Закрыто</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.status.active">
-			<tuv xml:lang="ru_RU">
-				<seg>Активно</seg>
 			</tuv>
 		</tu>
 		<tu tuid="task.worker_id">
@@ -4595,11 +4595,6 @@ login &lt;ftp&#13;
 		<tu tuid="ticket.recipients.empty">
 			<tuv xml:lang="ru_RU">
 				<seg>Эта заявка не имеет получателей.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.reopen_at">
-			<tuv xml:lang="ru_RU">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.requester">

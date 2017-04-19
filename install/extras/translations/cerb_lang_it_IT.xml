@@ -1478,6 +1478,11 @@
 				<seg>Ri-apri</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.reopen_at">
+			<tuv xml:lang="it_IT">
+				<seg>Ri-apri</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.reply">
 			<tuv xml:lang="it_IT">
 				<seg>Rispondi</seg>
@@ -4413,6 +4418,11 @@
 				<seg>Parola</seg>
 			</tuv>
 		</tu>
+		<tu tuid="status.active">
+			<tuv xml:lang="it_IT">
+				<seg/>
+			</tuv>
+		</tu>
 		<tu tuid="status.closed">
 			<tuv xml:lang="it_IT">
 				<seg>Chiuso</seg>
@@ -4420,7 +4430,7 @@
 		</tu>
 		<tu tuid="status.completed">
 			<tuv xml:lang="it_IT">
-				<seg/>
+				<seg>Completato</seg>
 			</tuv>
 		</tu>
 		<tu tuid="status.deleted">
@@ -4446,16 +4456,6 @@
 		<tu tuid="task.due_date">
 			<tuv xml:lang="it_IT">
 				<seg>Data Dovuta</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.is_completed">
-			<tuv xml:lang="it_IT">
-				<seg>Completato</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.status.active">
-			<tuv xml:lang="it_IT">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="task.worker_id">
@@ -4559,11 +4559,6 @@
 			</tuv>
 		</tu>
 		<tu tuid="ticket.recipients.empty">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.reopen_at">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

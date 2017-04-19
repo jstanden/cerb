@@ -1483,6 +1483,11 @@
 				<seg>erneut öffnen</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.reopen_at">
+			<tuv xml:lang="de_DE">
+				<seg>erneut öffnen</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.reply">
 			<tuv xml:lang="de_DE">
 				<seg>Beantworten</seg>
@@ -4444,6 +4449,11 @@ login</seg>
 				<seg>Wort</seg>
 			</tuv>
 		</tu>
+		<tu tuid="status.active">
+			<tuv xml:lang="de_DE">
+				<seg>Aktiv</seg>
+			</tuv>
+		</tu>
 		<tu tuid="status.closed">
 			<tuv xml:lang="de_DE">
 				<seg>Geschlossen</seg>
@@ -4477,16 +4487,6 @@ login</seg>
 		<tu tuid="task.due_date">
 			<tuv xml:lang="de_DE">
 				<seg>Fällig am/in</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.is_completed">
-			<tuv xml:lang="de_DE">
-				<seg>Erledigt</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.status.active">
-			<tuv xml:lang="de_DE">
-				<seg>Aktiv</seg>
 			</tuv>
 		</tu>
 		<tu tuid="task.worker_id">
@@ -4592,11 +4592,6 @@ login</seg>
 		<tu tuid="ticket.recipients.empty">
 			<tuv xml:lang="de_DE">
 				<seg>Dieses Ticket hat keine Empfänger.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.reopen_at">
-			<tuv xml:lang="de_DE">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.requester">

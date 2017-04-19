@@ -2258,7 +2258,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::TICKET_SPAM_TRAINING => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_TRAINING, 't', 'spam_training',$translate->_('ticket.spam_training'), null, true),
 			SearchFields_Ticket::TICKET_SPAM_SCORE => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_SCORE, 't', 'spam_score',$translate->_('ticket.spam_score'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS => new DevblocksSearchField(SearchFields_Ticket::TICKET_INTERESTING_WORDS, 't', 'interesting_words',$translate->_('ticket.interesting_words'), null, true),
-			SearchFields_Ticket::TICKET_REOPEN_AT => new DevblocksSearchField(SearchFields_Ticket::TICKET_REOPEN_AT, 't', 'reopen_at',$translate->_('ticket.reopen_at'), Model_CustomField::TYPE_DATE, true),
+			SearchFields_Ticket::TICKET_REOPEN_AT => new DevblocksSearchField(SearchFields_Ticket::TICKET_REOPEN_AT, 't', 'reopen_at',$translate->_('common.reopen_at'), Model_CustomField::TYPE_DATE, true),
 			
 			SearchFields_Ticket::BUCKET_RESPONSIBILITY => new DevblocksSearchField(SearchFields_Ticket::BUCKET_RESPONSIBILITY, 'wtb', 'responsibility_level', mb_convert_case($translate->_('common.responsibility'), MB_CASE_TITLE), null, true),
 				
@@ -4456,7 +4456,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'importance' => $prefix.$translate->_('common.importance'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
 			'num_messages' => $prefix.$translate->_('ticket.num_messages'),
-			'reopen_date' => $prefix.$translate->_('ticket.reopen_at'),
+			'reopen_date' => $prefix.$translate->_('common.reopen_at'),
 			'spam_score' => $prefix.$translate->_('ticket.spam_score'),
 			'spam_training' => $prefix.$translate->_('ticket.spam_training'),
 			'status' => $prefix.$translate->_('common.status'),

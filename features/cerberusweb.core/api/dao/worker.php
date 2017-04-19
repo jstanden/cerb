@@ -458,8 +458,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			"SELECT 'cerberusweb.contexts.recommendation' AS context, worker_id, COUNT(*) AS hits FROM context_recommendation GROUP BY worker_id ".
 			"UNION ALL ".
 			"SELECT 'cerberusweb.contexts.notification' AS context, worker_id, COUNT(id) AS hits FROM notification WHERE is_read = 0 GROUP BY worker_id ".
-			//"UNION ALL ".
-			//"SELECT 'cerberusweb.contexts.task' AS context, owner_id AS worker_id, COUNT(id) AS hits FROM task WHERE is_completed = 0 GROUP BY worker_id ".
 			""
 			;
 		$results = $db->GetArraySlave($sql);

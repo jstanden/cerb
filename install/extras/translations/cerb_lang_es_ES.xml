@@ -1488,6 +1488,11 @@
 				<seg>Reabrir</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.reopen_at">
+			<tuv xml:lang="es_ES">
+				<seg>Reabrir</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.reply">
 			<tuv xml:lang="es_ES">
 				<seg>Responder</seg>
@@ -4453,6 +4458,11 @@ Por ejemplo: *recibo*</seg>
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="status.active">
+			<tuv xml:lang="es_ES">
+				<seg>Activo</seg>
+			</tuv>
+		</tu>
 		<tu tuid="status.closed">
 			<tuv xml:lang="es_ES">
 				<seg>Cerrado</seg>
@@ -4486,16 +4496,6 @@ Por ejemplo: *recibo*</seg>
 		<tu tuid="task.due_date">
 			<tuv xml:lang="es_ES">
 				<seg>Fecha Vencimiento</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.is_completed">
-			<tuv xml:lang="es_ES">
-				<seg>Finalizado</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.status.active">
-			<tuv xml:lang="es_ES">
-				<seg>Activo</seg>
 			</tuv>
 		</tu>
 		<tu tuid="task.worker_id">
@@ -4601,11 +4601,6 @@ Por ejemplo: *recibo*</seg>
 		<tu tuid="ticket.recipients.empty">
 			<tuv xml:lang="es_ES">
 				<seg>El ticket no tiene destinatarios.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.reopen_at">
-			<tuv xml:lang="es_ES">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.requester">

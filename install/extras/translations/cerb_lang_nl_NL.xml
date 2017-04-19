@@ -1478,6 +1478,11 @@
 				<seg>Heropenen</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.reopen_at">
+			<tuv xml:lang="nl_NL">
+				<seg>Heropenen</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.reply">
 			<tuv xml:lang="nl_NL">
 				<seg>Beantwoord</seg>
@@ -4414,6 +4419,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="status.active">
+			<tuv xml:lang="nl_NL">
+				<seg>Actief</seg>
+			</tuv>
+		</tu>
 		<tu tuid="status.closed">
 			<tuv xml:lang="nl_NL">
 				<seg>Gesloten</seg>
@@ -4447,16 +4457,6 @@
 		<tu tuid="task.due_date">
 			<tuv xml:lang="nl_NL">
 				<seg>Verval datum</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.is_completed">
-			<tuv xml:lang="nl_NL">
-				<seg>Voltooid</seg>
-			</tuv>
-		</tu>
-		<tu tuid="task.status.active">
-			<tuv xml:lang="nl_NL">
-				<seg>Actief</seg>
 			</tuv>
 		</tu>
 		<tu tuid="task.worker_id">
@@ -4562,11 +4562,6 @@
 		<tu tuid="ticket.recipients.empty">
 			<tuv xml:lang="nl_NL">
 				<seg>Dit ticket heeft geen ontvangers.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="ticket.reopen_at">
-			<tuv xml:lang="nl_NL">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="ticket.requester">
