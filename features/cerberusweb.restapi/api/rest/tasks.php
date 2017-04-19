@@ -80,7 +80,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			$tokens = array(
 				'completed' => DAO_Task::COMPLETED_DATE,
 				'due' => DAO_Task::DUE_DATE,
-				'is_completed' => DAO_Task::IS_COMPLETED,
+				'status_id' => DAO_Task::STATUS_ID,
 				'title' => DAO_Task::TITLE,
 				'updated' => DAO_Task::UPDATED_DATE,
 			);
@@ -91,7 +91,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 				'links' => SearchFields_Task::VIRTUAL_CONTEXT_LINK,
 				'watchers' => SearchFields_Task::VIRTUAL_WATCHERS,
 					
-				'is_completed' => SearchFields_Task::IS_COMPLETED,
+				'status_id' => SearchFields_Task::STATUS_ID,
 			);
 			
 			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_TASK);
@@ -104,7 +104,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 				'completed' => SearchFields_Task::COMPLETED_DATE,
 				'due' => SearchFields_Task::DUE_DATE,
 				'id' => SearchFields_Task::ID,
-				'is_completed' => SearchFields_Task::IS_COMPLETED,
+				'status_id' => SearchFields_Task::STATUS_ID,
 				'title' => SearchFields_Task::TITLE,
 				'watchers' => SearchFields_Task::VIRTUAL_WATCHERS,
 			);
@@ -242,7 +242,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			'assignee_id' => 'integer',
 			'completed' => 'timestamp',
 			'due' => 'timestamp',
-			'is_completed' => 'bit',
+			'status_id' => 'integer',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);
@@ -289,7 +289,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			'assignee_id' => 'integer',
 			'completed' => 'timestamp',
 			'due' => 'timestamp',
-			'is_completed' => 'bit',
+			'status_id' => 'integer',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);

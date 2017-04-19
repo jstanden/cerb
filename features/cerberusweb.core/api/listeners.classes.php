@@ -1056,6 +1056,11 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	}
 	
 	private function _handleCronHeartbeat($event) {
+		$this->_handleCronHeartbeatReopenTickets();
+		$this->_handleCronHeartbeatReopenTasks();
+	}
+	
+	private function _handleCronHeartbeatReopenTickets() {
 		// Re-open any conversations past their reopen date
 		list($results, $null) = DAO_Ticket::search(
 			array(),
@@ -1087,6 +1092,41 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 			
 			if(!empty($update_fields))
 				DAO_Ticket::update($model_id, $update_fields);
+		}
+	}
+	
+	private function _handleCronHeartbeatReopenTasks() {
+		// Re-open any conversations past their reopen date
+		list($results, $null) = DAO_Task::search(
+			array(),
+			array(
+				SearchFields_Task::STATUS_ID => new DevblocksSearchCriteria(SearchFields_Task::STATUS_ID,'in',array(1,2)),
+				array(
+					DevblocksSearchCriteria::GROUP_AND,
+					new DevblocksSearchCriteria(SearchFields_Task::REOPEN_AT,DevblocksSearchCriteria::OPER_GT,0),
+					new DevblocksSearchCriteria(SearchFields_Task::REOPEN_AT,DevblocksSearchCriteria::OPER_LT,time()),
+				),
+			),
+			200,
+			0,
+			DAO_Task::ID,
+			true,
+			false
+		);
+		
+		$fields = array(
+			DAO_Task::STATUS_ID => 0,
+			DAO_Task::REOPEN_AT => 0
+		);
+		
+		// Only update records with fields that changed
+		$models = DAO_Task::getIds(array_keys($results));
+		
+		foreach($models as $model_id => $model) {
+			$update_fields = Cerb_ORMHelper::uniqueFields($fields, $model);
+			
+			if(!empty($update_fields))
+				DAO_Task::update($model_id, $update_fields);
 		}
 	}
 	

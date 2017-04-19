@@ -61,7 +61,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 			'value' => $task->importance,
 		);
 		
-		if(!$task->is_completed) {
+		if(1 != $task->status_id) {
 			$properties['due_date'] = array(
 				'label' => mb_ucfirst($translate->_('task.due_date')),
 				'type' => Model_CustomField::TYPE_DATE,
@@ -173,18 +173,24 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				$fields[DAO_Task::TITLE] = $title;
 				
 				// Completed
-				@$completed = DevblocksPlatform::importGPC($_REQUEST['completed'],'integer',0);
+				@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
+				$status_id = DevblocksPlatform::intClamp($status_id, 0, 2);
+				$fields[DAO_Task::STATUS_ID] = $status_id;
 				
-				$fields[DAO_Task::IS_COMPLETED] = intval($completed);
-				
-				// [TODO] This shouldn't constantly update the completed date (it should compare)
-				if($completed)
-					$fields[DAO_Task::COMPLETED_DATE] = time();
-				else
-					$fields[DAO_Task::COMPLETED_DATE] = 0;
+				if($id && $task->status_id != $status_id) {
+					if(1 == $status_id) {
+						$fields[DAO_Task::COMPLETED_DATE] = time();
+					} else {
+						$fields[DAO_Task::COMPLETED_DATE] = 0;
+					}
+				}
 				
 				// Updated Date
 				$fields[DAO_Task::UPDATED_DATE] = time();
+				
+				// Reopen Date
+				@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
+				@$fields[DAO_Task::REOPEN_AT] = empty($reopen_at) ? 0 : intval(strtotime($reopen_at));
 				
 				// Due Date
 				@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
@@ -418,7 +424,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				
 				if(!empty($row_id))
 					DAO_Task::update($row_id, array(
-						DAO_Task::IS_COMPLETED => 1,
+						DAO_Task::STATUS_ID => 1,
 						DAO_Task::COMPLETED_DATE => time(),
 					));
 			}

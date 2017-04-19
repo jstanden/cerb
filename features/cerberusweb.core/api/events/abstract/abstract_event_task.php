@@ -222,6 +222,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				'set_due_date' => array('label' => 'Set task due date'),
 				'set_importance' => array('label' => 'Set task importance'),
 				'set_owner' => array('label' => 'Set task owner'),
+				'set_reopen_date' => array('label' => 'Set task reopen date'),
 				'set_status' => array('label' => 'Set task status'),
 				'set_links' => array('label' => 'Set links'),
 			)
@@ -279,6 +280,10 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				$tpl->assign('worker_values', $worker_values);
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
+				break;
+				
+			case 'set_reopen_date':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
 				break;
 				
 			case 'set_status':
@@ -397,19 +402,28 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 				break;
 				
-			case 'set_status':
-				@$to_status = $params['status'];
-				@$current_status = $dict->task_status;
+			case 'set_reopen_date':
+				DevblocksEventHelper::runActionSetDate('task_reopen', $params, $dict);
+				$out = sprintf(">>> Setting task to reopen at:\n".
+					"%s (%d)\n",
+					date('D M d Y h:ia', $dict->task_reopen),
+					$dict->task_reopen
+				);
+				return $out;
+				break;
 				
-				switch($to_status) {
-					case 'active':
-					case 'completed':
-						$dict->task_status = $to_status;
-						break;
-				}
+			case 'set_status':
+				@$to_status_id = DevblocksPlatform::intClamp(intval($params['status_id']), 0, 2);
+				$dict->task_status_id = $to_status_id;
+				
+				$label_map = [
+					0 => 'open',
+					1 => 'closed',
+					2 => 'waiting',
+				];
 				
 				$out = sprintf(">>> Setting status to: %s\n",
-					$dict->task_status
+					@$label_map[$dict->task_status_id]
 				);
 				return $out;
 				break;
@@ -476,22 +490,36 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				));
 				break;
 				
+			case 'set_reopen_date':
+				DevblocksEventHelper::runActionSetDate('task_reopen', $params, $dict);
+				
+				DAO_Task::update($task_id, array(
+					DAO_Task::REOPEN_AT => intval($dict->task_reopen),
+				));
+				break;
+				
 			case 'set_status':
 				$this->simulateAction($token, $trigger, $params, $dict);
 				
 				$fields = array();
 					
-				switch($dict->task_status) {
-					case 'active':
+				switch($dict->task_status_id) {
+					case 0:
 						$fields = array(
-							DAO_Task::IS_COMPLETED => 0,
+							DAO_Task::STATUS_ID => 0,
 							DAO_Task::COMPLETED_DATE => 0,
 						);
 						break;
-					case 'completed':
+					case 1:
 						$fields = array(
-							DAO_Task::IS_COMPLETED => 1,
+							DAO_Task::STATUS_ID => 1,
 							DAO_Task::COMPLETED_DATE => time(),
+						);
+						break;
+					case 2:
+						$fields = array(
+							DAO_Task::STATUS_ID => 2,
+							DAO_Task::COMPLETED_DATE => 0,
 						);
 						break;
 				}

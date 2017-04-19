@@ -22,8 +22,15 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
 			<td width="99%">
-				<label><input type="radio" name="completed" value="0" {if empty($task->is_completed)}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="completed" value="1" {if $task->is_completed}checked="checked"{/if}> {'status.completed'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="status_id" value="0" onclick="toggleDiv('taskClosed','none');" {if $task->status_id == 0}checked{/if}> {'status.open'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="status_id" value="2" onclick="toggleDiv('taskClosed','block');" {if $task->status_id == 2}checked{/if}> {'status.waiting.abbr'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="status_id" value="1" onclick="toggleDiv('taskClosed','none');" {if $task->status_id == 1}checked{/if}> {'status.closed'|devblocks_translate|capitalize}</label>
+				
+				<div id="taskClosed" style="display:{if in_array($task->status_id,[2])}block{else}none{/if};margin:5px 0px 5px 15px;">
+					<b>When would you like to resume this task?</b><br>
+					<i>{'display.reply.next.resume_eg'|devblocks_translate}</i><br>
+					<input type="text" name="reopen_at" size="32" class="input_date" value="{if !empty($task->reopen_at)}{$task->reopen_at|devblocks_date}{/if}" style="width:75%;"><br>
+				</div>
 			</td>
 		</tr>
 		

@@ -58,14 +58,19 @@
 		<div class="property">
 			{if $k == 'status'}
 				<b>{'common.status'|devblocks_translate|capitalize}:</b>
-				{if $task->is_completed}
-					<span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,150,0);"></span> <span style="color:rgb(0,150,0);font-weight:bold;">{'task.is_completed'|devblocks_translate|capitalize}</span>
+				{if 1 == $task->status_id}
+					<span style="font-weight:bold;color:rgb(50,115,185);">{'status.closed'|devblocks_translate}</span>
+				{elseif 2 == $task->status_id}
+					<span style="font-weight:bold;color:rgb(50,115,185);">{'status.waiting.abbr'|devblocks_translate}</span>
+					{if !empty($task->reopen_at)}
+						(opens {if $task->reopen_at > time()}in {/if}<abbr title="{$task->reopen_at|devblocks_date}">{$task->reopen_at|devblocks_prettytime}</abbr>)
+					{/if}
 				{else}
-					{'status.open'|devblocks_translate|capitalize}
-				{/if}
+					{'status.open'|devblocks_translate}
+				{/if} 
 			{elseif $k == 'due_date'}
 				<b>{'task.due_date'|devblocks_translate|capitalize}:</b>
-				<abbr title="{$task->due_date|devblocks_date}" style="{if !$task->is_completed && $task->due_date < time()}font-weight:bold;color:rgb(150,0,0);{/if}">{$task->due_date|devblocks_prettytime}</abbr>
+				<abbr title="{$task->due_date|devblocks_date}" style="{if 1 != $task->status_id && $task->due_date < time()}font-weight:bold;color:rgb(150,0,0);{/if}">{$task->due_date|devblocks_prettytime}</abbr>
 			{elseif $k == 'importance'}
 				<b>{'common.importance'|devblocks_translate|capitalize}:</b>
 				<div style="display:inline-block;margin-left:5px;width:40px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">

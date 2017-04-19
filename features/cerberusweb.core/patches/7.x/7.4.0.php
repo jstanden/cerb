@@ -45,6 +45,40 @@ if(!isset($tables['context_saved_search'])) {
 }
 
 // ===========================================================================
+// Add 'status_id' to tasks (waiting/reopen)
+
+if(isset($tables['task'])) {
+	list($columns, $indexes) = $db->metaTable('task');
+	
+	if(!isset($columns['status_id'])) {
+		$db->ExecuteMaster("ALTER TABLE task ADD COLUMN status_id TINYINT UNSIGNED NOT NULL DEFAULT 0");
+		$db->ExecuteMaster("UPDATE task SET status_id = 1 WHERE is_completed = 1");
+		
+		// Update bot 'set status' actions on task behaviors
+		$db->ExecuteMaster('UPDATE decision_node SET params_json = REPLACE(params_json, \'"action":"set_status","status":"active"\', \'"action":"set_status","status_id":0\')');
+		$db->ExecuteMaster('UPDATE decision_node SET params_json = REPLACE(params_json, \'"action":"set_status","status":"completed"\', \'"action":"set_status","status_id":1\')');
+		
+		// Update worker view models (params editable)
+		$db->ExecuteMaster('UPDATE worker_view_model SET params_editable_json = REPLACE(params_editable_json, \'{"field":"t_is_completed","operator":"equals or null","value":false}\', \'{"field":"t_status_id","operator":"=","value":0}\') where class_name = \'View_Task\' and params_editable_json like \'%t_is_completed%\'');
+		$db->ExecuteMaster('UPDATE worker_view_model SET params_editable_json = REPLACE(params_editable_json, \'{"field":"t_is_completed","operator":"=","value":0}\', \'{"field":"t_status_id","operator":"=","value":0}\') where class_name = \'View_Task\' and params_editable_json like \'%t_is_completed%\'');
+		$db->ExecuteMaster('UPDATE worker_view_model SET params_editable_json = REPLACE(params_editable_json, \'{"field":"t_is_completed","operator":"=","value":1}\', \'{"field":"t_status_id","operator":"=","value":1}\') where class_name = \'View_Task\' and params_editable_json like \'%t_is_completed%\'');
+		
+		// Update worker view models (params default)
+		$db->ExecuteMaster('UPDATE worker_view_model SET params_default_json = REPLACE(params_default_json, \'{"field":"t_is_completed","operator":"equals or null","value":false}\', \'{"field":"t_status_id","operator":"=","value":0}\') where class_name = \'View_Task\' and params_default_json like \'%t_is_completed%\'');
+		$db->ExecuteMaster('UPDATE worker_view_model SET params_default_json = REPLACE(params_default_json, \'{"field":"t_is_completed","operator":"=","value":0}\', \'{"field":"t_status_id","operator":"=","value":0}\') where class_name = \'View_Task\' and params_default_json like \'%t_is_completed%\'');
+		$db->ExecuteMaster('UPDATE worker_view_model SET params_default_json = REPLACE(params_default_json, \'{"field":"t_is_completed","operator":"=","value":1}\', \'{"field":"t_status_id","operator":"=","value":1}\') where class_name = \'View_Task\' and params_default_json like \'%t_is_completed%\'');
+	}
+	
+	if(isset($columns['is_completed'])) {
+		$db->ExecuteMaster("ALTER TABLE task DROP COLUMN is_completed");
+	}
+	
+	if(!isset($columns['reopen_at'])) {
+		$db->ExecuteMaster("ALTER TABLE task ADD COLUMN reopen_at INT UNSIGNED NOT NULL DEFAULT 0");
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

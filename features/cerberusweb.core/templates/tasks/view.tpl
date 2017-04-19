@@ -80,8 +80,10 @@
 			</td>
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.t_id}" style="display:none;">
-				{if $result.t_is_completed}
+				{if 1 == $result.t_status_id}
 					<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);" title="{$result.t_completed_date|devblocks_date}"></span>
+				{elseif 2 == $result.t_status_id}
+					<span class="glyphicons glyphicons-clock" style="font-size:16px;color:rgb(80,80,80);" title="{$result.t_reopen_at|devblocks_date}"></span>
 				{/if}
 				<a href="{devblocks_url}c=profiles&type=task&id={$result.t_id}-{$result.t_title|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.t_title)}{$result.t_title}{else}New Task{/if}</a> 
 				
@@ -106,10 +108,14 @@
 					{math assign=overdue equation="(t-x)" t=$timestamp_now x=$result.t_due_date format="%d"}
 				{/if}
 				<td data-column="{$column}" title="{$result.t_due_date|devblocks_date}" style="{if $overdue > 0}color:rgb(220,0,0);font-weight:bold;{/if}">{$result.t_due_date|devblocks_prettytime}</td>
-			{elseif $column=="t_is_completed"}
+			{elseif $column=="t_status_id"}
 				<td data-column="{$column}">
-					{if $result.t_is_completed}
-					<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span>
+					{if 1 == $result.t_status_id}
+					{'status.closed'|devblocks_translate|capitalize}
+					{elseif 2 == $result.t_status_id}
+					{'status.waiting.abbr'|devblocks_translate|capitalize}
+					{else}
+					{'status.open'|devblocks_translate|capitalize}
 					{/if}
 				</td>
 			{elseif $column=="t_importance"}
@@ -162,7 +168,7 @@
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-always-show action-explore"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
 		{if $active_worker->hasPriv('core.tasks.actions.update_all')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=task&action=showBulkPopup&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
-		<button type="button" class="action-close" onclick="genericAjaxPost($(this).closest('form'),'view{$view->id}','c=profiles&a=handleSectionAction&section=task&action=viewMarkCompleted');"><span class="glyphicons glyphicons-circle-ok"></span> {'task.is_completed'|devblocks_translate|lower}</button>
+		<button type="button" class="action-close" onclick="genericAjaxPost($(this).closest('form'),'view{$view->id}','c=profiles&a=handleSectionAction&section=task&action=viewMarkCompleted');"><span class="glyphicons glyphicons-circle-ok"></span> {'status.closed'|devblocks_translate|lower}</button>
 	</div>
 	{/if}
 </div>
