@@ -5,6 +5,10 @@ class _DevblocksTwigSecurityPolicy extends Twig_Sandbox_SecurityPolicy {
 			return true;
 		}
 		
+		// Allow
+		if($method == '__toString')
+			return true;
+		
 		throw new Twig_Sandbox_SecurityError(sprintf('Calling "%s" method on a "%s" object is not allowed.', $method, get_class($obj)));
 	}
 	
