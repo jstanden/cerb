@@ -63,7 +63,7 @@
 						<br>
 					{else}
 						<ul class="bubbles chooser-container">
-							<li>{$ext->name}</li>
+							<li>{$ext->manifest->name}</li>
 						</ul>
 					{/if}
 					

@@ -1917,7 +1917,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$tpl->assign('bots', $bots);
 			
 			if(!empty($model)) {
-				$ext = DevblocksPlatform::getExtension($model->event_point, false);
+				$ext = DevblocksPlatform::getExtension($model->event_point, true);
 				$tpl->assign('ext', $ext);
 				
 				if(isset($bots[$model->bot_id]))
