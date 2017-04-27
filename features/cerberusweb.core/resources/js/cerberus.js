@@ -135,6 +135,7 @@ var atwho_twig_functions = [
 	{ name: "{{jsonpath_set(json,keypath,value)}}", content: "Set a nested key value in a JSON object" },
 	{ name: "{{random_string(length)}}", content: "Generate a random string of the given length" },
 	{ name: "{{regexp_match_all(pattern,text,group)}}", content: "Extract regular expression matches from text" },
+	{ name: "{{validate_email(string)}}", content: "Returns true if input is a valid email address" },
 	{ name: "{{xml_decode(string,namespaces)}}", content: "Convert text to an XML object" },
 	{ name: "{{xml_encode(xml)}}", content: "Convert an XML object to text" },
 	{ name: "{{xml_path(xml,path,element)}}", content: "Extract an element from an XML object by XPath" },
