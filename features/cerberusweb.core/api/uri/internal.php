@@ -60,12 +60,30 @@ class ChInternalController extends DevblocksControllerExtension {
 	// [TODO] Move this
 	
 	function startBotInteractionAction() {
-		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		// Which bots can @mention?
-		$chat_bots = DAO_Bot::getReadableByActorAndInteraction($active_worker, 'worker');
+		// [TODO] For now, every time we open the chat channel we want a new mini-session
+		
+		$results = DAO_TriggerEvent::getReadableByActor($active_worker, Event_InteractionChatWorker::ID, false);
+
+		// Sort by priority
+		DevblocksPlatform::sortObjects($results, 'priority', true);
+		
+		$bot_behaviors = DevblocksPlatform::objectsToArrays($results);
+		$behaviors_to_bots = array_column($bot_behaviors, 'bot_id', 'id');
+		
+		$bots = DAO_Bot::getIds($behaviors_to_bots);
+		
+		// Only keep bots with @mention names
+		$chat_bots = array_filter($bots, function($bot) { /* @var $bot Model_Bot */
+			if(empty($bot->at_mention_name))
+				return false;
+			
+			return true;
+		});
+		
+		DevblocksPlatform::sortObjects($bots, 'name', true);
 		
 		if(empty($chat_bots)) {
 			echo "No conversational bots are available.";
@@ -75,7 +93,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		// [TODO] Default bot
 		
 		$bot = reset($chat_bots);
-		@$behavior_id = $bot->params['interactions']['worker'];
+		@$behavior_id = array_search($bot->id, $behaviors_to_bots);
 		
 		if(empty($behavior_id)) {
 			echo "Invalid bot behavor.";
@@ -119,7 +137,13 @@ class ChInternalController extends DevblocksControllerExtension {
 			$bot = array_shift($bots);
 
 			if($bot) {
-				@$new_behavior_id = $bot->params['interactions']['worker'];
+				$results = DAO_TriggerEvent::getReadableByActor($active_worker, Event_InteractionChatWorker::ID, false);
+				DevblocksPlatform::sortObjects($results, 'priority', true);
+				$bot_behaviors = DevblocksPlatform::objectsToArrays($results);
+				$behaviors_to_bots = array_column($bot_behaviors, 'bot_id', 'id');
+				
+				@$new_behavior_id = array_search($bot->id, $behaviors_to_bots);
+				
 				if($new_behavior_id && $new_behavior_id != $behavior_id) {
 					$behavior_id = $new_behavior_id;
 					$interaction->session_data['behavior_id'] = $behavior_id;
@@ -155,21 +179,21 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$event->setEvent($event_model, $behavior);
 		
+		$values = $event->getValues();
+		
 		// Are we resuming a scope?
-		if(isset($interaction->session_data['dict']) && isset($interaction->session_data['path'])) {
-			$values = $event->getValues();
+		if(isset($interaction->session_data['dict'])) {
 			$values = array_replace($values, $interaction->session_data['dict']);
-			
-			$dict = new DevblocksDictionaryDelegate($values);
-			
+		}
+		
+		$dict = new DevblocksDictionaryDelegate($values);
+		
+		// Are we resuming a path?
+		if(isset($interaction->session_data['path'])) {
 			if(false == ($result = $behavior->resumeDecisionTree($dict, false, $event, $interaction->session_data['path'])))
 				return;
 			
 		} else {
-			$values = $event->getValues();
-			
-			$dict = new DevblocksDictionaryDelegate($values);
-			
 			if(false == ($result = $behavior->runDecisionTree($dict, false, $event)))
 				return;
 		}

@@ -217,7 +217,7 @@ class ChPageController extends DevblocksControllerExtension {
 		
 		// Conversational bots
 		if($active_worker) {
-			$conversational_bots = DAO_Bot::getReadableByActorAndInteraction($active_worker, 'worker');
+			$conversational_bots = DAO_Bot::getReadableByActor($active_worker, Event_InteractionChatWorker::ID);
 			$tpl->assign('conversational_bots', $conversational_bots);
 		}
 

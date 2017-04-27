@@ -73,26 +73,6 @@
 				<input type="text" name="at_mention_name" value="{$model->at_mention_name}" style="width:98%;" spellcheck="false" placeholder="mybot">
 			</td>
 		</tr>
-		
-		{if $model->id}
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>Worker chat:</b></td>
-			<td width="99%">
-				<button type="button" class="chooser-abstract" data-field-name="interactions[worker]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="bot.id:{$model->id} event:event.interaction.chat.worker"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container">
-					{if $model->params.interactions.worker}
-						{$behavior = $interaction_behaviors[$model->params.interactions.worker]}
-						{if $behavior}
-						<li>
-							<input type="hidden" name="interactions[worker]" value="{$behavior->id}">
-							<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a>
-						</li>
-						{/if}
-					{/if}
-				</ul>
-			</td>
-		</tr>
-		{/if}
 	</table>
 </fieldset>
 

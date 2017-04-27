@@ -230,26 +230,6 @@ class DAO_Bot extends Cerb_ORMHelper {
 		return array_intersect_key($bots, array_flip(array_keys($privs, true)));
 	}
 	
-	static function getReadableByActorAndInteraction($actor, $interaction) {
-		$bots = DAO_Bot::getAll();
-		
-		$bots = array_filter($bots, function($bot) use ($interaction) { /* @var $bot Model_Bot */
-			if(!$bot->at_mention_name)
-				return false;
-			
-			if(!isset($bot->params['interactions']))
-				return false;
-			
-			if(!isset($bot->params['interactions'][$interaction]) || empty($bot->params['interactions'][$interaction]))
-				return false;
-			
-			return true;
-		});
-		
-		$privs = Context_Bot::isReadableByActor($bots, $actor);
-		return array_intersect_key($bots, array_flip(array_keys($privs, true)));
-	}
-	
 	static function getWriteableByActor($actor, $ignore_admins=false) {
 		$bots = DAO_Bot::getAll();
 		$privs = Context_Bot::isWriteableByActor($bots, $actor, $ignore_admins);
@@ -1412,10 +1392,6 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			$action_extensions = DevblocksPlatform::getExtensions('devblocks.event.action', false);
 			DevblocksPlatform::sortObjects($action_extensions, 'params->[label]');
 			$tpl->assign('action_extensions', $action_extensions);
-			
-			// Interaction behaviors
-			$interaction_behaviors = DAO_TriggerEvent::getReadableByActor($active_worker, Event_InteractionChatWorker::ID, false, 'worker');
-			$tpl->assign('interaction_behaviors', $interaction_behaviors);
 			
 			// View
 			$tpl->assign('id', $context_id);
