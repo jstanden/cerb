@@ -5,12 +5,7 @@ include_once(DEVBLOCKS_PATH . "api/Extension.php");
 
 if(!function_exists('mb_ucfirst')) {
 	function mb_ucfirst($string) {
-		if(!is_string($string))
-			return null;
-		
-		$string = mb_convert_case($string, MB_CASE_LOWER);
-		$string = mb_convert_case(mb_substr($string, 0, 1), MB_CASE_UPPER) . mb_substr($string, 1);
-		return $string;
+		return DevblocksPlatform::strUpperFirst($string);
 	}
 }
 
