@@ -1113,14 +1113,18 @@ class CerberusContexts {
 
 		} else {
 			if(is_array($labels)) {
-				foreach($labels as $idx => $label) {
-					$label = mb_ucfirst(trim($label));
-					$label = strtr($label,':',' ');
-					$labels[$idx] = $label;
-				}
-
-				asort($labels);
-
+				$finished = (1 == count(self::$_stack));
+				
+				array_walk($labels, function(&$label) use ($finished) {
+					$label = strtr(trim($label), ':',' ');
+					
+					if($finished)
+						$label = DevblocksPlatform::strUpperFirst(trim($label));
+				});
+				
+				if($finished)
+					asort($labels);
+				
 				$values['_labels'] = $labels;
 			}
 		}
