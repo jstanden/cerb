@@ -126,6 +126,7 @@ class _DevblocksTemplateBuilder {
 				'dict_set',
 				'json_decode',
 				'jsonpath_set',
+				'random_string',
 				'regexp_match_all',
 				'xml_decode',
 				'xml_encode',
@@ -586,6 +587,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
 			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
 			new Twig_SimpleFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
+			new Twig_SimpleFunction('random_string', [$this, 'function_random_string']),
 			new Twig_SimpleFunction('regexp_match_all', [$this, 'function_regexp_match_all']),
 			new Twig_SimpleFunction('xml_decode', [$this, 'function_xml_decode']),
 			new Twig_SimpleFunction('xml_encode', [$this, 'function_xml_encode']),
@@ -677,6 +679,11 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		$ptr = $val;
 		
 		return $var;
+	}
+	
+	function function_random_string($length=8) {
+		$length = DevblocksPlatform::intClamp($length, 1, 255);
+		return CerberusApplication::generatePassword($length);
 	}
 	
 	function function_dict_set($var, $path, $val) {

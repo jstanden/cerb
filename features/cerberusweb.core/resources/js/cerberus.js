@@ -133,6 +133,7 @@ var atwho_twig_functions = [
 	{ name: "{{dict_set(obj,keypath,value)}}", content: "Set a nested value on an object" },
 	{ name: "{{json_decode(string)}}", content: "Decode a JSON encoded string" },
 	{ name: "{{jsonpath_set(json,keypath,value)}}", content: "Set a nested key value in a JSON object" },
+	{ name: "{{random_string(length)}}", content: "Generate a random string of the given length" },
 	{ name: "{{regexp_match_all(pattern,text,group)}}", content: "Extract regular expression matches from text" },
 	{ name: "{{xml_decode(string,namespaces)}}", content: "Convert text to an XML object" },
 	{ name: "{{xml_encode(xml)}}", content: "Convert an XML object to text" },
