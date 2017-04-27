@@ -1036,10 +1036,10 @@ class CerberusContexts {
 							
 							$cache->save(array('labels' => $loaded_labels, 'values' => $loaded_values), $cache_key, array(), 0, $cache_local);
 						}
-
+						
 						$labels = $loaded_labels;
 						$values = $loaded_values;
-
+						
 					} else {
 
 						// If instance caching is enabled
@@ -1068,12 +1068,12 @@ class CerberusContexts {
 							$ctx->getContext($context_object, $labels, $values, $prefix);
 
 						}
-
+						
 					}
 				}
 				break;
 		}
-
+		
 		if(!$nested) {
 			$values['timestamp'] = time();
 
@@ -1121,7 +1121,6 @@ class CerberusContexts {
 
 		// Rename labels
 		// [TODO] mb_*
-
 		// [TODO] Phase out $labels
 
 		if($skip_labels) {
@@ -1145,7 +1144,8 @@ class CerberusContexts {
 				$values['_labels'] = $labels;
 			}
 		}
-
+		
+		
 		// Pop the stack
 		array_pop(self::$_stack);
 

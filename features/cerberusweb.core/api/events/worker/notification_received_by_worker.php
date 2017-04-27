@@ -129,15 +129,11 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$conditions = $this->getConditions($trigger);
-		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
 			$tpl->assign('namePrefix','condition'.$seq);
-		
-		//$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_bool.tpl');
 	}
 	
 	function runConditionExtension($token, $as_token, $trigger, $params, DevblocksDictionaryDelegate $dict) {

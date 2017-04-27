@@ -152,7 +152,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(false == ($event = Extension_DevblocksEvent::get($event_model->id, true)))
 			return;
-			
+		
 		$event->setEvent($event_model, $behavior);
 		
 		// Are we resuming a scope?
@@ -2996,9 +2996,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$run_relative = DevblocksPlatform::importGPC($_REQUEST['run_relative'],'string','');
 		@$run_date = DevblocksPlatform::importGPC($_REQUEST['run_date'],'string','');
 		@$return_url = DevblocksPlatform::importGPC($_REQUEST['return_url'],'string','');
-
+		
 		$active_worker = CerberusApplication::getActiveWorker();
-
+		
 		if(empty($return_url) && isset($_SERVER['http_referer']))
 			$return_url = $_SERVER['http_referer'];
 		
@@ -3486,7 +3486,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!isset($trigger) && !empty($trigger_id))
 			if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 				return;
-				
+		
 		$tpl->assign('trigger', $trigger);
 		
 		$event = null;
@@ -3685,7 +3685,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
  		if(null == ($ext_event = DevblocksPlatform::getExtension($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
  			return;
-
+ 		
 		// Set the base event scope
 		
 		// [TODO] This is hacky and needs to be handled by the extensions
@@ -3704,7 +3704,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 		
 		$ext_event->setEvent($event_model, $trigger);
-
+		
 		$tpl->assign('event', $ext_event);
 		
 		// Format custom values
@@ -3729,7 +3729,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$values = $ext_event->getValues();
 		$values = array_merge($values, $custom_values);
- 		
+		
  		// Get conditions
  		
  		$conditions = $ext_event->getConditions($trigger, false);

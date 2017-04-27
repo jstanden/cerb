@@ -772,9 +772,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	protected function _getTokenLabelsFromCustomFields($fields, $prefix) {
 		$context_stack = CerberusContexts::getStack();
 
-		$labels = array();
+		$labels = [];
 		$fieldsets = DAO_CustomFieldset::getAll();
-
+		
 		if(is_array($fields))
 		foreach($fields as $cf_id => $field) {
 			$fieldset = $field->custom_fieldset_id ? @$fieldsets[$field->custom_fieldset_id] : null;
@@ -814,7 +814,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			);
 
 		}
-
+		
 		return $labels;
 	}
 
@@ -828,14 +828,14 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			// Control infinite recursion
 			if(count($context_stack) > 1 && $field->type == Model_CustomField::TYPE_LINK)
 				continue;
-
+			
 			$types['custom_'.$cf_id] = $field->type;
-
+			
 			switch($field->type) {
 				case Model_CustomField::TYPE_LINK:
 					if(!isset($field->params['context']))
 						break;
-
+					
 					// [TODO] This infinitely recurses if you do task->task
 					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true, true);
 					
@@ -843,11 +843,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					foreach($merge_values['_types'] as $type_key => $type) {
 						$types['custom_'.$cf_id.'_'.$type_key] = $type;
 					}
-
+					
 					break;
 			}
 		}
-
+		
 		return $types;
 	}
 
@@ -969,7 +969,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 			$conditions[$token] = array('label' => $label, 'type' => $type);
 		}
-
+		
 		foreach($labels as $token => $label) {
 			if(false !== ($pos = strrpos($token, 'custom_'))) {
 				$cfield_id = intval(substr($token, $pos + 7));
@@ -1131,10 +1131,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			'_time_of_day' => array('label' => 'Calendar time of day', 'type' => ''),
 		);
 		$custom = $this->getConditionExtensions($trigger);
-
+		
 		if(!empty($custom) && is_array($custom))
 			$conditions = array_merge($conditions, $custom);
-
+		
 		// Trigger variables
 		if(is_array($trigger->variables))
 		foreach($trigger->variables as $key => $var) {
@@ -1146,7 +1146,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			if($var['type'] == Model_CustomField::TYPE_DROPDOWN)
 				@$conditions[$key]['options'] = DevblocksPlatform::parseCrlfString($var['params']['options']);
 		}
-
+		
 		// Plugins
 		// [TODO] This should filter by event type
 		$manifests = Extension_DevblocksEventCondition::getAll(false);
@@ -2621,7 +2621,7 @@ class _DevblocksSortHelper {
 		if(is_numeric($a_test) && is_numeric($b_test)) {
 			settype($a_test, 'float');
 			settype($b_test, 'float');
-
+			
 			if($a_test==$b_test)
 				return 0;
 

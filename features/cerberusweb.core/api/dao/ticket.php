@@ -4484,7 +4484,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'updated' => Model_CustomField::TYPE_DATE,
 			'url' => Model_CustomField::TYPE_URL,
 		);
-
+		
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
 			$token_labels = array_merge($token_labels, $custom_field_labels);
@@ -4607,7 +4607,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$merge_token_values,
 			$token_labels,
 			$token_values
-		
 		);
 		
 		// First response
@@ -4622,7 +4621,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$merge_token_values,
 			$token_labels,
 			$token_values
-		
 		);
 		
 		// Last message

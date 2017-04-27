@@ -1138,9 +1138,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(!$editable)
 			return;
 
-		$event = $macro->getEvent();
-		$conditions = $event->getConditions($macro);
-		
 		$tpl->display('devblocks:cerberusweb.core::internal/macros/reply/run_popup.tpl');
 	}
 	
@@ -1179,8 +1176,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			echo json_encode(['has_variables'=>true]);
 			return;
 		}
-		
-		$conditions = $event->getConditions($macro);
 		
 		$actions = array();
 		
