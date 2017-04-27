@@ -811,13 +811,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 	protected function _getTokenTypesFromCustomFields($fields, $prefix) {
 		$context_stack = CerberusContexts::getStack();
-
-		$types = array();
-		$fieldsets = DAO_CustomFieldset::getAll();
-
+		$types = [];
+		
 		if(is_array($fields))
 		foreach($fields as $cf_id => $field) {
-			$fieldset = $field->custom_fieldset_id ? @$fieldsets[$field->custom_fieldset_id] : null;
 
 			// Control infinite recursion
 			if(count($context_stack) > 1 && $field->type == Model_CustomField::TYPE_LINK)
@@ -831,8 +828,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						break;
 
 					// [TODO] This infinitely recurses if you do task->task
-					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true);
-
+					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true, true);
+					
 					if(is_array($merge_values['_types']))
 					foreach($merge_values['_types'] as $type_key => $type) {
 						$types['custom_'.$cf_id.'_'.$type_key] = $type;
@@ -944,7 +941,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 
 	protected function _importLabelsTypesAsConditions($labels, $types) {
-		$conditions = array();
+		$conditions = [];
+		$custom_fields = DAO_CustomField::getAll();
 
 		foreach($types as $token => $type) {
 			if(!isset($labels[$token]))
@@ -964,9 +962,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 
 		foreach($labels as $token => $label) {
-			if(preg_match('#.*?_{0,1}custom_(\d+)$#', $token, $matches)) {
+			if(false !== ($pos = strrpos($token, 'custom_'))) {
+				$cfield_id = intval(substr($token, $pos + 7));
 
-				if(null == ($cfield = DAO_CustomField::get($matches[1])))
+				if(null == ($cfield = @$custom_fields[$cfield_id]))
 					continue;
 
 				// [TODO] Can we load these option a different way so this foreach isn't needed?
@@ -1107,7 +1106,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 	function renderEventParams(Model_TriggerEvent $trigger=null) {}
 
-	function getConditions($trigger) {
+	function getConditions($trigger, $sorted=true) {
 		if(isset($this->_conditions_cache[$trigger->id])) {
 			return $this->_conditions_cache[$trigger->id];
 		}
@@ -1142,10 +1141,12 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		foreach($manifests as $manifest) {
 			$conditions[$manifest->id] = array('label' => $manifest->params['label']);
 		}
-
-		DevblocksPlatform::sortObjects($conditions, '[label]');
-
-		$this->_conditions_cache[$trigger->id] = $conditions;
+		
+		if($sorted) {
+			DevblocksPlatform::sortObjects($conditions, '[label]');
+			$this->_conditions_cache[$trigger->id] = $conditions;
+		}
+		
 		return $conditions;
 	}
 
@@ -1154,7 +1155,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	abstract function runConditionExtension($token, $as_token, $trigger, $params, DevblocksDictionaryDelegate $dict);
 
 	function renderCondition($token, $trigger, $params=array(), $seq=null) {
-		$conditions = $this->getConditions($trigger);
+		$conditions = $this->getConditions($trigger, false);
 		$condition_extensions = $this->getConditionExtensions($trigger);
 
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1248,7 +1249,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 	function runCondition($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$logger = DevblocksPlatform::getConsoleLog('Bot');
-		$conditions = $this->getConditions($trigger);
+		$conditions = $this->getConditions($trigger, false);
 		
 		// Cache the extensions
 		if(!isset($this->_conditions_extensions_cache[$trigger->id])) {
@@ -1733,7 +1734,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 				case '_schedule_behavior':
 					$dates = array();
-					$conditions = $this->getConditions($trigger);
+					$conditions = $this->getConditions($trigger, false);
 					foreach($conditions as $key => $data) {
 						if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
 							$dates[$key] = $data['label'];
@@ -2583,9 +2584,9 @@ class _DevblocksSortHelper {
 		foreach($props as $prop) {
 			$is_index = false;
 
-			if(@preg_match("#\[(.*?)\]#", $prop, $matches)) {
+			if(DevblocksPlatform::strStartsWith($prop, '[')) {
 				$is_index = true;
-				$prop = $matches[1];
+				$prop = trim($prop,'[]');
 			}
 
 			if($is_index) {
@@ -2620,8 +2621,10 @@ class _DevblocksSortHelper {
 
 			if(!is_string($a_test) || !is_string($b_test))
 				return 0;
+			
+			$result = strcasecmp($a_test, $b_test);
 
-			return strcasecmp($a_test, $b_test);
+			return $result;
 		}
 	}
 

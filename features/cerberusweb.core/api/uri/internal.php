@@ -3142,13 +3142,15 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 
 		$event = $macro->getEvent();
-		$conditions = $event->getConditions($macro);
-		$dates = array();
+		$conditions = $event->getConditions($macro, false);
+		$dates = [];
 		
 		foreach($conditions as $k => $cond) {
 			if(isset($cond['type']) && $cond['type'] == Model_CustomField::TYPE_DATE)
 				$dates[$k] = $cond;
 		}
+		
+		DevblocksPlatform::sortObjects($dates, '[label]');
 		
 		$tpl->assign('dates', $dates);
 		
@@ -3520,7 +3522,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->assign('actions', $actions);
 					
 					// [TODO] Cache this
-					$map = array();
+					$map = [];
 					array_walk($actions, function($v, $k) use (&$map) {
 						if(is_array($v) && isset($v['label']))
 							$map[$k] = $v['label'];
@@ -3590,7 +3592,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$values = $ext_event->getValues();
 		$dict = new DevblocksDictionaryDelegate($values);
 
-		$conditions = $ext_event->getConditions($trigger);
+		$conditions = $ext_event->getConditions($trigger, false);
 
 		$dictionary = array();
 		
@@ -3707,7 +3709,7 @@ class ChInternalController extends DevblocksControllerExtension {
  		
  		// Get conditions
  		
- 		$conditions = $ext_event->getConditions($trigger);
+ 		$conditions = $ext_event->getConditions($trigger, false);
  		
  		// Sanitize values
  		

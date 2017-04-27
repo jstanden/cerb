@@ -130,9 +130,9 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 			
 			$values['_types'] = array(
 				'actor__context' => null,
-				'actor__label' => Model_CustomField::TYPE_SINGLE_LINE,
-				'actor_id' => Model_CustomField::TYPE_SINGLE_LINE,
-				'actor_url' => Model_CustomField::TYPE_SINGLE_LINE,
+				'actor__label' => 'S',
+				'actor_id' => 'S',
+				'actor_url' => 'S',
 			);
 		}
 		
