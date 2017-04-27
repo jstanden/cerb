@@ -611,6 +611,19 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * Return a string with only its numeric characters
+	 *
+	 * @param string $arg
+	 * @param string $also
+	 * @param string $replace
+	 * @return string
+	 * @test DevblocksPlatformTest
+	 */
+	static function strNum($arg, $also=null, $replace="") {
+		return preg_replace("/[^0-9" . $also . "]/i", $replace, $arg);
+	}
+	
+	/**
 	 * 
 	 * @param string $string
 	 * @param string $from_encoding
