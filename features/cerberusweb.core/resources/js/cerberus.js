@@ -160,6 +160,7 @@ var atwho_twig_modifiers = [
 	{ name: "upper", content: "Convert text to uppercase" },
 	
 	{ name: "abs", content: "Return the absolute value of a number" },
+	{ name: "alphanum", content: "Return only the alphanumeric characters from text" },
 	{ name: "base64_encode", content: "Encode text in Base64 format" },
 	{ name: "base64_decode", content: "Decode Base64 encoded text" },
 	{ name: "batch(n,fill)", content: "Batch an array into subarrays of equal size" },
