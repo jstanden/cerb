@@ -129,6 +129,7 @@ class _DevblocksTemplateBuilder {
 				'random_string',
 				'regexp_match_all',
 				'validate_email',
+				'validate_number',
 				'xml_decode',
 				'xml_encode',
 				'xml_xpath',
@@ -591,6 +592,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('random_string', [$this, 'function_random_string']),
 			new Twig_SimpleFunction('regexp_match_all', [$this, 'function_regexp_match_all']),
 			new Twig_SimpleFunction('validate_email', [$this, 'function_validate_email']),
+			new Twig_SimpleFunction('validate_number', [$this, 'function_validate_number']),
 			new Twig_SimpleFunction('xml_decode', [$this, 'function_xml_decode']),
 			new Twig_SimpleFunction('xml_encode', [$this, 'function_xml_encode']),
 			new Twig_SimpleFunction('xml_xpath_ns', [$this, 'function_xml_xpath_ns']),
@@ -790,6 +792,13 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return false;
 		
 		if(!is_array($addresses) || 1 != count($addresses))
+			return false;
+		
+		return true;
+	}
+	
+	function function_validate_number($number) {
+		if(!is_numeric($number))
 			return false;
 		
 		return true;
