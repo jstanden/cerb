@@ -1875,9 +1875,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 
-	private function _viewRenderInlineFilters($view, $is_custom=false) {
+	private function _viewRenderInlineFilters($view, $is_custom=false, $add_mode=null) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view', $view);
+		$tpl->assign('add_mode', $add_mode);
 		
 		if($is_custom)
 			$tpl->assign('is_custom', true);
@@ -1900,12 +1901,15 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$is_custom = DevblocksPlatform::importGPC($_REQUEST['is_custom'],'integer',0);
 
+		@$add_mode = DevblocksPlatform::importGPC($_REQUEST['add_mode'], 'string', null);
+		@$query = DevblocksPlatform::importGPC($_REQUEST['query'], 'string', null);
+		
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field'], 'string', null);
 		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'], 'string', null);
 		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
 		@$replace = DevblocksPlatform::importGPC($_REQUEST['replace'], 'integer', 0);
 		@$field_deletes = DevblocksPlatform::importGPC($_REQUEST['field_deletes'],'array',array());
-
+		
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
 			return;
 
@@ -1931,8 +1935,16 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 		
 		// Add
-		if(!empty($field)) {
-			$view->doSetCriteria($field, $oper, $value);
+		switch($add_mode) {
+			case 'query':
+				$view->addParamsWithQuickSearch($query, false);
+				break;
+				
+			default:
+				if(!empty($field)) {
+					$view->doSetCriteria($field, $oper, $value);
+				}
+				break;
 		}
 
 		// If this is a custom worklist we want to swap the req+editable params back
@@ -1944,95 +1956,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Reset the paging when adding a filter
 		$view->renderPage = 0;
 		
-		$this->_viewRenderInlineFilters($view, $is_custom);
-	}
-
-	function viewResetFiltersAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-
-		if(null == ($view = C4_AbstractViewLoader::getView($id)))
-			return;
-
-		$view->doResetCriteria();
-
-		$this->_viewRenderInlineFilters($view);
-	}
-
-	function viewLoadPresetAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$preset_id = DevblocksPlatform::importGPC($_REQUEST['_preset'],'integer',0);
-
-		if(null == ($view = C4_AbstractViewLoader::getView($id)))
-			return;
-
-		$view->removeAllParams();
-
-		if(null != ($preset = DAO_ViewFiltersPreset::get($preset_id))) {
-			$view->addParams($preset->params);
-			
-			if(!is_null($preset->sort_by)) {
-				$disable_sorting = $view->isCustom() && @$view->options['disable_sorting'];
-				
-				if(!$disable_sorting) {
-					$view->renderSortBy = $preset->sort_by;
-					$view->renderSortAsc = !empty($preset->sort_asc);
-				}
-			}
-		}
-
-		$this->_viewRenderInlineFilters($view);
-	}
-
-	function viewAddPresetAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$preset_name = DevblocksPlatform::importGPC($_REQUEST['_preset_name'],'string','');
-		@$preset_replace_id = DevblocksPlatform::importGPC($_REQUEST['_preset_replace'],'integer',0);
-
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		if(null == ($view = C4_AbstractViewLoader::getView($id)))
-			return;
-		
-		$params_json = json_encode($view->getEditableParams());
-
-		if(!empty($preset_replace_id)) {
-			$fields = array(
-				DAO_ViewFiltersPreset::NAME => !empty($preset_name) ? $preset_name : 'New Preset',
-				DAO_ViewFiltersPreset::PARAMS_JSON => $params_json,
-				DAO_ViewFiltersPreset::SORT_JSON => json_encode(array(
-					'by' => $view->renderSortBy,
-					'asc' => !empty($view->renderSortAsc),
-				)),
-			);
-
-			DAO_ViewFiltersPreset::update($preset_replace_id, $fields);
-
-		} else { // new
-			$fields = array(
-				DAO_ViewFiltersPreset::NAME => !empty($preset_name) ? $preset_name : 'New Preset',
-				DAO_ViewFiltersPreset::VIEW_CLASS => get_class($view),
-				DAO_ViewFiltersPreset::WORKER_ID => $active_worker->id,
-				DAO_ViewFiltersPreset::PARAMS_JSON => $params_json,
-				DAO_ViewFiltersPreset::SORT_JSON => json_encode(array(
-					'by' => $view->renderSortBy,
-					'asc' => !empty($view->renderSortAsc),
-				)),
-			);
-
-			DAO_ViewFiltersPreset::create($fields);
-		}
-
-		$this->_viewRenderInlineFilters($view);
-	}
-
-	function viewEditPresetsAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$preset_dels = DevblocksPlatform::importGPC($_REQUEST['_preset_del'],'array',array());
-
-		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
-			DAO_ViewFiltersPreset::delete($preset_dels);
-			$this->_viewRenderInlineFilters($view);
-		}
+		$this->_viewRenderInlineFilters($view, $is_custom, $add_mode);
 	}
 
 	function viewCustomizeAction() {

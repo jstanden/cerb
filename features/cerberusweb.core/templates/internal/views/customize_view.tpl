@@ -55,7 +55,8 @@
 
 {if $is_custom}
 <fieldset class="peek peek-noborder black" style="margin-bottom:0;">
-	<legend>Always apply these filters to the worklist:</legend>
+	<legend>Require these filters on the worklist:</legend>
+	
 	<div id="viewCustom{if $is_custom}Req{/if}Filters{$view->id}" style="margin-top:5px;">
 	{include file="devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl" is_custom=true}
 	</div>

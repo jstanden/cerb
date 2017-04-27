@@ -2,7 +2,7 @@
 {if $readonly}<ul class="bubbles">{/if}
 {if !empty($params)}
 {foreach from=$params item=param key=param_key name=params}
-	{if !$nested && !$readonly}<label><input type="checkbox" name="field_deletes[]" value="{$param_key}"> {/if}
+	{if !$nested && !$readonly}<div><span class="glyphicons glyphicons-circle-remove" style="cursor:pointer;margin-right:5px;"></span> <input type="checkbox" name="field_deletes[]" value="{$param_key}" style="display:none;"> {/if}
 	{if !$nested && $readonly}<li class="bubble-blue" style="position:relative;{if is_array($param)}white-space:normal;{/if}">{/if}
 		
 	{if '*_' == substr($param->field,0,2)}
@@ -123,7 +123,7 @@
 		{/if}
 	{/if}
 		
-	{if !$nested && !$readonly}</label><br>{/if}
+	{if !$nested && !$readonly}</div>{/if}
 	{if !$nested && $readonly}<a href="javascript:;" class="delete" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="position:absolute;top:-7px;right:-6px;display:none;"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span></a></li>{/if}
 {/foreach}
 {if $readonly}</ul>{/if}

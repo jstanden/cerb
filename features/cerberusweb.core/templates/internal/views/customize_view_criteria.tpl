@@ -1,27 +1,19 @@
-{if !empty($is_custom)}
+{if $is_custom}
 	{$view_params = $view->getParamsRequired()}
 {else}
 	{$view_params = $view->getEditableParams()}
 	{$presets = $view->getPresets()}
 {/if}
-{$parent_div = "viewCustom{if !empty($is_custom)}Req{/if}Filters{$view->id}"}
+{$parent_div = "viewCustom{if $is_custom}Req{/if}Filters{$view->id}"}
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
-{if empty($is_custom)}
+{if !$is_custom}
 <tbody class="summary">
 <tr>
-	<td colspan="2">
+	<td>
 		<div class="badge badge-lightgray filters" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;">{'common.filters'|devblocks_translate|capitalize}: <span class="glyphicons glyphicons-chevron-down" style="font-size:12px;"></span></div>
 		<ul class="cerb-popupmenu cerb-float" style="margin-top:-2px;">
 			<li><a href="javascript:;" onclick="$frm=$(this).closest('form');genericAjaxGet('','c=internal&a=viewToggleFilters&id={$view->id}&show=' + ($frm.find('tbody.full').toggle().is(':hidden')?'0':'1'));$(this).closest('ul.cerb-popupmenu').hide();">Toggle Helper</a></li>
-			<li><a href="javascript:;" onclick="$('#{$parent_div}').find('select[name=_preset]').val('reset').trigger('change');">{'common.reset'|devblocks_translate|capitalize}</a></li>
-			{if !empty($presets)}
-			<li><hr></li>
-			<li><b>Presets</b></li>
-			{foreach from=$presets item=preset key=preset_id}
-			<li><a href="javascript:;" onclick="$('#{$parent_div}').find('select[name=_preset]').val('{$preset_id}').trigger('change');">{$preset->name}</a></li>
-			{/foreach}
-			{/if}
 		</ul>
 		<script type="text/javascript">
 		$('#{$parent_div} TBODY.summary > TR > TD:first > div.filters')
@@ -57,73 +49,32 @@
 	</td>
 </tr>
 </tbody>
-{/if}{* empty($is_custom) *}
+{/if}
 
 <tbody class="full" style="width:100%;display:{if $is_custom || $view->renderFilters};{else}none;{/if}">
 <tr>
-	<td width="60%" valign="top">
-		<fieldset class="black">
-			<legend>{'common.filters'|devblocks_translate|capitalize}</legend>
-			
+	<td valign="top" width="100%">
+		{if $is_custom}
+		<div class="cerb-filters-list" style="position:relative;margin-bottom:10px;">
 			{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_params}
-			
-			<div style="margin-top:5px;">
-				<select name="_preset" onchange="$val=$(this).val();if(0==$val.length)return;if('reset'==$val) { var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewResetFilters'); return; } if('remove'==$val) { var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewAddFilter{if $is_custom}&is_custom=1{/if}'); return; } if('edit'==$val) { $(this).val('');$('#divRemovePresets{$view->id}').fadeIn();return; } if('add'==$val) { $(this).val('');$('#divAddPreset{$view->id}').fadeIn().find('input:text:first').focus();return; } var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewLoadPreset');">
-					<option value="">-- action --</option>
-					<optgroup label="Filters">
-						{if !empty($view_params)}<option value="remove">Remove selected filters</option>{/if}
-						{if !$is_custom}
-						<option value="reset">Reset filters</option>
-						{if !empty($view_params)}<option value="add">Save filters as preset</option>{/if}
-						{/if}
-					</optgroup>
-					
-					{if !$is_custom && !empty($presets)}
-					<optgroup label="All Presets">
-						{foreach from=$presets item=preset key=preset_id}
-						<option value="{$preset_id}">{$preset->name}</option>
-						{/foreach}
-						<option value="edit">(edit presets)</option>
-					</optgroup>
-					{/if}
-				</select>
-				
-				{if !$is_custom}
-				<div id="divAddPreset{$view->id}" class="block" style="display:none;margin:5px;">
-					<b>Save filters as preset:</b><br>
-					{if !empty($presets)}
-					<select name="_preset_replace" onchange="if(''==$(this).val()) { $(this).siblings('input:text[name=_preset_name]').val('').focus(); } else { $(this).siblings('input:text[name=_preset_name]').val($(this).find('option:selected').text()).focus(); } ">
-						<option value="" selected="selected">- new preset: -</option>
-						{foreach from=$presets item=preset key=preset_id}
-						<option value="{$preset_id}">{$preset->name}</option>
-						{/foreach}
-					</select>
-					{/if}
-					<input type="text" name="_preset_name" size="32" value="">
-					<br>
-					<br>
-					<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewAddPreset');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-					<a href="javascript:;" onclick="$(this).closest('div').fadeOut();"> {'common.cancel'|devblocks_translate|lower}</a>
-				</div>
-				<div id="divRemovePresets{$view->id}" class="block" style="display:none;margin:5px;">
-					<b>Remove these presets:</b><br>
-					{foreach from=$presets item=preset key=preset_id}
-					<label><input type="checkbox" name="_preset_del[]" value="{$preset_id}"> {$preset->name}</label><br>
-					{/foreach}
-					<br>
-					<button type="button" onclick="var $form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewEditPresets');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-					<a href="javascript:;" onclick="$(this).closest('div').fadeOut();"> {'common.cancel'|devblocks_translate|lower}</a>
-				</div>
-				{/if}
-			</div>
-		</fieldset>
-	</td>
+		</div>
+		{/if}
 	
-	<td valign="top" width="40%">
 		<fieldset class="black">
-			<legend>Add Filter</legend>
+			<legend>Add Filters</legend>
 			
-			<b>{'common.filter'|devblocks_translate|capitalize}:</b><br>
+			<div>
+				<label><input type="radio" name="add_mode" value="query" {if $add_mode != 'filters'}checked="checked"{/if}> {'common.query'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="add_mode" value="filters" {if $add_mode == 'filters'}checked="checked"{/if}> {'common.list'|devblocks_translate|capitalize}</label>
+			</div>
+			
+			<div class="cerb-filter-mode-query" {if $add_mode == 'filters'}style="display:none;"{/if}>
+				<div>
+					<input type="text" name="query" style="width:100%;" data-context="{$view->getContext()}" data-query="">
+				</div>
+			</div>
+			
+			<div class="cerb-filter-mode-list" {if $add_mode != 'filters'}style="display:none;"{/if}>
 			<blockquote style="margin:5px;">
 				{$searchable_fields = $view->getParamsAvailable(true)}
 				{$has_custom = false}
@@ -155,9 +106,59 @@
 			</blockquote>
 		
 			<div id="add{$parent_div}" style="background-color:rgb(255,255,255);"></div>
-			<button type="button" onclick="$form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewAddFilter&replace=1{if $is_custom}&is_custom=1{/if}');"><span class="glyphicons glyphicons-circle-plus"></span> Add Filter</button>
+			</div>
 		</fieldset>
+		
+		<button type="button" onclick="$form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewAddFilter&replace=1{if $is_custom}&is_custom=1{/if}');"><span class="glyphicons glyphicons-circle-plus"></span> Update Filters</button>
 	</td>
 </tr>
 </tbody>
 </table>
+
+<script type="text/javascript">
+$(function() {
+	var $parent = $('#{$parent_div}');
+	var $query = $parent.find('input[name=query]').cerbQueryTrigger();
+	var $mode_query = $parent.find('div.cerb-filter-mode-query');
+	var $mode_list = $parent.find('div.cerb-filter-mode-list');
+	
+	$parent.find('input[name=add_mode]').click(function(e) {
+		e.stopPropagation();
+		
+		var mode = $(this).val();
+		
+		if(mode == 'query') {
+			$mode_query.fadeIn();
+			$mode_list.hide();
+		} else {
+			$mode_query.hide();
+			$mode_list.fadeIn();
+		}
+	});
+	
+	$query.on('cerb-query-saved', function(e) {
+	});
+	
+	$parent.find('div.cerb-filters-list').on('click', function(e) {
+		e.stopPropagation();
+		var $target = $(e.target);
+		
+		if(!$target.is('span'))
+			return;
+		
+		var $container = $target.closest('div');
+		var $checkbox = $container.find('input:checkbox');
+		
+		if($checkbox.prop('checked')) {
+			$checkbox.prop('checked', false);
+			$target.css('color', '');
+			$container.css('text-decoration', '');
+			
+		} else {
+			$checkbox.prop('checked', true);
+			$target.css('color', 'rgb(150,0,0)');
+			$container.css('text-decoration', 'line-through');
+		}
+	});
+});
+</script>
