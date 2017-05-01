@@ -1357,6 +1357,16 @@
 				<seg>photo</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.placeholder">
+			<tuv xml:lang="en_US">
+				<seg>placeholder</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.placeholders">
+			<tuv xml:lang="en_US">
+				<seg>placeholders</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.plugin">
 			<tuv xml:lang="en_US">
 				<seg>plugin</seg>

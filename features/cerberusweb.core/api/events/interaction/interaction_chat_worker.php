@@ -159,6 +159,7 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 		$actions =
 			array(
 				'prompt_buttons' => array('label' => 'Prompt with buttons'),
+				'prompt_text' => array('label' => 'Prompt with text input'),
 				'send_message' => array('label' => 'Respond with message'),
 				'send_script' => array('label' => 'Respond with script'),
 				'worklist_open' => array('label' => 'Open a worklist popup'),
@@ -181,6 +182,10 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'prompt_buttons':
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_buttons.tpl');
+				break;
+				
+			case 'prompt_text':
+				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_text.tpl');
 				break;
 				
 			case 'send_message':
@@ -213,6 +218,15 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 				$out = sprintf(">>> Prompting with buttons:\n".
 					"%s\n",
 					$options
+				);
+				break;
+				
+			case 'prompt_text':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+				
+				$out = sprintf(">>> Prompting with text input\nPlaceholder: %s\n",
+					$placeholder
 				);
 				break;
 				
@@ -269,6 +283,21 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 				$dict->__exit = 'suspend';
 				break;
 				
+			case 'prompt_text':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+				
+				$actions[] = array(
+					'_action' => 'prompt.text',
+					'_trigger_id' => $trigger->id,
+					'placeholder' => $placeholder,
+				);
+				
+				$dict->__exit = 'suspend';
+				break;
+			
 			case 'send_message':
 				$actions =& $dict->_actions;
 				
