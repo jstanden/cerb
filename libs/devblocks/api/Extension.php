@@ -416,6 +416,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ') {
+		asort($labels);
+		
 		$keys = new DevblocksMenuItemPlaceholder();
 		
 		// Tokenize the placeholders

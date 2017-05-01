@@ -1119,7 +1119,7 @@ class CerberusContexts {
 					$label = strtr(trim($label), ':',' ');
 					
 					if($finished)
-						$label = DevblocksPlatform::strUpperFirst(trim($label));
+						$label = DevblocksPlatform::strUpperFirst($label, true);
 				});
 				
 				if($finished)
