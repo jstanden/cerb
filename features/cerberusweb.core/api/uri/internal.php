@@ -255,6 +255,11 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->display('devblocks:cerberusweb.core::console/prompt_text.tpl');
 					break;
 					
+				case 'prompt.wait':
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_wait.tpl');
+					break;
+					
 				case 'message.send':
 					if(false == ($msg = @$params['message']))
 						break;
