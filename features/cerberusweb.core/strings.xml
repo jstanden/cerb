@@ -662,6 +662,11 @@
 				<seg>Default</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.delay">
+			<tuv xml:lang="en_US">
+				<seg>delay</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.delete">
 			<tuv xml:lang="en_US">
 				<seg>delete</seg>

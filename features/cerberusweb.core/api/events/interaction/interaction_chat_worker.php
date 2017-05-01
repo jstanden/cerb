@@ -326,6 +326,7 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 				$actions =& $dict->_actions;
 				
 				@$format = $params['format'];
+				@$delay_ms = @$params['delay_ms'];
 				
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				$content = $tpl_builder->build($params['message'], $dict);
@@ -348,6 +349,7 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 					'_trigger_id' => $trigger->id,
 					'message' => $content,
 					'format' => $format,
+					'delay_ms' => $delay_ms,
 				);
 				break;
 				

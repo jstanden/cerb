@@ -4,8 +4,8 @@
 
 .bot-chat-window > div.bot-chat-window-convo {
 	overflow:auto;
-	height: 350px;
-	max-height: 350px;
+	height: 500px;
+	max-height: 500px;
 }
 
 .bot-chat-window div.bot-chat-message {
@@ -43,19 +43,19 @@
 	text-align:left;
 }
 
-.bot-chat-window > div.bot-chat-window-convo > div.bot-chat-message.bot-chat-left > div.bot-chat-message-bubble {
+.bot-chat-window > div.bot-chat-window-convo div.bot-chat-message.bot-chat-left > div.bot-chat-message-bubble {
 	background-color:rgb(240,240,240);
 	border:1px solid rgb(230,230,230);
 	border:0;
-	border-radius:0px 12px 12px 12px;
+	border-radius:12px 12px 12px 0px;
 	margin-left:5px;
 }
 
-.bot-chat-window > div.bot-chat-window-convo > div.bot-chat-message.bot-chat-right > div.bot-chat-message-bubble {
+.bot-chat-window > div.bot-chat-window-convo div.bot-chat-message.bot-chat-right > div.bot-chat-message-bubble {
 	color:white;
 	background-color:rgb(35,150,255);
 	border:0;
-	border-radius:12px 0px 12px 12px;
+	border-radius:12px 12px 0px 12px;
 }
 
 .bot-chat-window > div.bot-chat-window-convo div.bot-chat-message-time {
@@ -68,7 +68,7 @@
 	text-align:center;
 }
 
-.bot-chat-window > div.bot-chat-window-input INPUT[name=message] {
+.bot-chat-window > div.bot-chat-window-input INPUT[type=text] {
 	width:95%;
 	font-size:1em;
 	padding:5px;
@@ -87,9 +87,10 @@
 		<form class="bot-chat-window-input-form" action="javascript:;" onsubmit="return false;">
 			<input type="hidden" name="c" value="internal">
 			<input type="hidden" name="a" value="consoleSendMessage">
+			<input type="hidden" name="message" value="">
 			<input type="hidden" name="session_id" value="{$session_id}">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-			<input type="text" name="message" placeholder="say something, or @mention to switch bots" autocomplete="off" autofocus="autofocus">
+			<input type="text" placeholder="say something, or @mention to switch bots" data-placeholder="say something, or @mention to switch bots" autocomplete="off" autofocus="autofocus">
 		</form>
 	</div>
 	
@@ -98,24 +99,27 @@
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#cerb-bot-chat-window');
+	var $spinner = $('<div class="bot-chat-message bot-chat-left"><div class="bot-chat-message-bubble"><span class="cerb-ajax-spinner" style="zoom:0.5;"></span></div></div>')
 	
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', "{$bot->name|escape:'javascript' nofilter}");
 		
-		$window = $popup.closest('div.ui-dialog');
+		var $window = $popup.closest('div.ui-dialog');
 		$window
 			.css('position', 'fixed')
 			.css('left', '100%')
 			.css('top', '100%')
 			.css('margin-left', '-550px')
-			.css('margin-top', '-500px')
+			.css('margin-top', '-650px')
 			;
-	
+		
 		var $chat_window_convo = $popup.find('div.bot-chat-window-convo');
 		var $chat_window_input_form = $('form.bot-chat-window-input-form');
 		var $chat_input = $chat_window_input_form.find('input:text');
+		var $chat_message = $chat_window_input_form.find('input:hidden[name=message]');
 		
-		$popup.click(function() {
+		$chat_window_convo.click(function(e) {
+			e.preventDefault();
 			$chat_input.focus();
 		});
 		
@@ -135,8 +139,67 @@ $(function() {
 			limit: 10
 		});
 		
+		$chat_window_convo.on('bot-chat-message-send', function() {
+			// Show loading icon placeholder
+			
+			$spinner
+				.appendTo($chat_window_convo)
+				.fadeIn()
+				;
+			
+			$chat_window_convo.trigger('update');
+			
+			// Send message and wait for request
+			
+			genericAjaxPost($chat_window_input_form, '', null, function(html) {
+				var $response = $(html);
+				var delay_ms = 0;
+				
+				if(0 == $response.length) {
+					$spinner.hide();
+					return;
+				}
+				
+				$response.find('.cerb-peek-trigger').cerbPeekTrigger();
+				
+				$response.each(function(i) {
+					var $object = $(this);
+					var delay = 0;
+					var is_typing = false;
+					
+					if($object.is('.bot-chat-object')) {
+						delay = $object.attr('data-delay-ms');
+						is_typing = $object.attr('data-typing-indicator');
+						
+						if(isNaN(delay))
+							delay = 0;
+					}
+					
+					if(is_typing) {
+						var func = function() {
+							$spinner.appendTo($chat_window_convo).show();
+							$chat_window_convo.trigger('update');
+						}
+						
+						setTimeout(func, delay_ms);
+					}
+					
+					delay_ms += parseInt(delay);
+					
+					var func = function() {
+						$spinner.hide();
+						$object.appendTo($chat_window_convo).hide().fadeIn();
+						$chat_window_convo.trigger('update');
+					}
+					
+					setTimeout(func, delay_ms);
+				});
+			});
+		});
+		
 		$chat_window_input_form.submit(function() {
 			var txt = $chat_input.val();
+			$chat_message.val(txt);
 			
 			if(txt.length > 0) {
 				// Create outgoing message in log
@@ -147,25 +210,14 @@ $(function() {
 				
 				$('<br clear="all">').insertAfter($msg);
 			}
-				
-			// Show loading icon placeholder
 			
-			var $loading = $('<div class="bot-chat-message bot-chat-left"><div class="bot-chat-message-bubble"><span class="cerb-ajax-spinner"></span></div></div>')
-				.appendTo($chat_window_convo)
-				;
+			$chat_window_convo.trigger('bot-chat-message-send');
 			
-			$chat_window_convo.trigger('update');
-			
-			// Send message and wait for request
-			
-			genericAjaxPost($chat_window_input_form, '', null, function(html) {
-				$loading.hide();
-				var $response = $(html).hide().insertAfter($loading).fadeIn();
-				$response.find('.cerb-peek-trigger').cerbPeekTrigger();
-				$loading.remove();
-				$chat_window_convo.trigger('update');
-				$chat_input.val('');
-			});
+			$chat_input
+				//.trigger('bot-chat-message-sent')
+				.val('')
+				.attr('placeholder', $chat_input.attr('data-placeholder'))
+			;
 		});
 		
 		// Submit form when open

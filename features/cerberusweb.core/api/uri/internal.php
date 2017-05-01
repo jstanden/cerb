@@ -230,6 +230,7 @@ class ChInternalController extends DevblocksControllerExtension {
 						break;
 					
 					$tpl->assign('emote', $emote);
+					$tpl->assign('delay_ms', 500);
 					$tpl->display('devblocks:cerberusweb.core::console/emote.tpl');
 					break;
 				
@@ -263,9 +264,12 @@ class ChInternalController extends DevblocksControllerExtension {
 				case 'message.send':
 					if(false == ($msg = @$params['message']))
 						break;
-						
+					
+					$delay_ms = DevblocksPlatform::intClamp(@$params['delay_ms'], 0, 10000);
+					
 					$tpl->assign('message', $msg);
 					$tpl->assign('format', @$params['format']);
+					$tpl->assign('delay_ms', $delay_ms);
 					$tpl->display('devblocks:cerberusweb.core::console/message.tpl');
 					break;
 					
@@ -274,6 +278,7 @@ class ChInternalController extends DevblocksControllerExtension {
 						break;
 						
 					$tpl->assign('script', $script);
+					$tpl->assign('delay_ms', 0);
 					$tpl->display('devblocks:cerberusweb.core::console/script.tpl');
 					break;
 					
@@ -286,6 +291,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					
 					// Open popup
 					$tpl->assign('context', $context_ext->id);
+					$tpl->assign('delay_ms', 0);
 					$tpl->assign('q', $q);
 					$tpl->display('devblocks:cerberusweb.core::console/search_worklist.tpl');
 					break;
