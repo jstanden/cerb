@@ -123,6 +123,22 @@ if(isset($tables['task'])) {
 }
 
 // ===========================================================================
+// Increase the session_id field size on `community_session`
+
+if(!isset($tables['community_session'])) {
+	$logger->error("The 'community_session' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('community_session');
+
+if(isset($columns['session_id'])) {
+	if(0 != strcasecmp('varchar(64)',$columns['session_id']['type'])) {
+		$db->ExecuteMaster("ALTER TABLE community_session CHANGE COLUMN `session_id` `session_id` varchar(64)");
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
