@@ -470,9 +470,12 @@ class DevblocksPlatform extends DevblocksEngine {
 		return mb_convert_case($string, MB_CASE_UPPER);
 	}
 	
-	static function strUpperFirst($string) {
+	static function strUpperFirst($string, $lower_rest=false) {
 		if(!is_string($string))
 			return null;
+		
+		if($lower_rest)
+			$string = mb_strtolower($string);
 		
 		return mb_strtoupper(mb_substr($string, 0, 1)) . mb_substr($string, 1);
 	}
