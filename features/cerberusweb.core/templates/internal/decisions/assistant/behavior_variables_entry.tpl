@@ -9,9 +9,9 @@
 	<div style="margin:0px 0px 5px 15px;">
 		{if $var.type == 'S'}
 			{if $var.params.widget=='multiple'}
-			<textarea name="{$field_name}[{$var.key}]" style="height:50px;width:98%;" {if $with_placeholders}class="placeholders"{/if}>{$variable_values.$var_key}</textarea>
+			<textarea name="{$field_name}[{$var.key}]" style="height:50px;width:98%;" class="{if $with_placeholders}placeholders {/if}">{$variable_values.$var_key}</textarea>
 			{else}
-			<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" {if $with_placeholders}class="placeholders"{/if}>
+			<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" class="{if $with_placeholders}placeholders {/if}{if $var.params.mentions}cerb-mentions {/if}">
 			{/if}
 		{elseif $var.type == 'D'}
 		<select name="{$field_name}[{$var.key}]">
@@ -39,7 +39,7 @@
 		</select>
 		{elseif substr($var.type,0,4) == 'ctx_'}
 			{$context = substr($var.type,4)}
-			<button type="button" class="chooser" context="{$context}" node_name="{$field_name}[{$var.key}]"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="cerb-chooser-trigger" data-context="{$context}" data-field-name="{$field_name}[{$var.key}][]"><span class="glyphicons glyphicons-search"></span></button>
 			<ul class="bubbles chooser-container" style="display:inline-block;">
 				{if is_array($variable_values.$var_key)}
 				{foreach from=$variable_values.$var_key item=context_id}
@@ -56,12 +56,15 @@
 </div>
 
 <script type="text/javascript">
-// Elastic textareas
-$('#{$vars_uniqid} textarea').autosize();
-
-// Choosers
-$('#{$vars_uniqid} button.chooser').each(function() {
-	var $this = $(this);
-	ajax.chooser(this, $this.attr('context'), $this.attr('node_name'), { autocomplete:false });
+$(function() {
+	var $container = $('#{$vars_uniqid}');
+	
+	// Elastic textareas
+	$container.find('textarea').autosize();
+	
+	// Choosers
+	$container.find('button.cerb-chooser-trigger')
+		.cerbChooserTrigger()
+		;
 });
 </script>
