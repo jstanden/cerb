@@ -76,6 +76,19 @@ if(!isset($tables['bot_datastore'])) {
 }
 
 // ===========================================================================
+// Verify 'address_to_worker' table
+
+if(isset($tables['address_to_worker'])) {
+	list($columns, $indexes) = $db->metaTable('address_to_worker');
+	
+	if(isset($columns['address'])) {
+		$db->ExecuteMaster("DELETE FROM address_to_worker WHERE address_id = 0");
+		$db->ExecuteMaster("ALTER TABLE address_to_worker DROP COLUMN address");
+		$db->ExecuteMaster("ALTER TABLE address_to_worker ADD PRIMARY KEY (address_id)");
+	}
+}
+
+// ===========================================================================
 // Add 'status_id' to tasks (waiting/reopen)
 
 if(isset($tables['task'])) {
