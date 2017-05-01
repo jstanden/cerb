@@ -69,7 +69,16 @@ require(APP_PATH . '/api/Application.class.php');
 DevblocksPlatform::init();
 DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
 
+// Request
+
 $request = DevblocksPlatform::readRequest();
+DevblocksPlatform::setStateless(in_array(@$request->path[0], ['cron','portal','resource']));
+
+if(DevblocksPlatform::isStateless()) {
+	$_SESSION = [];
+} else {
+	$session = DevblocksPlatform::getSessionService();
+}
 
 // Do we need an update first?
 if(!DevblocksPlatform::versionConsistencyCheck()) {
@@ -78,10 +87,6 @@ if(!DevblocksPlatform::versionConsistencyCheck()) {
 		exit;
 	}
 }
-
-// Request
-
-$session = DevblocksPlatform::getSessionService();
 
 // Localization
 

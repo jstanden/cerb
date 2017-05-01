@@ -91,6 +91,9 @@ class CerberusApplication extends DevblocksApplication {
 	 * @return Model_Worker
 	 */
 	static function getActiveWorker() {
+		if(DevblocksPlatform::isStateless())
+			return null;
+		
 		if(isset(self::$_active_worker))
 			return self::$_active_worker;
 

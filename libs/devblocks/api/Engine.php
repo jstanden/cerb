@@ -36,6 +36,7 @@ abstract class DevblocksEngine {
 
 	protected static $request = null;
 	protected static $response = null;
+	protected static $is_stateless = false;
 
 	/**
 	 * Reads and caches a single manifest from a given plugin directory.

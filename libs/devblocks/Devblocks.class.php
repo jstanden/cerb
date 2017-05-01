@@ -2788,6 +2788,14 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function setHttpResponse(DevblocksHttpResponse $response) {
 		self::$response = $response;
 	}
+	
+	static function isStateless() {
+		return self::$is_stateless;
+	}
+	
+	static function setStateless($bool) {
+		self::$is_stateless = $bool;
+	}
 
 	/**
 	 * Initializes the plugin platform (paths, etc).
