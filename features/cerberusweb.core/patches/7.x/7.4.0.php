@@ -45,6 +45,19 @@ if(!isset($tables['context_saved_search'])) {
 }
 
 // ===========================================================================
+// Change 'setting' values to X (text) rather than B (blob)
+
+if(isset($tables['bot_session'])) {
+	list($columns, $indexes) = $db->metaTable('bot_session');
+	
+	if(isset($columns['session_data'])) {
+		if(0 != strcasecmp('mediumtext',$columns['session_data']['type'])) {
+			$db->ExecuteMaster("ALTER TABLE bot_session CHANGE COLUMN `session_data` `session_data` MEDIUMTEXT");
+		}
+	}
+}
+
+// ===========================================================================
 // Add `bot_datastore` table
 
 if(!isset($tables['bot_datastore'])) {
