@@ -190,6 +190,17 @@ class DAO_BotSession extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	public static function maint() {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$sql = sprintf("DELETE FROM bot_session WHERE updated_at < %d",
+			(time() - 86400) // 24 hours
+		);
+		$db->ExecuteMaster($sql);
+		
+		return true;
+	}
+	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_BotSession::getFields();
 		
