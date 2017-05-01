@@ -797,6 +797,16 @@
 				<seg>examples</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.expire">
+			<tuv xml:lang="en_US">
+				<seg>expire</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.expires">
+			<tuv xml:lang="en_US">
+				<seg>expires</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.explore">
 			<tuv xml:lang="en_US">
 				<seg>explore</seg>
@@ -980,6 +990,11 @@
 		<tu tuid="common.is_private">
 			<tuv xml:lang="en_US">
 				<seg>Is Private</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.key">
+			<tuv xml:lang="en_US">
+				<seg>key</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.keyboard">
@@ -1861,6 +1876,11 @@
 		<tu tuid="common.url.record">
 			<tuv xml:lang="en_US">
 				<seg>Record URL</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.value">
+			<tuv xml:lang="en_US">
+				<seg>value</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.variable">

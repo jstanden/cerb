@@ -1507,6 +1507,115 @@ class DevblocksEventHelper {
 	}
 	
 	/*
+	 * Action: Get persistent key
+	 */
+	
+	static function renderActionGetKey($trigger) { /* @var $trigger Model_TriggerEvent */
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('trigger', $trigger);
+
+		$tpl->display('devblocks:cerberusweb.core::events/action_get_key.tpl');
+	}
+	
+	static function simulateActionGetKey($params, DevblocksDictionaryDelegate $dict) {
+		@$key = DevblocksPlatform::importVar($params['key'],'string','');
+		@$var = DevblocksPlatform::importVar($params['var'],'string','');
+		
+		$out = '';
+		
+		$trigger = $dict->__trigger;
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$key = $tpl_builder->build($key, $dict);
+		
+		// Run it in the simulator too
+		self::runActionGetKey($params, $dict);
+		
+		@$value = $dict->$var;
+		
+		$out .= sprintf(">> Getting value for persistent key: %s\n\n%s\n",
+			$key,
+			$value
+		);
+		
+		return $out;
+	}
+	
+	static function runActionGetKey($params, $dict) {
+		@$key = DevblocksPlatform::importVar($params['key'],'string','');
+		@$var = DevblocksPlatform::importVar($params['var'],'string','');
+		
+		if(false == ($trigger = $dict->__trigger))
+			return false;
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$key = $tpl_builder->build($key, $dict);
+		
+		$value = DAO_BotDatastore::get($trigger->bot_id, $key);
+		$dict->$var = $value;
+	}
+	
+	/*
+	 * Action: Set persistent key
+	 */
+	
+	static function renderActionSetKey($trigger) { /* @var $trigger Model_TriggerEvent */
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('trigger', $trigger);
+		
+		$tpl->display('devblocks:cerberusweb.core::events/action_set_key.tpl');
+	}
+	
+	static function simulateActionSetKey($params, DevblocksDictionaryDelegate $dict) {
+		@$key = DevblocksPlatform::importVar($params['key'],'string','');
+		@$value = DevblocksPlatform::importVar($params['value'],'string','');
+		@$expires_at = DevblocksPlatform::importVar($params['expires_at'],'string','');
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$key = $tpl_builder->build($key, $dict);
+		$value = $tpl_builder->build($value, $dict);
+		
+		$expires_at = $tpl_builder->build($expires_at, $dict);
+		@$expires_at = intval(strtotime($expires_at));
+		
+		$out = '';
+		
+		$trigger = $dict->__trigger;
+		
+		// Run it in the simulator too
+		self::runActionSetKey($params, $dict);
+		
+		$out .= sprintf(">> Setting value for persistent key: %s\nExpires: %s\n\n%s\n",
+			$key,
+			(!$expires_at ? 'Never' : date('r', $expires_at)),
+			$value
+		);
+		
+		return $out;
+	}
+	
+	static function runActionSetKey($params, $dict) {
+		@$key = DevblocksPlatform::importVar($params['key'],'string','');
+		@$value = DevblocksPlatform::importVar($params['value'],'string','');
+		@$expires_at = DevblocksPlatform::importVar($params['expires_at'],'string','');
+		
+		if(false == ($trigger = $dict->__trigger))
+			return false;
+		
+		if(empty($key))
+			return false;
+		
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$key = $tpl_builder->build($key, $dict);
+		$value = $tpl_builder->build($value, $dict);
+
+		$expires_at = $tpl_builder->build($expires_at, $dict);
+		@$expires_at = intval(strtotime($expires_at));
+		
+		$value = DAO_BotDatastore::set($trigger->bot_id, $key, $value, $expires_at);
+	}
+	
+	/*
 	 * Action: Get links
 	 */
 	

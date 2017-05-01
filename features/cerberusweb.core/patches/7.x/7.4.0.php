@@ -45,6 +45,24 @@ if(!isset($tables['context_saved_search'])) {
 }
 
 // ===========================================================================
+// Add `bot_datastore` table
+
+if(!isset($tables['bot_datastore'])) {
+	$sql = sprintf("
+	CREATE TABLE `bot_datastore` (
+		bot_id int unsigned NOT NULL,
+		data_key varchar(255) NOT NULL DEFAULT '',
+		data_value mediumtext,
+		expires_at int unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (bot_id, data_key)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['bot_datastore'] = 'bot_datastore';
+}
+
+// ===========================================================================
 // Add 'status_id' to tasks (waiting/reopen)
 
 if(isset($tables['task'])) {

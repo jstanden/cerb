@@ -1652,12 +1652,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$actions = array(
 			'_create_calendar_event' => array('label' => 'Create calendar event'),
 			'_exit' => array('label' => 'Behavior exit'),
+			'_get_key' => array('label' => 'Get persistent key'),
 			'_get_links' => array('label' => 'Get links'),
 			'_run_behavior' => array('label' => 'Behavior run'),
 			'_run_subroutine' => array('label' => 'Behavior call subroutine'),
 			'_schedule_behavior' => array('label' => 'Behavior schedule'),
 			'_set_custom_var' => array('label' => 'Set custom placeholder'),
 			'_set_custom_var_snippet' => array('label' => 'Set custom placeholder using a snippet'),
+			'_set_key' => array('label' => 'Set persistent key'),
 			'_unschedule_behavior' => array('label' => 'Behavior unschedule'),
 		);
 		$custom = $this->getActionExtensions($trigger);
@@ -1728,6 +1730,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_exit.tpl');
 					break;
 
+				case '_get_key':
+					DevblocksEventHelper::renderActionGetKey($trigger);
+					break;
+					
 				case '_get_links':
 					DevblocksEventHelper::renderActionGetLinks($trigger);
 					break;
@@ -1738,6 +1744,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 				case '_set_custom_var_snippet':
 					DevblocksEventHelper::renderActionSetPlaceholderUsingSnippet($trigger, $params);
+					break;
+					
+				case '_set_key':
+					DevblocksEventHelper::renderActionSetKey($trigger);
 					break;
 
 				case '_run_behavior':
@@ -1819,7 +1829,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	// Are we doing a dry run?
 	function simulateAction($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$actions = $this->getActionExtensions($trigger);
-
+		
 		if(null != (@$action = $actions[$token])) {
 			if(method_exists($this, 'simulateActionExtension'))
 				return $this->simulateActionExtension($token, $trigger, $params, $dict);
@@ -1838,6 +1848,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					);
 					break;
 				
+				case '_get_key':
+					return DevblocksEventHelper::simulateActionGetKey($params, $dict);
+					break;
+					
 				case '_get_links':
 					return DevblocksEventHelper::simulateActionGetLinks($params, $dict);
 					break;
@@ -1863,6 +1877,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						$var,
 						$value
 					);
+					break;
+					
+				case '_set_key':
+					return DevblocksEventHelper::simulateActionSetKey($params, $dict);
 					break;
 
 				case '_run_behavior':
@@ -1943,14 +1961,21 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					if($dry_run)
 						$out = $this->simulateAction($token, $trigger, $params, $dict);
 					break;
-
+					
+				case '_get_key':
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionGetKey($params, $dict);
+					break;
+					
 				case '_get_links':
 					if($dry_run)
 						$out = $this->simulateAction($token, $trigger, $params, $dict);
 					else
 						DevblocksEventHelper::runActionGetLinks($params, $dict);
 					break;
-
+					
 				case '_set_custom_var':
 					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 
@@ -2039,6 +2064,13 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					}
 					break;
 
+				case '_set_key':
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionSetKey($params, $dict);
+					break;
+					
 				case '_run_behavior':
 					if($dry_run)
 						$out = $this->simulateAction($token, $trigger, $params, $dict);

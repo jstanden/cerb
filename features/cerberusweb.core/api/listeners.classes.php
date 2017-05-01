@@ -1033,6 +1033,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 	
 	private function _handleCronMaint($event) {
 		DAO_Address::maint();
+		DAO_BotDatastore::maint();
 		DAO_BotSession::maint();
 		DAO_Bucket::maint();
 		DAO_Comment::maint();
