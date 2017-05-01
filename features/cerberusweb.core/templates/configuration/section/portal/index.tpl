@@ -21,13 +21,21 @@
 
 <div id="communityToolTabs">
 	<ul>
-		<li><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=portal&action=showTabSettings&id={$tool->id}{/devblocks_url}">{'Settings'|devblocks_translate}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=portal&action=showTabTemplates&id={$tool->id}{/devblocks_url}">{'Custom Templates'|devblocks_translate}</a></li>
-		<li><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=portal&action=showTabInstallation&id={$tool->id}{/devblocks_url}">{'portal.cfg.installation'|devblocks_translate}</a></li>
+		{$tabs = []}
 		
-		{$tabs = [settings,templates,installation]}
+		{$tabs[] = 'settings'}
+		<li><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=portal&action=showTabSettings&id={$tool->id}{/devblocks_url}">{'Settings'|devblocks_translate}</a></li>
+		
+		{* [TODO] We're phasing out custom templates on portals in favor of modularity *}
+		{if $tool->extension_id == 'sc.tool'}
+		{$tabs[] = 'templates'}
+		<li><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=portal&action=showTabTemplates&id={$tool->id}{/devblocks_url}">{'Custom Templates'|devblocks_translate}</a></li>
+		{/if}
+		
+		{$tabs[] = 'installation'}
+		<li><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=portal&action=showTabInstallation&id={$tool->id}{/devblocks_url}">{'portal.cfg.installation'|devblocks_translate}</a></li>
 	</ul>
-</div> 
+</div>
 <br>
 
 <script type="text/javascript">
