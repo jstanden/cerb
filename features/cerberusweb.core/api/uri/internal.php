@@ -233,6 +233,17 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->display('devblocks:cerberusweb.core::console/emote.tpl');
 					break;
 				
+				case 'prompt.buttons':
+					@$options = $params['options'];
+					
+					if(!is_array($options))
+						break;
+					
+					$tpl->assign('options', $options);
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_buttons.tpl');
+					break;
+					
 				case 'message.send':
 					if(false == ($msg = @$params['message']))
 						break;

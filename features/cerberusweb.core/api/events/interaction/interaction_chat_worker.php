@@ -158,6 +158,7 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
+				'prompt_buttons' => array('label' => 'Prompt with buttons'),
 				'send_message' => array('label' => 'Respond with message'),
 				'send_script' => array('label' => 'Respond with script'),
 				'worklist_open' => array('label' => 'Open a worklist popup'),
@@ -178,6 +179,10 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'prompt_buttons':
+				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_buttons.tpl');
+				break;
+				
 			case 'send_message':
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_send_response.tpl');
 				break;
@@ -201,6 +206,16 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
+			case 'prompt_buttons':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$options = $tpl_builder->build($params['options'], $dict);
+				
+				$out = sprintf(">>> Prompting with buttons:\n".
+					"%s\n",
+					$options
+				);
+				break;
+				
 			case 'send_message':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				$content = $tpl_builder->build($params['message'], $dict);
@@ -239,6 +254,21 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 	
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
+			case 'prompt_buttons':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$options = $tpl_builder->build($params['options'], $dict);
+				
+				$actions[] = array(
+					'_action' => 'prompt.buttons',
+					'_trigger_id' => $trigger->id,
+					'options' => DevblocksPlatform::parseCrlfString($options),
+				);
+				
+				$dict->__exit = 'suspend';
+				break;
+				
 			case 'send_message':
 				$actions =& $dict->_actions;
 				
