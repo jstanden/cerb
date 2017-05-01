@@ -100,6 +100,8 @@ class UmScContactController extends Extension_UmScController {
 						$workers = DAO_Worker::getAllActive();
 						$tpl->assign('workers', $workers);
 						
+						$tpl->assign('client_ip', DevblocksPlatform::getClientIp());
+						
 						$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/contact/step2.tpl");
 						break;
 				}
@@ -209,7 +211,6 @@ class UmScContactController extends Extension_UmScController {
 	
 	function doContactStep2Action() {
 		$umsession = ChPortalHelper::getSession();
-		$fingerprint = ChPortalHelper::getFingerprint();
 
 		@$sNature = DevblocksPlatform::importGPC($_POST['nature'],'string','');
 
@@ -289,7 +290,6 @@ class UmScContactController extends Extension_UmScController {
 		
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
-		$fingerprint = ChPortalHelper::getFingerprint();
 
 		$umsession->setProperty('support.write.last_cc',$sCc);
 		$umsession->setProperty('support.write.last_from',$sFrom);
@@ -402,7 +402,7 @@ class UmScContactController extends Extension_UmScController {
 			$message->headers[$h] = $v;
 		}
 		
-		$message->body = 'IP: ' . $fingerprint['ip'] . "\r\n\r\n" . $sContent . $fieldContent;
+		$message->body = 'IP: ' . DevblocksPlatform::getClientIp() . "\r\n\r\n" . $sContent . $fieldContent;
 
 		// Attachments
 		$attachments_mode = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_ATTACHMENTS_MODE, 0);

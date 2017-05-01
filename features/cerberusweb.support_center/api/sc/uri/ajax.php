@@ -2,23 +2,17 @@
 class UmScAjaxController extends Extension_UmScController {
 	function __construct($manifest=null) {
 		parent::__construct($manifest);
+	}
+	
+	function handleRequest(DevblocksHttpRequest $request) {
+		@$path = $request->path;
+		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
 		
 		$tpl = DevblocksPlatform::getTemplateSandboxService();
 		$umsession = ChPortalHelper::getSession();
 		
 		@$active_contact = $umsession->getProperty('sc_login',null);
 		$tpl->assign('active_contact', $active_contact);
-
-		// Usermeet Session
-		if(null == ($fingerprint = ChPortalHelper::getFingerprint())) {
-			DevblocksPlatform::dieWithHttpError("A problem occurred.", 500);
-		}
-		$tpl->assign('fingerprint', $fingerprint);
-	}
-	
-	function handleRequest(DevblocksHttpRequest $request) {
-		@$path = $request->path;
-		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
 		
 		@array_shift($path); // ajax
 		

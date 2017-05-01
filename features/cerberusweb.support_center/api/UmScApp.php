@@ -245,12 +245,6 @@ class UmScApp extends Extension_CommunityPortal {
 		$login_extensions_enabled = UmScApp::getLoginExtensionsEnabled(ChPortalHelper::getCode());
 		$tpl->assign('login_extensions_enabled', $login_extensions_enabled);
 		
-		// Usermeet Session
-		if(null == ($fingerprint = ChPortalHelper::getFingerprint())) {
-			DevblocksPlatform::dieWithHttpError("A problem occurred.", 500);
-		}
-		$tpl->assign('fingerprint', $fingerprint);
-
 		$module_uri = array_shift($stack);
 		
 		switch($module_uri) {
@@ -355,7 +349,7 @@ class UmScApp extends Extension_CommunityPortal {
 		
 		$locales = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('locales', $locales);
-
+		
 		// Personalization
 
 		$page_title = DAO_CommunityToolProperty::get($instance->code, self::PARAM_PAGE_TITLE, 'Support Center');
@@ -714,7 +708,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
 		@$pass = DevblocksPlatform::importGPC($_REQUEST['password']);
-
+		
 		// Clear the past session
 		$umsession->logout();
 		

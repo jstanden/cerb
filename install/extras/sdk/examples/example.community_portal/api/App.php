@@ -8,7 +8,6 @@ class ExCommunityPortal extends Extension_CommunityPortal {
 		// Here are the most useful objects for implementing a portal:
 		//var_dump(ChPortalHelper::getCode());
 		//var_dump(ChPortalHelper::getSession());
-		//var_dump(ChPortalHelper::getFingerprint());
 
 		// This demonstrates how to load and save session variables
 		$counter = $umsession->getProperty('counter', 1);

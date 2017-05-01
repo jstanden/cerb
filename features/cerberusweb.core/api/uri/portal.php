@@ -26,7 +26,6 @@ class Controller_Portal extends DevblocksControllerExtension {
 		$stack = $request->path;
 
 		$tpl = DevblocksPlatform::getTemplateService();
-		$umsession = ChPortalHelper::getSession();
 
 		// Globals for Community Tool template scope
 		$translate = DevblocksPlatform::getTranslationService();
@@ -34,8 +33,9 @@ class Controller_Portal extends DevblocksControllerExtension {
 		
 		array_shift($stack); // portal
 		$code = array_shift($stack); // xxxxxxxx
-
 		ChPortalHelper::setCode($code);
+		
+		$umsession = ChPortalHelper::getSession();
 		
 		// Routing
 
@@ -88,7 +88,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 
 class ChPortalHelper {
 	static private $_code = null;
-	static private $_fingerprint = null;
+	static private $_session_id = null;
 	static private $_sessions_cache = array();
 	
 	public static function getCode() {
@@ -103,8 +103,25 @@ class ChPortalHelper {
 	 * @return Model_CommunitySession
 	 */
 	public static function getSession() {
-		$fingerprint = self::getFingerprint();
-		$session_id = md5($fingerprint['ip'] . self::getCode() . $fingerprint['local_sessid']);
+		$session_id = self::$_session_id;
+		
+		if(empty(self::$_code))
+			return false;
+		
+		if(empty($session_id)) {
+			$cookie_name = 'CerbPortal' . self::$_code;
+			@$session_id = DevblocksPlatform::importGPC($_COOKIE[$cookie_name],'string','');
+			
+			if(empty($session_id)) {
+				$session_id = sha1(DevblocksPlatform::getClientIp() . self::getCode() . uniqid());
+				setcookie($cookie_name, $session_id, 0, '/', null, null, true);
+			}
+			
+			if(empty($session_id))
+				return false;
+			
+			self::$_session_id = $session_id;
+		}
 		
 		// Did we cache the lookup?
 		if(!isset(self::$_sessions_cache[$session_id])) {
@@ -115,37 +132,5 @@ class ChPortalHelper {
 		}
 			
 		return self::$_sessions_cache[$session_id];
-	}
-	
-	public static function getFingerprint() {
-		if(empty(self::$_fingerprint)) {
-			@$sFingerPrint = DevblocksPlatform::importGPC($_COOKIE['GroupLoginPassport'],'string','');
-			
-			if(!empty($sFingerPrint))
-				self::$_fingerprint = unserialize($sFingerPrint);
-			
-			if(empty(self::$_fingerprint)) {
-				
-				// [TODO] We don't need to be storing this in the cookie
-				self::$_fingerprint = array(
-					'browser' => @$_SERVER['HTTP_USER_AGENT'],
-					'ip' => DevblocksPlatform::getClientIp(),
-					'local_sessid' => session_id(),
-					'started' => time(),
-				);
-				
-				setcookie(
-					'GroupLoginPassport',
-					serialize(self::$_fingerprint),
-					0,
-					'/',
-					null,
-					null,
-					true
-				);
-			}
-		}
-
-		return self::$_fingerprint;
 	}
 };
