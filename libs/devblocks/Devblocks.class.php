@@ -259,6 +259,36 @@ class DevblocksPlatform extends DevblocksEngine {
 		return min(max((float)$n, $min), $max);
 	}
 	
+	/**
+	 * 
+	 * See: http://stackoverflow.com/questions/20903106/interpolating-colors-in-php
+	 * 
+	 * @param string $from_hex (e.g. FF0000)
+	 * @param string $to_hex (e.g. 00FF00)
+	 * @param float $ratio (0.0-1.0)
+	 * @return string
+	 */
+	static function colorLerp($from_hex, $to_hex, $ratio) {
+		$from_hex = hexdec(ltrim($from_hex,'#'));
+		$to_hex = hexdec(ltrim($to_hex,'#'));
+		
+		$from_r = $from_hex & 0xFF0000;
+		$from_g = $from_hex & 0x00FF00;
+		$from_b = $from_hex & 0x0000FF;
+		$to_r = $to_hex & 0xFF0000;
+		$to_g = $to_hex & 0x00FF00;
+		$to_b = $to_hex & 0x0000FF;
+		
+		$lerp_r = $from_r + (($to_r - $from_r) * $ratio) & 0xFF0000;
+		$lerp_g = $from_g + (($to_g - $from_g) * $ratio) & 0x00FF00;
+		$lerp_b = $from_b + (($to_b - $from_b) * $ratio) & 0x0000FF;
+		
+		$color = dechex($lerp_r | $lerp_g | $lerp_b);
+		$color = str_pad($color, 6, '0', STR_PAD_LEFT);
+		
+		return '#' . $color;
+	}
+	
 	static function curlInit($url=null) {
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
