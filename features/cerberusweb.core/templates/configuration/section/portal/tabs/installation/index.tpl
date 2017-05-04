@@ -20,6 +20,7 @@ define('LOCAL_SSL', null);
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
 @session_start();
+define('REMOTE_SSL_VALIDATION', true);
 define('SCRIPT_LAST_MODIFY', 20170428); // last change
 
 class DevblocksProxy {
@@ -233,8 +234,10 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		$ch = curl_init();
 		$out = "";
 		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		if(!REMOTE_SSL_VALIDATION) {
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		}
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -260,8 +263,10 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		$ch = curl_init();
 		$out = "";
 		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		if(!REMOTE_SSL_VALIDATION) {
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		}
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $content);
