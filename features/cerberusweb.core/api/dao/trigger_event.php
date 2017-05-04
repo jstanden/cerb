@@ -1030,13 +1030,15 @@ class Model_TriggerEvent {
 		do {
 			if($node_id && 'loop' == $nodes[$node_id]->node_type) {
 				@$as_placeholder = $nodes[$node_id]->params['as_placeholder'];
-				@$as_placeholder_key = $as_placeholder . '__key';
 				@$as_placeholder_stack = $as_placeholder . '__stack';
 				
 				if(is_array($dict->$as_placeholder_stack) && !empty($dict->$as_placeholder_stack)) {
 					$dict->$as_placeholder_key = key($dict->$as_placeholder_stack);
 					$dict->$as_placeholder = current($dict->$as_placeholder_stack);
-					array_shift($dict->$as_placeholder_stack);
+					
+					if($dict->$as_placeholder != '*')
+						array_shift($dict->$as_placeholder_stack);
+					
 					$loop = true;
 				} else {
 					unset($dict->$as_placeholder);
