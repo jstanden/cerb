@@ -1289,7 +1289,7 @@ class DevblocksSearchCriteria {
 					$where = '0';
 					break;
 				}
-					
+				
 				if(!is_array($this->value) && preg_match('#^\[.*\]$#', $this->value)) {
 					$values = json_decode($this->value, true);
 					
@@ -1301,14 +1301,10 @@ class DevblocksSearchCriteria {
 					
 				}
 				
-				$vals = array();
-				
 				// Escape quotes
-				foreach($values as $idx=>$val) {
-					$vals[$idx] = $db->qstr((string)$val);
-				}
+				$vals = $db->qstrArray(DevblocksPlatform::sanitizeArray($values, 'string'));
 				
-				if(empty($vals))
+				if(0 == count($vals))
 					$vals = array(-1);
 				
 				$where = sprintf("%s IN (%s)",

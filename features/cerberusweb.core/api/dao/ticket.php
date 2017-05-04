@@ -2677,7 +2677,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$results = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
 					return $results;
 				};
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'context_id[]');
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'context_id[]');
 				break;
 				
 			case SearchFields_Ticket::TICKET_GROUP_ID:
@@ -4099,7 +4099,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 			
 			case SearchFields_Ticket::TICKET_ORG_ID:
-				@$context_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',array()), 'integer', array('nonzero','unique'));
+				@$context_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',[]), 'integer', array('unique'));
 				$criteria = new DevblocksSearchCriteria($field,$oper,$context_ids);
 				break;
 
