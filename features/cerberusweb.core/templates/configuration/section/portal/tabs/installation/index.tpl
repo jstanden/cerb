@@ -18,19 +18,11 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
 define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 2016052001); // last change
-
 @session_start();
+define('SCRIPT_LAST_MODIFY', 20170428); // last change
 
 class DevblocksProxy {
 	function proxy($local_path) {
-//		echo "RPT: ",REMOTE_PROTOCOL,"<BR>";
-//		echo "RH: ",REMOTE_HOST,"<BR>";
-//		echo "RP: ",REMOTE_PORT,"<BR>";
-//		echo "RB: ",REMOTE_BASE,"<BR>";
-//		echo "RU: ",REMOTE_URI,"<BR>";
-//		echo "LP: $local_path<BR>";
-
 		$path = '';
 		$query = '';
 		
@@ -53,23 +45,6 @@ class DevblocksProxy {
 			header('Pragma: cache'); 
 			header('Cache-control: max-age=86400'); // 1d
 			header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 1d
-
-//			$pathinfo = pathinfo($local_path);
-//			switch($pathinfo['extension']) {
-//				case 'css':
-//					header('Content-type: text/css;');
-//					break;
-//				case 'js':
-//					header('Content-type: text/javascript;');
-//					break;
-//				case 'xml':
-//					header('Content-type: text/xml;');
-//					break;
-//				default:
-//					header('Content-type: text/html;');
-//					break;
-//			}
-
 			$remote_path = REMOTE_BASE;
 			
 		} else {
@@ -132,7 +107,7 @@ class DevblocksProxy {
 	function _isPost() {
 		return !strcasecmp($_SERVER['REQUEST_METHOD'],"POST"); // 0=match
 	}
-
+	
 	function _generateMimeBoundary() {
 		return md5(mt_rand(0,10000).time().microtime());
 	}
@@ -196,7 +171,7 @@ class DevblocksProxy {
 						$boundary,
 						$k,
 						$name,
-						file_get_contents($file['tmp_name'][$idx]) // [JAS] replace with a PHP4 friendly function?
+						file_get_contents($file['tmp_name'][$idx])
 					);
 				}
 				
@@ -209,7 +184,7 @@ class DevblocksProxy {
 					$boundary,
 					$k,
 					$file['name'],
-					file_get_contents($file['tmp_name']) // [JAS] replace with a PHP4 friendly function?
+					file_get_contents($file['tmp_name'])
 				);
 			}
 		}
@@ -265,7 +240,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		
 		curl_close($ch);
 	}
-
+	
 	function _post($remote_path, $local_path) {
 		$boundary = $this->_generateMimeBoundary();
 		$content = $this->_buildPost($boundary);
@@ -332,9 +307,6 @@ class DevblocksRouter {
 	
 		$local_path = substr($location,strlen(LOCAL_BASE));
 		
-//		echo "SRU: ",$_SERVER['REQUEST_URI'],"<BR>";
-//		echo "Localbase: ",LOCAL_BASE,"<BR>";
-//		echo $local_path,"<BR>";
 		$proxy = new DevblocksProxy_Curl();
 		$proxy->proxy($local_path);
 	}
@@ -344,9 +316,7 @@ class DevblocksRouter {
 	 * @return string
 	 */
 	static function getLocalBase() {
-		$uri = $_SERVER['PHP_SELF'];
-		if(substr($uri,-1,1)=='/') // strip trailing slash
-			$uri = substr($uri,0,-1);
+		$uri = rtrim($_SERVER['PHP_SELF'],'/');
 		$path = explode('/', $uri);
 		if(false !== ($pos = array_search("index.php",$path))) {
 			$path = array_slice($path, 0, (URL_REWRITE?$pos:$pos+1));
