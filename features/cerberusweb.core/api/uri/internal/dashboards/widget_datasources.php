@@ -83,8 +83,14 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		if(null == ($context_ext = Extension_DevblocksContext::get($view_context)))
 			return;
 
-		if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
-			return;
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			return false;
+		
+		if(false == ($search_class = $context_ext->getSearchClass()))
+			return false;
+		
+		if(false == ($primary_key = $search_class::getPrimaryKey()))
+			return false;
 		
 		$view->renderPage = 0;
 		$view->renderLimit = 1;
@@ -96,58 +102,90 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		@$metric_func = $params['metric_func'];
 		@$metric_field = $fields[$params['metric_field']];
 
-		// Build the query
+		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
 		
-		$query_parts = $dao_class::getSearchQueryComponents(
-			$view->view_columns,
-			$view->getParams(),
-			$view->renderSortBy,
-			$view->renderSortAsc
-		);
+		$select_func = null;
 		
-		if(empty($metric_func))
-			$metric_func = 'count';
-		
-		switch($metric_func) {
-			case 'sum':
-				$select_func = sprintf("SUM(%s.%s)",
-					$metric_field->db_table,
-					$metric_field->db_column
-				);
-				break;
-				
-			case 'avg':
-				$select_func = sprintf("AVG(%s.%s)",
-					$metric_field->db_table,
-					$metric_field->db_column
-				);
-				break;
-				
-			case 'min':
-				$select_func = sprintf("MIN(%s.%s)",
-					$metric_field->db_table,
-					$metric_field->db_column
-				);
-				break;
-				
-			case 'max':
-				$select_func = sprintf("MAX(%s.%s)",
-					$metric_field->db_table,
-					$metric_field->db_column
-				);
-				break;
-				
-			default:
-			case 'count':
-				$select_func = 'COUNT(*)';
-				break;
+		if($metric_field && DevblocksPlatform::strStartsWith($metric_field->token, 'cf_')) {
+			$cfield = DAO_CustomField::get(substr($metric_field->token,3));
+			
+			switch($metric_func) {
+				case 'sum':
+					$select_func = 'SUM(field_value)';
+					break;
+					
+				case 'avg':
+					$select_func = 'AVG(field_value)';
+					break;
+					
+				case 'min':
+					$select_func = 'MIN(field_value)';
+					break;
+					
+				case 'max':
+					$select_func = 'MAX(field_value)';
+					break;
+					
+				default:
+				case 'count':
+					$select_func = 'COUNT(*)';
+					break;
+			}
+			
+			$sql = sprintf("SELECT %s FROM %s WHERE context=%s AND field_id=%d AND context_id IN (%s)",
+				$select_func,
+				DAO_CustomFieldValue::getValueTableName($cfield->id),
+				Cerb_ORMHelper::qstr($cfield->context),
+				$cfield->id,
+				sprintf("SELECT %s %s %s", $primary_key, $query_parts['join'], $query_parts['where'])
+			);
+			
+		} else {
+			$select_query = sprintf("%s.%s",
+				$metric_field->db_table,
+				$metric_field->db_column
+			);
+			
+			switch($metric_func) {
+				case 'sum':
+					$select_func = sprintf("SELECT SUM(%s) ",
+						$select_query
+					);
+					break;
+					
+				case 'avg':
+					$select_func = sprintf("SELECT AVG(%s) ",
+						$select_query
+					);
+					break;
+					
+				case 'min':
+					$select_func = sprintf("SELECT MIN(%s) ",
+						$select_query
+					);
+					break;
+					
+				case 'max':
+					$select_func = sprintf("SELECT MAX(%s) ",
+						$select_query
+					);
+					break;
+					
+				default:
+				case 'count':
+					$select_func = 'SELECT COUNT(*) ';
+					break;
+			}
+			
+			$sql = 
+				$select_func
+				. $query_parts['join']
+				. $query_parts['where']
+				;
 		}
 		
-		$sql = sprintf("SELECT %s AS counter_value " .
-			str_replace('%','%%',$query_parts['join']).
-			str_replace('%','%%',$query_parts['where']),
-			$select_func
-		);
+		if(empty($sql))
+			return false;
 		
 		switch($widget->extension_id) {
 			case 'core.workspace.widget.counter':
@@ -184,14 +222,20 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		if(null == ($context_ext = Extension_DevblocksContext::get($view_context)))
 			return;
 
-		if(null == ($dao_class = @$context_ext->manifest->params['dao_class']))
+		if(null == ($dao_class = $context_ext->getDaoClass()))
 			return;
-			
+		
+		if(null == ($search_class = $context_ext->getSearchClass()))
+			return;
+		
+		if(null == ($search_class = $search_class::getPrimaryKey()))
+			return;
+		
 		$data = array();
 		
 		$view->renderPage = 0;
 		$view->renderLimit = 30;
-			
+		
 		// Initial query planner
 		
 		$query_parts = $dao_class::getSearchQueryComponents(
@@ -217,15 +261,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 				break;
 		}
 		
-		if(!empty($xaxis_field))
-			$params_changed = false;
-			
-			// If we're subtotalling on a custom field, make sure it's joined
-			if($xaxis_field != '_id' && !$view->hasParam($xaxis_field->token, $view->getParams())) {
-				$view->addParam(new DevblocksSearchCriteria($xaxis_field->token, DevblocksSearchCriteria::OPER_TRUE));
-				$params_changed = true;
-			}
-			
+		if(!empty($xaxis_field)) {
 			@$yaxis_func = $params['yaxis_func'];
 			$yaxis_field = null;
 			
@@ -238,27 +274,9 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					
 					if(empty($yaxis_field)) {
 						$yaxis_func = 'count';
-						
-					} else {
-						// If we're subtotalling on a custom field, make sure it's joined
-						if(!$view->hasParam($yaxis_field->token, $view->getParams())) {
-							$view->addParam(new DevblocksSearchCriteria($yaxis_field->token, DevblocksSearchCriteria::OPER_TRUE));
-							$params_changed = true;
-						}
 					}
 					break;
 			}
-			
-			if($params_changed) {
-				$query_parts = $dao_class::getSearchQueryComponents(
-					$view->view_columns,
-					$view->getParams(),
-					$view->renderSortBy,
-					$view->renderSortAsc
-				);
-			}
-			
-			unset($params_changed);
 			
 			switch($xaxis_field->type) {
 				case Model_CustomField::TYPE_DATE:
@@ -341,6 +359,28 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 						case 'count':
 							$select_func = 'COUNT(*)';
 							break;
+					}
+					
+					// INNER JOIN the x-axis cfield
+					if($xaxis_field && DevblocksPlatform::strStartsWith($xaxis_field->token, 'cf_')) {
+						$xaxis_cfield_id = substr($xaxis_field->token, 3);
+						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=contact.id) ",
+							'custom_field_numbervalue',
+							$xaxis_cfield_id,
+							$xaxis_field->token,
+							$xaxis_field->token
+						);
+					}
+					
+					// INNER JOIN the y-axis cfield
+					if($yaxis_field && DevblocksPlatform::strStartsWith($yaxis_field->token, 'cf_') && !($xaxis_field && $xaxis_field->token == $yaxis_field->token)) {
+						$yaxis_cfield_id = substr($yaxis_field->token, 3);
+						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=contact.id) ",
+							'custom_field_numbervalue',
+							$yaxis_cfield_id,
+							$yaxis_field->token,
+							$yaxis_field->token
+						);
 					}
 					
 					$sql = sprintf("SELECT %s AS hits, DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') AS histo ",
@@ -434,6 +474,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					unset($results);
 					break;
 
+				// x-axis is a number
 				case Model_CustomField::TYPE_NUMBER:
 					switch($xaxis_field->token) {
 						case '_id':
@@ -505,6 +546,28 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 							break;
 					}
 					
+					// INNER JOIN the x-axis cfield
+					if($xaxis_field && DevblocksPlatform::strStartsWith($xaxis_field->token, 'cf_')) {
+						$xaxis_cfield_id = substr($xaxis_field->token, 3);
+						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=contact.id) ",
+							'custom_field_numbervalue',
+							$xaxis_cfield_id,
+							$xaxis_field->token,
+							$xaxis_field->token
+						);
+					}
+					
+					// INNER JOIN the y-axis cfield
+					if($yaxis_field && DevblocksPlatform::strStartsWith($yaxis_field->token, 'cf_') && !($xaxis_field && $xaxis_field->token == $yaxis_field->token)) {
+						$yaxis_cfield_id = substr($yaxis_field->token, 3);
+						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=contact.id) ",
+							'custom_field_numbervalue',
+							$yaxis_cfield_id,
+							$yaxis_field->token,
+							$yaxis_field->token
+						);
+					}
+					
 					$sql = sprintf("SELECT %s AS yaxis, %s.%s AS xaxis " .
 						str_replace('%','%%',$query_parts['join']).
 						str_replace('%','%%',$query_parts['where']).
@@ -516,7 +579,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 						$group_by,
 						$order_by
 					);
-
+					
 					$results = $db->GetArraySlave($sql);
 					$data = array();
 
@@ -538,6 +601,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 
 					unset($results);
 					break;
+			}
 		}
 		
 		$params['data'] = $data;
