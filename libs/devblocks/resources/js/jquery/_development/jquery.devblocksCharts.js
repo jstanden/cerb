@@ -97,6 +97,14 @@ $.fn.extend({
 				//context.stroke();
 			}
 			
+			// White out the inside of the gauge
+			context.beginPath();
+			context.moveTo(piecenter_x, piecenter_y);
+			context.fillStyle = '#FFFFFF';
+			context.arc(piecenter_x, piecenter_y, options.radius * 0.75, Math.PI, 2 * Math.PI, false);
+			context.lineTo(piecenter_x, piecenter_y);
+			context.fill();
+			
 			// Label the min
 			if(options.metric_label_min) {
 				context.font = '10px Verdana';
