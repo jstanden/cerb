@@ -2527,14 +2527,25 @@ abstract class C4_AbstractView {
 		$cfield_key = $search_class::getCustomFieldContextWhereKey($cfield->context);
 			
 		if($cfield_key) {
-			$cfield_select_sql .= sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d ORDER BY field_value%s)",
-				($is_multiple_value_cfield ? 'GROUP_CONCAT(field_value SEPARATOR "||")' : 'field_value'),
-				DAO_CustomFieldValue::getValueTableName($field_id),
-				Cerb_ORMHelper::qstr($cfield->context),
-				$cfield_key,
-				$field_id,
-				' LIMIT 1'
-			);
+			if($is_multiple_value_cfield) {
+				$cfield_select_sql .= sprintf("SELECT COUNT(field_value) AS hits, field_value AS %s FROM %s WHERE context=%s AND context_id IN (%%s) AND field_id=%d GROUP BY %s ORDER BY hits DESC",
+					$field_key,
+					DAO_CustomFieldValue::getValueTableName($field_id),
+					Cerb_ORMHelper::qstr($cfield->context),
+					$field_id,
+					$field_key
+				);
+				
+			} else {
+				$cfield_select_sql .= sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d ORDER BY field_value%s)",
+					($is_multiple_value_cfield ? 'GROUP_CONCAT(field_value SEPARATOR "||")' : 'field_value'),
+					DAO_CustomFieldValue::getValueTableName($field_id),
+					Cerb_ORMHelper::qstr($cfield->context),
+					$cfield_key,
+					$field_id,
+					' LIMIT 1'
+				);
+			}
 		}
 		
 		// ... and that the DAO object is valid
@@ -2616,50 +2627,33 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_URL:
-				$select = sprintf(
-					"SELECT COUNT(*) AS hits, %s AS %s ", //SQL_CALC_FOUND_ROWS
-					$cfield_select_sql,
-					$field_key
-				);
-				
-				$sql =
-					$select.
-					$join_sql.
-					$where_sql.
-					sprintf(
-						"GROUP BY %s ",
-						$field_key
-					).
-					"ORDER BY hits DESC ".
-					"LIMIT 20 "
-				;
+				if($is_multiple_value_cfield) {
+					$subquery_sql =
+						sprintf("SELECT %s ", $cfield_key).
+						$join_sql.
+						$where_sql
+					;
+					
+					$sql = sprintf($cfield_select_sql, $subquery_sql);
+					
+				} else {
+					$sql =
+						$select.
+						$join_sql.
+						$where_sql.
+						sprintf(
+							"GROUP BY %s ",
+							$field_key
+						).
+						"ORDER BY hits DESC ".
+						"LIMIT 20 "
+					;
+				}
 				
 				$results = $db->GetArraySlave($sql);
 //				$total = count($results);
 //				$total = ($total < 20) ? $total : $db->GetOneSlave("SELECT FOUND_ROWS()");
 
-				// Expand multi-value results
-				
-				if($is_multiple_value_cfield) {
-					$counts = [];
-					foreach($results as $result) {
-						if(false == ($values = explode('||', $result[$field_key])))
-							continue;
-						
-						foreach($values as $value) {
-							if(!isset($counts[$value]))
-								$counts[$value] = [
-									'hits' => 0,
-									$field_key => $value,
-								];
-							
-							$counts[$value]['hits'] += $result['hits'];
-						}
-					}
-					
-					$results = $counts;
-				}
-				
 				if(is_array($results))
 				foreach($results as $result) {
 					$label = '';
