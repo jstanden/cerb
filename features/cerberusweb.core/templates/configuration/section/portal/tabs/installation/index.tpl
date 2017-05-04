@@ -19,7 +19,6 @@ define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_SSL', null);
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-@session_start();
 define('REMOTE_SSL_VALIDATION', true);
 define('SCRIPT_LAST_MODIFY', 20170428); // last change
 
@@ -207,26 +206,6 @@ class DevblocksProxy {
 		
 		return $content; // POST
 	}
-	
-	/**
-	 * @return array
-	 */
-	function _getFingerprint() {
-		// Create a local cookie for this user to pass to Devblocks
-		if(isset($_COOKIE['GroupLoginPassport'])) {
-			$cookie = $_COOKIE['GroupLoginPassport'];
-			$fingerprint = unserialize($cookie);
-		} else {
-			$fingerprint = array('browser'=>@$_SERVER['HTTP_USER_AGENT'], 'ip'=>@$_SERVER['REMOTE_ADDR'], 'local_sessid' => session_id(), 'started' => time());
-			setcookie(
-				'GroupLoginPassport',
-				serialize($fingerprint),
-				0,
-				'/'
-			);
-		}
-		return $fingerprint;
-	}
 };
 
 class DevblocksProxy_Curl extends DevblocksProxy {
@@ -252,6 +231,15 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		
 		if(isset($_SERVER['HTTP_USER_AGENT']))
 			$header[] = 'User-Agent: ' . $_SERVER['HTTP_USER_AGENT'];
+		
+		$cookies = array();
+		
+		foreach($_COOKIE as $key => $value) {
+			$cookies[] = sprintf("%s=%s", $key, urlencode($value));
+		}
+		
+		if(!empty($cookies))
+			$header[] = 'Cookie: ' . implode('; ', $cookies);
 		
 		return $header;
 	}
@@ -289,7 +277,6 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		$header = array();
 		$header[] = 'Content-Type: multipart/form-data; boundary='.$boundary;
 		$header[] = 'Content-Length: ' .  strlen($content);
-		$header[] = 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';';
 		$this->_proxyHttpHeaders($header);
 
 		$ch = curl_init();
