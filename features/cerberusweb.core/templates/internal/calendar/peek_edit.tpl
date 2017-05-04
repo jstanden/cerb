@@ -75,7 +75,7 @@
 	<br>
 </fieldset>
 
-{section start=0 loop=3 name=series}
+{section start=0 loop=5 name=series}
 {$series_idx = $smarty.section.series.index}
 {$series_prefix = "[series][{$series_idx}]"}
 
