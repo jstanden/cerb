@@ -1507,6 +1507,167 @@ class DevblocksEventHelper {
 	}
 	
 	/*
+	 * Action: Get worklist metric
+	 */
+	
+	static function renderActionGetWorklistMetric($trigger) { /* @var $trigger Model_TriggerEvent */
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('trigger', $trigger);
+		
+		// Link contexts
+		$contexts = Extension_DevblocksContext::getAll(false, 'search');
+		$tpl->assign('contexts', $contexts);
+		
+		$tpl->display('devblocks:cerberusweb.core::events/action_get_worklist_metric.tpl');
+	}
+	
+	static function simulateActionGetWorklistMetric($params, DevblocksDictionaryDelegate $dict) {
+		@$key = DevblocksPlatform::importVar($params['key'],'string','');
+		@$var = DevblocksPlatform::importVar($params['var'],'string','');
+
+		$out = '';
+		
+		$trigger = $dict->__trigger;
+
+		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$key = $tpl_builder->build($key, $dict);
+		
+		// Run it in the simulator too
+		self::runActionGetWorklistMetric($params, $dict);
+		
+		@$value = $dict->$var;
+		
+		$out .= sprintf(">> Getting value for worklist metric:\nType: %s\nQuery: %s\nFunction: %s\nField: %s\n\n%s",
+			@$params['context'],
+			@$params['query'],
+			@$params['metric_func'],
+			@$params['metric_field'],
+			$value
+		);
+		
+		return $out;
+	}
+	
+	static function runActionGetWorklistMetric($params, $dict) {
+		@$context = DevblocksPlatform::importVar($params['context'],'string','');
+		@$query = DevblocksPlatform::importVar($params['query'],'string','');
+		@$metric_func = DevblocksPlatform::importVar($params['metric_func'],'string','');
+		@$metric_field = DevblocksPlatform::importVar($params['metric_field'],'string','');
+		@$var = DevblocksPlatform::importVar($params['var'],'string','');
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return false;
+		
+		if(false == ($view = $context_ext->getSearchView()))
+			return false;
+		
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			return false;
+		
+		if(false == ($search_class = $context_ext->getSearchClass()))
+			return false;
+		
+		if(false == ($primary_key = $search_class::getPrimaryKey()))
+			return false;
+		
+		$select_func = null;
+		
+		$fields = $view->getFields();
+		@$metric_field = $fields[$metric_field]; /* @var $metric_field DevblocksSearchField */
+		
+		$view->addParamsWithQuickSearch($query, true);
+		
+		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
+		
+		if($metric_field && DevblocksPlatform::strStartsWith($metric_field->token, 'cf_')) {
+			$cfield = DAO_CustomField::get(substr($metric_field->token,3));
+			//$cfield_key = $search_class::getCustomFieldContextWhereKey($cfield->context);
+			
+			switch($metric_func) {
+				case 'sum':
+					$select_func = 'SUM(field_value)';
+					break;
+					
+				case 'avg':
+					$select_func = 'AVG(field_value)';
+					break;
+					
+				case 'min':
+					$select_func = 'MIN(field_value)';
+					break;
+					
+				case 'max':
+					$select_func = 'MAX(field_value)';
+					break;
+					
+				default:
+				case 'count':
+					$select_func = 'COUNT(*)';
+					break;
+			}
+			
+			$sql = sprintf("SELECT %s FROM %s WHERE context=%s AND field_id=%d AND context_id IN (%s)",
+				$select_func,
+				DAO_CustomFieldValue::getValueTableName($cfield->id),
+				Cerb_ORMHelper::qstr($cfield->context),
+				$cfield->id,
+				sprintf("SELECT %s %s %s", $primary_key, $query_parts['join'], $query_parts['where'])
+			);
+			
+		} else {
+			$select_query = sprintf("%s.%s",
+				$metric_field->db_table,
+				$metric_field->db_column
+			);
+			
+			switch($metric_func) {
+				case 'sum':
+					$select_func = sprintf("SELECT SUM(%s) ",
+						$select_query
+					);
+					break;
+					
+				case 'avg':
+					$select_func = sprintf("SELECT AVG(%s) ",
+						$select_query
+					);
+					break;
+					
+				case 'min':
+					$select_func = sprintf("SELECT MIN(%s) ",
+						$select_query
+					);
+					break;
+					
+				case 'max':
+					$select_func = sprintf("SELECT MAX(%s) ",
+						$select_query
+					);
+					break;
+					
+				default:
+				case 'count':
+					$select_func = 'SELECT COUNT(*) ';
+					break;
+			}
+			
+			$sql = 
+				$select_func
+				. $query_parts['join']
+				. $query_parts['where']
+				;
+		}
+		
+		if(empty($sql))
+			return false;
+		
+		$db = DevblocksPlatform::getDatabaseService();
+		$value = $db->GetOneSlave($sql);
+		
+		$dict->$var = $value;
+	}
+	
+	/*
 	 * Action: Get persistent key
 	 */
 	

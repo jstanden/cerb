@@ -1654,6 +1654,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			'_exit' => array('label' => 'Behavior exit'),
 			'_get_key' => array('label' => 'Get persistent key'),
 			'_get_links' => array('label' => 'Get links'),
+			'_get_worklist_metric' => array('label' => 'Get worklist metric'),
 			'_run_behavior' => array('label' => 'Behavior run'),
 			'_run_subroutine' => array('label' => 'Behavior call subroutine'),
 			'_schedule_behavior' => array('label' => 'Behavior schedule'),
@@ -1736,6 +1737,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 				case '_get_links':
 					DevblocksEventHelper::renderActionGetLinks($trigger);
+					break;
+
+				case '_get_worklist_metric':
+					DevblocksEventHelper::renderActionGetWorklistMetric($trigger);
 					break;
 
 				case '_set_custom_var':
@@ -1854,6 +1859,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 				case '_get_links':
 					return DevblocksEventHelper::simulateActionGetLinks($params, $dict);
+					break;
+					
+				case '_get_worklist_metric':
+					return DevblocksEventHelper::simulateActionGetWorklistMetric($params, $dict);
 					break;
 
 				case '_set_custom_var':
@@ -1974,6 +1983,13 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						$out = $this->simulateAction($token, $trigger, $params, $dict);
 					else
 						DevblocksEventHelper::runActionGetLinks($params, $dict);
+					break;
+					
+				case '_get_worklist_metric':
+					if($dry_run)
+						$out = $this->simulateAction($token, $trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionGetWorklistMetric($params, $dict);
 					break;
 					
 				case '_set_custom_var':
