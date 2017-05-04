@@ -10,6 +10,6 @@
 
 <b>{'search.value'|devblocks_translate|capitalize}:</b><br>
 <blockquote style="margin:5px;">
-	<input type="text" name="value" value="{$param->value}"><br>
+	<input type="text" name="value" value="{if is_numeric($param->value)}{$param->value}{/if}"><br>
 </blockquote>
 
