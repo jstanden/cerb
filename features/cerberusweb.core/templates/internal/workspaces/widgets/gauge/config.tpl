@@ -5,6 +5,10 @@
 	</ul>
 	
 	<div id="widget{$widget->id}ConfigTabThresholds">
+		<b>Minimum value</b> is 
+		<input type="text" name="params[metric_min]" value="{$widget->params.metric_min|default:0}" size="10" placeholder="0">
+		<br>
+	
 		<table cellpadding="0" cellspacing="0" border="0" width="100%">
 			<tr>
 				<td width="50%"><b>Label</b></td>

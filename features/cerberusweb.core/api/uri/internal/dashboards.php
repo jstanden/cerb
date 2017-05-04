@@ -550,7 +550,7 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 		
 		if(isset($params['threshold_values']))
 		foreach($params['threshold_values'] as $idx => $val) {
-			if(empty($val)) {
+			if(0 == strlen($val)) {
 				unset($params['threshold_values'][$idx]);
 				continue;
 			}

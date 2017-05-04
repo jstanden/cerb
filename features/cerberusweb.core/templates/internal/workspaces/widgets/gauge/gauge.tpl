@@ -19,11 +19,13 @@
 $(function() {
 try {
 	{$metric_value = $widget->params.metric_value}
+	{$metric_min = $widget->params.metric_min|default:0}
 	{$metric_label = DevblocksPlatform::formatNumberAs($metric_value, $widget->params.metric_type)}	
 	
 	var options = {
 		{if !empty($widget->params.threshold_values)}'threshold_values': {json_encode($widget->params.threshold_values) nofilter},{/if}
 		{if !empty($widget->params.threshold_colors)}'threshold_colors': {json_encode($widget->params.threshold_colors) nofilter},{/if}
+		{if !empty($metric_min)}'metric_min': {floatval($metric_min)},{/if}
 		{if !empty($metric_value)}'metric': {floatval($metric_value)},{/if}
 		'metric_label': "{$widget->params.metric_prefix}{$metric_label}{$widget->params.metric_suffix}",
 		/*'metric_compare': 173,*/
