@@ -173,6 +173,7 @@ var atwho_twig_modifiers = [
 	{ name: "escape", content: "Escape text for html, js, css, or url" },
 	{ name: "first", content: "Return the first element of an array or text" },
 	{ name: "format", content: "Replace %s in formatted text with placeholders" },
+	{ name: "hash_hmac(key,algo)", content: "Create an HMAC signature hash from text" },
 	{ name: "join(',')", content: "Join array elements into one string" },
 	{ name: "json_encode", content: "Encode text as JSON" },
 	{ name: "json_pretty", content: "Prettify JSON formatted text" },

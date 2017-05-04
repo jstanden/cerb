@@ -73,6 +73,7 @@ class _DevblocksTemplateBuilder {
 				'base64_decode',
 				'bytes_pretty',
 				'date_pretty',
+				'hash_hmac',
 				'json_pretty',
 				'md5',
 				'parse_emails',
@@ -811,6 +812,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFilter('base64_decode', [$this, 'filter_base64_decode']),
 			new Twig_SimpleFilter('bytes_pretty', [$this, 'filter_bytes_pretty']),
 			new Twig_SimpleFilter('date_pretty', [$this, 'filter_date_pretty']),
+			new Twig_SimpleFilter('hash_hmac', [$this, 'filter_hash_hmac']),
 			new Twig_SimpleFilter('json_pretty', [$this, 'filter_json_pretty']),
 			new Twig_SimpleFilter('md5', [$this, 'filter_md5']),
 			new Twig_SimpleFilter('parse_emails', [$this, 'filter_parse_emails']),
@@ -857,6 +859,20 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return '';
 		
 		return DevblocksPlatform::strPrettyTime($string, $is_delta);
+	}
+	
+	function filter_hash_hmac($string, $key='', $algo='sha256') {
+		if(!is_string($string) 
+			|| !is_string($key) 
+			|| !is_string($algo) 
+			|| empty($string)
+			)
+			return '';
+		
+		if(false == ($hash = hash_hmac($algo, $string, $key)))
+			return '';
+		
+		return $hash;
 	}
 	
 	function filter_json_pretty($string) {
