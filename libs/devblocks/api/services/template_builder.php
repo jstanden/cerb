@@ -80,6 +80,7 @@ class _DevblocksTemplateBuilder {
 				'quote',
 				'regexp',
 				'secs_pretty',
+				'sha1',
 				'split_crlf',
 				'split_csv',
 				'truncate',
@@ -819,6 +820,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFilter('quote', [$this, 'filter_quote']),
 			new Twig_SimpleFilter('regexp', [$this, 'filter_regexp']),
 			new Twig_SimpleFilter('secs_pretty', [$this, 'filter_secs_pretty']),
+			new Twig_SimpleFilter('sha1', [$this, 'filter_sha1']),
 			new Twig_SimpleFilter('split_crlf', [$this, 'filter_split_crlf']),
 			new Twig_SimpleFilter('split_csv', [$this, 'filter_split_csv']),
 			new Twig_SimpleFilter('truncate', [$this, 'filter_truncate']),
@@ -931,6 +933,13 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return '';
 		
 		return DevblocksPlatform::strSecsToString($string, $precision);
+	}
+	
+	function filter_sha1($string) {
+		if(!is_string($string))
+			return '';
+		
+		return sha1($string);
 	}
 	
 	function filter_split_crlf($string) {

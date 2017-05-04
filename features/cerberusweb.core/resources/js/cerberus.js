@@ -191,6 +191,7 @@ var atwho_twig_modifiers = [
 	{ name: "replace('this', 'that')", content: "Replace text" },
 	{ name: "reverse", content: "Reverse an array or text" },
 	{ name: "round(0, 'common')", content: "Round a number: common, ceil, floor" },
+	{ name: "sha1", content: "Convert text to a SHA-1 hash" },
 	{ name: "slice", content: "Extract a slice of an array or text" },
 	{ name: "sort", content: "Sort an array" },
 	{ name: "split(',')", content: "Split text into an array by delimiter" },
