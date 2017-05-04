@@ -1915,6 +1915,10 @@ abstract class C4_AbstractView {
 		$counts = array();
 		$results = $this->_getSubtotalDataForColumn($context, $field_key);
 		
+		if(is_callable($label_map)) {
+			$label_map = $label_map(array_column($results, 'label'));
+		}
+		
 		foreach($results as $result) {
 			$label = $result['label'];
 			$key = $label;
