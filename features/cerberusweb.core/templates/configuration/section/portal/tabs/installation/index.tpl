@@ -16,6 +16,7 @@ define('REMOTE_URI', '{$path}'); // NO trailing slash!
  * ====================================================================
  */
 define('URL_REWRITE', file_exists('.htaccess'));
+define('LOCAL_SSL', null);
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
 @session_start();
@@ -113,7 +114,9 @@ class DevblocksProxy {
 	}
 
 	function _isSSL() {
-		if(@$_SERVER["HTTPS"] == "on"){
+		if(LOCAL_SSL) {
+			return true;
+		} elseif(@$_SERVER["HTTPS"] == "on"){
 			return true;
 		} elseif (@$_SERVER["HTTPS"] == 1){
 			return true;
