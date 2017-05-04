@@ -621,6 +621,10 @@
 			<class name="Event_DashboardWidgetGetMetric" />
 		</file>
 		
+		<file path="api/events/dashboards/dashboard_widget_render.php">
+			<class name="Event_DashboardWidgetRender" />
+		</file>
+
 		<file path="api/events/group/comment_on_ticket_in_group.php">
 			<class name="Event_CommentOnTicketInGroup" />
 		</file>
@@ -2332,6 +2336,25 @@
 				<param key="options">
 					<value>
 						<data key="resumable" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.dashboard.widget.render</id>
+			<name>Dashboard widget render</name>
+			<class>
+				<file>api/events/dashboards/dashboard_widget_render.php</file>
+				<name>Event_DashboardWidgetRender</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
 			</params>
@@ -4458,6 +4481,17 @@
 		</extension>
 		
 		<!-- Workspace Widgets -->
+		
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.bot</id>
+			<name>Bot Behavior</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_BotBehavior</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.gauge</id>
