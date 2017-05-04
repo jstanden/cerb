@@ -21,13 +21,20 @@ try {
 	{$metric_value = $widget->params.metric_value}
 	{$metric_min = $widget->params.metric_min|default:0}
 	{$metric_label = DevblocksPlatform::formatNumberAs($metric_value, $widget->params.metric_type)}	
+	{$metric_label_min = DevblocksPlatform::formatNumberAs($metric_min, $widget->params.metric_type)}
 	
 	var options = {
-		{if !empty($widget->params.threshold_values)}'threshold_values': {json_encode($widget->params.threshold_values) nofilter},{/if}
+		{if !empty($widget->params.threshold_values)}
+		{$metric_max = end($widget->params.threshold_values)|default:0}
+		{$metric_label_max = DevblocksPlatform::formatNumberAs($metric_max, $widget->params.metric_type)}
+		'threshold_values': {json_encode($widget->params.threshold_values) nofilter},
+		'metric_label_max': "{$metric_label_max}",
+		{/if}
 		{if !empty($widget->params.threshold_colors)}'threshold_colors': {json_encode($widget->params.threshold_colors) nofilter},{/if}
 		{if !empty($metric_min)}'metric_min': {floatval($metric_min)},{/if}
 		{if !empty($metric_value)}'metric': {floatval($metric_value)},{/if}
 		'metric_label': "{$widget->params.metric_prefix}{$metric_label}{$widget->params.metric_suffix}",
+		'metric_label_min': "{$metric_label_min}",
 		/*'metric_compare': 173,*/
 		'legend': false,
 		'radius': 90

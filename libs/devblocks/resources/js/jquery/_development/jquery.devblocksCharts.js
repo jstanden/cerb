@@ -97,6 +97,24 @@ $.fn.extend({
 				//context.stroke();
 			}
 			
+			// Label the min
+			if(options.metric_label_min) {
+				context.font = '10px Verdana';
+				context.fillStyle = 'gray';
+				context.textBaseline = 'top';
+				var measure = context.measureText(options.metric_label_min);
+				context.fillText(options.metric_label_min, 10, piecenter_y+5);
+			}
+			
+			// Label the max
+			if(options.metric_label_max) {
+				context.font = '10px Verdana';
+				context.fillStyle = 'gray';
+				context.textBaseline = 'top';
+				var measure = context.measureText(options.metric_label_max);
+				context.fillText(options.metric_label_max, chart_width-10-measure.width, piecenter_y+5);
+			}
+			
 			// Legend
 			if(options.legend) {
 				context.font = 'bold 12px Verdana';
