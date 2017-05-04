@@ -53,11 +53,21 @@ class DevblocksProxy {
 			$remote_path = REMOTE_BASE . REMOTE_URI;
 		}
 		
-		if($this->_isPost()) {
-			$this->_post($remote_path, $local_path);
-		} else {
-			$this->_get($remote_path, $local_path);
+		switch($this->_getVerb()) {
+			case 'GET':
+				$this->_get($remote_path, $local_path);
+				break;
+			case 'OPTIONS':
+				$this->_options($remote_path, $local_path, 'OPTIONS');
+				break;
+			case 'POST':
+				$this->_post($remote_path, $local_path);
+				break;
 		}
+	}
+
+	function _options($local_path, $remote_path) {
+		die("Subclass abstract " . __CLASS__ . "...");
 	}
 
 	function _get($local_path, $remote_path) {
@@ -103,11 +113,9 @@ class DevblocksProxy {
 		);
 	}
 	
-	/**
-	 * @return boolean
-	 */
-	function _isPost() {
-		return !strcasecmp($_SERVER['REQUEST_METHOD'],"POST"); // 0=match
+	function _getVerb() {
+		$verb = strtoupper($_SERVER['REQUEST_METHOD']);
+		return $verb;
 	}
 	
 	function _generateMimeBoundary() {
@@ -222,8 +230,6 @@ class DevblocksProxy {
 };
 
 class DevblocksProxy_Curl extends DevblocksProxy {
-	function _get($remote_path, $local_path) {
-		$url = REMOTE_PROTOCOL . '://' . REMOTE_HOST . ':' . REMOTE_PORT . $remote_path . $local_path;
 		
 		$header = array();
 		$header[] = 'Via: 1.1 ' . LOCAL_HOST;
@@ -231,6 +237,11 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		$header[] = 'DevblocksProxyHost: ' . LOCAL_HOST;
 		$header[] = 'DevblocksProxyBase: ' . LOCAL_BASE;
 		$header[] = 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';';
+	function _get($remote_path, $local_path, $verb=null) {
+		$url = REMOTE_PROTOCOL . '://' . REMOTE_HOST . ':' . REMOTE_PORT . $remote_path . $local_path;
+		
+		$header = array();
+		
 		$ch = curl_init();
 		$out = "";
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -241,6 +252,9 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 		curl_setopt($ch, CURLOPT_HEADER, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		
+		if($verb)
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $verb);
 		
 		$this->_returnTransfer($ch, $out);
 		
