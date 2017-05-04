@@ -2503,6 +2503,12 @@ class DevblocksPlatform extends DevblocksEngine {
 				return $array;
 				break;
 				
+			case 'str':
+			case 'string':
+				$array = _DevblocksSanitizationManager::arrayAs($array, 'string');
+				return $array;
+				break;
+				
 			default:
 				break;
 		}

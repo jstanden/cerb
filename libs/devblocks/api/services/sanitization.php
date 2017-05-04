@@ -17,6 +17,11 @@ class _DevblocksSanitizationManager {
 				$value = $value ? true : false;
 				break;
 				
+			case 'str':
+			case 'string':
+				$value = strval($value);
+				break;
+				
 			default:
 				settype($value, $type);
 				break;
