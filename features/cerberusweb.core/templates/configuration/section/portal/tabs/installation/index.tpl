@@ -230,17 +230,37 @@ class DevblocksProxy {
 };
 
 class DevblocksProxy_Curl extends DevblocksProxy {
+	function _proxyHttpHeaders(&$header) {
+		if(!is_array($header))
+			$header = array();
 		
-		$header = array();
 		$header[] = 'Via: 1.1 ' . LOCAL_HOST;
+		
 		if($this->_isSSL()) $header[] = 'DevblocksProxySSL: 1';
+		
 		$header[] = 'DevblocksProxyHost: ' . LOCAL_HOST;
 		$header[] = 'DevblocksProxyBase: ' . LOCAL_BASE;
-		$header[] = 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';';
+		
+		if(isset($_SERVER['HTTP_CONTENT_TYPE']))
+			$header[] = 'Content-Type: ' . $_SERVER['HTTP_CONTENT_TYPE'];
+		
+		if(isset($_SERVER['HTTP_ORIGIN']))
+			$header[] = 'Origin: ' . $_SERVER['HTTP_ORIGIN'];
+		
+		if(isset($_SERVER['HTTP_REFERER']))
+			$header[] = 'Referer: ' . $_SERVER['HTTP_REFERER'];
+		
+		if(isset($_SERVER['HTTP_USER_AGENT']))
+			$header[] = 'User-Agent: ' . $_SERVER['HTTP_USER_AGENT'];
+		
+		return $header;
+	}
+	
 	function _get($remote_path, $local_path, $verb=null) {
 		$url = REMOTE_PROTOCOL . '://' . REMOTE_HOST . ':' . REMOTE_PORT . $remote_path . $local_path;
 		
 		$header = array();
+		$this->_proxyHttpHeaders($header);
 		
 		$ch = curl_init();
 		$out = "";
@@ -269,11 +289,9 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		$header = array();
 		$header[] = 'Content-Type: multipart/form-data; boundary='.$boundary;
 		$header[] = 'Content-Length: ' .  strlen($content);
-		$header[] = 'Via: 1.1 ' . LOCAL_HOST;
-		if($this->_isSSL()) $header[] = 'DevblocksProxySSL: 1';
-		$header[] = 'DevblocksProxyHost: ' . LOCAL_HOST;
-		$header[] = 'DevblocksProxyBase: ' . LOCAL_BASE;
 		$header[] = 'Cookie: GroupLoginPassport=' . urlencode(serialize($this->_getFingerprint())) . ';';
+		$this->_proxyHttpHeaders($header);
+
 		$ch = curl_init();
 		$out = "";
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -295,20 +313,23 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 	function _returnTransfer($ch) {
 		$out = curl_exec($ch);
 
-		list($headers, $content) = $this->_parseResponse($out);		
+		list($raw_headers, $content) = $this->_parseResponse($out);
 		
-		foreach($headers as $header) {
-			// Do we need to redirect?
-			if(preg_match("/^Location:/i", $header)) {
-				header($header);
-				exit;
+		foreach($raw_headers as $raw_header) {
+			@list($k, $v) = explode(':', $raw_header, 2);
+			
+			if(empty($k) || empty($v))
+				continue;
+			
+			switch(strtolower($k)) {
+				case 'host':
+					break;
+					
+				default:
+					header($k . ': ' . $v);
+					break;
 			}
 		}
-		
-		$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-
-		if(!empty($content_type))
-			header("Content-type: " . $content_type);
 		
 		echo $content;
 	}
