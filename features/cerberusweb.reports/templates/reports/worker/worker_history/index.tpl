@@ -56,6 +56,14 @@
 	</ul>
 </div>
 
+<div>
+	<b>{'reports.ui.filters.ticket.status'|devblocks_translate}</b>
+	<label><input type="checkbox" name="status[]" value="0" {if in_array(0,$filter_status)}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
+	<label><input type="checkbox" name="status[]" value="1" {if in_array(1,$filter_status)}checked="checked"{/if}> {'status.waiting.abbr'|devblocks_translate|capitalize}</label>
+	<label><input type="checkbox" name="status[]" value="2" {if in_array(2,$filter_status)}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>
+	<label><input type="checkbox" name="status[]" value="3" {if in_array(3,$filter_status)}checked="checked"{/if}> {'status.deleted'|devblocks_translate|capitalize}</label>
+</div>
+
 <button type="submit" id="btnSubmit">{'reports.common.run_report'|devblocks_translate|capitalize}</button>
 </form>
 </fieldset>
@@ -246,9 +254,9 @@ var plot1 = $.jqplot('reportChart', chartData, chartOptions);
 		<tr>
 			<td style="border-bottom:1px solid rgb(200,200,200);"><b>{$tick}</b></td>
 			{foreach from=$data item=plots key=worker_id}
-				<td align="center" style="border-bottom:1px solid rgb(200,200,200);">
+				<td align="center" style="border-bottom:1px solid rgb(200,200,200);{if 0 == $plots.$tick}color:rgb(175,175,175);{/if}">
 				{if isset($plots.$tick)}
-					{$plots.$tick}
+					{$plots.$tick|default:0}
 					{$sums[$worker_id] = intval($sums.$worker_id) + $plots.$tick}
 				{/if}
 				</td>

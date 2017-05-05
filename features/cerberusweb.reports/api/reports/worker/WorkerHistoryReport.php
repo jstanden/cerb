@@ -32,6 +32,9 @@ class ChReportWorkerHistory extends Extension_Report {
 		@$filter_group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',array());
 		$tpl->assign('filter_group_ids', $filter_group_ids);
 		
+		@$filter_status = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['status'],'array',array()), 'int');
+		$tpl->assign('filter_status', $filter_status);
+		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
@@ -164,6 +167,10 @@ class ChReportWorkerHistory extends Extension_Report {
 			
 			if(!empty($filter_group_ids)) {
 				$params[] = new DevblocksSearchCriteria(SearchFields_Message::TICKET_GROUP_ID,DevblocksSearchCriteria::OPER_IN, $filter_group_ids);
+			}
+			
+			if(!empty($filter_status)) {
+				$params[] = new DevblocksSearchCriteria(SearchFields_Message::TICKET_STATUS_ID,DevblocksSearchCriteria::OPER_IN, $filter_status);
 			}
 			
 			$view->addParamsRequired($params, true);
