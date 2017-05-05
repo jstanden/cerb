@@ -165,6 +165,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function getViewForRequesterHistory($view_id, $ticket, $scope=null) {
+		/* @var $ticket Model_Ticket */
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		// Defaults
@@ -195,15 +196,15 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,'=',$ticket->org_id),
 					SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 				), true);
-				$view->name = ucwords($translate->_('common.organization'));
+				$view->name = 'History: Tickets from this organization';
 				break;
 				
 			case 'domain':
 				$view->addParamsRequired(array(
-					SearchFields_Ticket::REQUESTER_ADDRESS => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ADDRESS,'like','*@'.$email_parts[1]),
+					SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH, DevblocksSearchCriteria::OPER_CUSTOM, 'host:' . $email_parts[1]),
 					SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 				), true);
-				$view->name = ucwords($translate->_('common.email')) . ": *@" . $email_parts[1];
+				$view->name = 'History: Tickets from *@' . $email_parts[1];
 				break;
 				
 			default:
@@ -215,7 +216,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
 					SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 				), true);
-				$view->name = sprintf("History: %d recipient(s)", count($requesters));
+				$view->name = "History: Tickets from these participants";
 				break;
 		}
 		
