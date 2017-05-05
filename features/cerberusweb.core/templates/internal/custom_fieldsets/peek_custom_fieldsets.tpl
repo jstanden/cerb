@@ -1,11 +1,11 @@
-{$custom_fieldsets_available = DAO_CustomFieldset::getByContext($context)}
+{$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, $context)}
 {$bulk = $bulk|default:false}
-
 {if !empty($context_id)}
 	{$custom_fieldsets_linked = DAO_CustomFieldset::getByContextLink($context, $context_id)}
+	{$custom_fieldsets_editable = array_intersect_key($custom_fieldsets_available, $custom_fieldsets_linked)}
 	{$custom_fieldsets_available = array_diff_key($custom_fieldsets_available, $custom_fieldsets_linked)}
 	
-	{foreach from=$custom_fieldsets_linked item=cf_group}
+	{foreach from=$custom_fieldsets_editable item=cf_group}
 	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl" bulk=$bulk custom_fieldset=$cf_group}
 	{/foreach}
 {/if}

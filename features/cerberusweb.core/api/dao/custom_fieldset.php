@@ -168,6 +168,51 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		return $results;
 	}
 	
+	static function getUsableByActorByContext($actor, $context, $with_admins=true) {
+		$fieldsets = self::getByContext($context);
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor, false)))
+			return [];
+		
+		$fieldsets = array_filter($fieldsets, function($fieldset) use ($actor) { /* @var $fieldset Model_CustomFieldset */
+			switch($fieldset->owner_context) {
+				case CerberusContexts::CONTEXT_APPLICATION:
+					// Everyone can use global custom fields
+					return true;
+					break;
+					
+				case CerberusContexts::CONTEXT_BOT:
+					// Same bot
+					if($actor->_context == CerberusContexts::CONTEXT_BOT && $actor->id == $fieldset->owner_context_id)
+						return true;
+					
+					// Can edit the bot
+					//return CerberusContexts::isWriteableByActor($fieldset->owner_context, $fieldset->owner_context_id, $actor);
+					break;
+					
+				case CerberusContexts::CONTEXT_GROUP:
+					// Member of the group
+					return CerberusContexts::isReadableByActor($fieldset->owner_context, $fieldset->owner_context_id, $actor);
+					break;
+				
+				case CerberusContexts::CONTEXT_ROLE:
+					// Member of the role
+					return CerberusContexts::isReadableByActor($fieldset->owner_context, $fieldset->owner_context_id, $actor);
+					break;
+					
+				case CerberusContexts::CONTEXT_WORKER:
+					// Is the same worker
+					if($actor->_context == CerberusContexts::CONTEXT_WORKER && $actor->id == $fieldset->owner_context_id)
+						return true;
+					
+					return false;
+					break;
+			}
+		});
+		
+		return $fieldsets;
+	}
+	
 	/**
 	 *
 	 * @param string $context
@@ -862,12 +907,12 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 };
 
 class Context_CustomFieldset extends Extension_DevblocksContext {
-	static function isReadableByActor($models, $actor) {
-		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $models);
+	static function isReadableByActor($models, $actor, $ignore_admins=false) {
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $models, 'owner_', $ignore_admins);
 	}
 	
-	static function isWriteableByActor($models, $actor) {
-		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $models);
+	static function isWriteableByActor($models, $actor, $ignore_admins=false) {
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $models, 'owner_', $ignore_admins);
 	}
 	
 	function getRandom() {
