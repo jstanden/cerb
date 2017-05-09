@@ -2537,8 +2537,7 @@ abstract class C4_AbstractView {
 				);
 				
 			} else {
-				$cfield_select_sql .= sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d ORDER BY field_value%s)",
-					($is_multiple_value_cfield ? 'GROUP_CONCAT(field_value SEPARATOR "||")' : 'field_value'),
+				$cfield_select_sql .= sprintf("(SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d ORDER BY field_value%s)",
 					DAO_CustomFieldValue::getValueTableName($field_id),
 					Cerb_ORMHelper::qstr($cfield->context),
 					$cfield_key,
@@ -2637,6 +2636,12 @@ abstract class C4_AbstractView {
 					$sql = sprintf($cfield_select_sql, $subquery_sql);
 					
 				} else {
+					$select = sprintf(
+						"SELECT COUNT(*) AS hits, %s AS %s ",
+						$cfield_select_sql,
+						$field_key
+					);
+					
 					$sql =
 						$select.
 						$join_sql.
