@@ -2343,7 +2343,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.dashboard.widget.render</id>
-			<name>Dashboard widget render</name>
+			<name>Render dashboard widget</name>
 			<class>
 				<file>api/events/dashboards/dashboard_widget_render.php</file>
 				<name>Event_DashboardWidgetRender</name>
@@ -2362,7 +2362,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.dashboard.widget.get_metric</id>
-			<name>Dashboard widget get metric</name>
+			<name>Get metric for dashboard widget</name>
 			<class>
 				<file>api/events/dashboards/dashboard_widget_get_metric.php</file>
 				<name>Event_DashboardWidgetGetMetric</name>
@@ -2381,7 +2381,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.app</id>
-			<name>Before new mail is accepted</name>
+			<name>Before new incoming message is accepted</name>
 			<class>
 				<file>api/events/app/mail_received_by_app.php</file>
 				<name>Event_MailReceivedByApp</name>
@@ -2461,7 +2461,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received</id>
-			<name>Message added to a conversation</name>
+			<name>New message added to ticket</name>
 			<class>
 				<file>api/events/group/mail_received.php</file>
 				<name>Event_MailReceived</name>
@@ -2477,7 +2477,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.group</id>
-			<name>Message added to a group conversation</name>
+			<name>New message added to ticket in this group</name>
 			<class>
 				<file>api/events/group/mail_received_by_group.php</file>
 				<name>Event_MailReceivedByGroup</name>
@@ -2493,7 +2493,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.after.sent</id>
-			<name>After sending worker message</name>
+			<name>After message sent from worker</name>
 			<class>
 				<file>api/events/app/mail_after_sent.php</file>
 				<name>Event_MailAfterSent</name>
@@ -2509,7 +2509,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.after.sent.group</id>
-			<name>After sending worker message</name>
+			<name>After message sent from group member</name>
 			<class>
 				<file>api/events/group/mail_after_sent_by_group.php</file>
 				<name>Event_MailAfterSentByGroup</name>
@@ -2525,7 +2525,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.before.sent</id>
-			<name>Before sending worker message</name>
+			<name>Before message sent from worker</name>
 			<class>
 				<file>api/events/app/mail_before_sent.php</file>
 				<name>Event_MailBeforeSent</name>
@@ -2541,7 +2541,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.sent.group</id>
-			<name>Before sending worker message</name>
+			<name>Before message sent from group member</name>
 			<class>
 				<file>api/events/group/mail_before_sent_by_group.php</file>
 				<name>Event_MailBeforeSentByGroup</name>
@@ -2557,7 +2557,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.ticket.viewed.worker</id>
-			<name>Mail conversation viewed by worker</name>
+			<name>After ticket profile viewed by a worker</name>
 			<class>
 				<file>api/events/app/ticket_viewed_by_worker.php</file>
 				<name>Event_TicketViewedByWorker</name>
@@ -2573,7 +2573,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.task.created.worker</id>
-			<name>Task created by worker</name>
+			<name>New task created</name>
 			<class>
 				<file>api/events/app/task_created_by_worker.php</file>
 				<name>Event_TaskCreatedByWorker</name>
@@ -2607,7 +2607,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.address</id>
-			<name>Custom address behavior</name>
+			<name>Custom behavior on email address</name>
 			<class>
 				<file>api/events/macro/address_macro.php</file>
 				<name>Event_AddressMacro</name>
@@ -2644,7 +2644,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.calendar</id>
-			<name>Custom calendar behavior</name>
+			<name>Custom behavior on calendar</name>
 			<class>
 				<file>api/events/macro/calendar_macro.php</file>
 				<name>Event_CalendarMacro</name>
@@ -2664,7 +2664,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.calendar_event</id>
-			<name>Custom calendar event behavior</name>
+			<name>Custom behavior on calendar event</name>
 			<class>
 				<file>api/events/macro/calendar_event_macro.php</file>
 				<name>Event_CalendarEventMacro</name>
@@ -2684,7 +2684,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.contact</id>
-			<name>Custom contact behavior</name>
+			<name>Custom behavior on contact</name>
 			<class>
 				<file>api/events/macro/contact_macro.php</file>
 				<name>Event_ContactMacro</name>
@@ -2704,7 +2704,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.group</id>
-			<name>Custom group behavior</name>
+			<name>Custom behavior on group</name>
 			<class>
 				<file>api/events/macro/group_macro.php</file>
 				<name>Event_GroupMacro</name>
@@ -2724,7 +2724,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.message</id>
-			<name>Custom message behavior</name>
+			<name>Custom behavior on message</name>
 			<class>
 				<file>api/events/macro/message_macro.php</file>
 				<name>Event_MessageMacro</name>
@@ -2744,7 +2744,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.org</id>
-			<name>Custom organization behavior</name>
+			<name>Custom behavior on organization</name>
 			<class>
 				<file>api/events/macro/org_macro.php</file>
 				<name>Event_OrgMacro</name>
@@ -2764,7 +2764,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.task</id>
-			<name>Custom task behavior</name>
+			<name>Custom behavior on task</name>
 			<class>
 				<file>api/events/macro/task_macro.php</file>
 				<name>Event_TaskMacro</name>
@@ -2784,7 +2784,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.ticket</id>
-			<name>Custom ticket behavior</name>
+			<name>Custom behavior on ticket</name>
 			<class>
 				<file>api/events/macro/ticket_macro.php</file>
 				<name>Event_TicketMacro</name>
@@ -2804,7 +2804,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.bot</id>
-			<name>Custom bot behavior</name>
+			<name>Custom behavior on bot</name>
 			<class>
 				<file>api/events/macro/bot_macro.php</file>
 				<name>Event_BotMacro</name>
@@ -2824,7 +2824,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.worker</id>
-			<name>Custom worker behavior</name>
+			<name>Custom behavior on worker</name>
 			<class>
 				<file>api/events/macro/worker_macro.php</file>
 				<name>Event_WorkerMacro</name>
@@ -2844,7 +2844,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.watcher</id>
-			<name>Message added to a watched conversation</name>
+			<name>New message on a watched ticket</name>
 			<class>
 				<file>api/events/worker/mail_received_by_watcher.php</file>
 				<name>Event_MailReceivedByWatcher</name>
@@ -2876,7 +2876,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.reply.pre.ui.worker</id>
-			<name>[UI] When starting a reply to a message</name>
+			<name>[UI] Before starting a message reply</name>
 			<class>
 				<file>api/events/ui/ui_before_reply_by_worker.php</file>
 				<name>Event_MailBeforeUiReplyByWorker</name>
@@ -2895,7 +2895,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.reply.during.ui.worker</id>
-			<name>[UI] While replying to a message</name>
+			<name>[UI] During a message reply</name>
 			<class>
 				<file>api/events/ui/ui_during_reply_by_worker.php</file>
 				<name>Event_MailDuringUiReplyByWorker</name>
@@ -2914,7 +2914,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.ui.worklist.render.worker</id>
-			<name>[UI] While displaying a worklist</name>
+			<name>[UI] Before displaying a worklist</name>
 			<class>
 				<file>api/events/ui/ui_worklist_render_by_worker.php</file>
 				<name>Event_UiWorklistRenderByWorker</name>
