@@ -519,8 +519,13 @@ class SearchFields_Message extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_HEADER_MESSAGE_ID:
+				$value = $param->value;
+				
+				if(DevblocksPlatform::strStartsWith($value, '<'))
+					$value = sha1($value);
+				
 				return sprintf("m.hash_header_message_id = %s",
-					Cerb_ORMHelper::qstr(sha1($param->value))
+					Cerb_ORMHelper::qstr($value)
 				);
 				break;
 				
