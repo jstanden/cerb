@@ -671,6 +671,10 @@ class CerberusMail {
 			if(null == ($group = DAO_Group::get($ticket->group_id)))
 				return;
 			
+			$mail->generateId();
+			$outgoing_message_id = $mail->getHeaders()->get('message-id')->getFieldBody();
+			$properties['outgoing_message_id'] = $outgoing_message_id;
+			
 			// Changing the outgoing message through a VA (global)
 			Event_MailBeforeSent::trigger($properties, $message->id, $ticket->id, $group->id);
 			
@@ -837,6 +841,9 @@ class CerberusMail {
 					if(NULL == ($header = $headers->get($header_key))) {
 						$headers->addTextHeader($header_key, $header_val);
 					} else {
+						if($header instanceof Swift_Mime_Headers_IdentificationHeader)
+							continue;
+						
 						$header->setValue($header_val);
 					}
 				}

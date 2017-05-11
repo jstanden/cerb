@@ -57,6 +57,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'cc' => 'boss@example.com',
 			'bcc' => 'secret@example.com',
 			'subject' => 'This is the subject',
+			'outgoing_message_id' => '<abcdefg.012345678@example.mail>',
 			'ticket_reopen' => "+2 hours",
 			'status_id' => Model_Ticket::STATUS_WAITING,
 			'content' => "This is the message body\r\nOn more than one line.\r\n",
@@ -72,6 +73,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$values['cc'] =& $properties['cc'];
 		$values['bcc'] =& $properties['bcc'];
 		$values['subject'] =& $properties['subject'];
+		$values['message_id'] =& $properties['outgoing-message-id'];
 		$values['waiting_until'] =& $properties['ticket_reopen'];
 		$values['status_id'] =& $properties['status_id'];
 		$values['worker_id'] =& $properties['worker_id'];
@@ -121,6 +123,9 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 
 		$labels['subject'] = $prefix.'subject';
 		$values['subject'] =& $properties['subject'];
+		
+		$labels['message_id'] = $prefix.'ID';
+		$values['message_id'] =& $properties['outgoing_message_id'];
 		
 		$values['waiting_until'] =& $properties['ticket_reopen'];
 		
@@ -287,6 +292,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$types['content'] = Model_CustomField::TYPE_MULTI_LINE;
 		$types['content_format'] = Model_CustomField::TYPE_CHECKBOX;
 		$types['subject'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['message_id'] = Model_CustomField::TYPE_SINGLE_LINE;
 		$types['to'] = Model_CustomField::TYPE_SINGLE_LINE;
 	
 		$types['ticket_org_watcher_count'] = null;
