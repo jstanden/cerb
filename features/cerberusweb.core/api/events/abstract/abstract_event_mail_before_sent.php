@@ -60,11 +60,13 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'ticket_reopen' => "+2 hours",
 			'status_id' => Model_Ticket::STATUS_WAITING,
 			'content' => "This is the message body\r\nOn more than one line.\r\n",
+			'content_format' => 0,
 			'headers' => array(),
 			'worker_id' => $active_worker->id,
 		);
 		
 		$dict->content =& $properties['content'];
+		$dict->content_format =& $properties['content_format'];
 		$dict->headers =& $properties['headers'];
 		$values['to'] =& $properties['to'];
 		$values['cc'] =& $properties['cc'];
@@ -98,6 +100,9 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		
 		$labels['content'] = $prefix.'content';
 		$values['content'] =& $properties['content'];
+		
+		$labels['content_format'] = $prefix.'content is HTML';
+		$values['content_format'] = ($properties['content_format'] == 'parsedown') ? 1 : 0;
 		
 		if(!isset($properties['headers']))
 			$properties['headers'] = array();
@@ -280,6 +285,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$types['bcc'] = Model_CustomField::TYPE_SINGLE_LINE;
 		$types['cc'] = Model_CustomField::TYPE_SINGLE_LINE;
 		$types['content'] = Model_CustomField::TYPE_MULTI_LINE;
+		$types['content_format'] = Model_CustomField::TYPE_CHECKBOX;
 		$types['subject'] = Model_CustomField::TYPE_SINGLE_LINE;
 		$types['to'] = Model_CustomField::TYPE_SINGLE_LINE;
 	
