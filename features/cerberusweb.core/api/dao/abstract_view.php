@@ -1311,7 +1311,7 @@ abstract class C4_AbstractView {
 					if(isset($cfield->params['options']))
 						$search_field_meta['examples'] = array_slice(
 								array_map(function($e) { 
-									return sprintf('("%s")', str_replace(array('(',')'),array('\(','\)'),$e));
+									return sprintf('"%s"', $e);
 								},
 								$cfield->params['options']
 							),
@@ -1326,7 +1326,7 @@ abstract class C4_AbstractView {
 					if(isset($cfield->params['options']))
 						$search_field_meta['examples'] = array_slice(
 								array_map(function($e) { 
-									return sprintf('("%s")', str_replace(array('(',')'),array('\(','\)'),$e));
+									return sprintf('"%s"', $e);
 								},
 								$cfield->params['options']
 							),
