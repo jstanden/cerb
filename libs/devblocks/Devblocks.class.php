@@ -2819,6 +2819,42 @@ class DevblocksPlatform extends DevblocksEngine {
 		self::$response = $response;
 	}
 	
+	static function getHttpHeaders() {
+		$headers = [];
+		
+		foreach($_SERVER as $k => $v) {
+			if('HTTP_' == substr($k, 0, 5)) {
+				$headers[DevblocksPlatform::strLower(substr($k, 5))] = $v;
+			}
+		}
+		
+		return $headers;
+	}
+	
+	static function getHttpParams() {
+		$params = [];
+		
+		foreach($_GET as $k => $v) {
+			$params[DevblocksPlatform::strLower(DevblocksPlatform::strAlphaNum(str_replace('-', '_', $k), '_', ''))] = $v;
+		}
+		foreach($_POST as $k => $v) {
+			$params[DevblocksPlatform::strLower(DevblocksPlatform::strAlphaNum(str_replace('-', '_', $k), '_', ''))] = $v;
+		}
+		
+		return $params;
+	}
+	
+	static function getHttpBody() {
+		$contents = "";
+		
+		$body_data = fopen("php://input" , "rb");
+		while(!feof($body_data))
+			$contents .= fread($body_data, 4096);
+		fclose($body_data);
+		
+		return $contents;
+	}
+	
 	static function isStateless() {
 		return self::$is_stateless;
 	}
