@@ -278,6 +278,17 @@ class DevblocksDictionaryDelegate {
 	private $_null = null;
 	
 	function __construct($dictionary) {
+		// Rebuild any nested dictionaries
+		foreach($dictionary as $k => $v) {
+			if(DevblocksPlatform::strStartsWith($k, 'var_') && is_array($v)) {
+				foreach($v as $id => $values) {
+					if(is_array($values) && isset($values['_context'])) {
+						$dictionary[$k][$id] = new DevblocksDictionaryDelegate($values);
+					}
+				}
+			}
+		}
+		
 		$this->_dictionary = $dictionary;
 	}
 
