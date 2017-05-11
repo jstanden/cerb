@@ -1625,10 +1625,14 @@ abstract class C4_AbstractView {
 			$keys = array_map(function($key) {
 				return '{{' . $key . '}}';
 			}, array_keys($labels));
+
+			$values = array_column($labels, 'label');
 			
-			$labels = array_combine($keys, array_column($labels, 'label'));
-			$placeholders_menu->children = Extension_DevblocksContext::getPlaceholderTree($labels, ' ', '_');
-			$menu['(placeholders)'] = $placeholders_menu;
+			if(count($keys) == count($values)) {
+				$labels = array_combine($keys, $values);
+				$placeholders_menu->children = Extension_DevblocksContext::getPlaceholderTree($labels, ' ', '_');
+				$menu['(placeholders)'] = $placeholders_menu;
+			}
 		}
 		
 		// Fields
