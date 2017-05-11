@@ -183,7 +183,7 @@ class DevblocksEventHelper {
 		
 		// Set custom fields
 		foreach($labels as $key => $label) {
-			if(preg_match('#(.*?)_custom_([0-9]+)#', $key, $matches)) {
+			if(preg_match('#(.*?_*)custom_([0-9]+)#', $key, $matches)) {
 				if(!isset($matches[2]) || !isset($custom_fields[$matches[2]]))
 					continue;
 				
@@ -243,7 +243,6 @@ class DevblocksEventHelper {
 			case Model_CustomField::TYPE_WORKER:
 				$worker_values = DevblocksEventHelper::getWorkerValues($trigger);
 				$tpl->assign('worker_values', $worker_values);
-				
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
 				break;
 		}
@@ -358,7 +357,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionSetCustomField($token, $params, DevblocksDictionaryDelegate $dict) {
-		if(!preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches))
+		if(!preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches))
 			return;
 		
 		$custom_key = $matches[1];
@@ -368,8 +367,12 @@ class DevblocksEventHelper {
 			return;
 
 		$context = $custom_field->context;
-		$custom_key_id = $custom_key . '_id';
+		$custom_key_id = $custom_key . 'id';
 		$context_id = $dict->$custom_key_id;
+		$value_key = $custom_key . 'custom';
+		
+		// Lazy load custom fields
+		$dict->custom_;
 
 		if(empty($field_id) || empty($context) || empty($context_id))
 			return;
@@ -389,10 +392,12 @@ class DevblocksEventHelper {
 				);
 				
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = $value;
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 					
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				break;
 				
@@ -414,10 +419,12 @@ class DevblocksEventHelper {
 				);
 				 
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = $value;
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 					
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				break;
 				
@@ -450,10 +457,12 @@ class DevblocksEventHelper {
 				);
 				 
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = $value;
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 					
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				break;
 			
@@ -495,10 +504,12 @@ class DevblocksEventHelper {
 				}
 				
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = $value;
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 					
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				break;
 				
@@ -514,10 +525,12 @@ class DevblocksEventHelper {
 				);
 				
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = implode(',',$opts);
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 
 					$array =& $dict->$value_key;
-					$array[$field_id] = $opts;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				
 				break;
@@ -546,10 +559,12 @@ class DevblocksEventHelper {
 				}
 				
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = $worker_id;
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 
 					$array =& $dict->$value_key;
-					$array[$field_id] = $worker_id;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				break;
 				
@@ -563,9 +578,9 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionSetCustomField($token, $params, DevblocksDictionaryDelegate $dict) {
-		if(!preg_match('#set_cf_(.*?)_custom_([0-9]+)#', $token, $matches))
+		if(!preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches))
 			return;
-		
+
 		$custom_key = $matches[1];
 		$field_id = $matches[2];
 		
@@ -573,11 +588,15 @@ class DevblocksEventHelper {
 			return;
 		
 		$context = $custom_field->context;
-		$custom_key_id = $custom_key . '_id';
+		$custom_key_id = $custom_key . 'id';
 		$context_id = $dict->$custom_key_id;
+		$value_key = $custom_key . 'custom';
 		
 		if(empty($field_id) || empty($context) || empty($context_id))
 			return;
+		
+		// Lazy load custom fields
+		$dict->custom_;
 		
 		/**
 		 * If we have a fieldset-based custom field that doesn't exist in scope yet
@@ -601,10 +620,12 @@ class DevblocksEventHelper {
 				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value);
 
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = $value;
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				break;
 				
@@ -620,10 +641,12 @@ class DevblocksEventHelper {
 					break;
 
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = $value;
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				break;
 			
@@ -653,10 +676,12 @@ class DevblocksEventHelper {
 				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value);
 						
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = $value;
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 					
 					$array =& $dict->$value_key;
-					$array[$field_id] = $value;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				
 				break;
@@ -667,29 +692,33 @@ class DevblocksEventHelper {
 				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $opts, true);
 
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = implode(',',$opts);
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 
 					$array =& $dict->$value_key;
-					$array[$field_id] = $opts;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
 				@$worker_id = $params['worker_id'];
-
+				
 				// Variable?
-				if(substr($worker_id,0,4) == 'var_') {
+				if(DevblocksPlatform::strStartsWith($worker_id, 'var_')) {
 					@$worker_id = intval($dict->$worker_id);
 				}
 				
 				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $worker_id);
 				
 				if(!empty($value_key)) {
-					$dict->$value_key.'_'.$field_id = $worker_id;
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = $value;
 					
 					$array =& $dict->$value_key;
-					$array[$field_id] = $worker_id;
+					if(is_array($array))
+						$array[$field_id] = $value;
 				}
 				break;
 				
