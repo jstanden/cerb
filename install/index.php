@@ -16,17 +16,17 @@
 ***********************************************************************/
 
 if(version_compare(PHP_VERSION, "5.5", "<")) {
-	header('Status: 500');
+	http_response_code(500);
 	die("Cerb requires PHP 5.5 or later.");
 }
 
 if(!extension_loaded('mysqli')) {
-	header('Status: 500');
+	http_response_code(500);
 	die("Cerb requires the 'mysqli' PHP extension.  Please enable it.");
 }
 
 if(!extension_loaded('mbstring')) {
-	header('Status: 500');
+	http_response_code(500);
 	die("Cerb requires the 'mbstring' PHP extension.  Please enable it.");
 }
 
