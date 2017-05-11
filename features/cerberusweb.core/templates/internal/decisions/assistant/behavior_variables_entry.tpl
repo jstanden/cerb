@@ -33,6 +33,13 @@
 		{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
 		<select name="{$field_name}[{$var.key}]">
 			<option value=""></option>
+			{if $with_placeholders && $trigger}
+			{foreach from=$trigger->variables item=var key=var_key}
+				{if in_array($var.type, ['W', 'ctx_cerberusweb.contexts.worker'])}
+				<option value="{$var_key}" {if $variable_values.$var_key==$var_key}selected="selected"{/if}>(variable) {$var.label}</option>
+				{/if}
+			{/foreach}
+			{/if}
 			{foreach from=$workers item=worker}
 			<option value="{$worker->id}" {if $variable_values.$var_key==$worker->id}selected="selected"{/if}>{$worker->getName()}</option>
 			{/foreach}

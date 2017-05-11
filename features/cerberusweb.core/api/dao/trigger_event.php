@@ -653,7 +653,7 @@ class Model_TriggerEvent {
 		return DAO_TriggerEvent::getNextPosByParent($this->id, $parent_id);
 	}
 	
-	public function formatVariable($var, $value) {
+	public function formatVariable($var, $value, DevblocksDictionaryDelegate $dict=null) {
 		switch($var['type']) {
 			case Model_CustomField::TYPE_MULTI_LINE:
 			case Model_CustomField::TYPE_SINGLE_LINE:
@@ -687,6 +687,13 @@ class Model_TriggerEvent {
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
+				if($dict && is_string($value) && DevblocksPlatform::strStartsWith($value, 'var_')) {
+					$value = $dict->$value;
+					
+					if(is_array($value))
+						$value = key($value);
+				}
+				
 				settype($value, 'integer');
 				
 				if(false == ($worker = DAO_Worker::get($value)))
