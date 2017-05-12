@@ -552,6 +552,8 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 		foreach($params['threshold_values'] as $idx => $val) {
 			if(0 == strlen($val)) {
 				unset($params['threshold_values'][$idx]);
+				unset($params['threshold_labels'][$idx]);
+				unset($params['threshold_colors'][$idx]);
 				continue;
 			}
 			
@@ -560,15 +562,24 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 			if(empty($label))
 				$params['threshold_labels'][$idx] = $val;
 			
-			@$color = $params['threshold_colors'][$idx];
+			@$color = strtoupper($params['threshold_colors'][$idx]);
 			
 			if(empty($color))
-				$params['threshold_colors'][$idx] = sprintf("#%s%s%s",
-					dechex(mt_rand(0,255)),
-					dechex(mt_rand(0,255)),
-					dechex(mt_rand(0,255))
-				);
+				$color = '#FFFFFF';
+			
+			$params['threshold_colors'][$idx] = $color;
 		}
+		
+		$len = count($params['threshold_colors']);
+		
+		if(0 == strcasecmp($params['threshold_colors'][0], '#FFFFFF')) {
+			$params['threshold_colors'][0] = '#CF2C1D';
+		}
+		
+		if(0 == strcasecmp($params['threshold_colors'][$len-1], '#FFFFFF')) {
+			$params['threshold_colors'][$len-1] = '#66AD11';
+		}
+		$params['threshold_colors'] = DevblocksPlatform::colorLerpArray($params['threshold_colors']);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
@@ -1044,7 +1055,7 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 			return false;
 		
 		$data = $datasource_ext->getData($widget, $widget->params);
-
+		
 		if(!empty($data))
 			$widget->params = $data;
 		
