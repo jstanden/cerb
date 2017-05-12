@@ -471,6 +471,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				// Replace the current node with its only child
 				$k = key($node->children);
 				$n = array_pop($node->children);
+				
 				if(is_object($n))
 					$n->l = $key . $label_separator . $n->l;
 				
@@ -485,12 +486,18 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				
 				// Reconstruct the parent
 				$parent->children = array_combine($keys, $vals);
+				
+				// Recurse through the parent again
+				foreach($parent->children as $k => &$n)
+					$condense($n, $k, $parent);
+				
+			} else {
+				// If this node still has children, recurse into them
+				if(is_array($node->children))
+				foreach($node->children as $k => &$n)
+					$condense($n, $k, $node);
 			}
 			
-			// If this node still has children, recurse into them
-			if(is_array($node->children))
-			foreach($node->children as $k => &$n)
-				$condense($n, $k, $node);
 		};
 		$condense($keys);
 		
