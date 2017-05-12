@@ -286,9 +286,41 @@ class DevblocksPlatform extends DevblocksEngine {
 		$color = dechex($lerp_r | $lerp_g | $lerp_b);
 		$color = str_pad($color, 6, '0', STR_PAD_LEFT);
 		
-		return '#' . $color;
+		return '#' . DevblocksPlatform::strUpper($color);
 	}
 	
+	static function colorLerpArray(array $colors) {
+		if(!is_array($colors))
+			return [];
+		
+		$len = count($colors);
+		
+		foreach($colors as $pos => $color) {
+			if(!in_array($color, [null, '#FFFFFF']))
+				continue;
+			
+			$from_color = '#FFFFFF';
+			$to_color = '#FFFFFF';
+			
+			for($last=$pos-1; $last >= 0; $last--) {
+				if($colors[$last] != '#FFFFFF') {
+					$from_color = $colors[$last];
+					break;
+				}
+			}
+			
+			for($next=$pos+1; $next < $len; $next++) {
+				if($colors[$next] != '#FFFFFF') {
+					$to_color = $colors[$next];
+					break;
+				}
+			}
+			
+			$colors[$pos] = DevblocksPlatform::colorLerp($from_color, $to_color, ($pos-$last)/($next-$last));
+		}
+		
+		return $colors;
+	}
 	static function curlInit($url=null) {
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
