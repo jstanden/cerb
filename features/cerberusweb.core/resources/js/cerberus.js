@@ -1064,7 +1064,7 @@ var ajax = new cAjaxCalls();
 			$trigger.click(function() {
 				var query = $trigger.attr('data-query');
 				
-				var search_url = 'c=search&a=openSearchPopup&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(query);
+				var search_url = 'c=search&a=openSearchPopup&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(query) + '&qr=' + encodeURIComponent(query_req) + '&id=' + layer;
 				
 				// Open search
 				var $peek = genericAjaxPopup(layer,search_url,null,false,'90%');

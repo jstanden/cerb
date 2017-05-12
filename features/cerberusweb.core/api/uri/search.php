@@ -91,6 +91,7 @@ class Page_Search extends CerberusPageExtension {
 	function openSearchPopupAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string',null);
 
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -99,8 +100,11 @@ class Page_Search extends CerberusPageExtension {
 		if(!$context_ext->hasOption('workspace'))
 			return;
 		
-		if(false == ($view = $context_ext->getSearchView()) || !($view instanceof IAbstractView_QuickSearch))
+		if(false == ($view = $context_ext->getSearchView($id)) || !($view instanceof IAbstractView_QuickSearch))
 			return;
+		
+		if($id)
+			$view->is_ephemeral = true;
 		
 		if(isset($_REQUEST['q']))
 			$view->addParamsWithQuickSearch($query, true);
