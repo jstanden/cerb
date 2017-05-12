@@ -976,6 +976,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 				if(null == ($cfield = @$custom_fields[$cfield_id]))
 					continue;
+				
+				if(!isset($conditions[$token]))
+					$conditions[$token] = array('label' => $label, 'type' => $cfield->type);
 
 				// [TODO] Can we load these option a different way so this foreach isn't needed?
 				switch($cfield->type) {
