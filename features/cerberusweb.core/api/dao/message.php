@@ -609,6 +609,13 @@ class SearchFields_Message extends DevblocksSearchFields {
 		$columns[self::MESSAGE_CONTENT]->ft_schema = Search_MessageContent::ID;
 		$columns[self::FULLTEXT_NOTE_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
+		// Custom fields with fieldsets
+		
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
+		
+		if(is_array($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
+		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
@@ -2066,6 +2073,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			$prefix = 'Message:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MESSAGE);
 
 		// Polymorph
 		if(is_numeric($message)) {
@@ -2077,6 +2085,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		} else {
 			$message = null;
 		}
+		
 		/* @var $message Model_Message */
 		
 		// Token labels
@@ -2110,6 +2119,14 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'record_url' => Model_CustomField::TYPE_URL,
 			'headers' => null,
 		);
+		
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
+		// Custom field/fieldset token types
+		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_types))
+			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
 		$token_values = array();
