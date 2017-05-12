@@ -100,8 +100,17 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		// We need to know what date fields we have
 		$fields = $view->getFields();
 		@$metric_func = $params['metric_func'];
-		@$metric_field = $fields[$params['metric_field']];
-
+		
+		switch($metric_func) {
+			case 'count':
+				$metric_field = null;
+				break;
+				
+			default:
+				@$metric_field = $fields[$params['metric_field']];
+				break;
+		}
+		
 		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
 		
 		$select_func = null;
