@@ -299,6 +299,14 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 	
 	function _returnTransfer($ch) {
 		$out = curl_exec($ch);
+		$info = curl_getinfo($ch);
+		
+		// Status code
+		
+		if(function_exists('http_response_code'))
+			http_response_code($info['http_code']);
+
+		// Headers
 
 		list($raw_headers, $content) = $this->_parseResponse($out);
 		
