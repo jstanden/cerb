@@ -317,11 +317,12 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 				continue;
 			
 			switch(strtolower($k)) {
+				case 'connection':
 				case 'host':
 					break;
 					
 				default:
-					header($k . ': ' . $v);
+					header($k . ': ' . ltrim($v));
 					break;
 			}
 		}
