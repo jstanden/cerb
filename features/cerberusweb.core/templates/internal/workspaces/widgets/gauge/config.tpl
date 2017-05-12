@@ -11,7 +11,7 @@
 				<td width="30%"><b>Max. Value</b></td>
 				<td width="20%"><b>Color</b></td>
 			</tr>
-			{section name=thresholds loop=4}
+			{section name=thresholds loop=7}
 			<tr>
 				<td style="padding-right:10px;" valign="top">
 					<input type="text" name="params[threshold_labels][]" value="{$widget->params.threshold_labels.{$smarty.section.thresholds.index}}" style="width:100%;">
