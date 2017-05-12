@@ -228,7 +228,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		if(null == ($search_class = $context_ext->getSearchClass()))
 			return;
 		
-		if(null == ($search_class = $search_class::getPrimaryKey()))
+		if(null == ($primary_key = $search_class::getPrimaryKey()))
 			return;
 		
 		$data = array();
@@ -364,22 +364,24 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					// INNER JOIN the x-axis cfield
 					if($xaxis_field && DevblocksPlatform::strStartsWith($xaxis_field->token, 'cf_')) {
 						$xaxis_cfield_id = substr($xaxis_field->token, 3);
-						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=contact.id) ",
+						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=%s) ",
 							'custom_field_numbervalue',
 							$xaxis_cfield_id,
 							$xaxis_field->token,
-							$xaxis_field->token
+							$xaxis_field->token,
+							$primary_key
 						);
 					}
 					
 					// INNER JOIN the y-axis cfield
 					if($yaxis_field && DevblocksPlatform::strStartsWith($yaxis_field->token, 'cf_') && !($xaxis_field && $xaxis_field->token == $yaxis_field->token)) {
 						$yaxis_cfield_id = substr($yaxis_field->token, 3);
-						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=contact.id) ",
+						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=%s) ",
 							'custom_field_numbervalue',
 							$yaxis_cfield_id,
 							$yaxis_field->token,
-							$yaxis_field->token
+							$yaxis_field->token,
+							$primary_key
 						);
 					}
 					
@@ -549,22 +551,24 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					// INNER JOIN the x-axis cfield
 					if($xaxis_field && DevblocksPlatform::strStartsWith($xaxis_field->token, 'cf_')) {
 						$xaxis_cfield_id = substr($xaxis_field->token, 3);
-						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=contact.id) ",
+						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=%s) ",
 							'custom_field_numbervalue',
 							$xaxis_cfield_id,
 							$xaxis_field->token,
-							$xaxis_field->token
+							$xaxis_field->token,
+							$primary_key
 						);
 					}
 					
 					// INNER JOIN the y-axis cfield
 					if($yaxis_field && DevblocksPlatform::strStartsWith($yaxis_field->token, 'cf_') && !($xaxis_field && $xaxis_field->token == $yaxis_field->token)) {
 						$yaxis_cfield_id = substr($yaxis_field->token, 3);
-						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=contact.id) ",
+						$query_parts['join'] .= sprintf("INNER JOIN (SELECT field_value, context_id FROM %s WHERE field_id = %d) AS %s ON (%s.context_id=%s) ",
 							'custom_field_numbervalue',
 							$yaxis_cfield_id,
 							$yaxis_field->token,
-							$yaxis_field->token
+							$yaxis_field->token,
+							$primary_key
 						);
 					}
 					
