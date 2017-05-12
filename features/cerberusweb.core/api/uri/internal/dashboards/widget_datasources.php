@@ -75,14 +75,11 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id)))
 			return;
 		
-		@$view_context = $params['worklist_model']['context'];
-
-		if(empty($view_context))
-			return;
+		if(false == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
+			return false;
 		
-		if(null == ($context_ext = Extension_DevblocksContext::get($view_context)))
-			return;
-
+		$view_context = $context_ext->id;
+		
 		if(false == ($dao_class = $context_ext->getDaoClass()))
 			return false;
 		

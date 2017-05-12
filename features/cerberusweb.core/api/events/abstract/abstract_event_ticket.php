@@ -74,6 +74,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		 */
 		$merge_token_labels = array();
 		$merge_token_values = array();
+		// [TODO] This takes ~50ms
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $model, $merge_token_labels, $merge_token_values, null, true);
 		
 			@$group_id = $merge_token_values['group_id'];

@@ -2,6 +2,5 @@
 .htaccess
 .settings/*
 .externalToolBuilders
-
 /phpunit.phar
 /tags

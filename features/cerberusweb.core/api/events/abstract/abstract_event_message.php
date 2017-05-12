@@ -622,7 +622,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
-		
+			
 		return $actions;
 	}
 	

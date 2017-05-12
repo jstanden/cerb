@@ -2556,7 +2556,7 @@ abstract class C4_AbstractView {
 		$is_multiple_value_cfield = in_array($cfield->type,[Model_CustomField::TYPE_MULTI_CHECKBOX]);
 		
 		$cfield_key = $search_class::getCustomFieldContextWhereKey($cfield->context);
-			
+		
 		if($cfield_key) {
 			if($is_multiple_value_cfield) {
 				$cfield_select_sql .= sprintf("SELECT COUNT(field_value) AS hits, field_value AS %s FROM %s WHERE context=%s AND context_id IN (%%s) AND field_id=%d GROUP BY %s ORDER BY hits DESC",

@@ -2163,7 +2163,7 @@ class DevblocksEventHelper {
 				foreach($on_objects as $on_object) {
 					if(!isset($on_object->id) && empty($on_object->id))
 						continue;
-
+					
 					$log = EventListener_Triggers::getNodeLog();
 					$runners = call_user_func(array($ext->class, 'trigger'), $behavior->id, $on_object->id, $vars);
 					EventListener_Triggers::setNodeLog($log);
@@ -4884,7 +4884,7 @@ class DevblocksEventHelper {
 				foreach($vals as $ctx_id => $ctx_object) {
 					if(empty($ctx_object))
 						continue;
-
+					
 					if(!is_object($ctx_object)) {
 						$ctx_id = $ctx_object;
 					}
@@ -5069,7 +5069,7 @@ class DevblocksEventHelper {
 		// Preload these from DAO
 		if(is_array($new_ids))
 			$objects = $view->getDataAsObjects($new_ids);
-
+		
 		if(is_array($objects))
 		foreach($new_ids as $new_id) {
 			$object = isset($objects[$new_id]) ? $objects[$new_id] : null;
