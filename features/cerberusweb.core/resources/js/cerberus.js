@@ -1063,6 +1063,7 @@ var ajax = new cAjaxCalls();
 			
 			$trigger.click(function() {
 				var query = $trigger.attr('data-query');
+				var query_req = $trigger.attr('data-query-required');
 				
 				var search_url = 'c=search&a=openSearchPopup&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(query) + '&qr=' + encodeURIComponent(query_req) + '&id=' + layer;
 				
@@ -1170,6 +1171,7 @@ var ajax = new cAjaxCalls();
 			
 			$trigger.click(function() {
 				var query = $trigger.attr('data-query');
+				var query_req = $trigger.attr('data-query-required');
 				var chooser_url = 'c=internal&a=chooserOpen&context=' + encodeURIComponent(context);
 				
 				if($trigger.attr('data-single'))
@@ -1177,6 +1179,10 @@ var ajax = new cAjaxCalls();
 				
 				if(typeof query == 'string' && query.length > 0) {
 					chooser_url += '&q=' + encodeURIComponent(query);
+				}
+				
+				if(typeof query_req == 'string' && query_req.length > 0) {
+					chooser_url += '&qr=' + encodeURIComponent(query_req);
 				}
 				
 				var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
