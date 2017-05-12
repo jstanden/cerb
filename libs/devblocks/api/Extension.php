@@ -416,7 +416,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ') {
-		asort($labels);
+		natcasesort($labels);
 		
 		$keys = new DevblocksMenuItemPlaceholder();
 		
@@ -996,7 +996,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	abstract function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger);
 
 	function setLabels($labels) {
-		asort($labels);
+		natcasesort($labels);
 		$this->_labels = $labels;
 	}
 
