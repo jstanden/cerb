@@ -1990,7 +1990,12 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 						// Filter the available events by VA
 						$events = $bot->filterEventsByAllowed($events);
 						
+						// Menu
+						$labels = array_column(DevblocksPlatform::objectsToArrays($events), 'name', 'id');
+						$events_menu = Extension_DevblocksContext::getPlaceholderTree($labels);
+						
 						$tpl->assign('events', $events);
+						$tpl->assign('events_menu', $events_menu);
 					}
 				}
 			}

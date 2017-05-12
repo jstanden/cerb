@@ -52,19 +52,22 @@
 		
 		<tbody class="behavior-build">
 			<tr class="behavior-event">
-				<td width="1%" valign="top" nowrap="nowrap"><b>{'common.event'|devblocks_translate|capitalize}:</b></td>
+				<td width="1%" nowrap="nowrap" valign="top">
+					<b>{'common.event'|devblocks_translate|capitalize}:</b>
+				</td>
 				<td width="99%">
-					{if empty($ext)}
-						<select name="event_point">
-							{foreach from=$events item=available_event key=available_event_id name=available_events}
-							<option value="{$available_event_id}" {if $available_event->params.macro_context}is_macro="true"{/if}>{$available_event->name}</option>
-							{/foreach}
-						</select>
-						<br>
-					{else}
-						<ul class="bubbles chooser-container">
+					{if $ext}
+						<ul class="bubbles">
 							<li>{$ext->manifest->name}</li>
 						</ul>
+					{else}
+					<div class="events-widget" style="display:none;">
+						{if $events_menu}
+							{include file="devblocks:cerberusweb.core::internal/peek/menu_behavior_event.tpl"}
+						{else}
+							(choose a bot to see available events)
+						{/if}
+					</div>
 					{/if}
 					
 					<div class="event-params">
@@ -163,10 +166,10 @@
 $(function() {
 	var $frm = $('#frmDecisionBehavior{$model->id}');
 	var $popup = genericAjaxPopupFind($frm);
-	var $events = $popup.find('select[name=event_point]');
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.behavior'|devblocks_translate|capitalize|escape:'javascript'}");
+		$popup.css('overflow', 'inherit');
 		
 		$popup.find('.chooser-abstract')
 			.cerbChooserTrigger()
@@ -174,21 +177,22 @@ $(function() {
 				var $btn = $(e.target);
 				var $ul = $btn.siblings('ul.chooser-container');
 				
-				$events.closest('tr').hide();
-				$events.find('option').remove();
-				
+				// We're adding or swapping bots
 				if($ul.find('li').length > 0) {
 					// Load the events from Ajax by bot ID
 					var $hidden = $ul.find('li input[name=bot_id]');
 					var bot_id = $hidden.val();
 					
-					genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=behavior&action=getEventsByBotJson&bot_id=' + bot_id, function(json) {
-						for(k in json) {
-							$('<option/>').attr('value',k).text(json[k]).appendTo($events);
-						}
+					genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=behavior&action=getEventsMenuByBot&bot_id=' + bot_id, function(html) {
+						$popup.find('div.events-widget').html(html).fadeIn();
+						$popup.trigger('events-menu-refresh');
 					});
-					
-					$events.closest('tr').fadeIn();
+				
+				// We removed all bots
+				} else {
+					var $events_menu = $popup.find('ul.events-menu').hide();
+					$events_menu.siblings('ul.chooser-container').hide();
+					$frm.find('div.event-params').hide();
 				}
 			})
 			;
@@ -208,17 +212,6 @@ $(function() {
 		$popup.find('fieldset.behavior-variables')
 			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight', 'handle':'legend' })
 			;
-		
-		$events.change(function() {
-			var $select = $(this);
-			var $li = $select.find('option:selected');
-			var $frm = $select.closest('form');
-			
-			genericAjaxGet('', 'c=internal&a=getTriggerEventParams&id=' + encodeURIComponent($select.val()), function(o) {
-				var $params = $frm.find('div.event-params');
-				$params.html(o);
-			});
-		});
 		
 		$popup.find('BUTTON.add-variable').click(function() {
 			var $button = $(this);
@@ -252,7 +245,59 @@ $(function() {
 			}
 		});
 
+		// Events
+
+		$popup.on('events-bubble-remove', function(e, ui) {
+			var $events_menu = $popup.find('ul.events-menu');
+			var $events_ul = $events_menu.siblings('ul.chooser-container');
+			
+			e.stopPropagation();
+			$(e.target).closest('li').remove();
+			$events_ul.hide();
+			$events_menu.show();
+			$frm.find('div.event-params').hide();
+		});
+		
+		$popup.on('events-menu-refresh', function(e, ui) {
+			var $events_menu = $popup.find('ul.events-menu');
+			var $events_ul = $events_menu.siblings('ul.chooser-container');
+			
+			$events_menu.menu({
+				select: function(event, ui) {
+					var token = ui.item.attr('data-token');
+					var label = ui.item.attr('data-label');
+					
+					if(undefined == token || undefined == label)
+						return;
+					
+					$events_menu.hide();
+					
+					// Build bubble
+					
+					var $li = $('<li/>');
+					var $label = $('<span/>').attr('data-event',token).text(label);
+					$label.appendTo($li);
+					var $hidden = $('<input type="hidden">').attr('name', 'event_point').attr('value',token).appendTo($li);
+					var $a = $('<a href="javascript:;" onclick="$(this).trigger(\'events-bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+					
+					$events_ul.find('> *').remove();
+					$events_ul.append($li);
+					$events_ul.show();
+					
+					genericAjaxGet('', 'c=internal&a=getTriggerEventParams&id=' + encodeURIComponent(token), function(o) {
+						var $params = $frm.find('div.event-params');
+						$params.html(o).fadeIn();
+					});
+				}
+			})
+			.fadeIn()
+			;
+		});
+		
+		{if $events_menu}
+		$popup.trigger('events-menu-refresh');
+		$popup.find('div.events-widget').fadeIn();
+		{/if}
 	});
-	
 });
 </script>

@@ -488,15 +488,14 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/tab.tpl');
 	}
 	
-	function getEventsByBotJsonAction() {
+	function getEventsMenuByBotAction() {
 		@$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'], 'integer', 0);
 		
-		header('Content-Type: application/json; charset=utf-8');
-		
 		if(false == ($bot = DAO_Bot::get($bot_id))) {
-			echo json_encode([]);
 			return;
 		}
+		
+		$tpl = DevblocksPlatform::getTemplateService();
 		
 		// Get all events
 		$events = Extension_DevblocksEvent::getByContext($bot->owner_context, false);
@@ -504,7 +503,15 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		// Filter the available events by VA
 		$events = $bot->filterEventsByAllowed($events);
 		
-		echo json_encode(array_column(json_decode(json_encode($events), true), 'name', 'id'));
+		// Menu
+		$labels = array_column(DevblocksPlatform::objectsToArrays($events), 'name', 'id');
+		$events_menu = Extension_DevblocksContext::getPlaceholderTree($labels);
+		
+		$tpl->assign('bot', $bot);
+		$tpl->assign('events', $events);
+		$tpl->assign('events_menu', $events_menu);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/peek/menu_behavior_event.tpl');
 	}
 	
 	function saveBehaviorImportPopupJsonAction() {
