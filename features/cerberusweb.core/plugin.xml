@@ -2608,6 +2608,11 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2645,6 +2650,11 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2663,6 +2673,11 @@
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
 					</value>
 				</param>
 			</params>
@@ -2685,6 +2700,11 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2703,6 +2723,11 @@
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
 					</value>
 				</param>
 			</params>
@@ -2725,6 +2750,11 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2743,6 +2773,11 @@
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
 					</value>
 				</param>
 			</params>
@@ -2765,6 +2800,11 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2783,6 +2823,11 @@
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
 					</value>
 				</param>
 			</params>
@@ -2805,6 +2850,11 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2823,6 +2873,11 @@
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
 					</value>
 				</param>
 			</params>

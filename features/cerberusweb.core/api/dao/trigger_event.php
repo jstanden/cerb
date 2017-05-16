@@ -21,6 +21,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const ID = 'id';
 	const TITLE = 'title';
 	const IS_DISABLED = 'is_disabled';
+	const IS_PRIVATE = 'is_private';
 	const EVENT_POINT = 'event_point';
 	const BOT_ID = 'bot_id';
 	const PRIORITY = 'priority';
@@ -78,8 +79,10 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		return $behaviors;
 	}
 	
-	static function getReadableByActor($actor, $event_point=null, $with_disabled=false, $scope=null, $ignore_admins=false) {
+	static function getReadableByActor($actor, $event_point=null, $with_disabled=false, $ignore_admins=false) {
 		$macros = [];
+		
+		$actor = CerberusContexts::polymorphActorToDictionary($actor, false);
 		
 		$bots = DAO_Bot::getReadableByActor($actor, $ignore_admins);
 		
@@ -100,16 +103,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 				if(!isset($bots[$behavior->bot_id]))
 					continue;
 				
-				@$visibility = $behavior->event_params['visibility'];
-				
-				switch($visibility) {
-					case 'bots':
-						if(!(empty($scope) || $scope == 'bot'))
-							continue 2;
-						break;
-					default: // public
-						break;
-				}
+				// Private behaviors only show up to same actor
+				if($behavior->is_private && !($actor->_context == CerberusContexts::CONTEXT_BOT && $bot->id == $actor->id))
+					continue 2;
 				
 				$result = clone $behavior; /* @var $result Model_TriggerEvent */
 				
@@ -130,12 +126,6 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		DevblocksPlatform::sortObjects($macros, 'title', true);
 		
 		return $macros;
-	}
-	
-	static function getUsableMacrosByWorker($actor, $event_point) {
-		// This filters out 'only bot' macros
-		$behaviors = DAO_TriggerEvent::getReadableByActor($actor, $event_point, false, 'worker', true);
-		return $behaviors;
 	}
 	
 	/**
@@ -238,7 +228,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, event_point, bot_id, priority, event_params_json, updated_at, variables_json ".
+		$sql = "SELECT id, title, is_disabled, is_private, event_point, bot_id, priority, event_params_json, updated_at, variables_json ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
@@ -269,6 +259,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->title = $row['title'];
 			$object->is_disabled = intval($row['is_disabled']);
+			$object->is_private = intval($row['is_private']);
 			$object->priority = intval($row['priority']);
 			$object->event_point = $row['event_point'];
 			$object->bot_id = $row['bot_id'];
@@ -359,6 +350,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			"trigger_event.id as %s, ".
 			"trigger_event.title as %s, ".
 			"trigger_event.is_disabled as %s, ".
+			"trigger_event.is_private as %s, ".
 			"trigger_event.priority as %s, ".
 			"trigger_event.bot_id as %s, ".
 			"trigger_event.updated_at as %s, ".
@@ -366,6 +358,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 				SearchFields_TriggerEvent::ID,
 				SearchFields_TriggerEvent::TITLE,
 				SearchFields_TriggerEvent::IS_DISABLED,
+				SearchFields_TriggerEvent::IS_PRIVATE,
 				SearchFields_TriggerEvent::PRIORITY,
 				SearchFields_TriggerEvent::BOT_ID,
 				SearchFields_TriggerEvent::UPDATED_AT,
@@ -479,6 +472,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	const ID = 't_id';
 	const TITLE = 't_title';
 	const IS_DISABLED = 't_is_disabled';
+	const IS_PRIVATE = 't_is_private';
 	const PRIORITY = 't_priority';
 	const BOT_ID = 't_bot_id';
 	const EVENT_POINT = 't_event_point';
@@ -534,23 +528,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			$actor_context = $param->value['context'];
 			$actor_id = $param->value['id'];
 			
-			$scope = null;
-			
-			switch($actor_context) {
-				case CerberusContexts::CONTEXT_BOT:
-					break;
-					
-				case CerberusContexts::CONTEXT_WORKER:
-					// Don't show admins everything with this filter
-					$scope = 'worker';
-					break;
-					
-				default:
-					return 0;
-					break;
-			}
-			
-			$behaviors = DAO_TriggerEvent::getReadableByActor([$actor_context, $actor_id], null, false, $scope, true);
+			$behaviors = DAO_TriggerEvent::getReadableByActor([$actor_context, $actor_id], null, false, true);
 			
 			if(empty($behaviors))
 				return '0';
@@ -588,6 +566,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'trigger_event', 'id', $translate->_('common.id'), null, true),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'trigger_event', 'title', $translate->_('common.title'), null, true),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'trigger_event', 'is_disabled', $translate->_('dao.trigger_event.is_disabled'), null, true),
+			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'trigger_event', 'is_private', $translate->_('common.is_private'), null, true),
 			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'trigger_event', 'priority', $translate->_('common.priority'), null, true),
 			self::BOT_ID => new DevblocksSearchField(self::BOT_ID, 'trigger_event', 'bot_id', $translate->_('common.bot'), null, true),
 			self::EVENT_POINT => new DevblocksSearchField(self::EVENT_POINT, 'trigger_event', 'event_point', $translate->_('common.event'), null, true),
@@ -615,6 +594,7 @@ class Model_TriggerEvent {
 	public $id;
 	public $title;
 	public $is_disabled;
+	public $is_private;
 	public $priority;
 	public $event_point;
 	public $bot_id;
@@ -1191,6 +1171,7 @@ class Model_TriggerEvent {
 			$export_type => array(
 				'title' => $this->title,
 				'is_disabled' => $this->is_disabled ? true : false,
+				'is_private' => $this->is_private ? true : false,
 				'priority' => $this->priority,
 				'event' => array(
 					'key' => $this->event_point,
@@ -1279,6 +1260,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				// Fields
 				case SearchFields_TriggerEvent::EVENT_POINT:
 				case SearchFields_TriggerEvent::IS_DISABLED:
+				case SearchFields_TriggerEvent::IS_PRIVATE:
 				case SearchFields_TriggerEvent::PRIORITY:
 				case SearchFields_TriggerEvent::BOT_ID:
 					$pass = true;
@@ -1319,6 +1301,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_TriggerEvent::IS_DISABLED:
+			case SearchFields_TriggerEvent::IS_PRIVATE:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
@@ -1404,6 +1387,11 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_TriggerEvent::PRIORITY),
 				),
+			'private' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_TriggerEvent::IS_PRIVATE),
+				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -1420,14 +1408,6 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					'options' => array('param_key' => SearchFields_TriggerEvent::VIRTUAL_USABLE_BY),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BOT, 'q' => ''],
-					]
-				),
-			'usableBy.worker' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_TriggerEvent::VIRTUAL_USABLE_BY),
-					'examples' => [
-						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
 					]
 				),
 		);
@@ -1461,18 +1441,6 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					SearchFields_TriggerEvent::VIRTUAL_USABLE_BY,
 					DevblocksSearchCriteria::OPER_CUSTOM,
 					['context' => CerberusContexts::CONTEXT_BOT, 'id' => $bot_id]
-				);
-				break;
-				
-			case 'usableBy.worker':
-				$oper = $value = null;
-				CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
-				$worker_id = intval($value);
-				
-				return new DevblocksSearchCriteria(
-					SearchFields_TriggerEvent::VIRTUAL_USABLE_BY,
-					DevblocksSearchCriteria::OPER_CUSTOM,
-					['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $worker_id]
 				);
 				break;
 				
@@ -1525,6 +1493,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_TriggerEvent::IS_DISABLED:
+			case SearchFields_TriggerEvent::IS_PRIVATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -1559,6 +1528,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_TriggerEvent::IS_DISABLED:
+			case SearchFields_TriggerEvent::IS_PRIVATE:
 				parent::_renderCriteriaParamBoolean($param);
 				break;
 				
@@ -1651,6 +1621,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 
 			case SearchFields_TriggerEvent::IS_DISABLED:
+			case SearchFields_TriggerEvent::IS_PRIVATE:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -1776,6 +1747,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			'event_point_name' => $prefix.$translate->_('common.event'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_disabled' => $prefix.$translate->_('dao.trigger_event.is_disabled'),
+			'is_private' => $prefix.$translate->_('common.is_private'),
 			'name' => $prefix.$translate->_('common.name'),
 			'priority' => $prefix.$translate->_('common.priority'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
@@ -1789,6 +1761,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			'event_point_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
+			'is_private' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'priority' => Model_CustomField::TYPE_NUMBER,
 			'updated_at' => Model_CustomField::TYPE_DATE,
@@ -1815,6 +1788,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$token_values['event_point'] = $trigger_event->event_point;
 			$token_values['id'] = $trigger_event->id;
 			$token_values['is_disabled'] = $trigger_event->is_disabled;
+			$token_values['is_private'] = $trigger_event->is_private;
 			$token_values['name'] = $trigger_event->title;
 			$token_values['priority'] = $trigger_event->priority;
 			$token_values['updated_at'] = $trigger_event->updated_at;

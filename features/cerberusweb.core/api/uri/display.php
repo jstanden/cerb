@@ -671,8 +671,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			$macros = DAO_TriggerEvent::getReadableByActor(
 				$active_worker,
 				Event_MailBeforeUiReplyByWorker::ID,
-				false,
-				'worker'
+				false
 			);
 
 			if(is_array($macros))

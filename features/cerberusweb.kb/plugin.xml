@@ -186,6 +186,11 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
 			</params>
 		</extension>
 	

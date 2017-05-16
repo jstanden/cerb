@@ -251,6 +251,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							DAO_TriggerEvent::BOT_ID => $bot->id,
 							DAO_TriggerEvent::PRIORITY => @$json['behavior']['priority'] ?: 50,
 							DAO_TriggerEvent::IS_DISABLED => 1, // default to disabled until successfully imported
+							DAO_TriggerEvent::IS_PRIVATE => @$json['behavior']['is_private'] ? 1 : 0,
 							DAO_TriggerEvent::UPDATED_AT => time(),
 						);
 						
@@ -280,6 +281,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 					case 'build':
 						@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
 						@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
+						@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'integer', 0);
 						@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer', 0);
 						@$event_params = DevblocksPlatform::importGPC($_REQUEST['event_params'],'array', array());
 						@$json = DevblocksPlatform::importGPC($_REQUEST['json'],'integer', 0);
@@ -350,6 +352,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								DAO_TriggerEvent::EVENT_POINT => $event_point,
 								DAO_TriggerEvent::TITLE => $title,
 								DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
+								DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
 								DAO_TriggerEvent::PRIORITY => $priority,
 								DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
 								DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),
@@ -384,6 +387,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							DAO_TriggerEvent::update($behavior->id, array(
 								DAO_TriggerEvent::TITLE => $title,
 								DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
+								DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
 								DAO_TriggerEvent::PRIORITY => $priority,
 								DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
 								DAO_TriggerEvent::VARIABLES_JSON => json_encode($variables),

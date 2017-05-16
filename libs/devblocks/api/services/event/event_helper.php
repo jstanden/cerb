@@ -2204,7 +2204,7 @@ class DevblocksEventHelper {
 		
 		$macros = array();
 		
-		$results = DAO_TriggerEvent::getReadableByActor($va, null, true, 'bot');
+		$results = DAO_TriggerEvent::getReadableByActor($va, null, true);
 		
 		foreach($results as $k => $macro) {
 			if(!in_array($macro->event_point, $context_to_macros)) {
@@ -2469,7 +2469,7 @@ class DevblocksEventHelper {
 		
 		$macros = array();
 		
-		$results = DAO_TriggerEvent::getReadableByActor($va, null, true, 'bot');
+		$results = DAO_TriggerEvent::getReadableByActor($va, null, true);
 		
 		foreach($results as $k => $macro) {
 			if(!in_array($macro->event_point, $context_to_macros)) {

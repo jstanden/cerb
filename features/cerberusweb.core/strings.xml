@@ -1898,6 +1898,11 @@
 				<seg>variables</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.visibility">
+			<tuv xml:lang="en_US">
+				<seg>visibility</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.watch">
 			<tuv xml:lang="en_US">
 				<seg>watch</seg>
