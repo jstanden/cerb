@@ -25,12 +25,9 @@
 	</td>
 	<td nowrap="nowrap">
 		{$num_assignments = $worker->__workload.records.{CerberusContexts::CONTEXT_TICKET}|default:0 + $worker->__workload.records.{CerberusContexts::CONTEXT_TASK}|default:0}
-		{$num_recommendations = $worker->__workload.records.{CerberusContexts::CONTEXT_RECOMMENDATION}|default:0}
 		{$num_unread_notifications = $worker->__workload.records.{CerberusContexts::CONTEXT_NOTIFICATION}|default:0}
 		
 		{if $num_assignments}<span style="color:green;font-weight:bold;">{$num_assignments}</span>{else}0{/if}
-		<span style="color:rgb(200,200,200);"> / </span>
-		{if $num_recommendations}<span style="font-weight:bold;">{$num_recommendations}</span>{else}0{/if}
 		<span style="color:rgb(200,200,200);"> / </span>
 		{if $num_unread_notifications}<span style="color:red;font-weight:bold;">{$num_unread_notifications}</span>{else}0{/if}
 	</td>

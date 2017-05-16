@@ -517,9 +517,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Workers
 		
-		$object_recommendations = DAO_ContextRecommendation::getByContexts(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$tpl->assign('object_recommendations', $object_recommendations);
-		
 		$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_TICKET, array($ticket->id), CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('object_watchers', $object_watchers);
 

@@ -139,6 +139,16 @@ if(isset($columns['session_id'])) {
 }
 
 // ===========================================================================
+// Remove ticket recommendations
+
+if(isset($tables['context_recommendation'])) {
+	$db->ExecuteMaster("DROP TABLE context_recommendation");
+	unset($tables['context_recommendation']);
+	
+	$db->ExecuteMaster("DELETE FROM context_activity_log WHERE activity_point IN ('record.recommendation.removed','record.recommendation.added')");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

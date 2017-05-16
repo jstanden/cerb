@@ -1901,8 +1901,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const VIRTUAL_WORKER_COMMENTED = '*_worker_commented';
 	const VIRTUAL_WORKER_REPLIED = '*_worker_replied';
 	
-	const VIRTUAL_RECOMMENDATIONS = '*_recommendations';
-	
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
@@ -2130,49 +2128,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				);
 				break;
 				
-			case self::VIRTUAL_RECOMMENDATIONS:
-				$ids = is_array($param->value) ? $param->value : array($param->value);
-				$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
-		
-				switch($param->operator) {
-					case DevblocksSearchCriteria::OPER_IN:
-					case DevblocksSearchCriteria::OPER_EQ:
-						return sprintf("%s IN (SELECT context_id FROM context_recommendation WHERE context = %s AND context_id = %s AND worker_id IN (%s))",
-							self::getPrimaryKey(),
-							Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
-							self::getPrimaryKey(),
-							implode(',', $ids)
-						);
-						break;
-						
-					case DevblocksSearchCriteria::OPER_NIN:
-					case DevblocksSearchCriteria::OPER_NEQ:
-						return sprintf("%s NOT IN (SELECT context_id FROM context_recommendation WHERE context = %s AND context_id = %s AND worker_id IN (%s))",
-							self::getPrimaryKey(),
-							Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
-							self::getPrimaryKey(),
-							implode(',', $ids)
-						);
-						break;
-					
-					case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
-						return sprintf("%s IN (SELECT context_id FROM context_recommendation WHERE context = %s AND context_id = %s)",
-							self::getPrimaryKey(),
-							Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
-							self::getPrimaryKey()
-						);
-						break;
-						
-					case DevblocksSearchCriteria::OPER_IS_NULL:
-						return sprintf("%s NOT IN (SELECT context_id FROM context_recommendation WHERE context = %s AND context_id = %s)",
-							self::getPrimaryKey(),
-							Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET),
-							self::getPrimaryKey()
-						);
-						break;
-				}
-				break;
-				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 			
@@ -2278,7 +2233,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_OWNER_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_OWNER_SEARCH, '*', 'owner_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID, '*', 'participant_id', null, null, false), // participant ID
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH, '*', 'participant_search', null, null, false),
-			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS, '*', 'recommendations', $translate->_('common.recommended'), null, false),
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('common.status'), null, false),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED, '*', 'worker_commented', null, null, false),
@@ -2533,7 +2487,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_MESSAGE_LAST_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
-			SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS,
 			SearchFields_Ticket::TICKET_STATUS_ID,
 			SearchFields_Ticket::VIRTUAL_WATCHERS,
 			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED,
@@ -3112,11 +3065,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
 					]
 				),
-			'recommended' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS),
-				),
 			'reopen' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -3309,63 +3257,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			// Alias
 			case 'recipient':
 				$field = 'participant';
-				break;
-			
-			// [TODO] support 'current'
-			case 'recommended':
-				$field_key = SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS;
-				$oper = null;
-				$patterns = array();
-				
-				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $patterns);
-				
-				$active_worker = CerberusApplication::getActiveWorker();
-				$workers = DAO_Worker::getAllActive();
-				
-				if(!is_array($patterns))
-					break;
-				
-				if(count($patterns) == 1 && in_array($patterns[0],array('none','noone','nobody','no','false'))) {
-					return new DevblocksSearchCriteria(
-						$field_key,
-						DevblocksSearchCriteria::OPER_IS_NULL,
-						null
-					);
-					
-				} elseif(count($patterns) == 1 && in_array($patterns[0],array('true','yes','anybody','any'))) {
-					return new DevblocksSearchCriteria(
-						$field_key,
-						DevblocksSearchCriteria::OPER_IS_NOT_NULL,
-						null
-					);
-					
-				} else {
-					$worker_ids = array();
-					
-					foreach($patterns as $pattern) {
-						if($active_worker && 0 == strcasecmp($pattern, 'me')) {
-							$worker_ids[$active_worker->id] = true;
-							continue;
-						}
-						
-						if(is_array($workers))
-						foreach($workers as $worker) {
-							if(false !== stristr(sprintf("%s %s", $worker->getName(), $worker->at_mention_name), $pattern)) {
-								$worker_ids[$worker->id] = true;
-								break;
-							}
-						}
-					}
-					
-					if(empty($worker_ids))
-						return null;
-					
-					return new DevblocksSearchCriteria(
-						$field_key,
-						$oper,
-						array_keys($worker_ids)
-					);
-				}
 				break;
 			
 			case 'resolution.first':
@@ -3656,12 +3547,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_TICKET);
 				break;
 				
-			case SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS:
-				$workers = DAO_Worker::getAllActive();
-				$tpl->assign('workers', $workers);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__recommendations.tpl');
-				break;
-				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 			case SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED:
 			case SearchFields_Ticket::VIRTUAL_WORKER_REPLIED:
@@ -3839,48 +3724,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				}
 				
 				echo sprintf("Participant is %s", implode($sep, $strings));
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS:
-				switch($param->operator) {
-					case DevblocksSearchCriteria::OPER_IS_NULL:
-						echo "<b>Not recommended</b> to anybody";
-						return;
-						break;
-						
-					case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
-						echo "Recommended to <b>anybody</b>";
-						return;
-						break;
-						
-					case DevblocksSearchCriteria::OPER_EQ:
-					case DevblocksSearchCriteria::OPER_NEQ:
-					case DevblocksSearchCriteria::OPER_IN:
-					case DevblocksSearchCriteria::OPER_NIN:
-						$sep = ' or ';
-						$strings = array();
-						
-						$workers = DAO_Worker::getAll();
-						
-						$ids = is_array($param->value) ? $param->value : array($param->value);
-						
-						foreach($ids as $id) {
-							if(!is_numeric($id)) {
-								$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($id) . '</b>';
-								
-							} elseif (is_numeric($id) && false != (@$worker = $workers[$id])) {
-								$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($worker->getName()) . '</b>';
-							}
-						}
-						
-						if($param->operator == DevblocksSearchCriteria::OPER_NIN) {
-							echo sprintf("Not recommended to %s", implode($sep, $strings));
-						} else {
-							echo sprintf("Recommended to %s", implode($sep, $strings));
-						}
-						break;
-				}
-				
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
@@ -4150,12 +3993,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
-			case SearchFields_Ticket::VIRTUAL_RECOMMENDATIONS:
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'string','');
-				$oper = DevblocksSearchCriteria::OPER_IN;
-				$criteria = new DevblocksSearchCriteria($field, $oper, array($worker_id));
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
@@ -4854,9 +4691,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 		$defaults->is_ephemeral = true;
-		$defaults->options = array(
-			'disable_recommendations' => '1',
-		);
+		$defaults->options = [];
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tickets';

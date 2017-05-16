@@ -13,7 +13,7 @@
 			<b>{'common.availability'|devblocks_translate|capitalize} (24h)</b>
 		</td>
 		<td>
-			<abbr title="Open assignments / Recommendations / Unread notifications" style="font-weight:bold;">Workload</abbr>
+			<abbr title="Open assignments / Unread notifications" style="font-weight:bold;">Workload</abbr>
 		</td>
 		{if $worker_picker_data.show_responsibilities}
 		<td>
@@ -50,7 +50,7 @@
 				<b>{'common.availability'|devblocks_translate|capitalize} (24h)</b>
 			</td>
 			<td>
-				<abbr title="Open assignments / Recommendations / Unread notifications" style="font-weight:bold;">Workload</abbr>
+				<abbr title="Open assignments / Unread notifications" style="font-weight:bold;">Workload</abbr>
 			</td>
 			{if $worker_picker_data.show_responsibilities}
 			<td>

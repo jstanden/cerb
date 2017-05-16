@@ -209,10 +209,6 @@
 						<td nowrap="nowrap" valign="top">
 							<div style="margin-bottom:10px;">
 								<span>
-									{$recommend_btn_domid = uniqid()}
-									{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" object_recommendations=$object_recommendations context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true recommend_btn_domid=$recommend_btn_domid recommend_group_id=$ticket->group_id recommend_bucket_id=$ticket->bucket_id}
-								</span>
-								<span>
 									{$watchers_btn_domid = uniqid()}
 									{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full=true watchers_btn_domid=$watchers_btn_domid watchers_group_id=$ticket->group_id watchers_bucket_id=$ticket->bucket_id}
 								</span>

@@ -84,16 +84,6 @@
 				<seg>{{actor}} merged organization {{source}} with organization {{target}}</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activities.record.recommendation.added">
-			<tuv xml:lang="en_US">
-				<seg>{{actor}} recommended {{worker}} for {{target_object}} {{target}}</seg>
-			</tuv>
-		</tu>
-		<tu tuid="activities.record.recommendation.removed">
-			<tuv xml:lang="en_US">
-				<seg>{{actor}} removed the recommendation of {{worker}} on {{target_object}} {{target}}</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activities.task.created">
 			<tuv xml:lang="en_US">
 				<seg>{{actor}} created task {{target}}</seg>

@@ -40,12 +40,6 @@
 	{* Column Headers *}
 	<thead>
 	<tr>
-		{if !$view->options.disable_recommendations}
-		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.recommended'|devblocks_translate|capitalize}">
-			<span class="glyphicons glyphicons-flag" style="color:rgb(80,80,80);"></span>
-		</th>
-		{/if}
-
 		{if !$view->options.disable_watchers}
 		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.watchers'|devblocks_translate|capitalize}">
 			<span class="glyphicons glyphicons-eye-open" style="color:rgb(80,80,80);"></span>
@@ -72,7 +66,6 @@
 	</thead>
 
 	{* Column Data *}
-	{if !$view->options.disable_recommendations}{$object_recommendations = DAO_ContextRecommendation::getByContexts($view_context, array_keys($data))}{/if}
 	{if !$view->options.disable_watchers}{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}{/if}
 	
 	{* Bulk load drafts *}
@@ -127,14 +120,8 @@
 
 	<tbody style="cursor:pointer;" data-num-messages="{$result.t_num_messages}">
 	
-	{if !$view->options.disable_recommendations || !$view->options.disable_watchers || !in_array('t_subject',$view->view_columns)}
+	{if !$view->options.disable_watchers || !in_array('t_subject',$view->view_columns)}
 	<tr class="{$tableRowClass}">
-		{if !$view->options.disable_recommendations}
-		<td data-column="*_recommendations" align="center" rowspan="2" nowrap="nowrap" style="padding-right:0;">
-			{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$view_context context_id=$result.t_id recommend_group_id=$result.t_group_id recommend_bucket_id=$result.t_bucket_id}
-		</td>
-		{/if}
-		
 		{if !$view->options.disable_watchers}
 		<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding-right:0;">
 			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.t_id watchers_group_id=$result.t_group_id watchers_bucket_id=$result.t_bucket_id}
