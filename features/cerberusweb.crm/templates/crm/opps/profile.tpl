@@ -18,16 +18,12 @@
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 		<!-- Toolbar -->
-		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		<span id="spanInteractions">
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>
 		
-		<!-- Macros -->
-		{if $is_writeable}
-		{devblocks_url assign=return_url full=true}c=profiles&type=opportunity&id={$page_context_id}-{$opp->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.crm.opportunity" return_url=$return_url}
-		{/if}
 		
 		<!-- Edit -->
 		{if $is_writeable}
@@ -40,7 +36,6 @@
 		{'common.keyboard'|devblocks_translate|lower}:
 		(<b>a</b>) show contact
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>o</b>) show organization
 		(<b>1-9</b>) change tab
 	</small> 
@@ -127,7 +122,11 @@ $(function() {
 		})
 		.on('cerb-peek-closed', function(e) {
 		})
-		;
+	;
+	
+	// Interactions
+	var $interaction_container = $('#spanInteractions');
+	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 });
 </script>
 

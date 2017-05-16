@@ -21,6 +21,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$request = DevblocksPlatform::getHttpRequest();
 		$translate = DevblocksPlatform::getTranslationService();
 		
+		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$stack = $request->path;
@@ -32,6 +33,13 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 			return;
 		}
 		$tpl->assign('opp', $opp);	/* @var $opp Model_CrmOpportunity */
+		
+		// Dictionary
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext($context, $opp, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 		
 		$point = 'cerberusweb.profiles.opportunity';
 		$tpl->assign('point', $point);
@@ -100,26 +108,26 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_OPPORTUNITY, $opp->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $opp->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_OPPORTUNITY, $opp->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $opp->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_OPPORTUNITY => array(
+			$context => array(
 				$opp->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_OPPORTUNITY,
+						$context,
 						$opp->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -148,8 +156,13 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$tpl->assign('workers', $workers);
 		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_OPPORTUNITY);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// Interactions
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.crm::crm/opps/profile.tpl');
@@ -391,14 +404,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		// Groups
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
-		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.crm.opportunity'
-		);
-		$tpl->assign('macros', $macros);
 		
 		// HTML templates
 		$html_templates = DAO_MailHtmlTemplate::getAll();

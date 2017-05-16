@@ -16,7 +16,7 @@
 	</div>
 	
 	<div style="float:left;">
-		<h1 style="color:inherit;">
+		<h1>
 			{$dict->name}
 		</h1>
 		
@@ -27,6 +27,8 @@
 		{/if}
 		
 		<div style="margin-top:5px;">
+			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+		
 			{if !empty($dict->id)}
 				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
@@ -140,6 +142,10 @@ $(function() {
 				document.location='{devblocks_url}c=profiles&type=org&id={$dict->id}-{$dict->name|devblocks_permalink}{/devblocks_url}';
 			}
 		});
+		
+		// Interactions
+		var $interaction_container = $popup;
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 		
 		// Timeline
 		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}

@@ -22,6 +22,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_TIMETRACKING;
 		
 		$stack = $request->path;
 		@array_shift($stack); // profiles
@@ -31,6 +32,13 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		if(null != ($time_entry = DAO_TimeTrackingEntry::get($id))) {
 			$tpl->assign('time_entry', $time_entry);
 		}
+		
+		// Dictionary
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext($context, $time_entry, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 		
 		// Remember the last tab/URL
 		
@@ -103,6 +111,11 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_TIMETRACKING);
 		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// Interactions
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/profile.tpl');
@@ -349,14 +362,6 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TIMETRACKING, false);
 		$tpl->assign('custom_fields', $custom_fields);
-		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.timetracking'
-		);
-		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/bulk.tpl');
 	}

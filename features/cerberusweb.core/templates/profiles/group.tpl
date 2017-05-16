@@ -22,6 +22,10 @@
 			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.group" return_url=$return_url}
 			{/if}
 		
+			
+			<span id="spanInteractions">
+			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+			</span>
 			{if $is_writeable}
 			<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
@@ -148,6 +152,10 @@ $(function() {
 		})
 		;
 	{/if}
+	
+	// Interactions
+	var $interaction_container = $('#spanInteractions');
+	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 });
 </script>
 

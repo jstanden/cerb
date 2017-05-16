@@ -30,6 +30,9 @@
 			{devblocks_url assign=return_url full=true}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}
 			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.address" return_url=$return_url}
 			{/if}
+		<span id="spanInteractions" style="position:relative;">
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+		</span>
 		
 			<!-- Toolbar -->
 			{if $is_writeable}
@@ -118,6 +121,9 @@ $(function() {
 			document.location.href = '{devblocks_url}c=profiles&type=address&id={$page_context_id}-{$address->email|devblocks_permalink}{/devblocks_url}';
 		});
 	});
+	// Interactions
+	var $interaction_container = $('#spanInteractions');
+	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 });
 </script>
 

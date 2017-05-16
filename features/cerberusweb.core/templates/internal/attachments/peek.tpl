@@ -6,7 +6,7 @@
 <div id="{$div_id}">
 	
 	<div style="float:left;">
-		<h1 style="color:inherit;">
+		<h1>
 			{$dict->_label}
 		</h1>
 		

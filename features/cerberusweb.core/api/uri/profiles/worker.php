@@ -26,6 +26,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$request = DevblocksPlatform::getHttpRequest();
 		
+		$context = CerberusContexts::CONTEXT_WORKER;
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$stack = $request->path;
@@ -59,7 +60,12 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		if(empty($worker_id) || null == ($worker = DAO_Worker::get($worker_id)))
 			return;
 			
-		$tpl->assign('worker', $worker);
+		// Dictionary
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext($context, $worker, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 		
 		// Properties
 		
@@ -71,83 +77,83 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			'label' => mb_ucfirst($translate->_('common.email')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'params' => array('context' => CerberusContexts::CONTEXT_ADDRESS),
-			'value' => $worker->email_id,
+			'value' => $dict->address_id,
 		);
 		
-		if(!empty($worker->location)) {
+		if(!empty($dict->location)) {
 			$properties['location'] = array(
 				'label' => mb_ucfirst($translate->_('common.location')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $worker->location,
+				'value' => $dict->location,
 			);
 		}
 		
 		$properties['is_superuser'] = array(
 			'label' => mb_ucfirst($translate->_('worker.is_superuser')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $worker->is_superuser,
+			'value' => $dict->is_superuser,
 		);
 		
-		if(!empty($worker->mobile)) {
+		if(!empty($dict->mobile)) {
 			$properties['mobile'] = array(
 				'label' => mb_ucfirst($translate->_('common.mobile')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $worker->mobile,
+				'value' => $dict->mobile,
 			);
 		}
 		
-		if(!empty($worker->phone)) {
+		if(!empty($dict->phone)) {
 			$properties['phone'] = array(
 				'label' => mb_ucfirst($translate->_('common.phone')),
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $worker->phone,
+				'value' => $dict->phone,
 			);
 		}
 		
 		$properties['language'] = array(
 			'label' => mb_ucfirst($translate->_('common.language')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $worker->language,
+			'value' => $dict->language,
 		);
 		
 		$properties['timezone'] = array(
 			'label' => mb_ucfirst($translate->_('common.timezone')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $worker->timezone,
+			'value' => $dict->timezone,
 		);
 		
-		if(!empty($worker->calendar_id)) {
+		if(!empty($dict->calendar_id)) {
 			$properties['calendar_id'] = array(
 				'label' => mb_ucfirst($translate->_('common.calendar')),
 				'type' => Model_CustomField::TYPE_LINK,
 				'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
-				'value' => $worker->calendar_id,
+				'value' => $dict->calendar_id,
 			);
 		}
 		
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $worker->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $dict->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_WORKER, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_WORKER, $worker->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $dict->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_WORKER => array(
-				$worker->id => 
+			$context => array(
+				$dict->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_WORKER,
-						$worker->id,
+						$context,
+						$dict->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
@@ -159,12 +165,17 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 		
+		// Interactions
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
+		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_WORKER);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Prefs
-		$profile_worker_prefs = DAO_WorkerPref::getByWorker($worker->id);
+		$profile_worker_prefs = DAO_WorkerPref::getByWorker($dict->id);
 		$tpl->assign('profile_worker_prefs', $profile_worker_prefs);
 		
 		// Template

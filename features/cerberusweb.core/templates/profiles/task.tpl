@@ -21,9 +21,10 @@
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 		<!-- Toolbar -->
-		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		<span id="spanInteractions">
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>
 
 		<!-- Macros -->
@@ -138,7 +139,11 @@ $(function() {
 		})
 		.on('cerb-peek-closed', function(e) {
 		})
-		;
+	;
+	
+	// Interactions
+	var $interaction_container = $('#spanInteractions');
+	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 });
 </script>
 

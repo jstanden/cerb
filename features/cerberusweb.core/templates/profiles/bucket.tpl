@@ -24,6 +24,10 @@
 		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.bucket" return_url=$return_url}
 		{/if}
 		*}
+			<span id="spanInteractions">
+			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+			</span>
+			
 		
 		<!-- Edit -->
 		{if $is_writeable}
@@ -103,6 +107,10 @@ $(function() {
 			document.location.reload();
 		});
 	});
+	
+	// Interactions
+	var $interaction_container = $('#spanInteractions');
+	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 });
 </script>
 

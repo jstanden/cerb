@@ -2772,6 +2772,8 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$date = DevblocksPlatform::getDateService();
+		
+		$context = CerberusContexts::CONTEXT_WORKER;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -2803,13 +2805,13 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->assign('groups', $groups);
 			
 			// Aliases
-			$tpl->assign('aliases', DAO_ContextAlias::get(CerberusContexts::CONTEXT_WORKER, $context_id));
+			$tpl->assign('aliases', DAO_ContextAlias::get($context, $context_id));
 			
 			// Custom Fields
-			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER, false);
+			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
 			
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKER, $context_id);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 			
@@ -2839,17 +2841,17 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$activity_counts = array(
 				'groups' => DAO_Group::countByMemberId($context_id),
 				'tickets' => DAO_Ticket::countsByOwnerId($context_id),
-				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_WORKER, $context_id),
+				'comments' => DAO_Comment::count($context, $context_id),
 				//'emails' => DAO_Address::countByContactId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
 			// Links
 			$links = array(
-				CerberusContexts::CONTEXT_WORKER => array(
+				$context => array(
 					$context_id => 
 						DAO_ContextLink::getContextLinkCounts(
-							CerberusContexts::CONTEXT_WORKER,
+							$context,
 							$context_id,
 							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 						),
@@ -2863,20 +2865,25 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// Timeline
 			if($context_id) {
-				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_WORKER, $context_id));
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
 				$tpl->assign('timeline_json', $timeline_json);
 			}
 			
 			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER)))
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;
 			
 			// Dictionary
 			$labels = array();
 			$values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $labels, $values, '', true, false);
+			CerberusContexts::getContext($context, $worker, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
+			
+			// Interactions
+			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+			$tpl->assign('interactions_menu', $interactions_menu);
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);

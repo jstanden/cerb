@@ -20,6 +20,8 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
+		
+		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$response = DevblocksPlatform::getHttpResponse();
@@ -29,13 +31,19 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 		$id = array_shift($stack); // 123
 
 		@$id = intval($id);
-		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
 		
 		if(null == ($calendar_recurring_profile = DAO_CalendarRecurringProfile::get($id))) {
 			return;
 		}
 		$tpl->assign('calendar_recurring_profile', $calendar_recurring_profile);
-	
+		
+		// Dictionary
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext($context, $calendar_recurring_profile, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
+		
 		// Tab persistence
 		
 		$point = 'profiles.calendar_recurring_profile.tab';
@@ -152,9 +160,14 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 		$tpl->assign('properties', $properties);
 			
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
+		// Interactions
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
+	
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar_recurring_profile/profile.tpl');
 	}

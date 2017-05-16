@@ -16,14 +16,6 @@
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-		{*
-		{if $is_writeable}
-		<!-- Macros -->
-		{devblocks_url assign=return_url full=true}c=profiles&type=attachment&id={$page_context_id}-{$attachment->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.attachment" return_url=$return_url}
-		{/if}
-		*}
-		
 		{if $is_downloadable}
 			<button type="button" id="btnDisplayAttachmentDownload"><span class="glyphicons glyphicons-cloud-download"></span> {'common.download'|devblocks_translate|capitalize}</button>
 		{/if}
@@ -36,7 +28,6 @@
 		<small>
 		{$translate->_('common.keyboard')|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
 		</small>
 	{/if}

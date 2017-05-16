@@ -9,6 +9,10 @@
 <div style="float:right;">
 {$ctx = Extension_DevblocksContext::get($page_context)}
 {include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
+		<span id="spanInteractions">
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+		</span>
+		
 </div>
 
 <div style="clear:both;"></div>
@@ -115,6 +119,10 @@ $(function() {
 		})
 		;
 	{/if}
+	
+	// Interactions
+	var $interaction_container = $('#spanInteractions');
+	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 });
 </script>
 

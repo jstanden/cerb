@@ -1996,6 +1996,9 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'string','');
 		
+		$context = CerberusContexts::CONTEXT_ADDRESS;
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
@@ -2027,10 +2030,10 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			}
 			
 			// Custom fields
-			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS, false);
+			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
 			
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $context_id);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 			
@@ -2040,19 +2043,26 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek_edit.tpl');
 			
 		} else {
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $address, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
 			// Counts
 			$activity_counts = array(
-				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_ADDRESS, $context_id),
+				'comments' => DAO_Comment::count($context, $context_id),
 				'tickets' => DAO_Ticket::countsByAddressId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
 			// Links
 			$links = array(
-				CerberusContexts::CONTEXT_ADDRESS => array(
+				$context => array(
 					$context_id => 
 						DAO_ContextLink::getContextLinkCounts(
-							CerberusContexts::CONTEXT_ADDRESS,
+							$context,
 							$context_id,
 							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 						),
@@ -2062,20 +2072,18 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			
 			// Timeline
 			if($context_id) {
-				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_ADDRESS, $context_id));
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
 				$tpl->assign('timeline_json', $timeline_json);
 			}
 			
 			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ADDRESS)))
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;
 			
-			// Dictionary
-			$labels = array();
-			$values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $address, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
+			// Interactions
+			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+			$tpl->assign('interactions_menu', $interactions_menu);
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);

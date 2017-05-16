@@ -37,6 +37,13 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		}
 		$tpl->assign('model', $model);
 	
+		// Dictionary
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BOT, $model, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
+		
 		// Tab persistence
 		
 		$point = 'profiles.bot.tab';
@@ -132,6 +139,11 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_BOT);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
+		// Interactions
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
+	
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/bot.tpl');
 	}

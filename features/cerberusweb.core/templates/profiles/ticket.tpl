@@ -38,9 +38,10 @@
 		<input type="hidden" name="spam" value="0">
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
-		<span id="spanRecommendToolbar">
 		{$object_recommendations = DAO_ContextRecommendation::getByContexts($page_context, array($page_context_id))}
 		{include file="devblocks:cerberusweb.core::internal/recommendations/context_recommend_button.tpl" context=$page_context context_id=$page_context_id full=true recommend_group_id=$ticket->group_id recommend_bucket_id=$ticket->bucket_id}
+		<span id="spanInteractions">
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>
 		
 		<span id="spanWatcherToolbar">
@@ -234,6 +235,10 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
+	
+	// Interactions
+	var $interaction_container = $('#spanInteractions');
+	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 });
 
 // Page title

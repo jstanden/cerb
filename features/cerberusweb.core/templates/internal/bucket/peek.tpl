@@ -13,7 +13,7 @@
 		<a href="javascript:;" class="no-underline cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}"><b>{$group->name}</b></a>
 		{/if}
 		
-		<h1 style="color:inherit;">
+		<h1>
 			{$bucket->name}
 		</h1>
 		
@@ -123,6 +123,10 @@ $(function() {
 				document.location='{devblocks_url}c=profiles&type=bucket&id={$bucket->id}-{$bucket->name|devblocks_permalink}{/devblocks_url}';
 			}
 		});
+		
+		// Interactions
+		var $interaction_container = $popup;
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 		
 		// Timeline
 		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}

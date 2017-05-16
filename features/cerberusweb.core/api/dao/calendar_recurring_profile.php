@@ -1339,6 +1339,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($context_id)) {
 			$model = DAO_CalendarRecurringProfile::get($context_id);
@@ -1422,6 +1423,11 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
+			
+			// Interactions
+			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+			$tpl->assign('interactions_menu', $interactions_menu);
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);

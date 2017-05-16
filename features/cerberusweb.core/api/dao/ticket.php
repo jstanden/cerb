@@ -158,13 +158,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		);
 	}
 	
-	static function getViewCountForRequesterHistory($view_id, $ticket, $scope=null) {
-		$view = self::getViewForRequesterHistory($view_id, $ticket, $scope);
+	static function getViewCountForRequesterHistory($view_id, $dict, $scope=null) {
+		$view = self::getViewForRequesterHistory($view_id, $dict, $scope);
 		list($results, $count) = $view->getData();
 		return $count;
 	}
 	
-	static function getViewForRequesterHistory($view_id, $ticket, $scope=null) {
+	static function getViewForRequesterHistory($view_id, DevblocksDictionaryDelegate $dict, $scope=null) {
 		/* @var $ticket Model_Ticket */
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -178,14 +178,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		// Sanitize scope options
 		if('org'==$scope) {
-			if(empty($ticket->org_id))
+			if(empty($dict->org_id))
 				$scope = '';
 		}
 		
 		if('domain'==$scope) {
-			$contact = DAO_Address::get($ticket->first_wrote_address_id);
-			
-			$email_parts = explode('@', $contact->email);
+			$email_parts = explode('@', $dict->initial_message_sender_address);
 			if(!is_array($email_parts) || 2 != count($email_parts))
 				$scope = '';
 		}
@@ -193,7 +191,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		switch($scope) {
 			case 'org':
 				$view->addParamsRequired(array(
-					SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,'=',$ticket->org_id),
+					SearchFields_Ticket::TICKET_ORG_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,'=',$dict->org_id),
 					SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,'!=',Model_Ticket::STATUS_DELETED),
 				), true);
 				$view->name = 'History: Tickets from this organization';
@@ -210,7 +208,10 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			default:
 			case 'email':
 				$scope = 'email';
-				$requesters = $ticket->getRequesters();
+				$requesters = $dict->requesters;
+				
+				if(!is_array($requesters))
+					break;
 				
 				$view->addParamsRequired(array(
 					SearchFields_Ticket::REQUESTER_ID => new DevblocksSearchCriteria(SearchFields_Ticket::REQUESTER_ID,'in',array_keys($requesters)),
@@ -4854,9 +4855,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'string',null);
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$active_worker = CerberusApplication::getActiveWorker();
 
 		$context = CerberusContexts::CONTEXT_TICKET;
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('edit_mode', $edit_mode);
@@ -4894,6 +4895,13 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->display('devblocks:cerberusweb.core::tickets/peek_edit.tpl');
 			
 		} else {
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
 			// Counts
 			$activity_counts = array(
 				'comments' => DAO_Comment::count($context, $context_id),
@@ -4919,12 +4927,12 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;
 			
-			// Dictionary
-			$labels = array();
-			$values = array();
-			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
+			// Interactions
+			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+			$tpl->assign('interactions_menu', $interactions_menu);
+			
+			// Privileges
 			
 			$is_readable = Context_Ticket::isReadableByActor($dict, $active_worker);
 			$tpl->assign('is_readable', $is_readable);

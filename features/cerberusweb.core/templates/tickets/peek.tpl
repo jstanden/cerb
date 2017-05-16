@@ -17,6 +17,7 @@
 		
 		<div style="margin-top:5px;">
 			{*<button type="button" class="" onclick="genericAjaxPopup('va','c=internal&a=startBotInteraction', null, false, '300');"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button>*}
+			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 			
 			{if $is_writeable}
 				{if !empty($dict->id)}
@@ -134,6 +135,10 @@ $(function() {
 		$popup.find('button.cerb-search-trigger')
 			.cerbSearchTrigger()
 			;
+		
+		// Interactions
+		var $interaction_container = $popup;
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 		
 		// View profile
 		$popup.find('.cerb-peek-profile').click(function(e) {

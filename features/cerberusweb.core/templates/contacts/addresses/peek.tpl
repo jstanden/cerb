@@ -7,9 +7,11 @@
 	</div>
 	
 	<div style="float:left;">
-		<h1 style="color:inherit;">{$dict->email}</h1>
+		<h1>{$dict->email}</h1>
 
 		<div style="margin:5px 0px 10px 0px;">
+			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+		
 			{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
 			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
 			
@@ -118,6 +120,10 @@ $(function() {
 				document.location='{devblocks_url}c=profiles&type=address&id={$dict->id}-{$dict->email|devblocks_permalink}{/devblocks_url}';
 			}
 		});
+		
+		// Interactions
+		var $interaction_container = $popup;
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 		
 		// Timeline
 		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}

@@ -12,6 +12,11 @@
 	<div class="cerb-profile-toolbar">
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+			
+			<span id="spanInteractions">
+			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+			</span>
+			
 		
 			<!-- Toolbar -->
 			
@@ -134,6 +139,10 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
+
+	// Interactions
+	var $interaction_container = $('#spanInteractions');
+	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 	
 	// Comments
 	$('#btnProfileAddComment')

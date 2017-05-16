@@ -1839,8 +1839,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$active_worker = CerberusApplication::getActiveWorker();
 		$translate = DevblocksPlatform::getTranslationService();
+		
+		$context = CerberusContexts::CONTEXT_GROUP;
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
@@ -1859,10 +1861,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		// Custom fields
 		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP, false);
+		$custom_fields = DAO_CustomField::getByContext($context, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $context_id);
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 		if(isset($custom_field_values[$context_id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		
@@ -1896,33 +1898,38 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$tpl->display('devblocks:cerberusweb.core::groups/peek_edit.tpl');
 			
 		} else {
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $group, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
 			$activity_counts = array(
 				'members' => DAO_Worker::countByGroupId($context_id),
 				'buckets' => DAO_Bucket::countByGroupId($context_id),
 				'tickets' => DAO_Ticket::countsByGroupId($context_id),
-				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_GROUP, $context_id),
+				'comments' => DAO_Comment::count($context, $context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
 			// Timeline
 			if($context_id) {
-				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_GROUP, $context_id));
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
 				$tpl->assign('timeline_json', $timeline_json);
 			}
 			
 			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_GROUP)))
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;
-			
-			// Dictionary
-			$labels = array();
-			$values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Interactions
+			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+			$tpl->assign('interactions_menu', $interactions_menu);
 			
 			$tpl->display('devblocks:cerberusweb.core::groups/peek.tpl');
 		}

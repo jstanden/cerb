@@ -1119,6 +1119,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		
+		$context = CerberusContexts::CONTEXT_BUCKET;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::getTemplateService();
@@ -1193,6 +1194,13 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek_edit.tpl');
 			
 		} else {
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $bucket, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
 			$activity_counts = array(
 				'tickets' => DAO_Ticket::countsByBucketId($context_id),
 				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_BUCKET, $context_id),
@@ -1221,15 +1229,13 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BUCKET)))
 				return;
 			
-			// Dictionary
-			$labels = array();
-			$values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, $bucket, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Interactions
+			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+			$tpl->assign('interactions_menu', $interactions_menu);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek.tpl');
 		}

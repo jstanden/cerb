@@ -20,6 +20,8 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
+		
+		$context = CerberusContexts::CONTEXT_ORG;
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$stack = $response->path;
@@ -35,6 +37,13 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 			return;
 		
 		$tpl->assign('contact', $org);
+		
+		// Dictionary
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext($context, $org, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 		
 		// Properties
 		
@@ -107,26 +116,26 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $org->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $org->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_ORG, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_ORG, $org->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $org->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		if(isset($org->id)) {
-			$properties_links[CerberusContexts::CONTEXT_ORG] = array(
+			$properties_links[$context] = array(
 				$org->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_ORG,
+						$context,
 						$org->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -141,7 +150,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		// Counts
 		$activity_counts = array(
-			//'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_ORG, $org->id),
+			//'comments' => DAO_Comment::count($context, $org->id),
 			'contacts' => DAO_Contact::countByOrgId($org->id),
 			'emails' => DAO_Address::countByOrgId($org->id),
 			//'tickets' => DAO_Ticket::countsByOrgId($org->id),
@@ -150,9 +159,14 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 
 		// Tabs
 		
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ORG);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
+		// Interactions
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
+	
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/organization.tpl');
 	}
@@ -318,14 +332,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
-		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.org'
-		);
-		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/bulk.tpl');
 	}

@@ -1551,14 +1551,17 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Scope
 		$scope = $visit->get('display.history.scope', '');
 		
-		// Ticket
-		$ticket = DAO_Ticket::get($ticket_id);
-		$tpl->assign('ticket', $ticket);
+		// Dictionary
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 
 		// Scope
 		$tpl->assign('scope', $scope);
 
-		$view = DAO_Ticket::getViewForRequesterHistory('contact_history', $ticket, $scope);
+		$view = DAO_Ticket::getViewForRequesterHistory('contact_history', $dict, $scope);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::display/modules/history/index.tpl');

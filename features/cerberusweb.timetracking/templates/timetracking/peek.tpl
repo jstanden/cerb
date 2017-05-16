@@ -1,5 +1,6 @@
 {$div_id = "peek{uniqid()}"}
 {$peek_context = CerberusContexts::CONTEXT_TIMETRACKING}
+{$peek_context_id = $dict->id}
 
 <div id="{$div_id}">
 	
@@ -13,6 +14,7 @@
 				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
 			{/if}
+			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		
 			{if $active_worker->id == $dict->worker_id || $active_worker->hasPriv('timetracking.actions.update_all')}
 			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
@@ -122,6 +124,10 @@ $(function() {
 				document.location='{devblocks_url}c=profiles&type=time_tracking&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
 			}
 		});
+		
+		// Interactions
+		var $interaction_container = $popup;
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 		
 		// Timeline
 		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}

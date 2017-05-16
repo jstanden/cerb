@@ -15,7 +15,10 @@
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-		<!-- Toolbar -->
+		<span id="spanInteractions">
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+		</span>
+	
 		
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
@@ -41,7 +44,7 @@
 		<small>
 		{'common.keyboard'|devblocks_translate|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
+		(<b>i</b>) {'common.interactions'|devblocks_translate|lower}
 		(<b>1-9</b>) change tab
 		</small>
 	{/if}
@@ -104,6 +107,10 @@ $(function() {
 	
 	var tabs = $("#calendar_recurring_profileTabs").tabs(tabOptions);
 	
+	// Interactions
+	var $interaction_container = $('#spanInteractions');
+	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
+	
 	// Edit
 	{if $is_writeable}
 	$('#btnDisplayCalendarRecurringProfileEdit')
@@ -165,6 +172,11 @@ $(function() {
 			case 101:  // (E) edit
 				try {
 					$('#btnDisplayCalendarRecurringProfileEdit').click();
+				} catch(ex) { }
+				break;
+			case 105:  // (I) interactions
+				try {
+					$('#spanInteractions > button').click();
 				} catch(ex) { }
 				break;
 			case 109:  // (M) macros
