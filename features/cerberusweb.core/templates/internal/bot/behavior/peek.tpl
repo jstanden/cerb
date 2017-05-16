@@ -9,7 +9,8 @@
 	</div>
 	
 	<div style="float:left;">
-		<h1 style="color:inherit;">
+		<h1>
+			{if $dict->is_private}<span class="glyphicons glyphicons-lock" style="color:#DA1C0E;"></span>{/if}
 			{$dict->_label}
 		</h1>
 		

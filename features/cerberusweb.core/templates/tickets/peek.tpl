@@ -11,7 +11,7 @@
 			{$dict->mask}
 		</div>
 	
-		<h1 style="color:inherit;">
+		<h1>
 			{$dict->subject}
 		</h1>
 		

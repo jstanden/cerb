@@ -1399,7 +1399,12 @@ UL.cerb-popupmenu {
 // Subpage
 
 .cerb-subpage {
-	> H2 {
+	H1 {
+		color:rgb(0,0,0);
+		margin-bottom:5px;
+	}
+	
+	H2 {
 		color:rgb(74,110,158);
 		margin-bottom:5px;
 	}

@@ -7,7 +7,7 @@
 	</div>
 	
 	<div style="float:left;">
-		<h1 style="color:inherit;">
+		<h1>
 			{$dict->full_name}
 			
 			{if $dict->gender == 'M'}

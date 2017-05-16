@@ -7,7 +7,7 @@
 	</div>
 	
 	<div style="float:left;">
-		<h1 style="color:inherit;">
+		<h1>
 			{$dict->_label}
 			{if $dict->gender == 'M'}
 			<span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);vertical-align:middle;"></span>

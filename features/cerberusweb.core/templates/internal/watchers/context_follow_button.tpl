@@ -4,7 +4,7 @@
 <button type="button" id="{$watchers_btn_domid}" class="{if $is_current_worker}green{/if}" title="{'common.watchers'|devblocks_translate|capitalize}" group_id="{$watchers_group_id}" bucket_id="{$watchers_bucket_id}">
 	{if $full}
 		<div class="badge-count">{$num_watchers}</div>
-		Watching
+		{'common.watching'|devblocks_translate|capitalize}
 	{else}
 		<div class="badge-count">{$num_watchers}</div>
 	{/if}

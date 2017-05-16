@@ -2,28 +2,17 @@
 {$page_context_id = $bucket->id}
 {$is_writeable = Context_Bucket::isWriteableByActor($bucket, $active_worker)}
 
+<div style="float:left;margin-right:10px;">
+	<img src="{devblocks_url}c=avatars&context=group&context_id={$bucket->group_id}{/devblocks_url}?v={$bucket->updated_at}" style="height:75px;width:75px;border-radius:5px;">
+</div>
+
 <div style="float:left">
 	<h1>{$bucket->name}</h1>
-</div>
-
-<div style="float:right;">
-{$ctx = Extension_DevblocksContext::get($page_context)}
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
-</div>
-
-<div style="clear:both;"></div>
-
-<div class="cerb-profile-toolbar">
-	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-		
-		<!-- Macros -->
-		{*
-		{if $is_writeable}
-		{devblocks_url assign=return_url full=true}c=profiles&type=bucket&id={$page_context_id}-{$bucket->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.bucket" return_url=$return_url}
-		{/if}
-		*}
+	
+	<div class="cerb-profile-toolbar">
+		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
+			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+			
 			<span id="spanInteractions">
 			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 			</span>

@@ -2,16 +2,7 @@
 {$page_context_id = $classifier_entity->id}
 {$is_writeable = Context_ClassifierEntity::isWriteableByActor($classifier_entity, $active_worker)}
 
-<div style="float:left">
-	<h1>{$classifier_entity->name}</h1>
-</div>
-
-<div style="float:right;">
-{$ctx = Extension_DevblocksContext::get($page_context)}
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
-</div>
-
-<div style="clear:both;"></div>
+<h1>{$classifier_entity->name}</h1>
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">

@@ -3,7 +3,7 @@
 {$is_writeable = Context_Snippet::isWriteableByActor($dict, $active_worker)}
 
 <div id="{$div_id}">
-	<h1 style="color:inherit;">
+	<h1>
 		{$dict->_label}
 	</h1>
 	

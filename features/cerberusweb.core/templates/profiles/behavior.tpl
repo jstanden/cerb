@@ -36,11 +36,6 @@
 	</div>
 </div>
 
-<div style="float:right;">
-{$ctx = Extension_DevblocksContext::get($page_context)}
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
-</div>
-
 <div style="clear:both;"></div>
 
 <fieldset class="properties" style="margin-top:5px;">

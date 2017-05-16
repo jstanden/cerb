@@ -1,10 +1,11 @@
 {$div_id = "peek{uniqid()}"}
 {$peek_context = CerberusContexts::CONTEXT_TASK}
+{$peek_context_id = $dict->id}
 
 <div id="{$div_id}">
 	
 	<div style="float:left;">
-		<h1 style="color:inherit;">
+		<h1>
 			{$dict->_label}
 		</h1>
 		

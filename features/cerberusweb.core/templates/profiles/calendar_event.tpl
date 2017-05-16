@@ -2,13 +2,11 @@
 {$page_context_id = $event->id}
 {$is_writeable = Context_CalendarEvent::isWriteableByActor($event, $active_worker)}
 
-<div style="float:left;">
-	<h1 style="margin-left:10px;">{$event->name}</h1>
-</div>
-
-<div style="float:right;">
-{$ctx = Extension_DevblocksContext::get($page_context)}
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
+<h1>{$event->name}</h1>
+<div class="cerb-profile-toolbar">
+	<form class="toolbar" action="javascript:;" method="POST" onsubmit="return false;" style="margin-bottom:5px;">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+		
 		<span id="spanInteractions">
 		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>

@@ -1403,7 +1403,11 @@ UL.cerb-popupmenu > LI:hover A {
   border: 0;
 }
 
-.cerb-subpage > H2 {
+.cerb-subpage H1 {
+  color: black;
+  margin-bottom: 5px;
+}
+.cerb-subpage H2 {
   color: #4a6e9e;
   margin-bottom: 5px;
 }
@@ -1845,6 +1849,9 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
   box-shadow: 0 0 10px 3px #afafaf;
   /*position: fixed;*/
   overflow: visible;
+}
+.ui-dialog h1 {
+  color: black;
 }
 
 .ui-dialog .ui-dialog-titlebar {

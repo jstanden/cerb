@@ -1296,7 +1296,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 <div id="{$div_id}">
 	
 	<div style="float:left;">
-		<h1 style="color:inherit;">
+		<h1>
 			{$dict->_label}
 		</h1>
 		
@@ -2015,16 +2015,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 {$page_context_id = $<?php echo $table_name; ?>->id}
 {$is_writeable = Context_<?php echo $class_name; ?>::isWriteableByActor($<?php echo $table_name; ?>, $active_worker)}
 
-<div style="float:left">
-	<h1>{$<?php echo $table_name; ?>->name}</h1>
-</div>
-
-<div style="float:right;">
-{$ctx = Extension_DevblocksContext::get($page_context)}
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
-</div>
-
-<div style="clear:both;"></div>
+<h1>{$<?php echo $table_name; ?>->name}</h1>
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">

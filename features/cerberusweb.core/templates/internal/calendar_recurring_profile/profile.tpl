@@ -2,16 +2,9 @@
 {$page_context_id = $calendar_recurring_profile->id}
 {$is_writeable = Context_CalendarRecurringProfile::isWriteableByActor($calendar_recurring_profile, $active_worker)}
 
-<div style="float:left">
+<div>
 	<h1>{$calendar_recurring_profile->event_name}</h1>
 </div>
-
-<div style="float:right;">
-{$ctx = Extension_DevblocksContext::get($page_context)}
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
-</div>
-
-<div style="clear:both;"></div>
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">

@@ -13,18 +13,13 @@
 	
 	<div style="float:left;">
 		<div style="margin-bottom:2px;">
-			<h1 style="color:inherit;">{$author->_label}</h1>
+			<h1>{$author->_label}</h1>
 		</div>
 	
 		<div>
 			<pre class="emailbody">{$comment->comment|trim|escape|devblocks_hyperlinks nofilter}</pre>
 		</div>
 	</div>
-</div>
-
-<div style="float:right;">
-{$ctx = Extension_DevblocksContext::get($page_context)}
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
 </div>
 
 <div style="clear:both;margin-bottom:10px;"></div>

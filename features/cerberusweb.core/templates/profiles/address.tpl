@@ -6,24 +6,18 @@
 	<img src="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}" style="height:75px;width:75px;border-radius:5px;">
 </div>
 
-<div style="float:left;">
-	<h1>
-	{$addy_name = $address->getName()} 
-	{if !empty($addy_name)}
-		{$addy_name} &lt;{$address->email}&gt;
-	{else}
-		{$address->email}
-	{/if}
-	</h1>
-	
-	<div class="cerb-profile-toolbar" style="margin-top:5px;">
-		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
-			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-			
-			<span>
-			{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-			</span>
+<h1>
+{$addy_name = $address->getName()} 
+{if !empty($addy_name)}
+	{$addy_name} &lt;{$address->email}&gt;
+{else}
+	{$address->email}
+{/if}
+</h1>
+
+<div class="cerb-profile-toolbar" style="margin-top:5px;">
+	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 			<!-- Macros -->
 			{if $is_writeable}

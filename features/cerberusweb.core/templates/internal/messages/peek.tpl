@@ -4,7 +4,7 @@
 <div id="{$div_id}">
 	<div style="float:left;">
 		<div>
-			<h1 style="color:inherit;">{$dict->ticket_subject}</h1>
+			<h1>{$dict->ticket_subject}</h1>
 		</div>
 
 		<div style="margin:5px 0px 10px 0px;">
