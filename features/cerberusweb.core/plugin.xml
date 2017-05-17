@@ -707,6 +707,9 @@
 		
 		<file path="api/events/interaction/interaction_chat_worker.php">
 			<class name="Event_InteractionChatWorker" />
+		<file path="api/events/interaction/get_interactions_for_worker.php">
+			<class name="Event_GetInteractionsForWorker" />
+		</file>
 		</file>
 		
 		<file path="api/events/ui/ui_before_reply_by_worker.php">
@@ -2302,6 +2305,26 @@
 		</extension>
 		
 		<!-- Event Triggers -->
+		
+		<extension point="devblocks.event">
+			<id>event.interactions.get.worker</id>
+			<name>Conversation get interactions for worker</name>
+			<class>
+				<file>api/events/interaction/get_interactions_for_worker.php</file>
+				<name>Event_GetInteractionsForWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="options"/>
+			</params>
+		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.interaction.chat.worker</id>
