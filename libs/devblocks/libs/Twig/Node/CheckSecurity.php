@@ -3,51 +3,37 @@
 /*
  * This file is part of Twig.
  *
- * (c) 2009 Fabien Potencier
- * (c) 2009 Armin Ronacher
+ * (c) Fabien Potencier
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 /**
- * Represents a module node.
- *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Twig_Node_SandboxedModule extends Twig_Node_Module
+class Twig_Node_CheckSecurity extends Twig_Node
 {
     protected $usedFilters;
     protected $usedTags;
     protected $usedFunctions;
 
-    public function __construct(Twig_Node_Module $node, array $usedFilters, array $usedTags, array $usedFunctions)
+    public function __construct(array $usedFilters, array $usedTags, array $usedFunctions)
     {
-        parent::__construct($node->getNode('body'), $node->getNode('parent'), $node->getNode('blocks'), $node->getNode('macros'), $node->getNode('traits'), $node->getAttribute('embedded_templates'), $node->getAttribute('filename'));
-
-        $this->setAttribute('index', $node->getAttribute('index'));
-
         $this->usedFilters = $usedFilters;
         $this->usedTags = $usedTags;
         $this->usedFunctions = $usedFunctions;
+
+        parent::__construct();
     }
 
-    protected function compileDisplayBody(Twig_Compiler $compiler)
+    public function compile(Twig_Compiler $compiler)
     {
-        $compiler->write("\$this->checkSecurity();\n");
-
-        parent::compileDisplayBody($compiler);
-    }
-
-    protected function compileDisplayFooter(Twig_Compiler $compiler)
-    {
-        parent::compileDisplayFooter($compiler);
-
         $tags = $filters = $functions = array();
         foreach (array('tags', 'filters', 'functions') as $type) {
             foreach ($this->{'used'.ucfirst($type)} as $name => $node) {
                 if ($node instanceof Twig_Node) {
-                    ${$type}[$name] = $node->getLine();
+                    ${$type}[$name] = $node->getTemplateLine();
                 } else {
                     ${$type}[$node] = null;
                 }
@@ -55,14 +41,12 @@ class Twig_Node_SandboxedModule extends Twig_Node_Module
         }
 
         $compiler
-            ->write("protected function checkSecurity()\n", "{\n")
-            ->indent()
-            ->write("\$tags = ")->repr(array_filter($tags))->raw(";\n")
-            ->write("\$filters = ")->repr(array_filter($filters))->raw(";\n")
-            ->write("\$functions = ")->repr(array_filter($functions))->raw(";\n\n")
+            ->write('$tags = ')->repr(array_filter($tags))->raw(";\n")
+            ->write('$filters = ')->repr(array_filter($filters))->raw(";\n")
+            ->write('$functions = ')->repr(array_filter($functions))->raw(";\n\n")
             ->write("try {\n")
             ->indent()
-            ->write("\$this->env->getExtension('sandbox')->checkSecurity(\n")
+            ->write("\$this->env->getExtension('Twig_Extension_Sandbox')->checkSecurity(\n")
             ->indent()
             ->write(!$tags ? "array(),\n" : "array('".implode("', '", array_keys($tags))."'),\n")
             ->write(!$filters ? "array(),\n" : "array('".implode("', '", array_keys($filters))."'),\n")
@@ -72,7 +56,7 @@ class Twig_Node_SandboxedModule extends Twig_Node_Module
             ->outdent()
             ->write("} catch (Twig_Sandbox_SecurityError \$e) {\n")
             ->indent()
-            ->write("\$e->setTemplateFile(\$this->getTemplateName());\n\n")
+            ->write("\$e->setSourceContext(\$this->getSourceContext());\n\n")
             ->write("if (\$e instanceof Twig_Sandbox_SecurityNotAllowedTagError && isset(\$tags[\$e->getTagName()])) {\n")
             ->indent()
             ->write("\$e->setTemplateLine(\$tags[\$e->getTagName()]);\n")
@@ -87,8 +71,6 @@ class Twig_Node_SandboxedModule extends Twig_Node_Module
             ->outdent()
             ->write("}\n\n")
             ->write("throw \$e;\n")
-            ->outdent()
-            ->write("}\n")
             ->outdent()
             ->write("}\n\n")
         ;
