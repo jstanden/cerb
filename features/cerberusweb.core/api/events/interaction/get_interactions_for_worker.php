@@ -28,7 +28,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		$behaviors = Event_GetInteractionsForWorker::getByPointAndWorker($point, $worker);
 		$interactions = [];
 		
-		foreach($behaviors as $behavior) {
+		foreach($behaviors as $behavior) { /* @var $behavior Model_TriggerEvent */
 			$actions = [];
 			
 			$event_model = new Model_DevblocksEvent(
@@ -43,7 +43,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 			
 			if(false == ($event = $behavior->getEvent()))
 				return;
-				
+			
 			$event->setEvent($event_model, $behavior);
 			
 			$values = $event->getValues();
@@ -369,7 +369,6 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 					'interaction' => $interaction,
 					'interaction_params' => $interaction_params,
 				];
-				
 				break;
 		}
 	}

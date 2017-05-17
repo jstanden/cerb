@@ -505,6 +505,11 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 		return $extensions;
 	}
 
+	/**
+	 * 
+	 * @param string $extension_id
+	 * @return Extension_WorkspaceWidget|NULL
+	 */
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];

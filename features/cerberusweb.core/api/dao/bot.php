@@ -1225,6 +1225,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			// URL
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=bot&id=%d-%s",$model->id, DevblocksPlatform::strToPermalink($model->name)), true);
 			
+			// Owner
 			$token_values['owner__context'] = $model->owner_context;
 			$token_values['owner_id'] = $model->owner_context_id;
 		}

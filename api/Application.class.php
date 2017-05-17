@@ -2510,7 +2510,7 @@ class CerberusSettings {
 };
 
 class CerberusSettingsDefaults {
-	const HELPDESK_TITLE = 'Cerb - a fast, flexible toolkit for web-based collaboration and workflow automation';
+	const HELPDESK_TITLE = 'Cerb';
 	const ATTACHMENTS_ENABLED = 1;
 	const ATTACHMENTS_MAX_SIZE = 10;
 	const PARSER_AUTO_REQ = 0;

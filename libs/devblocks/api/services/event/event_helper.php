@@ -2001,7 +2001,7 @@ class DevblocksEventHelper {
 		
 		if(is_array($params))
 		foreach($params as $k => $v) {
-			if(substr($k, 0, 4) == 'var_') {
+			if(DevblocksPlatform::strStartsWith($k, 'var_')) {
 				if(!isset($behavior->variables[$k]))
 					continue;
 				
@@ -2129,7 +2129,7 @@ class DevblocksEventHelper {
 		
 		if(is_array($params))
 		foreach($params as $k => $v) {
-			if(substr($k, 0, 4) == 'var_') {
+			if(DevblocksPlatform::strStartsWith($k, 'var_')) {
 				if(!isset($behavior->variables[$k]))
 					continue;
 				
@@ -2278,7 +2278,7 @@ class DevblocksEventHelper {
 		
 		if(is_array($params))
 		foreach($params as $k => $v) {
-			if(substr($k, 0, 4) == 'var_') {
+			if(DevblocksPlatform::strStartsWith($k, 'var_')) {
 				if(!isset($behavior->variables[$k]))
 					continue;
 				
@@ -2360,7 +2360,7 @@ class DevblocksEventHelper {
 		
 		if(is_array($params))
 		foreach($params as $k => $v) {
-			if(substr($k, 0, 4) == 'var_') {
+			if(DevblocksPlatform::strStartsWith($k, 'var_')) {
 				if(!isset($behavior->variables[$k]))
 					continue;
 				

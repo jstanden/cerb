@@ -1699,7 +1699,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$json = json_decode($json, true);
 		
 		if(is_array($json))
-			return json_encode($json, JSON_PRETTY_PRINT);
+			return json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		
 		return false;
 	}
