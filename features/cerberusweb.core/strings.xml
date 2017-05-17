@@ -2765,6 +2765,11 @@ For example: http://www.cerbweb.com/support/</seg>
 				<seg>last viewed</seg>
 			</tuv>
 		</tu>
+		<tu tuid="header.my_card">
+			<tuv xml:lang="en_US">
+				<seg>my card</seg>
+			</tuv>
+		</tu>
 		<tu tuid="header.my_profile">
 			<tuv xml:lang="en_US">
 				<seg>my profile</seg>
