@@ -1,0 +1,31 @@
+{
+	"name" : "wgm/cerb",
+	"description" : "Cerb brings order to a busy team inbox with bot powered email management and workflow automation.",
+	"type" : "project",
+	"license" : "Devblocks Public License <https://cerb.ai/license/>",
+	"authors" : [{
+			"name" : "Webgroup Media LLC",
+			"email" : "support@webgroupmedia.com",
+			"homepage" : "https://cerb.ai/",
+			"role" : "Developer / Publisher"
+		}, {
+			"name" : "Jeff Standen",
+			"email" : "jeff@webgroupmedia.com",
+			"homepage" : "https://cerb.ai/",
+			"role" : "Software Architect"
+		}
+	],
+	"require" : {
+		"smarty/smarty" : "3.1.31",
+		"swiftmailer/swiftmailer" : "5.3.1"
+	},
+	"require-dev" : {
+		"phpseclib/phpseclib" : "2.0.4",
+		"singpolyma/openpgp-php" : "^0.3.0"
+	},
+	"support" : {
+		"email" : "support@webgroupmedia.com",
+		"issues" : "https://github.com/jstanden/cerb/issues/",
+		"source" : "https://github.com/wgm/cerb/"
+	}
+}
