@@ -5,7 +5,12 @@
 		{foreach from=$keys item=data key=idx}
 			{if is_array($data->children) && !empty($data->children)}
 				<li>
-					<div>{$data->label}</div>
+					<div style="font-weight:bold;">
+						{if $data->image}
+						<img class="cerb-avatar" src="{$data->image}">
+						{/if}
+						{$data->label}
+					</div>
 					<ul style="width:300px;">
 						{menu keys=$data->children level=$level+1}
 					</ul>
@@ -20,7 +25,7 @@
 		{/foreach}
 	{/function}
 	
-	<ul class="cerb-bot-interactions-menu cerb-float" style="display:none;">
+	<ul class="cerb-bot-interactions-menu cerb-float" style="display:none; width:250px;">
 	{menu keys=$interactions_menu}
 	</ul>
 {/if}

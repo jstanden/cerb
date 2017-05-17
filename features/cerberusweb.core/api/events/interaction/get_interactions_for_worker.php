@@ -309,7 +309,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 				
 				@$interaction_params_json = $tpl_builder->build($params['interaction_params_json'], $dict);
 				if(false == ($interaction_params = json_decode($interaction_params_json, true)))
-					break;
+					$interaction_params = [];
 				
 				$out = sprintf(">>> Returning interaction\n".
 					"%d\n",
@@ -341,7 +341,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 				
 				@$interaction_params_json = $tpl_builder->build($params['interaction_params_json'], $dict);
 				if(false == ($interaction_params = json_decode($interaction_params_json, true)))
-					break;
+					$interaction_params = [];
 				
 				// Sanitize key names and values
 				

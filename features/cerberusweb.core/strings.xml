@@ -977,6 +977,16 @@
 				<seg>inboxes</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.interaction">
+			<tuv xml:lang="en_US">
+				<seg>interaction</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.interactions">
+			<tuv xml:lang="en_US">
+				<seg>interactions</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.is_closed">
 			<tuv xml:lang="en_US">
 				<seg>Is Closed</seg>

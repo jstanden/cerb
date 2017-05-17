@@ -15,32 +15,8 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
-class Event_InteractionChatWorker extends Extension_DevblocksEvent {
-	const ID = 'event.interaction.chat.worker';
-	
-	/**
-	 *
-	 * Enter description here ...
-	 * @param CerberusParserModel $parser_model
-	 */
-	static function trigger($worker_id, $message, array &$actions) {
-		$events = DevblocksPlatform::getEventService();
-		return $events->trigger(
-			new Model_DevblocksEvent(
-				self::ID,
-				array(
-					'worker_id' => $worker_id,
-					'message' => $message,
-					'actions' => &$actions,
-					/*
-					'_whisper' => array(
-						'cerberusweb.contexts.app' => array(0),
-					),
-					*/
-				)
-			)
-		);
-	}
+class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
+	const ID = 'event.message.chat.worker';
 
 	/**
 	 *
@@ -57,6 +33,17 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 				'worker_id' => $active_worker->id,
 				'message' => 'This is a test message',
 				'actions' => &$actions,
+				
+				'bot_name' => 'Cerb',
+				'bot_image' => null,
+				'behavior_id' => 0,
+				'interaction' => null,
+				'interaction_params' => [],
+				'client_browser' => null,
+				'client_browser_version' => null,
+				'client_ip' => null,
+				'client_platform' => null,
+				'client_url' => null,
 			)
 		);
 	}
@@ -93,6 +80,50 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 				$values
 			);
 		
+		// Bot
+		@$bot_name = $event_model->params['bot_name'];
+		$labels['bot_name'] = 'Bot Name';
+		$values['bot_name'] = $bot_name;
+		
+		@$bot_image = $event_model->params['bot_image'];
+		$labels['bot_image'] = 'Bot Image';
+		$values['bot_image'] = $bot_image;
+		
+		// Behavior
+		// [TODO] Expand
+		@$behavior_id = $event_model->params['behavior_id'];
+		$labels['behavior_id'] = 'Behavior ID';
+		$values['behavior_id'] = $behavior_id;
+		
+		// Interaction
+		@$interaction = $event_model->params['interaction'];
+		$labels['interaction'] = 'Interaction';
+		$values['interaction'] = $interaction;
+		
+		// Interaction Parameters
+		@$interaction_params = $event_model->params['interaction_params'];
+		$labels['interaction_params'] = 'Interaction Params';
+		$values['interaction_params'] = $interaction_params;
+		
+		// Client
+		@$client_browser = $event_model->params['client_browser'];
+		@$client_browser_version = $event_model->params['client_browser_version'];
+		@$client_ip = $event_model->params['client_ip'];
+		@$client_platform = $event_model->params['client_platform'];
+		@$client_url = $event_model->params['client_url'];
+		
+		$labels['client_browser'] = 'Client Browser';
+		$labels['client_browser_version'] = 'Client Browser Version';
+		$labels['client_ip'] = 'Client IP';
+		$labels['client_platform'] = 'Client Platform';
+		$labels['client_url'] = 'Client URL';
+		
+		$values['client_browser'] = $client_browser;
+		$values['client_browser_version'] = $client_browser_version;
+		$values['client_ip'] = $client_ip;
+		$values['client_platform'] = $client_platform;
+		$values['client_url'] = $client_url;
+		
 		/**
 		 * Return
 		 */
@@ -103,6 +134,10 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 	
 	function getValuesContexts($trigger) {
 		$vals = array(
+			'behavior_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
+			),
 			'sender_id' => array(
 				'label' => 'Sender',
 				'context' => CerberusContexts::CONTEXT_WORKER,
@@ -123,7 +158,40 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 		
 		$labels['message'] = 'Message';
 		$types['message'] = Model_CustomField::TYPE_MULTI_LINE;
-
+		
+		// Bot
+		$labels['bot_name'] = 'Bot Name';
+		$types['bot_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+		
+		$labels['bot_image'] = 'Bot Image';
+		$types['bot_image'] = Model_CustomField::TYPE_SINGLE_LINE;
+		
+		// Behavior
+		// [TODO] Expand
+		$labels['behavior_id'] = 'Behavior ID';
+		$types['behavior_id'] = Model_CustomField::TYPE_NUMBER;
+		
+		// Interaction
+		$labels['interaction'] = 'Interaction';
+		$types['interaction'] = Model_CustomField::TYPE_SINGLE_LINE;
+		
+		// Interaction Parameters
+		$labels['interaction_params'] = 'Interaction Params';
+		$types['interaction_params'] = null;
+		
+		// Client
+		$labels['client_browser'] = 'Client Browser';
+		$labels['client_browser_version'] = 'Client Browser Version';
+		$labels['client_ip'] = 'Client IP';
+		$labels['client_platform'] = 'Client Platform';
+		$labels['client_url'] = 'Client URL';
+		
+		$types['client_browser'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['client_browser_version'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['client_ip'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['client_platform'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['client_url'] = Model_CustomField::TYPE_SINGLE_LINE;
+		
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
 		return $conditions;
@@ -284,11 +352,13 @@ class Event_InteractionChatWorker extends Extension_DevblocksEvent {
 				
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				$options = $tpl_builder->build($params['options'], $dict);
+				$style = $tpl_builder->build(@$params['style'], $dict);
 				
 				$actions[] = array(
 					'_action' => 'prompt.buttons',
 					'_trigger_id' => $trigger->id,
 					'options' => DevblocksPlatform::parseCrlfString($options),
+					'style' => $style,
 				);
 				
 				$dict->__exit = 'suspend';

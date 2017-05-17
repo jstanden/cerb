@@ -38,6 +38,11 @@ if(isset($tables['bot_session'])) {
 			$db->ExecuteMaster("ALTER TABLE bot_session CHANGE COLUMN `session_data` `session_data` MEDIUMTEXT");
 		}
 	}
+	
+	$db->ExecuteMaster(sprintf("UPDATE trigger_event SET event_point = %s WHERE event_point = %s",
+		$db->qstr('event.message.chat.worker'),
+		$db->qstr('event.interaction.chat.worker')
+	));
 }
 
 // ===========================================================================

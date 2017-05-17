@@ -705,11 +705,16 @@
 			<class name="Event_WorkerMacro" />
 		</file>
 		
-		<file path="api/events/interaction/interaction_chat_worker.php">
-			<class name="Event_InteractionChatWorker" />
 		<file path="api/events/interaction/get_interactions_for_worker.php">
 			<class name="Event_GetInteractionsForWorker" />
 		</file>
+
+		<file path="api/events/interaction/new_interaction_chat_worker.php">
+			<class name="Event_NewInteractionChatWorker" />
+		</file>
+		
+		<file path="api/events/interaction/new_message_chat_worker.php">
+			<class name="Event_NewMessageChatWorker" />
 		</file>
 		
 		<file path="api/events/ui/ui_before_reply_by_worker.php">
@@ -2328,10 +2333,34 @@
 		
 		<extension point="devblocks.event">
 			<id>event.interaction.chat.worker</id>
-			<name>[Conversations] New chat message received from worker</name>
+			<name>Conversation handle interaction with worker</name>
 			<class>
-				<file>api/events/interaction/interaction_chat_worker.php</file>
-				<name>Event_InteractionChatWorker</name>
+				<file>api/events/interaction/new_interaction_chat_worker.php</file>
+				<name>Event_NewInteractionChatWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="options">
+					<value>
+						<data key="resumable" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.message.chat.worker</id>
+			<name>Conversation with worker</name>
+			<class>
+				<file>api/events/interaction/new_message_chat_worker.php</file>
+				<name>Event_NewMessageChatWorker</name>
 			</class>
 			<params>
 				<param key="contexts">

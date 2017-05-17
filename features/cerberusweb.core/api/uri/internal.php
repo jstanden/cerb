@@ -57,53 +57,126 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 	
-	// [TODO] Move this
-	
 	function startBotInteractionAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		// [TODO] For now, every time we open the chat channel we want a new mini-session
+		@$interaction = DevblocksPlatform::importGPC($_REQUEST['interaction'], 'string', '');
+		@$interaction_behavior_id = DevblocksPlatform::importGPC($_REQUEST['behavior_id'], 'integer', 0);
+		@$browser = DevblocksPlatform::importGPC($_REQUEST['browser'], 'array', []);
+		@$interaction_params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 		
-		$results = DAO_TriggerEvent::getReadableByActor($active_worker, Event_InteractionChatWorker::ID, false);
-
-		// Sort by priority
-		DevblocksPlatform::sortObjects($results, 'priority', true);
+		$session = DevblocksPlatform::getSessionService();
 		
-		$bot_behaviors = DevblocksPlatform::objectsToArrays($results);
-		$behaviors_to_bots = array_column($bot_behaviors, 'bot_id', 'id');
+		if(
+			!$interaction_behavior_id
+			|| false == ($interaction_behavior = DAO_TriggerEvent::get($interaction_behavior_id))
+			|| $interaction_behavior->event_point != Event_NewInteractionChatWorker::ID
+		)
+			return false;
 		
-		$bots = DAO_Bot::getIds($behaviors_to_bots);
+		// Start the session using the behavior
 		
-		// Only keep bots with @mention names
-		$chat_bots = array_filter($bots, function($bot) { /* @var $bot Model_Bot */
-			if(empty($bot->at_mention_name))
-				return false;
+		$actions = [];
+		
+		$client_ip = DevblocksPlatform::getClientIp();
+		$client_platform = '';
+		$client_browser = '';
+		$client_browser_version = '';
+		$client_url = @$browser['url'] ?: '';
+		$client_time = @$browser['time'] ?: '';
+		
+		if(false !== ($client_user_agent_parts = UserAgentParser::parse())) {
+			$client_platform = @$client_user_agent_parts['platform'] ?: '';
+			$client_browser = @$client_user_agent_parts['browser'] ?: '';
+			$client_browser_version = @$client_user_agent_parts['version'] ?: '';
+		}
+		
+		$event_model = new Model_DevblocksEvent(
+			Event_NewInteractionChatWorker::ID,
+			array(
+				'worker' => $active_worker,
+				'interaction' => $interaction,
+				'interaction_params' => $interaction_params,
+				'client_browser' => $client_browser,
+				'client_browser_version' => $client_browser_version,
+				'client_ip' => $client_ip,
+				'client_platform' => $client_platform,
+				'client_time' => $client_time,
+				'client_url' => $client_url,
+				'actions' => &$actions,
+			)
+		);
+		
+		if(false == ($event = $interaction_behavior->getEvent()))
+			return;
+		
+		$event->setEvent($event_model, $interaction_behavior);
+		
+		$values = $event->getValues();
+		
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		
+		$result = $interaction_behavior->runDecisionTree($dict, false, $event);
+		
+		$behavior_id = null;
+		$bot_name = null;
+		$dict = [];
+		
+		foreach($actions as $action) {
+			switch($action['_action']) {
+				case 'behavior.switch':
+					if(isset($action['behavior_id'])) {
+						@$behavior_id = $action['behavior_id'];
+						@$variables = $action['behavior_variables'];
+						
+						if(is_array($variables))
+						foreach($variables as $k => $v) {
+							$dict[$k] = $v;
+						}
+					}
+					break;
+					
+				case 'bot.name':
+					if(false != (@$name = $action['name']))
+						$bot_name = $name;
+					break;
+			}
+		}
+		
+		if(
+			!$behavior_id 
+			|| false == ($behavior = DAO_TriggerEvent::get($behavior_id))
+			|| $behavior->event_point != Event_NewMessageChatWorker::ID
+			)
+			return;
 			
-			return true;
-		});
+		$bot = $behavior->getBot();
 		
-		DevblocksPlatform::sortObjects($bots, 'name', true);
+		if(empty($bot_name))
+			$bot_name = $bot->name;
 		
-		if(empty($chat_bots)) {
-			echo "No conversational bots are available.";
-			return;
-		}
-		
-		// [TODO] Default bot
-		
-		$bot = reset($chat_bots);
-		@$behavior_id = array_search($bot->id, $behaviors_to_bots);
-		
-		if(empty($behavior_id)) {
-			echo "Invalid bot behavor.";
-			return;
-		}
+		$url_writer = DevblocksPlatform::getUrlService();
+		$bot_image_url = $url_writer->write(sprintf("c=avatars&w=bot&id=%d", $bot->id) . '?v=' . $bot->updated_at);
 		
 		$session_data = [
 			'actor' => ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id],
-			'behavior_id' => $behavior_id,
-			'dict' => null,
+			'bot_name' => $bot_name,
+			'bot_image' => $bot_image_url,
+			'behavior_id' => $behavior->id,
+			'behaviors' => [
+				$behavior->id => [
+					'dict' => $dict,
+				]
+			],
+			'interaction' => $interaction,
+			'interaction_params' => $interaction_params,
+			'client_browser' => $client_browser,
+			'client_browser_version' => $client_browser_version,
+			'client_ip' => $client_ip,
+			'client_platform' => $client_platform,
+			'client_time' => $client_time,
+			'client_url' => $client_url,
 		];
 		
 		$session_id = DAO_BotSession::create([
@@ -111,9 +184,13 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_BotSession::UPDATED_AT => time(),
 		]);
 		
+		$tpl = DevblocksPlatform::getTemplateService();
+		
 		$tpl->assign('bot', $bot);
-		$tpl->assign('bots', $chat_bots);
+		$tpl->assign('bot_name', $bot_name);
+		$tpl->assign('bot_image_url', $bot_image_url);
 		$tpl->assign('session_id', $session_id);
+		
 		$tpl->display('devblocks:cerberusweb.core::console/window.tpl');
 	}
 	
@@ -131,66 +208,62 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Load our default behavior for this interaction
 		if(false == (@$behavior_id = $interaction->session_data['behavior_id']))
 			return false;
-			
-		if(DevblocksPlatform::strStartsWith($message, '@')) {
-			$bots = CerberusApplication::getBotsByAtMentionsText($message);
-			$bot = array_shift($bots);
-
-			if($bot) {
-				$results = DAO_TriggerEvent::getReadableByActor($active_worker, Event_InteractionChatWorker::ID, false);
-				DevblocksPlatform::sortObjects($results, 'priority', true);
-				$bot_behaviors = DevblocksPlatform::objectsToArrays($results);
-				$behaviors_to_bots = array_column($bot_behaviors, 'bot_id', 'id');
-				
-				@$new_behavior_id = array_search($bot->id, $behaviors_to_bots);
-				
-				if($new_behavior_id && $new_behavior_id != $behavior_id) {
-					$behavior_id = $new_behavior_id;
-					$interaction->session_data['behavior_id'] = $behavior_id;
-					$interaction->session_data['dict'] = [];
-					$interaction->session_data['path'] = [];
-				}
-				
-				@list($mention, $message) = explode(' ', $message, 2);
-				$tpl->assign('title', $bot->name);
-				$tpl->display('devblocks:cerberusweb.core::console/_change_window_title.tpl');
-				
-			} else {
-				return;
-			}
-		}
-		
-		$actions = array();
 		
 		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 			return;
 		
+		if(false == (@$bot_name = $interaction->session_data['bot_name']))
+			$bot_name = 'Cerb';
+		
+		$actions = array();
+		
+		$event_params = [
+			'worker_id' => $active_worker->id,
+			'message' => $message,
+			'actions' => &$actions,
+				
+			'bot_name' => $bot_name,
+			'bot_image' => @$interaction->session_data['bot_image'],
+			'behavior_id' => $behavior_id,
+			'behavior_has_parent' => @$interaction->session_data['behavior_has_parent'],
+			'interaction' => @$interaction->session_data['interaction'],
+			'interaction_params' => @$interaction->session_data['interaction_params'],
+			'client_browser' => @$interaction->session_data['client_browser'],
+			'client_browser_version' => @$interaction->session_data['client_browser_version'],
+			'client_ip' => @$interaction->session_data['client_ip'],
+			'client_platform' => @$interaction->session_data['client_platform'],
+			'client_time' => @$interaction->session_data['client_time'],
+			'client_url' => @$interaction->session_data['client_url'],
+		];
+		
+		//var_dump($event_params);
+		
 		$event_model = new Model_DevblocksEvent(
-			Event_InteractionChatWorker::ID,
-			array(
-				'worker_id' => $active_worker->id,
-				'message' => $message,
-				'actions' => &$actions,
-			)
+			Event_NewMessageChatWorker::ID,
+			$event_params
 		);
 		
 		if(false == ($event = Extension_DevblocksEvent::get($event_model->id, true)))
 			return;
 		
+		if(!($event instanceof Event_NewMessageChatWorker))
+			return;
+			
 		$event->setEvent($event_model, $behavior);
 		
 		$values = $event->getValues();
 		
 		// Are we resuming a scope?
-		if(isset($interaction->session_data['dict'])) {
-			$values = array_replace($values, $interaction->session_data['dict']);
+		$resume_dict = @$interaction->session_data['behaviors'][$behavior->id]['dict'];
+		if($resume_dict) {
+			$values = array_replace($values, $resume_dict);
 		}
 		
 		$dict = new DevblocksDictionaryDelegate($values);
-		
-		// Are we resuming a path?
-		if(isset($interaction->session_data['path'])) {
-			if(false == ($result = $behavior->resumeDecisionTree($dict, false, $event, $interaction->session_data['path'])))
+			
+		$resume_path = @$interaction->session_data['behaviors'][$behavior->id]['path'];
+		if($resume_path) {
+			if(false == ($result = $behavior->resumeDecisionTree($dict, false, $event, $resume_path)))
 				return;
 			
 		} else {
@@ -207,21 +280,31 @@ class ChInternalController extends DevblocksControllerExtension {
 		} else {
 			// Start the tree over
 			$result['path'] = [];
+			
+			// Return to the caller if we have one
+			@$caller = array_pop($interaction->session_data['callers']);
+			$interaction->session_data['behavior_has_parent'] = 0;
+			
+			if(is_array($caller)) {
+				$caller_behavior_id = $caller['behavior_id'];
+				
+				if($caller_behavior_id && isset($interaction->session_data['behaviors'][$caller_behavior_id])) {
+					$interaction->session_data['behavior_id'] = $caller_behavior_id;
+					$interaction->session_data['behaviors'][$caller_behavior_id]['dict']['_behavior'] = $values;
+				}
+				
+				$tpl->display('devblocks:cerberusweb.core::console/prompt_wait.tpl');
+			}
 		}
 		
-		$interaction->session_data['dict'] = $values;
-		$interaction->session_data['path'] = $result['path'];
-		
-		// Save session scope
-		DAO_BotSession::update($interaction->session_id, [
-			DAO_BotSession::SESSION_DATA => json_encode($interaction->session_data),
-			DAO_BotSession::UPDATED_AT => time(),
-		]);
+		$interaction->session_data['behaviors'][$behavior->id]['dict'] = $values;
+		$interaction->session_data['behaviors'][$behavior->id]['path'] = $result['path'];
 		
 		if(false == ($bot = $behavior->getBot()))
 			return;
 		
 		$tpl->assign('bot', $bot);
+		$tpl->assign('bot_name', $bot_name);
 		
 		foreach($actions as $params) {
 			switch(@$params['_action']) {
@@ -298,74 +381,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 		}
 		
-		/*
-				case 'check_calendar':
-					@$contact = $entities['contact'][0];
-					
-					// [TODO] Get contacts by first/last/@mention
-					//var_dump($contact);
-					
-					@$datetime = $entities['datetime'][0];
-					
-					//var_dump($datetime);
-					
-					@$datetime_granularity = $datetime['grain']; // day, week, month
-					
-					@$availability = $entities['cerb_availability'][0];
-					
-					if(empty($active_worker->calendar_id) || false == ($calendar = DAO_Calendar::get($active_worker->calendar_id))) {
-						$msg = sprintf("You don't have a calendar set up, so I'm not sure.");
-						$tpl->assign('message', $msg);
-						$tpl->display('devblocks:cerberusweb.core::console/message.tpl');
-						return;
-					}
-					
-					if($datetime['type'] == 'interval') {
-						// [TODO] This could start/stop at specific hours to?
-						if(isset($datetime['from']))
-							@$datetime_from = strtotime('today', strtotime($datetime['from']['value']));
-						else
-							@$datetime_from = strtotime('today', time());
-							
-						if(isset($datetime['to']))
-							@$datetime_to = strtotime('23:59:59', strtotime($datetime['to']['value']));
-						else
-							@$datetime_to = strtotime('today', time());
-						
-					} else {
-						switch($datetime_granularity) {
-							case 'week':
-								//var_dump($datetime);
-								@$datetime_from = strtotime('Monday this week', strtotime($datetime['value']));
-								//var_dump(array(strtotime($datetime['value']), $datetime_from));
-								@$datetime_to = strtotime('+6 days 23:59:59', $datetime_from);
-								break;
-								
-							case 'month':
-								@$datetime_from = strtotime('First day of this month', strtotime($datetime['value']));
-								@$datetime_to = strtotime('Last day of this month 23:59:59', $datetime_from);
-								break;
-								
-							case 'day':
-							default:
-								@$datetime_from = strtotime('today', strtotime($datetime['value']));
-								@$datetime_to = strtotime('23:59:59', $datetime_from);
-								break;
-						}
-					}
-					
-					//var_dump(array($datetime_from, $datetime_to));
-					
-					$events = $calendar->getEvents($datetime_from, $datetime_to);
-					$availability = $calendar->computeAvailability($datetime_from, $datetime_to, $events);
-					$availability->occludeCalendarEvents($events);
-					
-					//var_dump($events);
-					
-					$tpl->assign('days', $events);
-					$tpl->display('devblocks:cerberusweb.core::console/commands/events.tpl');
-					break;
-				*/
+		// Save session scope
+		DAO_BotSession::update($interaction->session_id, [
+			DAO_BotSession::SESSION_DATA => json_encode($interaction->session_data),
+			DAO_BotSession::UPDATED_AT => time(),
+		]);
 	}
 	
 	// Post
