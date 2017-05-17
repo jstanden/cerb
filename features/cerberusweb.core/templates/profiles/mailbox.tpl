@@ -8,7 +8,10 @@
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
-		<!-- Toolbar -->
+		<!-- Edit -->
+		{if $is_writeable}
+		<button type="button" id="btnDisplayMailboxEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</button>
+		{/if}
 		
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}

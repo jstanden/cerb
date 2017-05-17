@@ -6,32 +6,22 @@
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-		<!-- Toolbar -->
+		<!-- Edit -->
+		{if $is_writeable}
+		<button type="button" id="btnDisplayFileBundleEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{/if}
 		
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		</span>
 		
-		<!-- Macros -->
-		{*
-		{if $is_writeable}
-		{devblocks_url assign=return_url full=true}c=profiles&type=file_bundle&id={$page_context_id}-{$file_bundle->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.file_bundle" return_url=$return_url}
-		{/if}
-		*}
-		
-		<!-- Edit -->
-		{if $is_writeable}
-		<button type="button" id="btnDisplayFileBundleEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
-		{/if}
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
 		<small>
 		{$translate->_('common.keyboard')|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
 		</small>
 	{/if}
@@ -99,22 +89,22 @@
 <br>
 
 <script type="text/javascript">
-	$(function() {
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = Devblocks.getjQueryUiTabSelected('file_bundleTabs');
+$(function() {
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('file_bundleTabs');
+
+	var tabs = $("#file_bundleTabs").tabs(tabOptions);
 	
-		var tabs = $("#file_bundleTabs").tabs(tabOptions);
-		
-		{if $is_writeable}
-		$('#btnDisplayFileBundleEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
-			$popup.one('file_bundle_save', function(event) {
-				event.stopPropagation();
-				document.location.reload();
-			});
+	{if $is_writeable}
+	$('#btnDisplayFileBundleEdit').bind('click', function() {
+		var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
+		$popup.one('file_bundle_save', function(event) {
+			event.stopPropagation();
+			document.location.reload();
 		});
-		{/if}
 	});
+	{/if}
+});
 </script>
 
 <script type="text/javascript">

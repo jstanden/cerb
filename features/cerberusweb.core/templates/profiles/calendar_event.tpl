@@ -11,9 +11,23 @@
 		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>
 		
+		<!-- Card -->
+		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+		
+		<!-- Edit -->
+		{if $is_writeable}
+		<button type="button" id="btnProfileEventEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{/if}
+	</form>
+	
+	{if $pref_keyboard_shortcuts}
+	<small>
+		{'common.keyboard'|devblocks_translate|lower}:
+		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		(<b>1-9</b>) change tab
+	</small> 
+	{/if}
 </div>
-
-<div style="clear:both;"></div>
 
 <fieldset class="properties">
 	<legend>{'common.calendar.event'|devblocks_translate|capitalize}</legend>
@@ -35,30 +49,6 @@
 		{/if}
 	{/foreach}
 	<br clear="all">
-	{/if}
-	
-	<form class="toolbar" action="javascript:;" method="POST" style="margin-top:5px;" onsubmit="return false;">
-		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-		
-		<!-- Macros -->
-		{if $is_writeable}
-		{devblocks_url assign=return_url full=true}c=profiles&tab=calendar_event&id={$event->name|devblocks_permalink}-{$page_context_id}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.calendar_event" return_url=$return_url}
-		{/if}
-	
-		<!-- Edit -->
-		{if $is_writeable}
-		<button type="button" id="btnProfileEventEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
-		{/if}
-	</form>
-	
-	{if $pref_keyboard_shortcuts}
-	<small>
-		{'common.keyboard'|devblocks_translate|lower}:
-		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-		(<b>1-9</b>) change tab
-	</small> 
 	{/if}
 </fieldset>
 
@@ -98,7 +88,9 @@ $(function() {
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileCalendarEventTabs');
 	
 	var tabs = $("#profileCalendarEventTabs").tabs(tabOptions);
-
+	
+	$('#btnProfileCard').cerbPeekTrigger();
+	
 	// Edit
 	{if $is_writeable}
 	$('#btnProfileEventEdit')

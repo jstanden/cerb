@@ -17,22 +17,26 @@
 			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 			</span>
 			
+			<!-- Card -->
+			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+			
+			<!-- Edit -->
+			{if $is_writeable}
+			<button type="button" id="btnDisplayBucketEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			{/if}
+		</form>
 		
-		<!-- Edit -->
-		{if $is_writeable}
-		<button type="button" id="btnDisplayBucketEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{if $pref_keyboard_shortcuts}
+			<small>
+			{$translate->_('common.keyboard')|lower}:
+			{if $active_worker->isGroupManager($page_context_id)}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
+			(<b>1-9</b>) change tab
+			</small>
 		{/if}
-	</form>
-	
-	{if $pref_keyboard_shortcuts}
-		<small>
-		{$translate->_('common.keyboard')|lower}:
-		{if $active_worker->isGroupManager($page_context_id)}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
-		(<b>1-9</b>) change tab
-		</small>
-	{/if}
+	</div>
 </div>
+
+<div style="clear:both;"></div>
 
 <fieldset class="properties">
 	<legend>{'Bucket'|devblocks_translate|capitalize}</legend>
@@ -88,6 +92,8 @@ $(function() {
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('bucketTabs');
 
 	var tabs = $("#bucketTabs").tabs(tabOptions);
+	
+	$('#btnProfileCard').cerbPeekTrigger();
 	
 	$('#btnDisplayBucketEdit').bind('click', function() {
 		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');

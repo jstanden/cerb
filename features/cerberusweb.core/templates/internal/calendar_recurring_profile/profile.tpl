@@ -12,23 +12,20 @@
 		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>
 	
+		<!-- Card -->
+		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+
+		<!-- Edit -->
+		{if $is_writeable}
+		<button type="button" id="btnDisplayCalendarRecurringProfileEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{/if}
 		
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		</span>
 		
-		<!-- Macros -->
-		{*
 		{if $is_writeable}
-		{devblocks_url assign=return_url full=true}c=profiles&type=calendar_recurring_profile&id={$page_context_id}-{$calendar_recurring_profile->event_name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.calendar_recurring_profile" return_url=$return_url}
-		{/if}
-		*}
-		
-		<!-- Edit -->
-		{if $is_writeable}
-		<button type="button" id="btnDisplayCalendarRecurringProfileEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		<button type="button" id="btnProfileAddComment" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$page_context} context.id:{$page_context_id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 		{/if}
 	</form>
@@ -99,6 +96,11 @@ $(function() {
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('calendar_recurring_profileTabs');
 	
 	var tabs = $("#calendar_recurring_profileTabs").tabs(tabOptions);
+	
+	// Card
+	$('#btnProfileCard')
+		.cerbPeekTrigger()
+	;
 	
 	// Interactions
 	var $interaction_container = $('#spanInteractions');

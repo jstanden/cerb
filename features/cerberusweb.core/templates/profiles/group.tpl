@@ -15,17 +15,14 @@
 	<div class="cerb-profile-toolbar">
 		<form class="toolbar" action="javascript:;" method="POST" onsubmit="return false;">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-		
-			<!-- Macros -->
-			{if $is_writeable}
-			{devblocks_url assign=return_url full=true}c=profiles&tab=group&id={$page_context_id}-{$group->name|devblocks_permalink}{/devblocks_url}
-			{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.group" return_url=$return_url}
-			{/if}
-		
 			
 			<span id="spanInteractions">
 			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 			</span>
+			
+			<!-- Card -->
+			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+			
 			{if $is_writeable}
 			<button type="button" id="btnProfileGroupEdit" title="{'common.edit'|devblocks_translate|capitalize}" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
@@ -35,16 +32,10 @@
 			<small>
 			{$translate->_('common.keyboard')|lower}:
 			{if $active_worker->is_superuser}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
-			{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 			(<b>1-9</b>) change tab
 			</small>
 		{/if}
 	</div>
-</div>
-
-<div style="float:right;">
-	{$ctx = Extension_DevblocksContext::get($page_context)}
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
 </div>
 
 <div style="clear:both;"></div>
@@ -134,6 +125,8 @@ $(function() {
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileGroupTabs');
 	
 	var tabs = $("#profileGroupTabs").tabs(tabOptions);
+	
+	$('#btnProfileCard').cerbPeekTrigger();
 
 	{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
 	$('#btnProfileGroupEdit')
@@ -146,7 +139,6 @@ $(function() {
 		})
 		.on('cerb-peek-deleted', function(e) {
 			document.location.href = '{devblocks_url}{/devblocks_url}';
-			
 		})
 		.on('cerb-peek-closed', function(e) {
 		})

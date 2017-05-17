@@ -8,31 +8,28 @@
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
-		<!-- Toolbar -->
-		
-		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		<span id="spanInteractions">
 		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>
 		
-		<!-- Macros -->
-		{if $is_writeable}
-		{devblocks_url assign=return_url full=true}c=profiles&type=calendar&id={$page_context_id}-{$calendar->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.calendar" return_url=$return_url}
-		{/if}
+		<!-- Card -->
+		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
 		
 		<!-- Edit -->
 		{if $is_writeable}
 		<button type="button" id="btnDisplayCalendarEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
+		
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		</span>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
 		<small>
 		{'common.keyboard'|devblocks_translate|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		{if !empty($macros)}(<b>m</b>) {'common.macros'|devblocks_translate|lower} {/if}
 		(<b>1-9</b>) change tab
 		</small>
 	{/if}
@@ -93,33 +90,36 @@
 <br>
 
 <script type="text/javascript">
-	$(function() {
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		tabOptions.active = Devblocks.getjQueryUiTabSelected('profileCalendarTabs');
-		
-		var tabs = $("#profileCalendarTabs").tabs(tabOptions);
-		
-		// Edit
-		{if $is_writeable}
-		$('#btnDisplayCalendarEdit')
-			.cerbPeekTrigger()
-			.on('cerb-peek-opened', function(e) {
-			})
-			.on('cerb-peek-saved', function(e) {
-				e.stopPropagation();
-				document.location.reload();
-			})
-			.on('cerb-peek-deleted', function(e) {
-				document.location.href = '{devblocks_url}{/devblocks_url}';
-			})
-			.on('cerb-peek-closed', function(e) {
-			})
-			;
-		{/if}
-	});
+$(function() {
+	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileCalendarTabs');
+	
+	var tabs = $("#profileCalendarTabs").tabs(tabOptions);
+	
+	$('#btnProfileCard').cerbPeekTrigger();
+	
+	// Edit
+	{if $is_writeable}
+	$('#btnDisplayCalendarEdit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
+			document.location.reload();
+		})
+		.on('cerb-peek-deleted', function(e) {
+			document.location.href = '{devblocks_url}{/devblocks_url}';
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+		;
+	{/if}
+	
 	// Interactions
 	var $interaction_container = $('#spanInteractions');
 	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
+});
 </script>
 
 <script type="text/javascript">

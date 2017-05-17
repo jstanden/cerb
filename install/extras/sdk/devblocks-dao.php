@@ -2025,6 +2025,9 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>
 		
+		<!-- Card -->
+		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+		
 		<span>
 		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
@@ -2100,6 +2103,8 @@ $(function() {
 
 	var tabs = $("#<?php echo $table_name; ?>Tabs").tabs(tabOptions);
 
+	$('#btnProfileCard').cerbPeekTrigger();
+	
 	// Edit
 	{if $is_writeable}
 	$('#btnDisplay<?php echo $class_name; ?>Edit')
@@ -2134,7 +2139,7 @@ $(function() {
 		
 		if($(event.target).is(':input'))
 			return;
-	
+		
 		hotkey_activated = true;
 		
 		switch(event.which) {

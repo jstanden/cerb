@@ -8,18 +8,23 @@
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
-		<!-- Toolbar -->
-		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 		<span id="spanInteractions">
 		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>
 		
+		<!-- Card -->
+		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
 		
 		<!-- Edit -->
 		{if $is_writeable}
 		<button type="button" id="btnDisplayTimeEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
+
+		<!-- Toolbar -->
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		</span>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -89,6 +94,8 @@ $(function() {
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileTimeTrackingTabs');
 	
 	var tabs = $("#profileTimeTrackingTabs").tabs(tabOptions);
+	
+	$('#btnProfileCard').cerbPeekTrigger();
 	
 	// Edit
 	
