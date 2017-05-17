@@ -17,7 +17,7 @@
 	],
 	"require" : {
 		"smarty/smarty" : "3.1.31",
-		"swiftmailer/swiftmailer" : "5.3.1"
+		"swiftmailer/swiftmailer" : "5.4.8"
 	},
 	"require-dev" : {
 		"phpseclib/phpseclib" : "2.0.4",

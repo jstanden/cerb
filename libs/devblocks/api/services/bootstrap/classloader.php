@@ -100,18 +100,6 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/s3/S3.php', array(
 			'S3'
 		));
-		$this->registerClasses(DEVBLOCKS_PATH . 'libs/swift/swift_required.php', array(
-			'Swift',
-			'Swift_Attachment',
-			'Swift_Events_TransportExceptionListener',
-			'Swift_InputByteStream',
-			'Swift_Mailer',
-			'Swift_Message',
-			'Swift_OutputByteStream',
-			'Swift_Plugins_AntiFloodPlugin',
-			'Swift_SmtpTransport',
-			'Swift_Transport',
-		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/Twig/Autoloader.php', array(
 			'Twig_Autoloader',
 		));
