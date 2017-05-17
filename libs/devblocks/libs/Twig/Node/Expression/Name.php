@@ -52,7 +52,12 @@ class Twig_Node_Expression_Name extends Twig_Node_Expression
                 ;
 
                 if ($this->getAttribute('ignore_strict_check') || !$compiler->getEnvironment()->isStrictVariables()) {
-                    $compiler->raw('null)');
+                    $compiler
+                        //->raw('null)')
+                        ->raw('$this->env->getUndefinedVariable(')
+                        ->string($name)
+                        ->raw('))')
+                    ;
                 } else {
                     $compiler->raw('$this->getContext($context, ')->string($name)->raw('))');
                 }
@@ -67,7 +72,12 @@ class Twig_Node_Expression_Name extends Twig_Node_Expression
                 ;
 
                 if ($this->getAttribute('ignore_strict_check') || !$compiler->getEnvironment()->isStrictVariables()) {
-                    $compiler->raw('null)');
+                    $compiler
+                        //->raw('null)')
+                        ->raw('$this->env->getUndefinedVariable(')
+                        ->string($name)
+                        ->raw('))')
+                    ;
                 } else {
                     $compiler->raw('$this->getContext($context, ')->string($name)->raw('))');
                 }
