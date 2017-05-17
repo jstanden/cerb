@@ -1,6 +1,5 @@
 <?php
 define('SMARTY_RESOURCE_CHAR_SET', DevblocksPlatform::strUpper(LANG_CHARSET_CODE));
-require(DEVBLOCKS_PATH . 'libs/smarty/Smarty.class.php');
 
 /**
  * Smarty Template Manager Singleton
