@@ -48,12 +48,6 @@
 			</td>
 		</tr>
 		
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.created'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<input type="text" name="created_date" size=35 class="input_date" value="{if !empty($opp->created_date)}{$opp->created_date|devblocks_date}{else}now{/if}">
-			</td>
-		</tr>
 		<tr id="oppPeekClosedDate" {if !$opp->is_closed}style="display:none;"{/if}>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}: </td>
 			<td width="100%">

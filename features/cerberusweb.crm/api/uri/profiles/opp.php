@@ -172,7 +172,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		@$amount = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0.00');
 		@$email_id = DevblocksPlatform::importGPC($_REQUEST['email_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
-		@$created_date_str = DevblocksPlatform::importGPC($_REQUEST['created_date'],'string','');
 		@$closed_date_str = DevblocksPlatform::importGPC($_REQUEST['closed_date'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
@@ -183,10 +182,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		// Strip currency formatting symbols
 		$amount = floatval(str_replace(array(',','$','¢','£','€'),'',$amount));
 		
-		// Dates
-		if(false === ($created_date = strtotime($created_date_str)))
-			$created_date = time();
-			
 		if(false === ($closed_date = strtotime($closed_date_str)))
 			$closed_date = ($is_closed) ? time() : 0;
 
@@ -232,7 +227,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 					DAO_CrmOpportunity::NAME => $name,
 					DAO_CrmOpportunity::AMOUNT => $amount,
 					DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
-					DAO_CrmOpportunity::CREATED_DATE => intval($created_date),
 					DAO_CrmOpportunity::UPDATED_DATE => time(),
 					DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
 					DAO_CrmOpportunity::IS_CLOSED => $is_closed,
@@ -243,6 +237,8 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				if(empty($id)) {
 					if(empty($id) && !$active_worker->hasPriv('crm.opp.actions.create'))
 						throw new Exception_DevblocksAjaxValidationError("You don't have permission to create this record.");
+					
+					$fields[DAO_CrmOpportunity::CREATED_DATE] = time();
 					
 					$id = DAO_CrmOpportunity::create($fields);
 					
