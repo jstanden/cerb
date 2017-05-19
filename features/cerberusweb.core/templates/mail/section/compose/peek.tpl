@@ -96,12 +96,12 @@
 					</fieldset>
 				</div>
 				
-				<textarea id="divComposeContent{$random}" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{if !empty($draft)}{$draft->body}{else}
+				<textarea id="divComposeContent{$random}" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{if !empty($draft)}{$draft->body}{else}{if $defaults.signature_pos}
 
 
 
 #signature
-#cut{/if}</textarea>
+#cut{/if}{/if}</textarea>
 
 				<b>(Use #commands to perform additional actions)</b>
 			</td>

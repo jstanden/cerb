@@ -4971,6 +4971,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'group_id' => DAO_WorkerPref::get($active_worker->id,'compose.group_id',0),
 			'bucket_id' => DAO_WorkerPref::get($active_worker->id,'compose.bucket_id',0),
 			'status' => DAO_WorkerPref::get($active_worker->id,'compose.status','waiting'),
+			'signature_pos' => DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2),
 		);
 		
 		// Continue a draft?
