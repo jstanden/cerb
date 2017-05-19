@@ -48,6 +48,8 @@ class Rest_ActivityLog extends Extension_RestController implements IExtensionRes
 			
 		} else {
 			$tokens = array(
+				'activity' => SearchFields_ContextActivityLog::ACTIVITY_POINT,
+				'created' => SearchFields_ContextActivityLog::CREATED,
 				'id' => SearchFields_ContextActivityLog::ID,
 			);
 		}
