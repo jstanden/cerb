@@ -559,7 +559,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			// Reply to only these recipients
 			if(2 == $reply_mode) {
 				if(isset($message_headers['to'])) {
-					$addys = CerberusMail::parseRfcAddresses($message_headers['from'] . ', ' . $message_headers['to'], true);
+					$from = isset($message_headers['reply-to']) ? $message_headers['reply-to'] : $message_headers['from'];
+					$addys = CerberusMail::parseRfcAddresses($from . ', ' . $message_headers['to'], true);
 					$recipients = array();
 					
 					if(is_array($addys))
