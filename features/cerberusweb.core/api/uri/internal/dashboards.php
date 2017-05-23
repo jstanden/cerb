@@ -202,6 +202,7 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 		
 		$widget_json = json_encode(array(
 			'widget' => array(
+				'uid' => 'workspace_widget_' . $widget->id,
 				'label' => $widget->label,
 				'extension_id' => $widget->extension_id,
 				'cache_ttl' => $widget->cache_ttl,
@@ -426,6 +427,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$json = array(
 			'tab' => array(
+				'uid' => 'workspace_tab_' . $tab->id,
 				'name' => $tab->name,
 				'extension_id' => $tab->extension_id,
 				'params' => $tab->params,
@@ -437,12 +439,11 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		
 		foreach($widgets as $widget) {
 			$widget_json = array(
-				'widget' => array(
-					'label' => $widget->label,
-					'extension_id' => $widget->extension_id,
-					'pos' => $widget->pos,
-					'params' => $widget->params,
-				),
+				'uid' => 'workspace_widget_' . $widget->id,
+				'label' => $widget->label,
+				'extension_id' => $widget->extension_id,
+				'pos' => $widget->pos,
+				'params' => $widget->params,
 			);
 			
 			$json['tab']['widgets'][] = $widget_json;
@@ -459,14 +460,14 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 			return false;
 		
 		foreach($json['tab']['widgets'] as $widget) {
-			DAO_WorkspaceWidget::create(array(
-				DAO_WorkspaceWidget::LABEL => $widget['widget']['label'],
-				DAO_WorkspaceWidget::EXTENSION_ID => $widget['widget']['extension_id'],
-				DAO_WorkspaceWidget::POS => $widget['widget']['pos'],
-				DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget['widget']['params']),
+			$widget_id = DAO_WorkspaceWidget::create([
+				DAO_WorkspaceWidget::LABEL => $widget['label'],
+				DAO_WorkspaceWidget::EXTENSION_ID => $widget['extension_id'],
+				DAO_WorkspaceWidget::POS => $widget['pos'],
+				DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget['params']),
 				DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $tab->id,
 				DAO_WorkspaceWidget::UPDATED_AT => time(),
-			));
+			]);
 		}
 		
 		return true;

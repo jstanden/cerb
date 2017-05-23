@@ -384,6 +384,7 @@ abstract class Extension_WorkspacePage extends DevblocksExtension {
 	function exportPageConfigJson(Model_WorkspacePage $page) {
 		$json_array = array(
 			'page' => array(
+				'uid' => 'workspace_page_' . $page->id,
 				'name' => $page->name,
 				'extension_id' => $page->extension_id,
 			),

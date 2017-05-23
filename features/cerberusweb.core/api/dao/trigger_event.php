@@ -1169,6 +1169,7 @@ class Model_TriggerEvent {
 		
 		$array = array(
 			$export_type => array(
+				'uid' => 'behavior_'.$this->id,
 				'title' => $this->title,
 				'is_disabled' => $this->is_disabled ? true : false,
 				'is_private' => $this->is_private ? true : false,

@@ -9,6 +9,7 @@ class ExWorkspaceTab extends Extension_WorkspaceTab {
 	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$json = array(
 			'tab' => array(
+				'uid' => 'workspace_tab_' . $tab->id,
 				'name' => $tab->name,
 				'extension_id' => $tab->extension_id,
 				'params' => $tab->params,

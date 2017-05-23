@@ -40,6 +40,7 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 		
 		$json_array = array(
 			'page' => array(
+				'uid' => 'workspace_page_' . $page->id,
 				'name' => $page->name,
 				'extension_id' => $page->extension_id,
 				'tabs' => array(),
@@ -56,7 +57,7 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 			@$tab_json = json_decode($tab_extension->exportTabConfigJson($page, $tab), true);
 			
 			if(!empty($tab_json))
-				$json_array['page']['tabs'][] = $tab_json;
+				$json_array['page']['tabs'][] = $tab_json['tab'];
 		}
 		
 		return json_encode($json_array);
@@ -70,14 +71,14 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 			return false;
 		
 		foreach($import_json['page']['tabs'] as $pos => $tab_json) {
-			if(null == (@$tab_extension_id = $tab_json['tab']['extension_id']))
+			if(null == (@$tab_extension_id = $tab_json['extension_id']))
 				return false;
 			
 			if(null == ($tab_extension = Extension_WorkspaceTab::get($tab_extension_id)))
 				return false;
 			
-			@$name = $tab_json['tab']['name'];
-			@$params = $tab_json['tab']['params'] ?: array();
+			@$name = $tab_json['name'];
+			@$params = $tab_json['params'] ?: array();
 			
 			$tab_id = DAO_WorkspaceTab::create(array(
 				DAO_WorkspaceTab::NAME => $name ?: 'New Tab',
@@ -189,6 +190,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$json = array(
 			'tab' => array(
+				'uid' => 'workspace_tab_' . $tab->id,
 				'name' => $tab->name,
 				'extension_id' => $tab->extension_id,
 				'params' => $tab->params,
@@ -238,11 +240,9 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 			);
 			
 			$worklist_json = array(
-				'worklist' => array(
-					'pos' => $worklist->list_pos,
-					'title' => $worklist->list_view->title,
-					'model' => $model,
-				),
+				'pos' => $worklist->list_pos,
+				'title' => $worklist->list_view->title,
+				'model' => $model,
 			);
 			
 			$json['tab']['worklists'][] = $worklist_json;
@@ -259,7 +259,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 			return false;
 		
 		foreach($json['tab']['worklists'] as $worklist) {
-			$worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist['worklist']['model'], '');
+			$worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist['model'], '');
 			
 			// [TODO] This is sloppy, we need to convert it.
 			$view_model = C4_AbstractViewLoader::serializeAbstractView($worklist_view);
@@ -276,8 +276,8 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 			$list_view->subtotals = $view_model->renderSubtotals;
 			
 			$worklist_id = DAO_WorkspaceList::create(array(
-				DAO_WorkspaceList::CONTEXT => $worklist['worklist']['model']['context'],
-				DAO_WorkspaceList::LIST_POS => $worklist['worklist']['pos'],
+				DAO_WorkspaceList::CONTEXT => $worklist['model']['context'],
+				DAO_WorkspaceList::LIST_POS => $worklist['pos'],
 				DAO_WorkspaceList::LIST_VIEW => serialize($list_view),
 				DAO_WorkspaceList::WORKSPACE_TAB_ID => $tab->id,
 			));
