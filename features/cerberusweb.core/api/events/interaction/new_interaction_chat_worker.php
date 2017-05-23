@@ -25,12 +25,25 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger) {
 		$actions = [];
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		return new Model_DevblocksEvent(
 			self::ID,
 			array(
-				'interaction' => '',
+				'worker' => $active_worker,
 				'actions' => &$actions,
+				
+				'bot_name' => 'Cerb',
+				'bot_image' => null,
+				'behavior_id' => 0,
+				'behavior_has_parent' => false,
+				'interaction' => null,
+				'interaction_params' => [],
+				'client_browser' => null,
+				'client_browser_version' => null,
+				'client_ip' => null,
+				'client_platform' => null,
+				'client_url' => null,
 			)
 		);
 	}
@@ -50,6 +63,22 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 			// Merge
 			CerberusContexts::merge(
 				'behavior_',
+				'',
+				$merge_labels,
+				$merge_values,
+				$labels,
+				$values
+			);
+		
+		// Worker
+		@$worker = $event_model->params['worker'];
+		$merge_labels = array();
+		$merge_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $merge_labels, $merge_values, null, true);
+
+			// Merge
+			CerberusContexts::merge(
+				'worker_',
 				'',
 				$merge_labels,
 				$merge_values,
@@ -113,6 +142,9 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 			'interaction_behavior_id' => array(
 				'label' => 'Behavior',
 				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
+			),
+			'worker_id' => array(
+				'label' => 'Worker',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
@@ -180,6 +212,7 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
+				'set_bot_name' => array('label' => 'Set bot name'),
 				'switch_behavior' => array('label' => 'Use behavior'),
 			)
 		;
@@ -198,6 +231,11 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'set_bot_name':
+				$tpl->assign('var', 'name');
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
+				break;
+			
 			case 'switch_behavior':
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_switch_behavior.tpl');
 				break;
@@ -210,6 +248,17 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
+			case 'set_bot_name':
+				@$bot_name = $params['name'];
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$bot_name = $tpl_builder->build($bot_name, $dict);
+				
+				$out = sprintf(">>> Setting bot name to: %s\n".
+					$bot_name
+				);
+				break;
+			
 			case 'switch_behavior':
 				@$behavior_id = intval($params['behavior_id']);
 				
@@ -225,6 +274,21 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 	
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
+			case 'set_bot_name':
+				@$bot_name = $params['name'];
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$actions =& $dict->_actions;
+				
+				$bot_name = $tpl_builder->build($bot_name, $dict);
+				
+				$actions[] = array(
+					'_action' => 'bot.name',
+					'_trigger_id' => $trigger->id,
+					'name' => $bot_name,
+				);
+				break;
+				
 			case 'switch_behavior':
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				
