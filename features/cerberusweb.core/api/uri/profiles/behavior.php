@@ -260,7 +260,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						// Create records for all child nodes and link them to the proper parents
 			
 						if(isset($json['behavior']['nodes']))
-						if(false == $this->_recursiveImportDecisionNodes($json['behavior']['nodes'], $behavior_id, 0))
+						if(false == DAO_TriggerEvent::recursiveImportDecisionNodes($json['behavior']['nodes'], $behavior_id, 0))
 							throw new Exception_DevblocksAjaxValidationError("Failed to import nodes");
 						
 						// Enable the new behavior since we've succeeded
@@ -433,40 +433,6 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		}
 	}
 	
-	private function _recursiveImportDecisionNodes($nodes, $behavior_id, $parent_id) {
-		if(!is_array($nodes) || empty($nodes))
-			return;
-		
-		$pos = 0;
-		
-		// [TODO] We need to sanitize this data
-		foreach($nodes as $node) {
-			if(
-				!isset($node['type'])
-				|| !isset($node['title'])
-				|| !in_array($node['type'], array('action','loop','outcome','subroutine','switch'))
-			)
-				return false;
-			
-			$fields = array(
-				DAO_DecisionNode::NODE_TYPE => $node['type'],
-				DAO_DecisionNode::TITLE => $node['title'],
-				DAO_DecisionNode::PARENT_ID => $parent_id,
-				DAO_DecisionNode::TRIGGER_ID => $behavior_id,
-				DAO_DecisionNode::POS => $pos++,
-				DAO_DecisionNode::PARAMS_JSON => isset($node['params']) ? json_encode($node['params']) : '',
-			);
-			
-			$node_id = DAO_DecisionNode::create($fields);
-			
-			if(isset($node['nodes']) && is_array($node['nodes']))
-				if(false == ($result = $this->_recursiveImportDecisionNodes($node['nodes'], $behavior_id, $node_id)))
-					return false;
-		}
-		
-		return true;
-	}
-	
 	function showBuilderTabAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		
@@ -634,7 +600,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			}
 		}
 		
-		if(false == $this->_recursiveImportDecisionNodes($json['behavior_fragment']['nodes'], $trigger->id, $parent_id)) {
+		if(false == DAO_TriggerEvent::recursiveImportDecisionNodes($json['behavior_fragment']['nodes'], $trigger->id, $parent_id)) {
 			echo json_encode([
 				'status' => false,
 				'error' => 'Failed to import behavior fragment.',

@@ -54,6 +54,39 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
+	static function recursiveImportDecisionNodes($nodes, $behavior_id, $parent_id) {
+		if(!is_array($nodes) || empty($nodes))
+			return;
+		
+		$pos = 0;
+		
+		foreach($nodes as $node) {
+			if(
+				!isset($node['type'])
+				|| !isset($node['title'])
+				|| !in_array($node['type'], array('action','loop','outcome','subroutine','switch'))
+			)
+				return false;
+			
+			$fields = array(
+				DAO_DecisionNode::NODE_TYPE => $node['type'],
+				DAO_DecisionNode::TITLE => $node['title'],
+				DAO_DecisionNode::PARENT_ID => $parent_id,
+				DAO_DecisionNode::TRIGGER_ID => $behavior_id,
+				DAO_DecisionNode::POS => $pos++,
+				DAO_DecisionNode::PARAMS_JSON => isset($node['params']) ? json_encode($node['params']) : '',
+			);
+			
+			$node_id = DAO_DecisionNode::create($fields);
+			
+			if(isset($node['nodes']) && is_array($node['nodes']))
+				if(false == ($result = self::recursiveImportDecisionNodes($node['nodes'], $behavior_id, $node_id)))
+					return false;
+		}
+		
+		return true;
+	}
+	
 	/**
 	 *
 	 * @param bool $nocache
