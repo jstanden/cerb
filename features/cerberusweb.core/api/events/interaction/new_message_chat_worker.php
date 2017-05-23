@@ -114,6 +114,11 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 		$labels['interaction_behavior_id'] = 'Behavior ID';
 		$values['interaction_behavior_id'] = $behavior_id;
 		
+		// Behavior has parent
+		@$behavior_has_parent = $event_model->params['behavior_has_parent'];
+		$labels['interaction_behavior_has_parent'] = 'Behavior has parent';
+		$values['interaction_behavior_has_parent'] = $behavior_has_parent;
+		
 		// Interaction
 		@$interaction = $event_model->params['interaction'];
 		$labels['interaction'] = 'Interaction';
@@ -187,16 +192,20 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 		$types['message'] = Model_CustomField::TYPE_MULTI_LINE;
 		
 		// Bot
-		$labels['interaction_bot_name'] = 'Bot Name';
+		$labels['interaction_bot_name'] = 'Interaction Bot Name';
 		$types['interaction_bot_name'] = Model_CustomField::TYPE_SINGLE_LINE;
 		
-		$labels['interaction_bot_image'] = 'Bot Image';
+		$labels['interaction_bot_image'] = 'Interaction Bot Image';
 		$types['interaction_bot_image'] = Model_CustomField::TYPE_SINGLE_LINE;
 		
 		// Behavior
 		// [TODO] Expand
-		$labels['interaction_behavior_id'] = 'Behavior ID';
+		$labels['interaction_behavior_id'] = 'Interaction Behavior ID';
 		$types['interaction_behavior_id'] = Model_CustomField::TYPE_NUMBER;
+		
+		// Behavior has parent
+		$labels['interaction_behavior_has_parent'] = 'Interaction Behavior has parent';
+		$types['interaction_behavior_has_parent'] = Model_CustomField::TYPE_CHECKBOX;
 		
 		// Interaction
 		$labels['interaction'] = 'Interaction';
