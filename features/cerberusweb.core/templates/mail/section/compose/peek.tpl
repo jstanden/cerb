@@ -80,6 +80,9 @@
 					<fieldset style="display:inline-block;">
 						<legend>Actions</legend>
 						
+						<div id="divComposeInteractions{$popup_uniqid}" style="display:inline-block;">
+						{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+						</div>
 						
 						<button id="btnComposeSaveDraft{$popup_uniqid}" class="toolbar-item" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
 						<button id="btnComposeInsertSig{$popup_uniqid}" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="glyphicons glyphicons-edit"></span> Insert Signature</button>
@@ -591,6 +594,10 @@
 				return false;
 			}
 		});
+		
+		// Interactions
+		var $interaction_container = $('#divComposeInteractions{$popup_uniqid}');
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 		
 		// Shortcuts
 		

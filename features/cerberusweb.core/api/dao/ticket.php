@@ -4849,6 +4849,15 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Random popup ID
 		$random = uniqid();
 		$tpl->assign('popup_uniqid', $random);
+		
+		// Interactions
+		$point_params = [
+			'uniqid' => $random,
+		];
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('mail.compose', $point_params, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
+		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::mail/section/compose/peek.tpl');
 	}
