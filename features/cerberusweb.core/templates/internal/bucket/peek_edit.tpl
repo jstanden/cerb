@@ -180,7 +180,16 @@ $(function() {
 				if(undefined == token || undefined == label)
 					return;
 				
-				$(this).siblings('input:text,textarea').first().focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+				var $field = $(this).prevAll('pre.ace_editor, :text, textarea').first();
+				
+				if($field.is(':text, textarea')) {
+					$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+					
+				} else if($field.is('.ace_editor')) {
+					var evt = new jQuery.Event('cerb.insertAtCursor');
+					evt.content = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
+					$field.trigger(evt);
+				}
 			}
 		});
 		
@@ -193,7 +202,7 @@ $(function() {
 		;
 		
 		$popup.find('.placeholders')
-			.cerbTwigCodeCompletion()
+			.cerbCodeEditor()
 			;
 		
 	});

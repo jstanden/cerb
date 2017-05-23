@@ -26,7 +26,7 @@
 	
 	<b>For each object in this JSON array:</b>
 	<div style="margin:0px 0px 10px 10px;">
-		<textarea name="params[foreach_json]" style="width:100%;height:200px;">{$model->params.foreach_json}</textarea>
+		<textarea name="params[foreach_json]" data-editor-mode="ace/mode/twig" style="width:100%;height:200px;">{$model->params.foreach_json}</textarea>
 	</div>
 	
 	<b>Set this object placeholder:</b>
@@ -55,6 +55,8 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{if empty($id)}New {/if}Loop");
+		
+		$popup.find('textarea').cerbCodeEditor();
 	});
 });
 </script>

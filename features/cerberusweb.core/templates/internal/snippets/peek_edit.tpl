@@ -273,7 +273,7 @@ $(function() {
 		
 		// Snippet syntax
 		$textarea
-			.cerbTwigCodeCompletion()
+			.cerbCodeEditor()
 			;
 		
 		// Placeholder deletion

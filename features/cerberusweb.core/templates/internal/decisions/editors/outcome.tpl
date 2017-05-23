@@ -169,7 +169,8 @@ $(function() {
 
 		var $frm = $popup.find('form#frmDecisionOutcome{$id}');
 		var $legend = $popup.find('fieldset legend');
-		var $menu = $popup.find('fieldset ul.cerb-popupmenu:first'); 
+		var $menu = $popup.find('fieldset ul.cerb-popupmenu:first');
+		var $toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
 
 		$frm.find('fieldset UL.rules')
 			.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'handle':'> b', 'connectWith':'#frmDecisionOutcome{$id} fieldset ul.rules' })
@@ -200,7 +201,7 @@ $(function() {
 		$frmAdd.find('button.group')
 			.click(function(e) {
 				var $group = $('<fieldset></fieldset>');
-				$group.append('<legend>If <a href="javascript:;">all&#x25be;</a> of these conditions are satisfied <a href="javascript:;" onclick="$(this).closest(\'fieldset\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a></legend>');
+				$group.append('<legend>If <a href="javascript:;">all&#x25be;</a> of these conditions are satisfied <a href="javascript:;" onclick="$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a></legend>');
 				$group.append('<input type="hidden" name="nodes[]" value="all">');
 				$group.append('<ul class="rules" style="margin:0px;list-style:none;padding:0px;padding-bottom:5px;"></ul>');
 				$group.find('legend > a').click($funcGroupAnyToggle);
@@ -214,22 +215,34 @@ $(function() {
 		
 		// Placeholders
 		
-		$popup.delegate(':text.placeholders, textarea.placeholders', 'focus', function(e) {
-			var $toolbar = $('#divDecisionOutcomeToolbar{$id}');
-			var src = (null==e.srcElement) ? e.target : e.srcElement;
-			if(0 == $(src).nextAll('#divDecisionOutcomeToolbar{$id}').length) {
+		$popup.find('textarea.placeholders, :text.placeholders').cerbCodeEditor();
+		
+		$popup.delegate(':text.placeholders, textarea.placeholders, pre.placeholders', 'focus', function(e) {
+			e.stopPropagation();
+			
+			var $target = $(e.target);
+			var $parent = $target.closest('.ace_editor');
+			
+			if(0 != $parent.length) {
 				$toolbar.find('div.tester').html('');
 				$toolbar.find('ul.menu').hide();
-				$toolbar.show().insertAfter(src);
+				$toolbar.show().insertAfter($parent);
+				$toolbar.data('src', $parent);
+				
+			} else {
+				if(0 == $target.nextAll('#divDecisionOutcomeToolbar{$id}').length) {
+					$toolbar.find('div.tester').html('');
+					$toolbar.find('ul.menu').hide();
+					$toolbar.show().insertAfter($target);
+					$toolbar.data('src', $target);
+				}
 			}
 		});
 		
 		// Placeholder menu
 		
-		var $divPlaceholderMenu = $('#divDecisionOutcomeToolbar{$id}');
-		
-		var $placeholder_menu_trigger = $divPlaceholderMenu.find('button.cerb-popupmenu-trigger');
-		var $placeholder_menu = $divPlaceholderMenu.find('ul.menu').hide();
+		var $placeholder_menu_trigger = $toolbar.find('button.cerb-popupmenu-trigger');
+		var $placeholder_menu = $toolbar.find('ul.menu').hide();
 		
 		// Quick insert token menu
 		
@@ -241,12 +254,10 @@ $(function() {
 				if(undefined == token || undefined == label)
 					return;
 				
-				var $toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
 				var $field = null;
 				
 				if($toolbar.data('src')) {
 					$field = $toolbar.data('src');
-				
 				} else {
 					$field = $toolbar.prev(':text, textarea');
 				}
@@ -254,29 +265,47 @@ $(function() {
 				if(null == $field)
 					return;
 				
-				$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+				if($field.is(':text, textarea')) {
+					$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+					
+				} else if($field.is('.ace_editor')) {
+					var evt = new jQuery.Event('cerb.insertAtCursor');
+					evt.content = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
+					$field.trigger(evt);
+				}
 			}
 		});
 		
-		$divPlaceholderMenu.find('button.tester').click(function(e) {
-			var divTester = $divPlaceholderMenu.find('div.tester').first();
+		$toolbar.find('button.tester').click(function(e) {
+			var divTester = $toolbar.find('div.tester').first();
 			
-			var $toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
-			var $field = $toolbar.prev(':text, textarea');
+			var $field = null;
+			
+			if($toolbar.data('src')) {
+				$field = $toolbar.data('src');
+			} else {
+				$field = $toolbar.prev(':text, textarea');
+			}
 			
 			if(null == $field)
 				return;
 			
-			var regexpName = /^(.*?)(\[.*?\])$/;
-			var hits = regexpName.exec($field.attr('name'));
+			if($field.is('.ace_editor')) {
+				var $field = $field.prev('textarea, :text');
+			}
 			
-			if(null == hits || hits.length < 3)
-				return;
-			
-			var strNamespace = hits[1];
-			var strName = hits[2];
-			
-			genericAjaxPost($(this).closest('form').attr('id'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);
+			if($field.is(':text, textarea')) {
+				var regexpName = /^(.*?)(\[.*?\])$/;
+				var hits = regexpName.exec($field.attr('name'));
+				
+				if(null == hits || hits.length < 3)
+					return;
+				
+				var strNamespace = hits[1];
+				var strName = hits[2];
+				
+				genericAjaxPost($(this).closest('form'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);
+			}
 		});
 		
 		$placeholder_menu_trigger
@@ -318,7 +347,7 @@ $(function() {
 					var seq = parseInt($frmDecAdd.find('input[name=seq]').val());
 					if(null == seq)
 						seq = 0;
-	
+					
 					var $html = $('<div style="margin-left:20px;"/>').html(html);
 					
 					var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition'+seq);
@@ -329,10 +358,12 @@ $(function() {
 					$container.append($('<b style="cursor:move;"/>').text(label));
 					$container.append('&nbsp;');
 					$container.hide();
-	
+					
 					$ul.append($container);
 					$container.append($html).fadeIn();
-	
+					
+					$html.find('textarea.placeholders, :text.placeholders').cerbCodeEditor();
+					
 					$html.find('BUTTON.chooser_worker.unbound').each(function() {
 						ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });
 						$(this).removeClass('unbound');

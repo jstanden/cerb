@@ -68,7 +68,6 @@
 	<br>
 	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
 	<button type="button" onclick="genericAjaxPost('frmAddyOutgoingPeek','divSigTester','c=internal&a=snippetTest&snippet_context=cerberusweb.contexts.worker&snippet_field=reply_signature');">{'common.test'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="genericAjaxGet('','c=tickets&a=getComposeSignature&raw=1&group_id=0',function(txt) { $('#frmAddyOutgoingPeek textarea').text(txt); } );">{'common.default'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 	
 	<ul class="menu" style="width:150px;">
@@ -146,7 +145,16 @@ $(function() {
 				if(undefined == token || undefined == label)
 					return;
 				
-				$(this).siblings('input:text,textarea').first().focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+				var $field = $(this).prevAll('pre.ace_editor, :text, textarea').first();
+				
+				if($field.is(':text, textarea')) {
+					$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+					
+				} else if($field.is('.ace_editor')) {
+					var evt = new jQuery.Event('cerb.insertAtCursor');
+					evt.content = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
+					$field.trigger(evt);
+				}
 			}
 		});
 		
@@ -159,7 +167,7 @@ $(function() {
 		;
 		
 		$popup.find('.placeholders')
-			.cerbTwigCodeCompletion()
+			.cerbCodeEditor()
 			;
 	});
 });

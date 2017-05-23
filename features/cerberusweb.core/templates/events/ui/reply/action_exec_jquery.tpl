@@ -1,6 +1,6 @@
 <b>jQuery Script:</b>
 <div>
-<textarea name="{$namePrefix}[jquery_script]" rows="3" cols="45" style="width:100%;" class="placeholders" wrap="off" spellcheck="false">{if !empty($params.jquery_script)}{$params.jquery_script}{else}
+<textarea name="{$namePrefix}[jquery_script]" rows="3" cols="45" style="width:100%;" class="placeholders" data-editor-mode="ace/mode/twig_javascript" wrap="off" spellcheck="false">{if !empty($params.jquery_script)}{$params.jquery_script}{else}
 {if !empty($default_jquery)}{$default_jquery}{else}var $reply = $(this);
 var $form = {
 	fields: $reply.find('form:nth(0)'),

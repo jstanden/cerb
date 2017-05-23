@@ -51,6 +51,7 @@ $(function() {
 					genericAjaxGet(null,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + id, function(html) {
 						var $html = $(html);
 						$behavior_params.html($html);
+						$html.find('.placeholders').cerbCodeEditor();
 					});
 				} else {
 					$behavior_params.html('');

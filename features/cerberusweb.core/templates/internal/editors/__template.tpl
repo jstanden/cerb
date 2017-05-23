@@ -54,7 +54,7 @@ $(function() {
 		$popup.dialog('option','title', 'Template Editor: {$context_ext->manifest->name|capitalize|escape:'javascript'}');
 		$popup.css('overflow', 'inherit');
 
-		var $textarea = $popup.find('textarea[name=content]').focus();
+		var $textarea = $popup.find('textarea[name=content]');
 		
 		//$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		
@@ -83,14 +83,22 @@ $(function() {
 				if(undefined == token || undefined == label)
 					return;
 				
-				{literal}$textarea.insertAtCursor('{{'+token+'}}');{/literal}
-				$textarea.focus();
+				var $field = $textarea.siblings('pre.ace_editor');
+				
+				if($field.is(':text, textarea')) {
+					$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+					
+				} else if($field.is('.ace_editor')) {
+					var evt = new jQuery.Event('cerb.insertAtCursor');
+					evt.content = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
+					$field.trigger(evt);
+				}
 			}
 		});
 		
 		// Snippet syntax
 		$textarea
-			.cerbTwigCodeCompletion()
+			.cerbCodeEditor()
 			;
 	});
 });

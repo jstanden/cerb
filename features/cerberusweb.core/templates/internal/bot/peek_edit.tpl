@@ -233,6 +233,11 @@ $(function() {
 				$actions_container.show();
 		});
 		
+		// Editor
+		$popup.find('textarea[name=config_json]')
+			.cerbCodeEditor()
+		;
+		
 		// Avatar
 		
 		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
