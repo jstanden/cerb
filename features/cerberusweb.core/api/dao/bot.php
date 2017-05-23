@@ -1167,6 +1167,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'config' => $prefix.$translate->_('common.configuration'),
 			'created_at' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
 			'mention_name' => $prefix.$translate->_('worker.at_mention_name'),
@@ -1182,6 +1183,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'config' => null,
 			'created_at' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'mention_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1228,6 +1230,9 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			// Owner
 			$token_values['owner__context'] = $model->owner_context;
 			$token_values['owner_id'] = $model->owner_context_id;
+			
+			// Configuration JSON
+			$token_values['config'] = is_array(@$model->params['config']) ? $model->params['config'] : [];
 		}
 		
 		return true;

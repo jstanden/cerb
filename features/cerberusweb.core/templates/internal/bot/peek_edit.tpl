@@ -63,6 +63,13 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_BOT context_id=$model->id}
 
+<fieldset class="peek">
+	<legend>{'common.configuration'|devblocks_translate|capitalize} (JSON)</legend>
+	
+	<textarea name="config_json" data-editor-mode="ace/mode/json" style="width:98%;height:5em;" spellcheck="false">{$model->params.config|json_encode|devblocks_prettyjson}</textarea>
+	<div>(these values will be available to every behavior on this bot)</div>
+</fieldset>
+
 <fieldset class="peek va-fieldset-interactions">
 	<legend>Interactions</legend>
 	

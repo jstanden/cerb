@@ -182,7 +182,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				@$itemized_events = DevblocksPlatform::importGPC($_REQUEST['itemized_events'], 'array', array());
 				@$allowed_actions = DevblocksPlatform::importGPC($_REQUEST['allowed_actions'], 'string', '');
 				@$itemized_actions = DevblocksPlatform::importGPC($_REQUEST['itemized_actions'], 'array', array());
-				@$interactions = DevblocksPlatform::importGPC($_REQUEST['interactions'], 'array', array());
+				@$config_json = DevblocksPlatform::importGPC($_REQUEST['config_json'], 'string', '');
 				
 				$is_disabled = DevblocksPlatform::intClamp($is_disabled, 0, 1);
 				
@@ -213,6 +213,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				// Permissions
 				
 				$params = array(
+					'config' => json_decode($config_json, true),
 					'events' => array(
 						'mode' => $allowed_events,
 						'items' => $itemized_events,
@@ -221,7 +222,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						'mode' => $allowed_actions,
 						'items' => $itemized_actions,
 					),
-					'interactions' => $interactions,
 				);
 				
 				// Create or update
