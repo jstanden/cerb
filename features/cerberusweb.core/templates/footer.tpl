@@ -26,6 +26,7 @@
 </table>
 <br>
 
-{if $active_worker && !empty($conversational_bots)}{include file="devblocks:cerberusweb.core::console/bot_notification.tpl"}{/if}
+{if $active_worker && $global_interactions_menu}{include file="devblocks:cerberusweb.core::console/bot_notification.tpl"}{/if}
+
 </body>
 </html>

@@ -215,12 +215,12 @@ class ChPageController extends DevblocksControllerExtension {
 		
 		$tpl->assign('search_menu', $search_menu);
 		
-		// Conversational bots
-		if($active_worker && class_exists('Event_NewMessageChatWorker')) {
-			$conversational_bots = DAO_Bot::getReadableByActor($active_worker, Event_NewMessageChatWorker::ID);
-			$tpl->assign('conversational_bots', $conversational_bots);
-		}
-
+		// Conversational interactions
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('global', [], $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('global_interactions_menu', $interactions_menu);
+		
+		// Template
 		$tpl->display('devblocks:cerberusweb.core::border.tpl');
 		
 		if(!empty($active_worker)) {

@@ -17,7 +17,7 @@
 	cursor:pointer;
 }
 
-#bot-chat-button img {
+#bot-chat-button > div > img {
 	width:50px;
 	height:50px;
 	position:relative;
@@ -31,20 +31,61 @@
 	<div>
 		<img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}">
 	</div>
+	{function menu level=0}
+		{foreach from=$keys item=data key=idx}
+			{if is_array($data->children) && !empty($data->children)}
+				<li>
+					<div style="font-weight:bold;">
+						{if $data->image}
+						<img class="cerb-avatar" src="{$data->image}">
+						{/if}
+						{$data->label}
+					</div>
+					<ul style="width:300px;">
+						{menu keys=$data->children level=$level+1}
+					</ul>
+				</li>
+			{elseif !is_null($data->key)}
+				<li class="cerb-bot-trigger" data-interaction="{$data->interaction}" data-behavior-id="{$data->key}"{foreach from=$data->params item=param_value key=param_key} data-interaction-param-{$param_key}="{$param_value}"{/foreach}>
+					<div style="font-weight:bold;">
+						{$data->label}
+					</div>
+				</li>
+			{/if}
+		{/foreach}
+	{/function}
+	
+	<ul class="cerb-bot-interactions-menu cerb-float" style="display:none; width:250px;">
+	{menu keys=$global_interactions_menu}
+	</ul>
 </div>
 
 <script type="text/javascript">
 $(function() {
-	var $console_button = $('#bot-chat-button');
+	var $interaction_container = $('#bot-chat-button');
+	var $interaction_button = $interaction_container.find('> div');
+	var $interaction_menu = $interaction_container.find('> ul').hide();
 	
-	var position = {
-		my: "right bottom",
-		at: "right-25 bottom-350"
-	};
-	
-	$console_button.click(function() {
-		var $popup = genericAjaxPopup('va','c=internal&a=startBotInteraction', position, false, '300');
+	$interaction_button.on('click', function(e) {
 		Devblocks.playAudioUrl('');
+		$interaction_menu.toggle();
 	});
+	
+	$interaction_menu
+		.menu({
+			//icons: { submenu: "ui-icon-circle-triangle-e" },
+			position: { my: "right middle", at: "left middle" }
+		})
+		.css('position', 'absolute')
+		.css('right', '0')
+		.css('bottom', '50px')
+	;
+	
+	$interaction_menu.find('li.cerb-bot-trigger')
+		.cerbBotTrigger()
+		.on('click', function(e) {
+			e.stopPropagation();
+			$interaction_menu.menu( "collapse");
+		});
 });
 </script>
