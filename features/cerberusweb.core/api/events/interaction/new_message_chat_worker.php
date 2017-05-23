@@ -34,10 +34,11 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				'message' => 'This is a test message',
 				'actions' => &$actions,
 				
-				'bot_name' => 'Cerb',
-				'bot_image' => null,
-				'behavior_id' => 0,
 				'interaction' => null,
+				'interaction_behavior_has_parent' => false,
+				'interaction_behavior_id' => 0,
+				'interaction_bot_image' => null,
+				'interaction_bot_name' => 'Cerb',
 				'interaction_params' => [],
 				'client_browser' => null,
 				'client_browser_version' => null,
@@ -51,6 +52,24 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		$labels = array();
 		$values = array();
+		
+		/**
+		 * Behavior
+		 */
+		
+		$merge_labels = array();
+		$merge_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
+
+			// Merge
+			CerberusContexts::merge(
+				'behavior_',
+				'',
+				$merge_labels,
+				$merge_values,
+				$labels,
+				$values
+			);
 		
 		@$worker_id = $event_model->params['worker_id'];
 
@@ -82,18 +101,18 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 		
 		// Bot
 		@$bot_name = $event_model->params['bot_name'];
-		$labels['bot_name'] = 'Bot Name';
-		$values['bot_name'] = $bot_name;
+		$labels['interaction_bot_name'] = 'Bot Name';
+		$values['interaction_bot_name'] = $bot_name;
 		
 		@$bot_image = $event_model->params['bot_image'];
-		$labels['bot_image'] = 'Bot Image';
-		$values['bot_image'] = $bot_image;
+		$labels['interaction_bot_image'] = 'Bot Image';
+		$values['interaction_bot_image'] = $bot_image;
 		
 		// Behavior
 		// [TODO] Expand
 		@$behavior_id = $event_model->params['behavior_id'];
-		$labels['behavior_id'] = 'Behavior ID';
-		$values['behavior_id'] = $behavior_id;
+		$labels['interaction_behavior_id'] = 'Behavior ID';
+		$values['interaction_behavior_id'] = $behavior_id;
 		
 		// Interaction
 		@$interaction = $event_model->params['interaction'];
@@ -138,8 +157,16 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				'label' => 'Behavior',
 				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
 			),
-			'sender_id' => array(
-				'label' => 'Sender',
+			'behavior_bot_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BOT,
+			),
+			'interaction_behavior_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
+			),
+			'worker_id' => array(
+				'label' => 'Worker',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
@@ -160,16 +187,16 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 		$types['message'] = Model_CustomField::TYPE_MULTI_LINE;
 		
 		// Bot
-		$labels['bot_name'] = 'Bot Name';
-		$types['bot_name'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$labels['interaction_bot_name'] = 'Bot Name';
+		$types['interaction_bot_name'] = Model_CustomField::TYPE_SINGLE_LINE;
 		
-		$labels['bot_image'] = 'Bot Image';
-		$types['bot_image'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$labels['interaction_bot_image'] = 'Bot Image';
+		$types['interaction_bot_image'] = Model_CustomField::TYPE_SINGLE_LINE;
 		
 		// Behavior
 		// [TODO] Expand
-		$labels['behavior_id'] = 'Behavior ID';
-		$types['behavior_id'] = Model_CustomField::TYPE_NUMBER;
+		$labels['interaction_behavior_id'] = 'Behavior ID';
+		$types['interaction_behavior_id'] = Model_CustomField::TYPE_NUMBER;
 		
 		// Interaction
 		$labels['interaction'] = 'Interaction';

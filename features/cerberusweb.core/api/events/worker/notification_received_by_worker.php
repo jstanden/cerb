@@ -79,6 +79,25 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		
 		$labels = array();
 		$values = array();
+		
+		/**
+		 * Behavior
+		 */
+		
+		$merge_labels = array();
+		$merge_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
+
+			// Merge
+			CerberusContexts::merge(
+				'behavior_',
+				'',
+				$merge_labels,
+				$merge_values,
+				$labels,
+				$values
+			);
+		
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_NOTIFICATION, $notification_id, $labels, $values, null, true);
 		
 		$this->setLabels($labels);
@@ -93,6 +112,14 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	
 	function getValuesContexts($trigger) {
 		$vals = array(
+			'behavior_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
+			),
+			'behavior_bot_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BOT,
+			),
 			'id' => array(
 				'label' => 'Notification',
 				'context' => CerberusContexts::CONTEXT_NOTIFICATION,

@@ -41,6 +41,24 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 		$labels = array();
 		$values = array();
 		
+		/**
+		 * Behavior
+		 */
+		
+		$merge_labels = array();
+		$merge_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
+
+			// Merge
+			CerberusContexts::merge(
+				'behavior_',
+				'',
+				$merge_labels,
+				$merge_values,
+				$labels,
+				$values
+			);
+		
 		// Widget
 		@$widget = $event_model->params['widget'];
 		$labels['widget_id'] = 'Widget ID';
@@ -59,6 +77,14 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 	
 	function getValuesContexts($trigger) {
 		$vals = array(
+			'behavior_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
+			),
+			'behavior_bot_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BOT,
+			),
 			'widget_id' => array(
 				'label' => 'Widget ID',
 				'context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,

@@ -64,6 +64,24 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		parent::setEvent($event_model, $trigger);
 		
+		/**
+		 * Behavior
+		 */
+		
+		$merge_labels = array();
+		$merge_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
+
+			// Merge
+			CerberusContexts::merge(
+				'behavior_',
+				'',
+				$merge_labels,
+				$merge_values,
+				$labels,
+				$values
+			);
+		
 		$labels = $this->getLabels($trigger);
 		$values = $this->getValues();
 		
@@ -95,6 +113,14 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 		$vals_to_ctx = parent::getValuesContexts($trigger);
 		
 		$vals = [
+			'behavior_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
+			),
+			'behavior_bot_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BOT,
+			),
 			'current_worker_id' => array(
 				'label' => 'Current worker',
 				'context' => CerberusContexts::CONTEXT_WORKER,

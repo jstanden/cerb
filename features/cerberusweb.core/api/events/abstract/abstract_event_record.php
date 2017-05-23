@@ -106,6 +106,24 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		$labels = array();
 		$values = array();
 		
+		/**
+		 * Behavior
+		 */
+		
+		$merge_labels = array();
+		$merge_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
+
+			// Merge
+			CerberusContexts::merge(
+				'behavior_',
+				'',
+				$merge_labels,
+				$merge_values,
+				$labels,
+				$values
+			);
+		
 		@$context = $trigger->event_params['context'];
 		@$new_model = $event_model->params['new_model'];
 		@$old_model = $event_model->params['old_model'];
@@ -217,8 +235,16 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		// [TODO] This needs to still work with linked vars
 		
 		// [TODO] Actor context
-		/*
 		$vals = array(
+			'behavior_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
+			),
+			'behavior_bot_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BOT,
+			),
+			/*
 			'actor_id' => array(
 				'label' => 'Record',
 				'context' => @$trigger->event_params['context'],
@@ -227,8 +253,8 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 				'label' => 'Bot Watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
+			*/
 		);
-		*/
 		
 		//$vars = parent::getValuesContexts($trigger);
 		

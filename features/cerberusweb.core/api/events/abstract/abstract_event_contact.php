@@ -45,6 +45,24 @@ abstract class AbstractEvent_Contact extends Extension_DevblocksEvent {
 		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
 		
 		/**
+		 * Behavior
+		 */
+		
+		$merge_labels = array();
+		$merge_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
+
+			// Merge
+			CerberusContexts::merge(
+				'behavior_',
+				'',
+				$merge_labels,
+				$merge_values,
+				$labels,
+				$values
+			);
+		
+		/**
 		 * Contact
 		 */
 		
@@ -78,6 +96,14 @@ abstract class AbstractEvent_Contact extends Extension_DevblocksEvent {
 	
 	function getValuesContexts($trigger) {
 		$vals = array(
+			'behavior_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
+			),
+			'behavior_bot_id' => array(
+				'label' => 'Behavior',
+				'context' => CerberusContexts::CONTEXT_BOT,
+			),
 			'contact_id' => array(
 				'label' => 'Contact',
 				'context' => CerberusContexts::CONTEXT_CONTACT,
