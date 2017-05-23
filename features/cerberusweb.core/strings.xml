@@ -797,6 +797,11 @@
 				<seg>examples</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.exit">
+			<tuv xml:lang="en_US">
+				<seg>exit</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.expire">
 			<tuv xml:lang="en_US">
 				<seg>expire</seg>
@@ -1916,6 +1921,11 @@
 		<tu tuid="common.visibility">
 			<tuv xml:lang="en_US">
 				<seg>visibility</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.wait">
+			<tuv xml:lang="en_US">
+				<seg>wait</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.watch">

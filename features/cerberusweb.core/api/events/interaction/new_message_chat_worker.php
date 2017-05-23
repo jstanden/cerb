@@ -267,6 +267,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				'prompt_wait' => array('label' => 'Prompt with wait'),
 				'send_message' => array('label' => 'Respond with message'),
 				'send_script' => array('label' => 'Respond with script'),
+				'switch_behavior' => array('label' => 'Switch behavior'),
 				'worklist_open' => array('label' => 'Open a worklist popup'),
 			)
 			;
@@ -303,6 +304,10 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				
 			case 'send_script':
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_send_script.tpl');
+				break;
+				
+			case 'switch_behavior':
+				$tpl->display('devblocks:cerberusweb.core::events/pm/action_switch_behavior.tpl');
 				break;
 				
 			case 'worklist_open':
@@ -362,6 +367,15 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$out = sprintf(">>> Sending response script\n".
 					"%s\n",
 					$content
+				);
+				break;
+				
+			case 'switch_behavior':
+				@$behavior_id = intval($params['behavior_id']);
+				
+				$out = sprintf(">>> Using behavior\n".
+					"%d\n",
+					$behavior_id
 				);
 				break;
 				
@@ -470,6 +484,52 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					'_trigger_id' => $trigger->id,
 					'script' => $content,
 				);
+				break;
+				
+			case 'switch_behavior':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
+				$actions =& $dict->_actions;
+				
+				@$behavior_id = intval($params['behavior_id']);
+				@$behavior_return = intval($params['return']) ? true : false;
+				
+				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+					break;
+				
+				// Variables as parameters
+				
+				$vars = array();
+				
+				if(is_array($params))
+				foreach($params as $k => $v) {
+					if(DevblocksPlatform::strStartsWith($k, 'var_')) {
+						if(!isset($behavior->variables[$k]))
+							continue;
+						
+						try {
+							if(is_string($v))
+								$v = $tpl_builder->build($v, $dict);
+		
+							$v = $behavior->formatVariable($behavior->variables[$k], $v, $dict);
+							
+							$vars[$k] = $v;
+							
+						} catch(Exception $e) {
+							
+						}
+					}
+				}
+				
+				$actions[] = array(
+					'_action' => 'behavior.switch',
+					'_trigger_id' => $trigger->id,
+					'behavior_id' => $behavior_id,
+					'behavior_variables' => $vars,
+					'behavior_return' => $behavior_return,
+				);
+				
+				$dict->__exit = 'suspend';
 				break;
 				
 			case 'worklist_open':

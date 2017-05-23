@@ -308,6 +308,48 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		foreach($actions as $params) {
 			switch(@$params['_action']) {
+				case 'behavior.switch':
+					@$behavior_return = $params['behavior_return'];
+					
+					if(!isset($interaction->session_data['callers']))
+						$interaction->session_data['callers'] = [];
+					
+					if($behavior_return) {
+						$interaction->session_data['callers'][] = [
+							'behavior_id' => $behavior->id,
+							'return' => '_behavior', // [TODO] Configurable
+						];
+					} else {
+						$interaction->session_data['behaviors'][$behavior->id]['dict'] = [];
+						$interaction->session_data['behaviors'][$behavior->id]['path'] = [];
+					}
+					
+					if(false == ($behavior_id = @$params['behavior_id']))
+						break;
+					
+					if(false == ($new_behavior = DAO_TriggerEvent::get($behavior_id)))
+						break;
+					
+					if($new_behavior->event_point != Event_NewMessageChatWorker::ID)
+						break;
+					
+					if(!Context_TriggerEvent::isReadableByActor($new_behavior, $bot))
+						break;
+					
+					$bot = $new_behavior->getBot();
+					$tpl->assign('bot', $bot);
+					
+					$interaction->session_data['behavior_id'] = $new_behavior->id;
+					$interaction->session_data['behaviors'][$new_behavior->id]['dict'] = [];
+					$interaction->session_data['behaviors'][$new_behavior->id]['path'] = [];
+					
+					if($behavior_return)
+						$interaction->session_data['behavior_has_parent'] = 1;
+					
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_wait.tpl');
+					break;
+					
 				case 'emote':
 					if(false == ($emote = @$params['emote']))
 						break;

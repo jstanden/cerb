@@ -1,8 +1,14 @@
 {$behavior = DAO_TriggerEvent::get($params.behavior_id)}
 
+<b>The current behavior should:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<label><input type="radio" name="{$namePrefix}[return]" value="1" {if $params.return}checked="checked"{/if}> {'common.wait'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[return]" value="0" {if !$params.return}checked="checked"{/if}> {'common.exit'|devblocks_translate|capitalize}</label>
+</div>
+
 <b>{'common.behavior'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<button type="button" class="chooser-behavior" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="event:event.message.chat.worker disabled:n usableBy.bot:{$trigger->bot_id}"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-behavior" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query-required="event:event.message.chat.worker disabled:n usableBy.bot:{$trigger->bot_id}"><span class="glyphicons glyphicons-search"></span></button>
 	
 	<ul class="bubbles chooser-container">
 		{if $behavior}
@@ -42,7 +48,10 @@ $(function() {
 				var id = $bubble.first().val();
 				
 				if(id) {
-					genericAjaxGet($behavior_params,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + id);
+					genericAjaxGet(null,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + id, function(html) {
+						var $html = $(html);
+						$behavior_params.html($html);
+					});
 				} else {
 					$behavior_params.html('');
 				}
