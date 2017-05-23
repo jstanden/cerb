@@ -683,6 +683,18 @@ class ChDisplayPage extends CerberusPageExtension {
 			}
 		}
 		
+		// Dictionary
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $message, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		//$tpl->assign('dict', $dict);
+		
+		// Interactions
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('mail.reply', $dict, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
+		
 		// Display template
 		
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');

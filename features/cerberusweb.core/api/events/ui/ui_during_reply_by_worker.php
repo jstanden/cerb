@@ -15,6 +15,10 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/**
+ * @deprecated
+ *
+ */
 class Event_MailDuringUiReplyByWorker extends AbstractEvent_Message {
 	const ID = 'event.mail.reply.during.ui.worker';
 	

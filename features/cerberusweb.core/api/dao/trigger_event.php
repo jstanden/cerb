@@ -2000,6 +2000,10 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 						
 						// Menu
 						$labels = array_column(DevblocksPlatform::objectsToArrays($events), 'name', 'id');
+						
+						// Remove deprecated events from creation
+						unset($labels['event.mail.reply.during.ui.worker']);
+						
 						$events_menu = Extension_DevblocksContext::getPlaceholderTree($labels);
 						
 						$tpl->assign('events', $events);

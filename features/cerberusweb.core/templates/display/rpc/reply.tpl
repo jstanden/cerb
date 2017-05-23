@@ -1,5 +1,5 @@
+{$headers = $message->getHeaders()}
 <div class="block reply_frame" style="width:98%;margin:10px;">
-
 <form id="reply{$message->id}_part1" onsubmit="return false;">
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
@@ -66,7 +66,11 @@
 			<div>
 				<fieldset style="display:inline-block;margin-bottom:0;">
 					<legend>Actions</legend>
-					{$headers = $message->getHeaders()}
+					
+					<div id="replyInteractions{$message->id}" style="display:inline-block;">
+					{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+					</div>
+					
 					<button name="saveDraft" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
 					
 					{* Plugin Toolbar *}
@@ -75,14 +79,6 @@
 							{if !empty($renderer)}{$renderer->render($message)}{/if}
 						{/foreach}
 					{/if}
-				</fieldset>
-				
-				<fieldset style="display:inline-block;margin-bottom:0;">
-					<legend>{'common.behaviors.bot'|devblocks_translate|capitalize}</legend>
-					<div>
-						<input type="text" size="25" class="context-behaviors autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+B)"{/if}>
-						<button type="button" id="btnReplyMacros{$message->id}" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="event:{Event_MailDuringUiReplyByWorker::ID} usableBy.worker:{$active_worker->id}" data-single="true"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button>
-					</div>
 				</fieldset>
 				
 				<fieldset style="display:inline-block;margin-bottom:0;">
@@ -678,70 +674,9 @@
 		
 		$frm.validate();
 		
-		// Bots
-		
-		var $bot_trigger = $('#btnReplyMacros{$message->id}')
-			.click(function(e) {
-				var $trigger = $(this);
-				var context = $trigger.attr('data-context');
-				var q = $trigger.attr('data-query');
-				var single = $trigger.attr('data-single') != null ? '1' : '';
-				var width = $(window).width()-100;
-				
-				var $chooser = genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&single=' + encodeURIComponent(single),null,true,width);
-	
-				$chooser.on('chooser_save', function(evt) {
-					var behavior_id = evt.values[0];
-					
-					if(!behavior_id)
-						return;
-					
-					var newEvent = new jQuery.Event('cerb-behavior-select');
-					newEvent.behavior_id = behavior_id;
-					$trigger.trigger(newEvent);
-				})
-			})
-			.on('cerb-behavior-select', function(evt) {
-				var behavior_id = evt.behavior_id;
-				
-				genericAjaxGet('','c=display&a=getMacroReply&ticket_id={$message->ticket_id}&message_id={$message->id}&macro=' + encodeURIComponent(behavior_id), function(json) {
-					if(undefined != json.html) {
-						var $script = $('<div></div>').html(json.html);
-						$('BODY').append($script);
-						
-					} else if(undefined != json.has_variables) {
-						genericAjaxPopup('peek','c=display&a=showMacroReplyPopup&ticket_id={$message->ticket_id}&message_id={$message->id}&macro=' + encodeURIComponent(behavior_id), null, false, '50%');
-					}
-				});
-			})
-		;
-		
-		{$query = "event:{Event_MailDuringUiReplyByWorker::ID} usableBy.worker:{$active_worker->id}"}
-		$frm.find('input:text.context-behaviors').autocomplete({
-			delay: 300,
-			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context={CerberusContexts::CONTEXT_BEHAVIOR}&query={$query|escape}&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
-			minLength: 1,
-			focus:function(event, ui) {
-				return false;
-			},
-			autoFocus:true,
-			select:function(event, ui) {
-				var $this = $(this);
-				var $textarea = $('#reply_{$message->id}');
-				
-				var value = ui.item.value;
-				
-				if(!value || 0 == value.length)
-					return;
-				
-				var newEvent = new jQuery.Event('cerb-behavior-select');
-				newEvent.behavior_id = value;
-				$bot_trigger.trigger(newEvent);
-				
-				$this.val('');
-				return false;
-			}
-		});
+		// Interactions
+		var $interaction_container = $('#replyInteractions{$message->id}');
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 		
 		// Draft
 		
@@ -921,7 +856,7 @@
 				case 66: // (B) Insert Behavior
 					try {
 						event.preventDefault();
-						$('#reply{$message->id}_part1').find('.context-behaviors').focus();
+						$('#divReplyInteractions{$message->id}').find('button').click();
 					} catch(ex) { } 
 					break;
 				case 74: // (J) Jump to first blank line

@@ -2988,7 +2988,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.reply.during.ui.worker</id>
-			<name>[UI] During a message reply</name>
+			<name>[DEPRECATED] [UI] During a message reply</name>
 			<class>
 				<file>api/events/ui/ui_during_reply_by_worker.php</file>
 				<name>Event_MailDuringUiReplyByWorker</name>
