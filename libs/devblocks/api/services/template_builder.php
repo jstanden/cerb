@@ -195,6 +195,14 @@ class _DevblocksTemplateBuilder {
 	private function _tearDown() {
 	}
 	
+	function getLexer() {
+		return $this->_twig->getLexer();
+	}
+	
+	function setLexer(Twig_Lexer $lexer) {
+		$this->_twig->setLexer($lexer);
+	}
+	
 	function tokenize($templates) {
 		$tokens = array();
 		
@@ -249,7 +257,11 @@ class _DevblocksTemplateBuilder {
 	 * @param array $vars
 	 * @return string
 	 */
-	function build($template, $dict) {
+	function build($template, $dict, $lexer = null) {
+		if($lexer && is_array($lexer)) {
+			$this->setLexer(new Twig_Lexer($this->_twig, $lexer));
+		}
+		
 		$this->_setUp();
 		
 		if(is_array($dict))
@@ -264,6 +276,10 @@ class _DevblocksTemplateBuilder {
 			$this->_errors[] = $e->getMessage();
 		}
 		$this->_tearDown();
+		
+		if($lexer) {
+			$this->setLexer(new Twig_Lexer($this->_twig));
+		}
 
 		if(!empty($this->_errors))
 			return false;
