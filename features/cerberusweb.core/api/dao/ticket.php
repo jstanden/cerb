@@ -4846,6 +4846,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
 		
+		// Random popup ID
+		$random = uniqid();
+		$tpl->assign('popup_uniqid', $random);
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::mail/section/compose/peek.tpl');
 	}

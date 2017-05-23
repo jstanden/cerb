@@ -1,7 +1,6 @@
 {$mail_reply_html = DAO_WorkerPref::get($active_worker->id, 'mail_reply_html', 0)}
 
-{$random = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmComposePeek{$random}" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmComposePeek{$popup_uniqid}" onsubmit="return false;">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="saveComposePeek">
 <input type="hidden" name="view_id" value="{$view_id}">
@@ -46,9 +45,9 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'message.header.to'|devblocks_translate|capitalize}:&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="to" id="emailinput{$random}" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
+				<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
 				
-				<div id="compose_suggested{$random}" style="display:none;">
+				<div id="compose_suggested{$popup_uniqid}" style="display:none;">
 					<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
 					<b>Consider adding these recipients:</b>
 					<ul class="bubbles"></ul> 
@@ -75,14 +74,15 @@
 		</tr>
 		<tr>
 			<td width="100%" colspan="2">
-				<div id="divDraftStatus{$random}"></div>
+				<div id="divDraftStatus{$popup_uniqid}"></div>
 				
 				<div>
 					<fieldset style="display:inline-block;">
 						<legend>Actions</legend>
 						
-						<button id="btnComposeSaveDraft{$random}" class="toolbar-item" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
-						<button id="btnComposeInsertSig{$random}" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="glyphicons glyphicons-edit"></span> Insert Signature</button>
+						
+						<button id="btnComposeSaveDraft{$popup_uniqid}" class="toolbar-item" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
+						<button id="btnComposeInsertSig{$popup_uniqid}" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="glyphicons glyphicons-edit"></span> Insert Signature</button>
 					</fieldset>
 				
 					<fieldset style="display:inline-block;">
@@ -90,13 +90,13 @@
 						<div>
 							Insert: 
 							<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
-							<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent{$random}'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="glyphicons glyphicons-search"></span></button>
-							<button type="button" onclick="var txt = encodeURIComponent($('#divComposeContent{$random}').selection('get')); genericAjaxPopup('add_snippet','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_SNIPPET}&context_id=0&edit=1&text=' + txt,null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></button>
+							<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent{$popup_uniqid}'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="glyphicons glyphicons-search"></span></button>
+							<button type="button" onclick="var txt = encodeURIComponent($('#divComposeContent{$popup_uniqid}').selection('get')); genericAjaxPopup('add_snippet','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_SNIPPET}&context_id=0&edit=1&text=' + txt,null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></button>
 						</div>
 					</fieldset>
 				</div>
 				
-				<textarea id="divComposeContent{$random}" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{if !empty($draft)}{$draft->body}{else}{if $defaults.signature_pos}
+				<textarea id="divComposeContent{$popup_uniqid}" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{if !empty($draft)}{$draft->body}{else}{if $defaults.signature_pos}
 
 
 
@@ -120,11 +120,11 @@
 	</div>
 	
 	<div style="margin-top:10px;">
-		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" {if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','none');"> {'status.open'|devblocks_translate}</label>
-		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if (empty($draft) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_WAITING)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','block');"> {'status.waiting'|devblocks_translate}</label>
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if (empty($draft) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_CLOSED)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$random}','block');"> {'status.closed'|devblocks_translate}</label>{/if}
+		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" {if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','none');"> {'status.open'|devblocks_translate}</label>
+		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if (empty($draft) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_WAITING)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.waiting'|devblocks_translate}</label>
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if (empty($draft) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_CLOSED)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.closed'|devblocks_translate}</label>{/if}
 		
-		<div id="divComposeClosed{$random}" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin-top:5px;margin-left:10px;">
+		<div id="divComposeClosed{$popup_uniqid}" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin-top:5px;margin-left:10px;">
 			<b>{'display.reply.next.resume'|devblocks_translate}</b><br>
 			{'display.reply.next.resume_eg'|devblocks_translate}<br> 
 			<input type="text" name="ticket_reopen" size="64" class="input_date" value="{$draft->params.ticket_reopen}"><br>
@@ -177,7 +177,7 @@
 	</table>
 </fieldset>
 
-<fieldset class="peek" style="{if empty($custom_fields) && empty($group_fields)}display:none;{/if}" id="compose_cfields{$random}">
+<fieldset class="peek" style="{if empty($custom_fields) && empty($group_fields)}display:none;{/if}" id="compose_cfields{$popup_uniqid}">
 	<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
 	
 	{$custom_field_values = $draft->params.custom_fields}
@@ -213,17 +213,17 @@
 	if(draftComposeAutoSaveInterval == undefined)
 		var draftComposeAutoSaveInterval = null;
 
-	var $popup = genericAjaxPopupFind('#frmComposePeek{$random}');
+	var $popup = genericAjaxPopupFind('#frmComposePeek{$popup_uniqid}');
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
-		var $frm = $('#frmComposePeek{$random}');
+		var $frm = $('#frmComposePeek{$popup_uniqid}');
 
-		ajax.emailAutoComplete('#frmComposePeek{$random} input[name=to]', { multiple: true } );
-		ajax.emailAutoComplete('#frmComposePeek{$random} input[name=cc]', { multiple: true } );
-		ajax.emailAutoComplete('#frmComposePeek{$random} input[name=bcc]', { multiple: true } );
+		ajax.emailAutoComplete('#frmComposePeek{$popup_uniqid} input[name=to]', { multiple: true } );
+		ajax.emailAutoComplete('#frmComposePeek{$popup_uniqid} input[name=cc]', { multiple: true } );
+		ajax.emailAutoComplete('#frmComposePeek{$popup_uniqid} input[name=bcc]', { multiple: true } );
 
-		ajax.orgAutoComplete('#frmComposePeek{$random} input:text[name=org_name]');
+		ajax.orgAutoComplete('#frmComposePeek{$popup_uniqid} input:text[name=org_name]');
 		
 		$frm.find('button.chooser-abstract').cerbChooserTrigger();
 		
@@ -307,7 +307,7 @@
 		
 		markitupParsedownSettings.previewParser = function(content) {
 			genericAjaxPost(
-				'frmComposePeek{$random}',
+				'frmComposePeek{$popup_uniqid}',
 				'',
 				'c=display&a=getReplyMarkdownPreview',
 				function(o) {
@@ -433,12 +433,12 @@
 		});
 		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
-			$('#compose_suggested{$random}').appendTo($(this).closest('td'));
+			$('#compose_suggested{$popup_uniqid}').appendTo($(this).closest('td'));
 		});
 		
 		$frm.find('input:text[name=org_name]').bind('autocompletechange',function(event, ui) {
 			genericAjaxGet('', 'c=contacts&a=getTopContactsByOrgJson&org_name=' + $(this).val(), function(json) {
-				var $sug = $('#compose_suggested{$random}');
+				var $sug = $('#compose_suggested{$popup_uniqid}');
 				
 				$sug.find('ul.bubbles li').remove();
 				
@@ -495,14 +495,14 @@
 		
 		// Insert Sig
 		
-		$('#btnComposeInsertSig{$random}').click(function(e) {
-			var $textarea = $('#divComposeContent{$random}');
+		$('#btnComposeInsertSig{$popup_uniqid}').click(function(e) {
+			var $textarea = $('#divComposeContent{$popup_uniqid}');
 			$textarea.insertAtCursor('#signature\n').focus();
 		});
 		
 		// Drafts
 		
-		$('#btnComposeSaveDraft{$random}').click(function(e) {
+		$('#btnComposeSaveDraft{$popup_uniqid}').click(function(e) {
 			var $this = $(this);
 			
 			if(!$this.is(':visible')) {
@@ -517,7 +517,7 @@
 			$this.attr('disabled','disabled');
 			
 			genericAjaxPost(
-				'frmComposePeek{$random}',
+				'frmComposePeek{$popup_uniqid}',
 				null,
 				'c=profiles&a=handleSectionAction&section=draft&action=saveDraft&type=compose',
 				function(json) { 
@@ -526,11 +526,11 @@
 					if(!obj || !obj.html || !obj.draft_id)
 						return;
 				
-					$('#divDraftStatus{$random}').html(obj.html);
+					$('#divDraftStatus{$popup_uniqid}').html(obj.html);
 					
-					$('#frmComposePeek{$random} input[name=draft_id]').val(obj.draft_id);
+					$('#frmComposePeek{$popup_uniqid} input[name=draft_id]').val(obj.draft_id);
 					
-					$('#btnComposeSaveDraft{$random}').removeAttr('disabled');
+					$('#btnComposeSaveDraft{$popup_uniqid}').removeAttr('disabled');
 				}
 			);
 		});
@@ -540,7 +540,7 @@
 			draftComposeAutoSaveInterval = null;
 		}
 		
-		draftComposeAutoSaveInterval = setInterval("$('#btnComposeSaveDraft{$random}').click();", 30000); // and every 30 sec
+		draftComposeAutoSaveInterval = setInterval("$('#btnComposeSaveDraft{$popup_uniqid}').click();", 30000); // and every 30 sec
 		
 		// Snippet chooser shortcut
 		
@@ -554,7 +554,7 @@
 			autoFocus:true,
 			select:function(event, ui) {
 				var $this = $(this);
-				var $textarea = $('#divComposeContent{$random}');
+				var $textarea = $('#divComposeContent{$popup_uniqid}');
 				
 				var $label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
 				var $value = ui.item.value;
@@ -597,7 +597,7 @@
 		{if $pref_keyboard_shortcuts}
 		
 		// Reply textbox
-		$('#divComposeContent{$random}').keydown(function(event) {
+		$('#divComposeContent{$popup_uniqid}').keydown(function(event) {
 			if(!$(this).is(':focus'))
 				return;
 			
@@ -649,13 +649,13 @@
 				case 71: // (G) Insert Signature
 					try {
 						event.preventDefault();
-						$('#btnComposeInsertSig{$random}').click();
+						$('#btnComposeInsertSig{$popup_uniqid}').click();
 					} catch(ex) { } 
 					break;
 				case 73: // (I) Insert Snippet
 					try {
 						event.preventDefault();
-						$('#frmComposePeek{$random}').find('INPUT:text.context-snippet').focus();
+						$('#frmComposePeek{$popup_uniqid}').find('INPUT:text.context-snippet').focus();
 					} catch(ex) { } 
 					break;
 				case 81: // (Q) Reformat quotes
@@ -751,7 +751,7 @@
 		
 		$frm.find('button.submit').click(function() {
 			var $frm = $(this).closest('form');
-			var $input = $frm.find('input#emailinput{$random}');
+			var $input = $frm.find('input#emailinput{$popup_uniqid}');
 			var $status = $frm.find('div.status').html('').hide();
 			
 			var $to = $frm.find('input[name=to]');
@@ -770,7 +770,7 @@
 					draftComposeAutoSaveInterval = null;
 				}
 				
-				genericAjaxPopupPostCloseReloadView(null,'frmComposePeek{$random}','{$view_id}',false,'compose_save');
+				genericAjaxPopupPostCloseReloadView(null,'frmComposePeek{$popup_uniqid}','{$view_id}',false,'compose_save');
 			}
 		});
 		
