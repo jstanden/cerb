@@ -9,7 +9,7 @@
 }
 
 .bot-chat-window div.bot-chat-message {
-	margin: 10px 10px 5px 10px;
+	margin: 10px 0px 5px 0px;
 }
 
 .bot-chat-window div.bot-chat-message p {
@@ -48,7 +48,6 @@
 	border:1px solid rgb(230,230,230);
 	border:0;
 	border-radius:12px 12px 12px 0px;
-	margin-left:5px;
 }
 
 .bot-chat-window > div.bot-chat-window-convo div.bot-chat-message.bot-chat-right > div.bot-chat-message-bubble {
@@ -62,19 +61,12 @@
 	color:rgb(180,180,180);
 }
 
-.bot-chat-window > div.bot-chat-window-input {
-	width:100%;
-	padding:0;
-	text-align:center;
-}
-
-.bot-chat-window > div.bot-chat-window-input INPUT[type=text] {
+.bot-chat-window INPUT.bot-chat-input {
 	width:95%;
-	font-size:1em;
 	padding:5px;
+	margin-top: 10px;
 	border-radius:5px;
 	border:1px solid rgb(220,220,220);
-	margin-top: 5px;
 }
 </style>
 
@@ -90,7 +82,6 @@
 			<input type="hidden" name="message" value="">
 			<input type="hidden" name="session_id" value="{$session_id}">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-			<input type="text" placeholder="say something, or @mention to switch bots" data-placeholder="say something, or @mention to switch bots" autocomplete="off" autofocus="autofocus">
 		</form>
 	</div>
 	
@@ -115,28 +106,10 @@ $(function() {
 		
 		var $chat_window_convo = $popup.find('div.bot-chat-window-convo');
 		var $chat_window_input_form = $('form.bot-chat-window-input-form');
-		var $chat_input = $chat_window_input_form.find('input:text');
 		var $chat_message = $chat_window_input_form.find('input:hidden[name=message]');
-		
-		$chat_window_convo.click(function(e) {
-			e.preventDefault();
-			$chat_input.focus();
-		});
 		
 		$chat_window_convo.on('update', function(e) {
 			$(this).scrollTop(this.scrollHeight);
-		});
-		
-		// @mentions
-		var atwho_bots = {CerberusApplication::getAtMentionsBotDictionaryJson($active_worker) nofilter};
-
-		$chat_input.atwho({
-			at: '@',
-			{literal}displayTpl: '<li><b>${name}</b> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-			{literal}insertTpl: '@${at_mention}',{/literal}
-			data: atwho_bots,
-			searchKey: '_index',
-			limit: 10
 		});
 		
 		$chat_window_convo.on('bot-chat-message-send', function() {
@@ -198,9 +171,8 @@ $(function() {
 		});
 		
 		$chat_window_input_form.submit(function() {
-			var txt = $chat_input.val();
-			$chat_message.val(txt);
-			
+			var txt = $chat_message.val();
+		
 			if(txt.length > 0) {
 				// Create outgoing message in log
 				var $msg = $('<div class="bot-chat-message bot-chat-right"></div>');
@@ -212,12 +184,6 @@ $(function() {
 			}
 			
 			$chat_window_convo.trigger('bot-chat-message-send');
-			
-			$chat_input
-				//.trigger('bot-chat-message-sent')
-				.val('')
-				.attr('placeholder', $chat_input.attr('data-placeholder'))
-			;
 		});
 		
 		// Submit form when open

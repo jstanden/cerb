@@ -13,15 +13,9 @@
 	<script type="text/javascript">
 	$(function() {
 		var $msg = $('#{$msg_id}');
-	
-		var $chat_window_input_form = $('form.bot-chat-window-input-form');
-		var $chat_input = $chat_window_input_form.find('input:text');
 		
-		$chat_input
-			.attr('disabled','disabled')
-			.attr('data-placeholder', $chat_input.attr('placeholder'))
-			.attr('placeholder','(choose an option above)')
-		;
+		var $chat_window_input_form = $('form.bot-chat-window-input-form');
+		var $chat_input = $chat_window_input_form.find('input[name=message]');
 		
 		$msg.find('button.bot-chat-button')
 			.click(function() {
@@ -29,19 +23,14 @@
 				
 				var txt = $button.val();
 				
-				$msg.remove();
-		
-				$chat_input
-					.removeAttr('disabled')
-					.attr('placeholder', $chat_input.attr('data-placeholder'))
-				;
-				
 				$chat_input.val(txt);
 				$chat_window_input_form.submit();
+				$msg.remove();
 			})
 			.first()
 			.focus()
 		;
 	})
+	</script>
 	</script>
 </div>
