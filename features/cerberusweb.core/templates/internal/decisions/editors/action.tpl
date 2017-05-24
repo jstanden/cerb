@@ -85,7 +85,7 @@
 </form>
 
 <form id="frmDecisionActionAdd{$id}" action="javascript:;" onsubmit="return false;">
-<input type="hidden" name="seq" value="{if !is_null($seq)}{$seq+1}{else}0{/if}">
+<input type="hidden" name="seq" value="{$model->params.actions|count}">
 <input type="hidden" name="action" value="">
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -167,18 +167,18 @@ $(function() {
 		// Choosers
 		
 		$popup.find('BUTTON.chooser_group.unbound').each(function() {
-			seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
+			var seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});
 		
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
-			seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
+			var seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});
 		$popup.find('BUTTON.chooser_notify_workers.unbound').each(function() {
-			seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
+			var seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[notify_worker_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});
