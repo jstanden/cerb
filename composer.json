@@ -21,7 +21,8 @@
 	},
 	"require-dev" : {
 		"phpseclib/phpseclib" : "2.0.4",
-		"singpolyma/openpgp-php" : "^0.3.0"
+		"singpolyma/openpgp-php" : "^0.3.0",
+		"cogpowered/finediff" : "0.3.1"
 	},
 	"support" : {
 		"email" : "support@webgroupmedia.com",
