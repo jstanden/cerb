@@ -3,7 +3,7 @@
 	<div class="bot-chat-message bot-chat-right">
 		<div class="bot-chat-message-bubble">
 			{foreach from=$options item=option}
-			<button type="button" class="bot-chat-button" value="{$option}">{$option}</button>
+			<button type="button" class="bot-chat-button" style="{if $style}{$style}{/if}" value="{$option}">{$option}</button>
 			{/foreach}
 		</div>
 	</div>
