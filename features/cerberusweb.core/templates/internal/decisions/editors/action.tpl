@@ -26,7 +26,7 @@
 {foreach from=$model->params.actions item=params key=seq}
 <fieldset id="action{$seq}">
 	<legend style="cursor:move;">
-		<a href="javascript:;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
+		<a href="javascript:;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
 		{if $actions[$params.action]}
 			{$actions[$params.action].label}
 		{else}
@@ -153,7 +153,17 @@ $(function() {
 		$popup.dialog('option','title',"{if empty($id)}New {/if}Actions");
 		$popup.find('input:text').first().focus();
 		$popup.css('overflow', 'inherit');
-
+		
+		var $toolbar = $('#divDecisionActionToolbar{$id}');
+		
+		// Make sure the toolbar is never removed
+		$popup.on('cerb.remove', function(e) {
+			e.stopPropagation();
+			var $target = $(e.target);
+			$toolbar.detach();
+			$target.remove();
+		});
+		
 		// Choosers
 		
 		$popup.find('BUTTON.chooser_group.unbound').each(function() {
@@ -325,7 +335,7 @@ $(function() {
 						seq = 0;
 					
 					var $container = $('<fieldset/>').attr('id','action' + seq);
-					$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a> ' + label + '</legend>');
+					$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a> ' + label + '</legend>');
 					$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
 					$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
 					$ul.append($container);

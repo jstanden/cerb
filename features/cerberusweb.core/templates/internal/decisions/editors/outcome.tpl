@@ -37,7 +37,7 @@
 	<fieldset>
 		<legend>
 			If <a href="javascript:;">{if !empty($group_data.any)}any{else}all{/if}&#x25be;</a> of these conditions are satisfied
-			<a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
+			<a href="javascript:;" onclick="$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
 		</legend>
 		<input type="hidden" name="nodes[]" value="{if !empty($group_data.any)}any{else}all{/if}">
 		
@@ -47,7 +47,7 @@
 				<li style="padding-bottom:5px;" id="condition{$seq}">
 					<input type="hidden" name="nodes[]" value="{$seq}">
 					<input type="hidden" name="condition{$seq}[condition]" value="{$params.condition}">
-					<a href="javascript:;" onclick="$(this).closest('li').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
+					<a href="javascript:;" onclick="$(this).closest('li').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
 					<b style="cursor:move;">{$conditions.{$params.condition}.label}</b>&nbsp;
 					<div style="margin-left:20px;">
 						{$event->renderCondition({$params.condition},$trigger,$params,$seq)}
@@ -167,6 +167,14 @@ $(function() {
 		$popup.find('input:text').first().focus();
 		$popup.css('overflow', 'inherit');
 
+		// Make sure the toolbar is never removed
+		$popup.on('cerb.remove', function(e) {
+			e.stopPropagation();
+			var $target = $(e.target);
+			$toolbar.detach();
+			$target.remove();
+		});
+		
 		var $frm = $popup.find('form#frmDecisionOutcome{$id}');
 		var $legend = $popup.find('fieldset legend');
 		var $menu = $popup.find('fieldset ul.cerb-popupmenu:first');
@@ -353,7 +361,7 @@ $(function() {
 					var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition'+seq);
 					$container.append($('<input type="hidden" name="nodes[]">').attr('value', seq));
 					$container.append($('<input type="hidden">').attr('name', 'condition'+seq+'[condition]').attr('value',token));
-					$container.append($('<a href="javascript:;" onclick="$(this).closest(\'li\').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>'));
+					$container.append($('<a href="javascript:;" onclick="$(this).closest(\'li\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>'));
 					$container.append('&nbsp;');
 					$container.append($('<b style="cursor:move;"/>').text(label));
 					$container.append('&nbsp;');
