@@ -4,20 +4,20 @@
 	<name>Support Center</name>
 	<description>Adds a Support Center community portal for public-facing support.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>7.4.0</version>
+	<version>8.0.0</version>
 	<link>http://wiki.cerbweb.com/Support_Center</link>
 	<image>plugin.png</image>
  
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="7.4" max="7.4.99" />
+		<app_version min="8.0" max="8.0.99" />
 	</requires>
  
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="5.1.0" />
+		<require plugin_id="cerberusweb.core" version="8.0.0" />
 	</dependencies>
 
 	<!-- Patches -->
