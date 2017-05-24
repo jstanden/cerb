@@ -7,6 +7,7 @@
 					<li><b>System</b></li>
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Branding</a></li>
 					{if !$smarty.const.DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=cache{/devblocks_url}">Cache</a></li>{/if}
+					<li><a href="{devblocks_url}c=config&a=import_package{/devblocks_url}">Import Package</a></li>
 					<li><a href="{devblocks_url}c=config&a=license{/devblocks_url}">License</a></li>
 					<li><a href="{devblocks_url}c=config&a=localization{/devblocks_url}">Localization</a></li>
 					<li><a href="{devblocks_url}c=config&a=scheduler{/devblocks_url}">Scheduler</a></li>
