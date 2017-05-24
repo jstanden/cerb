@@ -241,6 +241,8 @@ class UmScKbController extends Extension_UmScController {
 				
 				if(null == ($view = UmScAbstractViewLoader::getView('', UmSc_KbArticleView::DEFAULT_ID))) {
 					$view = new UmSc_KbArticleView();
+					$view->renderSortBy = SearchFields_KbArticle::UPDATED;
+					$view->renderSortAsc = false;
 				}
 				
 				if(!empty($root)) {
@@ -259,8 +261,6 @@ class UmScKbController extends Extension_UmScController {
 				
 				$view->name = "";
 				$view->view_columns = $params_columns;
-				$view->renderSortBy = SearchFields_KbArticle::UPDATED;
-				$view->renderSortAsc = false;
 				$view->renderPage = 0;
 				$view->renderLimit = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_VIEW_NUMROWS, 10);
 				
