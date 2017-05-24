@@ -1024,7 +1024,48 @@ var ajax = new cAjaxCalls();
 			}
 		});
 	};
-
+	
+	// Abstract bot interaction trigger
+	
+	$.fn.cerbBotTrigger = function(options) {
+		return this.each(function() {
+			var $trigger = $(this);
+			
+			// Context
+			
+			$trigger.on('click', function(e) {
+				e.stopPropagation();
+				
+				var interaction = $trigger.attr('data-interaction');
+				var behavior_id = $trigger.attr('data-behavior-id');
+				
+				var data = {
+					"interaction": interaction,
+					"browser": {
+						"url": window.location.href,
+					},
+					"params": interaction_params
+				};
+				
+				if(null != behavior_id) {
+					data.behavior_id = behavior_id;
+				}
+				
+				var interaction_params = {};
+				
+				$.each(this.attributes, function() {
+					if('data-interaction-param-' == this.name.substring(0,23)) {
+						interaction_params[this.name.substring(23)] = this.value;
+					}
+				});
+				
+				data.params = interaction_params;
+				
+				genericAjaxPopup('bot_chat','c=internal&a=startBotInteraction&' + $.param(data), null, false, '300');
+			});
+		});
+	}
+	
 	// Abstract query builder
 	
 	$.fn.cerbQueryTrigger = function(options) {
