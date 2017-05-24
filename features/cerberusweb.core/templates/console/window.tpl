@@ -93,7 +93,20 @@ $(function() {
 	var $spinner = $('<div class="bot-chat-message bot-chat-left"><div class="bot-chat-message-bubble"><span class="cerb-ajax-spinner" style="zoom:0.5;"></span></div></div>')
 	
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title', "{$bot->name|escape:'javascript' nofilter}");
+		$popup.dialog('option','title', "{$bot_name|escape:'javascript' nofilter}");
+		
+		{if $bot_image_url}
+		$popup.closest('.ui-dialog').find('.ui-dialog-title')
+			.prepend(
+				$('<img/>')
+					.addClass('cerb-avatar')
+					.css('width', '24px')
+					.css('height', '24px')
+					.css('margin-right', '5px')
+					.attr('src', '{$bot_image_url|escape:'javascript' nofilter}')
+			)
+			;
+		{/if}
 		
 		var $window = $popup.closest('div.ui-dialog');
 		$window
