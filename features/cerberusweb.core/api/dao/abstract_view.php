@@ -3665,9 +3665,11 @@ class C4_AbstractViewLoader {
 	 */
 	static function setView($view_id, C4_AbstractView $view) {
 		$worker_id = 0;
+
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			return;
 		
-		if(null !== ($active_worker = CerberusApplication::getActiveWorker()))
-			$worker_id = $active_worker->id;
+		$worker_id = $active_worker->id;
 		
 		// Is the view dirty? (do we need to persist it?)
 		if(false != ($_init_checksum = @$view->_init_checksum)) {
