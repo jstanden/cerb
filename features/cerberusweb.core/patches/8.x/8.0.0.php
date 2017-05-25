@@ -28,7 +28,7 @@ if(!isset($tables['context_saved_search'])) {
 }
 
 // ===========================================================================
-// Change 'setting' values to X (text) rather than B (blob)
+// Change 'session_data' to MEDIUMTEXT from TEXT
 
 if(isset($tables['bot_session'])) {
 	list($columns, $indexes) = $db->metaTable('bot_session');
@@ -36,13 +36,13 @@ if(isset($tables['bot_session'])) {
 	if(isset($columns['session_data'])) {
 		if(0 != strcasecmp('mediumtext',$columns['session_data']['type'])) {
 			$db->ExecuteMaster("ALTER TABLE bot_session CHANGE COLUMN `session_data` `session_data` MEDIUMTEXT");
+			
+			$db->ExecuteMaster(sprintf("UPDATE trigger_event SET event_point = %s WHERE event_point = %s",
+				$db->qstr('event.message.chat.worker'),
+				$db->qstr('event.interaction.chat.worker')
+			));
 		}
 	}
-	
-	$db->ExecuteMaster(sprintf("UPDATE trigger_event SET event_point = %s WHERE event_point = %s",
-		$db->qstr('event.message.chat.worker'),
-		$db->qstr('event.interaction.chat.worker')
-	));
 }
 
 // ===========================================================================
