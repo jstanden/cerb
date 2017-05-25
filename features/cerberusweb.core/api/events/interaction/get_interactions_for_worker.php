@@ -308,6 +308,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 			
 		switch($token) {
 			case 'return_interaction':
+				$tpl->assign('event_point', Event_NewInteractionChatWorker::ID);
 				$tpl->display('devblocks:cerberusweb.core::events/interaction/action_return_interaction.tpl');
 				break;
 		}
