@@ -2,7 +2,6 @@
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\Exception\NoSuchElementException;
-use Facebook\WebDriver\Remote\LocalFileDetector;
 
 class CerbEval_UI_Setup extends CerbTestBase {
 	function testLoginKina() {
