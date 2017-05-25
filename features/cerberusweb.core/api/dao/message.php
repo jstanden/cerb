@@ -524,9 +524,16 @@ class SearchFields_Message extends DevblocksSearchFields {
 				if(DevblocksPlatform::strStartsWith($value, '<'))
 					$value = sha1($value);
 				
-				return sprintf("m.hash_header_message_id = %s",
-					Cerb_ORMHelper::qstr($value)
-				);
+				if(false !== strpos($value, '*')) {
+					return sprintf("m.hash_header_message_id LIKE %s",
+						Cerb_ORMHelper::qstr(str_replace('*','%',$value))
+					);
+				} else {
+					return sprintf("m.hash_header_message_id = %s",
+						Cerb_ORMHelper::qstr($value)
+					);
+				}
+				
 				break;
 				
 			case self::VIRTUAL_SENDER_SEARCH:
