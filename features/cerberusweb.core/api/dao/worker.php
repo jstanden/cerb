@@ -1135,6 +1135,17 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'w.email_id');
 				break;
 				
+			case self::VIRTUAL_GROUPS:
+				@$ids = $param->value;
+
+				$ids = DevblocksPlatform::sanitizeArray($ids, 'int', ['nonzero']);
+				
+				if(!is_array($ids) || empty($ids))
+					return '0';
+				
+				return sprintf("w.id IN (SELECT worker_id FROM worker_to_group WHERE group_id IN (%s))", implode(',', $ids));
+				break;
+				
 			case self::VIRTUAL_GROUP_SEARCH:
 				$sql = "w.id IN (SELECT worker_id FROM worker_to_group WHERE group_id IN (%s))";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql);
