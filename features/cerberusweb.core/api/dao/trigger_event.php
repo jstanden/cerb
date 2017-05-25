@@ -938,6 +938,9 @@ class Model_TriggerEvent {
 					$as_placeholder_stack = $as_placeholder . '__stack';
 					$dict->$as_placeholder_stack = $json;
 					
+					$as_placeholder_counter = $as_placeholder . '__counter';
+					$dict->$as_placeholder_counter = 0;
+					
 					if($replay_id)
 						break;
 					
@@ -1050,11 +1053,14 @@ class Model_TriggerEvent {
 		do {
 			if($node_id && 'loop' == $nodes[$node_id]->node_type) {
 				@$as_placeholder = $nodes[$node_id]->params['as_placeholder'];
+				@$as_placeholder_key = $as_placeholder . '__key';
 				@$as_placeholder_stack = $as_placeholder . '__stack';
+				@$as_placeholder_counter = $as_placeholder . '__counter';
 				
 				if(is_array($dict->$as_placeholder_stack) && !empty($dict->$as_placeholder_stack)) {
 					$dict->$as_placeholder_key = key($dict->$as_placeholder_stack);
 					$dict->$as_placeholder = current($dict->$as_placeholder_stack);
+					$dict->$as_placeholder_counter = intval($dict->$as_placeholder_counter) + 1;
 					
 					if($dict->$as_placeholder != '*')
 						array_shift($dict->$as_placeholder_stack);
