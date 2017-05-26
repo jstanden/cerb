@@ -339,9 +339,9 @@ class CerberusApplication extends DevblocksApplication {
 		// Requirements
 
 		// PHP Version
-		if(version_compare(PHP_VERSION,"5.5") >=0) {
+		if(version_compare(PHP_VERSION,"7.0") >=0) {
 		} else {
-			$errors[] = sprintf("Cerb %s requires PHP 5.5 or later. Your server PHP version is %s",
+			$errors[] = sprintf("Cerb %s requires PHP 7.0 or later. Your server PHP version is %s",
 				APP_VERSION,
 				PHP_VERSION
 			);
