@@ -74,7 +74,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			|| $interaction_behavior->event_point != Event_NewInteractionChatWorker::ID
 		)
 			return false;
-		
+
 		// Start the session using the behavior
 		
 		$actions = [];
@@ -614,7 +614,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
-	
+		
 		if(!($context_ext instanceof IDevblocksContextImport))
 			return;
 
@@ -622,7 +622,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$keys = $context_ext->importGetKeys();
 		$this->_filterImportCustomFields($keys);
 		$tpl->assign('keys', $keys);
-	
+		
 		// Read the first line from the file
 		$csv_file = $visit->get('import.last.csv','');
 		$fp = fopen($csv_file, 'rt');

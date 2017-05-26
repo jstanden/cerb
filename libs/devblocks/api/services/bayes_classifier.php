@@ -435,8 +435,6 @@ class _DevblocksBayesClassifierService {
 	static function build($classifier_id) {
 		self::_updateCounts($classifier_id);
 		
-		//self::learnTextEntityPatterns();
-		
 		DAO_Classifier::clearCache();
 		DAO_ClassifierClass::clearCache();
 		DAO_ClassifierEntity::clearCache();
@@ -1232,7 +1230,9 @@ class _DevblocksBayesClassifierService {
 				case 'text':
 					$tokens = $words;
 					
+					// [TODO] Windowing (3 words before and after?)
 					
+					// [TODO] We don't care about entities here, just tags
 					
 					foreach($entities as $entity_type => $results) {
 						foreach($results as $result) {
@@ -1245,6 +1245,8 @@ class _DevblocksBayesClassifierService {
 					
 					$text = implode(' ', $tokens);
 					
+					// [TODO] These patterns should be learnable
+					// [TODO] These can be optimized as a tree
 					
 					@$patterns = $entity->params['patterns'];
 					
@@ -1277,6 +1279,8 @@ class _DevblocksBayesClassifierService {
 		return $entities;
 	}
 	
+	// [TODO] remind me about lunch at Twenty Nine Palms Resort on the fifth at five thirty pm for sixty mins
+	// [TODO] $environment has locale, lang, me
 	static function predict($text, $classifier_id, $environment=array()) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
@@ -1291,6 +1295,7 @@ class _DevblocksBayesClassifierService {
 			return false;
 		
 		// Load the frequency of classes for this classifier from the database
+		// [TODO] This would be cached between training (by classifier)
 		$results = $db->GetArrayMaster(sprintf('SELECT id, name, training_count, dictionary_size, entities FROM classifier_class WHERE classifier_id = %d', $classifier_id));
 		$classes = array_column($results, null, 'id');
 		$class_freqs = array_column($results, 'training_count', 'id');
@@ -1350,6 +1355,9 @@ class _DevblocksBayesClassifierService {
 		// [TODO] Suppress stop words
 		$unique_tokens = self::preprocessWordsRemoveStopWords($unique_tokens, self::$STOP_WORDS_EN);
 		
+		// [TODO] Add every entity too?
+		//$unique_tokens = array_unique(array_merge($unique_tokens, array_values(self::$TAGS_TO_TOKENS)));
+		
 		$corpus_freqs = [];
 		
 		// Bayes theorem: P(i=ask|x) = P(x|ask=1) * P(ask=1) / P(x|ask=0) * P(ask=0) + P(x|ask=1) * P(ask=1) ...
@@ -1394,7 +1402,12 @@ class _DevblocksBayesClassifierService {
 		foreach($results as $row) {
 			if(isset($class_data[$row['class_id']]['token_freqs'][$row['token']]))
 				$class_data[$row['class_id']]['token_freqs'][$row['token']] = intval($row['training_count']);
-				
+
+			/*
+			if(DevblocksPlatform::strStartsWith($row['token'], '['))
+				$class_data[$row['class_id']]['entity_counts'][$row['token']] = intval($row['training_count']);
+			*/
+			
 			$corpus_freqs[$row['token']] = intval(@$corpus_freqs[$row['token']]) + intval($row['training_count']);
 		}
 		
@@ -1411,6 +1424,18 @@ class _DevblocksBayesClassifierService {
 				$class_data[$class_id]['p'] = 0;
 				continue;
 			}
+			
+			// If the training includes an entity 100% of the time and we don't have it, predict 0%
+			/*
+			foreach(self::$TAGS_TO_TOKENS as $entity) {
+				$p_entity = (@$data['entity_counts'][$entity] ?: 0) / $training_count;
+				
+				if($p_entity == 1 && !in_array($entity, $data['tokens'])) {
+					$class_data[$class_id]['p'] = 0;
+					continue 2;
+				}
+			}
+			*/
 			
 			// [TODO] If none of our tokens matched up, skip this intent
 			// [TODO] If we uncomment this, it just picks something arbitrary anyway
@@ -1455,9 +1480,12 @@ class _DevblocksBayesClassifierService {
 		
 		arsort($results);
 		
+		//var_dump($results);
+		
 		$predicted_class_id = key($results);
 		$predicted_class_confidence = current($results);
 		
+		// [TODO] Setting for default class for low confidence
 		/*
 		if($predicted_class_confidence < 0.30) {
 			$predicted_class_id = 2;
@@ -1632,7 +1660,8 @@ class _DevblocksBayesClassifierService {
 						];
 						break;
 						
-					// [TODO] This can't handle "for 1 hr"
+					// [TODO] This can't handle "for the next 2 hours"
+					// [TODO] "For three and a half hours"
 					case 'duration':
 						$param_key = implode(' ', $result['range']);
 						$dur_words = $result['range'];
@@ -1732,6 +1761,8 @@ class _DevblocksBayesClassifierService {
 						if(!isset($params['temperature']))
 							$params['temperature'] = [];
 						
+						// [TODO] localize ºC/ºF defaults
+						
 						$temp_string = trim(implode(' ', $temp_words));
 							
 						$params['temperature'][$param_key] = [
@@ -1745,6 +1776,7 @@ class _DevblocksBayesClassifierService {
 						$time_words = $result['range'];
 						$seq = $result['sequence'];
 						
+						// [TODO] Normalize 'five thirty five pm' -> '5:30 pm'
 						
 						// In dates and times, tag 'a' and 'an' as a {number:1}
 						if(false !== ($hits = array_intersect($seq, ['a','an']))) {
@@ -1872,6 +1904,7 @@ class _DevblocksBayesClassifierService {
 								
 								$param_key = implode(' ', $result['range']);
 								
+								// [TODO] We should keep a case-sensitive version of the original tokenized string for params
 								$params[$entity_type][$param_key] = [
 									//'value' => implode(' ', array_intersect_key(explode(' ', $text), $result['range'])),
 									'value' => implode(' ', $result['range']),
