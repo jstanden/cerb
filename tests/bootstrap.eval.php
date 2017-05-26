@@ -127,7 +127,7 @@ class CerbTestHelper {
 		$worker_menu->getLocationOnScreenOnceScrolledIntoView();
 		$worker_menu->click();
 		
-		$by = WebDriverBy::cssSelector('#menuSignedIn li:nth-child(5) a');
+		$by = WebDriverBy::cssSelector('#menuSignedIn li:nth-child(6) a');
 		
 		$driver->wait(5, 250)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated($by)
@@ -193,7 +193,7 @@ class CerbTestHelper {
 			function() use (&$driver, &$popups) {
 				try {
 					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
-					return (count($popups) == 1);
+					return 1 == count($popups);
 					
 				} catch(NoSuchElementException $nse) {
 					return null;
@@ -217,6 +217,7 @@ class CerbTestHelper {
 			function() use (&$driver) {
 				try {
 					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
+					return empty($popups);
 				} catch (NoSuchElementException $nse) {
 					return true;
 				}

@@ -102,17 +102,11 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$popup->findElement(WebDriverBy::cssSelector('button.submit'))
 			->click();
 		
-		$driver->wait(5, 250)->until(
-			function() use (&$driver) {
-				try {
-					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
-				} catch (NoSuchElementException $nse) {
-					return true;
-				}
-			},
+		$driver->wait(5,250)->until(
+			WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('#viewsetup_mail_transports .cerb-view-marquee'), 'New mail transport created'),
 			'Failed to close the mail transport popup when creating a transport.'
 		);
-	
+		
 		$this->assertTrue(true);
 	}
 	
@@ -137,15 +131,9 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$form->findElement(WebDriverBy::name('reply_from'))
 			->sendKeys('support@cerb.example');
 		
-		$form->findElement(WebDriverBy::name('reply_personal'))
-			->sendKeys('Example Support Team');
-		
-		$by = WebDriverBy::name('reply_signature');
-		$textarea = $cerb->getElementByAndWait($by);
-		$driver->executeScript("$('textarea').trigger('autosize.destroy');");
-		
-		$textarea->getLocationOnScreenOnceScrolledIntoView();
-		$textarea->sendKeys("-- \n{{full_name}}, {{title}}\nCerb Demo, Inc.\n");
+		// Type in Ace editor
+		$driver->executeScript("$('#frmAddyOutgoingPeek input[name=reply_personal]').val('Example Support Team');");
+		$driver->executeScript("$('#frmAddyOutgoingPeek textarea[name=reply_signature]').val('-- \\n{{full_name}}, {{title}}\\nCerb Demo, Inc.\\n');");
 		
 		$form->findElement(WebDriverBy::name('is_default'))
 			->click();
@@ -156,7 +144,8 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#frmSetupMailFrom > fieldset'));
-					return 1 == count($objects);
+					//return 1 == count($objects);
+					return count($objects) > 0;
 					
 				} catch (NoSuchElementException $nse) {
 					return null;
@@ -199,6 +188,8 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			function() use (&$driver) {
 				try {
 					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
+					if(empty($popups))
+						return true;
 				} catch (NoSuchElementException $nse) {
 					return true;
 				}
@@ -341,6 +332,8 @@ class CerbEval_UI_Setup extends CerbTestBase {
 				function() use (&$driver) {
 					try {
 						$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
+						if(empty($popups))
+							return true;
 					} catch (NoSuchElementException $nse) {
 						return true;
 					}
@@ -495,6 +488,8 @@ class CerbEval_UI_Setup extends CerbTestBase {
 				function() use (&$driver) {
 					try {
 						$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
+						if(empty($popups))
+							return true;
 					} catch (NoSuchElementException $nse) {
 						return true;
 					}
@@ -602,6 +597,8 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			function() use (&$driver) {
 				try {
 					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
+					if(empty($popups))
+						return true;
 				} catch (NoSuchElementException $nse) {
 					return true;
 				}
@@ -681,6 +678,8 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			function() use (&$driver) {
 				try {
 					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
+					if(empty($popups))
+						return true;
 				} catch (NoSuchElementException $nse) {
 					return true;
 				}

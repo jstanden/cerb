@@ -58,8 +58,7 @@ class CerbEval_UI_SimulateDay1 extends CerbTestBase {
 			
 			$form = $driver->findElement($by);
 			
-			$textarea = $form->findElement(WebDriverBy::name('message_source'));
-			$textarea->sendKeys(file_get_contents('resources/convos/' . $message_file));
+			$driver->executeScript(sprintf("$('textarea[name=message_source]').val(%s);", json_encode(file_get_contents('resources/convos/' . $message_file))));
 			
 			$form->findElement(WebDriverBy::tagName('button'))
 				->click();
@@ -210,8 +209,7 @@ class CerbEval_UI_SimulateDay1 extends CerbTestBase {
 			
 			$form = $driver->findElement($by);
 			
-			$textarea = $form->findElement(WebDriverBy::name('message_source'));
-			$textarea->sendKeys(file_get_contents('resources/convos/' . $message_file));
+			$driver->executeScript(sprintf("$('textarea[name=message_source]').val(%s);", json_encode(file_get_contents('resources/convos/' . $message_file))));
 			
 			$form->findElement(WebDriverBy::tagName('button'))
 				->click();
