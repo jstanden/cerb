@@ -620,6 +620,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Keys
 		$keys = $context_ext->importGetKeys();
+		$this->_filterImportCustomFields($keys);
 		$tpl->assign('keys', $keys);
 	
 		// Read the first line from the file
@@ -639,9 +640,43 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/import/popup_mapping.tpl');
 	}
 	
-	function doImportAction() {
-		//header("Content-Type: application/json");
+	private function _filterImportCustomFields(&$keys) {
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			return;
+		
+		$custom_fields = DAO_CustomField::getAll();
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
 
+		if(is_array($keys))
+		foreach($keys as $key => $field) {
+			if(!DevblocksPlatform::strStartsWith($key, 'cf_'))
+				continue;
+			
+			$cfield_id = substr($key, 3);
+			
+			if(!isset($custom_fields[$cfield_id])) {
+				unset($keys[$key]);
+				continue;
+			}
+			
+			$cfield = $custom_fields[$cfield_id];
+			
+			if(!$cfield->custom_fieldset_id)
+				continue;
+			
+			if(false == ($cfieldset = @$custom_fieldsets[$cfield->custom_fieldset_id])) {
+				unset($keys[$key]);
+				continue;
+			}
+			
+			if($cfieldset->owner_context == CerberusContexts::CONTEXT_BOT) {
+				unset($keys[$key]);
+				continue;
+			}
+		}
+	}
+	
+	function doImportAction() {
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
