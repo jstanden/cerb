@@ -1,9 +1,9 @@
 language: php
 
 services:
-  - mysql
-  - memcached
-  - redis
+#  - mysql
+#  - memcached
+#  - redis
 
 php:
   - 5.6
@@ -15,6 +15,7 @@ before_script:
   - echo 'upload_tmp_dir = "/tmp"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
 script:
+  - composer install --no-dev
   - cd tests/
   - composer install
   - vendor/bin/phpunit -c phpunit.cerb.platform.xml
