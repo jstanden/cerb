@@ -91,7 +91,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									5
 									),
 								new DevblocksTourCallout(
-									'#viewpages TABLE.worklist A > SPAN.glyphicons-circle-plus',
+									'#viewworkspace_page TABLE.worklist A > SPAN.glyphicons-circle-plus',
 									'Add Pages',
 									'You can add a page by clicking on the (+) icon in the pages worklist.',
 									'bottomRight',
@@ -100,7 +100,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									5
 									),
 								new DevblocksTourCallout(
-									'#viewpages TABLE.worklistBody > THEAD TH:nth(0) A',
+									'#viewworkspace_page TABLE.worklistBody > THEAD TH:nth(0) A',
 									'Add to Menu',
 									'You can add or remove a page from your navigation bar by clicking the icon in this column.',
 									'bottomLeft',
@@ -109,7 +109,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									5
 									),
 								new DevblocksTourCallout(
-									'#viewpages TABLE.worklistBody > THEAD TH:nth(1) A',
+									'#viewworkspace_page TABLE.worklistBody > THEAD TH:nth(1) A',
 									'View Page',
 									'You can view a page by clicking the link in this column.',
 									'bottomLeft',
@@ -242,16 +242,16 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									'bottomLeft',
 									'topLeft',
 									20,
-									10
+									5
 									),
 								new DevblocksTourCallout(
-									'DIV.cerb-menu > UL > LI:nth(4)',
+									'DIV.cerb-menu > UL > LI:nth(6)',
 									'Plugins',
 									'Use this menu to install and configure optional plugins that enhance Cerb functionality. You can also download third-party plugins from the community.',
 									'bottomLeft',
 									'topLeft',
 									20,
-									10
+									5
 									),
 							),
 						);
@@ -513,11 +513,29 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 							'body' => "This is a detailed profile page for an email conversation.",
 							'callouts' => array(
 								new DevblocksTourCallout(
+									'#btnProfileCard',
+									'Peek',
+									'Click this button to open the ticket card.',
+									'bottomLeft',
+									'topRight',
+									-10,
+									5
+									),
+								new DevblocksTourCallout(
+									'#btnDisplayTicketEdit',
+									'Edit',
+									'Click this button to edit the ticket properties.',
+									'bottomLeft',
+									'topRight',
+									-10,
+									5
+									),
+								new DevblocksTourCallout(
 									'SPAN#spanWatcherToolbar BUTTON:first',
 									'Watchers',
 									'A watcher will automatically receive notifications about new activity on this record.  Click this button to add or remove yourself as a watcher.',
 									'bottomLeft',
-									'topRight',
+									'topMiddle',
 									-10,
 									5
 									),
@@ -537,6 +555,15 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									'bottomLeft',
 									'topLeft',
 									10,
+									0
+									),
+								new DevblocksTourCallout(
+									'div.cerb-subpage div.cerb-links-container',
+									'Links',
+									'You can connect this conversation to any other record in the system: tasks, organizations, opportunities, time tracking, servers, domains, etc.',
+									'bottomLeft',
+									'topLeft',
+									25,
 									0
 									),
 								new DevblocksTourCallout(
@@ -568,15 +595,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 									),
 								new DevblocksTourCallout(
 									'#profileTicketTabs > UL > li:nth(2)',
-									'Links',
-									'You can connect this conversation to any other record in the system: tasks, organizations, opportunities, time tracking, servers, domains, etc.',
-									'bottomLeft',
-									'topMiddle',
-									0,
-									10
-									),
-								new DevblocksTourCallout(
-									'#profileTicketTabs > UL > li:nth(3)',
 									'Participant History',
 									'This tab displays prior conversations involving any of these participants.',
 									'bottomLeft',
