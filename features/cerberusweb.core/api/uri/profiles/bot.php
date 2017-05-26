@@ -113,6 +113,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			'calendars' => DAO_Calendar::count($context, $model->id),
 			'classifiers' => DAO_Classifier::countByBot($model->id),
 			'comments' => DAO_Comment::count($context, $model->id),
+			'custom_fieldsets' => DAO_CustomFieldset::count($context, $model->id),
 		);
 		$tpl->assign('owner_counts', $owner_counts);
 		

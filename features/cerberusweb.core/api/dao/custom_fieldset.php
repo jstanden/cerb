@@ -280,6 +280,15 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		return self::_getRandom('custom_fieldset');
 	}
 	
+	static public function count($owner_context, $owner_context_id) {
+		$db = DevblocksPlatform::getDatabaseService();
+		return $db->GetOneSlave(sprintf("SELECT count(*) FROM custom_fieldset ".
+			"WHERE owner_context = %s AND owner_context_id = %d",
+			$db->qstr($owner_context),
+			$owner_context_id
+		));
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids))
 			$ids = array($ids);
