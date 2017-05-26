@@ -681,6 +681,29 @@ class CerberusParser {
 		if(!($mm instanceof MimeMessage))
 			return false;
 		
+		/*
+		if(0 == strcasecmp($mm->data['content-type'], 'multipart/encrypted')) {
+			// [TODO] Decrypt the PGP part, recurse, return
+			var_dump($mm);
+			
+			$mime_parts = [];
+			self::_recurseMimeParts($mm, $mime_parts);
+			
+			if(is_array($mime_parts))
+			foreach($mime_parts as $section_idx => $section) {
+				if(0 == strcasecmp('encrypted.asc', $section->data['content-name'])) {
+					try {
+						$encrypted_content = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
+						var_dump($encrypted_content);
+						
+					} catch (Exception $e) {
+						var_dump($e);
+					}
+				}
+			}
+		}
+		*/
+		
 		$message = new CerberusParserMessage();
 		@$message->encoding = $mm->data['charset'];
 		@$message->body_encoding = $message->encoding; // default
