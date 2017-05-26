@@ -36,13 +36,18 @@ $(function() {
 			$status.html('').hide();
 			
 			genericAjaxPost('frmSetupImportPackage','',null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o.status && $o.prompts) {
-					$frm.find('div.prompts').html($o.prompts);
-				} else if(false == $o || false == $o.status) {
-					Devblocks.showError($status,$o.error);
+				if(false == json.status && json.prompts) {
+					$frm.find('div.prompts').html(json.prompts);
+				} else if(null == json || false == json.status) {
+					Devblocks.showError($status,json.error);
 				} else {
-					Devblocks.showSuccess($status,'Imported!');
+					if(json.results_html) {
+						var $html = $(json.results_html);
+						$frm.html($html);
+						$html.find('.cerb-peek-trigger').cerbPeekTrigger();
+					} else {
+						Devblocks.showSuccess($status,'Imported!');
+					}
 				}
 			});
 		})

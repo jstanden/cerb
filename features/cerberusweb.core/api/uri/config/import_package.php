@@ -26,6 +26,8 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 	}
 	
 	function importJsonAction() {
+		header('Content-Type: application/json; charset=utf-8');
+		
 		try {
 			$worker = CerberusApplication::getActiveWorker();
 			
@@ -127,7 +129,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			@$portals = $json['portals'];
 			
 			$uids = [];
+			$records_created = [];
 			
+			///////////////////////////////////////////////////////////////
 			// Validation pass
 			
 			if(is_array($custom_fieldsets))
@@ -195,6 +199,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					throw new Exception(sprintf("Invalid JSON: portal is missing properties (%s)", implode(', ', array_keys($diff))));
 			}
 			
+			///////////////////////////////////////////////////////////////
 			// Insertion pass (when everything is OK)
 			
 			if(is_array($custom_fieldsets))
@@ -315,6 +320,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			
 			unset($new_json_string);
 			
+			///////////////////////////////////////////////////////////////
 			// Update pass (finalize data)
 			
 			@$custom_fieldsets = $json['custom_fieldsets'];
@@ -329,35 +335,10 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					DAO_CustomFieldset::CONTEXT => $custom_fieldset['context'],
 				]);
 				
-				$custom_fields = $custom_fieldset['fields'];
-				
-				foreach($custom_fields as $pos => $custom_field) {
-					$uid = $custom_field['uid'];
-					$id = $uids[$uid];
-					
-					DAO_CustomField::update($id, [
-						DAO_CustomField::NAME => $custom_field['name'],
-						DAO_CustomField::TYPE => $custom_field['type'],
-						DAO_CustomField::CONTEXT => $custom_fieldset['context'],
-						DAO_CustomField::POS => $pos,
-						DAO_CustomField::PARAMS_JSON => json_encode($custom_field['params']),
-					]);
-				}
-			}
-			
-			// Update pass (finalize data)
-			
-			@$custom_fieldsets = $json['custom_fieldsets'];
-			
-			if(is_array($custom_fieldsets))
-			foreach($custom_fieldsets as $custom_fieldset) {
-				$uid = $custom_fieldset['uid'];
-				$id = $uids[$uid];
-				
-				DAO_CustomFieldset::update($id, [
-					DAO_CustomFieldset::NAME => $custom_fieldset['name'],
-					DAO_CustomFieldset::CONTEXT => $custom_fieldset['context'],
-				]);
+				$records_created[CerberusContexts::CONTEXT_CUSTOM_FIELDSET][] = [
+					'id' => $id,
+					'label' => $custom_fieldset['name'],
+				];
 				
 				$custom_fields = $custom_fieldset['fields'];
 				
@@ -389,6 +370,11 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					DAO_Bot::UPDATED_AT => time(),
 					DAO_Bot::PARAMS_JSON => json_encode($bot['params']),
 				]);
+				
+				$records_created[CerberusContexts::CONTEXT_BOT][] = [
+					'id' => $id,
+					'label' => $bot['name'],
+				];
 				
 				// Image
 				
@@ -441,6 +427,11 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					DAO_WorkspacePage::EXTENSION_ID => $workspace['extension_id'],
 				]);
 				
+				$records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE][] = [
+					'id' => $id,
+					'label' => $workspace['name'],
+				];
+				
 				$tabs = $workspace['tabs'];
 				
 				foreach($tabs as $tab_idx => $tab) {
@@ -477,9 +468,15 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					DAO_CommunityTool::EXTENSION_ID => $portal['extension_id'],
 				]);
 				
-				$params = $portal['params'];
-				
 				$portal_model = DAO_CommunityTool::get($id);
+				
+				$records_created[CerberusContexts::CONTEXT_PORTAL][] = [
+					'id' => $id,
+					'label' => $portal['name'],
+					'code' => $portal_model->code,
+				];
+				
+				$params = $portal['params'];
 				
 				if(is_array($params))
 				foreach($params as $k => $v) {
@@ -490,11 +487,17 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				}
 			}
 			
-			echo json_encode(array('status'=>true));
+			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl->assign('records_created', $records_created);
+			$results_html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/import_package/results.tpl');
+			
+			echo json_encode(array('status' => true, 'results_html' => $results_html));
 			return;
 				
 		} catch(Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			// [TODO] On failure, delete temporary UIDs?
+			
+			echo json_encode(array('status' => false, 'error' => $e->getMessage()));
 			return;
 		}
 	}
