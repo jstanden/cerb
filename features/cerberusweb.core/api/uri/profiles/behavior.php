@@ -475,6 +475,11 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		
 		// Menu
 		$labels = array_column(DevblocksPlatform::objectsToArrays($events), 'name', 'id');
+		
+		// Remove deprecated events from creation
+		unset($labels['event.api.mobile_behavior']);
+		unset($labels['event.mail.reply.during.ui.worker']);
+		
 		$events_menu = Extension_DevblocksContext::getPlaceholderTree($labels);
 		
 		$tpl->assign('bot', $bot);
