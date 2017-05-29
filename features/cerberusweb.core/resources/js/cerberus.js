@@ -1061,7 +1061,8 @@ var ajax = new cAjaxCalls();
 				
 				data.params = interaction_params;
 				
-				genericAjaxPopup('bot_chat','c=internal&a=startBotInteraction&' + $.param(data), null, false, '300');
+				var layer = Devblocks.uniqueId();
+				genericAjaxPopup(layer,'c=internal&a=startBotInteraction&' + $.param(data), null, false, '300');
 			});
 		});
 	}

@@ -65,6 +65,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$interaction_behavior_id = DevblocksPlatform::importGPC($_REQUEST['behavior_id'], 'integer', 0);
 		@$browser = DevblocksPlatform::importGPC($_REQUEST['browser'], 'array', []);
 		@$interaction_params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'], 'string', null);
 		
 		$session = DevblocksPlatform::getSessionService();
 		
@@ -190,12 +191,14 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('bot_name', $bot_name);
 		$tpl->assign('bot_image_url', $bot_image_url);
 		$tpl->assign('session_id', $session_id);
+		$tpl->assign('layer', $layer);
 		
 		$tpl->display('devblocks:cerberusweb.core::console/window.tpl');
 	}
 	
 	function consoleSendMessageAction() {
 		@$session_id = DevblocksPlatform::importGPC($_REQUEST['session_id'], 'string', '');
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'], 'string', '');
 		@$message = DevblocksPlatform::importGPC($_REQUEST['message'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -305,6 +308,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('bot', $bot);
 		$tpl->assign('bot_name', $bot_name);
+		$tpl->assign('layer', $layer);
 		
 		foreach($actions as $params) {
 			switch(@$params['_action']) {

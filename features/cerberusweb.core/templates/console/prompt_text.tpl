@@ -6,7 +6,7 @@
 	$(function() {
 		var $msg = $('#{$msg_id}');
 		
-		var $chat_window_input_form = $('form.bot-chat-window-input-form');
+		var $chat_window_input_form = $('#{$layer} form.bot-chat-window-input-form');
 		var $chat_input = $chat_window_input_form.find('input[name=message]');
 		
 		var $txt = $msg.find('input:text')

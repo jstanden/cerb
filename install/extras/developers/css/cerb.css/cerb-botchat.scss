@@ -1,0 +1,73 @@
+@import "cerb-variables.scss";
+@import "cerb-mixins.scss";
+
+.bot-chat-window {
+  > div.bot-chat-window-convo {
+    overflow:auto;
+    height: 500px;
+    max-height: 500px;
+  }
+
+  div.bot-chat-message {
+    margin: 10px 0px 5px 0px;
+    
+    p {
+      margin: 2px;
+    }
+    
+    ul, ol {
+      margin: 2px;
+      padding-left: 25px;
+    }
+  }
+
+  div.bot-chat-message-emote {
+    color:rgb(150,150,150);
+  }
+
+  .bot-chat-left {
+    float:left;
+    text-align:left;
+  }
+
+  .bot-chat-right {
+    float:right;
+    text-align:right;
+  }
+
+  div.bot-chat-message-bubble {
+    border-radius:5px;
+    display:inline-block;
+    padding:10px;
+    margin-bottom:1px;
+    text-align:left;
+  }
+
+  > div.bot-chat-window-convo {
+    div.bot-chat-message.bot-chat-left > div.bot-chat-message-bubble {
+      background-color:rgb(240,240,240);
+      border:1px solid rgb(230,230,230);
+      border:0;
+      border-radius:12px 12px 12px 0px;
+    }
+    
+    div.bot-chat-message.bot-chat-right > div.bot-chat-message-bubble {
+        color:white;
+        background-color:rgb(35,150,255);
+        border:0;
+        border-radius:12px 12px 0px 12px;
+    }
+    
+    div.bot-chat-message-time {
+      color:rgb(180,180,180);
+    }
+  }
+
+  INPUT.bot-chat-input {
+    width:95%;
+    padding:5px;
+    margin-top: 10px;
+    border-radius:5px;
+    border:1px solid rgb(220,220,220);
+  }
+}
