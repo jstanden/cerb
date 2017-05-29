@@ -622,7 +622,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 			self::OWNER_ID => new DevblocksSearchField(self::OWNER_ID, 't', 'owner_id', $translate->_('common.owner'), Model_CustomField::TYPE_WORKER, true),
 			self::IMPORTANCE => new DevblocksSearchField(self::IMPORTANCE, 't', 'importance', $translate->_('common.importance'), Model_CustomField::TYPE_NUMBER, true),
 			self::DUE_DATE => new DevblocksSearchField(self::DUE_DATE, 't', 'due_date', $translate->_('task.due_date'), Model_CustomField::TYPE_DATE, true),
-			self::REOPEN_AT => new DevblocksSearchField(self::REOPEN_AT, 't', 'reopen_at', $translate->_('task.reopen_at'), Model_CustomField::TYPE_DATE, true),
+			self::REOPEN_AT => new DevblocksSearchField(self::REOPEN_AT, 't', 'reopen_at', $translate->_('common.reopen_at'), Model_CustomField::TYPE_DATE, true),
 			self::COMPLETED_DATE => new DevblocksSearchField(self::COMPLETED_DATE, 't', 'completed_date', $translate->_('task.completed_date'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),

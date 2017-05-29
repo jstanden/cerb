@@ -6,7 +6,7 @@ Message-Id: <convo19.msg1@cerb.example>
 
 The new quick search feature is much improved. However, one thing is worse. It is no longer possible to add a single new filter to an existing worklist, as a quick search much replace all filters at the same time.
 
-Can this incremental fitler ability be added back?
+Can this incremental filter ability be added back?
 
 -- 
 GIADA ROSSI, Developer Liaison
