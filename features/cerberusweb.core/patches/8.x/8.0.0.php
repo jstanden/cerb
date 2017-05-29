@@ -137,6 +137,11 @@ if(isset($tables['context_recommendation'])) {
 }
 
 // ===========================================================================
+// Reset snippet worklist models
+
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE class_name = 'View_Snippet'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
