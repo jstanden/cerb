@@ -245,6 +245,19 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('trigger', $trigger);
 		
+		$points = [
+			'global' => 'Global',
+		];
+		
+		$contexts = Extension_DevblocksContext::getAll(false);
+		
+		foreach($contexts as $context) {
+			$points['record:'. $context->id] = 'Record:' . $context->name;
+		}
+		
+		$menu = Extension_DevblocksContext::getPlaceholderTree($points, ':','');
+		$tpl->assign('menu', $menu);
+		
 		$tpl->display('devblocks:cerberusweb.core::events/interaction/params_interactions_get_for_worker.tpl');
 	}
 	
