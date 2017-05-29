@@ -482,6 +482,7 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
+	const VIRTUAL_USABLE_BY = '*_usable_by';
 	
 	static private $_fields = null;
 	
@@ -509,6 +510,10 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 				return self::_getWhereSQLFromFulltextField($param, Search_Snippet::ID, self::getPrimaryKey());
 				break;
 				
+			case self::VIRTUAL_USABLE_BY:
+				return self::_getWhereSQLForUsableBy($param, self::getPrimaryKey());
+				break;
+				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -518,6 +523,44 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 				break;
 		}
 		return false;
+	}
+	
+	static private function _getWhereSQLForUsableBy($param, $pkey) {
+		// Handle nested quick search filters first
+		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			if(!is_array($param->value))
+				return '0';
+			
+			$actor_context = $param->value['context'];
+			$actor_id = $param->value['id'];
+			
+			if(empty($actor_context) || empty($actor_id))
+				return '0';
+			
+			$worker_group_ids = array_keys(DAO_Group::getByMembers($actor_id));
+			$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($actor_id));
+			
+			$sql = sprintf(
+				"(".
+				"(owner_context = %s AND owner_context_id = 0) ". // app
+				"OR (owner_context = %s AND owner_context_id = %d) ". // worker
+				"OR (owner_context = %s AND owner_context_id IN (%s)) ". // group
+				"OR (owner_context = %s AND owner_context_id IN (%s)) ". // role
+				")"
+				,
+				Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_APPLICATION),
+				Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKER),
+				$actor_id,
+				Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_GROUP),
+				implode(',', $worker_group_ids ?: [-1]),
+				Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_ROLE),
+				implode(',', $worker_role_ids ?: [-1])
+			);
+			
+			return $sql;
+		}
+		
+		return '0';
 	}
 	
 	/**
@@ -553,6 +596,7 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
+			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
 		);
 		
 		// Fulltext indexes
@@ -741,6 +785,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Snippet::FULLTEXT_SNIPPET,
 			SearchFields_Snippet::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Snippet::VIRTUAL_HAS_FIELDSET,
+			SearchFields_Snippet::VIRTUAL_USABLE_BY,
 		));
 		
 		$this->addParamsHidden(array(
@@ -748,6 +793,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Snippet::OWNER_CONTEXT,
 			SearchFields_Snippet::OWNER_CONTEXT_ID,
 			SearchFields_Snippet::USE_HISTORY_MINE,
+			SearchFields_Snippet::VIRTUAL_USABLE_BY,
 		));
 		
 		$this->doResetCriteria();
@@ -901,6 +947,14 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Snippet::UPDATED_AT),
 				),
+			'usableBy.worker' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Snippet::VIRTUAL_USABLE_BY),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
+				),
 		);
 		
 		// Add dynamic owner.* fields
@@ -970,7 +1024,19 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 					array_keys($values)
 				);
 				break;
+			
+			case 'usableBy.worker':
+				$oper = $value = null;
+				CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
+				$worker_id = intval($value);
 				
+				return new DevblocksSearchCriteria(
+					SearchFields_Snippet::VIRTUAL_USABLE_BY,
+					DevblocksSearchCriteria::OPER_CUSTOM,
+					['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $worker_id]
+				);
+				break;
+			
 			default:
 				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
 					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_Snippet::VIRTUAL_OWNER);
@@ -1105,6 +1171,25 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Snippet::VIRTUAL_OWNER:
 				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner is');
 				break;
+				
+			case SearchFields_Snippet::VIRTUAL_USABLE_BY:
+				if(!is_array($param->value) || !isset($param->value['context']))
+					return;
+				
+				switch($param->value['context']) {
+					case CerberusContexts::CONTEXT_WORKER:
+						if(false == ($worker = DAO_Worker::get($param->value['id']))) {
+							$worker_name = '(invalid worker)';
+						} else {
+							$worker_name = $worker->getName();
+						}
+						
+						echo sprintf("Usable by %s <b>%s</b>",
+							DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translate('common.worker', DevblocksPlatform::TRANSLATE_LOWER)),
+							DevblocksPlatform::strEscapeHtml($worker_name)
+						);
+						break;
+				}
 		}
 	}
 
@@ -1265,38 +1350,23 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	function autocomplete($term, $query=null) {
 		$as_worker = CerberusApplication::getActiveWorker();
 		
-		$list = array();
+		$list = [];
 		
 		$contexts = DevblocksPlatform::getExtensions('devblocks.context', false);
+
+		$defaults = new C4_AbstractViewModel();
+		$defaults->id = 'autocomplete_snippets';
+		$defaults->class_name = 'View_Snippet';
+		$defaults->is_ephemeral = true;
 		
-		$worker_groups = $as_worker->getMemberships();
-		$worker_roles = $as_worker->getRoles();
+		if(false == ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults)))
+			return [];
 		
-		// Restrict owners
-		$param_ownership = array(
-			DevblocksSearchCriteria::GROUP_OR,
-			SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_APPLICATION),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
-				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ,$as_worker->id),
-			),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
-				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,array_keys($worker_groups)),
-			),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
-				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,array_keys($worker_roles)),
-			),
-		);
+		// By owner
+		$params = $view->getParamsFromQuickSearch('usableBy.worker:' . $as_worker->id);
 		
-		$params = array(
-			new DevblocksSearchCriteria(SearchFields_Snippet::TITLE,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
-			$param_ownership,
-		);
+		// Search by title
+		$params[] = new DevblocksSearchCriteria(SearchFields_Snippet::TITLE,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%');
 		
 		// [TODO] This needs to be abstracted properly
 		@$context_list = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
@@ -1309,22 +1379,23 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		$context_list[] = ''; // plaintext
 		
 		// Filter contexts
-		$params[SearchFields_Snippet::CONTEXT] =
+		$params[] =
 			new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT,DevblocksSearchCriteria::OPER_IN,$context_list)
 			;
 		
-		list($results, $null) = DAO_Snippet::search(
-			array(
-				SearchFields_Snippet::TITLE,
-				SearchFields_Snippet::USE_HISTORY_MINE,
-			),
-			$params,
-			25,
-			0,
+		$view->addParams($params, true);
+		$view->view_columns = [
+			SearchFields_Snippet::TITLE,
 			SearchFields_Snippet::USE_HISTORY_MINE,
-			false,
-			false
-		);
+		];
+		$view->renderSortBy = SearchFields_Snippet::USE_HISTORY_MINE;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 25;
+		$view->renderPage = 0;
+		$view->renderTotal = false;
+		$view->setAutoPersist(false);
+		
+		list($results, $null) = $view->getData();
 
 		foreach($results AS $row){
 			$entry = new stdClass();
@@ -1461,33 +1532,8 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Snippets';
 		
-		$params_required = array();
-		
-		$worker_group_ids = array_keys($active_worker->getMemberships());
-		$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
-		
 		// Restrict owners
-		$param_ownership = array(
-			DevblocksSearchCriteria::GROUP_OR,
-			SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_APPLICATION),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_WORKER),
-				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_EQ,$active_worker->id),
-			),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_GROUP),
-				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_group_ids),
-			),
-			array(
-				DevblocksSearchCriteria::GROUP_AND,
-				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT,DevblocksSearchCriteria::OPER_EQ,CerberusContexts::CONTEXT_ROLE),
-				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID,DevblocksSearchCriteria::OPER_IN,$worker_role_ids),
-			),
-		);
-		$params_required['_ownership'] = $param_ownership;
-		
+		$params_required = $view->getParamsFromQuickSearch('usableBy.worker:' . $active_worker->id);
 		$view->addParamsRequired($params_required, true);
 		
 		$view->renderSortBy = SearchFields_Snippet::USE_HISTORY_MINE;
