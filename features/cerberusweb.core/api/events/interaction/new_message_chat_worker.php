@@ -268,6 +268,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				'send_message' => array('label' => 'Respond with message'),
 				'send_script' => array('label' => 'Respond with script'),
 				'switch_behavior' => array('label' => 'Switch behavior'),
+				'window_close' => array('label' => 'Close chat window'),
 				'worklist_open' => array('label' => 'Open a worklist popup'),
 			)
 			;
@@ -308,6 +309,9 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				
 			case 'switch_behavior':
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_switch_behavior.tpl');
+				break;
+				
+			case 'window_close':
 				break;
 				
 			case 'worklist_open':
@@ -377,6 +381,10 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					"%d\n",
 					$behavior_id
 				);
+				break;
+				
+			case 'window_close':
+				$out = sprintf(">>> Closing the chat window\n");
 				break;
 				
 			case 'worklist_open':
@@ -530,6 +538,17 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				);
 				
 				$dict->__exit = 'suspend';
+				break;
+				
+			case 'window_close':
+				$actions =& $dict->_actions;
+				
+				$actions[] = array(
+					'_action' => 'window.close',
+					'_trigger_id' => $trigger->id,
+				);
+				
+				$dict->__exit = 'exit';
 				break;
 				
 			case 'worklist_open':

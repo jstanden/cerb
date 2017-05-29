@@ -51,6 +51,10 @@ $(function() {
 			$(this).scrollTop(this.scrollHeight);
 		});
 		
+		$chat_window_convo.on('bot-chat-close', function(e) {
+			genericAjaxPopupDestroy('{$layer}');
+		});
+		
 		$chat_window_convo.on('bot-chat-message-send', function() {
 			// Show loading icon placeholder
 			
