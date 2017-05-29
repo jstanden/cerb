@@ -2330,13 +2330,6 @@ abstract class C4_AbstractView {
 					}
 				}
 			}
-			
-		} else {
-			$new_params = array(
-				$field_key => new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_TRUE),
-			);
-			
-			$params = array_merge($params, $new_params);
 		}
 		
 		if(!method_exists($dao_class, 'getSearchQueryComponents'))
