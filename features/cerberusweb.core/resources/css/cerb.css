@@ -1723,6 +1723,9 @@ DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtm
   border-radius: 5px;
   border: 1px solid gainsboro;
 }
+.bot-chat-window BUTTON.bot-chat-button {
+  height: inherit;
+}
 
 /* jQueryUI (Redmond theme) */
 .ui-widget,

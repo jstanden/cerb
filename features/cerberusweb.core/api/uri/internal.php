@@ -380,7 +380,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					@$placeholder = $params['placeholder'];
 					
 					if(empty($placeholder))
-						$placeholder = 'say something, or @mention to switch bots';
+						$placeholder = 'say something';
 					
 					$tpl->assign('delay_ms', 0);
 					$tpl->assign('placeholder', $placeholder);
@@ -411,6 +411,11 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->assign('script', $script);
 					$tpl->assign('delay_ms', 0);
 					$tpl->display('devblocks:cerberusweb.core::console/script.tpl');
+					break;
+					
+				case 'window.close':
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/window_close.tpl');
 					break;
 					
 				case 'worklist.open':
