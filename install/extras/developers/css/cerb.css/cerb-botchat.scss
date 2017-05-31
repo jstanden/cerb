@@ -1,6 +1,33 @@
 @import "cerb-variables.scss";
 @import "cerb-mixins.scss";
 
+#bot-chat-button {
+  z-index:3;
+  position:fixed;
+  width:60px;
+  height:60px;
+  bottom:32px;
+  right:32px;
+  
+  > div.bot-chat-icon {
+    width:60px;
+    height:60px;
+    background-color:rgb(250,250,250);
+    box-shadow:0 0 10px 0px rgb(150,150,150);
+    border-radius:60px;
+    cursor:pointer;
+  
+    img {
+      width:50px;
+      height:50px;
+      position:relative;
+      top:5px;
+      left:7px;
+      border:0;
+    }
+  }
+}
+
 .bot-chat-window {
   > div.bot-chat-window-convo {
     overflow:auto;

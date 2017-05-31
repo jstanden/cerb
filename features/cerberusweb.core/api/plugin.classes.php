@@ -215,11 +215,6 @@ class ChPageController extends DevblocksControllerExtension {
 		
 		$tpl->assign('search_menu', $search_menu);
 		
-		// Conversational interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('global', [], $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('global_interactions_menu', $interactions_menu);
-		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::border.tpl');
 		
