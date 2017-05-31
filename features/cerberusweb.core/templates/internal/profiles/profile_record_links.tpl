@@ -157,7 +157,6 @@ $(function() {
 					$data.push('context_id[]='+encodeURIComponent(event.values[idx]));
 				
 				var options = { };
-				options.async = false;
 				options.type = 'POST';
 				options.data = $data.join('&');
 				options.url = DevblocksAppPath+'ajax.php',

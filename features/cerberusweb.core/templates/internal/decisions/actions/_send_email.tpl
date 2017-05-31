@@ -160,9 +160,6 @@ $(function() {
 			'c=internal&a=testDecisionEventSnippets&prefix={$namePrefix}&field=content&is_editor=format&_replyto_field=from_address_id',
 			function(o) {
 				content = o;
-			},
-			{
-				async: false
 			}
 		);
 		

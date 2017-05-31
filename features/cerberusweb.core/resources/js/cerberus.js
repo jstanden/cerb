@@ -649,7 +649,7 @@ var cAjaxCalls = function() {
 					$textarea.insertAtCursor(json.text);
 				}
 				
-			}, { async: false });
+			});
 		});
 	}
 	

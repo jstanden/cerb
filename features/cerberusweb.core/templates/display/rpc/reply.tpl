@@ -425,9 +425,6 @@
 				'c=display&a=getReplyPreview',
 				function(o) {
 					content = o;
-				},
-				{
-					async: false
 				}
 			);
 			
@@ -444,9 +441,6 @@
 				'c=display&a=getReplyMarkdownPreview',
 				function(o) {
 					content = o;
-				},
-				{
-					async: false
 				}
 			);
 			
@@ -716,8 +710,8 @@
 			},
 			autoFocus:true,
 			select:function(event, ui) {
-				$this = $(this);
-				$textarea = $('#reply_{$message->id}');
+				var $this = $(this);
+				var $textarea = $('#reply_{$message->id}');
 				
 				var $label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
 				var $value = ui.item.value;
@@ -750,7 +744,7 @@
 						$textarea.insertAtCursor(json.text).focus();
 					}
 					
-				}, { async: false });
+				});
 
 				$this.val('');
 				return false;

@@ -101,9 +101,6 @@ $(function() {
 			'c=internal&a=testDecisionEventSnippets&prefix={$namePrefix}&field=content&is_editor=format&_group_key=group_id&_bucket_key=ticket_bucket_id',
 			function(o) {
 				content = o;
-			},
-			{
-				async: false
 			}
 		);
 		

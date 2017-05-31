@@ -299,9 +299,6 @@
 				'c=display&a=getReplyPreview',
 				function(o) {
 					content = o;
-				},
-				{
-					async: false
 				}
 			);
 			
@@ -315,9 +312,6 @@
 				'c=display&a=getReplyMarkdownPreview',
 				function(o) {
 					content = o;
-				},
-				{
-					async: false
 				}
 			);
 			
@@ -588,7 +582,7 @@
 						$textarea.insertAtCursor(json.text).focus();
 					}
 					
-				}, { async: false });
+				});
 
 				$this.val('');
 				return false;
