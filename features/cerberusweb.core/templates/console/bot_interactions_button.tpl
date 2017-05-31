@@ -54,5 +54,21 @@ $(function() {
 		}
 	});
 	
+	{if $pref_keyboard_shortcuts}
+	$(document).keyup(function(e) {
+		if(!(222 == e.which && e.shiftKey))
+			return;
+		
+		var $target = $(e.target);
+		
+		if(!$target.is('BODY, UL.cerb-bot-interactions-menu'))
+			return;
+		
+		e.preventDefault();
+		e.stopPropagation();
+		
+		$interaction_button.click();
+	});
+	{/if}
 });
 </script>
