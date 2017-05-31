@@ -448,7 +448,15 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 						$added = false;
 						
 						foreach($value as $v) {
-							if($autoadd_options && !in_array($v, $options) && !empty($v)) {
+							// Ignore values we're removing
+							if(DevblocksPlatform::strStartsWith($v, '-'))
+								continue;
+							
+							// Ignore a leading plus
+							$v = ltrim($v, '+');
+							
+							// 
+							if(!in_array($v, $options) && !empty($v)) {
 								$field->params['options'][] = $v;
 								$added = true;
 							}
@@ -462,7 +470,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 							);
 						}
 					}
-
+					
 					if(!$delta) {
 						self::unsetFieldValue($context, $context_id, $field_id);
 					}
@@ -472,7 +480,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 						if(empty($v))
 							continue;
 						
-						$is_unset = ('-'==substr($v,0,1)) ? true : false;
+						$is_unset = DevblocksPlatform::strStartsWith($v, '-');
 						$v = ltrim($v,'+-');
 						
 						if(!isset($field->params['options']) || !in_array($v, $field->params['options']))
