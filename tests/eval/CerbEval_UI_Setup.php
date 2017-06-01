@@ -431,10 +431,10 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			
 			$avatar_popup = end($popups); // /* @var WebDriverElement $avatar_popup
 			
-			$color_picker = $cerb->getElementByAndWait(WebDriverBy::cssSelector('a.miniColors-trigger'));
+			$color_picker = $cerb->getElementByAndWait(WebDriverBy::cssSelector('a.minicolors-trigger'));
 			$color_picker->click();
 			
-			$driver->executeScript(sprintf("$('div.miniColors-selector div.miniColors-colorFavorites > div.miniColors-colorFavorite:nth-child(%d)').click().parent().parent().hide();", $group['bgindex']));
+			$driver->executeScript(sprintf("$('div.minicolors ul.minicolors-swatches li:nth-child(%d)').click().parent().parent().hide();", $group['bgindex']));
 
 			$avatar_popup->findElement(WebDriverBy::name('initials'))
 				->sendKeys($group['emoji']);
