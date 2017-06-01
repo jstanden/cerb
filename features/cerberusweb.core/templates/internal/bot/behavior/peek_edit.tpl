@@ -118,16 +118,34 @@
 	<div style="margin:5px 0px 10px 20px;">
 		<button type="button" class="add-variable cerb-popupmenu-trigger">{'common.add'|devblocks_translate|capitalize} &#x25be;</button>
 		
-		<ul class="cerb-popupmenu add-variable-menu" style="border:0;">
-			<li><a href="javascript:;" field_type="S">Text</a></li>
-			<li><a href="javascript:;" field_type="D">Picklist</a></li>
-			<li><a href="javascript:;" field_type="N">Number</a></li>
-			<li><a href="javascript:;" field_type="E">Date</a></li>
-			<li><a href="javascript:;" field_type="C">Yes/No</a></li>
-			<li><a href="javascript:;" field_type="W">Worker</a></li>
-			{foreach from=$list_contexts item=list_context key=list_context_id}
-			<li><a href="javascript:;" field_type="ctx_{$list_context_id}">(List) {$list_context->name}</a></li>
+		{function menu level=0}
+			{foreach from=$keys item=data key=idx}
+				{if is_array($data->children) && !empty($data->children)}
+					<li {if $data->key}data-token="{$data->key}" data-label="{$data->label}"{/if}>
+						{if $data->key}
+							<div style="font-weight:bold;">{$data->l|capitalize}</div>
+						{else}
+							<div>{$idx|capitalize}</div>
+						{/if}
+						<ul style="">
+							{menu keys=$data->children level=$level+1}
+						</ul>
+					</li>
+				{elseif $data->key}
+					{$item_context = explode(':', $data->key)}
+					<li data-token="{$data->key}" data-label="{$data->label}">
+						<div style="font-weight:bold;">
+							{$data->l|capitalize}
+						</div>
+					</li>
+				{/if}
 			{/foreach}
+		{/function}
+		
+		<ul class="chooser-container bubbles"></ul>
+		
+		<ul class="add-variable-menu" style="width:150px;{if $model->event_point}display:none;{/if}">
+		{menu keys=$variables_menu}
 		</ul>
 	</div>
 </fieldset>
@@ -213,21 +231,26 @@ $(function() {
 			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight', 'handle':'legend' })
 			;
 		
+		var $variables = $('#divBehaviorVariables{$model->id}');
+		
+		var $menu_variables = $popup.find('ul.add-variable-menu')
+			.menu({
+				'select': function(event, ui) {
+					var $li = $(ui.item);
+					var field_type = $li.attr('data-token');
+					
+					if(null != field_type) {
+						genericAjaxGet('', 'c=internal&a=addTriggerVariable&type=' +  encodeURIComponent(field_type), function(o) {
+							var $html = $(o).appendTo($variables);
+						});
+					}
+				}
+			})
+		;
+		
 		$popup.find('BUTTON.add-variable').click(function() {
 			var $button = $(this);
-			$button.next('ul.add-variable-menu').toggle();
-		});
-		
-		$popup.find('UL.add-variable-menu LI').click(function(e) {
-			var $menu = $(this).closest('ul.add-variable-menu');
-			var field_type = $(this).find('a').attr('field_type');
-			
-			genericAjaxGet('', 'c=internal&a=addTriggerVariable&type=' +  encodeURIComponent(field_type), function(o) {
-				var $container = $('#divBehaviorVariables{$model->id}');
-				var $html = $(o).appendTo($container);
-			});
-			
-			$menu.hide();
+			$menu_variables.toggle();
 		});
 		
 		$popup.find('input:radio[name=mode]').change(function() {
