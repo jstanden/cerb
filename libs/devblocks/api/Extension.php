@@ -1781,10 +1781,11 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 				default:
 					// Variables
-					if(substr($token,0,4) == 'var_') {
+					if(DevblocksPlatform::strStartsWith($token, 'var_')) {
 						@$var = $trigger->variables[$token];
+						@$var_type = $var['type'];
 
-						switch(@$var['type']) {
+						switch($var_type) {
 							case Model_CustomField::TYPE_CHECKBOX:
 								return $tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_bool.tpl');
 								break;
@@ -1806,8 +1807,11 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							case Model_CustomField::TYPE_WORKER:
 								return DevblocksEventHelper::renderActionSetVariableWorker($token, $trigger, $params);
 								break;
+							case 'contexts':
+								return DevblocksEventHelper::renderActionSetListAbstractVariable($token, $trigger, $params);
+								break;
 							default:
-								if(substr(@$var['type'],0,4) == 'ctx_') {
+								if(DevblocksPlatform::strStartsWith($var_type, 'ctx_')) {
 									@$list_context = substr($var['type'],4);
 									if(!empty($list_context))
 										return DevblocksEventHelper::renderActionSetListVariable($token, $trigger, $params, $list_context);

@@ -1,20 +1,4 @@
-{if $var.type == 'S'}
-{$var_type_label = 'Text'}
-{elseif $var.type == 'D'}
-{$var_type_label = 'Picklist'}
-{elseif $var.type == 'N'}
-{$var_type_label = 'Number'}
-{elseif $var.type == 'E'}
-{$var_type_label = 'Date'}
-{elseif $var.type == 'C'}
-{$var_type_label = 'Yes/No'}
-{elseif $var.type == 'W'}
-{$var_type_label = 'Worker'}
-{elseif substr($var.type,0,4)=='ctx_'}
-	{$list_context_ext = substr($var.type,4)}
-	{$list_context = $list_contexts.$list_context_ext}
-	{$var_type_label = "(List) {$list_context->name}"}
-{/if}
+{$var_type_label = $variable_types.{$var.type}}
 	
 <fieldset class="peek" style="margin-bottom:5px;">
 	<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);vertical-align:middle;"></span></a> {$var_type_label}</legend>

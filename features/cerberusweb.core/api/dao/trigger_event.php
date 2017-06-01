@@ -248,6 +248,28 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		return null;
 	}
 	
+	static function getVariableTypes() {
+		// Variables types
+		$variable_types = [
+			Model_CustomField::TYPE_DATE => 'Date',
+			Model_CustomField::TYPE_NUMBER => 'Number',
+			'contexts' => 'List:(Mixed Records)',
+			Model_CustomField::TYPE_DROPDOWN => 'Picklist',
+			Model_CustomField::TYPE_SINGLE_LINE => 'Text',
+			Model_CustomField::TYPE_WORKER => 'Worker',
+			Model_CustomField::TYPE_CHECKBOX => 'Yes/No',
+		];
+		
+		$contexts_list = Extension_DevblocksContext::getAll(false, 'va_variable');
+		foreach($contexts_list as $list_context_id => $list_context) {
+			$context_aliases = Extension_DevblocksContext::getAliasesForContext($list_context);
+			@$plural = $context_aliases['plural'];
+			$variable_types['ctx_' . $list_context_id] = 'List:' . DevblocksPlatform::strUpperFirst($plural ?: $list_context->name);
+		}
+		
+		return $variable_types;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -2019,9 +2041,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 				}
 			}
 			
-			// Contexts that can show up in VA vars
-			$list_contexts = Extension_DevblocksContext::getAll(false, 'va_variable');
-			$tpl->assign('list_contexts', $list_contexts);
+			$variable_types = DAO_TriggerEvent::getVariableTypes();
+			$tpl->assign('variable_types', $variable_types);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/peek_edit.tpl');
 			

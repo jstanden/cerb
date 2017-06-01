@@ -4014,9 +4014,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('seq', uniqid());
 		
-		// Contexts that can show up in VA vars
-		$list_contexts = Extension_DevblocksContext::getAll(false, 'va_variable');
-		$tpl->assign('list_contexts', $list_contexts);
+		$variable_types = DAO_TriggerEvent::getVariableTypes();
+		$tpl->assign('variable_types', $variable_types);
 
 		// New variable
 		$var = array(

@@ -17,9 +17,15 @@ class DevblocksEventHelper {
 		
 		if(is_array($trigger->variables))
 		foreach($trigger->variables as $var_key => $var) {
-			if(substr($var_key,0,4) == 'var_') {
-				if(substr($var['type'],0,4) == 'ctx_') {
-					$ctx_id = substr($var['type'],4);
+			if(DevblocksPlatform::strStartsWith($var_key, 'var_')) {
+				if('contexts' == $var['type']) {
+					$values_to_contexts[$var_key] = array(
+						'label' => '(variable) ' . $var['label'],
+						'is_polymorphic' => true,
+					);
+					
+				} else if(DevblocksPlatform::strStartsWith($var['type'], 'ctx_')) {
+					$ctx_id = substr($var['type'], 4);
 					$values_to_contexts[$var_key] = array(
 						'label' => '(variable) ' . $var['label'],
 						'context' => $ctx_id,
@@ -1008,6 +1014,16 @@ class DevblocksEventHelper {
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_list.tpl');
 	}
 	
+	static function renderActionSetListAbstractVariable($token, $trigger, $params) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('params', $params);
+		
+		$contexts_list = Extension_DevblocksContext::getAll(false, 'va_variable');
+		$tpl->assign('contexts_list', $contexts_list);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_list_abstract.tpl');
+	}
+	
 	static function simulateActionSetVariable($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		@$var = $trigger->variables[$token];
 		
@@ -1015,8 +1031,17 @@ class DevblocksEventHelper {
 			return;
 
 		@$var_type = $var['type'];
-	 
-		if(substr($var_type,0,4) == 'ctx_') {
+		
+		// Handle abstract lists
+		if($var_type == 'contexts') {
+			@$var_context = $params['context'];
+			if(DevblocksPlatform::strStartsWith($var_context, 'var_'))
+				$var_context = $dict->$var_context;
+			
+			$var_type = 'ctx_' . $var_context;
+		}
+		
+		if(DevblocksPlatform::strStartsWith($var_type,'ctx_')) {
 			@$objects = $dict->$token;
 			
 			if(empty($objects)) {
@@ -1333,7 +1358,11 @@ class DevblocksEventHelper {
 				
 				$dict->$token = $chosen_worker_id;
 				break;
-				
+			
+			case 'contexts':
+				DevblocksEventHelper::runActionSetListAbstractVariable($token, $params, $dict);
+				break;
+			
 			default:
 				@$var_type = $var['type'];
 			 
@@ -4889,6 +4918,19 @@ class DevblocksEventHelper {
 						$ctx_id = $ctx_object;
 					}
 					
+					// Polymorphic per row
+					if($is_polymorphic && DevblocksPlatform::strStartsWith($on, 'var_')) {
+						$trigger = $dict->__trigger;
+						$var = $trigger->variables[$on];
+						
+						if($var['type'] == 'contexts') {
+							$var_dict = $dict->$on;
+							$var_dict = $var_dict[$ctx_id];
+							$ctx_ext = $var_dict->_context;
+						}
+					}
+					
+					// [TODO] This is slow and should bulk load
 					if($load_objects) {
 						$ctx_values = array();
 						CerberusContexts::getContext($ctx_ext, $ctx_id, $null, $ctx_values);
@@ -4981,6 +5023,17 @@ class DevblocksEventHelper {
 		return C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $view_id);
 	}
 	
+	static function runActionSetListAbstractVariable($token, $params, DevblocksDictionaryDelegate $dict) {
+		@$context = $params['context'];
+		
+		if(DevblocksPlatform::strStartsWith($context, 'var_'))
+			$context = $dict->$context;
+		
+		$params['search_mode'] = 'quick_search';
+		
+		return self::runActionSetListVariable($token, $context, $params, $dict);
+	}
+	
 	static function runActionSetListVariable($token, $context, $params, DevblocksDictionaryDelegate $dict) {
 		$trigger = $dict->__trigger;
 		
@@ -5017,7 +5070,7 @@ class DevblocksEventHelper {
 
 		$old_ids = array_keys($dict->$token);
 		$new_ids = array_keys($results);
-
+		
 		// Are we reducing the list?
 		if(isset($params['limit']) && !empty($params['limit'])) {
 			@$limit_to = intval($params['limit_count']);
