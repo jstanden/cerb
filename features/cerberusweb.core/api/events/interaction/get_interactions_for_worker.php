@@ -402,8 +402,15 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 					$interaction_params = [];
 				
 				$out = sprintf(">>> Returning interaction\n".
-					"%d\n",
-					$behavior_id
+					"Name: %s\n".
+					"Label: %s\n".
+					"Behavior: %s (#%d)\n".
+					"Params:\n%s\n",
+					$interaction,
+					$name,
+					$behavior->title,
+					$behavior_id,
+					DevblocksPlatform::strFormatJson($interaction_params_json)
 				);
 				break;
 		}
