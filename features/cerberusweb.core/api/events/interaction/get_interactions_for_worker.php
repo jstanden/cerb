@@ -91,33 +91,62 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		return $interactions;
 	}
 	
-	static function getByPointAndWorker($point, $worker) {
-		$behaviors = DAO_TriggerEvent::getByEvent(self::ID);
-		$behaviors = array_intersect_key(
-			$behaviors,
-			array_flip(array_keys(Context_TriggerEvent::isReadableByActor($behaviors, $worker), true))
-		);
+	static function getByPoint($point) {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache_key = sprintf('interactions_%s', DevblocksPlatform::strAlphaNum($point,'','_'));
 		
-		return array_filter($behaviors, function($behavior) use ($point) {
-			if(false == (@$listen_points = $behavior->event_params['listen_points']))
-				return false;
+		if(null !== ($behaviors = $cache->load($cache_key))) {
+			return $behaviors;
 			
-			if(false == ($listen_points = DevblocksPlatform::parseCrlfString($listen_points)) || !is_array($listen_points))
-				return false;
+		} else {
+			$behaviors = DAO_TriggerEvent::getByEvent(self::ID);
 			
-			if(in_array('*', $listen_points))
-				return true;
+			$behaviors = array_filter($behaviors, function($behavior) use ($point) {
+				if(false == (@$listen_points = $behavior->event_params['listen_points']))
+					return false;
 				
-			foreach($listen_points as $listen_point) {
-				$regexp = DevblocksPlatform::strToRegExp($listen_point);
+				if(false == ($listen_points = DevblocksPlatform::parseCrlfString($listen_points)) || !is_array($listen_points))
+					return false;
 				
-				if(preg_match($regexp, $point)) {
+				if(in_array('*', $listen_points))
 					return true;
+					
+				foreach($listen_points as $listen_point) {
+					$regexp = DevblocksPlatform::strToRegExp($listen_point);
+					
+					if(preg_match($regexp, $point)) {
+						return true;
+					}
 				}
-			}
+				
+				return false;
+			});
 			
-			return false;
-		});
+			$cache->save($behaviors, $cache_key, [], 300);
+			
+			return $behaviors;
+		}
+	}
+	
+	static function getByPointAndWorker($point, Model_Worker $worker) {
+		$cache = DevblocksPlatform::getCacheService();
+		$cache_key = sprintf('interactions_%s_%d', DevblocksPlatform::strAlphaNum($point,'','_'), $worker->id);
+		
+		if(null !== ($behaviors = $cache->load($cache_key))) {
+			return $behaviors;
+			
+		} else {
+			$behaviors = Event_GetInteractionsForWorker::getByPoint($point);
+			
+			$behaviors = array_intersect_key(
+				$behaviors,
+				array_flip(array_keys(Context_TriggerEvent::isReadableByActor($behaviors, $worker), true))
+			);
+			
+			$cache->save($behaviors, $cache_key, [], 300);
+			
+			return $behaviors;
+		}
 	}
 	
 	static function getInteractionMenu(array $interactions) {
