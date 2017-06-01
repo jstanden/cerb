@@ -18,6 +18,27 @@
 class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	const ID = 'event.interactions.get.worker';
 	
+	function prepareEventParams(Model_TriggerEvent $behavior=null, &$event_params, &$error) {
+		$error = null;
+		
+		// If everything is fine, invalidate cache
+		
+		$cache = DevblocksPlatform::getCacheService();
+		
+		@$old_listen_points = DevblocksPlatform::parseCrlfString($behavior->event_params['listen_points']) ?: [];
+		@$new_listen_points = DevblocksPlatform::parseCrlfString($event_params['listen_points']) ?: [];
+		
+		$listen_points = array_unique(array_merge($old_listen_points, $new_listen_points));
+		
+		if(is_array($listen_points))
+		foreach($listen_points as $point) {
+			$cache_key = sprintf("interactions_%s", DevblocksPlatform::strAlphaNum($point,'','_'));
+			$cache->remove($cache_key);
+		}
+		
+		return true;
+	}
+	
 	static function getInteractionsByPointAndWorker($point, $point_params, $worker) {
 		if(!($point_params instanceof DevblocksDictionaryDelegate) && is_array($point_params))
 			$point_params = DevblocksDictionaryDelegate::instance($point_params);

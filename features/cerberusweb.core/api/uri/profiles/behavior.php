@@ -338,14 +338,18 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							if(empty($event_point))
 								throw new Exception_DevblocksAjaxValidationError("The 'Event' field is required.", 'event_point');
 							
-							if(null == ($ext = DevblocksPlatform::getExtension($event_point, false)))
+							if(null == ($ext = DevblocksPlatform::getExtension($event_point, true)))
 								throw new Exception_DevblocksAjaxValidationError("Invalid event.", 'event_point');
 							
 							if(empty($title))
 								throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'title');
-			
+							
 							if(!$bot->canUseEvent($event_point))
 								throw new Exception_DevblocksAjaxValidationError("The bot can't listen for the selected event.");
+							
+							// Let the event validate the event params
+							if(false === $ext->prepareEventParams(null, $event_params, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							$id = DAO_TriggerEvent::create(array(
 								DAO_TriggerEvent::BOT_ID => $bot_id,
@@ -375,6 +379,13 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		
 							if(empty($title))
 								throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'title');
+							
+							if(null == ($ext = $behavior->getEvent()))
+								throw new Exception_DevblocksAjaxValidationError("Invalid event.");
+							
+							// Let the event validate the event params
+							if(false === $ext->prepareEventParams($behavior, $event_params, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
 								
 							// Handle deletes
 							if(is_array($behavior->variables))

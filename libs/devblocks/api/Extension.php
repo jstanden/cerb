@@ -1162,6 +1162,18 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $conditions;
 	}
 
+	/**
+	 * Override 
+	 * 
+	 * @param array $event_params
+	 * @param string $error
+	 * @return boolean
+	 */
+	function prepareEventParams(Model_TriggerEvent $behavior=null, &$new_params, &$error) {
+		$error = null;
+		return true;
+	}
+	
 	abstract function getConditionExtensions(Model_TriggerEvent $trigger);
 	abstract function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null);
 	abstract function runConditionExtension($token, $as_token, $trigger, $params, DevblocksDictionaryDelegate $dict);
