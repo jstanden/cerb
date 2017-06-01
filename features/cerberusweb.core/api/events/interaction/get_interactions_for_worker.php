@@ -297,6 +297,8 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		
 		$points = [
 			'global' => 'Global',
+			'mail.compose' => 'Mail:Compose',
+			'mail.reply' => 'Mail:Reply',
 		];
 		
 		$contexts = Extension_DevblocksContext::getAll(false);
