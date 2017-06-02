@@ -168,6 +168,8 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 			$interactions_menu[$bot->id] = $bot_menu;
 		}
 		
+		DevblocksPlatform::sortObjects($interactions, '[label]');
+
 		foreach($interactions as $interaction) {
 			$item_behavior = new DevblocksMenuItemPlaceholder();
 			$item_behavior->key = $interaction['behavior_id'];
