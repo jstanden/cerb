@@ -2,7 +2,7 @@
 
 <b>Send the interaction to this behavior:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<button type="button" class="chooser-behavior" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="event:{$event_point|default:'event.interaction.chat.worker'} disabled:n usableBy.bot:{$trigger->bot_id}"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-behavior" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="" data-query-required="bot.id:{$trigger->bot_id} event:{$event_point|default:'event.interaction.chat.worker'} disabled:n"><span class="glyphicons glyphicons-search"></span></button>
 	<ul class="bubbles chooser-container">
 		{if $behavior}
 			<li><input type="hidden" name="{$namePrefix}[behavior_id]" value="{$behavior->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></li>

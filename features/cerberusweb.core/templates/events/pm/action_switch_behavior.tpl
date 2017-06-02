@@ -8,7 +8,7 @@
 
 <b>{'common.behavior'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<button type="button" class="chooser-behavior" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query-required="event:event.message.chat.worker disabled:n usableBy.bot:{$trigger->bot_id}"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-behavior" data-field-name="{$namePrefix}[behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="" data-query-required="event:event.message.chat.worker disabled:n usableBy.bot:{$trigger->bot_id}"><span class="glyphicons glyphicons-search"></span></button>
 	
 	<ul class="bubbles chooser-container">
 		{if $behavior}
