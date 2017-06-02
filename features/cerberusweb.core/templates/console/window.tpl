@@ -16,7 +16,7 @@
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFind('#{$layer}');
-	var $spinner = $('<div class="bot-chat-message bot-chat-left"><div class="bot-chat-message-bubble"><span class="cerb-ajax-spinner" style="zoom:0.5;"></span></div></div>')
+	var $spinner = $('<div class="bot-chat-message bot-chat-left"><div class="bot-chat-message-bubble"><span class="cerb-ajax-spinner" style="zoom:0.5;-moz-transform:scale(0.5);"></span></div></div>')
 	
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', "{$bot_name|escape:'javascript' nofilter}");

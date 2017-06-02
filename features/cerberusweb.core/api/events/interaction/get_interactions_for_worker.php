@@ -122,7 +122,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 				return false;
 			});
 			
-			$cache->save($behaviors, $cache_key, [], 300);
+			$cache->save($behaviors, $cache_key, [], 900);
 			
 			return $behaviors;
 		}

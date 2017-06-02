@@ -4286,7 +4286,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		if(isset($values)) {
 			// Try to build the template
-			if(false === ($out = $tpl_builder->build($content, $values))) {
+			if(!$content || !is_string($content) || false === ($out = $tpl_builder->build($content, $values))) {
 				// If we failed, show the compile errors
 				$errors = $tpl_builder->getErrors();
 				$success = false;

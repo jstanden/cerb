@@ -10,12 +10,12 @@
 	</ul>
 </div>
 
-<b>{'common.name'|devblocks_translate|capitalize}:</b>
+<b>{'common.name'|devblocks_translate|capitalize}:</b> (e.g. "Show my tickets")
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<input type="text" name="{$namePrefix}[name]" style="width:100%;" value="{$params.name}" class="placeholders" placeholder="e.g. Find tickets from sender">
 </div>
 
-<b>{'common.interaction'|devblocks_translate|capitalize}:</b>
+<b>{'common.interaction'|devblocks_translate|capitalize}:</b> (e.g. "tickets.find.me")
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<input type="text" name="{$namePrefix}[interaction]" style="width:100%;" value="{$params.interaction}" class="placeholders" placeholder="e.g. tickets.find">
 </div>

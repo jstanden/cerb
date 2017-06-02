@@ -163,11 +163,11 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
 			),
 			'behavior_bot_id' => array(
-				'label' => 'Behavior',
+				'label' => 'Bot',
 				'context' => CerberusContexts::CONTEXT_BOT,
 			),
 			'interaction_behavior_id' => array(
-				'label' => 'Behavior',
+				'label' => 'Interaction Behavior',
 				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
 			),
 			'worker_id' => array(
