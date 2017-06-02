@@ -18,6 +18,12 @@
 class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 	const ID = 'event.message.chat.worker';
 
+	function renderEventParams(Model_TriggerEvent $trigger=null) {
+		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl->assign('trigger', $trigger);
+		$tpl->display('devblocks:cerberusweb.core::events/record/params_macro_default.tpl');
+	}
+	
 	/**
 	 *
 	 * @param Model_TriggerEvent $trigger
