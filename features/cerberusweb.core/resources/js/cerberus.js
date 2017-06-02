@@ -735,10 +735,10 @@ var cAjaxCalls = function() {
 				
 				if(e.avatar.empty) {
 					$avatar_image.attr('src', e.avatar.imagedata);
-					$avatar_chooser.siblings('input:hidden[name=avatar_image]').val('data:null');
+					$avatar_chooser.next('input:hidden').val('data:null');
 				} else {
 					$avatar_image.attr('src', e.avatar.imagedata);
-					$avatar_chooser.siblings('input:hidden[name=avatar_image]').val(e.avatar.imagedata);
+					$avatar_chooser.next('input:hidden').val(e.avatar.imagedata);
 				}
 				
 			});

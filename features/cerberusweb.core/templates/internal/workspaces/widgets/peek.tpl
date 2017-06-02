@@ -55,36 +55,37 @@
 </form>
 
 <script type="text/javascript">
-$popup = genericAjaxPopupFind('#frmWidgetEdit');
-$popup.one('popup_open', function(event,ui) {
-	$(this).dialog('option','title',"{'Widget'|escape:'javascript' nofilter}");
+$(function() {
+	var $popup = genericAjaxPopupFind('#frmWidgetEdit');
 	
-	var $frm = $(this).find('form');
-	
-	$frm.find('button.delete').click(function(e) {
-		$frm = $(this).closest('form');
-		$frm.find('input:hidden[name=do_delete]').val('1');
+	$popup.one('popup_open', function(event,ui) {
+		$popup.dialog('option','title',"{'Widget'|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
 		
-		genericAjaxPost('frmWidgetEdit','',null,function(out) {
-			$popup = genericAjaxPopupFind('#frmWidgetEdit');
-			widget_id = $popup.find('form input:hidden[name=id]').val();
-
-			// Nuke the widget DOM
-			$('#widget' + widget_id).remove();
+		var $frm = $popup.find('form');
+		
+		$frm.find('button.delete').click(function(e) {
+			$frm.find('input:hidden[name=do_delete]').val('1');
 			
-			// Close the popup
-			$popup.dialog('close');
-		});
-	});
+			genericAjaxPost('frmWidgetEdit','',null,function(out) {
+				var widget_id = $frm.find('input:hidden[name=id]').val();
 	
-	$frm.find('button.submit').click(function(e) {
-		genericAjaxPost('frmWidgetEdit','',null,function(out) {
-			$popup = genericAjaxPopupFind('#frmWidgetEdit');
-			widget_id = $popup.find('form input:hidden[name=id]').val();
-			// Reload the widget
-			genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id + '&nocache=1');
-			// Close the popup
-			$popup.dialog('close');
+				// Nuke the widget DOM
+				$('#widget' + widget_id).remove();
+				
+				// Close the popup
+				$popup.dialog('close');
+			});
+		});
+		
+		$frm.find('button.submit').click(function(e) {
+			genericAjaxPost('frmWidgetEdit','',null,function(out) {
+				var widget_id = $frm.find('input:hidden[name=id]').val();
+				// Reload the widget
+				genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id + '&nocache=1');
+				// Close the popup
+				$popup.dialog('close');
+			});
 		});
 	});
 });

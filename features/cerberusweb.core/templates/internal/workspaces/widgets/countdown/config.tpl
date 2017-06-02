@@ -7,16 +7,19 @@
 		<br>
 	
 		<b>Color</b> it
-		<input type="hidden" name="params[color]" value="{$widget->params.color|default:'#34434E'}" style="width:100%;" class="color-picker">
+		<input type="text" name="params[color]" value="{$widget->params.color|default:'#34434E'}" style="width:100%;" class="color-picker">
 		<br>
 	
 	</fieldset>
 </div>
 
 <script type="text/javascript">
-	$fieldset = $('fieldset#widget{$widget->id}Datasource');
+$(function() {
+	var $config = $('#widget{$widget->id}Config');
+	var $fieldset = $('fieldset#widget{$widget->id}Datasource');
 	
-	$fieldset.find('input:hidden.color-picker').miniColors({
-		color_favorites: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
+	$fieldset.find('input:text.color-picker').minicolors({
+		swatches: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
 	});
+});
 </script>

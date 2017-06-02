@@ -67,11 +67,11 @@
 	<legend>Created Events</legend>
 	
 	<b>Available</b> events are 
-	<input type="hidden" name="params[color_available]" value="{$model->params.color_available|default:'#A0D95B'}" style="width:100%;" class="color-picker">
+	<input type="text" name="params[color_available]" value="{$model->params.color_available|default:'#A0D95B'}" style="width:100%;" class="color-picker">
 	<br>
 	
 	<b>Busy</b> events are 
-	<input type="hidden" name="params[color_busy]" value="{$model->params.color_busy|default:'C8C8C8'}" style="width:100%;" class="color-picker">
+	<input type="text" name="params[color_busy]" value="{$model->params.color_busy|default:'C8C8C8'}" style="width:100%;" class="color-picker">
 	<br>
 </fieldset>
 
@@ -176,8 +176,8 @@ $(function() {
 		
 		// Options
 		
-		$popup.find('fieldset.calendar-events input:hidden.color-picker').miniColors({
-			color_favorites: ['#A0D95B','#FEAF03','#FCB3B3','#FF6666','#C5DCFA','#85BAFF','#E8F554','#F4A3FE','#C8C8C8']
+		$popup.find('fieldset.calendar-events input:text.color-picker').minicolors({
+			swatches: ['#A0D95B','#FEAF03','#FCB3B3','#FF6666','#C5DCFA','#85BAFF','#E8F554','#F4A3FE','#C8C8C8']
 		});
 		
 		$popup.find('select.datasource-selector').change(function(e) {

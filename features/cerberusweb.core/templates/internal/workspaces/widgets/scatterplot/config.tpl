@@ -39,7 +39,7 @@
 				</div>
 				
 				<b>Color</b> it 
-				<input type="hidden" name="params[series][{$series_idx}][line_color]" value="{$widget->params.series[{$series_idx}].line_color|default:'#058DC7'}" size="7" class="color-picker">
+				<input type="text" name="params[series][{$series_idx}][line_color]" value="{$widget->params.series[{$series_idx}].line_color|default:'#058DC7'}" size="7" class="color-picker">
 				<br>
 				
 			</div>
@@ -51,10 +51,12 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
+	var $config = $('#widget{$widget->id}Config');
 	var $tabs = $('#widget{$widget->id}ConfigTabs').tabs();
 	
-	$tabs.find('input:hidden.color-picker').miniColors({
-		color_favorites: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
+	$tabs.find('input:text.color-picker').minicolors({
+		swatches: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
 	});
 	
 	$tabs.find('select.datasource-selector').change(function() {
@@ -69,4 +71,5 @@
 			genericAjaxGet($div_params, 'c=internal&a=handleSectionAction&section=dashboards&action=getWidgetDatasourceConfig&params_prefix=' + encodeURIComponent(series_prefix) + '&widget_id={$widget->id}&ext_id=' + datasource);
 		}
 	});
+});
 </script>

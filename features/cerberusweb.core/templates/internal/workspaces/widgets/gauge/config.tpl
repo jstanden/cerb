@@ -24,7 +24,7 @@
 					<input type="text" name="params[threshold_values][]" value="{$widget->params.threshold_values.{$smarty.section.thresholds.index}}" style="width:100%;">
 				</td>
 				<td valign="top">
-					<input type="hidden" name="params[threshold_colors][]" value="{$widget->params.threshold_colors.{$smarty.section.thresholds.index}}" style="width:100%;" class="color-picker">
+					<input type="text" name="params[threshold_colors][]" value="{$widget->params.threshold_colors.{$smarty.section.thresholds.index}}" style="width:100%;" class="color-picker">
 				</td>
 			</tr>
 			{/section}
@@ -85,10 +85,11 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
 	var $tabs = $('#widget{$widget->id}ConfigTabs').tabs();
 	
-	$tabs.find('input:hidden.color-picker').miniColors({
-		color_favorites: ['#CF2C1D','#FEAF03','#57970A','#D5D5D5','#ADADAD','#34434E','#FFFFFF']
+	$tabs.find('input:text.color-picker').minicolors({
+		swatches: ['#CF2C1D','#FEAF03','#57970A','#D5D5D5','#ADADAD','#34434E','#FFFFFF']
 	});
 	
 	var $datasource_tab = $('#widget{$widget->id}ConfigTabDatasource');
@@ -103,4 +104,5 @@
 			genericAjaxGet($div_params, 'c=internal&a=handleSectionAction&section=dashboards&action=getWidgetDatasourceConfig&widget_id={$widget->id}&ext_id=' + datasource);
 		}
 	});
+});
 </script>
