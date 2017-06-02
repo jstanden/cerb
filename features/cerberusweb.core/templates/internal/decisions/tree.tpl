@@ -14,7 +14,7 @@ For more information, see <a href="https://cerb.ai/docs/bots/" target="_blank">B
 <div class="node trigger" style="margin-left:10px;{if $trigger->is_disabled}opacity:0.5;{/if}">
 	<input type="hidden" name="node_id" value="0">
 	<div class="badge badge-lightgray">
-		<a href="javascript:;" {if $is_writeable}onclick="decisionNodeMenu(this);"{/if} node_id="0" trigger_id="{$trigger->id}" style="font-weight:bold;color:rgb(0,0,0);text-decoration:none;">
+		<a href="javascript:;" node_id="0" trigger_id="{$trigger->id}" style="font-weight:bold;color:rgb(0,0,0);text-decoration:none;">
 			{$event->name} {if $is_writeable}&#x25be;{/if}
 		</a>
 	</div>
