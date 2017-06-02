@@ -1,7 +1,5 @@
 <div id="bot-chat-button">
-	<div class="bot-chat-icon">
-		<img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}">
-	</div>
+	<div class="bot-chat-icon"></div>
 	<div class="bot-chat-menu"></div>
 </div>
 
