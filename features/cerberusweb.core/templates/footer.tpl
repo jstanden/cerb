@@ -26,7 +26,7 @@
 </table>
 <br>
 
-{if $active_worker}{include file="devblocks:cerberusweb.core::console/bot_interactions_button.tpl"}{/if}
+{if $active_worker && $global_interactions_show}{include file="devblocks:cerberusweb.core::console/bot_interactions_button.tpl"}{/if}
 
 <script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/ace/ace.js{/devblocks_url}"></script>
 <script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/ace/ext-language_tools.js{/devblocks_url}"></script>

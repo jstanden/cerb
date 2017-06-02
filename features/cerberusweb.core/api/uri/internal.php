@@ -63,8 +63,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('global', [], $active_worker);
 		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		
-		$tpl->assign('global_interactions_menu', $interactions_menu);
+		$tpl->assign('interactions_menu', $interactions_menu);
 		
 		$tpl->display('devblocks:cerberusweb.core::console/bot_interactions_menu.tpl');
 	}

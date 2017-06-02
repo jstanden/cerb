@@ -23,5 +23,9 @@
 {/function}
 
 <ul class="cerb-bot-interactions-menu cerb-float" style="width:250px;">
-{menu keys=$global_interactions_menu}
+{if $interactions_menu}
+{menu keys=$interactions_menu}
+{else}
+<li>No bots are available.</li>
+{/if}
 </ul>
