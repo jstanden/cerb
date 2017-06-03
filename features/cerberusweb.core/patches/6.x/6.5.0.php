@@ -87,7 +87,7 @@ if(isset($columns['owner_context'])) {
 	foreach($owner_contexts as $row) {
 		$sql = sprintf("INSERT INTO virtual_attendant (name, owner_context, owner_context_id, params_json, created_at, updated_at) ".
 			"VALUES (%s, %s, %d, %s, %d, %d)",
-			$db->qstr(sprintf("%s's Virtual Attendant", $row['owner_label'])),
+			$db->qstr(sprintf("%s's Bot", $row['owner_label'])),
 			$db->qstr($row['owner_context']),
 			$row['owner_context_id'],
 			$db->qstr('{"events":{"mode":"all","items":[]},"actions":{"mode":"all","items":[]}}'),
