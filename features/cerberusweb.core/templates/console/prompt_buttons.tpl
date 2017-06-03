@@ -1,7 +1,7 @@
 {$msg_id = uniqid()}
 <div class="bot-chat-object" data-delay-ms="{$delay_ms|default:0}" data-typing-indicator="true" id="{$msg_id}">
 	<div class="bot-chat-message bot-chat-right">
-		<div class="bot-chat-message-bubble">
+		<div class="bot-chat-message-bubble" style="background-color:white;">
 			{foreach from=$options item=option}
 			<button type="button" class="bot-chat-button" style="{if $style}{$style}{/if}" value="{$option}">{$option}</button>
 			{/foreach}
