@@ -111,7 +111,7 @@ $.fn.extend({
 				context.fillStyle = 'gray';
 				context.textBaseline = 'top';
 				var measure = context.measureText(options.metric_label_min);
-				context.fillText(options.metric_label_min, 10, piecenter_y+5);
+				context.fillText(options.metric_label_min, 10, piecenter_y+3);
 			}
 			
 			// Label the max
@@ -120,7 +120,7 @@ $.fn.extend({
 				context.fillStyle = 'gray';
 				context.textBaseline = 'top';
 				var measure = context.measureText(options.metric_label_max);
-				context.fillText(options.metric_label_max, chart_width-10-measure.width, piecenter_y+5);
+				context.fillText(options.metric_label_max, chart_width-10-measure.width, piecenter_y+3);
 			}
 			
 			// Legend
@@ -172,8 +172,8 @@ $.fn.extend({
 			context.rotate(theta);
 			context.beginPath();
 			context.fillStyle = 'black';
-			context.moveTo(3,6);
-			context.lineTo(3,-6);
+			context.moveTo(3,4);
+			context.lineTo(3,-4);
 			context.lineTo(-1 * (options.radius * 1.1),0);
 			context.fill();
 			
@@ -192,7 +192,7 @@ $.fn.extend({
 			context.fillStyle = 'black';
 			context.textBaseline = 'top';
 			var measure = context.measureText(options.metric_label);
-			context.fillText(options.metric_label, piecenter_x-(measure.width/2), piecenter_y+10);
+			context.fillText(options.metric_label, piecenter_x-(measure.width/2), piecenter_y+12);
 		};
 		
 		var drawPieChart = function($canvas, options) {
