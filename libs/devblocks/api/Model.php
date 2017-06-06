@@ -972,8 +972,8 @@ class DevblocksSearchCriteria {
 					break;
 					
 				case 'T_ARRAY':
-					$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
-					$terms = $token->value;
+					$oper = $not ? DevblocksSearchCriteria::OPER_NIN : DevblocksSearchCriteria::OPER_IN;
+					$terms = DevblocksPlatform::sanitizeArray($token->value, 'int');
 					break;
 					
 				case 'T_QUOTED_TEXT':
@@ -984,7 +984,7 @@ class DevblocksSearchCriteria {
 			}
 		}
 		
-		if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), array('any','anyone','anybody'))) {
+		if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), ['any','anyone','anybody'])) {
 			@$is_cfield = $search_field['options']['cf_id'];
 			if($is_cfield) {
 				$oper = self::OPER_IS_NOT_NULL;
@@ -994,7 +994,7 @@ class DevblocksSearchCriteria {
 				$value = 0;
 			}
 			
-		} else if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), array('blank','empty','no','none','noone','nobody'))) {
+		} else if(1 == count($terms) && in_array(DevblocksPlatform::strLower($terms[0]), ['blank','empty','no','none','noone','nobody'])) {
 			@$is_cfield = $search_field['options']['cf_id'];
 			if($is_cfield) {
 				$oper = self::OPER_IS_NULL;
@@ -1008,7 +1008,7 @@ class DevblocksSearchCriteria {
 			$active_worker = CerberusApplication::getActiveWorker();
 			$workers = DAO_Worker::getAllActive();
 				
-			$worker_ids = array();
+			$worker_ids = [];
 			
 			if(is_array($terms))
 			foreach($terms as $term) {
@@ -1036,13 +1036,11 @@ class DevblocksSearchCriteria {
 			}
 		}
 		
-		$param = new DevblocksSearchCriteria(
+		return new DevblocksSearchCriteria(
 			$field_key,
 			$oper,
 			$value
 		);
-		
-		return $param;
 	}
 	
 	public static function getVirtualQuickSearchParamFromTokens($field_key, $tokens, $search_field_key) {

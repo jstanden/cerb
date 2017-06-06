@@ -1563,7 +1563,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				),
 			'worker.id' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_WORKER,
 					'options' => array('param_key' => SearchFields_Message::WORKER_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],

@@ -534,7 +534,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	static function strUpperFirst($string, $lower_rest=false) {
 		if(!is_string($string))
-			return null;
+			$string = strval($string);
 		
 		if($lower_rest)
 			$string = mb_strtolower($string);
@@ -543,6 +543,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function strLower($string) {
+		if(!is_string($string))
+			$string = strval($string);
+		
 		return mb_convert_case($string, MB_CASE_LOWER);
 	}
 	

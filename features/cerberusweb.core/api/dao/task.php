@@ -859,7 +859,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				),
 			'owner.id' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_WORKER,
 					'options' => array('param_key' => SearchFields_Task::OWNER_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
@@ -978,7 +978,8 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
 				$search_fields = $this->getQuickSearchFields();
-				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				$param = DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				return $param;
 				break;
 		}
 		
