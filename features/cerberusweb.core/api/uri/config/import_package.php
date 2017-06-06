@@ -127,6 +127,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			@$bots = $json['bots'];
 			@$workspaces = $json['workspaces'];
 			@$portals = $json['portals'];
+			@$saved_searches = $json['saved_searches'];
 			
 			$uids = [];
 			$records_created = [];
@@ -197,6 +198,14 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				$diff = array_diff_key(array_flip($keys_to_require), $portal);
 				if(count($diff))
 					throw new Exception(sprintf("Invalid JSON: portal is missing properties (%s)", implode(', ', array_keys($diff))));
+			}
+			
+			if(is_array($saved_searches))
+			foreach($saved_searches as $saved_search) {
+				$keys_to_require = ['uid','name','context','tag','query'];
+				$diff = array_diff_key(array_flip($keys_to_require), $saved_search);
+				if(count($diff))
+					throw new Exception(sprintf("Invalid JSON: saved search is missing properties (%s)", implode(', ', array_keys($diff))));
 			}
 			
 			///////////////////////////////////////////////////////////////
@@ -299,6 +308,20 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				]);
 				
 				$uids[$uid] = $portal_id;
+			}
+			
+			if(is_array($saved_searches))
+			foreach($saved_searches as $saved_search) {
+				$uid = $saved_search['uid'];
+				
+				$search_id = DAO_ContextSavedSearch::create([
+					DAO_ContextSavedSearch::NAME => $saved_search['name'],
+					DAO_ContextSavedSearch::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+					DAO_ContextSavedSearch::OWNER_CONTEXT_ID => 0,
+					DAO_ContextSavedSearch::UPDATED_AT => time(),
+				]);
+				
+				$uids[$uid] = $search_id;
 			}
 			
 			$new_json_string = json_encode(array_diff_key($json, ['package'=>true]));
@@ -485,6 +508,28 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					
 					DAO_CommunityToolProperty::set($portal_model->code, $k, $v);
 				}
+			}
+			
+			@$saved_searches = $json['saved_searches'];
+			
+			if(is_array($saved_searches))
+			foreach($saved_searches as $saved_search) {
+				$uid = $saved_search['uid'];
+				$id = $uids[$uid];
+				
+				DAO_ContextSavedSearch::update($id, [
+					DAO_ContextSavedSearch::NAME => $saved_search['name'],
+					DAO_ContextSavedSearch::CONTEXT => $saved_search['context'],
+					DAO_ContextSavedSearch::TAG => $saved_search['tag'],
+					DAO_ContextSavedSearch::QUERY => $saved_search['query'],
+					DAO_ContextSavedSearch::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+					DAO_ContextSavedSearch::OWNER_CONTEXT_ID => 0,
+				]);
+				
+				$records_created[CerberusContexts::CONTEXT_SAVED_SEARCH][] = [
+					'id' => $id,
+					'label' => $saved_search['name'],
+				];
 			}
 			
 			$tpl = DevblocksPlatform::getTemplateService();

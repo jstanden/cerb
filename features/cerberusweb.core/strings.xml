@@ -1592,6 +1592,16 @@
 				<seg>Save Changes</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.saved_search">
+			<tuv xml:lang="en_US">
+				<seg>saved search</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.saved_searches">
+			<tuv xml:lang="en_US">
+				<seg>saved searches</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.script">
 			<tuv xml:lang="en_US">
 				<seg>script</seg>

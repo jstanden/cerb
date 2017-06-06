@@ -43,4 +43,18 @@
 </fieldset>
 {/if}
 
+{if $records_created[CerberusContexts::CONTEXT_SAVED_SEARCH]}
+<fieldset class="peek">
+	<legend>{'common.saved_searches'|devblocks_translate|capitalize}</legend>
+	
+	<ul class="bubbles">
+	{foreach from=$records_created[CerberusContexts::CONTEXT_SAVED_SEARCH] item=record key=context}
+	<li>
+		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_SAVED_SEARCH}" data-context-id="{$record.id}">{$record.label}</a>
+	</li>
+	{/foreach}
+	</ul>
+</fieldset>
+{/if}
+
 </div>
