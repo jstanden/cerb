@@ -128,6 +128,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			@$workspaces = $json['workspaces'];
 			@$portals = $json['portals'];
 			@$saved_searches = $json['saved_searches'];
+			@$calendars = $json['calendars'];
 			
 			$uids = [];
 			$records_created = [];
@@ -206,6 +207,25 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				$diff = array_diff_key(array_flip($keys_to_require), $saved_search);
 				if(count($diff))
 					throw new Exception(sprintf("Invalid JSON: saved search is missing properties (%s)", implode(', ', array_keys($diff))));
+			}
+			
+			if(is_array($calendars))
+			foreach($calendars as $calendar) {
+				$keys_to_require = ['uid','name','params'];
+				$diff = array_diff_key(array_flip($keys_to_require), $calendar);
+				if(count($diff))
+					throw new Exception(sprintf("Invalid JSON: calendar is missing properties (%s)", implode(', ', array_keys($diff))));
+				
+				@$events = $calendar['events'];
+				$keys_to_require = ['uid','name','is_available','tz','event_start','event_end','recur_start','recur_end','patterns'];
+				
+				// Check events
+				if(is_array($events))
+				foreach($events as $event) {
+					$diff = array_diff_key(array_flip($keys_to_require), $event);
+					if(count($diff))
+						throw new Exception(sprintf("Invalid JSON: calendar event is missing properties (%s)", implode(', ', array_keys($diff))));
+				}
 			}
 			
 			///////////////////////////////////////////////////////////////
@@ -322,6 +342,34 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				]);
 				
 				$uids[$uid] = $search_id;
+			}
+			
+			if(is_array($calendars))
+			foreach($calendars as $calendar) {
+				$uid = $calendar['uid'];
+				
+				$calendar_id = DAO_Calendar::create([
+					DAO_Calendar::NAME => $calendar['name'],
+					DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+					DAO_Calendar::OWNER_CONTEXT_ID => 0,
+					DAO_Calendar::UPDATED_AT => time(),
+				]);
+				
+				$uids[$uid] = $calendar_id;
+				
+				@$events = $calendar['events'];
+				
+				if(is_array($events))
+				foreach($events as $event) {
+					$uid = $event['uid'];
+					
+					$event_id = DAO_CalendarRecurringProfile::create([
+						DAO_CalendarRecurringProfile::EVENT_NAME => $event['name'],
+						DAO_CalendarRecurringProfile::CALENDAR_ID => $calendar_id,
+					]);
+					
+					$uids[$uid] = $event_id;
+				}
 			}
 			
 			$new_json_string = json_encode(array_diff_key($json, ['package'=>true]));
@@ -530,6 +578,48 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					'id' => $id,
 					'label' => $saved_search['name'],
 				];
+			}
+			
+			@$calendars = $json['calendars'];
+			
+			if(is_array($calendars))
+			foreach($calendars as $calendar) {
+				$uid = $calendar['uid'];
+				$id = $uids[$uid];
+				
+				DAO_Calendar::update($id, [
+					DAO_Calendar::NAME => $calendar['name'],
+					DAO_Calendar::PARAMS_JSON => isset($calendar['params']) ? json_encode($calendar['params']) : '',
+					DAO_Calendar::UPDATED_AT => time(),
+					DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+					DAO_Calendar::OWNER_CONTEXT_ID => 0,
+				]);
+				
+				$records_created[CerberusContexts::CONTEXT_CALENDAR][] = [
+					'id' => $id,
+					'label' => $calendar['name'],
+				];
+				
+				$calendar_id = $id;
+				@$events = $calendar['events'];
+				
+				if(is_array($events))
+				foreach($events as $event) {
+					$uid = $event['uid'];
+					$id = $uids[$uid];
+					
+					$event_id = DAO_CalendarRecurringProfile::update($id, [
+						DAO_CalendarRecurringProfile::EVENT_NAME => $event['name'],
+						DAO_CalendarRecurringProfile::CALENDAR_ID => $calendar_id,
+						DAO_CalendarRecurringProfile::IS_AVAILABLE => @$event['is_available'] ? 1 : 0,
+						DAO_CalendarRecurringProfile::TZ => $event['tz'],
+						DAO_CalendarRecurringProfile::EVENT_START => $event['event_start'],
+						DAO_CalendarRecurringProfile::EVENT_END => $event['event_end'],
+						DAO_CalendarRecurringProfile::RECUR_START => $event['recur_start'],
+						DAO_CalendarRecurringProfile::RECUR_END => $event['recur_end'],
+						DAO_CalendarRecurringProfile::PATTERNS => implode("\n", is_array(@$event['patterns']) ? $event['patterns'] : []),
+					]);
+				}
 			}
 			
 			$tpl = DevblocksPlatform::getTemplateService();
