@@ -129,6 +129,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			@$portals = $json['portals'];
 			@$saved_searches = $json['saved_searches'];
 			@$calendars = $json['calendars'];
+			@$classifiers = $json['classifiers'];
+			
+			$bayes = DevblocksPlatform::getBayesClassifierService();
 			
 			$uids = [];
 			$records_created = [];
@@ -225,6 +228,35 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					$diff = array_diff_key(array_flip($keys_to_require), $event);
 					if(count($diff))
 						throw new Exception(sprintf("Invalid JSON: calendar event is missing properties (%s)", implode(', ', array_keys($diff))));
+				}
+			}
+			
+			if(is_array($classifiers))
+			foreach($classifiers as $classifier) {
+				$keys_to_require = ['uid','name','params'];
+				$diff = array_diff_key(array_flip($keys_to_require), $classifier);
+				if(count($diff))
+					throw new Exception(sprintf("Invalid JSON: classifier is missing properties (%s)", implode(', ', array_keys($diff))));
+				
+				@$classes = $classifier['classes'];
+				$keys_to_require = ['uid','name','expressions'];
+				
+				// Check classifications
+				if(is_array($classes))
+				foreach($classes as $class) {
+					$diff = array_diff_key(array_flip($keys_to_require), $class);
+					if(count($diff))
+						throw new Exception(sprintf("Invalid JSON: classification is missing properties (%s)", implode(', ', array_keys($diff))));
+					
+					@$expressions = $class['expressions'];
+					
+					if(!is_array($expressions))
+						continue;
+					
+					foreach($expressions as $expression) {
+						if(!$bayes::verify($expression))
+							throw new Exception(sprintf("Invalid JSON: invalid training in classifier (%s -> %s): %s", $classifier['name'], $class['name'], $expression));
+					}
 				}
 			}
 			
@@ -369,6 +401,36 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					]);
 					
 					$uids[$uid] = $event_id;
+				}
+			}
+			
+			if(is_array($classifiers))
+			foreach($classifiers as $classifier) {
+				$uid = $classifier['uid'];
+				
+				$classifier_id = DAO_Classifier::create([
+					DAO_Classifier::NAME => $classifier['name'],
+					DAO_Classifier::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+					DAO_Classifier::OWNER_CONTEXT_ID => 0,
+					DAO_Classifier::CREATED_AT => time(),
+					DAO_Classifier::UPDATED_AT => time(),
+				]);
+				
+				$uids[$uid] = $classifier_id;
+				
+				@$classes = $classifier['classes'];
+				
+				if(is_array($classes))
+				foreach($classes as $class) {
+					$uid = $class['uid'];
+					
+					$class_id = DAO_ClassifierClass::create([
+						DAO_ClassifierClass::NAME => $class['name'],
+						DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
+						DAO_ClassifierClass::UPDATED_AT => time(),
+					]);
+					
+					$uids[$uid] = $class_id;
 				}
 			}
 			
@@ -620,6 +682,61 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 						DAO_CalendarRecurringProfile::PATTERNS => implode("\n", is_array(@$event['patterns']) ? $event['patterns'] : []),
 					]);
 				}
+			}
+			
+			@$classifiers = $json['classifiers'];
+			
+			if(is_array($classifiers))
+			foreach($classifiers as $classifier) {
+				$uid = $classifier['uid'];
+				$id = $uids[$uid];
+				$classifier_id = $id;
+				
+				DAO_Classifier::update($id, [
+					DAO_Classifier::NAME => $classifier['name'],
+					DAO_Classifier::PARAMS_JSON => isset($classifier['params']) ? json_encode($classifier['params']) : '',
+					DAO_Classifier::UPDATED_AT => time(),
+					DAO_Classifier::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+					DAO_Classifier::OWNER_CONTEXT_ID => 0,
+				]);
+				
+				$records_created[CerberusContexts::CONTEXT_CLASSIFIER][] = [
+					'id' => $id,
+					'label' => $classifier['name'],
+				];
+				
+				@$classes = $classifier['classes'];
+				
+				if(is_array($classes))
+				foreach($classes as $class) {
+					$uid = $class['uid'];
+					$id = $uids[$uid];
+					$class_id = $id;
+					
+					DAO_ClassifierClass::update($id, [
+						DAO_ClassifierClass::NAME => $class['name'],
+						DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
+						DAO_ClassifierClass::UPDATED_AT => time(),
+					]);
+					
+					@$expressions = $class['expressions'];
+					
+					if(!is_array($expressions))
+						continue;
+					
+					foreach($expressions as $expression) {
+						DAO_ClassifierExample::create([
+							DAO_ClassifierExample::CLASSIFIER_ID => $classifier_id,
+							DAO_ClassifierExample::CLASS_ID => $class_id,
+							DAO_ClassifierExample::EXPRESSION => $expression,
+							DAO_ClassifierExample::UPDATED_AT => time(),
+						]);
+						
+						$bayes::train($expression, $classifier_id, $class_id, true);
+					}
+				}
+				
+				$bayes::build($classifier_id);
 			}
 			
 			$tpl = DevblocksPlatform::getTemplateService();

@@ -71,4 +71,18 @@
 </fieldset>
 {/if}
 
+{if $records_created[CerberusContexts::CONTEXT_CLASSIFIER]}
+<fieldset class="peek">
+	<legend>{'common.classifiers'|devblocks_translate|capitalize}</legend>
+	
+	<ul class="bubbles">
+	{foreach from=$records_created[CerberusContexts::CONTEXT_CLASSIFIER] item=record key=context}
+	<li>
+		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-context-id="{$record.id}">{$record.label}</a>
+	</li>
+	{/foreach}
+	</ul>
+</fieldset>
+{/if}
+
 </div>
