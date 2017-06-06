@@ -130,6 +130,7 @@ class _DevblocksTemplateBuilder {
 				'jsonpath_set',
 				'random_string',
 				'regexp_match_all',
+				'shuffle',
 				'validate_email',
 				'validate_number',
 				'xml_decode',
@@ -620,6 +621,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
 			new Twig_SimpleFunction('random_string', [$this, 'function_random_string']),
 			new Twig_SimpleFunction('regexp_match_all', [$this, 'function_regexp_match_all']),
+			new Twig_SimpleFunction('shuffle', [$this, 'function_shuffle']),
 			new Twig_SimpleFunction('validate_email', [$this, 'function_validate_email']),
 			new Twig_SimpleFunction('validate_number', [$this, 'function_validate_number']),
 			new Twig_SimpleFunction('xml_decode', [$this, 'function_xml_decode']),
@@ -808,6 +810,15 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return $result[$element];
 		
 		return $result;
+	}
+	
+	function function_shuffle($array) {
+		if(!is_array($array))
+			return false;
+		
+		shuffle($array);
+		
+		return $array;
 	}
 	
 	function function_validate_email($string) {

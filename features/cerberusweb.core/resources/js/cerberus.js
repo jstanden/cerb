@@ -939,6 +939,7 @@ var ajax = new cAjaxCalls();
 					{ value: "random_string(length)", meta: "function" },
 					{ value: "range(low,high,step)", snippet: "range(${1:low},${2:high},${3:step})", meta: "function" },
 					{ value: "regexp_match_all(pattern,text,group)", meta: "function" },
+					{ value: "shuffle(array)", meta: "function" },
 					{ value: "validate_email(string)", meta: "function" },
 					{ value: "validate_number(string)", meta: "function" },
 					{ value: "xml_decode(string,namespaces)", meta: "function" },
