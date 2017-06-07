@@ -84,6 +84,7 @@ class _DevblocksTemplateBuilder {
 				'split_crlf',
 				'split_csv',
 				'truncate',
+				'unescape',
 				'url_decode',
 				
 				'abs',
@@ -862,6 +863,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFilter('split_crlf', [$this, 'filter_split_crlf']),
 			new Twig_SimpleFilter('split_csv', [$this, 'filter_split_csv']),
 			new Twig_SimpleFilter('truncate', [$this, 'filter_truncate']),
+			new Twig_SimpleFilter('unescape', [$this, 'filter_unescape']),
 			new Twig_SimpleFilter('url_decode', [$this, 'filter_url_decode']),
 		);
 	}
@@ -1016,6 +1018,13 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return mb_substr($value, 0, $length, LANG_CHARSET_CODE) . $separator;
 		}
 		return $value;
+	}
+	
+	function filter_unescape($string, $mode='html', $flags=null) {
+		if(!is_string($string))
+			$string = strval($string);
+		
+		return html_entity_decode($string, ENT_HTML401 | ENT_QUOTES); // $flags, LANG_CHARSET_CODE
 	}
 	
 	function filter_url_decode($string, $as='') {
