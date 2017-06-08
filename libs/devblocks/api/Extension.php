@@ -839,7 +839,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					// [TODO] This infinitely recurses if you do task->task
 					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true, true);
 					
-					if(is_array($merge_values['_types']))
+					if(isset($merge_values['_types']) && is_array($merge_values['_types']))
 					foreach($merge_values['_types'] as $type_key => $type) {
 						$types['custom_'.$cf_id.'_'.$type_key] = $type;
 					}
