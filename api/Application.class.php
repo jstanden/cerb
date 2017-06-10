@@ -132,7 +132,7 @@ class CerberusApplication extends DevblocksApplication {
 		$group_responsibilities = DAO_Group::getResponsibilities($group_id);
 		$bucket_responsibilities = @$group_responsibilities[$bucket_id] ?: array();
 		$workloads = DAO_Worker::getWorkloads();
-		// [TODO] Do availability efficiently 
+		// [TODO] Do availability efficiently
 		
 		// Workers
 		
@@ -2553,7 +2553,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 
 	static function read($id) {
 		$db = DevblocksPlatform::getDatabaseService();
-
+		
 		if(!self::isReady())
 			return '';
 
@@ -2562,7 +2562,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		// [TODO] Allow Cerb to configure sticky IP sessions (or by subnet) as setting
 		// [TODO] Allow Cerb to enable user-agent comparisons as setting
 		// [TODO] Limit the IPs a worker can log in from (per-worker?)
-
+		
 		if(null != ($session = $db->GetRowSlave(sprintf("SELECT * FROM devblocks_session WHERE session_key = %s", $db->qstr($id))))) {
 			$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
 			$is_ajax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
@@ -2582,7 +2582,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 					$db->qstr($id)
 				), _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 			}
-
+			
 			self::$_data = $session['session_data'];
 			return self::$_data;
 		}
@@ -2811,7 +2811,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param array $ids
 	 * @return Model_TriggerEvent[]
 	 */

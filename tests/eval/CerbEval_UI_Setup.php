@@ -205,7 +205,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$driver = $cerb->driver();
 		
 		$workers = [
-			[ 
+			[
 				'first_name' => 'Milo',
 				'last_name' => 'Dade',
 				'title' => 'Software Architect',
@@ -214,7 +214,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 				'at_mention_name' => 'Milo',
 				'password' => 'cerb',
 			],
-			[ 
+			[
 				'first_name' => 'Janey',
 				'last_name' => 'Youve',
 				'title' => 'UI/UX Designer',
@@ -223,7 +223,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 				'at_mention_name' => 'Janey',
 				'password' => 'cerb',
 			],
-			[ 
+			[
 				'first_name' => 'Karl',
 				'last_name' => 'Kwota',
 				'title' => 'Account Manager',
@@ -232,7 +232,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 				'at_mention_name' => 'Karl',
 				'password' => 'cerb',
 			],
-			[ 
+			[
 				'first_name' => 'Ned',
 				'last_name' => 'Flynn',
 				'title' => 'System Administrator',
@@ -241,7 +241,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 				'at_mention_name' => 'Ned',
 				'password' => 'cerb',
 			],
-			[ 
+			[
 				'first_name' => 'Mara',
 				'last_name' => 'Kusako',
 				'title' => 'QA Lead',
@@ -355,7 +355,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$worker_ids = [3,4,1,6,2,5];
 		
 		$groups = [
-			[ 
+			[
 				'name' => 'Support',
 				'is_private' => false,
 				'emoji' => '😱',
@@ -363,7 +363,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 				'members' => [3,6],
 				'managers' => [1],
 			],
-			[ 
+			[
 				'name' => 'Sales',
 				'is_private' => false,
 				'emoji' => '💸',
@@ -371,7 +371,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 				'members' => [],
 				'managers' => [4],
 			],
-			[ 
+			[
 				'name' => 'Development',
 				'is_private' => false,
 				'emoji' => '🤖',
@@ -379,7 +379,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 				'members' => [3,6],
 				'managers' => [2],
 			],
-			[ 
+			[
 				'name' => 'Corporate',
 				'is_private' => true,
 				'emoji' => '🎩',
@@ -387,7 +387,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 				'members' => [],
 				'managers' => [1],
 			],
-			[ 
+			[
 				'name' => 'Systems',
 				'is_private' => false,
 				'emoji' => '🌩',
