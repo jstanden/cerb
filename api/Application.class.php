@@ -2555,7 +2555,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		if(!self::isReady())
-			return false;
+			return '';
 
 		// [TODO] Don't set a cookie until logging in (redo session code)
 		// [TODO] Security considerations in book (don't allow non-SSL connections)
@@ -2587,7 +2587,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			return self::$_data;
 		}
 
-		return false;
+		return '';
 	}
 
 	static function write($id, $session_data) {
@@ -2604,7 +2604,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		$db = DevblocksPlatform::getDatabaseService();
 
 		if(!self::isReady())
-			return false;
+			return '';
 
 		// Update
 		$sql = sprintf("UPDATE devblocks_session SET updated=%d, refreshed_at=%d, session_data=%s, user_id=%d, user_ip=%s, user_agent=%s WHERE session_key=%s",
