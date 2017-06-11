@@ -425,7 +425,10 @@
 				'c=display&a=getReplyPreview',
 				function(o) {
 					content = o;
-				}
+				},
+				{
+					async: false
+ 				}
 			);
 			
 			return content;
@@ -441,6 +444,9 @@
 				'c=display&a=getReplyMarkdownPreview',
 				function(o) {
 					content = o;
+				},
+				{
+					async: false
 				}
 			);
 			
