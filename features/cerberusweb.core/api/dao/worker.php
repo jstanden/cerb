@@ -253,7 +253,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$mentions_to_worker_id = DAO_Worker::getMentions();
 		
 		foreach($at_mentions as $idx => $at_mention) {
-			$at_mention = ltrim($at_mention, '@');
+			$at_mention = DevblocksPlatform::strLower(ltrim($at_mention, '@'));
 			
 			// Check workers first
 			if(isset($mentions_to_worker_id[$at_mention])) {
