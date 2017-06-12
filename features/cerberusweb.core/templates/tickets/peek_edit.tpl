@@ -122,6 +122,22 @@
 			</td>
 		</tr>
 		
+		{* Participants *}
+		<tr>
+			<td width="1%" nowrap="nowrap" align="right" valign="top">{'common.participants'|devblocks_translate|capitalize}:</td>
+			<td width="99%" valign="top">
+				<ul class="bubbles chooser-container" style="display:block;">
+					{if !empty($requesters)}
+					{foreach from=$requesters item=requester}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$requester->id}{/devblocks_url}?v={$requester->updated}"><input type="hidden" name="participants[]" value="{$requester->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$requester->id}">{$requester->getNameWithEmail()}</a></li>
+					{/foreach}
+					{/if}
+				</ul>
+				
+				<button type="button" class="chooser-abstract" data-field-name="participants[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="isBanned:n isDefunct:n" data-autocomplete=""><span class="glyphicons glyphicons-search"></span></button>
+			</td>
+		</tr>
+		
 	</table>
 	
 </fieldset>

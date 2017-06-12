@@ -244,12 +244,13 @@ class ChTicketsPage extends CerberusPageExtension {
 			@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
 			@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'],'integer',0);
 			@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
+			@$participants = DevblocksPlatform::importGPC($_REQUEST['participants'],'array',[]);
 			@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 			@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 			@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
 			@$ticket_reopen = DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string','');
 			@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
-		
+			
 			// Load the existing model so we can detect changes
 			if(false == ($ticket = DAO_Ticket::get($id)))
 				throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
@@ -326,6 +327,17 @@ class ChTicketsPage extends CerberusPageExtension {
 				elseif('N'==$spam_training)
 					CerberusBayes::markTicketAsNotSpam($id);
 			}
+			
+			// Participiants
+			$requesters = DAO_Ticket::getRequestersByTicket($id);
+			
+			// Delete requesters we've removed
+			$requesters_removed = array_diff(array_keys($requesters), $participants);
+			DAO_Ticket::removeParticipantIds($id, $requesters_removed);
+			
+			// Add chooser requesters
+			$requesters_new = array_diff($participants, array_keys($requesters));
+			DAO_Ticket::addParticipantIds($id, $requesters_new);
 			
 			// Only update fields that changed
 			$fields = Cerb_ORMHelper::uniqueFields($fields, $ticket);

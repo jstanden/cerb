@@ -138,7 +138,7 @@
 	<br clear="all">
 	
 	<div style="line-height:1.5em;">
-		<a style="color:black;font-weight:bold;" href="javascript:;" id="aRecipients" onclick="genericAjaxPopup('peek','c=display&a=showRequestersPanel&ticket_id={$dict->id}',null,false,'50%');">{'common.participants'|devblocks_translate|capitalize}</a>:
+		<b>{'common.participants'|devblocks_translate|capitalize}</b>:
 		<span id="displayTicketRequesterBubbles">
 			{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$dict->id}
 		</span>

@@ -1518,47 +1518,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 	}
 	
-	// Requesters
-	
-	function showRequestersPanelAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
-		
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		
-		$tpl->assign('ticket_id', $ticket_id);
-		
-		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
-		$tpl->assign('requesters', $requesters);
-		
-		$tpl->display('devblocks:cerberusweb.core::display/rpc/requester_panel.tpl');
-	}
-	
-	function saveRequestersPanelAction() {
-		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
-		@$address_ids = DevblocksPlatform::importGPC($_POST['address_id'],'array',array());
-
-		if(empty($ticket_id))
-			return;
-		
-		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
-		
-		// Delete requesters we've removed
-		foreach($requesters as $req_id => $req_addy) {
-			if(false === array_search($req_id, $address_ids))
-				DAO_Ticket::deleteRequester($ticket_id, $req_id);
-		}
-		
-		// Add chooser requesters
-		foreach($address_ids as $id) {
-			if(is_numeric($id) && !isset($requesters[$id])) {
-				if(null != ($address = DAO_Address::get($id)))
-					DAO_Ticket::createRequester($address->email, $ticket_id);
-			}
-		}
-		
-		exit;
-	}
-	
 	function requesterAddAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string');
