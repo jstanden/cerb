@@ -147,7 +147,7 @@
 	<div style="margin-top:5px;">
 		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-query="ticket.id:{$dict->id}"><div class="badge-count">{$profile_counts.messages|default:0}</div> {'common.messages'|devblocks_translate|capitalize}</button>
 		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-query="on.ticket:(id:{$dict->id})"><div class="badge-count">{$profile_counts.comments|default:0}</div> {'common.comments'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-query="(on.msgs:(ticket.id:{$dict->id}) OR on.comments:(on.ticket:(id:{$dict->id})))"><div class="badge-count">{$profile_counts.attachments|default:0}</div> {'common.attachments'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-query="(on.msgs:(ticket.id:{$dict->id}) OR on.comments:(on.ticket:(id:{$dict->id})) OR on.comments:(on.msgs:(ticket.id:{$dict->id})))"><div class="badge-count">{$profile_counts.attachments|default:0}</div> {'common.attachments'|devblocks_translate|capitalize}</button>
 		{*<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="ticket.id:{$dict->id}"><div class="badge-count">{$profile_counts.participants|default:0}</div> {'common.participants'|devblocks_translate|capitalize}</button>*}
 	</div>
 	

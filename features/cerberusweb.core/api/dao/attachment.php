@@ -263,7 +263,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		
 		switch($context) {
 			case CerberusContexts::CONTEXT_TICKET:
-				$query = sprintf("(on.msgs:(ticket.id:%d) OR on.comments:(on.ticket:(id:%d)))", $context_id, $context_id);
+				$query = sprintf("(on.msgs:(ticket.id:%d) OR on.comments:(on.ticket:(id:%d)) OR on.comments:(on.msgs:(ticket.id:%d)))", $context_id, $context_id, $context_id);
 				break;
 				
 			default:
