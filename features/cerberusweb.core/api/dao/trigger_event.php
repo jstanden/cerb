@@ -1162,6 +1162,10 @@ class Model_TriggerEvent {
 				}
 			}
 			
+			// If an action broke our loop, follow along
+			if(!empty($replay) && !in_array(current($replay), $tree[$node_id]))
+				$loop = false;
+			
 		} while($loop);
 		
 		return $pass;
