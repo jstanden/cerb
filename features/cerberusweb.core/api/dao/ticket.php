@@ -1486,6 +1486,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 						return false;
 					}
 				}
+				return true;
 			});
 		}
 		
