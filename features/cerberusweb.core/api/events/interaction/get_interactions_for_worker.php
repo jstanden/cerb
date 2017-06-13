@@ -53,7 +53,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 			$actions = [];
 			
 			$event_model = new Model_DevblocksEvent(
-				Event_NewInteractionChatPortal::ID,
+				Event_NewInteractionChatWorker::ID,
 				array(
 					'point' => $point,
 					'point_params' => $point_params,
