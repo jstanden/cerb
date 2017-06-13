@@ -20,7 +20,7 @@ define('LOCAL_SSL', null);
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
 define('REMOTE_SSL_VALIDATION', true);
-define('SCRIPT_LAST_MODIFY', 20170428); // last change
+define('SCRIPT_LAST_MODIFY', 20170613); // last change
 
 class DevblocksProxy {
 	function proxy($local_path) {
@@ -319,6 +319,7 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 			switch(strtolower($k)) {
 				case 'connection':
 				case 'host':
+				case 'transfer-encoding':
 					break;
 					
 				default:
