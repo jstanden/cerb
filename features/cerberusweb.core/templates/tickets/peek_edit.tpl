@@ -134,7 +134,7 @@
 					{/if}
 				</ul>
 				
-				<button type="button" class="chooser-abstract" data-field-name="participants[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="isBanned:n isDefunct:n" data-autocomplete=""><span class="glyphicons glyphicons-search"></span></button>
+				<button type="button" class="chooser-abstract" data-field-name="participants[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="isBanned:n isDefunct:n" data-autocomplete="" data-create="true"><span class="glyphicons glyphicons-search"></span></button>
 			</td>
 		</tr>
 		
