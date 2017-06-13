@@ -78,6 +78,9 @@ var previewParser = function(content) {
 		'c=internal&a=viewBroadcastTest',
 		function(o) {
 			content = o;
+		},
+		{
+			async: false
 		}
 	);
 	
