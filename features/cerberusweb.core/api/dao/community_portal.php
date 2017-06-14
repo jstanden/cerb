@@ -52,7 +52,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		
 		// [JAS]: [TODO] Inf loop check
 		do {
-			$code = substr(md5(mt_rand(0,1000) * microtime()),0,$length);
+			$code = substr(md5(mt_rand(0,1000) . microtime()),0,$length);
 			$exists = $db->GetOneMaster(sprintf("SELECT id FROM community_tool WHERE code = %s",$db->qstr($code)));
 			
 		} while(!empty($exists));
