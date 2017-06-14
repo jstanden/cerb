@@ -12,7 +12,16 @@
 	</div>
 {/if}
 
+{if $smarty.const.APP_OPT_DEPRECATED_PROFILE_QUICK_SEARCH}
+<div style="float:right">
+	{$ctx = Extension_DevblocksContext::get($page_context)}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
+</div>
+{/if}
+
 <h1>{$dict->subject}</h1>
+
+<div style="clear:both;"></div>
 
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-top:5px;margin-bottom:5px;">
