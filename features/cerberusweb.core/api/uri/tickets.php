@@ -51,7 +51,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$view->renderPage = 0;
 		$view->renderLimit = 250;
 		$pos = 0;
-		$max_pages = 4;
+		$max_pages = defined('APP_OPT_EXPLORE_MAX_PAGES') ? APP_OPT_EXPLORE_MAX_PAGES : 4;
 		
 		do {
 			$models = array();
@@ -125,7 +125,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		$view->renderPage = 0;
 		$view->renderLimit = 250;
 		$pos = 0;
-		$max_pages = 4;
+		$max_pages = defined('APP_OPT_EXPLORE_MAX_PAGES') ? APP_OPT_EXPLORE_MAX_PAGES : 4;
 		
 		do {
 			$models = array();
