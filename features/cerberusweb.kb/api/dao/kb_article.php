@@ -740,6 +740,10 @@ class Model_KbArticle {
 		return $html;
 	}
 	
+	function getCustomFields() {
+		return array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $this->id));
+	}
+	
 	// [TODO] Reuse this!
 	function getCategories() {
 		$categories = DAO_KbCategory::getAll();
