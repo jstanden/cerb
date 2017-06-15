@@ -62,7 +62,7 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 		// Widget
 		@$widget = $event_model->params['widget'];
 		$labels['widget_id'] = 'Widget ID';
-		$values['widget_id'] = $widget->id;
+		$values['widget_id'] = @$widget->id ?: 0;
 		
 		// Actions
 		$values['_actions'] =& $event_model->params['actions'];
