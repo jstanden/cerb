@@ -91,7 +91,7 @@ class DevblocksEventHelper {
 		$values_to_contexts = $event->getValuesContexts($trigger);
 		
 		foreach($values_to_contexts as $val_key => $context_data) {
-			if($context_data['context'] == CerberusContexts::CONTEXT_WORKER && !$context_data['is_multiple']) {
+			if($context_data['context'] == CerberusContexts::CONTEXT_WORKER && !@$context_data['is_multiple']) {
 				$values[$val_key] = [
 					'name' => (DevblocksPlatform::strStartsWith($context_data['label'], '(') ? '' : '(placeholder) ') . $context_data['label'],
 					'context' => $context_data['context']
@@ -713,18 +713,22 @@ class DevblocksEventHelper {
 				
 				// Variable?
 				if(DevblocksPlatform::strStartsWith($worker_id, 'var_')) {
-					@$worker_id = intval($dict->$worker_id);
+					if(is_array($dict->$worker_id)) {
+						@$worker_id = intval(key($dict->worker_id));
+					} else {
+						@$worker_id = intval($dict->$worker_id);
+					}
 				}
 				
 				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $worker_id);
 				
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
-					$dict->$key_to_set = $value;
+					$dict->$key_to_set = $worker_id;
 					
 					$array =& $dict->$value_key;
 					if(is_array($array))
-						$array[$field_id] = $value;
+						$array[$field_id] = $worker_id;
 				}
 				break;
 				

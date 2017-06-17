@@ -1637,6 +1637,21 @@
 				<seg>security</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.selection">
+			<tuv xml:lang="en_US">
+				<seg>Selection</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.selection.single">
+			<tuv xml:lang="en_US">
+				<seg>Single</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.selection.multiple">
+			<tuv xml:lang="en_US">
+				<seg>Multiple</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.sender">
 			<tuv xml:lang="en_US">
 				<seg>sender</seg>

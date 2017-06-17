@@ -1376,6 +1376,8 @@ var ajax = new cAjaxCalls();
 							evt.value = event.values[i];
 							$ul.trigger(evt);
 						}
+						
+						$trigger.trigger('cerb-chooser-saved');
 					}
 				});
 			});
@@ -1413,8 +1415,6 @@ var ajax = new cAjaxCalls();
 						var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
 						var $a = $('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
 						$ul.append($li);
-						
-						$trigger.trigger('cerb-chooser-saved');
 					}
 				}
 			});
@@ -1450,6 +1450,8 @@ var ajax = new cAjaxCalls();
 					evt.label = e.label;
 					evt.value = e.id;
 					$ul.trigger(evt);
+					
+					$trigger.trigger('cerb-chooser-saved');
 				});
 				
 				if(is_create_ifnull) {
@@ -1472,6 +1474,7 @@ var ajax = new cAjaxCalls();
 				var is_single = $trigger.attr('data-single');
 				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete-if-empty');
 				var autocomplete_placeholders = $trigger.attr('data-autocomplete-placeholders');
+				var shortcuts = null == $trigger.attr('data-shortcuts') || 'false' != $trigger.attr('data-shortcuts');
 				
 				var $autocomplete = $('<input type="search" size="32">');
 				$autocomplete.insertAfter($trigger);
@@ -1521,6 +1524,8 @@ var ajax = new cAjaxCalls();
 						
 						$ul.trigger(evt);
 						
+						$trigger.trigger('cerb-chooser-saved');
+						
 						$this.val('');
 						return false;
 					}
@@ -1565,7 +1570,7 @@ var ajax = new cAjaxCalls();
 			}
 			
 			// Show a 'me' shortcut on worker choosers
-			if(context == 'cerberusweb.contexts.worker') {
+			if(shortcuts && context == 'cerberusweb.contexts.worker') {
 				var $account = $('#lnkSignedIn');
 				
 				var $button = $('<button type="button"/>')
@@ -1577,6 +1582,7 @@ var ajax = new cAjaxCalls();
 						evt.value = $account.attr('data-worker-id');
 						evt.icon = $account.closest('td').find('img:first').attr('src');
 						$ul.trigger(evt);
+						$trigger.trigger('cerb-chooser-saved');
 					})
 					.insertAfter($trigger)
 					;

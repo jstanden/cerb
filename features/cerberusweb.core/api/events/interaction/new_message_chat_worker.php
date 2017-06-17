@@ -274,6 +274,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create ticket'),
 
 				'prompt_buttons' => array('label' => 'Prompt with buttons'),
+				'prompt_chooser' => array('label' => 'Prompt with chooser'),
 				'prompt_images' => array('label' => 'Prompt with images'),
 				'prompt_text' => array('label' => 'Prompt with text input'),
 				'prompt_wait' => array('label' => 'Prompt with wait'),
@@ -317,6 +318,13 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 			
 			case 'prompt_buttons':
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_buttons.tpl');
+				break;
+				
+			case 'prompt_chooser':
+				$contexts = Extension_DevblocksContext::getAll(false, ['search']);
+				$tpl->assign('contexts', $contexts);
+				
+				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_chooser.tpl');
 				break;
 				
 			case 'prompt_images':
@@ -384,6 +392,23 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$out = sprintf(">>> Prompting with buttons:\n".
 					"%s\n",
 					$options
+				);
+				break;
+				
+			case 'prompt_chooser':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
+				@$context = $params['context'];
+				@$query = $tpl_builder->build($params['query'], $dict);
+				@$selection = $params['selection'];
+				
+				$out = sprintf(">>> Prompting with chooser:\n".
+					"Context: %s\n".
+					"Query: %s\n".
+					"Selection: %s\n",
+					$context,
+					$query,
+					$selection
 				);
 				break;
 				
@@ -488,6 +513,25 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					'_trigger_id' => $trigger->id,
 					'options' => DevblocksPlatform::parseCrlfString($options),
 					'style' => $style,
+				);
+				
+				$dict->__exit = 'suspend';
+				break;
+				
+			case 'prompt_chooser':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				@$context = $params['context'];
+				@$query = $tpl_builder->build($params['query'], $dict);
+				@$selection = $params['selection'];
+				
+				$actions[] = array(
+					'_action' => 'prompt.chooser',
+					'_trigger_id' => $trigger->id,
+					'context' => $context,
+					'query' => $query,
+					'selection' => $selection,
 				);
 				
 				$dict->__exit = 'suspend';
