@@ -17,7 +17,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">Subject: </td>
 			<td width="100%">
-				<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" autofocus="true" value="{$ticket->subject}">
+				<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" autofocus="autofocus" value="{$ticket->subject}">
 			</td>
 		</tr>
 		

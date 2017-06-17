@@ -150,7 +150,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 	/**
 	 * @param boolean $as_instances
-	 * @param boolean $with_options
+	 * @param array $with_options
 	 * @return Extension_DevblocksContext[]
 	 */
 	public static function getAll($as_instances=false, $with_options=null) {
