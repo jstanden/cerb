@@ -679,8 +679,12 @@ class DevblocksEventHelper {
 
 				$value = is_numeric($value) ? $value : @strtotime($value);
 				
-				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value);
-						
+				if(empty($value)) {
+					DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
+				} else {
+					DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value);
+				}
+				
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
 					$dict->$key_to_set = $value;

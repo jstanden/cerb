@@ -34,14 +34,14 @@
 		<select name="{$field_name}[{$var.key}]">
 			<option value=""></option>
 			{if $with_placeholders && $trigger}
-			{foreach from=$trigger->variables item=var key=var_key}
-				{if in_array($var.type, ['W', 'ctx_cerberusweb.contexts.worker'])}
-				<option value="{$var_key}" {if $variable_values.$var_key==$var_key}selected="selected"{/if}>(variable) {$var.label}</option>
+			{foreach from=$trigger->variables item=var_data}
+				{if in_array($var_data.type, ['W', 'ctx_cerberusweb.contexts.worker'])}
+				<option value="{$var_data.key}" {if $variable_values.{$var.key}==$var_data.key}selected="selected"{/if}>(variable) {$var_data.label}</option>
 				{/if}
 			{/foreach}
 			{/if}
 			{foreach from=$workers item=worker}
-			<option value="{$worker->id}" {if $variable_values.$var_key==$worker->id}selected="selected"{/if}>{$worker->getName()}</option>
+			<option value="{$worker->id}" {if $variable_values.{$var.key}==$worker->id}selected="selected"{/if}>{$worker->getName()}</option>
 			{/foreach}
 		</select>
 		{elseif substr($var.type,0,4) == 'ctx_'}
