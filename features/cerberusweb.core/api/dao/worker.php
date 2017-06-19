@@ -12,7 +12,7 @@
 | By using this software, you acknowledge having read this license
 | and agree to be bound thereby.
 | ______________________________________________________________________
-|	http://cerb.ai	    http://webgroup.media
+|	http://cerb.ai		http://webgroup.media
 ***********************************************************************/
 
 class DAO_Worker extends Cerb_ORMHelper {
@@ -1107,6 +1107,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	const VIRTUAL_GROUP_SEARCH = '*_group_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_CALENDAR_AVAILABILITY = '*_calendar_availability';
+	const VIRTUAL_ROLE_SEARCH = '*_role_search';
 	
 	static private $_fields = null;
 	
@@ -1200,6 +1201,25 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				return sprintf("w.id IN (%s) ", implode(', ', $results));
 				break;
 			
+			case self::VIRTUAL_ROLE_SEARCH:
+				$worker_ids = [];
+				
+				$db = DevblocksPlatform::getDatabaseService();
+				
+				$sql = self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, "%s");
+				$role_ids = array_column($db->GetArraySlave($sql), 'id');
+				$roles = DAO_WorkerRole::getIds($role_ids);
+				
+				foreach($roles as $role) {
+					$worker_ids += $role->getWorkerIds();
+				}
+				
+				if(empty($worker_ids))
+					return 0;
+				
+				return sprintf('w.id IN (%s)', implode(',', $worker_ids));
+				break;
+				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -1255,6 +1275,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability', null),
+			self::VIRTUAL_ROLE_SEARCH => new DevblocksSearchField(self::VIRTUAL_ROLE_SEARCH, '*', 'role_search', null, null),
 		);
 
 		// Fulltext indexes
@@ -1741,6 +1762,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Worker::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
+			SearchFields_Worker::VIRTUAL_ROLE_SEARCH,
 			SearchFields_Worker::FULLTEXT_WORKER,
 		));
 		
@@ -1750,6 +1772,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::ID,
 			SearchFields_Worker::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
+			SearchFields_Worker::VIRTUAL_ROLE_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -1987,6 +2010,14 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Worker::PHONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'role' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_ROLE_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ROLE, 'q' => ''],
+					]
+				),
 			'timezone' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -2073,7 +2104,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case 'group':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_GROUP_SEARCH);
 				break;
-			
+				
 			case 'isAvailable':
 				$param = DevblocksSearchCriteria::getDateParamFromTokens(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $tokens);
 				$param->value[] = '1';
@@ -2086,6 +2117,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return $param;
 				break;
 				
+			case 'role':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_ROLE_SEARCH);
+				break;
+			
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -2142,6 +2177,13 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Worker::VIRTUAL_GROUP_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.group')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_ROLE_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.role')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;

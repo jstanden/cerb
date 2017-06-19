@@ -507,7 +507,42 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 class Model_WorkerRole {
 	public $id;
 	public $name;
-	public $params = array();
+	public $params = [];
+	
+	function getWorkerIds() {
+		@$who = $this->params['who'];
+		@$who_list = $this->params['who_list'];
+		
+		switch($who) {
+			case 'all':
+				$workers = DAO_Worker::getAllActive();
+				return array_keys($workers);
+				break;
+				
+			case 'groups':
+				$groups = DAO_Group::getAll();
+				$ids = [];
+				
+				if(is_array($who_list))
+				foreach($who_list as $group_id) {
+					@$group = $groups[$group_id];
+					
+					if(!$group)
+						continue;
+					
+					$ids += array_keys($group->getMembers());
+				}
+				return $ids;
+				break;
+				
+			case 'workers':
+				if(is_array($who_list))
+					return $who_list;
+				break;
+		}
+		
+		return [];
+	}
 };
 
 class SearchFields_WorkerRole extends DevblocksSearchFields {
