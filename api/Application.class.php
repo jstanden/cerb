@@ -39,7 +39,7 @@
  * - Jeff Standen and Dan Hildebrandt
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
-define("APP_BUILD", 2017061301);
+define("APP_BUILD", 2017061901);
 define("APP_VERSION", '8.0.1');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
