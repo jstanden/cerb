@@ -9,9 +9,17 @@
 	<b>{'portal.sc.public.history.reference'|devblocks_translate}</b> {$ticket->mask}
 	 &nbsp;
 	 
-	<b>{'common.status'|devblocks_translate}:</b> 
-	{$ticket->getStatusText()|lower}
-	
+	<b>{'common.status'|devblocks_translate}:</b>
+	{if $ticket->status_id == Model_Ticket::STATUS_WAITING}
+		{'status.open'|devblocks_translate|lower}
+	{elseif $ticket->status_id == Model_Ticket::STATUS_CLOSED}
+		{'status.closed'|devblocks_translate|lower}
+	{elseif $ticket->status_id == Model_Ticket::STATUS_DELETED}
+		{'status.deleted'|devblocks_translate|lower}
+	{else}
+		{'status.waiting'|devblocks_translate|lower}
+	{/if}
+	 
 	 &nbsp;
 	  
 	<b>{'common.created'|devblocks_translate|capitalize}:</b> <abbr title="{$ticket->created_date|devblocks_date}">{$ticket->created_date|devblocks_prettytime}</abbr>
@@ -47,7 +55,7 @@
 	<input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 	
 	<fieldset>
-		<table cellpadding="2" cellspacing="0" borde="0">
+		<table cellpadding="2" cellspacing="0" border="0">
 		
 			<tr>
 				<td valign="middle" align="right">

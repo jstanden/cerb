@@ -334,6 +334,35 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		$results = $this->getData();
+		$tpl->assign('results', $results);
+		$tpl->assign('total', $results[1]);
+		$tpl->assign('data', $results[0]);
+		
+		// Bulk lazy load first wrote
+		$object_first_wrotes = [];
+		if(in_array('t_first_wrote_address_id', $this->view_columns)) {
+			$first_wrote_ids = DevblocksPlatform::extractArrayValues($results, 't_first_wrote_address_id');
+			$object_first_wrotes = DAO_Address::getIds($first_wrote_ids);
+			$tpl->assign('object_first_wrotes', $object_first_wrotes);
+		}
+		
+		// Bulk lazy load last wrote
+		$object_last_wrotes = [];
+		if(in_array('t_last_wrote_address_id', $this->view_columns)) {
+			$last_wrote_ids = DevblocksPlatform::extractArrayValues($results, 't_last_wrote_address_id');
+			$object_last_wrotes = DAO_Address::getIds($last_wrote_ids);
+			$tpl->assign('object_last_wrotes', $object_last_wrotes);
+		}
+		
+		// Bulk lazy load orgs
+		$object_orgs = [];
+		if(in_array('t_org_id', $this->view_columns)) {
+			$org_ids = DevblocksPlatform::extractArrayValues($results, 't_org_id');
+			$object_orgs = DAO_ContactOrg::getIds($org_ids);
+			$tpl->assign('object_orgs', $object_orgs);
+		}
+		
 		$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/view.tpl");
 	}
 

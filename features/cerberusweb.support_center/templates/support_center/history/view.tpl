@@ -1,7 +1,4 @@
 {$view_fields = $view->getColumnsAvailable()}
-{$results = $view->getData()}
-{$total = $results[1]}
-{$data = $results[0]}
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklist">
 	<tr>
 		<td nowrap="nowrap"><h2>{$view->name}</h2></td>
@@ -55,7 +52,7 @@
 		<a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}" class="record-link">{$result.t_subject}</a>
 		{/if}
 	{/capture}
-
+	
 	{$tableRowClass = ($smarty.foreach.results.iteration % 2) ? "tableRowBg" : "tableRowAltBg"}
 	<tbody style="cursor:pointer;">
 		{if !in_array('t_subject', $view->view_columns)}
@@ -77,26 +74,52 @@
 			{elseif $column=="t_updated_date" || $column=="t_created_date" || $column=="t_closed_at" || $column=="t_reopen_at"}
 				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
 			
-			{elseif $column=="t_status_id"}
+			{elseif $column=="t_status_id" || $column == "*_status"}
 				<td data-column="{$column}">
+					{$column = "t_status_id"}
 					{if $result.$column == Model_Ticket::STATUS_WAITING}
-						{'status.waiting'|devblocks_translate|lower}
+						{'status.open'|devblocks_translate|lower}
 					{elseif $result.$column == Model_Ticket::STATUS_CLOSED}
 						{'status.closed'|devblocks_translate|lower}
 					{elseif $result.$column == Model_Ticket::STATUS_DELETED}
 						{'status.deleted'|devblocks_translate|lower}
 					{else}
-						{'status.open'|devblocks_translate|lower}
+						{'status.waiting'|devblocks_translate|lower}
 					{/if}
 				</td>
 			
 			{elseif $column=="t_mask"}
 				<td data-column="{$column}"><a href="{devblocks_url}c=history&mask={$result.t_mask}{/devblocks_url}">{$result.$column}</a></td>
 				
+			{elseif $column=="t_org_id"}
+				<td data-column="{$column}">
+					{$org_id = $result.t_org_id}
+					{if $org_id && isset($object_orgs.$org_id)}
+						{$org = $object_orgs.$org_id}
+						{$org->name}
+					{/if}
+				</td>
+				
 			{elseif $column=="t_owner_id"}
 				<td data-column="{$column}">
 					{if isset($workers.{$result.t_owner_id})}
 						{$workers.{$result.t_owner_id}->getName()}
+					{/if}
+				</td>
+			
+			{elseif $column=="t_first_wrote_address_id"}
+				{$first_wrote = $object_first_wrotes.{$result.$column}}
+				<td data-column="{$column}">
+					{if $first_wrote}
+					{$first_wrote->getNameWithEmail()|truncate:45:'...':true:true}
+					{/if}
+				</td>
+			
+			{elseif $column=="t_last_wrote_address_id"}
+				{$last_wrote = $object_last_wrotes.{$result.$column}}
+				<td data-column="{$column}">
+					{if $last_wrote}
+					{$last_wrote->getNameWithEmail()|truncate:45:'...':true:true}
 					{/if}
 				</td>
 				
