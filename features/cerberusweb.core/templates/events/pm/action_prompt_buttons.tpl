@@ -5,9 +5,9 @@
 
 <b>Colors:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[color_from]" value="{$params.color_from|default:'#FFFFFF'}" size="7" class="color-picker">
-	<input type="text" name="{$namePrefix}[color_mid]" value="{$params.color_mid|default:'#FFFFFF'}" size="7" class="color-picker">
-	<input type="text" name="{$namePrefix}[color_to]" value="{$params.color_to|default:'#FFFFFF'}" size="7" class="color-picker">
+	<input type="text" name="{$namePrefix}[color_from]" value="{$params.color_from|default:'#4795F7'}" size="7" class="color-picker">
+	<input type="text" name="{$namePrefix}[color_mid]" value="{$params.color_mid|default:'#4795F7'}" size="7" class="color-picker">
+	<input type="text" name="{$namePrefix}[color_to]" value="{$params.color_to|default:'#4795F7'}" size="7" class="color-picker">
 </div>
 
 <b>Custom CSS style:</b>
@@ -20,7 +20,7 @@ $(function() {
 	var $action = $('fieldset#{$namePrefix}');
 	
 	$action.find('input:text.color-picker').minicolors({
-		swatches: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E','#FFFFFF']
+		swatches: ['#CF2C1D','#FEAF03','#57970A','#4795F7','#7047BA','#D5D5D5','#ADADAD','#34434E','#FFFFFF']
 	});
 });
 </script>
