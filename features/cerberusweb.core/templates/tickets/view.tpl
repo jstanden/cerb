@@ -118,7 +118,7 @@
 	{$ticket_group_id = $result.t_group_id}
 	{$ticket_group = $groups.$ticket_group_id}
 
-	<tbody style="cursor:pointer;" data-num-messages="{$result.t_num_messages}">
+	<tbody style="cursor:pointer;" data-status-id="{$result.t_status_id}" data-status="{if $result.t_status_id == Model_Ticket::STATUS_WAITING}waiting{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}closed{elseif $result.t_status_id == Model_Ticket::STATUS_DELETED}deleted{else}open{/if}" data-num-messages="{$result.t_num_messages}">
 	
 	{if !$view->options.disable_watchers || !in_array('t_subject',$view->view_columns)}
 	<tr class="{$tableRowClass}">
