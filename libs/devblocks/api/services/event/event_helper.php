@@ -445,7 +445,7 @@ class DevblocksEventHelper {
 					break;
 				}
 				
-				$possible_values = array_map('strtolower', $custom_field->params['options']);
+				$possible_values = array_map('mb_strtolower', $custom_field->params['options']);
 				
 				if(false !== ($value_idx = array_search(DevblocksPlatform::strLower($value), $possible_values))) {
 					$value = $custom_field->params['options'][$value_idx];
@@ -641,7 +641,7 @@ class DevblocksEventHelper {
 				$builder = DevblocksPlatform::getTemplateBuilder();
 				$value = $builder->build($value, $dict);
 				
-				$possible_values = array_map('strtolower', $custom_field->params['options']);
+				$possible_values = array_map('mb_strtolower', $custom_field->params['options']);
 				
 				if(false === (DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value)))
 					break;

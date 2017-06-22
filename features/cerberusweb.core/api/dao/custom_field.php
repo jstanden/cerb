@@ -541,7 +541,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					$value = @strtotime($value);
 				break;
 			case Model_CustomField::TYPE_DROPDOWN:
-				$possible_values = array_map('strtolower', $field->params['options']);
+				$possible_values = array_map('mb_strtolower', $field->params['options']);
 				
 				if(false !== ($value_idx = array_search(DevblocksPlatform::strLower($value), $possible_values))) {
 					$value = $field->params['options'][$value_idx];

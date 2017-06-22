@@ -157,7 +157,7 @@ class DAO_ClassifierEntity extends Cerb_ORMHelper {
 	static function getByName($key) {
 		$entities = DAO_ClassifierEntity::getAll();
 		$names = array_column(DevblocksPlatform::objectsToArrays($entities), 'name', 'id');
-		$names = array_map('strtolower', $names);
+		$names = array_map('mb_strtolower', $names);
 		
 		if(false === ($pos = array_search($key, $names)))
 			return null;
