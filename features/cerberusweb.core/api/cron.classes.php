@@ -1522,6 +1522,64 @@ class Cron_BotScheduledBehavior extends CerberusCronPageExtension {
 		$stop_time = time() + 20; // [TODO] Make configurable
 
 		$logger->info("Starting...");
+		
+		// Run recurrent behaviors
+		
+		$this->_runRecurrentBehaviors();
+		
+		// Run scheduled behaviors
+		
+		$this->_runScheduledBehaviors($stop_time);
+		
+		$logger->info("Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
+	}
+
+	function configure($instance) {
+	}
+	
+	private function _runRecurrentBehaviors() {
+		$recurrent_behaviors = Event_RecurrentBehavior::getReadyBehaviors();
+		
+		foreach($recurrent_behaviors as $behavior) { /* @var $behavior Model_TriggerEvent */
+			if(false == ($event = $behavior->getEvent()))
+				continue;
+			
+			$event_model = new Model_DevblocksEvent();
+			$event_model->id = Event_RecurrentBehavior::ID;
+			$event_model->params = [];
+			
+			$event->setEvent($event_model, $behavior);
+			
+			$values = $event->getValues();
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			
+			$result = $behavior->runDecisionTree($dict, false, $event);
+			
+			// Update the next runtime timestamp
+			@$patterns = DevblocksPlatform::parseCrlfString($behavior->event_params['repeat_patterns']);
+			@$timezone = $behavior->event_params['timezone'];
+			@$history = $behavior->event_params['repeat_history'];
+			
+			if(!is_array($history))
+				$history = [];
+			
+			if(is_array($patterns)) {
+				$run_at = Event_RecurrentBehavior::getNextOccurrence($patterns, $timezone);
+				$behavior->event_params['repeat_run_at'] = $run_at;
+				
+				$history[] = time();
+				$behavior->event_params['repeat_history'] = array_slice($history, -25);
+				
+				DAO_TriggerEvent::update($behavior->id, [
+					DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($behavior->event_params),
+				]);
+			}
+		}
+	}
+	
+	private function _runScheduledBehaviors($stop_time) {
+		// Run scheduled behaviors
+		
 		$last_behavior_id = 0;
 
 		do {
@@ -1580,11 +1638,6 @@ class Cron_BotScheduledBehavior extends CerberusCronPageExtension {
 			}
 			
 		} while(!empty($behaviors) && $stop_time > time());
-
-		$logger->info("Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
-	}
-
-	function configure($instance) {
 	}
 };
 
