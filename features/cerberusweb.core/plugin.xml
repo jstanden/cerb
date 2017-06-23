@@ -2382,7 +2382,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.dashboard.widget.render</id>
-			<name>Render dashboard widget</name>
+			<name>Dashboard render widget</name>
 			<class>
 				<file>api/events/dashboards/dashboard_widget_render.php</file>
 				<name>Event_DashboardWidgetRender</name>
@@ -2401,7 +2401,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.dashboard.widget.get_metric</id>
-			<name>Get metric for dashboard widget</name>
+			<name>Dashboard get metric for widget</name>
 			<class>
 				<file>api/events/dashboards/dashboard_widget_get_metric.php</file>
 				<name>Event_DashboardWidgetGetMetric</name>
