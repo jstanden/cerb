@@ -17,7 +17,8 @@
 	],
 	"require" : {
 		"smarty/smarty" : "3.1.31",
-		"swiftmailer/swiftmailer" : "5.4.8"
+		"swiftmailer/swiftmailer" : "5.4.8",
+		"mtdowling/cron-expression": "^1.2"
 	},
 	"require-dev" : {
 		"phpseclib/phpseclib" : "2.0.4",
