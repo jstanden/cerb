@@ -1385,6 +1385,9 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Reindex the original ticket (last wrote, etc.)
 		$last_message = end($messages); /* @var Model_Message $last_message */
 		
+		if(!($last_message instanceof Model_Message))
+			return;
+		
 		$fields = array(
 			DAO_Ticket::LAST_MESSAGE_ID => $last_message->id,
 			DAO_Ticket::LAST_WROTE_ID => $last_message->address_id

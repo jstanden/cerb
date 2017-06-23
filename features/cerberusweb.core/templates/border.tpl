@@ -45,7 +45,7 @@
 </table>
 
 <script type="text/javascript">
-$().ready(function(e) {
+$(function(e) {
 	{if !empty($visit) && $visit->isImposter()}
 	$('#aImposter').click(function(e) {
 		genericAjaxGet('','c=internal&a=suRevert',function(o) {

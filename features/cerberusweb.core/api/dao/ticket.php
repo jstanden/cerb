@@ -1222,6 +1222,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				if(empty($to_group))
 					$to_group = DAO_Group::get($model->group_id);
 				
+				if(empty($to_bucket)) {
+					$to_bucket = $to_group->getDefaultBucket();
+					$bucket_id = $to_bucket->id;
+				}
+				
 				$entry = array(
 					//{{actor}} moved ticket {{target}} to {{group}} {{bucket}}
 					'message' => 'activities.ticket.moved',

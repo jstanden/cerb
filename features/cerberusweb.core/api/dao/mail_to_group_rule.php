@@ -367,13 +367,18 @@ class Model_MailToGroupRule {
 							$field_values = array();
 							switch($field->context) {
 								case CerberusContexts::CONTEXT_ADDRESS:
-									if(null == $address_field_values)
-										$address_field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $fromAddress->id));
+									if(null == $address_field_values) {
+										$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ADDRESS, $fromAddress->id);
+										$address_field_values = is_array($custom_field_values) ? array_shift($custom_field_values) : [];
+									}
 									$field_values =& $address_field_values;
 									break;
+								
 								case CerberusContexts::CONTEXT_ORG:
-									if(null == $org_field_values)
-										$org_field_values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $fromAddress->contact_org_id));
+									if(null == $org_field_values) {
+										$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ORG, $fromAddress->contact_org_id);
+										$org_field_values = is_array($custom_field_values) ? array_shift($custom_field_values) : [];
+									}
 									$field_values =& $org_field_values;
 									break;
 							}
