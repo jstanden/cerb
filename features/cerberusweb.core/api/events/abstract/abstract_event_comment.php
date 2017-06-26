@@ -127,14 +127,14 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 			'comment_owner_context' => array(
 				'label' => 'Comment author',
 				'is_polymorphic' => true,
-				'context' => 'comment_owner_context',
-				'context_id' => 'comment_owner_context_id',
+				'context' => 'comment_author__context',
+				'context_id' => 'comment_author_id',
 			),
 			'comment_context' => array(
 				'label' => 'Comment record',
 				'is_polymorphic' => true,
-				'context' => 'comment_context',
-				'context_id' => 'comment_context_id',
+				'context' => 'comment_target__context',
+				'context_id' => 'comment_target_id',
 			),
 		);
 		
@@ -195,9 +195,18 @@ abstract class AbstractEvent_Comment extends Extension_DevblocksEvent {
 			case 'comment_owner_context':
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
-				@$value = $dict->$token;
+				$value = null;
 				
-				if(!isset($params['values']) || !is_array($params['values'])) {
+				switch($as_token) {
+					case 'comment_context':
+						@$value = $dict->comment_target__context;
+						break;
+					case 'comment_owner_context':
+						@$value = $dict->comment_author__context;
+						break;
+				}
+				
+				if(empty($value) || !isset($params['values']) || !is_array($params['values'])) {
 					$pass = false;
 					break;
 				}
