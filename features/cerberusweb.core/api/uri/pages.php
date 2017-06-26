@@ -884,6 +884,8 @@ class Page_Custom extends CerberusPageExtension {
 		
 		header('Content-Type: application/json');
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		// [TODO] Allow configurable imports
 		
 		try {
@@ -916,7 +918,6 @@ class Page_Custom extends CerberusPageExtension {
 					break;
 			}
 			
-			// [TODO] Check $active_worker access to this context
 			if(!CerberusContexts::isWriteableByActor($owner_context, $owner_context_id, $active_worker))
 				throw new Exception();
 			
