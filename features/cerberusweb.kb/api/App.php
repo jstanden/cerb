@@ -249,7 +249,7 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 	}
 	
 	function importTabConfigJson($json, Model_WorkspaceTab $tab) {
-		if(empty($tab) || empty($tab->id) || !is_array($json) || !isset($json['tab']))
+		if(empty($tab) || empty($tab->id) || !is_array($json))
 			return false;
 		
 		return true;

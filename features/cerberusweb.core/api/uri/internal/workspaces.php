@@ -252,13 +252,17 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 	}
 	
 	function importTabConfigJson($json, Model_WorkspaceTab $tab) {
-		if(empty($tab) || empty($tab->id) || !is_array($json) || !isset($json['tab']))
+		if(empty($tab) || empty($tab->id) || !is_array($json))
 			return false;
 		
-		if(!isset($json['tab']['worklists']))
+		// Backwards compatibility
+		if(isset($json['tab']))
+			$json = $json['tab'];
+			
+		if(!isset($json['worklists']))
 			return false;
 		
-		foreach($json['tab']['worklists'] as $worklist) {
+		foreach($json['worklists'] as $worklist) {
 			$worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist['model'], '');
 			
 			// [TODO] This is sloppy, we need to convert it.

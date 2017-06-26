@@ -453,13 +453,17 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 	}
 	
 	function importTabConfigJson($json, Model_WorkspaceTab $tab) {
-		if(empty($tab->id) || !is_array($json) || !isset($json['tab']))
+		if(empty($tab->id) || !is_array($json))
 			return false;
 		
-		if(!isset($json['tab']['widgets']) || !is_array($json['tab']['widgets']))
+		// Backwards compatibility
+		if(isset($json['tab']))
+			$json = $json['tab'];
+		
+		if(!isset($json['widgets']) || !is_array($json['widgets']))
 			return false;
 		
-		foreach($json['tab']['widgets'] as $widget) {
+		foreach($json['widgets'] as $widget) {
 			$widget_id = DAO_WorkspaceWidget::create([
 				DAO_WorkspaceWidget::LABEL => $widget['label'],
 				DAO_WorkspaceWidget::EXTENSION_ID => $widget['extension_id'],
