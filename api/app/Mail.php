@@ -838,13 +838,41 @@ class CerberusMail {
 			if(isset($properties['headers']) && is_array($properties['headers']))
 			foreach($properties['headers'] as $header_key => $header_val) {
 				if(!empty($header_key) && is_string($header_key) && is_string($header_val)) {
-					if(NULL == ($header = $headers->get($header_key))) {
-						$headers->addTextHeader($header_key, $header_val);
-					} else {
-						if($header instanceof Swift_Mime_Headers_IdentificationHeader)
-							continue;
+					
+					// Overrides
+					switch(strtolower(trim($header_key))) {
+						case 'to':
+							if(false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
+								foreach($addresses as $address => $address_data)
+									$mail->addTo($address);
+							unset($properties['headers'][$header_key]);
+							break;
 						
-						$header->setValue($header_val);
+						case 'cc':
+							if(false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
+								foreach($addresses as $address => $address_data)
+									$mail->addCc($address);
+							unset($properties['headers'][$header_key]);
+							break;
+						
+						case 'bcc':
+							if(false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
+								foreach($addresses as $address => $address_data)
+									$mail->addBcc($address);
+							unset($properties['headers'][$header_key]);
+							break;
+							
+						default:
+							if(NULL == ($header = $headers->get($header_key))) {
+								$headers->addTextHeader($header_key, $header_val);
+								
+							} else {
+								if($header instanceof Swift_Mime_Headers_IdentificationHeader)
+									continue;
+								
+								$header->setValue($header_val);
+							}
+							break;
 					}
 				}
 			}
