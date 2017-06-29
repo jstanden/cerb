@@ -1029,7 +1029,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 
 		// Allow wildcards in queries
 		if($is_query) {
-			$regexp = '[^[:alnum:]\*]';
+			$regexp = '[^[:alnum:]_\*]';
 			$text = mb_ereg_replace($regexp, ' ', mb_convert_case($text, MB_CASE_LOWER));
 			
 			$words = explode(' ', $text);
