@@ -1,6 +1,9 @@
 <?php
-define('WEBDRIVER_URL', 'http://127.0.0.1:4444/');
-define('BROWSER_URL', 'http://localhost:8000/index.php');
+// The URL to Selenium's WebDriver API
+define('WEBDRIVER_URL', 'http://localhost:4444/wd/hub');
+
+// The URL where you installed Cerb
+define('BROWSER_URL', 'http://localhost:8080/index.php');
 
 require(getcwd() . '/eval/CerbTestBase.php');
 
@@ -18,7 +21,11 @@ class CerbTestHelper {
 	
 	static function getInstance() {
 		if(is_null(self::$_instance)) {
+			// Pick one:
 			$capabilities = DesiredCapabilities::safari();
+			//$capabilities = DesiredCapabilities::firefox();
+			//$capabilities = DesiredCapabilities::chrome();
+			
 			$driver = RemoteWebDriver::create(WEBDRIVER_URL, $capabilities, 5000, 30000);
 			//$driver->manage()->window()->maximize();
 			
