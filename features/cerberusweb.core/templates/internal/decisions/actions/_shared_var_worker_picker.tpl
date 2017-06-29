@@ -12,7 +12,12 @@
 	{elseif is_numeric($worker_id) && isset($workers.$worker_id)}
 		{$context_worker = $workers.$worker_id}
 		{if !empty($context_worker)}
-		<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[{$param_name}]{if !$single}[]{/if}" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		<li>
+			<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$context_worker->id}{/devblocks_url}?v={$context_worker->updated}">
+			{$context_worker->getName()}
+			<input type="hidden" name="{$namePrefix}[{$param_name}]{if !$single}[]{/if}" value="{$context_worker->id}">
+			<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+		</li>
 		{/if}
 	{/if}
 {/foreach}
@@ -41,6 +46,7 @@
 	{$active_workers = DAO_Worker::getAllActive()}
 	{foreach from=$active_workers item=worker key=worker_id}
 		<li class="item" key="{$worker_id}" style="padding-left:20px;">
+			<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}">
 			<a href="javascript:;">{$worker->getName()}</a>
 		</li>
 	{/foreach}
@@ -122,6 +128,10 @@ $menu.find('> li.item > a').click(function() {
 	{/if}
 	
 	var $bubble = $('<li></li>');
+	
+	if($li.find('img.cerb-avatar'))
+		$bubble.append($li.find('img.cerb-avatar').clone());
+	
 	$bubble.append($li.find('a').text());
 	$bubble.append($('<input type="hidden">').attr('name', '{$namePrefix}[{$param_name}]{if !$single}[]{/if}').attr('value', $key));
 	$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>'));
