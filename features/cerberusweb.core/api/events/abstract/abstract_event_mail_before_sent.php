@@ -122,7 +122,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$values['content'] =& $properties['content'];
 		
 		$labels['content_format'] = $prefix.'content is HTML';
-		$values['content_format'] = ($properties['content_format'] == 'parsedown') ? 1 : 0;
+		$values['content_format'] = (@$properties['content_format'] == 'parsedown') ? 1 : 0;
 		
 		if(!isset($properties['headers']))
 			$properties['headers'] = array();
