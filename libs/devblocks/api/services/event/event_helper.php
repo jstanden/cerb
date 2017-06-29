@@ -30,6 +30,12 @@ class DevblocksEventHelper {
 						'label' => '(variable) ' . $var['label'],
 						'context' => $ctx_id,
 					);
+					
+				} else if(Model_CustomField::TYPE_WORKER == $var['type']) {
+					$values_to_contexts[$var_key] = array(
+						'label' => '(variable) ' . $var['label'],
+						'context' => CerberusContexts::CONTEXT_WORKER,
+					);
 				}
 			}
 		}
