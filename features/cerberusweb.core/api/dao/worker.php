@@ -1107,6 +1107,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	const VIRTUAL_GROUP_SEARCH = '*_group_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_CALENDAR_AVAILABILITY = '*_calendar_availability';
+	const VIRTUAL_SESSION_ACTIVITY = '*_session_activity';
 	const VIRTUAL_ROLE_SEARCH = '*_role_search';
 	
 	static private $_fields = null;
@@ -1201,6 +1202,13 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				return sprintf("w.id IN (%s) ", implode(', ', $results));
 				break;
 			
+			case self::VIRTUAL_SESSION_ACTIVITY:
+				@$from_ts = strtotime($param->value[0]);
+				@$to_ts = strtotime($param->value[1]);
+				
+				return sprintf('w.id IN (SELECT DISTINCT user_id FROM devblocks_session WHERE refreshed_at BETWEEN %d AND %d)', $from_ts, $to_ts);
+				break;
+			
 			case self::VIRTUAL_ROLE_SEARCH:
 				$worker_ids = [];
 				
@@ -1275,6 +1283,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability', null),
+			self::VIRTUAL_SESSION_ACTIVITY => new DevblocksSearchField(self::VIRTUAL_SESSION_ACTIVITY, '*', 'session_activity', 'Last Activity', null),
 			self::VIRTUAL_ROLE_SEARCH => new DevblocksSearchField(self::VIRTUAL_ROLE_SEARCH, '*', 'role_search', null, null),
 		);
 
@@ -1763,6 +1772,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
 			SearchFields_Worker::VIRTUAL_ROLE_SEARCH,
+			SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY,
 			SearchFields_Worker::FULLTEXT_WORKER,
 		));
 		
@@ -2018,6 +2028,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ROLE, 'q' => ''],
 					]
 				),
+			'lastActivity' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY),
+				),
 			'timezone' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -2117,6 +2132,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return $param;
 				break;
 				
+			case 'lastActivity':
+				return DevblocksSearchCriteria::getDateParamFromTokens(SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY, $tokens);
+				break;
+				
 			case 'role':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_ROLE_SEARCH);
 				break;
@@ -2202,6 +2221,16 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					DevblocksPlatform::strEscapeHtml($param->value[1])
 				);
 				break;
+				
+			case SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY:
+				if(!is_array($param->value) || count($param->value) != 2)
+					break;
+				
+				echo sprintf("Last activity between <b>%s</b> and <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml($param->value[0]),
+					DevblocksPlatform::strEscapeHtml($param->value[1])
+				);
+				break;
 		}
 	}
 	
@@ -2259,6 +2288,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
 				$tpl->display('devblocks:cerberusweb.core::workers/criteria/calendar_availability.tpl');
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
 			default:
@@ -2334,6 +2367,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Worker::DOB:
 			case SearchFields_Worker::UPDATED:
+			case SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
