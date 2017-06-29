@@ -1,4 +1,5 @@
 <div id="bot-chat-button">
+	<div class="bot-chat-icon-badge" {if !$proactive_interactions_count}style="display:none;"{/if}><span class="glyphicons glyphicons-chat"></span></div>
 	<div class="bot-chat-icon"></div>
 	<div class="bot-chat-menu"></div>
 </div>
@@ -8,10 +9,45 @@ $(function() {
 	var $interaction_container = $('#bot-chat-button');
 	var $interaction_button = $interaction_container.find('> div.bot-chat-icon');
 	var $interaction_menu = $interaction_container.find('> div.bot-chat-menu');
+	var $interaction_badge = $interaction_container.find('> div.bot-chat-icon-badge');
 	var $menu = null;
 	
-	$interaction_button.on('click', function(e) {
+	$interaction_badge.click(function(e) {
+		e.stopPropagation();
+		
 		Devblocks.playAudioUrl('');
+		
+		genericAjaxGet(null, 'c=internal&a=getBotInteractionsProactive', function(json) {
+			if(false == json || undefined == json.interaction) {
+				$interaction_badge.hide();
+				$interaction_button.click();
+				
+			} else {
+				// Trigger the behavior
+				var $target = $('<a/>')
+					.attr('href', 'javascript:;')
+					.attr('data-interaction', json.interaction)
+					.attr('data-behavior-id', json.behavior_id)
+					.cerbBotTrigger()
+					.click()
+					;
+				
+				if(json.finished) {
+					$interaction_badge.hide();
+				}
+			}
+		});
+	});
+	
+	$interaction_button.on('click', function(e) {
+		e.stopPropagation();
+		
+		Devblocks.playAudioUrl('');
+		
+		if($interaction_badge.is(':visible')) {
+			$interaction_badge.click();
+			return;
+		}
 		
 		if(null == $menu) {
 			var $spinner = $('<span class="cerb-ajax-spinner" style="zoom:0.5;-moz-transform:scale(0.5);"></span>')
@@ -43,12 +79,17 @@ $(function() {
 				
 				$interaction_menu.fadeIn();
 				$menu.menu('focus', null, $menu.find('.ui-menu-item:first')).focus();
+				
+				$menu.find('li.cerb-bot-trigger').on('click', function(e) {
+					e.stopPropagation();
+					$menu.remove();
+					$menu = null;
+				});
 			});
+		
 		} else {
-			$interaction_menu.toggle();
-			
-			if($menu.is(':visible'))
-				$menu.menu('focus', null, $menu.find('.ui-menu-item:first')).focus();
+			$menu.remove();
+			$menu = null;
 		}
 	});
 	

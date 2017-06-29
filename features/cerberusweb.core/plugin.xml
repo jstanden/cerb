@@ -62,6 +62,7 @@
 		<patch version="7.3.0" revision="1190" file="patches/7.x/7.3.0.php" />
 		
 		<patch version="8.0.0" revision="1206" file="patches/8.x/8.0.0.php" />
+		<patch version="8.1.0" revision="1220" file="patches/8.x/8.1.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -130,6 +131,10 @@
 			<class name="DAO_BotDatastore" />
 		</file>
 		
+		<file path="api/dao/bot_interaction_proactive.php">
+			<class name="DAO_BotInteractionProactive" />
+		</file>
+
 		<file path="api/dao/bot_session.php">
 			<class name="DAO_BotSession" />
 			<class name="Model_BotSession" />
@@ -3155,6 +3160,23 @@
 			</class>
 			<params>
 				<param key="label" value="Execute HTTP request" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event.action">
+			<id>core.bot.action.interaction_proactive.schedule</id>
+			<name>Schedule Proactive Interaction</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>BotAction_ScheduleInteractionProactive</name>
+			</class>
+			<params>
+				<param key="label" value="Schedule proactive interaction" />
 				<param key="events">
 					<value>
 						<data key="*" />

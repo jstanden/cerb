@@ -57,6 +57,30 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 	
+	function getBotInteractionsProactiveAction() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$results = DAO_BotInteractionProactive::getByWorker($active_worker->id, 2);
+		
+		if(is_array($results) && !empty($results)) {
+			$result = array_shift($results);
+			
+			echo json_encode([
+				'behavior_id' => $result['behavior_id'],
+				'interaction' => $result['interaction'],
+				'finished' => empty($results),
+			]);
+			
+			// Clear the proactive interaction record
+			DAO_BotInteractionProactive::delete($result['id'], $active_worker->id);
+			
+		} else {
+			echo json_encode(false);
+		}
+	}
+	
 	function getBotInteractionsMenuAction() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
