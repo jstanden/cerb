@@ -43,7 +43,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{'message.header.to'|devblocks_translate|capitalize}:&nbsp;</td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.to'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 			<td width="100%">
 				<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
 				
@@ -55,13 +55,13 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{'message.header.cc'|devblocks_translate|capitalize}:&nbsp;</td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 			<td width="100%">
 				<input type="text" name="cc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a copy of this message" autocomplete="off">
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{'message.header.bcc'|devblocks_translate|capitalize}:&nbsp;</td>
+			<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 			<td width="100%">
 				<input type="text" name="bcc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a copy of this message" autocomplete="off">
 			</td>
@@ -227,6 +227,47 @@
 		ajax.emailAutoComplete('#frmComposePeek{$popup_uniqid} input[name=bcc]', { multiple: true } );
 
 		ajax.orgAutoComplete('#frmComposePeek{$popup_uniqid} input:text[name=org_name]');
+		
+		// Chooser for To/Cc/Bcc recipients
+		$frm.find('a.cerb-recipient-chooser')
+			.click(function(e) {
+				e.stopPropagation();
+				var $trigger = $(this);
+				var $input = $trigger.closest('tr').find('td:nth(1) input:text');
+				
+				var context = $trigger.attr('data-context');
+				var query = $trigger.attr('data-query');
+				var query_req = $trigger.attr('data-query-required');
+				var chooser_url = 'c=internal&a=chooserOpen&context=' + encodeURIComponent(context);
+				
+				if(typeof query == 'string' && query.length > 0) {
+					chooser_url += '&q=' + encodeURIComponent(query);
+				}
+				
+				if(typeof query_req == 'string' && query_req.length > 0) {
+					chooser_url += '&qr=' + encodeURIComponent(query_req);
+				}
+				
+				$input.focus();
+				
+				var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
+				
+				$chooser.one('chooser_save', function(event) {
+					event.stopPropagation();
+					
+					if(typeof event.values == "object" && event.values.length > 0) {
+						var val = $input.val();
+						if(val.length > 0 && val.trim().substr(-1) != ',') {
+							var new_val = val + ', ' + event.labels.join(', ');
+							$input.val(new_val);
+						} else {
+							var new_val = val + (val.length == 0 || val.substr(-1) == ' ' ? '' : ' ') + event.labels.join(', ');
+							$input.val(new_val);
+						}
+					}
+				});
+			})
+		;
 		
 		$frm.find('button.chooser-abstract').cerbChooserTrigger();
 		
