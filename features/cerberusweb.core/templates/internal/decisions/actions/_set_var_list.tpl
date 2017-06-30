@@ -37,6 +37,7 @@
 
 <script type="text/javascript">
 $(function() {
+	var $action = $('fieldset#{$namePrefix}');
 	var $div = $('#popup{$uniq_id}');
 	var $parent = $div.parent();
 	var $popup = $div.closest('.ui-dialog');
@@ -45,20 +46,31 @@ $(function() {
 	
 	$div.click(function(e) {
 		var width = $(window).width()-100;
-		var $mode = $popup.parent().find('input.mode');
+		var $mode = $action.find('input.mode');
 		var q = '';
 		
 		if($mode.is(':checked')) {
-			q = $parent.find('input.quicksearch').val();
+			var $pre = $action.find('pre.ace_editor');
+			
+			if($pre.length > 0) {
+				var editor = ace.edit($pre.attr('id'));
+				q = editor.getSession().getValue();
+			}
 		}
 		
-		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}&q=' + encodeURIComponent(q),null,true,width);
+		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}&q=' + encodeURIComponent(q), null, true, width);
 		
 		$chooser.on('chooser_save',function(event) {
 			if(null != event.worklist_model) {
 				$div.find('span.name').text(event.view_name);
 				$parent.find('input:hidden.model').val(event.worklist_model);
-				$parent.find('input.quicksearch').val(event.worklist_quicksearch);
+				
+				var $pre = $action.find('pre.ace_editor');
+			
+				if($pre.length > 0) {
+					var editor = ace.edit($pre.attr('id'));
+					q = editor.getSession().setValue(event.worklist_quicksearch);
+				}
 			}
 		});
 	});
