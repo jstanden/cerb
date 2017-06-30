@@ -20,7 +20,6 @@
 			.cerbChooserTrigger()
 			.on('cerb-chooser-saved', function(e) {
 				var $selections = $ul.find('li input:hidden');
-				console.log($selections);
 				var ids = $selections.map(function(e) { return parseInt($(this).val()); }).get().join(',');
 				
 				$chat_input.val(ids);
