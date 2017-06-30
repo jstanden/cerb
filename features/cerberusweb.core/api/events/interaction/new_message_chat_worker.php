@@ -689,6 +689,8 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				if(!isset($params['context']) || empty($params['context']))
 					break;
 				
+				@$worklist_model = $params['worklist_model'] ?: null;
+				
 				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 				
 				if(isset($params['quick_search']))
@@ -697,7 +699,9 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$actions[] = array(
 					'_action' => 'worklist.open',
 					'_trigger_id' => $trigger->id,
+					'view_id' => 'behavior_' . $trigger->id . '_' . uniqid(),
 					'context' => $params['context'],
+					'model' => $worklist_model,
 					'q' => $query,
 				);
 				

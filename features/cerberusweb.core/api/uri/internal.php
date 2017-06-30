@@ -459,15 +459,23 @@ class ChInternalController extends DevblocksControllerExtension {
 					
 				case 'worklist.open':
 					$context = @$params['context'] ?: null;
+					$view_id = @$params['view_id'] ?: null;
 					$q = @$params['q'] ?: null;
+					$view_model = @$params['model'] ?: null;
 					
 					if(!$context || false == ($context_ext = Extension_DevblocksContext::get($context)))
 						break;
+					
+					if(false != ($view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($view_model, $view_id))) {
+						$view->is_ephemeral = true;
+						$view->persist();
+					}
 					
 					// Open popup
 					$tpl->assign('context', $context_ext->id);
 					$tpl->assign('delay_ms', 0);
 					$tpl->assign('q', $q);
+					$tpl->assign('view_id', $view_id);
 					$tpl->display('devblocks:cerberusweb.core::console/search_worklist.tpl');
 					break;
 			}

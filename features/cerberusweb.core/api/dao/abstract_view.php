@@ -468,6 +468,32 @@ abstract class C4_AbstractView {
 		return $sort_results;
 	}
 	
+	function _getColumnsFromQuickSearchQuery(array $columns) {
+		$view_columns = [];
+		
+		if(empty($columns) || !($this instanceof IAbstractView_QuickSearch))
+			return false;
+		
+		if(false == ($search_fields = $this->getQuickSearchFields()))
+			return false;
+		
+		foreach($columns as $column) {
+			@$search_field = $search_fields[$column];
+			
+			if(!is_array($search_field) || empty($search_field))
+				continue;
+			
+			@$param_key = $search_field['options']['param_key'];
+			
+			if(empty($param_key))
+				continue;
+			
+			$view_columns[] = $param_key;
+		}
+		
+		return $view_columns;
+	}
+	
 	function removeParam($key) {
 		if(isset($this->_paramsEditable[$key]))
 			unset($this->_paramsEditable[$key]);
