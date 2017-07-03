@@ -382,6 +382,9 @@ class _DevblocksTemplateManager {
 };
 
 class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
+	public function getBasename(Smarty_Template_Source $source) {
+		return basename(str_replace(':','_',$source->name));
+	}
 
 	protected function fetch($name, &$source, &$mtime) {
 		list($plugin_id, $tag, $tpl_path) = explode(':',$name,3);
