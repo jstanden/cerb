@@ -30,6 +30,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		
 		$listen_points = array_unique(array_merge($old_listen_points, $new_listen_points));
 		
+		// Clear the cache for the interaction menu
 		if(is_array($listen_points))
 		foreach($listen_points as $point) {
 			$cache_key = sprintf("interactions_%s", DevblocksPlatform::strAlphaNum($point,'','_'));
@@ -129,24 +130,14 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	}
 	
 	static function getByPointAndWorker($point, Model_Worker $worker) {
-		$cache = DevblocksPlatform::getCacheService();
-		$cache_key = sprintf('interactions_%s_%d', DevblocksPlatform::strAlphaNum($point,'','_'), $worker->id);
+		$behaviors = Event_GetInteractionsForWorker::getByPoint($point);
 		
-		if(null !== ($behaviors = $cache->load($cache_key))) {
-			return $behaviors;
-			
-		} else {
-			$behaviors = Event_GetInteractionsForWorker::getByPoint($point);
-			
-			$behaviors = array_intersect_key(
-				$behaviors,
-				array_flip(array_keys(Context_TriggerEvent::isReadableByActor($behaviors, $worker), true))
-			);
-			
-			$cache->save($behaviors, $cache_key, [], 300);
-			
-			return $behaviors;
-		}
+		$behaviors = array_intersect_key(
+			$behaviors,
+			array_flip(array_keys(Context_TriggerEvent::isReadableByActor($behaviors, $worker), true))
+		);
+		
+		return $behaviors;
 	}
 	
 	static function getInteractionMenu(array $interactions) {

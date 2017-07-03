@@ -523,9 +523,15 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					$uid = $behavior['uid'];
 					$id = $uids[$uid];
 					
+					@$event_params = isset($behavior['event']['params']) ? $behavior['event']['params'] : '';
+					$error = null;
+					
+					if(false !== (@$event = Extension_DevblocksEvent::get($behavior['event']['key'], true)))
+						$event->prepareEventParams(null, $event_params, $error);
+					
 					DAO_TriggerEvent::update($id, [
 						DAO_TriggerEvent::EVENT_POINT => $behavior['event']['key'],
-						DAO_TriggerEvent::EVENT_PARAMS_JSON => isset($behavior['event']['params']) ? json_encode($behavior['event']['params']) : '',
+						DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
 						DAO_TriggerEvent::IS_DISABLED => 1, // @$behavior['is_disabled'] ? 1 : 0, // until successfully imported
 						DAO_TriggerEvent::IS_PRIVATE => @$behavior['is_private'] ? 1 : 0,
 						DAO_TriggerEvent::PRIORITY => @$behavior['priority'],
