@@ -1578,7 +1578,7 @@ class Cron_BotScheduledBehavior extends CerberusCronPageExtension {
 	}
 	
 	private function _runScheduledBehaviors($stop_time) {
-		// Run scheduled behaviors
+		$logger = DevblocksPlatform::getConsoleLog();
 		
 		$last_behavior_id = 0;
 
