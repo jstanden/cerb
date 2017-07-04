@@ -72,7 +72,7 @@ class ChFilesController extends DevblocksControllerExtension {
 // 		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 
 		if($is_download) {
-			header('Content-Disposition: attachment; filename=' . urlencode($file->name));
+			header('Content-Disposition: attachment; filename=' . $file->name);
 			
 		} else {
 			@$range = DevblocksPlatform::importGPC($_SERVER['HTTP_RANGE'], 'string', null);
