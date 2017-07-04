@@ -6,8 +6,17 @@
 	<img src="{devblocks_url}c=avatars&context=contact&context_id={$contact->id}{/devblocks_url}?v={$contact->updated_at}" style="height:75px;width:75px;border-radius:5px;">
 </div>
 
-<div style="float:left">
-	<h1>{$contact->getName()}</h1>
+<div class="cerb-profile-header">
+	<h1>
+	{$contact->getName()}
+	
+	{if $dict->gender == 'M'}
+	<span class="glyphicons glyphicons-male"></span>
+	{elseif $dict->gender == 'F'}
+	<span class="glyphicons glyphicons-female"></span>
+	{/if}
+	
+	</h1>
 	
 	<div class="cerb-profile-toolbar" style="margin-top:5px;">
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">

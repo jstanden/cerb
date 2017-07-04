@@ -99,6 +99,20 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'value' => $contact->timezone,
 			);
+			
+		if(!empty($contact->phone))
+			$properties['phone'] = array(
+				'label' => mb_ucfirst($translate->_('common.phone')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $contact->phone,
+			);
+			
+		if(!empty($contact->mobile))
+			$properties['mobile'] = array(
+				'label' => mb_ucfirst($translate->_('common.mobile')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $contact->mobile,
+			);
 		
 		$properties['created'] = array(
 			'label' => mb_ucfirst($translate->_('common.created')),
