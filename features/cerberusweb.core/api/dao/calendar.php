@@ -619,7 +619,7 @@ class Model_Calendar {
 		);
 		
 		$results = $db->GetArraySlave($sql);
-
+		
 		foreach($results as $row) {
 			// If the event spans multiple days, split them up into distinct events
 			$ts_pointer = strtotime('midnight', $row['date_start']);
@@ -631,10 +631,6 @@ class Model_Calendar {
 			}
 			
 			foreach($day_range as $epoch) {
-				// If the day segment is outside of our desired range, skip
-				if($epoch < $date_from || $epoch > $date_to)
-					continue;
-
 				$day_start = strtotime('midnight', $epoch);
 				$day_end = strtotime('23:59:59', $epoch);
 				
@@ -643,7 +639,11 @@ class Model_Calendar {
 				
 				$event_start = $row['date_start'];
 				$event_end = $row['date_end'];
-
+				
+				// If the day segment is outside of our desired range, skip
+				//if($epoch < $date_from || $epoch > $date_to)
+				//	continue;
+				
 				// Segment multi-day events with day-based start/end times
 				
 				if($event_start < $day_start)
