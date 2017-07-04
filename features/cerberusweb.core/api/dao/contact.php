@@ -1223,6 +1223,11 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Contact::LANGUAGE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
+			'lastLogin' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Contact::LAST_LOGIN_AT),
+				),
 			'lastName' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
