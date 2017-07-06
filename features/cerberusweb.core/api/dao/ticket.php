@@ -4682,10 +4682,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		if(null != ($view = parent::getSearchView($view_id))) {
 			$view->addParamsDefault(array(
 				SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'in',array('open', 'waiting')),
+				SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,'=',$active_worker->id),
 			), true);
-			
-			if($active_worker)
-				$view->addParam(new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,'=',$active_worker->id));
 		}
 		return $view;
 	}
