@@ -174,7 +174,7 @@
 				{/if}
 			</td>
 		{elseif $column=="t_created_date" || $column=="t_updated_date" || $column=="t_reopen_at" || $column=="t_closed_at"}
-		<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
+		<td data-column="{$column}" data-timestamp="{$result.$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 		{elseif $column=="t_elapsed_response_first" || $column=="t_elapsed_resolution_first"}
 		<td data-column="{$column}">
 			{if !empty($result.$column)}{$result.$column|devblocks_prettysecs:2}{/if}
