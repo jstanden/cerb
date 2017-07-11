@@ -771,8 +771,8 @@ class BotAction_ScheduleInteractionProactive extends Extension_DevblocksEventAct
 		
 		$out = sprintf(">>> Creating proactive interaction:\nInteraction: %s\nRun: %s\nExpires: %s\nParams:\n%s\n",
 			$interaction,
-			$expires_at ? $date->formatTime(DevblocksPlatform::getDateTimeFormat(), $expires_at) : 'never',
 			$run_at ? $date->formatTime(DevblocksPlatform::getDateTimeFormat(), $run_at) : 'now',
+			$expires_at ? $date->formatTime(DevblocksPlatform::getDateTimeFormat(), $expires_at) : 'never',
 			$interaction_params_json . (!empty($interaction_params_json) ? "\n" : '')
 		);
 		
