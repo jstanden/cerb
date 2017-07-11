@@ -528,6 +528,20 @@ class DevblocksPlatform extends DevblocksEngine {
 		return implode('.', $parts);
 	}
 	
+	static function strParseQueryString($string) {
+		$tuples = explode('&', $string);
+		$vars = [];
+		
+		foreach($tuples as $tuple) {
+			list($key, $value) = explode('=', $tuple);
+			$key = urldecode($key);
+			$value = urldecode($value);
+			$vars[$key] = $value;
+		}
+		
+		return $vars;
+	}
+	
 	static function strUpper($string) {
 		return mb_convert_case($string, MB_CASE_UPPER);
 	}
