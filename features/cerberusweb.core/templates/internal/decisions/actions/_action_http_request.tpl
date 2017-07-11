@@ -8,7 +8,7 @@
 	</select>
 	<br>
 	
-	<input type="text" name="{$namePrefix}[http_url]" value="{$params.http_url|default:""}" class="placeholders" spellcheck="false" size="45" style="width:100%;" placeholder="e.g. http://example.com/api/request.json">
+	<textarea name="{$namePrefix}[http_url]" class="placeholders" spellcheck="false" cols="45" rows="5" style="width:100%;" placeholder="e.g. http://example.com/api/request.json">{$params.http_url|default:""}</textarea>
 </div>
 
 <div class="cerb-httprequest-headers">
