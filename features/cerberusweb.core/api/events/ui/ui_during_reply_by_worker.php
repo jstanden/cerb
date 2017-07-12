@@ -123,7 +123,7 @@ class Event_MailDuringUiReplyByWorker extends AbstractEvent_Message {
 				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
 			),
 			'behavior_bot_id' => array(
-				'label' => 'Behavior',
+				'label' => 'Bot',
 				'context' => CerberusContexts::CONTEXT_BOT,
 			),
 			'current_worker_id' => array(
