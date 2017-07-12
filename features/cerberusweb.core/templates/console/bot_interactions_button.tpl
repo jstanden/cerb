@@ -28,6 +28,14 @@ $(function() {
 					.attr('href', 'javascript:;')
 					.attr('data-interaction', json.interaction)
 					.attr('data-behavior-id', json.behavior_id)
+					;
+				
+				// Include interaction params
+				for(param in json.interaction_params) {
+					$target.attr('data-interaction-param-' + param, json.interaction_params[param]);
+				}
+				
+				$target
 					.cerbBotTrigger()
 					.click()
 					;

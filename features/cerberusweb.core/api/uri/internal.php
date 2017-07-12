@@ -70,6 +70,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			echo json_encode([
 				'behavior_id' => $result['behavior_id'],
 				'interaction' => $result['interaction'],
+				'interaction_params' => json_decode($result['interaction_params_json'], true),
 				'finished' => empty($results),
 			]);
 			
