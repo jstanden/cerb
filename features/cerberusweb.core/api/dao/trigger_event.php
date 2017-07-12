@@ -2102,7 +2102,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
-			if(false == ($event = $model->getEvent()))
+			if(!($model instanceof Model_TriggerEvent) || false == ($event = $model->getEvent()))
 				return;
 			
 			if(false == ($va = $model->getBot()))

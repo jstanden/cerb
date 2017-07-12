@@ -1682,7 +1682,7 @@ class CerberusContexts {
 		
 		// Variables
 		
-		$vars = $entry['variables'];
+		@$vars = $entry['variables'];
 		
 		// Do we need to translate any token variables/urls?
 		if(preg_match_all('#\{\{\'(.*?)\'.*?\}\}#', $entry['message'], $matches)) {
@@ -2838,7 +2838,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	/**
 	 *
 	 * @param array $ids
-	 * @return Model_TriggerEvent[]
+	 * @return Model[]
 	 */
 	static function getIds($ids) {
 		if(!is_array($ids))
