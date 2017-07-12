@@ -263,7 +263,20 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		
 		switch($context) {
 			case CerberusContexts::CONTEXT_TICKET:
-				$query = sprintf("(on.msgs:(ticket.id:%d) OR on.comments:(on.ticket:(id:%d)) OR on.comments:(on.msgs:(ticket.id:%d)))", $context_id, $context_id, $context_id);
+				//$query = sprintf("(on.msgs:(ticket.id:%d) OR on.comments:(on.ticket:(id:%d)) OR on.comments:(on.msgs:(ticket.id:%d)))", $context_id, $context_id, $context_id);
+				$sql = sprintf(
+					"SELECT COUNT(1) FROM (".
+					"SELECT attachment_id FROM attachment_link WHERE context = 'cerberusweb.contexts.message' AND context_id IN (SELECT m.id FROM message m INNER JOIN ticket t ON (m.ticket_id = t.id) INNER JOIN address a ON (m.address_id = a.id) WHERE (m.ticket_id = %d)) ".
+					"UNION ".
+					"SELECT attachment_id FROM attachment_link WHERE context = 'cerberusweb.contexts.comment' AND context_id IN (SELECT comment.id FROM comment WHERE ((context = 'cerberusweb.contexts.ticket' AND context_id IN (SELECT t.id FROM ticket t  WHERE (t.id = %d))))) ".
+					"UNION ".
+					"SELECT attachment_id FROM attachment_link WHERE context = 'cerberusweb.contexts.comment' AND context_id IN (SELECT comment.id FROM comment WHERE ((context = 'cerberusweb.contexts.message' AND context_id IN (SELECT m.id FROM message m INNER JOIN ticket t ON (m.ticket_id = t.id) INNER JOIN address a ON (m.address_id = a.id) WHERE (m.ticket_id = %d)))))".
+					") S",
+					$context_id,
+					$context_id,
+					$context_id
+				);
+				return $db->GetOneSlave($sql);
 				break;
 				
 			default:
@@ -294,6 +307,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			$query_parts['join'] .
 			$query_parts['where']
 			;
+		
 		return $db->GetOneSlave($sql);
 	}
 	
