@@ -227,6 +227,7 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
+				'copy_notification' => array('label' =>'Copy notification'),
 				'create_comment' => array('label' =>'Create comment'),
 				'create_notification' => array('label' =>'Create notification'),
 				'create_task' => array('label' =>'Create task'),
@@ -252,6 +253,16 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'copy_notification':
+				/* @var $trigger Model_TriggerEvent */
+				$event = $trigger->getEvent();
+				
+				$values_to_contexts = $event->getValuesContexts($trigger);
+				$tpl->assign('values_to_contexts', $values_to_contexts);
+				
+				$tpl->display('devblocks:cerberusweb.core::events/model/notification/action_copy.tpl');
+				break;
+				
 			case 'create_comment':
 				DevblocksEventHelper::renderActionCreateComment($trigger);
 				break;
@@ -321,6 +332,10 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'copy_notification':
+				return self::simulateActionCopyNotification($trigger, $params, $dict);
+				break;
+				
 			case 'create_comment':
 				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'notification_id');
 				break;
@@ -356,6 +371,37 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 		}
 	}
 	
+	function runActionCopyNotification($trigger, $params, DevblocksDictionaryDelegate $dict) {
+		if(false == (@$notification_id = $dict->notification_id))
+			return;
+		
+		$worker_ids = $params['worker_id'];
+		
+		foreach($worker_ids as &$worker_id) {
+			if(!is_numeric($worker_id) && isset($dict->$worker_id))
+				if(false != ($new_worker_id = intval($dict->$worker_id)))
+					$worker_id = $new_worker_id;
+		}
+		
+		if(false == ($notification = DAO_Notification::get($notification_id)))
+			return;
+		
+		$workers = DAO_Worker::getIds($worker_ids);
+
+		foreach($workers as $worker) {
+			$fields = [
+				DAO_Notification::ACTIVITY_POINT => $notification->activity_point,
+				DAO_Notification::CONTEXT => $notification->context,
+				DAO_Notification::CONTEXT_ID => $notification->context_id,
+				DAO_Notification::CREATED_DATE => time(),
+				DAO_Notification::ENTRY_JSON => $notification->entry_json,
+				DAO_Notification::IS_READ => 0,
+				DAO_Notification::WORKER_ID => $worker->id,
+			];
+			$id = DAO_Notification::create($fields);
+		}
+	}
+	
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		@$notification_id = $dict->notification_id;
 
@@ -363,6 +409,10 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
+			case 'copy_notification':
+				self::runActionCopyNotification($trigger, $params, $dict);
+				break;
+				
 			case 'create_comment':
 				DevblocksEventHelper::runActionCreateComment($params, $dict, 'notification_id');
 				break;
