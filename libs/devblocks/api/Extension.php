@@ -763,6 +763,17 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						$token_values = $dict->getDictionary();
 					}
 					break;
+					
+				case Model_CustomField::TYPE_WORKER:
+					@$token_values['custom_' . $cf_id . '_id'] = $field_values[$cf_id];
+					@$token_values['custom_' . $cf_id . '__context'] = CerberusContexts::CONTEXT_WORKER;
+
+					if(!isset($token_values[$token])) {
+						$dict = new DevblocksDictionaryDelegate($token_values);
+						$dict->$token;
+						$token_values = $dict->getDictionary();
+					}
+					break;
 			}
 		}
 
