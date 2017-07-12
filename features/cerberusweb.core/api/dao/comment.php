@@ -1181,11 +1181,15 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			return false;
 		
 		$results = array_fill_keys(array_keys($dicts), false);
+		$workers = DAO_Worker::getAllActive();
 			
-		// If the actor is the author
 		foreach($dicts as $id => $dict) {
+			// If the actor is the author
 			if($dict->author__context == $actor->_context && $dict->author_id == $actor->id)
-				$results[$id] = true;
+				if(false != (@$worker = $workers[$actor->id]))
+					// And they have permission to edit their own comments
+					if($worker->hasPriv('core.comment.actions.update.own'))
+						$results[$id] = true;
 		}
 		
 		if(is_array($models)) {

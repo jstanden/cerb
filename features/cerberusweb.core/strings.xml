@@ -2313,6 +2313,14 @@
 				<seg>[Contacts] Can modify registered contacts</seg>
 			</tuv>
 		</tu>
+		
+		<!-- Comments -->
+		
+		<tu tuid="acl.core.comment.actions.update.own">
+			<tuv xml:lang="en_US">
+				<seg>[Comments] Can edit own comments</seg>
+			</tuv>
+		</tu>
 
 		<!-- Display Ticket -->
 		

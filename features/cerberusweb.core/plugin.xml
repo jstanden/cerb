@@ -1006,6 +1006,9 @@
 		<priv id="core.addybook.person.actions.delete" label="acl.core.addybook.person.actions.delete" />
 		<priv id="core.addybook.person.actions.update" label="acl.core.addybook.person.actions.update" />
 
+		<!-- Comments -->
+		<priv id="core.comment.actions.update.own" label="acl.core.comment.actions.update.own" />
+		
 		<!-- Display Ticket -->
 		<priv id="core.display.actions.attachments.download" label="acl.core.display.actions.attachments.download" />
 		<priv id="core.display.actions.forward" label="acl.core.display.actions.forward" />
