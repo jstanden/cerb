@@ -1914,6 +1914,110 @@ abstract class C4_AbstractView {
 		return $results;
 	}
 	
+	protected function _getSubtotalDataForVirtualColumn($context, $field_key) {
+		$db = DevblocksPlatform::getDatabaseService();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+
+		$params = $this->getParams();
+		$params[uniqid()] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_IS_NOT_NULL, true);
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return array();
+		
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			return array();
+		
+		if(!method_exists($dao_class,'getSearchQueryComponents'))
+			return array();
+		
+		if(!isset($columns[$field_key]))
+			$columns[] = $field_key;
+		
+		$query_parts = call_user_func_array(
+			array($dao_class,'getSearchQueryComponents'),
+			array(
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			)
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		
+		$sql = sprintf("SELECT %s.%s as label, count(*) as hits ", //SQL_CALC_FOUND_ROWS
+				$fields[$field_key]->db_table,
+				$fields[$field_key]->db_column
+			).
+			$join_sql.
+			$where_sql.
+			"GROUP BY label ".
+			"ORDER BY hits DESC ".
+			"LIMIT 0,250 "
+		;
+		
+		$results = $db->GetArraySlave($sql);
+
+		return $results;
+	}
+	
+	protected function _getSubtotalCountForVirtualColumn($context, $field_key, $label_map=array(), $virtual_key, $virtual_query, $virtual_query_null) {
+		$counts = array();
+		$results = $this->_getSubtotalDataForVirtualColumn($context, $field_key);
+		
+		if(is_callable($label_map)) {
+			$label_map = $label_map(array_column($results, 'label'));
+		}
+		
+		foreach($results as $result) {
+			$label = $result['label'];
+			$key = $label;
+			$hits = $result['hits'];
+
+			if(is_array($label_map) && isset($label_map[$result['label']]))
+				$label = $label_map[$result['label']];
+			
+			// Null strings
+			if(empty($label)) {
+				$label = '(none)';
+				if(!isset($counts[$key]))
+					$counts[$key] = [
+						'hits' => $hits,
+						'label' => $label,
+						'filter' =>
+							[
+								'field' => $virtual_key,
+								'oper' => DevblocksSearchCriteria::OPER_CUSTOM,
+								'values' => ['value' => $virtual_query_null],
+							],
+						'children' => []
+					];
+				
+			// Anything else
+			} else {
+				if(!isset($counts[$key]))
+					$counts[$key] = [
+						'hits' => $hits,
+						'label' => $label,
+						'filter' =>
+							[
+								'field' => $virtual_key,
+								'oper' => DevblocksSearchCriteria::OPER_CUSTOM,
+								'values' => ['value' => sprintf($virtual_query, $key)],
+							],
+						'children' => []
+					];
+				
+			}
+			
+		}
+		
+		return $counts;
+	}
+	
 	protected function _getSubtotalCountForStringColumn($context, $field_key, $label_map=array(), $value_oper='=', $value_key='value') {
 		$counts = array();
 		$results = $this->_getSubtotalDataForColumn($context, $field_key);
@@ -2153,7 +2257,7 @@ abstract class C4_AbstractView {
 		
 		return $counts;
 	}
-		
+	
 	protected function _getSubtotalDataForContextLinkColumn($context, $field_key) {
 		$db = DevblocksPlatform::getDatabaseService();
 		

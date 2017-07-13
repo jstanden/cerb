@@ -159,7 +159,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				$model->pos = $pos++;
 				$model->params = array(
 					'id' => $id,
-					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%s&show=message&msgid=%d", $row[SearchFields_Message::TICKET_MASK], $id), true),
+					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%d&show=message&msgid=%d", $row[SearchFields_Message::TICKET_ID], $id), true),
 				);
 				$models[] = $model;
 			}

@@ -37,8 +37,9 @@
 	<tr>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
+			{$view_field = $view_fields.$header}
 			<th class="{if $view->options.disable_sorting}no-sort{/if}">
-			{if !$view->options.disable_sorting && !empty($view_fields.$header->db_column)}
+			{if !$view->options.disable_sorting && $view_field->db_column && $view_field->is_sortable}
 				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewSortBy&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
 			{else}
 				<a href="javascript:;" style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
@@ -53,6 +54,23 @@
 	</tr>
 	</thead>
 
+	{* Bulk lazy load sender address *}
+	{$object_senders = []}
+	{if in_array(SearchFields_Message::ADDRESS_EMAIL, $view->view_columns)}
+		{$sender_ids = DevblocksPlatform::extractArrayValues($results, 'm_address_id')}
+		{$object_senders = DAO_Address::getIds($sender_ids)}
+	{/if}
+	
+	{* Bulk lazy load tickets *}
+	{$object_tickets = []}
+	{if in_array(SearchFields_Message::TICKET_GROUP_ID, $view->view_columns)
+		|| in_array(SearchFields_Message::TICKET_SUBJECT, $view->view_columns)
+		|| in_array(SearchFields_Message::TICKET_MASK, $view->view_columns)
+		}
+		{$ticket_ids = DevblocksPlatform::extractArrayValues($results, 'm_ticket_id')}
+		{$object_tickets = DAO_Ticket::getIds($ticket_ids)}
+	{/if}
+
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
@@ -64,10 +82,13 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
+				{$ticket = $object_tickets.{$result.m_ticket_id}}
+				{if $ticket}
 				<input type="checkbox" name="row_id[]" value="{$result.m_id}" style="display:none;">
-				{if $result.t_status_id == Model_Ticket::STATUS_DELETED}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $result.t_status_id == Model_Ticket::STATUS_WAITING}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
-				<a href="{devblocks_url}c=profiles&type=ticket&id={$result.t_mask}&focus=message&focusid={$result.m_id}{/devblocks_url}" class="subject">{if !empty($result.t_subject)}{$result.t_subject}{else}(no subject){/if}</a>
-				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$result.m_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button> 
+				{if $ticket->status_id == Model_Ticket::STATUS_DELETED}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $ticket->status_id == Model_Ticket::STATUS_CLOSED}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $ticket->status_id == Model_Ticket::STATUS_WAITING}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
+				<a href="{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}&focus=message&focusid={$result.m_id}{/devblocks_url}" class="subject">{if !empty($ticket->subject)}{$ticket->subject}{else}(no subject){/if}</a>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$result.m_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+				{/if} 
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -75,16 +96,35 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="a_email"}
+				{$sender = $object_senders.{$result.m_address_id}}
 				<td data-column="{$column}">
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.m_address_id}">{$result.$column}</a>
+					{if $sender}
+					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.m_address_id}" title="{$sender->getNameWithEmail()}">{$sender->getNameWithEmail()|truncate:45:'...':true:true}</a>
+					{/if}
 				</td>
 			{elseif $column=="t_group_id"}
+				{$ticket = $object_tickets.{$result.m_ticket_id}}
 				<td data-column="{$column}">
-				{if empty($groups)}{$groups = DAO_Group::getAll()}{/if}
-				{$group_id = $result.$column}
-				{if isset($groups.$group_id)}
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group_id}">{$groups.{$group_id}->name}</a>
-				{/if}
+					{if $ticket}
+						{$group = $ticket->getGroup()}
+						{if $group}
+						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">{$group->name}</a>
+						{/if}
+					{/if}
+				</td>
+			{elseif $column=="t_subject"}
+				{$ticket = $object_tickets.{$result.m_ticket_id}}
+				<td data-column="{$column}">
+					{if $ticket}
+					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$ticket->id}">{$ticket->subject|truncate:45:'...':true:true}</a>
+					{/if}
+				</td>
+			{elseif $column=="t_mask"}
+				{$ticket = $object_tickets.{$result.m_ticket_id}}
+				<td data-column="{$column}">
+					{if $ticket}
+					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$ticket->id}">{$ticket->mask}</a>
+					{/if}
 				</td>
 			{elseif $column=="m_worker_id"}
 				<td data-column="{$column}">

@@ -292,12 +292,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			"m.storage_size as %s, ".
 			"m.response_time as %s, ".
 			"m.is_broadcast as %s, ".
-			"m.is_not_sent as %s, ".
-			"t.group_id as %s, ".
-			"t.mask as %s, ".
-			"t.subject as %s, ".
-			"t.status_id as %s, ".
-			"a.email as %s ",
+			"m.is_not_sent as %s ",
 			SearchFields_Message::ID,
 			SearchFields_Message::ADDRESS_ID,
 			SearchFields_Message::CREATED_DATE,
@@ -311,25 +306,18 @@ class DAO_Message extends Cerb_ORMHelper {
 			SearchFields_Message::STORAGE_SIZE,
 			SearchFields_Message::RESPONSE_TIME,
 			SearchFields_Message::IS_BROADCAST,
-			SearchFields_Message::IS_NOT_SENT,
-			SearchFields_Message::TICKET_GROUP_ID,
-			SearchFields_Message::TICKET_MASK,
-			SearchFields_Message::TICKET_SUBJECT,
-			SearchFields_Message::TICKET_STATUS_ID,
-			SearchFields_Message::ADDRESS_EMAIL
+			SearchFields_Message::IS_NOT_SENT
 		);
 		
-		// [TODO] Remove the address JOIN
 		$join_sql = "FROM message m ".
-			"INNER JOIN ticket t ON (m.ticket_id = t.id) ".
-			"INNER JOIN address a ON (m.address_id = a.id) "
+			(isset($tables['t']) ? "INNER JOIN ticket t ON (m.ticket_id = t.id) " : " ").
+			(isset($tables['a']) ? "INNER JOIN address a ON (m.address_id = a.id) " : " ")
 			;
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Message');
-		
 		
 		$result = array(
 			'primary_table' => 'm',
@@ -578,7 +566,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 		
 		$columns = array(
 			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id', $translate->_('common.id'), null, true),
-			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'm', 'address_id', null, true),
+			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'm', 'address_id', $translate->_('common.sender'), true),
 			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'm', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing', $translate->_('message.is_outgoing'), Model_CustomField::TYPE_CHECKBOX, true),
 			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id', 'Ticket ID', null, true),
@@ -593,12 +581,12 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::STORAGE_PROFILE_ID => new DevblocksSearchField(SearchFields_Message::STORAGE_PROFILE_ID, 'm', 'storage_profile_id', null, true),
 			SearchFields_Message::STORAGE_SIZE => new DevblocksSearchField(SearchFields_Message::STORAGE_SIZE, 'm', 'storage_size', null, true),
 			
-			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			SearchFields_Message::ADDRESS_EMAIL => new DevblocksSearchField(SearchFields_Message::ADDRESS_EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			
-			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 't', 'group_id', $translate->_('common.group'), null, true),
-			SearchFields_Message::TICKET_STATUS_ID => new DevblocksSearchField(SearchFields_Message::TICKET_STATUS_ID, 't', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
-			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			SearchFields_Message::TICKET_GROUP_ID => new DevblocksSearchField(SearchFields_Message::TICKET_GROUP_ID, 't', 'group_id', $translate->_('common.group'), null, false),
+			SearchFields_Message::TICKET_STATUS_ID => new DevblocksSearchField(SearchFields_Message::TICKET_STATUS_ID, 't', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, false),
+			SearchFields_Message::TICKET_MASK => new DevblocksSearchField(SearchFields_Message::TICKET_MASK, 't', 'mask', $translate->_('ticket.mask'), Model_CustomField::TYPE_SINGLE_LINE, false),
+			SearchFields_Message::TICKET_SUBJECT => new DevblocksSearchField(SearchFields_Message::TICKET_SUBJECT, 't', 'subject', $translate->_('ticket.subject'), Model_CustomField::TYPE_SINGLE_LINE, false),
 			
 			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 			SearchFields_Message::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Message::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -1327,6 +1315,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_Message::ADDRESS_ID,
 			SearchFields_Message::HTML_ATTACHMENT_ID,
 			SearchFields_Message::ID,
 			SearchFields_Message::TICKET_STATUS_ID,
@@ -1405,23 +1394,31 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		switch($column) {
 			case SearchFields_Message::ADDRESS_EMAIL:
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				$label_map = function($ids) {
+					$rows = DAO_Address::getIds($ids);
+					return array_column(DevblocksPlatform::objectsToArrays($rows), 'email', 'id');
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, SearchFields_Message::ADDRESS_ID, $label_map, 'in', 'value[]');
 				break;
-				
+			
 			case SearchFields_Message::TICKET_GROUP_ID:
-				$groups = DAO_Group::getAll();
-				$label_map = array();
-				foreach($groups as $group_id => $group)
-					$label_map[$group_id] = $group->name;
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'group_id[]');
+				$label_map = function($ids) {
+					$rows = DAO_Group::getIds($ids);
+					return array_column(DevblocksPlatform::objectsToArrays($rows), 'name', 'id');
+				};
+				$counts = $this->_getSubtotalCountForVirtualColumn($context, SearchFields_Message::TICKET_GROUP_ID, $label_map, SearchFields_Message::VIRTUAL_TICKET_SEARCH, 'group:(id:%s)', 'group:null');
 				break;
-				
+			
 			case SearchFields_Message::TICKET_ID:
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, array(), '=', 'value');
 				break;
 				
 			case SearchFields_Message::TICKET_MASK:
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, array(), '=', 'value');
+				$label_map = function($ids) {
+					$rows = DAO_Ticket::getIds($ids);
+					return array_column(DevblocksPlatform::objectsToArrays($rows), 'mask', 'id');
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, SearchFields_Message::TICKET_ID, $label_map, 'in', 'value[]');
 				break;
 				
 			case SearchFields_Message::WORKER_ID:
@@ -1764,6 +1761,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
+			case SearchFields_Message::ADDRESS_ID:
 			case SearchFields_Message::TICKET_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
@@ -1834,6 +1832,16 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				echo implode(" or ", $strings);
 				break;
 				
+			case SearchFields_Message::ADDRESS_ID:
+				$senders = DAO_Address::getIds($values);
+				$strings = array();
+
+				foreach($senders as $sender) {
+					$strings[] = DevblocksPlatform::strEscapeHtml($sender->getNameWithEmail());
+				}
+				echo implode(" or ", $strings);
+				break;
+				
 			case SearchFields_Message::WORKER_ID:
 				$this->_renderCriteriaParamWorker($param);
 				break;
@@ -1880,12 +1888,19 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$criteria = null;
 
 		switch($field) {
+			case SearchFields_Message::VIRTUAL_TICKET_SEARCH:
+				if(is_array($value))
+					$value = array_shift($value);
+				$criteria = new DevblocksSearchCriteria($field, DevblocksSearchCriteria::OPER_CUSTOM, $value);
+				break;
+			
 			case SearchFields_Message::ADDRESS_EMAIL:
 			case SearchFields_Message::TICKET_MASK:
 			case SearchFields_Message::TICKET_SUBJECT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
+			case SearchFields_Message::ADDRESS_ID:
 			case SearchFields_Message::TICKET_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;

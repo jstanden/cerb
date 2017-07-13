@@ -158,11 +158,10 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 		
 		// (ACL) Add worker group privs
 		if(!$worker->is_superuser) {
-			$memberships = $worker->getMemberships();
 			$params['tmp_worker_memberships'] = new DevblocksSearchCriteria(
-				SearchFields_Message::TICKET_GROUP_ID,
-				'in',
-				(!empty($memberships) ? array_keys($memberships) : array(0))
+				SearchFields_Message::VIRTUAL_TICKET_SEARCH,
+				DevblocksSearchCriteria::OPER_CUSTOM,
+				"inGroupsOf:me"
 			);
 		}
 		
