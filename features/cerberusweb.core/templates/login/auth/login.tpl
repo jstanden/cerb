@@ -31,7 +31,7 @@
 	<tr>
 		<td align="right" valign="middle">{'common.password'|devblocks_translate|capitalize}:</td>
 		<td nowrap="nowrap">
-			<input type="password" name="password" size="16">
+			<input type="password" name="password" size="16" autocomplete="off" spellcheck="false">
 		</td>
 		<td>
 			<a href="{devblocks_url}c=login&a=recover{/devblocks_url}?email={$email}">forgot your password?</a> 
