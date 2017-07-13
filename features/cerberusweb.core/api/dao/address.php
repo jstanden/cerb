@@ -454,7 +454,6 @@ class DAO_Address extends Cerb_ORMHelper {
 			"a.host as %s, ".
 			"a.contact_id as %s, ".
 			"a.contact_org_id as %s, ".
-			"o.name as %s, ".
 			"a.num_spam as %s, ".
 			"a.num_nonspam as %s, ".
 			"a.is_banned as %s, ".
@@ -465,7 +464,6 @@ class DAO_Address extends Cerb_ORMHelper {
 				SearchFields_Address::HOST,
 				SearchFields_Address::CONTACT_ID,
 				SearchFields_Address::CONTACT_ORG_ID,
-				SearchFields_Address::ORG_NAME,
 				SearchFields_Address::NUM_SPAM,
 				SearchFields_Address::NUM_NONSPAM,
 				SearchFields_Address::IS_BANNED,
@@ -473,11 +471,7 @@ class DAO_Address extends Cerb_ORMHelper {
 				SearchFields_Address::UPDATED
 			);
 		
-		// [TODO] Remove the ugly left join to orgs here, like ticket.{first,last}_wrote
-		$join_sql =
-			"FROM address a ".
-			"LEFT JOIN contact_org o ON (o.id=a.contact_org_id) ".
-			'';
+		$join_sql = "FROM address a ";
 
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -1051,8 +1045,8 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		));
 		
 		$this->addParamsHidden(array(
-			SearchFields_Address::CONTACT_ORG_ID,
 			SearchFields_Address::ID,
+			SearchFields_Address::ORG_NAME,
 			SearchFields_Address::VIRTUAL_CONTACT_SEARCH,
 			SearchFields_Address::VIRTUAL_ORG_SEARCH,
 			SearchFields_Address::VIRTUAL_TICKET_ID,
@@ -1097,7 +1091,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				case SearchFields_Address::HOST:
 				case SearchFields_Address::IS_BANNED:
 				case SearchFields_Address::IS_DEFUNCT:
-				case SearchFields_Address::ORG_NAME:
+				case SearchFields_Address::CONTACT_ORG_ID:
 					$pass = true;
 					break;
 					
@@ -1137,8 +1131,15 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Address::HOST:
-			case SearchFields_Address::ORG_NAME:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
+				
+			case SearchFields_Address::CONTACT_ORG_ID:
+				$label_map = function($ids) {
+					$rows = DAO_ContactOrg::getIds($ids);
+					return array_column(DevblocksPlatform::objectsToArrays($rows), 'name', 'id');
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, SearchFields_Address::CONTACT_ORG_ID, $label_map, '=', 'value[]');
 				break;
 				
 			// Virtuals
@@ -1405,12 +1406,12 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case SearchFields_Address::EMAIL:
 			case SearchFields_Address::HOST:
-			case SearchFields_Address::ORG_NAME:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
 			case SearchFields_Address::NUM_SPAM:
 			case SearchFields_Address::NUM_NONSPAM:
+			case SearchFields_Address::CONTACT_ORG_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -1558,13 +1559,16 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case SearchFields_Address::EMAIL:
 			case SearchFields_Address::HOST:
-			case SearchFields_Address::ORG_NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_Address::NUM_SPAM:
 			case SearchFields_Address::NUM_NONSPAM:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case SearchFields_Address::CONTACT_ORG_ID:
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$value);
 				break;
 				
 			case SearchFields_Address::IS_BANNED:

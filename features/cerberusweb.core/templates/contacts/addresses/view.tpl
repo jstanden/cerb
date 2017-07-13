@@ -74,6 +74,13 @@
 		{$object_contacts = DAO_Contact::getIds($contact_ids)}
 	{/if}
 	
+	{* Bulk lazy load orgs *}
+	{$object_orgs = []}
+	{if in_array(SearchFields_Address::ORG_NAME, $view->view_columns)}
+		{$org_ids = DevblocksPlatform::extractArrayValues($results, 'a_contact_org_id')}
+		{$object_orgs = DAO_ContactOrg::getIds($org_ids)}
+	{/if}
+	
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -109,8 +116,9 @@
 			</td>
 			{elseif $column=="o_name"}
 			<td data-column="{$column}">
-				{if !empty($result.o_name)}
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$result.a_contact_org_id}">{$result.o_name}</a>
+				{if isset($object_orgs.{$result.a_contact_org_id})}
+				{$org = $object_orgs.{$result.a_contact_org_id}}
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a>
 				{/if}
 			</td>
 			{elseif $column=="a_is_banned" || $column == "a_is_defunct"}
