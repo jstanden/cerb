@@ -232,7 +232,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		@list($auth_access_key, $auth_signature) = explode(":", $header_signature, 2);
 		$url_parts = parse_url(DevblocksPlatform::getWebPath());
 		$url_path = $url_parts['path'];
-		$url_query = $this->_sortQueryString($_SERVER['QUERY_STRING']);
+		$url_query = $this->_sortQueryString(@$_SERVER['QUERY_STRING']);
 		$string_to_sign_prefix = "$verb\n$header_date\n$url_path\n$url_query\n$this->_payload";
 		
 		if(!$this->_validateRfcDate($header_date)) {
