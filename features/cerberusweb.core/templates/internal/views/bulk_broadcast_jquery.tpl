@@ -29,6 +29,54 @@ $popup.find('button.chooser_file').each(function() {
 	ajax.chooserFile(this,'broadcast_file_ids');
 });
 
+// Snippets
+
+$popup.find('.cerb-snippet-insert button.cerb-chooser-trigger')
+	.cerbChooserTrigger()
+	.on('cerb-chooser-saved', function(e) {
+		e.stopPropagation();
+		var $this = $(this);
+		var $ul = $this.siblings('ul.chooser-container');
+		var $search = $ul.prev('input[type=search]');
+		var $textarea = $('#bulkBroadcastContainer textarea[name=broadcast_message]');
+		
+		// Find the snippet_id
+		var snippet_id = $ul.find('input[name=snippet_id]').val();
+		
+		if(null == snippet_id)
+			return;
+		
+		// Remove the selection
+		$ul.find('> li').find('span.glyphicons-circle-remove').click();
+		
+		// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+		var url = 'c=internal&a=snippetPaste&id=' + snippet_id;
+		url += "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}";
+		url += "&context_ids[{$context}]=";
+		
+		genericAjaxGet('',url,function(json) {
+			// If the content has placeholders, use that popup instead
+			if(json.has_custom_placeholders) {
+				$textarea.focus();
+				
+				var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
+			
+				$popup_paste.bind('snippet_paste', function(event) {
+					if(null == event.text)
+						return;
+				
+					$textarea.insertAtCursor(event.text).focus();
+				});
+				
+			} else {
+				$textarea.insertAtCursor(json.text).focus();
+			}
+			
+			$search.val('');
+		});
+	})
+;
+
 // Text editor
 
 var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);

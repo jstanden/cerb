@@ -1119,64 +1119,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__generic.tpl');
 	}
 	
-	function chooserOpenSnippetAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'string');
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
-		@$single = DevblocksPlatform::importGPC($_REQUEST['single'], 'integer', 0);
-
-		if(null != ($context_extension = DevblocksPlatform::getExtension($context, true))) {
-			$tpl = DevblocksPlatform::getTemplateService();
-			$tpl->assign('context', $context_extension);
-			$tpl->assign('layer', $layer);
-			
-			$view = $context_extension->getChooserView();
-			
-			// If we're being given contexts to filter down to
-			if(!empty($contexts)) {
-				$target_contexts = DevblocksPlatform::parseCsvString($contexts);
-				$contexts = array('');
-				$dicts = array();
-				
-				if(is_array($target_contexts))
-				foreach($target_contexts as $target_context_pair) {
-					@list($target_context, $target_context_id) = explode(':', $target_context_pair);
-
-					if(!empty($target_context_id)) {
-						// Load the context dictionary for scope
-						$labels = array();
-						$values = array();
-						CerberusContexts::getContext($target_context, $target_context_id, $labels, $values);
-	
-						$dicts[$target_context] = $values;
-					}
-					
-					// Stack filters for the view
-					if(!empty($target_context))
-						$contexts[] = $target_context;
-				}
-				
-				// Filter the snippet worklist by target contexts
-				if(!empty($contexts)) {
-					$view->addParamsRequired(array(
-						SearchFields_Snippet::CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT, DevblocksSearchCriteria::OPER_IN, $contexts)
-					));
-				}
-				
-				if(!empty($dicts)) {
-					$placeholder_values = $view->getPlaceholderValues();
-					$placeholder_values['dicts'] = $dicts;
-					$view->setPlaceholderValues($placeholder_values);
-				}
-			}
-			
-			$tpl->assign('view', $view);
-			$tpl->assign('single', $single);
-			
-			$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__snippet.tpl');
-		}
-	}
-
 	function chooserOpenParamsAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -1767,28 +1709,31 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function snippetPasteAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$context_ids = DevblocksPlatform::importGPC($_REQUEST['context_ids'],'array',[]);
+		$context_id = 0;
 
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$token_labels = array();
 		$token_values = array();
-
-		if(null != ($snippet = DAO_Snippet::get($id))) {
-			// Make sure the worker is allowed to view this context+ID
-			if(!empty($snippet->context)) {
-				if(!CerberusContexts::isReadableByActor($snippet->context, $context_id, $active_worker))
-					return;
-			}
+		
+		if(!$id || null == ($snippet = DAO_Snippet::get($id)))
+			return;
+		
+		if(isset($context_ids[$snippet->context]))
+			$context_id = intval($context_ids[$snippet->context]);
+		
+		// Make sure the worker is allowed to view this context+ID
+		if($snippet->context && $context_id) {
+			if(!CerberusContexts::isReadableByActor($snippet->context, $context_id, $active_worker))
+				return;
 			
-			CerberusContexts::getContext($snippet->context, $context_id, $token_labels, $token_values);
-
-			$snippet->incrementUse($active_worker->id);
+				CerberusContexts::getContext($snippet->context, $context_id, $token_labels, $token_values);
 		}
 
 		// Build template
-		if(!empty($context_id)) {
+		if($snippet->context && $context_id) {
 			$output = $tpl_builder->build($snippet->content, $token_values);
 			
 		} else {

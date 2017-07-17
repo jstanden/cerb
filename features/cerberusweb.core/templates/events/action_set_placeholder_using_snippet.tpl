@@ -14,7 +14,15 @@
 <b>Load this snippet:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	<div>
-		<button type="button" class="chooser-snippet"><span class="glyphicons glyphicons-search"></span></button>
+		<button type="button" class="chooser-snippet" data-field-name="{$namePrefix}[snippet_id]" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-query="" data-query-required="" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
+		<ul class="bubbles chooser-container">
+			{if $snippet}
+			<li>
+				<input type="hidden" name="{$namePrefix}[snippet_id]" title="{$snippet->title}" value="{$snippet->id}">
+				{$snippet->title}
+			</li>
+			{/if}
+		</ul>
 	</div>
 	<div class="snippet-preview">
 		{if $snippet && $snippet->id}
@@ -39,18 +47,34 @@ $(function(e) {
 	
 	$action.find('textarea').autosize();
 	
-	$action.find('button.chooser-snippet').on('click', function(e) {
-		var context = $action.find('select:first option:selected').attr('context');
-		
-		var contexts = [];
-		contexts.push(context + ':' + 0);
-		
-		$chooser=genericAjaxPopup('snippet_chooser','c=internal&a=chooserOpenSnippet&single=1&context=cerberusweb.contexts.snippet&contexts=' + contexts.join(','), null, false, '600');
-		$chooser.bind('snippet_select', function(event) {
-			event.stopPropagation();
-			genericAjaxGet($snippet_preview,'c=internal&a=showSnippetPlaceholders&name_prefix={$namePrefix}&id=' + event.snippet_id);
-		});
-	});
-	
+	// Snippet insert menu
+	$action.find('.chooser-snippet')
+		.cerbChooserTrigger()
+		.on('cerb-chooser-saved', function(e) {
+			e.stopPropagation();
+			
+			var $this = $(this);
+			var $ul = $this.siblings('ul.chooser-container');
+			
+			var context = $action.find('select:first option:selected').attr('context');
+			
+			// Find the snippet_id
+			var snippet_id = $ul.find('input:hidden').val();
+			
+			if(null == snippet_id) {
+				$snippet_preview.html('');
+				return;
+			}
+			
+			genericAjaxGet('','c=internal&a=showSnippetPlaceholders&name_prefix={$namePrefix}&id=' + snippet_id, function(html) {
+				if(null == html || html.length == 0) {
+					$snippet_preview.html('').hide();
+					return;
+				}
+				
+				$snippet_preview.html(html).show();
+			});
+		})
+	;
 });
 </script>

@@ -84,8 +84,10 @@
 				<fieldset style="display:inline-block;margin-bottom:0;">
 					<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
 					<div>
-						<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
-						<button type="button" onclick="ajax.chooserSnippet('chooser{$message->id}',$('#reply_{$message->id}'), { '{CerberusContexts::CONTEXT_TICKET}':'{$ticket->id}', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="glyphicons glyphicons-search"></span></button>
+						<div class="cerb-snippet-insert" style="display:inline-block;">
+							<button type="button" class="cerb-chooser-trigger" data-field-name="snippet_id" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-placeholder="(Ctrl+Shift+I)" data-query="" data-query-required="type:[plaintext,ticket,worker]" data-single="true" data-autocomplete="type:[plaintext,ticket,worker]"><span class="glyphicons glyphicons-search"></span></button>
+							<ul class="bubbles chooser-container"></ul>
+						</div>
 						<button type="button" onclick="var txt = encodeURIComponent($('#reply_{$message->id}').selection('get')); genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_SNIPPET}&context_id=0&edit=1&text=' + txt,null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></button>
 					</div>
 				</fieldset>
@@ -325,6 +327,53 @@
 			;
 		
 		$frm2.find('button.chooser-abstract').cerbChooserTrigger();
+		
+		// Snippet insert menu
+		$frm.find('.cerb-snippet-insert button.cerb-chooser-trigger')
+			.cerbChooserTrigger()
+			.on('cerb-chooser-saved', function(e) {
+				e.stopPropagation();
+				var $this = $(this);
+				var $ul = $this.siblings('ul.chooser-container');
+				var $search = $ul.prev('input[type=search]');
+				var $textarea = $('#reply_{$message->id}');
+				
+				// Find the snippet_id
+				var snippet_id = $ul.find('input[name=snippet_id]').val();
+				
+				if(null == snippet_id)
+					return;
+				
+				// Remove the selection
+				$ul.find('> li').find('span.glyphicons-circle-remove').click();
+				
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				var url = 'c=internal&a=snippetPaste&id=' + snippet_id;
+				url += "&context_ids[cerberusweb.contexts.ticket]={$ticket->id}";
+				url += "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}";
+				
+				genericAjaxGet('',url,function(json) {
+					// If the content has placeholders, use that popup instead
+					if(json.has_custom_placeholders) {
+						$textarea.focus();
+						
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
+					
+						$popup_paste.bind('snippet_paste', function(event) {
+							if(null == event.text)
+								return;
+						
+							$textarea.insertAtCursor(event.text).focus();
+						});
+						
+					} else {
+						$textarea.insertAtCursor(json.text).focus();
+					}
+					
+					$search.val('');
+				});
+			})
+		;
 		
 		// Chooser for To/Cc/Bcc recipients
 		$frm.find('a.cerb-recipient-chooser')
@@ -748,56 +797,6 @@
 		}
 		draftAutoSaveInterval = setInterval("$('#reply{$message->id}_part1 button[name=saveDraft]').click();", 30000); // and every 30 sec
 
-		$frm.find('input:text.context-snippet').autocomplete({
-			delay: 300,
-			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.snippet&contexts[]=cerberusweb.contexts.ticket&contexts[]=cerberusweb.contexts.worker&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
-			minLength: 1,
-			focus:function(event, ui) {
-				return false;
-			},
-			autoFocus:true,
-			select:function(event, ui) {
-				var $this = $(this);
-				var $textarea = $('#reply_{$message->id}');
-				
-				var $label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
-				var $value = ui.item.value;
-				
-				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-				var url = 'c=internal&a=snippetPaste&id=' + $value;
-
-				// Context-dependent arguments
-				if('cerberusweb.contexts.ticket'==ui.item.context) {
-					url += "&context_id={$ticket->id}";
-				} else if ('cerberusweb.contexts.worker'==ui.item.context) {
-					url += "&context_id={$active_worker->id}";
-				}
-
-				genericAjaxGet('',url,function(json) {
-					// If the content has placeholders, use that popup instead
-					if(json.has_custom_placeholders) {
-						$textarea.focus();
-						
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
-					
-						$popup_paste.bind('snippet_paste', function(event) {
-							if(null == event.text)
-								return;
-						
-							$textarea.insertAtCursor(event.text).focus();
-						});
-						
-					} else {
-						$textarea.insertAtCursor(json.text).focus();
-					}
-					
-				});
-
-				$this.val('');
-				return false;
-			}
-		});
-
 		// Files
 		$frm2.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');
@@ -891,7 +890,7 @@
 				case 73: // (I) Insert Snippet
 					try {
 						event.preventDefault();
-						$('#reply{$message->id}_part1').find('.context-snippet').focus();
+						$('#reply{$message->id}_part1').find('.cerb-snippet-insert input[type=search]').focus();
 					} catch(ex) { } 
 					break;
 				case 66: // (B) Insert Behavior

@@ -23,7 +23,10 @@
 		</div>
 		
 		<div>
-			<button type="button" onclick="ajax.chooserSnippet('snippets',$('#kbArticleEditor textarea[name=content]'),{ '{CerberusContexts::CONTEXT_KB_ARTICLE}':'{$article->id}' } );">{'common.snippets'|devblocks_translate|capitalize}</button>
+			<div class="cerb-snippet-insert" style="display:inline-block;">
+				<button type="button" class="cerb-chooser-trigger" data-field-name="snippet_id" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-query="" data-query-required="type:[plaintext,article]" data-single="true">{'common.snippets'|devblocks_translate|capitalize}</button>
+				<ul class="bubbles chooser-container"></ul>
+			</div>
 			 &nbsp; 
 			<label><input type="radio" name="format" value="2" {if 2==$article->format || empty($article->format)}checked{/if}> <b>Markdown</b> (recommended)</label> [<a href="http://en.wikipedia.org/wiki/Markdown" target="_blank">?</a>] 
 			<label><input type="radio" name="format" value="1" {if 1==$article->format}checked{/if}> <b>HTML</b></label> 
@@ -98,6 +101,56 @@ $(function() {
 			;
 		
 		var $attachments_container = $popup.find('UL.cerb-attachments-container');
+		
+		// Snippets
+		
+		$frm.find('.cerb-snippet-insert button.cerb-chooser-trigger')
+			.cerbChooserTrigger()
+			.on('cerb-chooser-saved', function(e) {
+				e.stopPropagation();
+				var $this = $(this);
+				var $ul = $this.siblings('ul.chooser-container');
+				var $search = $ul.prev('input[type=search]');
+				var $textarea = $('#kbArticleEditor textarea[name=content]');
+				
+				// Find the snippet_id
+				var snippet_id = $ul.find('input[name=snippet_id]').val();
+				
+				if(null == snippet_id)
+					return;
+				
+				// Remove the selection
+				$ul.find('> li').find('span.glyphicons-circle-remove').click();
+				
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				var url = 'c=internal&a=snippetPaste&id=' + snippet_id;
+				url += "&context_ids[cerberusweb.contexts.kb_article]={$article->id}";
+				url += "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}";
+				
+				genericAjaxGet('',url,function(json) {
+					// If the content has placeholders, use that popup instead
+					if(json.has_custom_placeholders) {
+						$textarea.focus();
+						
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
+					
+						$popup_paste.bind('snippet_paste', function(event) {
+							if(null == event.text)
+								return;
+						
+							$textarea.insertAtCursor(event.text).focus();
+						});
+						
+					} else {
+						$textarea.insertAtCursor(json.text).focus();
+					}
+					
+					$search.val('');
+				});
+			})
+		;
+		
+		// Editor
 		
 		var markitupHTMLSettings = $.extend(true, { }, markitupHTMLDefaults);
 		var markitupMarkdownSettings = $.extend(true, { }, markitupMarkdownDefaults);

@@ -34,7 +34,11 @@
 			
 			<div>
 				<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
-				<button type="button" onclick="ajax.chooserSnippet('snippets',$('#bulkBroadcastContainer textarea[name=broadcast_message]'), { '{$context}':'', '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });">{'common.snippets'|devblocks_translate|capitalize}</button>
+				
+				<div class="cerb-snippet-insert" style="display:inline-block;">
+					<button type="button" class="cerb-chooser-trigger" data-field-name="snippet_id" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-query="" data-query-required="type:[plaintext,worker,{$context}]" data-single="true">{'common.snippets'|devblocks_translate|capitalize}</button>
+					<ul class="bubbles chooser-container"></ul>
+				</div>
 				
 				{$types = $values._types}
 				{function tree level=0}

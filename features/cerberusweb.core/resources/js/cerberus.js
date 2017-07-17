@@ -606,53 +606,6 @@ var cAjaxCalls = function() {
 		}
 	}
 	
-	this.chooserSnippet = function(layer, $textarea, contexts) {
-		var ctx = [];
-		for(x in contexts)
-			ctx.push(x + ":" + contexts[x]);
-		
-		$textarea.focus();
-		
-		var $chooser = genericAjaxPopup(layer,'c=internal&a=chooserOpenSnippet&context=cerberusweb.contexts.snippet&contexts=' + ctx.join(','),null,false,'70%');
-		
-		$chooser.on('snippet_select', function(event) {
-			event.stopPropagation();
-			
-			var snippet_id = event.snippet_id;
-			var context = event.context;
-			
-			if(null == snippet_id || null == context)
-				return;
-			
-			// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-			var url = 'c=internal&a=snippetPaste&id=' + encodeURIComponent(snippet_id);
-			
-			// Context-dependent arguments
-			if(null != contexts[context])
-				url += "&context_id=" + encodeURIComponent(contexts[context]);
-			
-			// Ajax the content (synchronously)
-			genericAjaxGet('', url, function(json) {
-				if(json.has_custom_placeholders) {
-					$textarea.focus();
-					
-					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
-					
-					$popup_paste.bind('snippet_paste', function(event) {
-						if(null == event.text)
-							return;
-						
-						$textarea.insertAtCursor(event.text);
-					});
-					
-				} else {
-					$textarea.insertAtCursor(json.text);
-				}
-				
-			});
-		});
-	}
-	
 	this.chooserFile = function(button, field_name, options) {
 		if(null == field_name)
 			field_name = 'context_id';
@@ -1472,11 +1425,16 @@ var ajax = new cAjaxCalls();
 			// Autocomplete
 			if(undefined != $trigger.attr('data-autocomplete')) {
 				var is_single = $trigger.attr('data-single');
+				var placeholder = $trigger.attr('data-placeholder');
 				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete-if-empty');
 				var autocomplete_placeholders = $trigger.attr('data-autocomplete-placeholders');
 				var shortcuts = null == $trigger.attr('data-shortcuts') || 'false' != $trigger.attr('data-shortcuts');
 				
 				var $autocomplete = $('<input type="search" size="32">');
+				
+				if(placeholder)
+					$autocomplete.attr('placeholder', placeholder);
+				
 				$autocomplete.insertAfter($trigger);
 				
 				$autocomplete.autocomplete({

@@ -905,8 +905,8 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$fields = array(
 			'text' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Snippet::FULLTEXT_SNIPPET),
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Snippet::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'content' => 
 				array(
@@ -1013,7 +1013,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 					}
 					
 					foreach($contexts as $context_id => $context) {
-						if(false !== stripos($context->name, $pattern))
+						if($context_id == $pattern || false !== stripos($context->name, $pattern))
 							$values[$context_id] = true;
 					}
 				}
@@ -1350,8 +1350,6 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	function autocomplete($term, $query=null) {
 		$as_worker = CerberusApplication::getActiveWorker();
 		
-		$list = [];
-		
 		$contexts = DevblocksPlatform::getExtensions('devblocks.context', false);
 
 		$defaults = new C4_AbstractViewModel();
@@ -1363,25 +1361,10 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			return [];
 		
 		// By owner
-		$params = $view->getParamsFromQuickSearch('usableBy.worker:' . $as_worker->id);
+		$params = $view->getParamsFromQuickSearch($query . ' usableBy.worker:' . $as_worker->id);
 		
 		// Search by title
 		$params[] = new DevblocksSearchCriteria(SearchFields_Snippet::TITLE,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%');
-		
-		// [TODO] This needs to be abstracted properly
-		@$context_list = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
-		if(is_array($context_list))
-		foreach($context_list as $k => $v) {
-			if(!isset($contexts[$v]))
-				unset($context_list[$k]);
-		}
-
-		$context_list[] = ''; // plaintext
-		
-		// Filter contexts
-		$params[] =
-			new DevblocksSearchCriteria(SearchFields_Snippet::CONTEXT,DevblocksSearchCriteria::OPER_IN,$context_list)
-			;
 		
 		$view->addParams($params, true);
 		$view->view_columns = [
@@ -1396,7 +1379,10 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		$view->setAutoPersist(false);
 		
 		list($results, $null) = $view->getData();
+		
+		$list = [];
 
+		if(is_array($results))
 		foreach($results AS $row){
 			$entry = new stdClass();
 			$entry->label = sprintf("%s -- used %s",

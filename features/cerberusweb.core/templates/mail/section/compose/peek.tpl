@@ -91,9 +91,10 @@
 					<fieldset style="display:inline-block;">
 						<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
 						<div>
-							Insert: 
-							<input type="text" size="25" class="context-snippet autocomplete" {if $pref_keyboard_shortcuts}placeholder="(Ctrl+Shift+I)"{/if}>
-							<button type="button" onclick="ajax.chooserSnippet('snippets',$('#divComposeContent{$popup_uniqid}'), { '{CerberusContexts::CONTEXT_WORKER}':'{$active_worker->id}' });"><span class="glyphicons glyphicons-search"></span></button>
+							<div class="cerb-snippet-insert" style="display:inline-block;">
+								<button type="button" class="cerb-chooser-trigger" data-field-name="snippet_id" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-placeholder="(Ctrl+Shift+I)" data-query="" data-query-required="type:[plaintext,worker]" data-single="true" data-autocomplete="type:[plaintext,worker]"><span class="glyphicons glyphicons-search"></span></button>
+								<ul class="bubbles chooser-container"></ul>
+							</div>
 							<button type="button" onclick="var txt = encodeURIComponent($('#divComposeContent{$popup_uniqid}').selection('get')); genericAjaxPopup('add_snippet','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_SNIPPET}&context_id=0&edit=1&text=' + txt,null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></button>
 						</div>
 					</fieldset>
@@ -586,37 +587,35 @@
 		
 		draftComposeAutoSaveInterval = setInterval("$('#btnComposeSaveDraft{$popup_uniqid}').click();", 30000); // and every 30 sec
 		
-		// Snippet chooser shortcut
-		
-		$frm.find('input:text.context-snippet').autocomplete({
-			delay: 300,
-			source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.snippet&contexts[]=cerberusweb.contexts.worker&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
-			minLength: 1,
-			focus:function(event, ui) {
-				return false;
-			},
-			autoFocus:true,
-			select:function(event, ui) {
+		// Snippet insert menu
+		$frm.find('.cerb-snippet-insert button.cerb-chooser-trigger')
+			.cerbChooserTrigger()
+			.on('cerb-chooser-saved', function(e) {
+				e.stopPropagation();
 				var $this = $(this);
+				var $ul = $this.siblings('ul.chooser-container');
+				var $search = $ul.prev('input[type=search]');
 				var $textarea = $('#divComposeContent{$popup_uniqid}');
 				
-				var $label = ui.item.label.replace("<","&lt;").replace(">","&gt;");
-				var $value = ui.item.value;
+				// Find the snippet_id
+				var snippet_id = $ul.find('input[name=snippet_id]').val();
+				
+				if(null == snippet_id)
+					return;
+				
+				// Remove the selection
+				$ul.find('> li').find('span.glyphicons-circle-remove').click();
 				
 				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-				var url = 'c=internal&a=snippetPaste&id=' + $value;
-
-				// Context-dependent arguments
-				if ('cerberusweb.contexts.worker'==ui.item.context) {
-					url += "&context_id={$active_worker->id}";
-				}
-
+				var url = 'c=internal&a=snippetPaste&id=' + snippet_id;
+				url += "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}";
+				
 				genericAjaxGet('',url,function(json) {
 					// If the content has placeholders, use that popup instead
 					if(json.has_custom_placeholders) {
 						$textarea.focus();
 						
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '600');
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
 					
 						$popup_paste.bind('snippet_paste', function(event) {
 							if(null == event.text)
@@ -629,12 +628,10 @@
 						$textarea.insertAtCursor(json.text).focus();
 					}
 					
+					$search.val('');
 				});
-
-				$this.val('');
-				return false;
-			}
-		});
+			})
+		;
 		
 		// Interactions
 		var $interaction_container = $('#divComposeInteractions{$popup_uniqid}');
@@ -703,7 +700,7 @@
 				case 73: // (I) Insert Snippet
 					try {
 						event.preventDefault();
-						$('#frmComposePeek{$popup_uniqid}').find('INPUT:text.context-snippet').focus();
+						$('#frmComposePeek{$popup_uniqid}').find('.cerb-snippet-insert input[type=search]').focus();
 					} catch(ex) { } 
 					break;
 				case 81: // (Q) Reformat quotes
