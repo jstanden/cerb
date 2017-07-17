@@ -2774,7 +2774,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$bucket_id = $result['bucket_id'];
 			$hits = $result['hits'];
 
-			if(!isset($counts[$group_id])) {
+			if(isset($groups[$group_id]) && !isset($counts[$group_id])) {
 				$label = $groups[$group_id]->name;
 				
 				$counts[$group_id] = array(
@@ -4772,6 +4772,52 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
+		// Groups
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		// Buckets
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+
+		// Workers
+		$workers = DAO_Worker::getAll();
+		$tpl->assign('workers', $workers);
+		
+		// Preferences
+		$defaults = array(
+			'group_id' => DAO_WorkerPref::get($active_worker->id,'compose.group_id',0),
+			'bucket_id' => DAO_WorkerPref::get($active_worker->id,'compose.bucket_id',0),
+			'status' => DAO_WorkerPref::get($active_worker->id,'compose.status','waiting'),
+			'signature_pos' => DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2),
+		);
+		
+		// Default group/bucket based on worklist
+		if(false != ($view = C4_AbstractViewLoader::getView($view_id)) && $view instanceof View_Ticket) {
+			$group_id = 0;
+			$bucket_id = 0;
+			
+			$params = $view->getParams();
+			
+			if(false != ($filter_bucket = $view->findParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false))) {
+				$filter_bucket = array_shift($filter_bucket);
+				$bucket_id = is_array($filter_bucket->value) ? current($filter_bucket->value) : $filter_bucket->value;
+				
+				if(!isset($buckets[$bucket_id]))
+					$bucket_id = 0;
+				
+				$group_id = $buckets[$bucket_id]->group_id;
+			}
+			
+			if(!$group_id && false != ($filter_group = $view->findParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false))) {
+				$filter_group = array_shift($filter_group);
+				$group_id = is_array($filter_group->value) ? current($filter_group->value) : $filter_group->value;
+			}
+			
+			$defaults['group_id'] = $group_id;
+			$defaults['bucket_id'] = $bucket_id;
+		}
+		
 		if(!empty($edit)) {
 			$tokens = explode(' ', trim($edit));
 			
@@ -4793,26 +4839,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		$tpl->assign('to', $to);
-		
-		// Groups
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-		
-		// Buckets
-		$buckets = DAO_Bucket::getAll();
-		$tpl->assign('buckets', $buckets);
-
-		// Workers
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		// Preferences
-		$defaults = array(
-			'group_id' => DAO_WorkerPref::get($active_worker->id,'compose.group_id',0),
-			'bucket_id' => DAO_WorkerPref::get($active_worker->id,'compose.bucket_id',0),
-			'status' => DAO_WorkerPref::get($active_worker->id,'compose.status','waiting'),
-			'signature_pos' => DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2),
-		);
 		
 		// Continue a draft?
 		if(!empty($draft_id)) {
