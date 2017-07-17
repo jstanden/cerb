@@ -525,6 +525,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				@$context = $params['context'];
 				@$query = $tpl_builder->build($params['query'], $dict);
 				@$selection = $params['selection'];
+				@$autocomplete = !empty($params['autocomplete']);
 				
 				$actions[] = array(
 					'_action' => 'prompt.chooser',
@@ -532,6 +533,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					'context' => $context,
 					'query' => $query,
 					'selection' => $selection,
+					'autocomplete' => $autocomplete,
 				);
 				
 				$dict->__exit = 'suspend';

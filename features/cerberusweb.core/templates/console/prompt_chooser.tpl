@@ -2,7 +2,7 @@
 <div class="bot-chat-object" data-delay-ms="{$delay_ms|default:0}" id="{$msg_id}" style="text-align:center;">
 	<div class="bot-chat-message bot-chat-right">
 		<div class="bot-chat-message-bubble">
-			<button type="button" autofocus="autofocus" class="chooser-abstract" data-field-name="ids[]" data-context="{$context}" {if $selection != "multiple"}data-single="true"{/if} data-query="{$query}" data-shortcuts="false"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" autofocus="autofocus" class="chooser-abstract" data-field-name="ids[]" data-context="{$context}" {if $selection != "multiple"}data-single="true"{/if} {if $autocomplete == 1}data-autocomplete="{$query}"{/if} data-query="{$query}" data-shortcuts="false"><span class="glyphicons glyphicons-search"></span></button>
 			<ul class="bubbles chooser-container" style="display:none;"></ul>
 		</div>
 	</div>

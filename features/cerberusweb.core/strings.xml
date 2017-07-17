@@ -327,6 +327,11 @@
 				<seg>Author</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.autocomplete">
+			<tuv xml:lang="en_US">
+				<seg>Autocomplete</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.available">
 			<tuv xml:lang="en_US">
 				<seg>Available</seg>

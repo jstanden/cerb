@@ -18,6 +18,12 @@
 	<label><input type="radio" name="{$namePrefix}[selection]" value="multiple" {if $params.selection == 'multiple'}checked="checked"{/if}> {'common.selection.multiple'|devblocks_translate|capitalize}</label>
 </div>
 
+<b>{'common.autocomplete'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<label><input type="radio" name="{$namePrefix}[autocomplete]" value="0" {if !$params.autocomplete}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[autocomplete]" value="1" {if $params.autocomplete}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+</div>
+
 <script type="text/javascript">
 $(function() {
 	var $action = $('fieldset#{$namePrefix}');
