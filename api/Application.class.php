@@ -558,8 +558,10 @@ class CerberusApplication extends DevblocksApplication {
 	 * @return a unique ticket mask as a string
 	 */
 	static function generateTicketMask($pattern = null) {
+		$pattern = trim($pattern);
+		
 		if(empty($pattern))
-			$pattern = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TICKET_MASK_FORMAT);
+			$pattern = trim(DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TICKET_MASK_FORMAT));
 		if(empty($pattern))
 			$pattern = CerberusSettingsDefaults::TICKET_MASK_FORMAT;
 
@@ -620,6 +622,10 @@ class CerberusApplication extends DevblocksApplication {
 				$mask = DevblocksPlatform::strUpper(DevblocksPlatform::strAlphaNum($mask,'\-'));
 			}
 		} while(null != DAO_Ticket::getTicketIdByMask($mask));
+		
+		if(empty($mask)) {
+			return self::generateTicketMask(CerberusSettingsDefaults::TICKET_MASK_FORMAT);
+		}
 
 		return $mask;
 	}

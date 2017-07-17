@@ -308,11 +308,11 @@ class CerberusParserModel {
 			if(preg_match("/.*\[.*?\#(.*?)\].*/", $subject, $matches)) {
 				if(isset($matches[1])) {
 					$mask = $matches[1];
-					if(null != ($ticket = DAO_Ticket::getTicketByMask($mask))) {
+					if($mask && null != ($ticket = DAO_Ticket::getTicketByMask($mask))) {
 						$this->_is_new = false;
 						$this->_ticket_id = $ticket->id;
 						$this->_ticket_model = $ticket;
-						$this->_message_id = $ticket->last_message_id; // [TODO] ???
+						$this->_message_id = $ticket->last_message_id;
 						return;
 					}
 				}
