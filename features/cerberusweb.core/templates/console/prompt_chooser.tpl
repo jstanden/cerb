@@ -11,12 +11,13 @@
 	$(function() {
 		var $msg = $('#{$msg_id}');
 		var $ul = $msg.find('ul.chooser-container');
+		var $button = $msg.find('button.chooser-abstract');
 		
 		var $chat_window_convo = $('#{$layer} div.bot-chat-window-convo');
 		var $chat_window_input_form = $('#{$layer} form.bot-chat-window-input-form');
 		var $chat_input = $chat_window_input_form.find('input[name=message]');
 		
-		$msg.find('button.chooser-abstract')
+		$button
 			.cerbChooserTrigger()
 			.on('cerb-chooser-saved', function(e) {
 				var $selections = $ul.find('li input:hidden');
@@ -38,6 +39,10 @@
 				$chat_window_convo.trigger('bot-chat-message-send');
 			})
 		;
+		
+		{if $autocomplete == 1}
+		$button.next('input[type=search]').focus();
+		{/if}
 	});
 	</script>
 </div>
