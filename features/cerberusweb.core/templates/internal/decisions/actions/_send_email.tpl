@@ -23,7 +23,7 @@
 
 <b>{'message.header.to'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[to]" value="{$params.to}" size="45" style="width:100%;" class="placeholders">
+	<textarea name="{$namePrefix}[to]" size="45" style="width:100%;" class="placeholders">{$params.to}</textarea>
 	<ul class="bubbles">
 	{foreach from=$trigger->variables item=var_data key=var_key}
 		{if $var_data.type == "ctx_{CerberusContexts::CONTEXT_ADDRESS}"}
@@ -35,7 +35,7 @@
 
 <b>{'message.header.cc'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[cc]" value="{$params.cc}" size="45" style="width:100%;" class="placeholders">
+	<textarea name="{$namePrefix}[cc]" size="45" style="width:100%;" class="placeholders">{$params.cc}</textarea>
 	<ul class="bubbles">
 	{foreach from=$trigger->variables item=var_data key=var_key}
 		{if $var_data.type == "ctx_{CerberusContexts::CONTEXT_ADDRESS}"}
@@ -47,7 +47,7 @@
 
 <b>{'message.header.bcc'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[bcc]" value="{$params.bcc}" size="45" style="width:100%;" class="placeholders">
+	<textarea name="{$namePrefix}[bcc]" size="45" style="width:100%;" class="placeholders">{$params.bcc}</textarea>
 	<ul class="bubbles">
 	{foreach from=$trigger->variables item=var_data key=var_key}
 		{if $var_data.type == "ctx_{CerberusContexts::CONTEXT_ADDRESS}"}
@@ -59,7 +59,7 @@
 
 <b>{'message.header.subject'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[subject]" value="{$params.subject}" size="45" style="width:100%;" class="placeholders">
+	<textarea name="{$namePrefix}[subject]" size="45" style="width:100%;" class="placeholders">{$params.subject}</textarea>
 </div>
 
 <div style="{if $params.format=='parsedown'}{else}display:none;{/if}" class="div-showhide">
