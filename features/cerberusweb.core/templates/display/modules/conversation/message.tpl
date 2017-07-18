@@ -209,9 +209,11 @@ $(function() {
 		.cerbSearchTrigger()
 		;
 	
-	if($('#{$message->id}act').visible()) {
-		$('#{$message->id}skip').hide();
-	}
+	try {
+		if($('#{$message->id}act').visible()) {
+			$('#{$message->id}skip').hide();
+		}
+	} catch(e) {}
 });
 </script>
 
