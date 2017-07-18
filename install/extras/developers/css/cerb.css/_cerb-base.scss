@@ -3,6 +3,10 @@
 
 // Cerb base HTML styles
 
+HTML, BODY {
+	background-color: white;
+}
+
 BODY, FORM, TD {
 	font-family: $cerb-base-font-stack;
 	font-size: $cerb-base-font-size;

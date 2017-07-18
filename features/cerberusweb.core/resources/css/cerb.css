@@ -6,6 +6,10 @@
  * Instead, modify the .scss files in install/extras/developers/css/
  *
  */
+HTML, BODY {
+  background-color: white;
+}
+
 BODY, FORM, TD {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
