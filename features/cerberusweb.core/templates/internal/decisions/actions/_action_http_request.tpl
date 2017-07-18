@@ -1,6 +1,6 @@
 <b>{'common.url'|devblocks_translate|upper}:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
-	{$verbs = [get,post,put,delete]}
+	{$verbs = [get,post,put,patch,head,options,delete]}
 	<select name="{$namePrefix}[http_verb]" class="cerb-httprequest-verb">
 		{foreach from=$verbs item=verb}
 		<option value="{$verb}" {if $params.http_verb == $verb}selected="selected"{/if}>{$verb|upper}</option>
@@ -18,7 +18,7 @@
 	</div>
 </div>
 
-<div class="cerb-httprequest-body" style="{if !in_array($params.http_verb,[post,put])}display:none;{/if}">
+<div class="cerb-httprequest-body" style="{if !in_array($params.http_verb,[post,put,patch])}display:none;{/if}">
 	<b>Request body:</b>
 	<div style="margin-left:10px;margin-bottom:10px;">
 		<textarea rows="3" cols="60" name="{$namePrefix}[http_body]" style="width:100%;white-space:pre;word-wrap:normal;" class="placeholders" spellcheck="false">{$params.http_body}</textarea>
@@ -83,7 +83,7 @@ $(function() {
 		var $div_httpbody = $container.find('div.cerb-httprequest-body');
 		var val = $(this).val();
 		
-		if(val == 'post' || val == 'put')
+		if(val == 'post' || val == 'put' || val == 'patch')
 			$div_httpbody.show().find('textarea').autosize();
 		else
 			$div_httpbody.fadeOut();

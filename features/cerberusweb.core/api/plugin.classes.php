@@ -605,6 +605,20 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 				curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 				break;
 				
+			case 'patch':
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
+				curl_setopt($ch, CURLOPT_POST, 1);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+				break;
+				
+			case 'head':
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "HEAD");
+				break;
+				
+			case 'options':
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "OPTIONS");
+				break;
+				
 			case 'delete':
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
 				break;
