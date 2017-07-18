@@ -2109,6 +2109,8 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'storage_size' => $prefix.$translate->_('message.storage_size'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 			'headers' => $prefix.$translate->_('message.headers'),
+			'reply_cc' => $prefix."Reply Cc",
+			'reply_to' => $prefix."Reply To",
 		);
 		
 		// Token types
@@ -2125,6 +2127,8 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'storage_size' => 'size_bytes',
 			'record_url' => Model_CustomField::TYPE_URL,
 			'headers' => null,
+			'reply_cc' => Model_CustomField::TYPE_SINGLE_LINE,
+			'reply_to' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		
 		// Custom field/fieldset token labels
@@ -2267,6 +2271,43 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			case 'headers':
 				$headers = DAO_MessageHeaders::getAll($context_id);
 				$values['headers'] = $headers;
+				break;
+				
+			case 'reply_to':
+				$dict = DevblocksDictionaryDelegate::instance($dictionary);
+				$message_headers = $dict->headers;
+				$values['reply_to'] = '';
+				
+				if(isset($message_headers['to'])) {
+					$from = isset($message_headers['reply-to']) ? $message_headers['reply-to'] : $message_headers['from'];
+					$addys = CerberusMail::parseRfcAddresses($from . ', ' . $message_headers['to'], true);
+					$recipients = array();
+					
+					if(is_array($addys))
+					foreach($addys as $addy) {
+						$recipients[] = $addy['full_email'];
+					}
+					
+					$values['reply_to'] = implode(', ', $recipients);
+				}
+				break;
+				
+			case 'reply_cc':
+				$dict = DevblocksDictionaryDelegate::instance($dictionary);
+				$message_headers = $dict->headers;
+				$values['reply_cc'] = '';
+				
+				if(isset($message_headers['cc'])) {
+					$addys = CerberusMail::parseRfcAddresses($message_headers['cc'], true);
+					$recipients = array();
+					
+					if(is_array($addys))
+					foreach($addys as $addy) {
+						$recipients[] = $addy['full_email'];
+					}
+					
+					$values['reply_cc'] = implode(', ', $recipients);
+				}
 				break;
 				
 			case 'links':
