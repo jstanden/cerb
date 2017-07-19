@@ -392,11 +392,11 @@ abstract class C4_AbstractView {
 					continue;
 				
 				if(isset($sort_results['sort_by']) && !empty($sort_results['sort_by']))
-					$this->renderSortBy = $sort_results['sort_by'][0];
+					$this->renderSortBy = $sort_results['sort_by'];
 				
 				if(isset($sort_results['sort_asc']) && !empty($sort_results['sort_asc']))
-					$this->renderSortAsc = $sort_results['sort_asc'][0];
-					
+					$this->renderSortAsc = $sort_results['sort_asc'];
+				
 				unset($fields[$k]);
 			}
 		}
@@ -437,8 +437,8 @@ abstract class C4_AbstractView {
 		if(false == ($search_fields = $this->getQuickSearchFields()))
 			return false;
 		
-		// Tokenize the sort string with spaces
-		$sort_fields = explode(' ', $sort_query);
+		// Tokenize the sort string with commas
+		$sort_fields = explode(',', $sort_query);
 		
 		if(!is_array($sort_fields) || empty($sort_fields))
 			return false;
@@ -1464,10 +1464,22 @@ abstract class C4_AbstractView {
 		}
 		
 		// Sort by sanity check
-		if(substr($this->renderSortBy,0,3)=="cf_") {
-			if(0 != ($cf_id = intval(substr($this->renderSortBy,3)))) {
-				if(!isset($custom_fields[$cf_id])) {
-					$this->renderSortBy = null;
+		if(is_array($this->renderSortBy)) {
+			foreach($this->renderSortBy as $idx => $k) {
+				if(DevblocksPlatform::strStartsWith($k, "cf_")) {
+					if(0 != ($cf_id = intval(substr($k,3)))) {
+						if(!isset($custom_fields[$cf_id])) {
+							unset($this->renderSortBy[$idx]);
+							unset($this->renderSortAsc[$idx]);
+						}
+					}
+				}
+			}
+		} else if (is_string($this->renderSortBy)) {
+			if(DevblocksPlatform::strStartsWith($this->renderSortBy, 'cf_')) {
+				if(0 != ($cf_id = intval(substr($this->renderSortBy,3)))) {
+					if(!isset($custom_fields[$cf_id]))
+						$this->renderSortBy = null;
 				}
 			}
 		}
@@ -1574,17 +1586,18 @@ abstract class C4_AbstractView {
 	}
 
 	function doSortBy($sortBy) {
-		$iSortAsc = intval($this->renderSortAsc);
-
+		$render_sort_by = is_array($this->renderSortBy) ? array_shift($this->renderSortBy) : $this->renderSortBy;
+		$render_sort_asc = is_array($this->renderSortAsc) ? array_shift($this->renderSortAsc) : ($this->renderSortAsc ? true : false);
+		
 		// [JAS]: If clicking the same header, toggle asc/desc.
-		if(0 == strcasecmp($sortBy,$this->renderSortBy)) {
-			$iSortAsc = (0 == $iSortAsc) ? 1 : 0;
+		if(0 == strcasecmp($sortBy, $render_sort_by)) {
+			$render_sort_asc = empty($render_sort_asc) ? true : false;
 		} else { // [JAS]: If a new header, start with asc.
-			$iSortAsc = 1;
+			$render_sort_asc = true;
 		}
-
+		
 		$this->renderSortBy = $sortBy;
-		$this->renderSortAsc = $iSortAsc;
+		$this->renderSortAsc = $render_sort_asc;
 	}
 
 	function doPage($page) {
@@ -3720,16 +3733,15 @@ class C4_AbstractViewModel {
 	public $renderPage = 0;
 	public $renderLimit = 10;
 	public $renderTotal = true;
-	public $renderSortBy = '';
-	public $renderSortAsc = 1;
+	public $renderSort = '';
 	
 	public $renderFilters = null;
 	public $renderSubtotals = null;
 	
 	public $renderTemplate = null;
 	
-	public $placeholderLabels = array();
-	public $placeholderValues = array();
+	public $placeholderLabels = [];
+	public $placeholderValues = [];
 	
 	static function loadFromClass($class_name) {
 		if(empty($class_name))
@@ -3850,9 +3862,13 @@ class C4_AbstractViewLoader {
 		$model->renderPage = intval($view->renderPage);
 		$model->renderLimit = intval($view->renderLimit);
 		$model->renderTotal = intval($view->renderTotal);
-		$model->renderSortBy = $view->renderSortBy;
-		$model->renderSortAsc = $view->renderSortAsc ? true : false;
-
+		
+		if(!is_array($view->renderSortBy)) {
+			$model->renderSort = [$view->renderSortBy => ($view->renderSortAsc ? true : false)];
+		} else {
+			$model->renderSort = @array_combine($view->renderSortBy, $view->renderSortAsc);
+		}
+		
 		$model->renderFilters = $view->renderFilters ? true : false;
 		$model->renderSubtotals = $view->renderSubtotals;
 		
@@ -3903,14 +3919,21 @@ class C4_AbstractViewLoader {
 			$inst->renderLimit = intval($model->renderLimit);
 		if(null !== $model->renderTotal)
 			$inst->renderTotal = intval($model->renderTotal);
-		if(!empty($model->renderSortBy))
-			$inst->renderSortBy = $model->renderSortBy;
-		if(null !== $model->renderSortBy)
-			$inst->renderSortAsc = $model->renderSortAsc ? true : false;
 
+		if(is_array($model->renderSort)) {
+			if(1 == count($model->renderSort)) {
+				$inst->renderSortBy = key($model->renderSort);
+				$inst->renderSortAsc = current($model->renderSort);
+				
+			} else {
+				$inst->renderSortBy = array_keys($model->renderSort);
+				$inst->renderSortAsc = array_values($model->renderSort);
+			}
+		}
+		
 		$inst->renderFilters = $model->renderFilters ? true : false;
 		$inst->renderSubtotals = $model->renderSubtotals;
-			
+		
 		$inst->renderTemplate = $model->renderTemplate;
 		
 		if(is_array($model->placeholderLabels))
@@ -3947,7 +3970,7 @@ class C4_AbstractViewLoader {
 			'params' => json_decode(json_encode($view->getEditableParams()), true),
 			'limit' => intval($view->renderLimit),
 			'sort_by' => $view->renderSortBy,
-			'sort_asc' => !empty($view->renderSortAsc),
+			'sort_asc' => $view->renderSortAsc,
 			'subtotals' => $view->renderSubtotals,
 		);
 		
@@ -3978,7 +4001,7 @@ class C4_AbstractViewLoader {
 		$view->view_columns = $view_model['columns'];
 		$view->renderLimit = intval($view_model['limit']);
 		$view->renderSortBy = $view_model['sort_by'];
-		$view->renderSortAsc = $view_model['sort_asc'] ? true : false;
+		$view->renderSortAsc = $view_model['sort_asc'];
 		$view->renderSubtotals = $view_model['subtotals'];
 		
 		// Convert JSON params back to objects
@@ -4061,8 +4084,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'render_page',
 			'render_total',
 			'render_limit',
-			'render_sort_by',
-			'render_sort_asc',
+			'render_sort_json',
 			'render_filters',
 			'render_subtotals',
 			'render_template',
@@ -4088,8 +4110,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			$model->renderPage = $row['render_page'];
 			$model->renderTotal = $row['render_total'];
 			$model->renderLimit = $row['render_limit'];
-			$model->renderSortBy = $row['render_sort_by'];
-			$model->renderSortAsc = $row['render_sort_asc'];
 			$model->renderFilters = $row['render_filters'];
 			$model->renderSubtotals = $row['render_subtotals'];
 			$model->renderTemplate = $row['render_template'];
@@ -4102,6 +4122,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			$model->paramsRequired = self::decodeParamsJson($row['params_required_json']);
 			$model->paramsDefault = self::decodeParamsJson($row['params_default_json']);
 			$model->paramsHidden = json_decode($row['params_hidden_json'], true);
+			$model->renderSort = json_decode($row['render_sort_json'], true);
 			
 			$model->placeholderLabels = json_decode($row['placeholder_labels_json'], true);
 			$model->placeholderValues = json_decode($row['placeholder_values_json'], true);
@@ -4163,6 +4184,18 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	
 	static public function setView($worker_id, $view_id, C4_AbstractViewModel $model) {
 		$db = DevblocksPlatform::getDatabaseService();
+
+		$render_sort = '';
+		
+		if(isset($model->renderSortBy)) {
+			if(is_array($model->renderSortBy) && is_array($model->renderSortAsc) && count($model->renderSortBy) == count($model->renderSortAsc)) {
+				$render_sort = array_combine($model->renderSortBy, $model->renderSortAsc);
+			} else if(!is_array($model->renderSortBy) && !is_array($model->renderSortAsc)) {
+				$render_sort = [$model->renderSortBy => ($model->renderSortAsc ? true : false) ];
+			}
+		} else {
+			$render_sort = $model->renderSort;
+		}
 		
 		$fields = array(
 			'worker_id' => $worker_id,
@@ -4180,8 +4213,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'render_page' => abs(intval($model->renderPage)),
 			'render_total' => !empty($model->renderTotal) ? 1 : 0,
 			'render_limit' => intval($model->renderLimit),
-			'render_sort_by' => $db->qstr($model->renderSortBy),
-			'render_sort_asc' => !empty($model->renderSortAsc) ? 1 : 0,
+			'render_sort_json' => $db->qstr(json_encode($render_sort)),
 			'render_filters' => !empty($model->renderFilters) ? 1 : 0,
 			'render_subtotals' => $db->qstr($model->renderSubtotals),
 			'render_template' => $db->qstr($model->renderTemplate),
