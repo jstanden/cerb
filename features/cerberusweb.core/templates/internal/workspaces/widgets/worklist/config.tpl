@@ -39,7 +39,7 @@
 				$('#popup{$div_popup_worklist}').click(function(e) {
 					var $select = $(this).siblings('select.context');
 					var context = $select.val();
-					var $mode = $popup.find('input.mode');
+					var $mode = $fieldset.find('input.mode');
 					var q = '';
 					
 					if($mode.is(':checked')) {
