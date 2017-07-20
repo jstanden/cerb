@@ -62,14 +62,8 @@
 	{/if}
 	
 	{* Bulk lazy load tickets *}
-	{$object_tickets = []}
-	{if in_array(SearchFields_Message::TICKET_GROUP_ID, $view->view_columns)
-		|| in_array(SearchFields_Message::TICKET_SUBJECT, $view->view_columns)
-		|| in_array(SearchFields_Message::TICKET_MASK, $view->view_columns)
-		}
-		{$ticket_ids = DevblocksPlatform::extractArrayValues($results, 'm_ticket_id')}
-		{$object_tickets = DAO_Ticket::getIds($ticket_ids)}
-	{/if}
+	{$ticket_ids = DevblocksPlatform::extractArrayValues($results, 'm_ticket_id')}
+	{$object_tickets = DAO_Ticket::getIds($ticket_ids)}
 
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
