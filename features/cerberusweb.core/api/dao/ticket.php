@@ -2947,6 +2947,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT),
 				),
+			'closed' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_CLOSED_AT),
+				),
 			'created' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
