@@ -4806,17 +4806,23 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			if(false != ($filter_bucket = $view->findParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false))) {
 				$filter_bucket = array_shift($filter_bucket);
-				$bucket_id = is_array($filter_bucket->value) ? current($filter_bucket->value) : $filter_bucket->value;
 				
-				if(!isset($buckets[$bucket_id]))
-					$bucket_id = 0;
-				
-				$group_id = $buckets[$bucket_id]->group_id;
+				if(!is_array($filter_bucket->value) || 1 == count($filter_bucket->value)) {
+					$bucket_id = is_array($filter_bucket->value) ? current($filter_bucket->value) : $filter_bucket->value;
+					
+					if(!isset($buckets[$bucket_id]))
+						$bucket_id = 0;
+					
+					$group_id = $buckets[$bucket_id]->group_id;
+				}
 			}
 			
 			if(!$group_id && false != ($filter_group = $view->findParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false))) {
 				$filter_group = array_shift($filter_group);
-				$group_id = is_array($filter_group->value) ? current($filter_group->value) : $filter_group->value;
+				
+				if(!is_array($filter_group->value) || 1 == count($filter_group->value)) {
+					$group_id = is_array($filter_group->value) ? current($filter_group->value) : $filter_group->value;
+				}
 			}
 			
 			$defaults['group_id'] = $group_id;
