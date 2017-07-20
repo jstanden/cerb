@@ -823,5 +823,14 @@
 		$frm.find('input:text[name=org_name]').trigger('autocompletechange');
 		{/if}
 
+		{* Run custom jQuery scripts from VA behavior *}
+		
+		{if !empty($jquery_scripts)}
+		{foreach from=$jquery_scripts item=jquery_script}
+		try {
+			{$jquery_script nofilter}
+		} catch(e) { }
+		{/foreach}
+		{/if}
 	});
 </script>

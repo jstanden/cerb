@@ -735,6 +735,10 @@
 			<class name="Event_RecurrentBehavior" />
 		</file>
 
+		<file path="api/events/ui/ui_before_compose_by_worker.php">
+			<class name="Event_MailBeforeUiComposeByWorker" />
+		</file>
+		
 		<file path="api/events/ui/ui_before_reply_by_worker.php">
 			<class name="Event_MailBeforeUiReplyByWorker" />
 		</file>
@@ -3034,8 +3038,27 @@
 		</extension>
 		
 		<extension point="devblocks.event">
+			<id>event.mail.compose.pre.ui.worker</id>
+			<name>[UI] Before composing a new message</name>
+			<class>
+				<file>api/events/ui/ui_before_compose_by_worker.php</file>
+				<name>Event_MailBeforeUiComposeByWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
 			<id>event.mail.reply.pre.ui.worker</id>
-			<name>[UI] Before starting a message reply</name>
+			<name>[UI] Before composing a message reply</name>
 			<class>
 				<file>api/events/ui/ui_before_reply_by_worker.php</file>
 				<name>Event_MailBeforeUiReplyByWorker</name>
