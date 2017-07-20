@@ -285,6 +285,12 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
 			case 'exec_jquery':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$script = $tpl_builder->build($params['jquery_script'], $dict);
+				
+				$out = sprintf(">>> Executing jQuery script:\n\n%s\n",
+					$script
+				);
 				break;
 		}
 	}

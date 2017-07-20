@@ -178,6 +178,12 @@ class Event_MailDuringUiReplyByWorker extends AbstractEvent_Message {
 		
 		switch($token) {
 			case 'exec_jquery':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$script = $tpl_builder->build($params['jquery_script'], $dict);
+				
+				$out = sprintf(">>> Executing jQuery script:\n\n%s\n",
+					$script
+				);
 				break;
 		}
 	}
