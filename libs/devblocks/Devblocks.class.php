@@ -529,11 +529,18 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function strParseQueryString($string) {
+		if(empty($string))
+			return [];
+		
 		$tuples = explode('&', $string);
 		$vars = [];
 		
 		foreach($tuples as $tuple) {
-			list($key, $value) = explode('=', $tuple);
+			@list($key, $value) = explode('=', $tuple);
+			
+			if(empty($key))
+				continue;
+			
 			$key = urldecode($key);
 			$value = urldecode($value);
 			$vars[$key] = $value;
