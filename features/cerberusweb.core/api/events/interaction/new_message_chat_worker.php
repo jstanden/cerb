@@ -276,6 +276,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				'prompt_buttons' => array('label' => 'Prompt with buttons'),
 				'prompt_chooser' => array('label' => 'Prompt with chooser'),
 				'prompt_images' => array('label' => 'Prompt with images'),
+				'prompt_file' => array('label' => 'Prompt with file upload'),
 				'prompt_text' => array('label' => 'Prompt with text input'),
 				'prompt_wait' => array('label' => 'Prompt with wait'),
 				'send_message' => array('label' => 'Respond with message'),
@@ -325,6 +326,10 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$tpl->assign('contexts', $contexts);
 				
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_chooser.tpl');
+				break;
+				
+			case 'prompt_file':
+				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_file.tpl');
 				break;
 				
 			case 'prompt_images':
@@ -410,6 +415,12 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					$query,
 					$selection
 				);
+				break;
+				
+			case 'prompt_file':
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				
+				$out = sprintf(">>> Prompting with file upload\n");
 				break;
 				
 			case 'prompt_images':
@@ -534,6 +545,17 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					'query' => $query,
 					'selection' => $selection,
 					'autocomplete' => $autocomplete,
+				);
+				
+				$dict->__exit = 'suspend';
+				break;
+				
+			case 'prompt_file':
+				$actions =& $dict->_actions;
+				
+				$actions[] = array(
+					'_action' => 'prompt.file',
+					'_trigger_id' => $trigger->id,
 				);
 				
 				$dict->__exit = 'suspend';

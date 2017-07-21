@@ -429,6 +429,11 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->display('devblocks:cerberusweb.core::console/prompt_chooser.tpl');
 					break;
 					
+				case 'prompt.file':
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_file.tpl');
+					break;
+					
 				case 'prompt.images':
 					@$images = $params['images'];
 					@$labels = $params['labels'];
