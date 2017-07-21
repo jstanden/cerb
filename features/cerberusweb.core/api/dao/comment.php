@@ -1255,7 +1255,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'id' => $prefix.DevblocksPlatform::translate('common.target'),
+			'id' => $prefix.DevblocksPlatform::translate('common.id', DevblocksPlatform::TRANSLATE_UPPER),
 			'comment' => $prefix.DevblocksPlatform::translate('common.content', DevblocksPlatform::TRANSLATE_CAPITALIZE),
 			'created' => $prefix.DevblocksPlatform::translate('common.created', DevblocksPlatform::TRANSLATE_CAPITALIZE),
 			'author__label' => $prefix.DevblocksPlatform::translate('common.author', DevblocksPlatform::TRANSLATE_CAPITALIZE),
