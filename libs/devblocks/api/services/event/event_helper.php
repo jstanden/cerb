@@ -4498,8 +4498,9 @@ class DevblocksEventHelper {
 				
 				// Default to reply-to if empty
 				if(!$html_template_id && false != ($replyto = $replyto_addresses[$from_address_id])) {
-					$html_template = $replyto->getReplyHtmlTemplate();
-					$html_template_id = $html_template->id;
+					if(null != ($html_template = $replyto->getReplyHtmlTemplate())) {
+						$html_template_id = $html_template->id;
+					}
 				}
 				break;
 		}
