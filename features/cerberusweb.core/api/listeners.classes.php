@@ -815,12 +815,9 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			if(is_null($dict)) {
 				$event_ext->setEvent($event, $trigger);
 				$values = $event_ext->getValues();
-		
+				
 				// Lazy-loader dictionary
 				$dict = new DevblocksDictionaryDelegate($values);
-				
-				// [TODO] Cache the dict we're left with by context:id
-				//var_dump(array('pre_cache', $values));
 				
 				// We're preloading some variable values
 				if(isset($event->params['_variables']) && is_array($event->params['_variables'])) {
@@ -833,7 +830,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 			}
 			
 			$trigger->runDecisionTree($dict, false, $event_ext);
-
+			
 			// Snapshot the dictionary of the behavior at conclusion
 			$runners[$trigger->id] = $dict;
 			

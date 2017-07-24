@@ -481,6 +481,47 @@ class DevblocksDictionaryDelegate {
 		return DevblocksDictionaryDelegate::instance($values);
 	}
 	
+	public function merge($token_prefix, $label_prefix, $src_labels, $src_values) {
+		$dst_labels =& $this->_dictionary['_labels'];
+		$dst_values =& $this->_dictionary;
+		
+		if(is_array($src_labels))
+		foreach($src_labels as $token => $label) {
+			$dst_labels[$token_prefix.$token] = $label_prefix.$label;
+		}
+
+		if(is_array($src_values))
+		foreach($src_values as $token => $value) {
+			if(in_array($token, array('_labels', '_types'))) {
+
+				switch($token) {
+					case '_labels':
+						if(!isset($dst_values['_labels']))
+							$dst_values['_labels'] = [];
+
+						foreach($value as $key => $label) {
+							$dst_values['_labels'][$token_prefix.$key] = $label_prefix.$label;
+						}
+						break;
+
+					case '_types':
+						if(!isset($dst_values['_types']))
+							$dst_values['_types'] = [];
+
+						foreach($value as $key => $type) {
+							$dst_values['_types'][$token_prefix.$key] = $type;
+						}
+						break;
+				}
+
+			} else {
+				$dst_values[$token_prefix.$token] = $value;
+			}
+		}
+
+		return true;
+	}
+	
 	public static function getDictionariesFromModels(array $models, $context, array $keys=array()) {
 		$dicts = array();
 		

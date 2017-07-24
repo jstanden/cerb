@@ -872,8 +872,20 @@ class Model_TriggerEvent {
 		if(is_null($event))
 			$event = $this->getEvent();
 		
-		// Add a convenience pointer
+		/**
+		 * Late-binding for behavior placeholders (this works inside shared context loops)
+		 */
+		
 		$dict->__trigger = $this;
+		
+		$merge_labels = $merge_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $this, $merge_labels, $merge_values, null, true);
+		$dict->scrubKeys('behavior_');
+		$dict->merge('behavior_', '', $merge_labels, $merge_values);
+		
+		/**
+		 * Run behavior
+		 */
 		
 		$this->_recurseRunTree($event, $nodes, $tree, 0, $dict, $path, $replay, $dry_run);
 		
