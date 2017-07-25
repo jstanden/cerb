@@ -54,6 +54,8 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 	
 	static function trigger($trigger_id, $context, $view_id, &$actions) {
 		$events = DevblocksPlatform::getEventService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
@@ -61,6 +63,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 					'_caller_actions' => &$actions,
 					'context' => $context,
 					'view_id' => $view_id,
+					'worker' => $active_worker,
 					'_whisper' => array(
 						'_trigger_id' => array($trigger_id),
 					),
@@ -77,12 +80,14 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger, $context=null, $view_id=null) {
 		// [TODO] Set defaults
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
 				'context' => $context ?: 'cerberusweb.contexts.ticket',
 				'view_id' => $view_id ?: 'search_cerberusweb_contexts_ticket',
+				'worker' => $active_worker,
 			)
 		);
 	}
@@ -90,6 +95,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		@$context = $event_model->params['context'];
 		@$view_id = $event_model->params['view_id'];
+		@$worker = $event_model->params['worker'];
 		
 		$labels = array();
 		$values = array();
@@ -111,17 +117,36 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
+			
+		/**
+		 * Worker
+		 */
+			
+		$merge_labels = array();
+		$merge_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $merge_labels, $merge_values, null, true);
+
+			// Merge
+			CerberusContexts::merge(
+				'worker_',
+				'',
+				$merge_labels,
+				$merge_values,
+				$labels,
+				$values
+			);
+		
+		/**
+		 * Worklist
+		 */
 		
 		$labels['context'] = 'Worklist Type';
 		$values['context'] = $context;
+		$values['_types']['context'] = null;
 		
 		$labels['view_id'] = 'Worklist ID';
 		$values['view_id'] = $view_id;
-		
-		$values['_types'] = array(
-			'context' => null,
-			'view_id' => Model_CustomField::TYPE_SINGLE_LINE,
-		);
+		$values['_types']['view_id'] = Model_CustomField::TYPE_SINGLE_LINE;
 		
 		/**
 		 * Caller actions
@@ -149,12 +174,10 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 				'label' => 'Bot',
 				'context' => CerberusContexts::CONTEXT_BOT,
 			),
-			/*
 			'worker_id' => array(
 				'label' => 'Worker',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
-			*/
 		);
 		
 		$vars = parent::getValuesContexts($trigger);
@@ -167,15 +190,13 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 	
 	function getConditionExtensions(Model_TriggerEvent $trigger) {
 		$labels = $this->getLabels($trigger);
-		
+		$types = $this->getTypes();
 		
 		$labels['context'] = 'Worklist Type';
 		$labels['view_id'] = 'Worklist ID';
 		
-		$types = array(
-			'context' => null,
-			'view_id' => Model_CustomField::TYPE_SINGLE_LINE,
-		);
+		$types['context'] = null;
+		$types['view_id'] = Model_CustomField::TYPE_SINGLE_LINE;
 
 		$conditions = $this->_importLabelsTypesAsConditions($labels, $types);
 		
