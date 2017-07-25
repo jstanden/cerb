@@ -121,6 +121,15 @@
 	</fieldset>
 </div>
 
+{if !empty($custom_fields)}
+<fieldset class="peek">
+	<legend>{'common.custom_fields'|devblocks_translate}</legend>
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+</fieldset>
+{/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_BUCKET context_id=$bucket->id}
+
 {if !empty($bucket->id)}
 <fieldset style="display:none;" class="delete">
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
