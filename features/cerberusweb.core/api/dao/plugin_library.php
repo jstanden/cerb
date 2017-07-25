@@ -278,6 +278,9 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 				throw new Exception("The cURL PHP extension is not installed");
 			
 			$ch = DevblocksPlatform::curlInit($url);
+			curl_setopt_array($ch, array(
+				CURLOPT_TIMEOUT => 10,
+			));
 			$json_data = DevblocksPlatform::curlExec($ch, true);
 			
 		} catch(Exception $e) {
