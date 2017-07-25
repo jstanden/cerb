@@ -2129,7 +2129,14 @@ class CerberusContexts {
 					$dont_notify_on_activities = WorkerPrefs::getDontNotifyOnActivities($watcher_id);
 					if(in_array($activity_point, $dont_notify_on_activities))
 						continue;
-
+					
+					// Ignore link notifications for custom fieldsets
+					if(
+						in_array($activity_point, ['connection.link', 'connection.unlink'])
+						&& $target_context == CerberusContexts::CONTEXT_CUSTOM_FIELDSET
+						)
+						continue;
+					
 					// If yes, send it
 					DAO_Notification::create(array(
 						DAO_Notification::CONTEXT => $target_context,
