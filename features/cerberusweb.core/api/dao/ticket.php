@@ -4799,9 +4799,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		// Default group/bucket based on worklist
 		if(false != ($view = C4_AbstractViewLoader::getView($view_id)) && $view instanceof View_Ticket) {
-			$group_id = 0;
-			$bucket_id = 0;
-			
 			$params = $view->getParams();
 			
 			if(false != ($filter_bucket = $view->findParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false))) {
@@ -4810,23 +4807,25 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				if(!is_array($filter_bucket->value) || 1 == count($filter_bucket->value)) {
 					$bucket_id = is_array($filter_bucket->value) ? current($filter_bucket->value) : $filter_bucket->value;
 					
-					if(!isset($buckets[$bucket_id]))
-						$bucket_id = 0;
-					
-					$group_id = $buckets[$bucket_id]->group_id;
+					if(isset($buckets[$bucket_id])) {
+						$group_id = $buckets[$bucket_id]->group_id;
+						$defaults['group_id'] = $group_id;
+						$defaults['bucket_id'] = $bucket_id;
+					}
 				}
-			}
-			
-			if(!$group_id && false != ($filter_group = $view->findParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false))) {
+				
+			} else if(false != ($filter_group = $view->findParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false))) {
 				$filter_group = array_shift($filter_group);
 				
 				if(!is_array($filter_group->value) || 1 == count($filter_group->value)) {
 					$group_id = is_array($filter_group->value) ? current($filter_group->value) : $filter_group->value;
+					
+					if(isset($groups[$group_id])) {
+						$defaults['group_id'] = $group_id;
+						$defaults['bucket_id'] = intval(@$groups[$group_id]->getDefaultBucket()->id);
+					}
 				}
 			}
-			
-			$defaults['group_id'] = $group_id;
-			$defaults['bucket_id'] = $bucket_id;
 		}
 		
 		if(!empty($edit)) {
