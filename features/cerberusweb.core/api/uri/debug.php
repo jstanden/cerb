@@ -144,6 +144,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 							'sent_24h' => intval($db->GetOneMaster(sprintf('SELECT count(id) FROM message WHERE is_outgoing=1 AND created_date >= %d', time()-86400))),
 						),
 						'portals' => intval(@$db->GetOneMaster('SELECT count(id) FROM community_tool')),
+						'project_boards' => intval(@$db->GetOneMaster('SELECT count(id) FROM project_board')),
 						'tickets' => intval($db->GetOneMaster('SELECT count(id) FROM ticket')),
 						'tickets_status' => $tickets_by_status,
 						'webhooks' => intval(@$db->GetOneMaster('SELECT count(id) FROM webhook_listener')),
