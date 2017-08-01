@@ -181,10 +181,16 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		}
 	}
 	
-	static function _getWhereSQLFromVirtualSearchSqlField(DevblocksSearchCriteria $param, $context, $subquery_sql) {
+	static function _getWhereSQLFromVirtualSearchSqlField(DevblocksSearchCriteria $param, $context, $subquery_sql, $where_key=null) {
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 			$query = $param->value;
+			
+			$not = false;
+			if(DevblocksPlatform::strStartsWith($query, '!')) {
+				$not = true;
+				$query = mb_substr($query, 1);
+			}
 			
 			if(false == ($ext = Extension_DevblocksContext::get($context)))
 				return;
@@ -212,6 +218,14 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['where']
 				. $query_parts['sort']
 				;
+			
+			if(!empty($where_key)) {
+				$subquery_sql = sprintf("%s %s (%s)",
+					$where_key,
+					$not ? 'NOT IN' : 'IN',
+					$subquery_sql
+				);
+			}
 			
 			return sprintf($subquery_sql, $sql);
 		}

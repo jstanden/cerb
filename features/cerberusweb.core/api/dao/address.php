@@ -700,7 +700,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_TICKET_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "a.id IN (SELECT address_id FROM requester r WHERE r.ticket_id IN (%s))");
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "SELECT address_id FROM requester r WHERE r.ticket_id IN (%s)", 'a.id');
 				break;
 				
 			case self::VIRTUAL_WATCHERS:

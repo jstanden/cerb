@@ -798,8 +798,8 @@ class SearchFields_Group extends DevblocksSearchFields {
 				break;
 			
 			case self::VIRTUAL_MEMBER_SEARCH:
-				$sql = "g.id IN (SELECT DISTINCT wtg.group_id FROM worker_to_group wtg WHERE wtg.worker_id IN (%s))";
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql);
+				$sql = "SELECT DISTINCT wtg.group_id FROM worker_to_group wtg WHERE wtg.worker_id IN (%s)";
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'g.id');
 				break;
 			
 			default:

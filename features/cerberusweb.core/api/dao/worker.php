@@ -1149,8 +1149,8 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_GROUP_SEARCH:
-				$sql = "w.id IN (SELECT worker_id FROM worker_to_group WHERE group_id IN (%s))";
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql);
+				$sql = "SELECT worker_id FROM worker_to_group WHERE group_id IN (%s)";
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql, 'w.id');
 				break;
 				
 			case self::VIRTUAL_CALENDAR_AVAILABILITY:

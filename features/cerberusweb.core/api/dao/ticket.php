@@ -2020,19 +2020,19 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_MESSAGE_FIRST_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 't.first_message_id IN (SELECT id FROM message WHERE id IN (%s))');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 'SELECT id FROM message WHERE id IN (%s)', 't.first_message_id');
 				break;
 				
 			case self::VIRTUAL_MESSAGE_LAST_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 't.last_message_id IN (SELECT id FROM message WHERE id IN (%s))');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 'SELECT id FROM message WHERE id IN (%s)', 't.last_message_id');
 				break;
 				
 			case self::VIRTUAL_MESSAGES_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 't.id IN (SELECT ticket_id FROM message WHERE id IN (%s))');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 'SELECT ticket_id FROM message WHERE id IN (%s)', 't.id');
 				break;
 				
 			case self::VIRTUAL_PARTICIPANT_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ADDRESS, 't.id IN (SELECT ticket_id FROM requester WHERE address_id IN (%s))');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ADDRESS, 'SELECT ticket_id FROM requester WHERE address_id IN (%s)', 't.id');
 				break;
 				
 			// [TODO]
