@@ -115,11 +115,20 @@ class ChDebugController extends DevblocksControllerExtension  {
 					}
 				}
 				
+				$results = $db->GetArrayMaster('SELECT COUNT(*) AS hits, event_point FROM trigger_event GROUP BY event_point ORDER BY hits DESC');
+				
+				if(false != ($bot_behavior_counts = array_column($results, 'hits', 'event_point')) && is_array($bot_behavior_counts)) {
+					array_walk($bot_behavior_counts, function(&$count) {
+						$count = intval($count);
+					});
+				}
+				
 				$status = array(
 					'counts' => array(
 						'attachments' => intval($db->GetOneMaster('SELECT count(id) FROM attachment')),
 						'bots' => intval($db->GetOneMaster('SELECT count(id) FROM bot')),
 						'bot_behaviors' => intval($db->GetOneMaster('SELECT count(id) FROM trigger_event')),
+						'bot_events' => is_array($bot_behavior_counts) ? $bot_behavior_counts : [],
 						'buckets' => intval($db->GetOneMaster('SELECT count(id) FROM bucket')),
 						'comments' => intval($db->GetOneMaster('SELECT count(id) FROM comment')),
 						'custom_fields' => intval($db->GetOneMaster('SELECT count(id) FROM custom_field')),
@@ -137,7 +146,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 						'portals' => intval(@$db->GetOneMaster('SELECT count(id) FROM community_tool')),
 						'tickets' => intval($db->GetOneMaster('SELECT count(id) FROM ticket')),
 						'tickets_status' => $tickets_by_status,
-						'webhooks' => intval($db->GetOneMaster('SELECT count(id) FROM webhook_listener')),
+						'webhooks' => intval(@$db->GetOneMaster('SELECT count(id) FROM webhook_listener')),
 						'workers' => intval($db->GetOneMaster('SELECT count(id) FROM worker')),
 						'workers_active_15m' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-900))),
 						'workers_active_30m' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-1800))),
