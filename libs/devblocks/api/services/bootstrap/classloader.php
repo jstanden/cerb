@@ -85,9 +85,6 @@ class _DevblocksClassLoadManager {
 			"TijsVerkoyen\\CssToInlineStyles\\"
 		);
 		
-		$this->registerClasses(DEVBLOCKS_PATH . 'libs/finediff/FineDiff.php', array(
-			'FineDiff'
-		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/parsedown/Parsedown.php', array(
 			'Parsedown'
 		));

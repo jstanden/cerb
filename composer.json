@@ -19,11 +19,10 @@
 		"smarty/smarty" : "3.1.31",
 		"swiftmailer/swiftmailer" : "5.4.8",
 		"mtdowling/cron-expression" : "^1.2",
-		"defuse/php-encryption": "^2.1"
+		"defuse/php-encryption": "^2.1",
+		"sebastian/diff": "1.4.3"
 	},
 	"require-dev" : {
-		"phpseclib/phpseclib" : "2.0.4",
-		"cogpowered/finediff" : "0.3.1"
 	},
 	"support" : {
 		"email" : "support@webgroupmedia.com",
