@@ -196,6 +196,15 @@ class _DevblocksServices {
 		return _DevblocksUrlManager::getInstance();
 	}
 	
+	/**
+	 * 
+	 * @return _DevblocksValidationService
+	 */
+	function validation() {
+		return new _DevblocksValidationService();
+	}
+}
+
 /**
  * A platform container for plugin/extension registries.
  *
