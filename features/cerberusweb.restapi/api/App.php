@@ -207,7 +207,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 	
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// **** BEGIN AUTH
 		@$verb = $_SERVER['REQUEST_METHOD'];

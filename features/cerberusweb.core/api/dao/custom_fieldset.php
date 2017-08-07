@@ -9,7 +9,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	const CACHE_ALL = 'ch_CustomFieldsets';
 	
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "INSERT INTO custom_fieldset () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -56,7 +56,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	}
 	
 	static function linkToContextsByFieldValues($fieldset_id, $field_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$temp_table = '_links_' . uniqid();
 		
@@ -98,7 +98,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	 * @return Model_CustomFieldset[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -281,7 +281,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	}
 	
 	static public function count($owner_context, $owner_context_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneSlave(sprintf("SELECT count(*) FROM custom_fieldset ".
 			"WHERE owner_context = %s AND owner_context_id = %d",
 			$db->qstr($owner_context),
@@ -293,7 +293,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -395,7 +395,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

@@ -1,7 +1,7 @@
 <?php
 class ExCron extends CerberusCronPageExtension {
 	public function run() {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 		$logger->info("[Example Plugin] Started");
 			
 		// [TODO] Do something

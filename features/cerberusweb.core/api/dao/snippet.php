@@ -27,7 +27,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	const CUSTOM_PLACEHOLDERS_JSON = 'custom_placeholders_json';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO snippet () ".
 			"VALUES ()"
@@ -138,7 +138,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	}
 	
 	static function incrementUse($id, $worker_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Update the aggregate counter
 		$sql = sprintf("UPDATE snippet SET total_uses = total_uses + 1 WHERE id = %d", $id);
@@ -165,7 +165,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	 * @return Model_Snippet[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -234,8 +234,8 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		// Search indexes
@@ -252,7 +252,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		if(!is_array($ids))
 			$ids = array($ids);
@@ -283,7 +283,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	}
 	
 	static function deleteByOwner($owner_context, $owner_context_ids) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($owner_context_ids))
 			$owner_context_ids = array($owner_context_ids);
@@ -406,7 +406,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -672,7 +672,7 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 		
 		if(false == ($engine = $this->getEngine()))
 			return false;

@@ -9,7 +9,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 	const CACHE_ALL = 'dao_skills_all';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "INSERT INTO skill () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -73,7 +73,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 	 * @return Model_Skill[]
 	 */
 	static function getWhere($where=null, $sortBy=DAO_Skill::NAME, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -153,7 +153,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 	}
 	
 	static function getContextSkillLevels($context, $context_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// [TODO] Do we cache this for workers?
 		// [TODO] Or do we pull worker skill levels separately?
@@ -210,7 +210,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -314,7 +314,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

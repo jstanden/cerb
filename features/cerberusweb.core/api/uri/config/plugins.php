@@ -79,7 +79,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 			return;
 		}
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		if(empty($plugin_id))
 			return;

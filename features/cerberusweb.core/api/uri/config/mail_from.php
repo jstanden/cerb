@@ -19,7 +19,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$visit = CerberusApplication::getVisit();
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$settings = $db = DevblocksPlatform::services()->pluginSettings();
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_from');
 

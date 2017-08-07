@@ -27,7 +27,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	const CACHE_ALL = 'ch_customfields';
 	
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO custom_field () ".
 			"VALUES ()"
@@ -109,7 +109,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if(null === ($objects = $cache->load(self::CACHE_ALL))) {
-			$db = DevblocksPlatform::getDatabaseService();
+			$db = DevblocksPlatform::services()->database();
 			$sql = "SELECT id, name, type, context, custom_fieldset_id, pos, params_json ".
 				"FROM custom_field ".
 				"ORDER BY custom_fieldset_id ASC, pos ASC "
@@ -171,7 +171,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		if(empty($ids))
 			return;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$id_string = implode(',', $ids);
 		
@@ -200,8 +200,8 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	}
 	
 	public static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		
 		$db->ExecuteMaster("DELETE FROM custom_field WHERE custom_fieldset_id != 0 AND custom_fieldset_id NOT IN (SELECT id FROM custom_fieldset)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field records.');
@@ -524,7 +524,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	public static function setFieldValue($context, $context_id, $field_id, $value, $delta=false) {
 		CerberusContexts::checkpointChanges($context, array($context_id));
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(null == ($field = DAO_CustomField::get($field_id)))
 			return FALSE;
@@ -599,7 +599,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	public static function unsetFieldValue($context, $context_id, $field_id, $value=null) {
 		CerberusContexts::checkpointChanges($context, array($context_id));
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(null == ($field = DAO_CustomField::get($field_id)))
 			return FALSE;
@@ -824,7 +824,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		if(empty($context_ids))
 			return array();
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Only check the custom fields of this context
 		$fields = DAO_CustomField::getByContext($context);
@@ -924,7 +924,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	}
 	
 	public static function deleteByContextIds($context, $context_ids) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($context_ids)) $context_ids = array($context_ids);
 		$ids_list = implode(',', $context_ids);
@@ -944,7 +944,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	}
 	
 	public static function deleteByFieldId($field_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$tables = array('custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue');
 

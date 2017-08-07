@@ -5,7 +5,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 	const IS_ENABLED = 'is_enabled';
 	
 	static function getContactAddressesWithShared($contact_id, $only_ids=false) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$ids = array();
 		
 		$sql = sprintf("SELECT share_address_id AS id ".
@@ -42,7 +42,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 		if(!is_array($with_address_ids))
 			$with_address_ids = array($with_address_ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Share the source address with each of the target addresses
 		foreach($with_address_ids as $with_address_id) {
@@ -62,7 +62,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 		if(!is_array($address_ids))
 			$address_ids = array($address_ids);
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("SELECT share.email AS share_address, aw.email AS with_address, sas.share_address_id, sas.with_address_id, sas.is_enabled ".
 			"FROM supportcenter_address_share AS sas ".
 			"INNER JOIN address AS share ON (share.id=sas.share_address_id) ".
@@ -80,7 +80,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 		if(!is_array($address_ids))
 			$address_ids = array($address_ids);
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("SELECT share.email AS share_address, aw.email AS with_address, sas.share_address_id, sas.with_address_id, sas.is_enabled ".
 			"FROM supportcenter_address_share AS sas ".
 			"INNER JOIN address AS share ON (share.id=sas.share_address_id) ".
@@ -124,7 +124,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 		if(empty($share_with_ids))
 			$share_with_ids = array(-1);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("DELETE FROM supportcenter_address_share WHERE share_address_id = %d AND with_address_id NOT IN (%s)",
 			$share_id,
 			implode(',', $share_with_ids)
@@ -136,7 +136,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 		if(empty($share_id) || empty($with_id))
 			return FALSE;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("DELETE FROM supportcenter_address_share WHERE share_address_id = %d AND with_address_id = %d",
 			$share_id,
 			$with_id
@@ -145,7 +145,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 	}
 	
 	public static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Clear orphaned address share rows
 		$db->ExecuteMaster("DELETE FROM supportcenter_address_share ".

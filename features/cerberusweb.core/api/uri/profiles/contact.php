@@ -461,7 +461,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		$tpl->assign('languages', $locales);
 		
 		// Timezones
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		$tpl->assign('timezones', $date->getTimezones());
 		
 		// Broadcast

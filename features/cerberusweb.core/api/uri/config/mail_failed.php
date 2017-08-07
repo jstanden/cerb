@@ -95,7 +95,7 @@ class PageSection_SetupMailFailed extends Extension_PageSection {
 	function parseMessageJsonAction() {
 		header("Content-Type: application/json");
 		
-		$logger = DevblocksPlatform::getConsoleLog('Parser');
+		$logger = DevblocksPlatform::services()->log('Parser');
 		$logger->setLogLevel(4);
 		
 		ob_start();

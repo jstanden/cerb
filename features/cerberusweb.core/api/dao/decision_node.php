@@ -28,7 +28,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	const STATUS_ID = 'status_id';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Automatically append to parent
 		if(!isset($fields[self::POS])
@@ -52,7 +52,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	}
 	
 	static function duplicate($id, $new_parent_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO decision_node (parent_id, trigger_id, node_type, title, pos, status_id, params_json) ".
 			"SELECT %d, trigger_id, node_type, title, pos, status_id, params_json FROM decision_node WHERE id = %d",
@@ -142,7 +142,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	 * @return Model_DecisionNode[]
 	 */
 	static function getWhere($where=null, $sortBy=DAO_DecisionNode::POS, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		if(empty($sortBy)) {
 			$sortBy = DAO_DecisionNode::POS;
@@ -202,7 +202,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -312,7 +312,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

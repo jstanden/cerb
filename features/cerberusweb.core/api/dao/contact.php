@@ -21,7 +21,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 	const TIMEZONE = 'timezone';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!isset($fields[self::CREATED_AT]))
 			$fields[self::CREATED_AT] = time();
@@ -167,8 +167,8 @@ class DAO_Contact extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		// Search indexes
@@ -199,7 +199,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 	 * @return Model_Contact[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -274,7 +274,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
@@ -335,7 +335,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 	}
 	
 	static function countByOrgId($org_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT count(id) FROM contact WHERE org_id = %d",
 			$org_id
@@ -349,7 +349,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -477,7 +477,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 	}
 	
 	static function autocomplete($term, $as='models') {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$ids = array();
 		
 		$results = $db->GetArraySlave(sprintf("SELECT id ".
@@ -523,7 +523,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -785,7 +785,7 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 	}
 	
 	private function _indexDictionary($dict, $engine) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 
 		$id = $dict->id;
 		
@@ -837,7 +837,7 @@ class Search_Contact extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 		
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -1169,7 +1169,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Contact::getFields();
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		
 		$timezones = $date->getTimezones();
 		
@@ -1964,7 +1964,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		$tpl->assign('languages', $locales);
 		
 		// Timezones
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		$tpl->assign('timezones', $date->getTimezones());
 		
 		if(empty($context_id) || $edit) {

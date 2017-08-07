@@ -30,7 +30,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 			)
 			return false;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$sql = "INSERT INTO calendar_event () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -109,7 +109,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	 * @return Model_CalendarEvent[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -174,7 +174,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	}
 	
 	static function countByCalendar($calendar_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneSlave(sprintf("SELECT count(id) FROM calendar_event ".
 			"WHERE calendar_id = %d",
 			$calendar_id
@@ -183,7 +183,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -211,7 +211,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -276,7 +276,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

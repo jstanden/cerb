@@ -79,7 +79,7 @@ class CerberusApplication extends DevblocksApplication {
 	 * @return CerberusVisit
 	 */
 	static function getVisit() {
-		$session = DevblocksPlatform::getSessionService();
+		$session = DevblocksPlatform::services()->session();
 		return $session->getVisit();
 	}
 
@@ -1034,7 +1034,7 @@ class CerberusContexts {
 				if(false != ($ctx = Extension_DevblocksContext::get($context))) {
 					// If blank, check the cache for a prebuilt context object
 					if(is_null($context_object)) {
-						$cache = DevblocksPlatform::getCacheService();
+						$cache = DevblocksPlatform::services()->cache();
 
 						$stack = CerberusContexts::getStack();
 						array_pop($stack);
@@ -2578,7 +2578,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	}
 
 	static function read($id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!self::isReady())
 			return '';
@@ -2626,7 +2626,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		$user_ip = DevblocksPlatform::getClientIp();
 		$user_agent = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		if(!self::isReady())
 			return '';
@@ -2663,7 +2663,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	}
 
 	static function destroy($id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		if(!self::isReady())
 			return false;
@@ -2683,13 +2683,13 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		if(empty($maxlifetime))
 			$maxlifetime = 86400;
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE updated + %d < %d", $maxlifetime, time()));
 		return true;
 	}
 
 	static function getAll() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		if(!self::isReady())
 			return false;
@@ -2698,7 +2698,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	}
 
 	static function destroyAll() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		if(!self::isReady())
 			return false;
@@ -2717,7 +2717,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		if(empty($ids_list))
 			return;
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE user_id IN (%s)", $ids_list));
 	}
 };
@@ -2799,12 +2799,12 @@ class CerberusVisit extends DevblocksVisit {
 
 class Cerb_ORMHelper extends DevblocksORMHelper {
 	static public function escape($str) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->escape($str);
 	}
 
 	static public function qstr($str) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->qstr($str);
 	}
 
@@ -2850,7 +2850,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
@@ -2885,7 +2885,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	}
 	
 	static protected function _getRandom($table, $pkey='id') {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$offset = $db->GetOneSlave(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $table));
 		return $db->GetOneSlave(sprintf("SELECT %s FROM %s LIMIT %d,1", $pkey, $table, $offset));
 	}

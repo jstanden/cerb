@@ -28,7 +28,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	const ENTRY_JSON = 'entry_json';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO notification () ".
 			"VALUES ()"
@@ -147,7 +147,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	 * @return Model_Notification[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -189,7 +189,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		if(empty($count))
 			return array();
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$contexts = array();
 		
@@ -260,7 +260,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	}
 	
 	static function getUnreadCountByWorker($worker_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if(null === ($count = $cache->load(self::CACHE_COUNT_PREFIX.$worker_id))) {
@@ -312,7 +312,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -350,7 +350,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		
 		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM notification WHERE context = %s AND context_id IN (%s) ",
 			$db->qstr($context),
@@ -365,7 +365,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	}
 	
 	static function deleteByContextActivityAndWorker($context, $context_ids, $activity_point=null, $worker_ids=array()) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
@@ -416,8 +416,8 @@ class DAO_Notification extends Cerb_ORMHelper {
 	}
 
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		
 		$db->ExecuteMaster("DELETE FROM notification WHERE is_read = 1");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' notification records.');
@@ -514,7 +514,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

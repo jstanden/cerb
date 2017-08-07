@@ -537,7 +537,7 @@ switch($step) {
 
 	// Initialize the database
 	case STEP_INIT_DB:
-		if(false == ($db = DevblocksPlatform::getDatabaseService()) || !$db || !method_exists($db, 'metaTables')) {
+		if(false == ($db = DevblocksPlatform::services()->database()) || !$db || !method_exists($db, 'metaTables')) {
 			$tpl->assign('error', "Can't connect to the database.");
 			$tpl->assign('template', 'steps/step_init_db.tpl');
 			break;
@@ -620,7 +620,7 @@ switch($step) {
 
 	// Personalize system information (title, timezone, language)
 	case STEP_CONTACT:
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$settings = $db = DevblocksPlatform::services()->pluginSettings();
 		
 		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string','do-not-reply@localhost');
 		@$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'],'string','');
@@ -778,7 +778,7 @@ switch($step) {
 		@$worker_pass2 = DevblocksPlatform::importGPC($_POST['worker_pass2'],'string');
 		@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
 
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		
 		$timezones = $date->getTimezones();
 		$tpl->assign('timezones', $timezones);

@@ -225,7 +225,7 @@ class _DevblocksDatabaseManager {
 	
 	function ExecuteMaster($sql, $option_bits = 0) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::getConsoleLog('MASTER');
+			$console = DevblocksPlatform::services()->log('MASTER');
 		
 		if(APP_DB_OPT_READ_MASTER_AFTER_WRITE && '' != APP_DB_SLAVE_HOST) {
 			// If we're ignoring master read-after-write, do nothing
@@ -269,14 +269,14 @@ class _DevblocksDatabaseManager {
 		}
 		
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::getConsoleLog('SLAVE');
+			$console = DevblocksPlatform::services()->log('SLAVE');
 		
 		return $this->_Execute($sql, $db);
 	}
 	
 	private function _Execute($sql, $db, $option_bits = 0) {
 		if(DEVELOPMENT_MODE_QUERIES) {
-			if($console = DevblocksPlatform::getConsoleLog(null))
+			if($console = DevblocksPlatform::services()->log(null))
 				$console->debug($sql);
 		}
 		
@@ -372,7 +372,7 @@ class _DevblocksDatabaseManager {
 	
 	function GetArrayMaster($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::getConsoleLog('MASTER');
+			$console = DevblocksPlatform::services()->log('MASTER');
 		
 		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		
@@ -381,7 +381,7 @@ class _DevblocksDatabaseManager {
 	
 	function GetArraySlave($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::getConsoleLog('SLAVE');
+			$console = DevblocksPlatform::services()->log('SLAVE');
 		
 		$rs = $this->ExecuteSlave($sql);
 		
@@ -415,7 +415,7 @@ class _DevblocksDatabaseManager {
 	
 	public function GetRowMaster($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::getConsoleLog('MASTER');
+			$console = DevblocksPlatform::services()->log('MASTER');
 		
 		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		return $this->_GetRow($rs);
@@ -423,7 +423,7 @@ class _DevblocksDatabaseManager {
 	
 	public function GetRowSlave($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::getConsoleLog('SLAVE');
+			$console = DevblocksPlatform::services()->log('SLAVE');
 		
 		$rs = $this->ExecuteSlave($sql);
 		return $this->_GetRow($rs);
@@ -451,7 +451,7 @@ class _DevblocksDatabaseManager {
 	
 	function GetOneMaster($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::getConsoleLog('MASTER');
+			$console = DevblocksPlatform::services()->log('MASTER');
 		
 		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		return $this->_GetOne($rs);
@@ -459,7 +459,7 @@ class _DevblocksDatabaseManager {
 	
 	function GetOneSlave($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::getConsoleLog('SLAVE');
+			$console = DevblocksPlatform::services()->log('SLAVE');
 		
 		$rs = $this->ExecuteSlave($sql);
 		return $this->_GetOne($rs);

@@ -46,12 +46,12 @@ class CerbEval_Install extends PHPUnit_Framework_TestCase {
 	}
 	
 	function testDatabase() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$this->assertNotNull($db);
 	}
 	
 	function testDatabaseSchemaIsEmpty() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$this->assertNotNull($db);
 		
 		$tables = $db->metaTables();
@@ -113,8 +113,8 @@ class CerbEval_Install extends PHPUnit_Framework_TestCase {
 			// Reload plugin translations
 			DAO_Translation::reloadPluginStrings();
 			
-			DevblocksPlatform::getCacheService()->clean();
-			DevblocksPlatform::getClassLoaderService()->destroy();
+			DevblocksPlatform::services()->cache()->clean();
+			DevblocksPlatform::services()->classloader()->destroy();
 			
 		} catch(Exception $e) {
 			$this->assertTrue(false, "Failed to initialize the Cerb database tables");

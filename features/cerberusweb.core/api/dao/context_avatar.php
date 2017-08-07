@@ -12,7 +12,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 	const STORAGE_PROFILE_ID = 'storage_profile_id';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "INSERT INTO context_avatar () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -95,7 +95,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 			}
 		}
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(false == ($avatar = DAO_ContextAvatar::getByContext($context, $context_id))) {
 			$fields = array(
@@ -144,7 +144,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 	 * @return Model_ContextAvatar
 	 */
 	static function getByContext($context, $context_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$results = self::getWhere(sprintf("(%s = %s AND %s = %d)",
 			$db->escape(DAO_ContextAvatar::CONTEXT),
@@ -167,7 +167,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 	 * @return Model_ContextAvatar[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -241,7 +241,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
@@ -300,7 +300,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -334,7 +334,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'integer');
 		
@@ -449,7 +449,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -725,7 +725,7 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM context_avatar WHERE id IN (%s)", implode(',',$ids));
 		
@@ -751,7 +751,7 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 	}
 	
 	public static function deleteByContext($context, $context_ids) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
@@ -779,7 +779,7 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 	}
 	
 	public static function archive($stop_time=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Params
 		$src_profile = DAO_DevblocksStorageProfile::get(DAO_DevblocksExtensionPropertyStore::get(self::ID, 'active_storage_profile'));
@@ -822,7 +822,7 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 	}
 	
 	private static function _migrate($dst_profile, $row, $is_unarchive=false) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 		
 		$ns = 'context_avatar';
 		

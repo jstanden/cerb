@@ -49,7 +49,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	const CONTENT = 'content';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO devblocks_template () ".
 			"VALUES ()"
@@ -118,7 +118,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	 * @return Model_DevblocksTemplate[]
 	 */
 	static function getWhere($where=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "SELECT id, plugin_id, path, tag, last_updated, content ".
 			"FROM devblocks_template ".
@@ -131,7 +131,8 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_DevblocksTemplate	 */
+	 * @return Model_DevblocksTemplate
+	 */
 	static function get($id) {
 		if(empty($id))
 			return null;
@@ -196,7 +197,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_sandbox = DevblocksPlatform::getTemplateSandboxService();
 		
@@ -271,7 +272,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -323,7 +324,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	}
 	
 	static function importXmlFile($filename, $tag) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl_sandbox = DevblocksPlatform::getTemplateSandboxService();
 

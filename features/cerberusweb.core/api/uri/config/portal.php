@@ -17,7 +17,7 @@
 
 class PageSection_SetupPortal extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$response = DevblocksPlatform::getHttpResponse();
 		
 		$stack = $response->path;
@@ -44,7 +44,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		//@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		//ChPortalHelper::setCode($portal);
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
@@ -67,7 +67,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 	function showTabSettingsAction() {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		if(null != ($instance = DAO_CommunityTool::get($tool_id))) {
 			$tool = DevblocksPlatform::getExtension($instance->extension_id, true);
@@ -112,7 +112,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 	function showTabTemplatesAction() {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		if(null != ($tool = DAO_CommunityTool::get($tool_id)))
 			$tpl->assign('tool', $tool);
@@ -137,7 +137,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if(null != ($template = DAO_DevblocksTemplate::get($id)))
@@ -166,8 +166,8 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		}
 		
 		// Clear compiled template
-		$tpl = DevblocksPlatform::getTemplateService();
-		$tpl_sandbox = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_sandbox = DevblocksPlatform::services()->templateSandbox();
 		$hash_key = sprintf("devblocks:%s:%s:%s", $template->plugin_id, $template->tag, $template->path);
 		$tpl->clearCompiledTemplate($hash_key, APP_BUILD);
 		$tpl_sandbox->clearCompiledTemplate($hash_key, null);
@@ -180,7 +180,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('portal', $portal);
 
@@ -224,7 +224,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		
 		list($plugin_id, $template_path) = explode(':', $template, 2);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		// Pull from filesystem for editing
@@ -255,7 +255,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('portal', $portal);
 		
@@ -276,7 +276,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('portal', $portal);
 		
@@ -348,13 +348,13 @@ class PageSection_SetupPortal extends Extension_PageSection {
 	function showTabInstallationAction() {
 		@$tool_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		if(null != ($tool = DAO_CommunityTool::get($tool_id)))
 			$tpl->assign('tool', $tool);
 			
 		// Install
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=portal&a='.$tool->code,true);
 		$url_parts = parse_url($url);
 		

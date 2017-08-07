@@ -22,7 +22,7 @@ class DAO_ContextMergeHistory extends Cerb_ORMHelper {
 	const UPDATED = 'updated';
 	
 	public static function logMerge($context, $from_id, $to_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($context) || empty($from_id) || empty($to_id))
 			return false;
@@ -51,7 +51,7 @@ class DAO_ContextMergeHistory extends Cerb_ORMHelper {
 	}
 	
 	public static function findNewId($context, $from_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		// [TODO]
 	}
 }

@@ -323,7 +323,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			
 			// Test the provided POP settings and give form feedback
 			if(!empty($host)) {
-				$mail_service = DevblocksPlatform::getMailService();
+				$mail_service = DevblocksPlatform::services()->mail();
 				
 				if(false == $mail_service->testMailbox($host, $port, $protocol, $user, $pass, $ssl_ignore_validation, $auth_disable_plain, $timeout_secs, $max_msg_size_kb))
 					throw new Exception($translate->_('config.mailboxes.failed'));

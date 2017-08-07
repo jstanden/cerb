@@ -120,10 +120,10 @@ class CerberusMail {
 	
 	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array(), $format=null, $html_template_id=null, $file_ids=array(), $cc=null, $bcc=null) {
 		try {
-			$mail_service = DevblocksPlatform::getMailService();
+			$mail_service = DevblocksPlatform::services()->mail();
 			$mail = $mail_service->createMessage();
 			
-			$settings = DevblocksPlatform::getPluginSettingsService();
+			$settings = DevblocksPlatform::services()->pluginSettings();
 			
 			if(empty($from_addy) || empty($from_personal)) {
 				if(null == ($replyto_default = DAO_AddressOutgoing::getDefault()))
@@ -319,7 +319,7 @@ class CerberusMail {
 		
 		
 		try {
-			$mail_service = DevblocksPlatform::getMailService();
+			$mail_service = DevblocksPlatform::services()->mail();
 			$email = $mail_service->createMessage();
 
 			// To
@@ -621,7 +621,7 @@ class CerberusMail {
 	}
 	
 	static function sendTicketMessage($properties=array()) {
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		
 		/*
 		'draft_id'
@@ -653,7 +653,7 @@ class CerberusMail {
 
 		try {
 			// objects
-			$mail_service = DevblocksPlatform::getMailService();
+			$mail_service = DevblocksPlatform::services()->mail();
 			$mail = $mail_service->createMessage();
 			
 			@$reply_message_id = $properties['message_id'];
@@ -1222,8 +1222,8 @@ class CerberusMail {
 	}
 	
 	static function relay($message_id, $emails, $include_attachments = false, $content = null, $actor_context = null, $actor_context_id = null) {
-		$mail_service = DevblocksPlatform::getMailService();
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$mail_service = DevblocksPlatform::services()->mail();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 
 		$workers = DAO_Worker::getAll();
 		$relay_spoof_from = $settings->get('cerberusweb.core', CerberusSettings::RELAY_SPOOF_FROM, CerberusSettingsDefaults::RELAY_SPOOF_FROM);
@@ -1372,7 +1372,7 @@ class CerberusMail {
 		try {
 			$message = $model->getMessage(); /* @var $message CerberusParserMessage */
 			
-			$mail_service = DevblocksPlatform::getMailService();
+			$mail_service = DevblocksPlatform::services()->mail();
 			$mail = $mail_service->createMessage();
 	
 			$mail->setTo(array($to));

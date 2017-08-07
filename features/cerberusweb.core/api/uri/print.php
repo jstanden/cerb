@@ -31,7 +31,7 @@ class ChPrintController extends DevblocksControllerExtension {
 		
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$settings = $db = DevblocksPlatform::services()->pluginSettings();
 		$tpl->assign('settings', $settings);
 		
 		$translate = DevblocksPlatform::getTranslationService();

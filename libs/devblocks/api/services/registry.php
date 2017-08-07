@@ -178,7 +178,7 @@ class DAO_DevblocksRegistry extends DevblocksORMHelper {
 	const ENTRY_VALUE = 'entry_value';
 	
 	public static function get($key) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$row = $db->GetRowMaster(sprintf("SELECT entry_key, entry_type, entry_value FROM devblocks_registry WHERE entry_key = %s",
 			$db->qstr($key)
@@ -196,7 +196,7 @@ class DAO_DevblocksRegistry extends DevblocksORMHelper {
 	}
 	
 	public static function set($key, $value, $as=DevblocksRegistryEntry::TYPE_STRING, $delta=false) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if($delta && $as == DevblocksRegistryEntry::TYPE_NUMBER) {
 			// Delta update if the row exists

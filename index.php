@@ -77,7 +77,7 @@ DevblocksPlatform::setStateless(in_array(@$request->path[0], ['cron','portal','r
 if(DevblocksPlatform::isStateless()) {
 	$_SESSION = [];
 } else {
-	$session = DevblocksPlatform::getSessionService();
+	$session = DevblocksPlatform::services()->session();
 }
 
 // Do we need an update first?
@@ -104,13 +104,11 @@ if(isset($_SESSION['time_format']))
 
 // Initialize Logging
 
-if(method_exists('DevblocksPlatform','getConsoleLog')) {
-	$timeout = ini_get('max_execution_time');
-	$logger = DevblocksPlatform::getConsoleLog();
-	$logger->info("[Devblocks] ** Platform starting (".date("r").") **");
-	$logger->info('[Devblocks] Time Limit: '. (($timeout) ? $timeout : 'unlimited') ." secs");
-	$logger->info('[Devblocks] Memory Limit: '. ini_get('memory_limit'));
-}
+$timeout = ini_get('max_execution_time');
+$logger = DevblocksPlatform::services()->log();
+$logger->info("[Devblocks] ** Platform starting (".date("r").") **");
+$logger->info('[Devblocks] Time Limit: '. (($timeout) ? $timeout : 'unlimited') ." secs");
+$logger->info('[Devblocks] Memory Limit: '. ini_get('memory_limit'));
 
 // [JAS]: HTTP Request (App->Platform)
 CerberusApplication::processRequest($request);

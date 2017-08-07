@@ -134,7 +134,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _doGetDataSample($dao_class, $size, $id_col = 'id') {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
 			return array();
@@ -1878,7 +1878,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _getSubtotalDataForColumn($context, $field_key) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
@@ -1928,7 +1928,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _getSubtotalDataForVirtualColumn($context, $field_key) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
@@ -2176,7 +2176,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _getSubtotalDataForWatcherColumn($context, $field_key) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
@@ -2272,7 +2272,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _getSubtotalDataForContextLinkColumn($context, $field_key) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
@@ -2431,7 +2431,7 @@ abstract class C4_AbstractView {
 	}
 		
 	protected function _getSubtotalDataForContextAndIdColumns($context, $field_key, $context_field, $context_id_field) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
@@ -2610,7 +2610,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _getSubtotalDataForHasFieldsetColumn($dao_class, $context) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
@@ -2660,7 +2660,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _getSubtotalCountForCustomColumn($context, $field_key) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$counts = array();
@@ -4064,7 +4064,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	 * @return C4_AbstractViewModel[]
 	 */
 	static public function getWhere($where=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$objects = array();
 		
@@ -4144,7 +4144,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	 * @return C4_AbstractViewModel|false
 	 */
 	static public function getView($worker_id, $view_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$results = DAO_WorkerViewModel::getWhere(sprintf("worker_id = %d AND view_id = %s",
 			$worker_id,
@@ -4183,7 +4183,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	}
 	
 	static public function setView($worker_id, $view_id, C4_AbstractViewModel $model) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$render_sort = '';
 		
@@ -4229,7 +4229,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	}
 	
 	static public function deleteView($worker_id, $view_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d AND view_id = %s",
 			$worker_id,
@@ -4244,7 +4244,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	 * @param integer$worker_id
 	 */
 	static public function flush($worker_id=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if($worker_id) {
 			$db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d and is_ephemeral = 1",

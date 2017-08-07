@@ -157,7 +157,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 	
 	function savePeekJsonAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

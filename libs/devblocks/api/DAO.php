@@ -110,7 +110,7 @@ abstract class DevblocksORMHelper {
 	 * @param array $fields
 	 */
 	static protected function _insert($table, $fields, $idcol='id') {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($fields) || empty($fields))
 			return;
@@ -140,7 +140,7 @@ abstract class DevblocksORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($ids))
@@ -170,7 +170,7 @@ abstract class DevblocksORMHelper {
 	}
 	
 	static protected function _updateWhere($table, $fields, $where) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($where))
@@ -197,7 +197,7 @@ abstract class DevblocksORMHelper {
 	}
 	
 	static protected function _parseSearchParams($params, $columns=array(), $search_class, $sortBy='') {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!class_exists($search_class) || !class_implements($search_class, 'DevblocksSearchFields'))
 			return false;
@@ -323,7 +323,7 @@ abstract class DevblocksORMHelper {
 
 class DAO_Platform extends DevblocksORMHelper {
 	static function cleanupPluginTables() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 
 		/*
@@ -351,8 +351,8 @@ class DAO_Platform extends DevblocksORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		
@@ -364,7 +364,7 @@ class DAO_Platform extends DevblocksORMHelper {
 	}
 	
 	static function updatePlugin($id, $fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		$sets = array();
 		
@@ -387,7 +387,7 @@ class DAO_Platform extends DevblocksORMHelper {
 	}
 	
 	static function deleteExtension($extension_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		
 		// Nuke cached extension manifest
@@ -415,7 +415,7 @@ class DAO_Platform extends DevblocksORMHelper {
 		if(empty($tables))
 			return false;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		
 		// [JAS]: [TODO] Does the GTE below do what we need with the primary key mucking up redundant patches?
@@ -436,7 +436,7 @@ class DAO_Platform extends DevblocksORMHelper {
 	 * @param integer $revision
 	 */
 	static function setPatchRan($plugin_id,$revision) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		
 		$sql = sprintf("REPLACE INTO ${prefix}patch_history (plugin_id, revision, run_date) ".
@@ -449,7 +449,7 @@ class DAO_Platform extends DevblocksORMHelper {
 	}
 	
 	static function getClassLoaderMap() {
-		if(null == ($db = DevblocksPlatform::getDatabaseService()))
+		if(null == ($db = DevblocksPlatform::services()->database()))
 			return array();
 
 		if(DevblocksPlatform::isDatabaseEmpty())
@@ -488,7 +488,7 @@ class DAO_Platform extends DevblocksORMHelper {
 
 class DAO_DevblocksSetting extends DevblocksORMHelper {
 	static function set($plugin_id, $key, $value) {
-		if(false == ($db = DevblocksPlatform::getDatabaseService()))
+		if(false == ($db = DevblocksPlatform::services()->database()))
 			return;
 		
 		$db->ExecuteMaster(sprintf(
@@ -504,7 +504,7 @@ class DAO_DevblocksSetting extends DevblocksORMHelper {
 	static function getSettings($plugin_id) {
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
-		if(false == ($db = DevblocksPlatform::getDatabaseService()))
+		if(false == ($db = DevblocksPlatform::services()->database()))
 			return;
 		
 		$settings = array();
@@ -525,7 +525,7 @@ class DAO_DevblocksSetting extends DevblocksORMHelper {
 	}
 	
 	static function delete($plugin_id, array $keys=[]) {
-		if(false == ($db = DevblocksPlatform::getDatabaseService()))
+		if(false == ($db = DevblocksPlatform::services()->database()))
 			return;
 		
 		return $db->ExecuteMaster(sprintf("DELETE FROM devblocks_setting WHERE plugin_id = %s AND setting IN (%s)",
@@ -551,7 +551,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if(null == ($params = $cache->load(self::_CACHE_ALL))) {
-			$db = DevblocksPlatform::getDatabaseService();
+			$db = DevblocksPlatform::services()->database();
 			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 			$params = array();
 			
@@ -586,7 +586,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 		$cache_key = self::_getCacheKey($extension_id);
 		
 		if(null === ($params = $cache->load($cache_key))) {
-			$db = DevblocksPlatform::getDatabaseService();
+			$db = DevblocksPlatform::services()->database();
 			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 			$params = array();
 			
@@ -620,7 +620,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 	}
 	
 	static function put($extension_id, $key, $value) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		$cache_key = self::_getCacheKey($extension_id);
 
@@ -646,7 +646,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	const STRING_OVERRIDE = 'string_override';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO translation () ".
 			"VALUES ()"
@@ -668,7 +668,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	 * @return Model_TranslationDefault[]
 	 */
 	static function getWhere($where=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "SELECT id, string_id, lang_code, string_default, string_override ".
 			"FROM translation ".
@@ -698,7 +698,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	}
 	
 	static function importTmxFile($filename) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!file_exists($filename))
 			return;
@@ -776,7 +776,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	}
 	
 	static function getDefinedLangCodes() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$lang_codes = array();
@@ -806,7 +806,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	}
 	
 	static function getByLang($lang='en_US') {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		return self::getWhere(sprintf("%s = %s",
 			self::LANG_CODE,
@@ -829,7 +829,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	
 	// [TODO] Allow null 2nd arg for all instances of a given string?
 	static function getString($string_id, $lang='en_US') {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$objects = self::getWhere(sprintf("%s = %s AND %s = %s",
 			self::STRING_ID,
@@ -869,7 +869,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -883,7 +883,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	
 	static function deleteByLangCodes($codes) {
 		if(!is_array($codes)) $codes = array($codes);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$codes_list = implode("','", $codes);
 		
@@ -941,7 +941,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -1039,13 +1039,13 @@ class SearchFields_Translation extends DevblocksSearchFields {
 
 class DAO_DevblocksStorageQueue extends DevblocksORMHelper {
 	static function getPendingProfiles() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		return $db->GetArrayMaster("SELECT DISTINCT storage_extension, storage_profile_id, storage_namespace FROM devblocks_storage_queue_delete");
 	}
 	
 	static function getKeys($storage_namespace, $storage_extension, $storage_profile_id=0, $limit=500) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$keys = $db->GetArrayMaster(sprintf("SELECT storage_key FROM devblocks_storage_queue_delete WHERE storage_namespace = %s AND storage_extension = %s AND storage_profile_id = %d LIMIT %d",
 			$db->qstr($storage_namespace),
@@ -1060,7 +1060,7 @@ class DAO_DevblocksStorageQueue extends DevblocksORMHelper {
 	}
 	
 	static function enqueueDelete($storage_namespace, $storage_key, $storage_extension, $storage_profile_id=0) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_storage_queue_delete (storage_namespace, storage_key, storage_extension, storage_profile_id) ".
 			"VALUES (%s, %s, %s, %d)",
@@ -1074,7 +1074,7 @@ class DAO_DevblocksStorageQueue extends DevblocksORMHelper {
 	}
 	
 	static function purgeKeys($keys, $storage_namespace, $storage_extension, $storage_profile_id=0) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$escaped_keys = array_map(function($e) use ($db) {
 			return $db->qstr($e);
@@ -1098,7 +1098,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	const PARAMS_JSON = 'params_json';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO devblocks_storage_profile () ".
 			"VALUES ()"
@@ -1146,7 +1146,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	 * @return Model_DevblocksStorageProfile[]
 	 */
 	static function getWhere($where=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "SELECT id, name, extension_id, params_json ".
 			"FROM devblocks_storage_profile ".
@@ -1213,7 +1213,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -1274,7 +1274,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

@@ -26,7 +26,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	const ENTRY_JSON = 'entry_json';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		@$target_context = $fields[DAO_ContextActivityLog::TARGET_CONTEXT];
 		@$target_context_id = $fields[DAO_ContextActivityLog::TARGET_CONTEXT_ID];
@@ -51,7 +51,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	 * @return Model_ContextActivityLog[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -160,7 +160,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -179,7 +179,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		if(empty($context_ids))
 			return;
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM context_activity_log WHERE (actor_context = %s AND actor_context_id IN (%s)) OR (target_context = %s AND target_context_id IN (%s)) ",
 			$db->qstr($context),
@@ -252,7 +252,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

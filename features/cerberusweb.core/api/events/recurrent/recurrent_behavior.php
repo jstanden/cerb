@@ -22,7 +22,7 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
 		// Timezones
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		$tpl->assign('timezones', $date->getTimezones());
 		
 		if(!isset($trigger->event_params['repeat_patterns']) || !$trigger->event_params['repeat_patterns'])

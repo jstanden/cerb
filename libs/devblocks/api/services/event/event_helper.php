@@ -1333,7 +1333,7 @@ class DevblocksEventHelper {
 						$log = EventListener_Triggers::getNodeLog();
 						$node_id = end($log);
 
-						$registry = DevblocksPlatform::getRegistryService();
+						$registry = DevblocksPlatform::services()->registry();
 
 						$key = sprintf("trigger.%d.action.%d.counter", $trigger->id, $node_id);
 						
@@ -1357,7 +1357,7 @@ class DevblocksEventHelper {
 						}
 						
 						// Consult database
-						$db = DevblocksPlatform::getDatabaseService();
+						$db = DevblocksPlatform::services()->database();
 						$sql = sprintf("SELECT COUNT(id) AS hits, owner_id FROM ticket WHERE status_id = 0 AND owner_id != 0 AND owner_id IN (%s) GROUP BY owner_id",
 							implode(',', array_keys($possible_workers))
 						);
@@ -1748,7 +1748,7 @@ class DevblocksEventHelper {
 		if(empty($sql))
 			return false;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$value = $db->GetOneSlave($sql);
 		
 		$dict->$var = $value;
@@ -4750,10 +4750,10 @@ class DevblocksEventHelper {
 	
 	
 	static function runActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
-		$logger = DevblocksPlatform::getConsoleLog('Bot');
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$mail_service = DevblocksPlatform::getMailService();
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$logger = DevblocksPlatform::services()->log('Bot');
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$mail_service = DevblocksPlatform::services()->mail();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		
 		$relay_spoof_from = $settings->get('cerberusweb.core', CerberusSettings::RELAY_SPOOF_FROM, CerberusSettingsDefaults::RELAY_SPOOF_FROM);
 		

@@ -33,7 +33,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	const HASH_HEADER_MESSAGE_ID = 'hash_header_message_id';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "INSERT INTO message () VALUES ()";
 		if(false == ($db->ExecuteMaster($sql)))
@@ -58,7 +58,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	 * @return Model_Message[]
 	 */
 	static function getWhere($where=null, $sortBy='created_date', $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -143,7 +143,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	}
 	
 	static function countByTicketId($ticket_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT count(id) FROM message WHERE ticket_id = %d",
 			$ticket_id
@@ -152,7 +152,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	}
 
 	static function delete($ids) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($ids))
 			$ids = array($ids);
@@ -202,8 +202,8 @@ class DAO_Message extends Cerb_ORMHelper {
 	}
 
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		// Purge message content (storage)
@@ -342,7 +342,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$fulltext_params = array();
 		
@@ -839,7 +839,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 	}
 	
 	private function _indexDictionary($dict, $engine) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 
 		$id = $dict->id;
 		
@@ -899,7 +899,7 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 		
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -1060,7 +1060,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	public static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM message WHERE id IN (%s)", implode(',',$ids));
 
@@ -1088,7 +1088,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	}
 		
 	public static function archive($stop_time=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Params
 		$src_profile = DAO_DevblocksStorageProfile::get(DAO_DevblocksExtensionPropertyStore::get(self::ID, 'active_storage_profile'));
@@ -1129,7 +1129,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	public static function unarchive($stop_time=null) {
 		// We don't want to unarchive message content under any condition
 		/*
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Params
 		$dst_profile = DAO_DevblocksStorageProfile::get(DAO_DevblocksExtensionPropertyStore::get(self::ID, 'active_storage_profile'));
@@ -1165,7 +1165,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	}
 	
 	private static function _migrate($dst_profile, $row, $is_unarchive=false) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 		
 		$ns = 'message_content';
 		

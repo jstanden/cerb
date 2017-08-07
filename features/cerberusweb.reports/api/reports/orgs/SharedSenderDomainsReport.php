@@ -19,7 +19,7 @@ class ChReportOrgSharedEmailDomains extends Extension_Report {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT count(DISTINCT a.contact_org_id) AS num_orgs, substring(a.email,locate('@',a.email)+1) AS domain ".
 			"FROM address a ".

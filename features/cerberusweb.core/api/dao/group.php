@@ -54,7 +54,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	 * @return Model_ContactOrg[]
 	 */
 	static function getWhere($where=null, $sortBy=DAO_Group::NAME, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -140,7 +140,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	static function getResponsibilities($group_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$responsibilities = array();
 		
 		$results = $db->GetArraySlave(sprintf("SELECT worker_id, bucket_id, responsibility_level FROM worker_to_bucket WHERE bucket_id IN (SELECT id FROM bucket WHERE group_id = %d)",
@@ -158,7 +158,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	static function setResponsibilities($group_id, $responsibilities) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($responsibilities))
 			return false;
@@ -231,7 +231,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	static function setDefaultGroup($group_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster("UPDATE worker_group SET is_default = 0");
 		$db->ExecuteMaster(sprintf("UPDATE worker_group SET is_default = 1 WHERE id = %d", $group_id));
@@ -246,7 +246,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	 * @return integer
 	 */
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "INSERT INTO worker_group () VALUES ()";
 		if(false == ($db->ExecuteMaster($sql)))
@@ -329,7 +329,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	static function countByMemberId($worker_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT count(group_id) FROM worker_to_group WHERE worker_id = %d",
 			$worker_id
@@ -349,7 +349,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(false == ($deleted_group = DAO_Group::get($id)))
 			return;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		/*
 		 * Notify anything that wants to know when groups delete.
@@ -409,8 +409,8 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		
 		$db->ExecuteMaster("DELETE FROM bucket WHERE group_id NOT IN (SELECT id FROM worker_group)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' bucket records.');
@@ -436,7 +436,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(empty($worker_id) || empty($group_id))
 			return FALSE;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("REPLACE INTO worker_to_group (worker_id, group_id, is_manager) ".
 			"VALUES (%d, %d, %d)",
@@ -474,7 +474,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(empty($worker_id) || empty($group_id) || empty($responsibilities) || !is_array($responsibilities))
 			return FALSE;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$values = array();
 		
@@ -521,7 +521,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(empty($bucket_id) || empty($responsibilities) || !is_array($responsibilities))
 			return FALSE;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$values = array();
 		
@@ -548,7 +548,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(empty($worker_id) || empty($group_id))
 			return FALSE;
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("DELETE FROM worker_to_group WHERE group_id = %d AND worker_id = %d",
 			$group_id,
@@ -567,7 +567,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(empty($worker_id) || empty($group_id))
 			return FALSE;
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("DELETE FROM worker_to_bucket WHERE worker_id = %d AND bucket_id IN (SELECT id FROM bucket WHERE group_id = %d)",
 			$worker_id,
@@ -582,7 +582,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if(null === ($objects = $cache->load(self::CACHE_ROSTERS))) {
-			$db = DevblocksPlatform::getDatabaseService();
+			$db = DevblocksPlatform::services()->database();
 			$sql = sprintf("SELECT wt.worker_id, wt.group_id, wt.is_manager, w.is_disabled ".
 				"FROM worker_to_group wt ".
 				"INNER JOIN worker_group g ON (wt.group_id=g.id) ".
@@ -712,7 +712,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -975,7 +975,7 @@ class DAO_GroupSettings extends Cerb_ORMHelper {
 	const SETTING_SUBJECT_PREFIX = 'subject_prefix';
 	
 	static function set($group_id, $key, $value) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("REPLACE INTO group_setting (group_id, setting, value) ".
 			"VALUES (%d, %s, %s)",
@@ -1005,7 +1005,7 @@ class DAO_GroupSettings extends Cerb_ORMHelper {
 	static function getSettings($group_id=0) {
 		$cache = DevblocksPlatform::getCacheService();
 		if(null === ($groups = $cache->load(self::CACHE_ALL))) {
-			$db = DevblocksPlatform::getDatabaseService();
+			$db = DevblocksPlatform::services()->database();
 	
 			$groups = array();
 			

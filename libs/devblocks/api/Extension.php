@@ -727,7 +727,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		// If (0 == $context_id), we need to null out all the fields and return w/o queries
 		if(empty($context_id))
 			return $token_values;
-
+			
 		// If we weren't passed values
 		if(is_null($field_values)) {
 			$results = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
@@ -735,11 +735,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				$field_values = array_shift($results);
 			unset($results);
 		}
-
+		
 		foreach(array_keys($fields) as $cf_id) {
 			$token_values['custom'][$cf_id] = '';
 			$token_values['custom_' . $cf_id] = '';
-
+			
 			if(isset($field_values[$cf_id])) {
 				// The literal value
 				$token_values['custom'][$cf_id] = $field_values[$cf_id];
@@ -776,7 +776,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					break;
 			}
 		}
-
+		
 		return $token_values;
 	}
 
@@ -1291,7 +1291,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 
 	function runCondition($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$logger = DevblocksPlatform::getConsoleLog('Bot');
+		$logger = DevblocksPlatform::services()->log('Bot');
 		$conditions = $this->getConditions($trigger, false);
 		
 		// Cache the extensions
@@ -2586,7 +2586,7 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 	public static function unarchive($stop_time=null) {}
 
 	protected function _stats($table_name) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$stats = array();
 

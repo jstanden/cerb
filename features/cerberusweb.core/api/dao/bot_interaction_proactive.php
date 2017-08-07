@@ -10,7 +10,7 @@ class DAO_BotInteractionProactive extends Cerb_ORMHelper {
 	const EXPIRES_AT = 'expires_at';
 	
 	static function create($worker_id, $behavior_id, $interaction, array $interaction_params=[], $actor_bot_id, $expires_at=0, $run_at=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($run_at))
 			$run_at = time();
@@ -41,7 +41,7 @@ class DAO_BotInteractionProactive extends Cerb_ORMHelper {
 		$cache_key = sprintf("interactions_proactive_count_%d", $worker_id);
 		
 		if(NULL === ($count = $cache->load($cache_key))) {
-			$db = DevblocksPlatform::getDatabaseService();
+			$db = DevblocksPlatform::services()->database();
 			$count = $db->GetOneSlave(sprintf("SELECT COUNT(*) FROM bot_interaction_proactive WHERE worker_id = %d AND (expires_at = 0 OR expires_at > %d)", $worker_id, time()));
 			$cache->save($count, $cache_key, [], 3600);
 		}
@@ -52,7 +52,7 @@ class DAO_BotInteractionProactive extends Cerb_ORMHelper {
 	static function getByWorker($worker_id, $limit=1) {
 		$limit = DevblocksPlatform::intClamp($limit, 1, 100);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("SELECT id, worker_id, actor_bot_id, behavior_id, interaction, interaction_params_json FROM bot_interaction_proactive WHERE worker_id = %d AND (expires_at = 0 OR expires_at > %d) ORDER BY id LIMIT %d", $worker_id, time(), $limit);
 		
 		return $db->GetArraySlave($sql);
@@ -65,13 +65,13 @@ class DAO_BotInteractionProactive extends Cerb_ORMHelper {
 	}
 	
 	static function delete($id, $worker_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$db->ExecuteMaster(sprintf("DELETE FROM bot_interaction_proactive WHERE id = %d AND worker_id = %d", $id, $worker_id));
 		self::clearCountByWorker($worker_id);
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Delete any expired keys (0=forever)
 		$sql = sprintf("SELECT id, worker_id FROM bot_interaction_proactive WHERE expires_at BETWEEN 1 AND %d LIMIT 250",

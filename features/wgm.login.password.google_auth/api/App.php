@@ -65,7 +65,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 	function saveWorkerPrefs($worker) {
 		@$reset_login = DevblocksPlatform::importGPC($_REQUEST['reset_login'], 'integer', 0);
 		
-		$session = DevblocksPlatform::getSessionService();
+		$session = DevblocksPlatform::services()->session();
 		$visit = CerberusApplication::getVisit();
 		$worker = CerberusApplication::getActiveWorker();
 		

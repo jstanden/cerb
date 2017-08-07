@@ -42,7 +42,7 @@ class PageSection_SetupMailRelay extends Extension_PageSection {
 			
 			// Save
 			
-			$settings = DevblocksPlatform::getPluginSettingsService();
+			$settings = $db = DevblocksPlatform::services()->pluginSettings();
 			$settings->set('cerberusweb.core',CerberusSettings::RELAY_DISABLE, $relay_disable);
 			$settings->set('cerberusweb.core',CerberusSettings::RELAY_DISABLE_AUTH, $relay_disable_auth);
 			$settings->set('cerberusweb.core',CerberusSettings::RELAY_SPOOF_FROM, $relay_spoof_from);

@@ -51,8 +51,8 @@ class ChUpdateController extends DevblocksControllerExtension {
 		$stack = $request->path;
 		array_shift($stack); // update
 
-		$cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
-		$url = DevblocksPlatform::getUrlService();
+		$cache = DevblocksPlatform::services()->cache();
+		$url = DevblocksPlatform::services()->url();
 		
 		switch(array_shift($stack)) {
 			case 'unlicense':
@@ -80,7 +80,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
 				$file = $path . 'cerb_update_lock';
 				
-				$settings = DevblocksPlatform::getPluginSettingsService();
+				$settings = $db = DevblocksPlatform::services()->pluginSettings();
 				
 				$authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS,CerberusSettingsDefaults::AUTHORIZED_IPS);
 				$authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
@@ -149,14 +149,14 @@ class ChUpdateController extends DevblocksControllerExtension {
 					// If authorized, lock and attempt update
 					if(!file_exists($file) || @filectime($file)+1200 < time()) { // 20 min lock
 						// Log everybody out since we're touching the database
-						//$session = DevblocksPlatform::getSessionService();
+						//$session = DevblocksPlatform::services()->session();
 						//$session->clearAll();
 
 						// Lock file
 						touch($file);
 						
 						// Reset the classloader
-						DevblocksPlatform::getClassLoaderService()->destroy();
+						DevblocksPlatform::services()->classloader()->destroy();
 						
 						// Recursive patch
 						CerberusApplication::update();
@@ -166,17 +166,17 @@ class ChUpdateController extends DevblocksControllerExtension {
 
 						// Clear all caches
 						$cache->clean();
-						DevblocksPlatform::getClassLoaderService()->destroy();
+						DevblocksPlatform::services()->classloader()->destroy();
 						
 						// Clear compiled templates
 						if(!APP_SMARTY_COMPILE_PATH_MULTI_TENANT) {
-							$tpl = DevblocksPlatform::getTemplateService();
+							$tpl = DevblocksPlatform::services()->template();
 							$tpl->clearCompiledTemplate();
 							$tpl->clearAllCache();
 						}
 
 						if(!APP_SMARTY_SANDBOX_COMPILE_PATH_MULTI_TENANT) {
-							$tpl = DevblocksPlatform::getTemplateSandboxService();
+							$tpl = DevblocksPlatform::services()->templateSandbox();
 							$tpl->clearCompiledTemplate();
 							$tpl->clearAllCache();
 						}

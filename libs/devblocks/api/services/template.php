@@ -188,7 +188,7 @@ class _DevblocksTemplateManager {
 		if(empty($string))
 			return '';
 	
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		return $date->formatTime($format, $string, $gmt);
 	}
 	

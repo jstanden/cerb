@@ -27,7 +27,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	const REPEAT_JSON = 'repeat_json';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$sql = "INSERT INTO context_scheduled_behavior () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -47,7 +47,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	}
 
 	static function updateRelativeSchedules($context, $context_ids) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($context_ids))
 			return;
@@ -97,7 +97,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	 * @return Model_ContextScheduledBehavior[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
@@ -186,7 +186,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		if(empty($ids))
 			return;
@@ -207,7 +207,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		
 		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM context_scheduled_behavior WHERE context = %s AND context_id IN (%s) ",
 			$db->qstr($context),
@@ -219,7 +219,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	
 	static function deleteByBehavior($behavior_ids, $only_context=null, $only_context_id=null) {
 		if(!is_array($behavior_ids)) $behavior_ids = array($behavior_ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($behavior_ids))
 			return;
@@ -316,7 +316,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

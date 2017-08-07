@@ -519,7 +519,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 	}
 	
 	private function _getSubtotalDataForLanguage() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$field_key = SearchFields_Translation::LANG_CODE;
 		

@@ -200,7 +200,7 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		}
 		
 		if(isset($fields[DAO_Worker::TIMEZONE])) {
-			$date = DevblocksPlatform::getDateService();
+			$date = DevblocksPlatform::services()->date();
 			$timezones = $date->getTimezones();
 			
 			if(!in_array($fields[DAO_Worker::TIMEZONE], $timezones)) {

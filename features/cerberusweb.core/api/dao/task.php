@@ -28,7 +28,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	const COMPLETED_DATE = 'completed_date';
 
 	static function create($fields, $custom_fields=array()) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO task () ".
 			"VALUES ()"
@@ -280,7 +280,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	 * @return Model_Task[]
 	 */
 	static function getWhere($where=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "SELECT id, title, owner_id, status_id, importance, due_date, reopen_at, created_at, updated_date, completed_date ".
 			"FROM task ".
@@ -346,7 +346,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	 */
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -372,7 +372,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	}
 	
 	public static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Fix missing owners
 		$sql = "UPDATE task SET owner_id = 0 WHERE owner_id != 0 AND owner_id NOT IN (SELECT id FROM worker)";
@@ -486,7 +486,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

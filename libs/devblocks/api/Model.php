@@ -1292,7 +1292,7 @@ class DevblocksSearchCriteria {
 		if(isset($this->where_sql))
 			return $this->where_sql;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$where = '';
 		
 		if(!isset($fields[$this->field]))
@@ -1640,7 +1640,7 @@ class DevblocksSearchCriteria {
 	}
 	
 	static protected function _escapeSearchParam(DevblocksSearchCriteria $param, $fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$field = $fields[$param->field];
 		$where_value = null;
 
@@ -1876,7 +1876,7 @@ class DevblocksPluginManifest {
 	}
 	
 	function purge() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM %splugin WHERE id = %s",

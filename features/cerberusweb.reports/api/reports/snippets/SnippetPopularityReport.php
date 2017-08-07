@@ -18,7 +18,7 @@
 class ChReportSnippetPopularity extends Extension_Report {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Filter: Start + End
 		

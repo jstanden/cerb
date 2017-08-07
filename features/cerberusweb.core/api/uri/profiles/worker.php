@@ -289,7 +289,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				}
 				
 				// Verify timezone is legit
-				$date = DevblocksPlatform::getDateService();
+				$date = DevblocksPlatform::services()->date();
 				$timezones = $date->getTimezones();
 				if(false === array_search($timezone, $timezones))
 						throw new Exception_DevblocksAjaxValidationError("The given timezone is invalid.", 'timezone');
@@ -308,7 +308,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						$password = CerberusApplication::generatePassword(8);
 						
 						try {
-							$mail_service = DevblocksPlatform::getMailService();
+							$mail_service = DevblocksPlatform::services()->mail();
 							$mail = $mail_service->createMessage();
 							
 							$mail->setTo(array($worker_address->email => $first_name . ' ' . $last_name));
@@ -527,7 +527,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$tpl->assign('languages', $locales);
 		
 		// Timezones
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		$tpl->assign('timezones', $date->getTimezones());
 		
 		// Broadcast

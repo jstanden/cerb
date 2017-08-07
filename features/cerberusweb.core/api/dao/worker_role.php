@@ -25,7 +25,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	const PARAMS_JSON = 'params_json';
 	
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO worker_role () ".
 			"VALUES ()"
@@ -178,7 +178,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	 * @return Model_WorkerRole[]
 	 */
 	static function getWhere($where=null, $sortBy=DAO_WorkerRole::NAME, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -229,7 +229,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
@@ -281,7 +281,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -312,7 +312,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	static function getRolePrivileges($role_id) {
 		// [TODO] Cache all?
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$acl = DevblocksPlatform::getAclRegistry();
 		
 		$privs = array();
@@ -334,7 +334,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	 */
 	static function setRolePrivileges($role_id, $privileges) {
 		if(!is_array($privileges)) $privileges = array($privileges);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($role_id))
 			return;
@@ -450,7 +450,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

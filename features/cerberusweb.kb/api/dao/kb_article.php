@@ -24,7 +24,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	const CONTENT = 'content';
 	
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO kb_article (updated) ".
 			"VALUES (%d)",
@@ -54,7 +54,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	}
 
 	static function getWhere($where=null, $sortBy='updated', $sortAsc=false, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -188,7 +188,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		if(empty($ids))
 			return;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$id_string = implode(',', $ids);
 		
@@ -231,7 +231,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	}
 
 	static function getCategoriesByArticleId($article_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($article_id))
 			return array();
@@ -258,7 +258,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	}
 	
 	static function getTopArticlesForCategories(array $category_ids, $limit=5) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$tree = DAO_KbCategory::getTree(0);
 		
@@ -288,7 +288,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	}
 	
 	static function setCategories($article_ids,$category_ids,$replace=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($article_ids))
 			$article_ids = array($article_ids);
@@ -427,7 +427,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	}
 	
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -637,7 +637,7 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 		
 		if(false == ($engine = $this->getEngine()))
 			return false;

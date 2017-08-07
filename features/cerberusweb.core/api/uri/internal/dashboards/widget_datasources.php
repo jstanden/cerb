@@ -92,7 +92,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		$view->renderPage = 0;
 		$view->renderLimit = 1;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// We need to know what date fields we have
 		$fields = $view->getFields();
@@ -204,8 +204,8 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 	}
 	
 	private function _getDataSeries(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
-		$date = DevblocksPlatform::getDateService();
-		$db = DevblocksPlatform::getDatabaseService();
+		$date = DevblocksPlatform::services()->date();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Use the worker's timezone for MySQL date functions
 		$db->ExecuteSlave(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));

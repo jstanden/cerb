@@ -7,7 +7,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 	const UPDATED_AT = 'updated_at';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "INSERT INTO classifier_example () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -68,7 +68,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 	 * @return Model_ClassifierExample[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -155,7 +155,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
@@ -206,7 +206,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 	}
 	
 	static public function countByClassifier($classifier_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneSlave(sprintf("SELECT count(id) FROM classifier_example ".
 			"WHERE classifier_id = %d",
 			$classifier_id
@@ -214,7 +214,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 	}
 	
 	static public function countByClass($class_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneSlave(sprintf("SELECT count(id) FROM classifier_example ".
 			"WHERE class_id = %d",
 			$class_id
@@ -223,7 +223,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -322,7 +322,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -1135,7 +1135,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 			$tpl->assign('classes', $classes);
 			
 			// Entities
-			$bayes = DevblocksPlatform::getBayesClassifierService();
+			$bayes = DevblocksPlatform::services()->bayesClassifier();
 			$entities = $bayes::getEntities();
 			$tpl->assign('entities', $entities);
 			

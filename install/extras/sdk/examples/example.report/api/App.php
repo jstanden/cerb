@@ -8,7 +8,7 @@ class ExReport extends Extension_Report {
 		@$date_from = DevblocksPlatform::importGPC($_REQUEST['date_from'], 'string', 'big bang');
 		@$date_to = DevblocksPlatform::importGPC($_REQUEST['date_to'], 'string', 'now');
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		$groups = DAO_Group::getAll();

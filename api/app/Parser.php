@@ -113,7 +113,7 @@ class CerberusParserModel {
 	}
 	
 	public function validate() {
-		$logger = DevblocksPlatform::getConsoleLog('Parser');
+		$logger = DevblocksPlatform::services()->log('Parser');
 		
 		// [TODO] Try...Catch
 		
@@ -805,7 +805,7 @@ class CerberusParser {
 
 		// Handle file attachments
 		
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$settings = $db = DevblocksPlatform::services()->pluginSettings();
 		$is_attachments_enabled = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED,CerberusSettingsDefaults::ATTACHMENTS_ENABLED);
 		$attachments_max_size = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE,CerberusSettingsDefaults::ATTACHMENTS_MAX_SIZE);
 		
@@ -917,7 +917,7 @@ class CerberusParser {
 		 * options:
 		 * 'no_autoreply'
 		 */
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 		$url_writer = DevblocksPlatform::getUrlService();
 
 		// Make sure the object is well-formatted and ready to send

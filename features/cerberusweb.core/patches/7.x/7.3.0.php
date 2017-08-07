@@ -1,6 +1,6 @@
 <?php
-$db = DevblocksPlatform::getDatabaseService();
-$logger = DevblocksPlatform::getConsoleLog();
+$db = DevblocksPlatform::services()->database();
+$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
@@ -167,7 +167,7 @@ if(!isset($tables['context_alias'])) {
 	
 	require_once(DEVBLOCKS_PATH . 'api/services/bayes_classifier.php');
 	
-	$bayes = DevblocksPlatform::getBayesClassifierService();
+	$bayes = DevblocksPlatform::services()->bayesClassifier();
 	
 	$values = [];
 	$n = 0;

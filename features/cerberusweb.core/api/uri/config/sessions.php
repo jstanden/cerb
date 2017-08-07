@@ -36,7 +36,7 @@ class PageSection_SetupSessions extends Extension_PageSection {
 	function viewDeleteAction() {
 		@$session_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],' array', array());
 		
-		$session = DevblocksPlatform::getSessionService();
+		$session = DevblocksPlatform::services()->session();
 		
 		if(is_array($session_ids))
 		foreach($session_ids as $session_id)

@@ -29,7 +29,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	}
 	
 	public static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!isset($fields[self::CODE]))
 			$fields[self::CODE] = self::generateUniqueCode();
@@ -48,7 +48,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 
 	// [TODO] APIize?
 	public static function generateUniqueCode($length=8) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// [JAS]: [TODO] Inf loop check
 		do {
@@ -142,7 +142,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	}
 	
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -191,7 +191,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
@@ -259,7 +259,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 	
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -391,7 +391,7 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 		if(null == ($props = $cache->load(self::_CACHE_PREFIX.$tool_code))) {
 			$props = array();
 			
-			$db = DevblocksPlatform::getDatabaseService();
+			$db = DevblocksPlatform::services()->database();
 			
 			$sql = sprintf("SELECT property_key, property_value ".
 				"FROM community_tool_property ".
@@ -437,7 +437,7 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 	}
 	
 	static function set($tool_code, $key, $value, $json_encode=false) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if($json_encode)
 			$value = json_encode($value);
@@ -463,7 +463,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 	const PROPERTIES = 'properties';
 	
 	static public function save(Model_CommunitySession $session) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("UPDATE community_session SET updated = %d, properties = %s WHERE session_id = %s",
 			time(),
@@ -478,7 +478,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 	 * @return Model_CommunitySession
 	 */
 	static public function get($session_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT session_id, created, updated, csrf_token, properties ".
 			"FROM community_session ".
@@ -504,7 +504,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 	}
 	
 	static public function delete($session_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("DELETE FROM community_session WHERE session_id = %s",
 			$db->qstr($session_id)
@@ -519,7 +519,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 	 * @return Model_CommunitySession
 	 */
 	static private function create($session_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$session = new Model_CommunitySession();
 		$session->session_id = $session_id;
@@ -542,7 +542,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 	}
 	
 	static private function gc() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("DELETE FROM community_session WHERE updated < %d",
 			(time()-(60*60)) // 1 hr
 		);

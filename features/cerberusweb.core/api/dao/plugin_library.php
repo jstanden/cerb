@@ -28,7 +28,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	const UPDATED = 'updated';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		@$id = $fields[self::ID];
 		
@@ -59,7 +59,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	 * @return Model_PluginLibrary[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -128,7 +128,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	}
 	
 	static function flush() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		$db->ExecuteMaster("DELETE FROM plugin_library");
@@ -141,7 +141,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -212,7 +212,7 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -576,7 +576,7 @@ class Search_PluginLibrary extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 		
 		if(false == ($engine = $this->getEngine()))
 			return false;

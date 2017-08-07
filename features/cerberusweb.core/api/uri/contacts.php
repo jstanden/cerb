@@ -438,9 +438,9 @@ class ChContactsPage extends CerberusPageExtension {
 		@$org_ids = DevblocksPlatform::importGPC($_REQUEST['org_id'],'array',array());
 		@$properties = DevblocksPlatform::importGPC($_REQUEST['prop'],'array',array());
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$eventMgr = DevblocksPlatform::getEventService();
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$active_worker->hasPriv('core.addybook.org.actions.merge'))
@@ -654,7 +654,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
 		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT DISTINCT country AS country ".
 			"FROM contact_org ".

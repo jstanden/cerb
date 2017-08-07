@@ -24,7 +24,7 @@ class DAO_ViewFiltersPreset extends Cerb_ORMHelper {
 	const SORT_JSON = 'sort_json';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO view_filters_preset () ".
 			"VALUES ()"
@@ -53,7 +53,7 @@ class DAO_ViewFiltersPreset extends Cerb_ORMHelper {
 	 * @return Model_ViewFiltersPreset[]
 	 */
 	static function getWhere($where=null, $sortBy='name', $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -124,7 +124,7 @@ class DAO_ViewFiltersPreset extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -183,7 +183,7 @@ class DAO_ViewFiltersPreset extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

@@ -85,9 +85,9 @@ class ChPageController extends DevblocksControllerExtension {
 	public function writeResponse(DevblocksHttpResponse $response) {
 		$path = $response->path;
 
-		$tpl = DevblocksPlatform::getTemplateService();
-		$session = DevblocksPlatform::getSessionService();
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$tpl = DevblocksPlatform::services()->template();
+		$session = DevblocksPlatform::services()->session();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -738,7 +738,7 @@ class BotAction_ScheduleInteractionProactive extends Extension_DevblocksEventAct
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 
 		$out = null;
 		
@@ -849,7 +849,7 @@ class BotAction_CalculateTimeElapsed extends Extension_DevblocksEventAction {
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 
 		$out = null;
 		
@@ -1103,8 +1103,8 @@ class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	}
 	
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$bayes = DevblocksPlatform::getBayesClassifierService();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		
 		@$classifier_id = $params['classifier_id'];
 		@$content = $tpl_builder->build($params['content'], $dict);
@@ -1182,7 +1182,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		
 		// Try connecting
 		
-		$mail_service = DevblocksPlatform::getMailService();
+		$mail_service = DevblocksPlatform::services()->mail();
 		
 		$options = array(
 			'host' => $host,

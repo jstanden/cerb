@@ -1,5 +1,5 @@
 <?php
-$db = DevblocksPlatform::getDatabaseService();
+$db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
 
 // Convert tables to ID = INT4 UNSIGNED AUTO_INCREMENT

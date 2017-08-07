@@ -25,7 +25,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	const CODE_EXPIRE = 'code_expire';
 
 	static function assign($address_id, $worker_id, $is_confirmed=false) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($address_id) || empty($worker_id))
 			return false;
@@ -43,7 +43,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	}
 
 	static function unassign($address_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($address_id))
 			return false;
@@ -58,7 +58,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	}
 	
 	static function unassignAll($worker_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($worker_id))
 			return NULL;
@@ -77,7 +77,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 		
 		$address_ids = DevblocksPlatform::sanitizeArray($address_ids, 'int');
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sets = array();
 		
 		if(!is_array($fields) || empty($fields) || empty($address_ids))
@@ -209,7 +209,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	}
 	
 	static function getWhere($where=null, $sortBy=null, $sortAsc=null, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		

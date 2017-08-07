@@ -271,7 +271,7 @@ class ChSignInPage extends CerberusPageExtension {
 	// Please be honest
 	private function _checkSeats($worker) {
 		$honesty = CerberusLicense::getInstance();
-		$session = DevblocksPlatform::getSessionService();
+		$session = DevblocksPlatform::services()->session();
 		
 		$online_workers = DAO_Worker::getAllOnline(PHP_INT_MAX, 0);
 		$max = intval(max($honesty->w, 1));
@@ -298,7 +298,7 @@ class ChSignInPage extends CerberusPageExtension {
 	}
 	
 	private function _processAuthenticated($worker) { /* @var $worker Model_Worker */
-		$session = DevblocksPlatform::getSessionService();
+		$session = DevblocksPlatform::services()->session();
 
 		$visit = new CerberusVisit();
 		$visit->setWorker($worker);
@@ -383,7 +383,7 @@ class ChSignInPage extends CerberusPageExtension {
 		);
 		CerberusContexts::logActivity('worker.logged_out', null, null, $entry);
 		
-		$session = DevblocksPlatform::getSessionService();
+		$session = DevblocksPlatform::services()->session();
 		
 		switch($option) {
 			case 'all':

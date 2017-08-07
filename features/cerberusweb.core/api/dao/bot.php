@@ -29,7 +29,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 	const CACHE_ALL = 'ch_bots';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!isset($fields[DAO_Bot::CREATED_AT]))
 			$fields[DAO_Bot::CREATED_AT] = time();
@@ -122,7 +122,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 	 * @return Model_Bot[]
 	 */
 	static function getWhere($where=null, $sortBy='name', $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -270,7 +270,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -302,7 +302,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 	}
 	
 	public static function deleteByOwner($context, $context_ids) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($context) || empty($context_ids))
 			return false;
@@ -403,7 +403,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

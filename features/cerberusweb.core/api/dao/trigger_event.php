@@ -30,7 +30,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const VARIABLES_JSON = 'variables_json';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
@@ -278,7 +278,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	 * @return Model_TriggerEvent[]
 	 */
 	static function getWhere($where=null, $sortBy=DAO_TriggerEvent::PRIORITY, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -333,7 +333,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		if(empty($trigger_id))
 			return;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO trigger_event_history (trigger_id, ts_day, uses, elapsed_ms) ".
 			"VALUES (%d, %d, %d, %d) ".
@@ -348,7 +348,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	}
 	
 	static public function countByBot($bot_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneSlave(sprintf("SELECT count(*) FROM trigger_event ".
 			"WHERE bot_id = %d",
 			$bot_id
@@ -359,7 +359,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -449,7 +449,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -508,7 +508,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	}
 	
 	static public function getNextPosByParent($trigger_id, $parent_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$count = $db->GetOneMaster(sprintf("SELECT MAX(pos) FROM decision_node ".
 			"WHERE trigger_id = %d AND parent_id = %d",
@@ -904,7 +904,7 @@ class Model_TriggerEvent {
 	}
 	
 	private function _recurseRunTree($event, $nodes, $tree, $node_id, DevblocksDictionaryDelegate $dict, &$path, &$replay, $dry_run=false) {
-		$logger = DevblocksPlatform::getConsoleLog('Bot');
+		$logger = DevblocksPlatform::services()->log('Bot');
 
 		// Did the last action request that we exit early?
 		if(false !== in_array(end($path) ?: '', ['STOP','SUSPEND']))

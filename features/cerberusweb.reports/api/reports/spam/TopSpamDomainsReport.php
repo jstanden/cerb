@@ -18,7 +18,7 @@
 class ChReportSpamDomains extends Extension_Report {
 	function render() {
 		$tpl = DevblocksPlatform::getTemplateService();
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$top_spam_domains = array();
 		$top_nonspam_domains = array();

@@ -58,12 +58,12 @@ if(DevblocksPlatform::isStateless()) {
 	$_SESSION = [];
 	
 } else {
-	$session = DevblocksPlatform::getSessionService();
+	$session = DevblocksPlatform::services()->session();
 	$tpl->assign('session', $_SESSION);
 	$tpl->assign('visit', $session->getVisit());
 }
 
-$settings = DevblocksPlatform::getPluginSettingsService();
+$settings = $db = DevblocksPlatform::services()->pluginSettings();
 $worker = CerberusApplication::getActiveWorker();
 
 // Localization

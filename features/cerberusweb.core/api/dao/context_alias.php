@@ -6,7 +6,7 @@ class DAO_ContextAlias extends Cerb_ORMHelper {
 	const TERMS = 'terms';
 	
 	static function get($context, $id, $with_primary=false) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$results = $db->GetArraySlave(sprintf("SELECT name FROM context_alias WHERE context = %s AND id = %d %s",
 			$db->qstr($context),
@@ -23,8 +23,8 @@ class DAO_ContextAlias extends Cerb_ORMHelper {
 		
 		$aliases = array_unique($aliases);
 		
-		$db = DevblocksPlatform::getDatabaseService();
-		$bayes = DevblocksPlatform::getBayesClassifierService();
+		$db = DevblocksPlatform::services()->database();
+		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		
 		self::delete($context, $id);
 		
@@ -58,8 +58,8 @@ class DAO_ContextAlias extends Cerb_ORMHelper {
 		
 		$aliases = array_unique($aliases);
 		
-		$db = DevblocksPlatform::getDatabaseService();
-		$bayes = DevblocksPlatform::getBayesClassifierService();
+		$db = DevblocksPlatform::services()->database();
+		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		
 		$values = [];
 		
@@ -98,7 +98,7 @@ class DAO_ContextAlias extends Cerb_ORMHelper {
 		if(empty($ids_string))
 			return false;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("DELETE FROM context_alias WHERE context = %s AND id IN (%s)",
 			$db->qstr($context),

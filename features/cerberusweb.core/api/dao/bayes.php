@@ -24,7 +24,7 @@ class DAO_Bayes {
 	 * @return CerberusWord[]
 	 */
 	static function lookupWordIds($words) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$tmp = array();
 		$outwords = array(); // CerberusWord
 		
@@ -85,7 +85,7 @@ class DAO_Bayes {
 	 * @return array Two element array (keys: spam,nonspam)
 	 */
 	static function getStatistics() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// [JAS]: [TODO] Change this into a 'replace' index?
 		$sql = "SELECT spam, nonspam FROM bayes_stats";
@@ -106,14 +106,14 @@ class DAO_Bayes {
 	}
 	
 	static function addOneToSpamTotal() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = "UPDATE bayes_stats SET spam = spam + 1";
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 	}
 	
 	static function addOneToNonSpamTotal() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = "UPDATE bayes_stats SET nonspam = nonspam + 1";
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
@@ -122,7 +122,7 @@ class DAO_Bayes {
 	static function addOneToSpamWord($word_ids=array()) {
 		if(!is_array($word_ids)) $word_ids = array($word_ids);
 		if(empty($word_ids)) return;
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("UPDATE bayes_words SET spam = spam + 1 WHERE id IN(%s)", implode(',',$word_ids));
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
@@ -131,7 +131,7 @@ class DAO_Bayes {
 	static function addOneToNonSpamWord($word_ids=array()) {
 		if(!is_array($word_ids)) $word_ids = array($word_ids);
 		if(empty($word_ids)) return;
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("UPDATE bayes_words SET nonspam = nonspam + 1 WHERE id IN(%s)", implode(',',$word_ids));
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;

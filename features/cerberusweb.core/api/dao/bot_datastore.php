@@ -6,7 +6,7 @@ class DAO_BotDatastore extends Cerb_ORMHelper {
 	const EXPIRES_AT = 'expires_at';
 	
 	static function get($bot_id, $key) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($bot_id) || empty($key) || !is_string($key))
 			return false;
@@ -21,7 +21,7 @@ class DAO_BotDatastore extends Cerb_ORMHelper {
 	}
 	
 	static function set($bot_id, $key, $value, $expires_at=0) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($bot_id) || empty($key) || !is_string($key) || !is_string($value))
 			return false;
@@ -50,7 +50,7 @@ class DAO_BotDatastore extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Delete any expired keys (0=forever)
 		$sql = sprintf("DELETE FROM bot_datastore WHERE expires_at BETWEEN 1 AND %d",

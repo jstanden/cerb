@@ -28,7 +28,7 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 		if(!is_array($models))
 			return false;
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$values = array();
 		
@@ -59,7 +59,7 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 		if(!is_array($pos))
 			$pos = array($pos);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$rs = $db->ExecuteSlave(sprintf("SELECT hash, pos, params_json ".
 			"FROM explorer_set ".
@@ -73,7 +73,7 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 	}
 	
 	static function set($hash, $params, $pos) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("REPLACE INTO explorer_set (params_json, hash, pos) VALUES (%s,%s,%d)",
 			$db->qstr(json_encode($params)),
@@ -105,7 +105,7 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 	}
 	
 	static function update($hash, $params) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("UPDATE explorer_set SET params_json = %s WHERE hash = %s AND pos = 0",
 			$db->qstr(json_encode($params)),
@@ -114,8 +114,8 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		
 		$rs = $db->ExecuteMaster("SELECT hash, params_json FROM explorer_set WHERE pos = 0");
 		

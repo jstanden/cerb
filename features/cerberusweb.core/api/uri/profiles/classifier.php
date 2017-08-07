@@ -237,7 +237,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
 		@$examples_csv = DevblocksPlatform::importGPC($_REQUEST['examples_csv'], 'string', null);
 		
-		$bayes = DevblocksPlatform::getBayesClassifierService();
+		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		
 		header('Content-Type: application/json');
 		
@@ -390,7 +390,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
 		@$text = DevblocksPlatform::importGPC($_REQUEST['text'], 'string', '');
 		
-		$bayes = DevblocksPlatform::getBayesClassifierService();
+		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		$tpl = DevblocksPlatform::getTemplateService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		

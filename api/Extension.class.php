@@ -537,7 +537,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 			$widget = null;
 		}
 		
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$is_cached = false;
 				
 		if($widget && $widget instanceof Model_WorkspaceWidget) {

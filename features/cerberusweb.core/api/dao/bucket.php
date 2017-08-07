@@ -29,7 +29,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	const UPDATED_AT = 'updated_at';
 	
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "INSERT INTO bucket () VALUES ()";
 		if(false == ($db->ExecuteMaster($sql)))
@@ -160,7 +160,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	 * @return Model_Bucket[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=null, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -217,7 +217,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	}
 	
 	static function getResponsibilities($bucket_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$responsibilities = array();
 		
 		$results = $db->GetArraySlave(sprintf("SELECT worker_id, responsibility_level FROM worker_to_bucket WHERE bucket_id = %d",
@@ -287,7 +287,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	}
 	
 	static function countByGroupId($group_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT count(id) FROM bucket WHERE group_id = %d",
 			$group_id
@@ -299,7 +299,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -491,7 +491,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

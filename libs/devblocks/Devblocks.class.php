@@ -8,6 +8,194 @@ include_once(DEVBLOCKS_PATH . "api/services/bootstrap/classloader.php");
 
 define('PLATFORM_BUILD', 2016122701);
 
+class _DevblocksServices {
+	private static $_instance = null;
+	
+	private function __construct() {}
+	
+	static function getInstance() {
+		if(is_null(self::$_instance))
+			self::$_instance = new _DevblocksServices();
+		
+		return self::$_instance;
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksBayesClassifierService
+	 */
+	function bayesClassifier() {
+		return _DevblocksBayesClassifierService::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksCacheManager
+	 */
+	function cache() {
+		return _DevblocksCacheManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksClassLoadManager
+	 */
+	function classloader() {
+		return _DevblocksClassLoadManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksDatabaseManager|NULL
+	 */
+	function database() {
+		return _DevblocksDatabaseManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksDateManager
+	 */
+	function date() {
+		return _DevblocksDateManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksEncryptionService
+	 */
+	function encryption() {
+		return _DevblocksEncryptionService::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksEventManager
+	 */
+	function event() {
+		return _DevblocksEventManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksGPGService
+	 */
+	function gpg() {
+		return _DevblocksGPGService::getInstance();;
+	}
+	
+	/**
+	 * 
+	 * @param string $prefix
+	 * @return _DevblocksLogManager
+	 */
+	function log($prefix=null) {
+		return _DevblocksLogManager::getConsoleLog($prefix);
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksEmailManager
+	 */
+	function mail() {
+		return _DevblocksEmailManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @param string $consumer_key
+	 * @param string $consumer_secret
+	 * @param string $signature_method
+	 * @return _DevblocksOAuthService
+	 */
+	function oauth($consumer_key, $consumer_secret, $signature_method='HMAC-SHA1') {
+		return new _DevblocksOAuthService($consumer_key, $consumer_secret, $signature_method);
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksOpenIDManager
+	 */
+	function openid() {
+		return _DevblocksOpenIDManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksNaturalLanguageManager
+	 */
+	function nlp() {
+		return _DevblocksNaturalLanguageManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @param integer $inputs
+	 * @param integer $hiddens
+	 * @param integer $outputs
+	 * @param float $learning_rate
+	 * @return DevblocksNeuralNetwork
+	 */
+	function neuralNetwork($inputs, $hiddens, $outputs, $learning_rate) {
+		return _DevblocksNeuralNetworkService::createNeuralNetwork($inputs, $hiddens, $outputs, $learning_rate);
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksPluginSettingsManager
+	 */
+	function pluginSettings() {
+		return _DevblocksPluginSettingsManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksRegistryManager
+	 */
+	function registry() {
+		return _DevblocksRegistryManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksSessionManager
+	 */
+	function session() {
+		return _DevblocksSessionManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return Smarty
+	 */
+	function template() {
+		return _DevblocksTemplateManager::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksTemplateBuilder
+	 */
+	function templateBuilder() {
+		return _DevblocksTemplateBuilder::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @return Smarty
+	 */
+	function templateSandbox() {
+		return _DevblocksTemplateManager::getInstanceSandbox();
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksUrlManager
+	 */
+	function url() {
+		return _DevblocksUrlManager::getInstance();
+	}
+	
 /**
  * A platform container for plugin/extension registries.
  *
@@ -1276,7 +1464,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			curl_close($ch);
 			
 		} else {
-			$logger = DevblocksPlatform::getConsoleLog();
+			$logger = DevblocksPlatform::services()->log();
 			$logger->error("[Platform] 'curl' extension is not enabled. Can not load a URL.");
 			return;
 		}
@@ -1783,7 +1971,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 *
 	 */
 	static function clearCache($one_cache=null) {
-		$cache = self::getCacheService(); /* @var $cache _DevblocksCacheManager */
+		$cache = DevblocksPlatform::services()->cache();
 
 		if(!empty($one_cache)) {
 			$cache->remove($one_cache);
@@ -1832,7 +2020,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	public static function registerClasses($file,$classes=array()) {
-		$classloader = self::getClassLoaderService();
+		$classloader = DevblocksPlatform::services()->classloader();
 		return $classloader->registerClasses($file,$classes);
 	}
 	
@@ -1883,7 +2071,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return boolean
 	 */
 	static function isDatabaseEmpty() {
-		if(false == ($db = DevblocksPlatform::getDatabaseService()))
+		if(false == ($db = DevblocksPlatform::services()->database()))
 			return true;
 		
 		$tables = self::getDatabaseTables();
@@ -1891,12 +2079,12 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function getDatabaseTables($nocache=false) {
-		$cache = self::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$tables = array();
 		
 		if($nocache || null === ($tables = $cache->load(self::CACHE_TABLES))) {
 			// Make sure the database connection is valid or error out.
-			if(false == ($db = self::getDatabaseService()))
+			if(false == ($db = DevblocksPlatform::services()->database()))
 				return array();
 			
 			$tables = $db->metaTables();
@@ -1923,7 +2111,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			return true;
 		
 		// If build changed, clear cache regardless of patch status
-		$cache = DevblocksPlatform::getCacheService(); /* @var $cache _DevblocksCacheManager */
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->clean();
 		
 		return false;
@@ -2002,7 +2190,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return DevblocksExtensionManifest[]
 	 */
 	static function getExtensionRegistry($nocache=false, $with_disabled=false) {
-		$cache = self::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		// Forced
 		if($with_disabled)
@@ -2010,7 +2198,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Retrieve and cache
 		if($nocache || null === ($extensions = $cache->load(self::CACHE_EXTENSIONS))) {
-			$db = DevblocksPlatform::getDatabaseService();
+			$db = DevblocksPlatform::services()->database();
 			if(is_null($db))
 				return;
 			
@@ -2055,7 +2243,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	static function getActivityPointRegistry() {
-		$cache = self::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		
 		if(empty($plugins))
@@ -2083,7 +2271,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return DevblocksEventPoint[]
 	 */
 	static function getEventPointRegistry() {
-		$cache = self::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if(null !== ($events = $cache->load(self::CACHE_EVENT_POINTS)))
 			return $events;
 
@@ -2106,13 +2294,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return DevblocksAclPrivilege[]
 	 */
 	static function getAclRegistry() {
-		$cache = self::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if(null !== ($acl = $cache->load(self::CACHE_ACL)))
 			return $acl;
 
 		$acl = array();
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		if(is_null($db)) return;
 
 		//$plugins = self::getPluginRegistry();
@@ -2144,7 +2332,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function getEventRegistry() {
-		$cache = self::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if(null !== ($events = $cache->load(self::CACHE_EVENTS)))
 			return $events;
 		
@@ -2181,12 +2369,12 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return DevblocksPluginManifest[]
 	 */
 	static function getPluginRegistry() {
-		$cache = self::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null !== ($plugins = $cache->load(self::CACHE_PLUGINS)))
 			return $plugins;
 		
-		if(false == ($db = DevblocksPlatform::getDatabaseService()) || DevblocksPlatform::isDatabaseEmpty())
+		if(false == ($db = DevblocksPlatform::services()->database()) || DevblocksPlatform::isDatabaseEmpty())
 			return;
 			
 		$plugins = array();
@@ -2373,6 +2561,15 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
+	 * @return _DevblocksServices
+	 */
+	static function services() {
+		return _DevblocksServices::getInstance();
+	}
+	
+	/**
+	 * 
+	 * @deprecated
 	 * @return _DevblocksPluginSettingsManager
 	 */
 	static function getPluginSettingsService() {
@@ -2380,23 +2577,26 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function getPluginSetting($plugin_id, $key, $default=null, $json_decode=false, $encrypted=false) {
-		$settings = self::getPluginSettingsService();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		return $settings->get($plugin_id, $key, $default, $json_decode, $encrypted);
 	}
 	
 	static function setPluginSetting($plugin_id, $key, $value, $json_encode=false, $encrypted=false) {
-		$settings = self::getPluginSettingsService();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		return $settings->set($plugin_id, $key, $value, $json_encode, $encrypted);
 	}
 
 	/**
+	 * @deprecated
 	 * @return _DevblocksLogManager
 	 */
 	static function getConsoleLog($prefix='') {
-		return _DevblocksLogManager::getConsoleLog($prefix);
+		return DevblocksPlatform::services()->log($prefix);
 	}
 	
 	/**
+	 *
+	 * @deprecated
 	 * @return _DevblocksCacheManager
 	 */
 	static function getCacheService() {
@@ -2404,8 +2604,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
+	 * @deprecated
 	 * @return _DevblocksDatabaseManager
 	 */
 	static function getDatabaseService() {
@@ -2413,27 +2613,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
-	 * @return _DevblocksNaturalLanguageManager
-	 */
-	static function getNaturalLanguageService() {
-		return _DevblocksNaturalLanguageManager::getInstance();
-	}
-	
-	/**
-	 * @return _DevblocksBayesClassifierService
-	 */
-	static function getBayesClassifierService() {
-		return _DevblocksBayesClassifierService::getInstance();
-	}
-	
-	/**
-	 * @return DevblocksNeuralNetwork
-	 */
-	static function getNeuralNetwork($inputs, $hiddens, $outputs, $learning_rate) {
-		return _DevblocksNeuralNetworkService::createNeuralNetwork($inputs, $hiddens, $outputs, $learning_rate);
-	}
-	
-	/**
+	 * @deprecated
 	 * @return _DevblocksUrlManager
 	 */
 	static function getUrlService() {
@@ -2441,13 +2621,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
-	 * @return _DevblocksEmailManager
-	 */
-	static function getMailService() {
-		return _DevblocksEmailManager::getInstance();
-	}
-	
-	/**
+	 * @deprecated
 	 * @return _DevblocksEncryptionService
 	 */
 	static function getEncryptionService() {
@@ -2455,27 +2629,21 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
+	 * @deprecated
 	 * @return _DevblocksEventManager
 	 */
 	static function getEventService() {
 		return _DevblocksEventManager::getInstance();
 	}
 	
-	/**
-	 * @return _DevblocksRegistryManager
-	 */
-	static function getRegistryService() {
-		return _DevblocksRegistryManager::getInstance();
-	}
-	
 	static function setRegistryKey($key, $value, $as=DevblocksRegistryEntry::TYPE_STRING, $persist=false) {
-		$registry = self::getRegistryService();
+		$registry = DevblocksPlatform::services()->registry();
 		$registry->set($key, $value, $as);
 		$registry->persist($key, $persist);
 	}
 	
 	static function getRegistryKey($key, $as=DevblocksRegistryEntry::TYPE_STRING, $default=null) {
-		$registry = self::getRegistryService();
+		$registry = DevblocksPlatform::services()->registry();
 		
 		if(null == ($value = $registry->get($key, $as, $default)))
 			return null;
@@ -2484,31 +2652,11 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
-	 * @return _DevblocksClassLoadManager
-	 */
-	static function getClassLoaderService() {
-		return _DevblocksClassLoadManager::getInstance();
-	}
-	
-	/**
-	 * @return _DevblocksSessionManager
-	 */
-	static function getSessionService() {
-		return _DevblocksSessionManager::getInstance();
-	}
-	
-	/**
+	 * @deprecated
 	 * @return _DevblocksOAuthService
 	 */
 	static function getOAuthService($consumer_key, $consumer_secret, $signature_method='HMAC-SHA1') {
 		return new _DevblocksOAuthService($consumer_key, $consumer_secret, $signature_method);
-	}
-	
-	/**
-	 * @return _DevblocksOpenIDManager
-	 */
-	static function getOpenIDService() {
-		return _DevblocksOpenIDManager::getInstance();
 	}
 	
 	static private function _deepCloneArray(&$array) {
@@ -2656,6 +2804,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
+	 * @deprecated
 	 * @return Smarty
 	 */
 	static function getTemplateService() {
@@ -2663,6 +2812,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * @deprecated
 	 * @return Smarty
 	 */
 	static function getTemplateSandboxService() {
@@ -2697,19 +2847,13 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * @deprecated
 	 * @return _DevblocksTemplateBuilder
 	 */
 	static function getTemplateBuilder() {
 		return _DevblocksTemplateBuilder::getInstance();
 	}
 
-	/**
-	 * @return _DevblocksDateManager
-	 */
-	static function getDateService($datestamp=null) {
-		return _DevblocksDateManager::getInstance();
-	}
-	
 	private static function _discoverTimezone() {
 		$timezone = null;
 		
@@ -2797,7 +2941,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			return $languages[$locale];
 		}
 
-		$cache = self::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null === ($map = $cache->load(self::CACHE_TAG_TRANSLATIONS.'_'.$locale))) { /* @var $cache _DevblocksCacheManager */
 			$map = array();
@@ -2973,7 +3117,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Enable the second-level cache
 		
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(false != ($cacher_extension_id = DevblocksPlatform::getPluginSetting('devblocks.core', 'cacher.extension_id', null))) {
 			$cacher_params = DevblocksPlatform::getPluginSetting('devblocks.core', 'cacher.params_json', array(), true);
@@ -2997,7 +3141,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 		
 		// Persist the registry
-		$registry = DevblocksPlatform::getRegistryService();
+		$registry = DevblocksPlatform::services()->registry();
 		$registry->save();
 	}
 

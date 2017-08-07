@@ -961,7 +961,7 @@ class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWo
 		
 		// Timezones
 		
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		
 		$timezones = $date->getTimezones();
 		$tpl->assign('timezones', $timezones);

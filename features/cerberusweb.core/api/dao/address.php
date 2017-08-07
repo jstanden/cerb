@@ -41,7 +41,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	 *
 	 */
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(null == ($email = @$fields[self::EMAIL]))
 			return NULL;
@@ -183,8 +183,8 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		$sql = "DELETE FROM address_to_worker WHERE worker_id NOT IN (SELECT id FROM worker)";
@@ -217,7 +217,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		if(empty($ids))
 			return;
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$address_ids = implode(',', $ids);
 		
@@ -244,7 +244,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -296,7 +296,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	 * @return Model_Address|null
 	 */
 	static function getByEmail($email) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$results = self::getWhere(sprintf("%s = %s",
 			self::EMAIL,
@@ -310,7 +310,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	static function countByTicketId($ticket_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT count(address_id) FROM requester WHERE ticket_id = %d",
 			$ticket_id
@@ -319,7 +319,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	static function countByContactId($org_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT count(id) FROM address WHERE contact_id = %d",
 			$org_id
@@ -328,7 +328,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	static function countByOrgId($org_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT count(id) FROM address WHERE contact_org_id = %d",
 			$org_id
@@ -366,7 +366,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	 * @return Model_Address
 	 */
 	static function lookupAddress($email, $create_if_null=false) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$address = null;
 		
@@ -419,14 +419,14 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	static function addOneToSpamTotal($address_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("UPDATE address SET num_spam = num_spam + 1 WHERE id = %d",$address_id);
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 	}
 	
 	static function addOneToNonSpamTotal($address_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("UPDATE address SET num_nonspam = num_nonspam + 1 WHERE id = %d",$address_id);
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
@@ -579,7 +579,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -836,7 +836,7 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 	}
 	
 	private function _indexDictionary($dict, $engine) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 
 		$id = $dict->id;
 		

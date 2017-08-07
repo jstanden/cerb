@@ -510,7 +510,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	const NAME = 'name';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO kb_category () ".
 			"VALUES ()"
@@ -530,7 +530,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	}
 	
 	static function getTreeMap($prune_empty=false) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$categories = self::getWhere();
 		$tree = array();
@@ -668,7 +668,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	 * @return Model_KbCategory[]
 	 */
 	static function getWhere($where=null, $sortBy=DAO_KbCategory::NAME, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -732,7 +732,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -785,7 +785,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	}
 	
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

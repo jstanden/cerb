@@ -176,7 +176,7 @@ abstract class DevblocksEngine {
 			return $manifest;
 
 		// If the database is empty, return
-		if(null == ($db = DevblocksPlatform::getDatabaseService()) || DevblocksPlatform::isDatabaseEmpty())
+		if(null == ($db = DevblocksPlatform::services()->database()) || DevblocksPlatform::isDatabaseEmpty())
 			return $manifest;
 
 		list($columns, $indexes) = $db->metaTable($prefix . 'plugin');

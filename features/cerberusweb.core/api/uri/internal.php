@@ -103,7 +103,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$interaction_params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'], 'string', null);
 		
-		$session = DevblocksPlatform::getSessionService();
+		$session = DevblocksPlatform::services()->session();
 		
 		if(
 			!$interaction_behavior_id
@@ -778,7 +778,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$sync_dupes = DevblocksPlatform::importGPC($_REQUEST['sync_dupes'],'array',array());
 		
 		$visit = CerberusApplication::getVisit();
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -3791,7 +3791,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$custom_values = DevblocksPlatform::importGPC($_POST['values'],'array', array());
 		
 		$tpl = DevblocksPlatform::getTemplateService();
-		$logger = DevblocksPlatform::getConsoleLog('Bot');
+		$logger = DevblocksPlatform::services()->log('Bot');
 		
 		$logger->setLogLevel(6);
 		

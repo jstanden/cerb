@@ -397,7 +397,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	}
 
 	function showGeneralTabAction() {
-		$date_service = DevblocksPlatform::getDateService();
+		$date_service = DevblocksPlatform::services()->date();
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		$worker = CerberusApplication::getActiveWorker();
@@ -667,7 +667,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 	private function _sendConfirmationEmail($to, $worker) {
 		$translate = DevblocksPlatform::getTranslationService();
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$settings = $db = DevblocksPlatform::services()->pluginSettings();
 		$url_writer = DevblocksPlatform::getUrlService();
 		$tpl = DevblocksPlatform::getTemplateService();
 

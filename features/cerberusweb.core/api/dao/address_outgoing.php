@@ -26,7 +26,7 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 	const _CACHE_ALL = 'dao_address_outgoing_all';
 	
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		@$id = $fields[self::ADDRESS_ID];
 		
@@ -61,7 +61,7 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 
 		if($nocache || null === ($froms = $cache->load(self::_CACHE_ALL))) {
-			$db = DevblocksPlatform::getDatabaseService();
+			$db = DevblocksPlatform::services()->database();
 			$froms = array();
 			
 			$sql = "SELECT ao.address_id, a.email, ao.is_default, ao.reply_personal, ao.reply_signature, ao.reply_html_template_id, ao.reply_mail_transport_id ".
@@ -113,7 +113,7 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 	}
 	
 	static public function setDefault($address_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$db->ExecuteMaster("UPDATE address_outgoing SET is_default = 0");
 		$db->ExecuteMaster(sprintf("UPDATE address_outgoing SET is_default = 1 WHERE address_id = %d", $address_id));
 		
@@ -206,7 +206,7 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Delete this address_outgoing row
 		$db->ExecuteMaster(sprintf("DELETE FROM address_outgoing WHERE address_id IN (%s)", $ids_list));

@@ -42,7 +42,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const ELAPSED_RESOLUTION_FIRST = 'elapsed_resolution_first';
 	
 	static function authorizeByParticipantsAndMessages(array $participant_ids, array $message_ids) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($participant_ids) || empty($message_ids))
 			return false;
@@ -62,7 +62,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 * @return integer
 	 */
 	static function getTicketIdByMask($mask) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT t.id FROM ticket t WHERE t.mask = %s",
 			$db->qstr($mask)
@@ -89,7 +89,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function getMergeParentByMask($old_mask) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT new_mask from ticket_mask_forward WHERE old_mask = %s",
 			$db->qstr($old_mask)
@@ -138,7 +138,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function getTicketByMessageIdHeader($raw_message_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT ticket_id, id as message_id ".
 			"FROM message ".
@@ -227,7 +227,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function getParticipants($ticket_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT %s AS context, address_id AS context_id, count(id) AS hits FROM message WHERE is_outgoing = 0 AND ticket_id = %d GROUP BY address_id ". 
 			"UNION ".
@@ -243,7 +243,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function countsByContactId($contact_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$counts = array(
 			'total' => 0,
@@ -285,7 +285,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function countsByBucketId($bucket_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$counts = array(
 			'total' => 0,
@@ -325,7 +325,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function countsByGroupId($group_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$counts = array(
 			'total' => 0,
@@ -365,7 +365,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function countsByOwnerId($worker_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$counts = array(
 			'total' => 0,
@@ -405,7 +405,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function countsByAddressId($address_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$counts = array(
 			'total' => 0,
@@ -446,7 +446,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function countsByOrgId($org_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$counts = array(
 			'total' => 0,
@@ -493,7 +493,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 *
 	 */
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO ticket (created_date, updated_date) ".
 			"VALUES (%d,%d)",
@@ -510,8 +510,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		
 		// Fix missing owners
 		$sql = "UPDATE ticket SET owner_id = 0 WHERE owner_id != 0 AND owner_id NOT IN (SELECT id FROM worker)";
@@ -546,7 +546,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			return false;
 		}
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 			
 		list($merged_tickets, $null) = DAO_Ticket::search(
 			array(),
@@ -761,7 +761,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			return FALSE;
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$messages = $ticket->getMessages();
 		$first_message = reset($messages);
@@ -838,7 +838,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function getWhere($where=null, $sortBy='updated_date', $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -1322,7 +1322,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function updateMessageCount($id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("UPDATE ticket ".
 			"SET num_messages = (SELECT count(id) FROM message WHERE message.ticket_id = ticket.id) ".
@@ -1337,7 +1337,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 * @return Model_Address[]
 	 */
 	static function getRequestersByTicket($ticket_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$ids = array();
 		
@@ -1416,8 +1416,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function createRequester($raw_email, $ticket_id) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		
 		$replyto_addresses = DAO_AddressOutgoing::getAll();
 
@@ -1459,7 +1459,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(empty($id) || empty($address_id))
 			return;
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$sql = sprintf("DELETE FROM requester WHERE ticket_id = %d AND address_id = %d",
 			$id,
@@ -1470,8 +1470,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function addParticipantIds($ticket_id, $address_ids) {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		
 		$replyto_addresses = DAO_AddressOutgoing::getAll();
 		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
@@ -1533,7 +1533,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	static function removeParticipantIds($ticket_id, $address_ids) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ticket_id) || !is_array($address_ids))
 			return false;
@@ -1731,7 +1731,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	
 	// [TODO] Utilize Sphinx when it exists?
 	static function autocomplete($term, $as='models') {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$objects = array();
 		
 		$results = $db->GetArraySlave(sprintf("SELECT id ".
@@ -1764,7 +1764,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$fulltext_params = array();
 		
@@ -2678,7 +2678,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	private function _getSubtotalDataForBuckets() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;
@@ -2819,7 +2819,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	protected function _getSubtotalDataForStatus($dao_class, $field_key) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$fields = $this->getFields();
 		$columns = $this->view_columns;

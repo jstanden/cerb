@@ -83,7 +83,7 @@ class PageSection_InternalSkills extends Extension_PageSection {
 		if(!CerberusContexts::isWriteableByActor($context, $context_id, $active_worker))
 			return;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM context_to_skill WHERE context = %s AND context_id = %d",
 				$db->qstr($context),

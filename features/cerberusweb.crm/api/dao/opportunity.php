@@ -27,7 +27,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	const IS_CLOSED = 'is_closed';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(!isset($fields[DAO_CrmOpportunity::CREATED_DATE]))
 			$fields[DAO_CrmOpportunity::CREATED_DATE] = time();
@@ -277,7 +277,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	 * @return Model_CrmOpportunity[]
 	 */
 	static function getWhere($where=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "SELECT id, name, amount, primary_email_id, created_date, updated_date, closed_date, is_won, is_closed ".
 			"FROM crm_opportunity ".
@@ -337,7 +337,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	}
 	
 	static function getItemCount() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneSlave("SELECT count(id) FROM crm_opportunity");
 	}
 	
@@ -358,7 +358,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$ids_list = implode(',', $ids);
 		
@@ -482,7 +482,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

@@ -122,7 +122,7 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$bayes = DevblocksPlatform::getBayesClassifierService();
+		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

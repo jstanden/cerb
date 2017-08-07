@@ -28,7 +28,7 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 	const STICKY_ORDER = 'sticky_order';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO mail_to_group_rule (created) ".
 			"VALUES (%d)",
@@ -74,7 +74,7 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 	 * @return Model_MailToGroupRule[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -149,7 +149,7 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 		if(empty($ids))
 			return;
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$ids_list = implode(',', $ids);
 		
@@ -166,7 +166,7 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 	 * @param integer $id
 	 */
 	static function increment($id, $by=1) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$db->ExecuteMaster(sprintf("UPDATE mail_to_group_rule SET pos = pos + %d WHERE id = %d",
 			$by,
 			$id

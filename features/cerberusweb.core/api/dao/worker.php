@@ -42,7 +42,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(empty($fields[DAO_Worker::EMAIL_ID]))
 			return NULL;
 			
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO worker () ".
 			"VALUES ()"
@@ -92,7 +92,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @return Model_Worker[]
 	 */
 	static function getAllOnline($idle_limit=600, $idle_kick_limit=0) {
-		$session = DevblocksPlatform::getSessionService();
+		$session = DevblocksPlatform::services()->session();
 
 		$sessions = $session->getAll();
 		$workers = DAO_Worker::getAll();
@@ -214,7 +214,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function getWhere($where=null, $sortBy=array(DAO_Worker::FIRST_NAME, DAO_Worker::LAST_NAME), $sortAsc=array(true, true), $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -282,7 +282,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function getResponsibilities($worker_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$responsibilities = array();
 		
 		$results = $db->GetArraySlave(sprintf("SELECT worker_id, bucket_id, responsibility_level FROM worker_to_bucket WHERE worker_id = %d",
@@ -450,7 +450,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function getWorkloads() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$workloads = array();
 		
 		$sql = "SELECT 'cerberusweb.contexts.ticket' AS context, owner_id AS worker_id, COUNT(id) AS hits FROM ticket WHERE status_id = 0 GROUP BY owner_id ".
@@ -658,8 +658,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function maint() {
-		$db = DevblocksPlatform::getDatabaseService();
-		$logger = DevblocksPlatform::getConsoleLog();
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
 		$tables = DevblocksPlatform::getDatabaseTables();
 		
 		$db->ExecuteMaster("DELETE FROM worker_pref WHERE worker_id NOT IN (SELECT id FROM worker)");
@@ -692,7 +692,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function countByGroupId($group_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT count(worker_id) FROM worker_to_group WHERE group_id = %d",
 			$group_id
@@ -716,7 +716,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			)
 		);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Clear their task assignments
 		$sql = sprintf("UPDATE task SET owner_id = 0 WHERE owner_id = %d", $id);
@@ -776,13 +776,13 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function hasAuth($worker_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$worker_auth = $db->GetRowSlave(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker_id));
 		return (is_array($worker_auth) && isset($worker_auth['pass_hash']));
 	}
 	
 	static function setAuth($worker_id, $password, $asMd5=false) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(is_null($password)) {
 			return $db->ExecuteMaster(sprintf("DELETE FROM worker_auth_hash WHERE worker_id = %d",
@@ -805,7 +805,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function login($email, $password) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		if(null == ($worker = DAO_Worker::getByEmail($email)) || $worker->is_disabled)
 			return null;
@@ -852,7 +852,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	public static function random() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneSlave("SELECT id FROM worker WHERE is_disabled=0 ORDER BY rand() LIMIT 1");
 	}
 	
@@ -955,7 +955,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	
 	static function autocomplete($term, $as='models', $query=null) {
 		$url_writer = DevblocksPlatform::getUrlService();
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$workers = DAO_Worker::getAll();
 		$objects = array();
 		
@@ -1017,7 +1017,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -1212,7 +1212,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			case self::VIRTUAL_ROLE_SEARCH:
 				$worker_ids = [];
 				
-				$db = DevblocksPlatform::getDatabaseService();
+				$db = DevblocksPlatform::services()->database();
 				
 				$sql = self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, "%s");
 				$role_ids = array_column($db->GetArraySlave($sql), 'id');
@@ -1360,7 +1360,7 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 	}
 	
 	private function _indexDictionary($dict, $engine) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 
 		$id = $dict->id;
 		
@@ -1408,7 +1408,7 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::getConsoleLog();
+		$logger = DevblocksPlatform::services()->log();
 		
 		if(false == ($engine = $this->getEngine()))
 			return false;
@@ -1910,7 +1910,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$search_fields = SearchFields_Worker::getFields();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		$timezones = $date->getTimezones();
 		$group_names = DAO_Group::getNames();
 		
@@ -2424,7 +2424,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 	const CACHE_PREFIX = 'ch_workerpref_';
 	
 	static function delete($worker_id, $key) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$db->ExecuteMaster(sprintf("DELETE FROM worker_pref WHERE worker_id = %d AND setting = %s",
 			$worker_id,
 			$db->qstr($key)
@@ -2437,7 +2437,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 	
 	static function set($worker_id, $key, $value) {
 		// Persist long-term
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("REPLACE INTO worker_pref (worker_id, setting, value) ".
 			"VALUES (%d, %s, %s)",
@@ -2468,7 +2468,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 	}
 
 	static function getByKey($key) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$response = array();
 		
 		$results = $db->GetArrayMaster(sprintf("SELECT worker_id, value FROM worker_pref WHERE setting = %s",
@@ -2487,7 +2487,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::getCacheService();
 		
 		if(null === ($objects = $cache->load(self::CACHE_PREFIX.$worker_id))) {
-			$db = DevblocksPlatform::getDatabaseService();
+			$db = DevblocksPlatform::services()->database();
 			$sql = sprintf("SELECT setting, value FROM worker_pref WHERE worker_id = %d", $worker_id);
 			
 			if(false === ($rs = $db->ExecuteSlave($sql)))
@@ -2858,7 +2858,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		
 		$context = CerberusContexts::CONTEXT_WORKER;
 		$active_worker = CerberusApplication::getActiveWorker();

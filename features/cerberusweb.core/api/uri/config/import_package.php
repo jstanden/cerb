@@ -131,7 +131,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			@$calendars = $json['calendars'];
 			@$classifiers = $json['classifiers'];
 			
-			$bayes = DevblocksPlatform::getBayesClassifierService();
+			$bayes = DevblocksPlatform::services()->bayesClassifier();
 			
 			$uids = [];
 			$records_created = [];

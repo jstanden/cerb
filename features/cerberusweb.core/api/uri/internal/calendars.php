@@ -118,7 +118,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		@$date_string = DevblocksPlatform::importGPC($_REQUEST['date'], 'string', '');
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		
 		header('Content-Type: application/json');
 		
@@ -174,7 +174,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$calendars = DAO_Calendar::getReadableByActor($active_worker);
-		$date = DevblocksPlatform::getDateService();
+		$date = DevblocksPlatform::services()->date();
 		$timezones = $date->getTimezones();
 
 		header('Content-Type: application/json');

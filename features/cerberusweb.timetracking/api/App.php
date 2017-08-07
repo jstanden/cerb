@@ -271,7 +271,7 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 	const ID = 'timetracking.setup.section.timetracking';
 	
 	function render() {
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$settings = $db = DevblocksPlatform::services()->pluginSettings();
 		$tpl = DevblocksPlatform::getTemplateService();
 
 		$activities = DAO_TimeTrackingActivity::getWhere();
@@ -281,7 +281,7 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 	}
 
 	function saveAction() {
-		$settings = DevblocksPlatform::getPluginSettingsService();
+		$settings = $db = DevblocksPlatform::services()->pluginSettings();
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
 
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);

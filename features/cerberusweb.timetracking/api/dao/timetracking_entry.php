@@ -45,7 +45,7 @@ class DAO_TimeTrackingActivity extends Cerb_ORMHelper {
 	const NAME = 'name';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO timetracking_activity () ".
 			"VALUES ()"
@@ -67,7 +67,7 @@ class DAO_TimeTrackingActivity extends Cerb_ORMHelper {
 	 * @return Model_TimeTrackingActivity[]
 	 */
 	static function getWhere($where=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "SELECT id, name ".
 			"FROM timetracking_activity ".
@@ -120,7 +120,7 @@ class DAO_TimeTrackingActivity extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -147,7 +147,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	const IS_CLOSED = 'is_closed';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO timetracking_entry () ".
 			"VALUES ()"
@@ -339,7 +339,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	 * @return Model_TimeTrackingEntry[]
 	 */
 	static function getWhere($where=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "SELECT id, time_actual_mins, log_date, worker_id, activity_id, is_closed ".
 			"FROM timetracking_entry ".
@@ -395,13 +395,13 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	}
 	
 	static function getItemCount() {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneSlave("SELECT count(id) FROM timetracking_entry");
 	}
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -526,7 +526,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);

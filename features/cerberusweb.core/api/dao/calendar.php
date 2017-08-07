@@ -10,7 +10,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	const UPDATED_AT = 'updated_at';
 	
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "INSERT INTO calendar () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -88,7 +88,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	 * @return Model_Calendar[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -218,7 +218,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	}
 	
 	static public function count($owner_context, $owner_context_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneSlave(sprintf("SELECT count(*) FROM calendar ".
 			"WHERE owner_context = %s AND owner_context_id = %d",
 			$db->qstr($owner_context),
@@ -239,7 +239,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Sanitize
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int', array('unique','nonzero'));
@@ -355,7 +355,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -606,7 +606,7 @@ class Model_Calendar {
 		}
 		
 		// Get manual events from the database
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf(
 			"SELECT id, name, is_available, date_start, date_end ".
 			"FROM calendar_event ".

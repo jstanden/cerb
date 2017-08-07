@@ -12,7 +12,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	const PARAMS_JSON = 'params_json';
 
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "INSERT INTO classifier () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -80,7 +80,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	 * @return Model_Classifier[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -164,7 +164,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
@@ -221,7 +221,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	}
 	
 	static public function countByBot($bot_id) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		return $db->GetOneSlave(sprintf("SELECT count(*) FROM classifier ".
 			"WHERE owner_context = %s AND owner_context_id = %d",
 			$db->qstr(CerberusContexts::CONTEXT_BOT),
@@ -231,7 +231,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -379,7 +379,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -536,7 +536,7 @@ class Model_Classifier {
 	public $params = [];
 	
 	function trainModel() {
-		$bayes = DevblocksPlatform::getBayesClassifierService();
+		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		$bayes::clearModel($this->id);
 		
 		// Load examples
