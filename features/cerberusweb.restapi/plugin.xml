@@ -243,6 +243,18 @@
 		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.saved_searches</id>
+			<name>Saved Searches</name>
+			<class>
+				<file>api/rest/saved_searches.php</file>
+				<name>ChRest_SavedSearches</name>
+			</class>
+			<params>
+				<param key="uri" value="saved_searches" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.snippets</id>
 			<name>Snippets</name>
 			<class>

@@ -21,9 +21,64 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		return $id;
 	}
 	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			;
+		$validation
+			->addField(self::QUERY)
+			->string()
+			->setMaxLength(pow(2,16)-1)
+			;
+		$validation
+			->addField(self::TAG)
+			->string()
+			->setMaxLength(64)
+			->setNotEmpty(false)
+			->setUnique(true, get_class())
+			->addFormatter(function($string, &$error=null) {
+				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-'))) {
+					$error = sprintf("may only contain letters, numbers, and dashes");
+					return false;
+				}
+				
+				return true;
+			})
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
+	
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
 		
 		// Make a diff for the requested objects in batches
 		
@@ -34,7 +89,7 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_SAVED_SEARCH, $batch_ids);
 			}
 			
 			// Make changes
@@ -54,7 +109,7 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_SAVED_SEARCH, $batch_ids);
 			}
 		}
 	}
