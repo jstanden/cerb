@@ -1346,6 +1346,11 @@ abstract class C4_AbstractView {
 						);
 					break;
 					
+				case Model_CustomField::TYPE_LIST:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
+					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PREFIX;
+					break;
+					
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
 					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PARTIAL;
@@ -1866,6 +1871,7 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_CHECKBOX:
 			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+			case Model_CustomField::TYPE_LIST:
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_URL:
@@ -2689,7 +2695,7 @@ abstract class C4_AbstractView {
 		
 		$cfield_select_sql = null;
 		
-		$is_multiple_value_cfield = in_array($cfield->type,[Model_CustomField::TYPE_MULTI_CHECKBOX]);
+		$is_multiple_value_cfield = Model_CustomField::hasMultipleValues($cfield->type);
 		
 		$cfield_key = $search_class::getCustomFieldContextWhereKey($cfield->context);
 		
@@ -2789,6 +2795,7 @@ abstract class C4_AbstractView {
 				break;
 				
 			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_LIST:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_SINGLE_LINE:
@@ -2955,7 +2962,7 @@ abstract class C4_AbstractView {
 			}
 
 			// If multi-selection types, handle delta changes
-			if(Model_CustomField::TYPE_MULTI_CHECKBOX==$cf_field->type) {
+			if(Model_CustomField::hasMultipleValues($cf_field->type)) {
 				if(is_array($cf_val))
 				foreach($cf_val as $val) {
 					$op = substr($val,0,1);
@@ -3493,7 +3500,7 @@ class CerbQuickSearchLexer {
 		} else {
 			$params = array($params);
 		}
-		
+
 		return $params;
 	}
 	

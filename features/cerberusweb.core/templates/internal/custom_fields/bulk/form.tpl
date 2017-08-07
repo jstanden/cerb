@@ -27,6 +27,15 @@
 					<input type="text" name="{$field_name}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}">
 				{elseif $f->type==Model_CustomField::TYPE_URL}
 					<input type="text" name="{$field_name}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="url">
+				{elseif $f->type==Model_CustomField::TYPE_LIST}
+					<div>
+						{foreach from=$custom_field_values.$f_id item=val}
+						<div>
+							<input type="text" name="{$field_name}[]" size="45" style="width:98%;" maxlength="255" value="{$val}">
+						</div>
+						{/foreach}
+						<button type="button" class="multi-text-add" data-field-name="{$field_name}"><span class="glyphicons glyphicons-circle-plus"></span></button>
+					</div>
 				{elseif $f->type==Model_CustomField::TYPE_NUMBER}
 					<input type="text" name="{$field_name}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="number">
 				{elseif $f->type==Model_CustomField::TYPE_MULTI_LINE}
@@ -134,8 +143,21 @@ $(function() {
 		ajax.chooserFile(this,$(this).attr('field_name'),options);
 	});
 	
+	// Files
 	$cfields.find('button.chooser-cfield-files').each(function() {
 		ajax.chooserFile(this,$(this).attr('field_name'));
+	});
+	
+	// Multi-text
+	$cfields.find('button.multi-text-add').click(function() {
+		var $button = $(this);
+		var field_name = $button.attr('data-field-name');
+		var $container = $button.closest('div');
+		var $input = $('<input type="text" size="45" style="width:98%;" maxlength="255" class="multi-text">')
+			.attr('name', field_name + '[]')
+			;
+		var $div = $('<div/>').append($input);
+		$div.insertBefore($button);
 	});
 });
 </script>

@@ -524,7 +524,7 @@ class ChContactsPage extends CerberusPageExtension {
 					if(!isset($custom_field_types[$cfield_id]))
 						break;
 					
-					$is_cfield_multival = $custom_field_types[$cfield_id]->type == Model_CustomField::TYPE_MULTI_CHECKBOX;
+					$is_cfield_multival = Model_CustomField::hasMultipleValues($custom_field_types[$cfield_id]->type);
 					
 					if(empty($v)) { // no org_id
 						// Handle aggregation of multi-value fields when blank

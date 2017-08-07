@@ -12,6 +12,14 @@
 	<td data-column="{$column}" title="{$result.$column}">{$result.$column|truncate:32}</td>
 {elseif $col->type==Model_CustomField::TYPE_DROPDOWN}
 	<td data-column="{$column}">{$result.$column}</td>
+{elseif $col->type==Model_CustomField::TYPE_LIST}
+	<td data-column="{$column}">
+		{$opts = $result.$column|explode:','}
+		{$opts|array_keys}
+		{foreach from=$opts item=opt name=opts}
+			<span>{$opt}</span>{if !$smarty.foreach.opts.last}, {/if}
+		{/foreach}
+	</td>
 {elseif $col->type==Model_CustomField::TYPE_MULTI_CHECKBOX}
 	<td data-column="{$column}">
 		{$opts = $result.$column|explode:','|sort}

@@ -1248,6 +1248,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case 'phone':
 							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_string.tpl');
 							break;
+						case Model_CustomField::TYPE_LIST:
+							return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_string_list.tpl');
+							break;
 						case Model_CustomField::TYPE_NUMBER:
 						//case 'percent':
 						case 'id':
@@ -1495,8 +1498,46 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 									$pass = @preg_match($param_value, $value);
 									break;
 							}
+							break;
+							
+						case Model_CustomField::TYPE_LIST:
+							$not = (substr($params['oper'],0,1) == '!');
+							$oper = ltrim($params['oper'],'!');
+							
+							$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+							@$param_value = $tpl_builder->build($params['value'], $dict);
 
-							// Handle operator negation
+							$logger->info(sprintf("Text: `%s` %s%s `%s`",
+								$value,
+								(!empty($not) ? 'not ' : ''),
+								$oper,
+								$param_value
+							));
+							
+							$token_parts = explode('_', $token);
+							$field_id = array_pop($token_parts);
+							$token_cfields = implode('_', $token_parts);
+							$contains = false;
+							
+							switch($oper) {
+								case 'contains':
+									if(!isset($dict->$token_cfields) 
+										|| !is_array($dict->$token_cfields) 
+										|| !isset($dict->$token_cfields[$field_id])) {
+										$contains = false;
+										break;
+									}
+									
+									foreach($dict->$token_cfields[$field_id] as $value) {
+										if(!$contains && 0 == strcasecmp($param_value, $value)) {
+											$contains = true;
+											break;
+										}
+									}
+									
+									$pass = $contains;
+									break;
+							}
 							break;
 
 						case Model_CustomField::TYPE_NUMBER:

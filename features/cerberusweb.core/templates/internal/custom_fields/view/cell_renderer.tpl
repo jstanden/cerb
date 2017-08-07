@@ -21,6 +21,13 @@
 			<span>{$opt}</span>{if !$smarty.foreach.opts.last}, {/if}
 		{/foreach}
 	</td>
+{elseif $col->type==Model_CustomField::TYPE_LIST}
+	<td data-column="{$column}">
+		{$opts = DevblocksPlatform::parseCrlfString($result.$column)}
+		{foreach from=$opts item=opt name=opts}
+			<span>{$opt}</span>{if !$smarty.foreach.opts.last}, {/if}
+		{/foreach}
+	</td>
 {elseif $col->type==Model_CustomField::TYPE_DATE}
 	<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
 {elseif $col->type==Model_CustomField::TYPE_CHECKBOX}

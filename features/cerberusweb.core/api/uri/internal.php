@@ -914,6 +914,10 @@ class ChInternalController extends DevblocksControllerExtension {
 						$value = $val;
 						break;
 						
+					case Model_CustomField::TYPE_LIST:
+						$value = $val;
+						break;
+						
 					case Model_CustomField::TYPE_MULTI_CHECKBOX:
 						// [TODO] Add where missing
 						$value = $val;

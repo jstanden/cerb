@@ -753,6 +753,7 @@ class Model_TriggerEvent {
 				break;
 				
 			// [TODO] Future public variable types
+			case Model_CustomField::TYPE_LIST:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 			case Model_CustomField::TYPE_FILE:
 			case Model_CustomField::TYPE_FILES:

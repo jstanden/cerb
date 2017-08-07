@@ -153,14 +153,10 @@ class DevblocksEventHelper {
 				if(!isset($custom_fields[$cf_id]))
 					continue;
 				
-				switch($custom_fields[$cf_id]->type) {
-					case Model_CustomField::TYPE_MULTI_CHECKBOX:
-						$custom_field_values[$cf_id] = array_combine($val, $val);
-						break;
-						
-					default:
-						$custom_field_values[$cf_id] = $val;
-						break;
+				if(Model_CustomField::hasMultipleValues($custom_fields[$cf_id]->type)) {
+					$custom_field_values[$cf_id] = array_combine($val, $val);
+				} else {
+					$custom_field_values[$cf_id] = $val;
 				}
 			}
 		}
@@ -248,6 +244,10 @@ class DevblocksEventHelper {
 				$tpl->clearAssign('options');
 				break;
 				
+			case Model_CustomField::TYPE_LIST:
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_list.tpl');
+				break;
+				
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				$tpl->assign('options', @$custom_field->params['options']);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_multi_checkbox.tpl');
@@ -321,6 +321,21 @@ class DevblocksEventHelper {
 				
 				if(!empty($value_key)) {
 					$dict->$value_key = $value;
+				}
+				break;
+				
+			case Model_CustomField::TYPE_LIST:
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				@$values = $tpl_builder->build($params['values'], $dict);
+				
+				$values = DevblocksPlatform::parseCrlfString($values);
+				
+				$out .= sprintf("%s\n",
+					implode(', ', $values)
+				);
+				
+				if(!empty($value_key)) {
+					$dict->$value_key = implode(',', $values);
 				}
 				break;
 				
@@ -527,6 +542,33 @@ class DevblocksEventHelper {
 				}
 				break;
 				
+			case Model_CustomField::TYPE_LIST:
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				@$values = $tpl_builder->build($params['values'], $dict);
+				
+				$out .= sprintf(">>> Setting %s to:\n",
+					$custom_field->name
+				);
+				
+				$opts = DevblocksPlatform::parseCrlfString($values) ?: [];
+
+				foreach($opts as $opt) {
+					$out .= sprintf("* %s\n", $opt);
+				}
+				
+				if(!empty($value_key)) {
+					$key_to_set = $value_key.'_'.$field_id;
+					$dict->$key_to_set = implode(', ', $opts);
+
+					$array =& $dict->$value_key;
+					if(is_array($array))
+						$array[$field_id] = $opts;
+				}
+				
+				self::runActionSetCustomField($token, $params, $dict);
+				
+				break;
+				
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				@$opts = $params['values'];
 				
@@ -702,6 +744,61 @@ class DevblocksEventHelper {
 						$array[$field_id] = $value;
 				}
 				
+				break;
+				
+			case Model_CustomField::TYPE_LIST:
+				@$mode = $params['mode'];
+				$is_delta = !($mode == 'replace');
+				
+				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				@$values = $tpl_builder->build($params['values'], $dict);
+				
+				$opts = DevblocksPlatform::parseCrlfString($values) ?: [];
+				
+				if(!$is_delta) {
+					DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $opts);
+					
+					if(!empty($value_key)) {
+						$key_to_set = $value_key.'_'.$field_id;
+						$dict->$key_to_set = implode(', ', $opts);
+						
+						$array =& $dict->$value_key;
+						
+						if(is_array($array))
+							$array[$field_id] = $opts;
+					}
+				} else {
+					$value_key_prefix = $value_key . '_';
+					
+					if(!empty($value_key)) {
+						$dict->$value_key_prefix;
+						
+						$key_to_set = $value_key_prefix.$field_id;
+						$dict->$key_to_set = implode(', ', $opts);
+						
+						$array =& $dict->$value_key;
+						
+						if(!is_array($array[$field_id]))
+							$array[$field_id] = [];
+						
+						if(is_array($opts))
+						foreach($opts as $opt) {
+							
+							// Remove
+							if(DevblocksPlatform::strStartsWith($opt, '-')) {
+								$opt = ltrim($opt, '-');
+								
+								DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id, $opt);
+								unset($array[$field_id][$opt]);
+								
+							} else {
+								DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $opt, true);
+								$array[$field_id][$opt] = $opt;
+							}
+							
+						}
+					}
+				}
 				break;
 				
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:

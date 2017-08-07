@@ -671,6 +671,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					$value_label = array();
 					
 					switch($custom_field->type) {
+						case Model_CustomField::TYPE_LIST:
 						case Model_CustomField::TYPE_MULTI_CHECKBOX:
 							$value = $params['values'];
 							break;
@@ -893,6 +894,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					$context_id = null;
 					
 					switch($custom_field->type) {
+						case Model_CustomField::TYPE_LIST:
 						case Model_CustomField::TYPE_MULTI_CHECKBOX:
 							$value = $params['values'];
 							break;

@@ -753,6 +753,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 			switch($cfield->type) {
 				case Model_CustomField::TYPE_CHECKBOX:
 				case Model_CustomField::TYPE_DROPDOWN:
+				case Model_CustomField::TYPE_LIST:
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_SINGLE_LINE:

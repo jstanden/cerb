@@ -228,6 +228,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			// stringvalue
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_LIST:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 			case Model_CustomField::TYPE_URL:
 				$table = 'custom_field_stringvalue';
@@ -274,6 +275,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_MULTI_LINE:
+				case Model_CustomField::TYPE_LIST:
 					break;
 
 				case Model_CustomField::TYPE_DROPDOWN:
@@ -366,7 +368,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				continue;
 
 			$field =& $fields[$field_id]; /* @var $field Model_CustomField */
-			$is_delta = ($field->type==Model_CustomField::TYPE_MULTI_CHECKBOX || $field->type==Model_CustomField::TYPE_FILES)
+			$is_delta = (Model_CustomField::hasMultipleValues($field->type))
 					? $delta
 					: false
 					;
@@ -390,9 +392,24 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					$value = (strlen($value) > 255) ? substr($value,0,255) : $value;
 					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
-
+					
 				case Model_CustomField::TYPE_MULTI_LINE:
 					self::setFieldValue($context, $context_id, $field_id, $value);
+					break;
+
+				case Model_CustomField::TYPE_LIST:
+					if(!is_array($value))
+						$value = [$value];
+					
+					// Clear before inserting
+					self::unsetFieldValue($context, $context_id, $field_id);
+					
+					foreach($value as $v) {
+						if(empty($v))
+							continue;
+						
+						self::setFieldValue($context, $context_id, $field_id, $v, true);
+					}
 					break;
 
 				case Model_CustomField::TYPE_DROPDOWN:
@@ -660,6 +677,11 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
+				case Model_CustomField::TYPE_LIST:
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
+					$do['cf_'.$field_id] = array('value' => $field_value);
+					break;
+					
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
@@ -718,6 +740,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			switch($fields[$field_id]->type) {
 				case Model_CustomField::TYPE_FILES:
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+				case Model_CustomField::TYPE_LIST:
 					@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'array',array());
 					break;
 					
@@ -903,18 +926,13 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			$ptr =& $results[$context_id];
 			
 			// If multiple value type (multi-checkbox)
-			switch($fields[$field_id]->type) {
-				case Model_CustomField::TYPE_FILES:
-				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-					if(!isset($ptr[$field_id]))
-						$ptr[$field_id] = array();
-						
-					$ptr[$field_id][$field_value] = $field_value;
-					break;
+			if(Model_CustomField::hasMultipleValues($fields[$field_id]->type)) {
+				if(!isset($ptr[$field_id]))
+					$ptr[$field_id] = [];
 					
-				default:
-					$ptr[$field_id] = $field_value;
-					break;
+				$ptr[$field_id][$field_value] = $field_value;
+			} else {
+				$ptr[$field_id] = $field_value;
 			}
 		}
 		
@@ -966,10 +984,11 @@ class Model_CustomField {
 	const TYPE_FILE = 'F';
 	const TYPE_FILES = 'I';
 	const TYPE_LINK = 'L';
-	const TYPE_NUMBER = 'N';
-	const TYPE_SINGLE_LINE = 'S';
+	const TYPE_LIST = 'M';
 	const TYPE_MULTI_CHECKBOX = 'X';
 	const TYPE_MULTI_LINE = 'T';
+	const TYPE_NUMBER = 'N';
+	const TYPE_SINGLE_LINE = 'S';
 	const TYPE_URL = 'U';
 	const TYPE_WORKER = 'W';
 	
@@ -993,6 +1012,7 @@ class Model_CustomField {
 			self::TYPE_MULTI_CHECKBOX => 'Multiple Checkboxes',
 			self::TYPE_MULTI_LINE => 'Text: Multiple Lines',
 			self::TYPE_LINK => 'Record Link',
+			self::TYPE_LIST => 'List',
 			self::TYPE_NUMBER => 'Number',
 			self::TYPE_SINGLE_LINE => 'Text: Single Line',
 			self::TYPE_URL => 'URL',
@@ -1005,7 +1025,7 @@ class Model_CustomField {
 	}
 	
 	static function hasMultipleValues($type) {
-		$multiple_types = array(Model_CustomField::TYPE_MULTI_CHECKBOX, Model_CustomField::TYPE_FILES);
+		$multiple_types = [Model_CustomField::TYPE_MULTI_CHECKBOX, Model_CustomField::TYPE_FILES, Model_CustomField::TYPE_LIST];
 		return in_array($type, $multiple_types);
 	}
 };

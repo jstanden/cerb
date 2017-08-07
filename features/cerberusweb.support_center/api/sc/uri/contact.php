@@ -458,6 +458,10 @@ class UmScContactController extends Extension_UmScController {
 						@$value = (isset($aFollowUpA[$iIdx]) && !empty($aFollowUpA[$iIdx])) ? 1 : 0;
 						break;
 						
+					case Model_CustomField::TYPE_LIST:
+						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'array',array());
+						break;
+						
 					case Model_CustomField::TYPE_MULTI_CHECKBOX:
 						@$value = DevblocksPlatform::importGPC($_POST['followup_a_'.$iIdx],'array',array());
 						break;

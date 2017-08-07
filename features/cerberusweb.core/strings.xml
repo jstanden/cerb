@@ -1542,6 +1542,11 @@
 				<seg>Reopen At</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.replace">
+			<tuv xml:lang="en_US">
+				<seg>replace</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.reply">
 			<tuv xml:lang="en_US">
 				<seg>Reply</seg>
