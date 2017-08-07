@@ -2,7 +2,7 @@
 {$results = $view->getData()}
 {$total = $results[1]}
 {$data = $results[0]}
-<table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%" {if $view->options.header_color}style="background-color:{$view->options.header_color};"{/if}>
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">

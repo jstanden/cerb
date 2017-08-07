@@ -42,8 +42,12 @@
 		{'dashboard.num_rows'|devblocks_translate}: <input type="text" name="num_rows" size="3" maxlength="3" value="{$view->renderLimit}">
 	</div>
 	
-	{if $view->isCustom()}
+	{if $is_custom}
 	<div>
+		{'common.color'|devblocks_translate|capitalize}: 
+		<input type="text" name="view_options[header_color]" value="{$view->options.header_color|default:'#6A87DB'}" class="color-picker">
+	</div>
+	<div style="margin-top:1em;">
 		<label><input type="checkbox" name="view_options[disable_sorting]" value="1" {if $view->options.disable_sorting}checked="checked"{/if}> Prevent workers from changing the sort column</label>
 	</div>
 	{/if}
@@ -70,6 +74,11 @@
 
 <script type="text/javascript">
 $(function() {
-	$('#customize{$view->id}').sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
+	var $container =$('#customize{$view->id}'); 
+	$container.sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
+	$container.find('input:text.color-picker').minicolors({
+		swatches: ['#6A87DB','#CF2C1D','#FEAF03','#57970A','#9669DB','#ADADAD','#34434E']
+	});
+
 });
 </script>
