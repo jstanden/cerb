@@ -26,6 +26,54 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	const UPDATED_AT = 'updated_at';
 	const CUSTOM_PLACEHOLDERS_JSON = 'custom_placeholders_json';
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ID)
+			->id()
+			;
+		$validation
+			->addField(self::TITLE)
+			->string()
+			->setMaxLength(255)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			;
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			;
+		$validation
+			->addField(self::CONTENT)
+			->string()
+			->setMaxLength(pow(2,32-1))
+			;
+		$validation
+			->addField(self::TOTAL_USES)
+			->number()
+			->setMin(0)
+			->setMax(pow(2,32))
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::CUSTOM_PLACEHOLDERS_JSON)
+			->string()
+			->setMaxLength(pow(2,24-1))
+			;
+		
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		

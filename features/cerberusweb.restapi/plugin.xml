@@ -243,6 +243,18 @@
 		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.snippets</id>
+			<name>Snippets</name>
+			<class>
+				<file>api/rest/snippets.php</file>
+				<name>ChRest_Snippets</name>
+			</class>
+			<params>
+				<param key="uri" value="snippets" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.tasks</id>
 			<name>Tasks</name>
 			<class>
