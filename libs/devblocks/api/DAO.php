@@ -7,6 +7,32 @@ abstract class DevblocksORMHelper {
 	const OPT_UPDATE_NO_EVENTS = 2;
 	const OPT_UPDATE_NO_READ_AFTER_WRITE = 4;
 	
+	static public function validate(array &$fields, &$error=null, $id=null) {
+		if(!method_exists(get_called_class(), 'getFields'))
+			return false;
+		
+		$validation = DevblocksPlatform::services()->validation();
+		$valid_fields = get_called_class()::getFields();
+		
+		if(is_array($fields))
+		foreach($fields as $field_key => $value) {
+			if(false == (@$field = $valid_fields[$field_key])) { /* @var $field _DevblocksValidationField */
+				$error = sprintf("'%s' is not a valid field.", $field_key);
+				return false;
+			}
+			
+			try {
+				$validation->validate($field, $value, ['id' => $id]);
+				
+			} catch (Exception_DevblocksValidationError $e) {
+				$error = $e->getMessage();
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	static protected function _buildSortClause($sortBy, $sortAsc, $fields, &$select_sql, $search_class=null) {
 		$sort_sql = null;
 		
