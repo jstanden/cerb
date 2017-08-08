@@ -830,6 +830,22 @@ class CerberusParser {
 			if(empty($content_filename))
 				$content_filename = sprintf("unnamed_attachment_%s", uniqid());
 			
+			// If the filename already exists, make it unique
+			if(isset($message->files[$content_filename])) {
+				$file_parts = pathinfo($content_filename);
+				$counter = 1;
+				
+				do {
+					$content_filename = sprintf("%s-%d%s%s",
+						$file_parts['filename'],
+						$counter++,
+						!empty($file_parts['extension']) ? '.' : '',
+						$file_parts['extension']
+					);
+					
+				} while(isset($message->files[$content_filename]));
+			}
+			
 			$message->files[$content_filename] = $attach;
 		}
 		
