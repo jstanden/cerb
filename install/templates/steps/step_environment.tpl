@@ -75,7 +75,9 @@
 
 <b>PHP Extension (MailParse)... </b> 
 {if !$results.ext_mailparse}
-	<span class="bad">Error! PHP must have the 'MailParse' extension enabled.</span>
+	<span class="bad">Error! PHP must have the 'mailparse' extension enabled.</span>
+{elseif !$results.mailparse_version}
+	<span class="bad">Error! Cerb requires the 'mailparse' extension version 3.0.2 or later.</span>
 {else}
 	<span class="good">Passed!</span>
 {/if}

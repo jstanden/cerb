@@ -146,6 +146,14 @@ switch($step) {
 			$fails++;
 		}
 		
+		// Mailparse version
+		if(version_compare(phpversion('mailparse'),"3.0.2") >= 0) {
+			$results['mailparse_version'] = phpversion('mailparse');
+		} else {
+			$results['mailparse_version'] = false;
+			$fails++;
+		}
+		
 		// File Uploads
 		$ini_file_uploads = ini_get("file_uploads");
 		if($ini_file_uploads == 1 || strcasecmp($ini_file_uploads,"on")==0) {

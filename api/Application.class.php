@@ -350,6 +350,15 @@ class CerberusApplication extends DevblocksApplication {
 				PHP_VERSION
 			);
 		}
+		
+		// Mailparse version
+		if(version_compare(phpversion('mailparse'),"3.0.2") >=0) {
+		} else {
+			$errors[] = sprintf("Cerb %s requires mailparse 3.0.2 or later. Your mailparse extension version is %s",
+				APP_VERSION,
+				phpversion('mailparse')
+			);
+		}
 
 		// File Uploads
 		$ini_file_uploads = ini_get("file_uploads");
