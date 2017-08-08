@@ -4767,6 +4767,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function _renderPeekComposePopup($view_id, $edit=null) {
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 		
 		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -4797,32 +4798,38 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'signature_pos' => DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2),
 		);
 		
-		// Default group/bucket based on worklist
-		if(false != ($view = C4_AbstractViewLoader::getView($view_id)) && $view instanceof View_Ticket) {
-			$params = $view->getParams();
+		if($bucket_id && false != ($bucket = DAO_Bucket::get($bucket_id))) {
+			$defaults['group_id'] = $bucket->group_id;
+			$defaults['bucket_id'] = $bucket->id;
 			
-			if(false != ($filter_bucket = $view->findParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false))) {
-				$filter_bucket = array_shift($filter_bucket);
+		} else {
+			// Default group/bucket based on worklist
+			if(false != ($view = C4_AbstractViewLoader::getView($view_id)) && $view instanceof View_Ticket) {
+				$params = $view->getParams();
 				
-				if(!is_array($filter_bucket->value) || 1 == count($filter_bucket->value)) {
-					$bucket_id = is_array($filter_bucket->value) ? current($filter_bucket->value) : $filter_bucket->value;
+				if(false != ($filter_bucket = $view->findParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false))) {
+					$filter_bucket = array_shift($filter_bucket);
 					
-					if(isset($buckets[$bucket_id])) {
-						$group_id = $buckets[$bucket_id]->group_id;
-						$defaults['group_id'] = $group_id;
-						$defaults['bucket_id'] = $bucket_id;
+					if(!is_array($filter_bucket->value) || 1 == count($filter_bucket->value)) {
+						$bucket_id = is_array($filter_bucket->value) ? current($filter_bucket->value) : $filter_bucket->value;
+						
+						if(isset($buckets[$bucket_id])) {
+							$group_id = $buckets[$bucket_id]->group_id;
+							$defaults['group_id'] = $group_id;
+							$defaults['bucket_id'] = $bucket_id;
+						}
 					}
-				}
-				
-			} else if(false != ($filter_group = $view->findParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false))) {
-				$filter_group = array_shift($filter_group);
-				
-				if(!is_array($filter_group->value) || 1 == count($filter_group->value)) {
-					$group_id = is_array($filter_group->value) ? current($filter_group->value) : $filter_group->value;
 					
-					if(isset($groups[$group_id])) {
-						$defaults['group_id'] = $group_id;
-						$defaults['bucket_id'] = intval(@$groups[$group_id]->getDefaultBucket()->id);
+				} else if(false != ($filter_group = $view->findParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false))) {
+					$filter_group = array_shift($filter_group);
+					
+					if(!is_array($filter_group->value) || 1 == count($filter_group->value)) {
+						$group_id = is_array($filter_group->value) ? current($filter_group->value) : $filter_group->value;
+						
+						if(isset($groups[$group_id])) {
+							$defaults['group_id'] = $group_id;
+							$defaults['bucket_id'] = intval(@$groups[$group_id]->getDefaultBucket()->id);
+						}
 					}
 				}
 			}
