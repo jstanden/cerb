@@ -206,7 +206,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 				// Output
 				
-				echo json_encode($status);
+				echo json_encode($status, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 				break;
 				
 			case 'report':
