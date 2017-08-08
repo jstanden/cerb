@@ -792,38 +792,44 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 			$suffix = '';
 
-			// Control infinite recursion
-			if(count($context_stack) > 1 && $field->type == Model_CustomField::TYPE_LINK)
-				continue;
-
 			switch($field->type) {
 				case Model_CustomField::TYPE_LINK:
 					if(!isset($field->params['context']))
 						break;
 
 					$field_prefix = $prefix . ($fieldset ? ($fieldset->name . ' ') : '') . $field->name . ' ';
-					$suffix = ' ID';
-
-					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, $field_prefix, true);
-
-					// Unset redundant id
-					unset($merge_labels['id']);
-
-					if(is_array($merge_labels))
-					foreach($merge_labels as $label_key => $label) {
-						$labels['custom_'.$cf_id.'_'.$label_key] = $label;
+					
+					// Control infinite recursion
+					if(count($context_stack) > 2 && $field->type == Model_CustomField::TYPE_LINK) {
+						$labels['custom_'.$cf_id] = $field_prefix;
+						
+					} else {
+						CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, $field_prefix, true);
+	
+						// Unset redundant id
+						unset($merge_labels['id']);
+	
+						$labels['custom_'.$cf_id] = sprintf("%s%s",
+							$field_prefix,
+							'ID'
+						);
+						
+						if(is_array($merge_labels))
+						foreach($merge_labels as $label_key => $label) {
+							$labels['custom_'.$cf_id.'_'.$label_key] = $label;
+						}
 					}
-
+					break;
+					
+				default:
+					$labels['custom_'.$cf_id] = sprintf("%s%s%s%s",
+						$prefix,
+						($fieldset ? ($fieldset->name . ':') : ''),
+						$field->name,
+						$suffix
+					);
 					break;
 			}
-
-			$labels['custom_'.$cf_id] = sprintf("%s%s%s%s",
-				$prefix,
-				($fieldset ? ($fieldset->name . ':') : ''),
-				$field->name,
-				$suffix
-			);
-
 		}
 		
 		return $labels;
@@ -836,25 +842,27 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		if(is_array($fields))
 		foreach($fields as $cf_id => $field) {
 
-			// Control infinite recursion
-			if(count($context_stack) > 1 && $field->type == Model_CustomField::TYPE_LINK)
-				continue;
-			
 			$types['custom_'.$cf_id] = $field->type;
 			
 			switch($field->type) {
 				case Model_CustomField::TYPE_LINK:
 					if(!isset($field->params['context']))
 						break;
-					
-					// [TODO] This infinitely recurses if you do task->task
-					CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true, true);
-					
-					if(isset($merge_values['_types']) && is_array($merge_values['_types']))
-					foreach($merge_values['_types'] as $type_key => $type) {
-						$types['custom_'.$cf_id.'_'.$type_key] = $type;
+						
+					// Control infinite recursion
+					if(count($context_stack) > 2 && $field->type == Model_CustomField::TYPE_LINK) {
+						
+					} else {
+						CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true, true);
+						
+						if(isset($merge_values['_types']) && is_array($merge_values['_types']))
+						foreach($merge_values['_types'] as $type_key => $type) {
+							$types['custom_'.$cf_id.'_'.$type_key] = $type;
+						}
 					}
+					break;
 					
+				default:
 					break;
 			}
 		}
