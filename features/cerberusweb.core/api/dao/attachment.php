@@ -110,6 +110,18 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	static function setLinks($context, $context_id, $file_ids) {
 		$db = DevblocksPlatform::getDatabaseService();
 		
+		$sql = sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id = %d",
+			$db->qstr($context),
+			$context_id
+		);
+		$db->ExecuteMaster($sql);
+		
+		return self::addLinks($context, $context_id, $file_ids);
+	}
+	
+	static function addLinks($context, $context_id, $file_ids) {
+		$db = DevblocksPlatform::services()->database();
+		
 		if(!is_array($file_ids))
 			$file_ids = array($file_ids);
 		

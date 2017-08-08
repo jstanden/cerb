@@ -811,7 +811,7 @@ class ImportCron extends CerberusCronPageExtension {
 					}
 
 					if(!empty($file_id))
-						DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $email_id, $file_id);
+						DAO_Attachment::addLinks(CerberusContexts::CONTEXT_MESSAGE, $email_id, $file_id);
 					
 					unset($sFileContent);
 				}

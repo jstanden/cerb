@@ -37,7 +37,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		 */
 		
 		if(!empty($file_ids)) {
-			DAO_Attachment::setLinks(CerberusContexts::CONTEXT_COMMENT, $id, $file_ids);
+			DAO_Attachment::addLinks(CerberusContexts::CONTEXT_COMMENT, $id, $file_ids);
 		}
 		
 		/*

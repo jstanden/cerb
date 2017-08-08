@@ -1385,7 +1385,7 @@ class CerberusParser {
 				// Link
 				if($file_id) {
 					$file->parsed_attachment_id = $file_id;
-					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId(), $file_id);
+					DAO_Attachment::addLinks(CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId(), $file_id);
 				}
 				
 				// Rewrite any inline content-id images in the HTML part
@@ -1418,7 +1418,7 @@ class CerberusParser {
 			
 			// Link the HTML part to the message
 			if(!empty($file_id)) {
-				DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId(), $file_id);
+				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_MESSAGE, $model->getMessageId(), $file_id);
 				
 				// This built-in field is faster than searching for the HTML part again in the attachments
 				DAO_Message::update($message_id, array(
