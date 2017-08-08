@@ -1277,8 +1277,20 @@ class CerberusParser {
 			DAO_Message::WORKER_ID => $model->isSenderWorker() ? $model->getSenderWorkerModel()->id : 0,
 		);
 		
-		if(isset($message->headers['message-id']))
-			$fields[DAO_Message::HASH_HEADER_MESSAGE_ID] = sha1($message->headers['message-id']);
+		if(!isset($message->headers['message-id'])) {
+			$new_message_id = sprintf("<%s.%s@%s>", 
+				base_convert(microtime(true)*1000, 10, 36),
+				base_convert(bin2hex(openssl_random_pseudo_bytes(8)), 16, 36),
+				DevblocksPlatform::getHostname()
+			);
+			$message->headers['message-id'] = $new_message_id;
+			$message->raw_headers = sprintf("Message-Id: %s\r\n%s",
+				$new_message_id,
+				$message->raw_headers
+			);
+		}
+		
+		$fields[DAO_Message::HASH_HEADER_MESSAGE_ID] = sha1($message->headers['message-id']);
 		
 		$model->setMessageId(DAO_Message::create($fields));
 
