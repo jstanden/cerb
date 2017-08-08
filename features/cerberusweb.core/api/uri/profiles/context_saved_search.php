@@ -167,7 +167,7 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError("The 'Tag' field must be shorter than 64 characters.", 'tag');
 				
 				// Check tag uniqueness
-				if(false != ($hit = DAO_ContextSavedSearch::getByTag($tag)) && $hit->id != $id)
+				if($tag && false != ($hit = DAO_ContextSavedSearch::getByTag($tag)) && $hit->id != $id)
 					throw new Exception_DevblocksAjaxValidationError(sprintf("The tag '%s' already exists.", $tag), 'tag');
 				
 				$tag = DevblocksPlatform::strAlphaNum($tag, '-');
