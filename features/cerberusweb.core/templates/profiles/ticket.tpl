@@ -49,6 +49,8 @@
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true watchers_group_id=$dict->group_id watchers_bucket_id=$dict->bucket_id}
 		</span>
 		
+		{if $is_writeable}
+		
 		{if $dict->status_id != Model_Ticket::STATUS_DELETED}
 			{if $dict->status_id == Model_Ticket::STATUS_CLOSED}
 				<button type="button" title="{'common.reopen'|devblocks_translate|capitalize}" onclick="this.form.status_id.value='{Model_Ticket::STATUS_OPEN}';this.form.submit();"><span class="glyphicons glyphicons-upload"></span></button>
@@ -68,6 +70,8 @@
 		{/if}
 		
 		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('merge','c=display&a=showMergePanel&ticket_id={$dict->id}',null,false,'50%');" title="{'mail.merge'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-git-merge"></span></button>{/if}
+		
+		{/if}
 		
 		<button id="btnPrint" title="{'display.shortcut.print'|devblocks_translate}" type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=ticket&id={$dict->mask}{/devblocks_url}';document.frmPrint.submit();"><span class="glyphicons glyphicons-print"></span></button>
 		<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$dict->mask}{/devblocks_url}';"><span class="glyphicons glyphicons-refresh"></span></button>
