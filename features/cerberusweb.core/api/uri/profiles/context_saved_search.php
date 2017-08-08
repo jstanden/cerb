@@ -182,6 +182,11 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 						DAO_ContextSavedSearch::TAG => $tag,
 						DAO_ContextSavedSearch::UPDATED_AT => time(),
 					);
+					
+					// Validate fields from DAO
+					if(!DAO_ContextSavedSearch::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_ContextSavedSearch::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
@@ -197,8 +202,12 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 						DAO_ContextSavedSearch::TAG => $tag,
 						DAO_ContextSavedSearch::UPDATED_AT => time(),
 					);
-					DAO_ContextSavedSearch::update($id, $fields);
 					
+					// Validate fields from DAO
+					if(!DAO_ContextSavedSearch::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					DAO_ContextSavedSearch::update($id, $fields);
 				}
 				
 				echo json_encode(array(

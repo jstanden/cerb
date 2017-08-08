@@ -31,6 +31,7 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		$validation
 			->addField(self::ID)
 			->id()
+			->setEditable(false)
 			;
 		$validation
 			->addField(self::NAME)
