@@ -150,7 +150,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(is_null($value) && !is_null($default))
 			$value = $default;
 		
-		if(substr($type,0,6) == 'array:') {
+		if(DevblocksPlatform::strStartsWith($type, 'array:')) {
 			list($type, $array_cast) = explode(':', $type, 2);
 		}
 		

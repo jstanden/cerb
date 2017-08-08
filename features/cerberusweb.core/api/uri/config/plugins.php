@@ -84,7 +84,9 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		if(empty($plugin_id))
 			return;
 		
-		$plugin = DevblocksPlatform::getPlugin($plugin_id);
+		if(false == ($plugin = DevblocksPlatform::getPlugin($plugin_id)))
+			return;
+		
 		$tpl->assign('plugin', $plugin);
 
 		$is_uninstallable = CERB_FEATURES_PLUGIN_LIBRARY && (APP_STORAGE_PATH == substr($plugin->getStoragePath(), 0, strlen(APP_STORAGE_PATH)));

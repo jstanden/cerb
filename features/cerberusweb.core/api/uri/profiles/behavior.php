@@ -563,7 +563,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			'switch' => ['outcome'],
 		];
 		
-		if($parent) {
+		if($parent instanceof Model_DecisionNode) {
 			$parent_type = $parent->node_type;
 			$parent_id = $parent->id;
 		} else {

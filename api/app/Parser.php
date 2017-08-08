@@ -654,6 +654,7 @@ class CerberusParser {
 				
 			case 'message/rfc822':
 				$do_recurse = false;
+				break;
 		}
 		
 		if(!$do_ignore)
