@@ -787,6 +787,14 @@ class DevblocksEventHelper {
 				$val = implode('; ', $val);
 			
 			switch($custom_fields[$cf_id]->type) {
+				case Model_CustomField::TYPE_CHECKBOX:
+					if($val) {
+						$val = DevblocksPlatform::translate('common.yes', DevblocksPlatform::TRANSLATE_LOWER);
+					} else {
+						$val = DevblocksPlatform::translate('common.no', DevblocksPlatform::TRANSLATE_LOWER);
+					}
+					break;
+					
 				case Model_CustomField::TYPE_WORKER:
 					if(!empty($val) && !is_numeric($val)) {
 						if(isset($dict->$val)) {
