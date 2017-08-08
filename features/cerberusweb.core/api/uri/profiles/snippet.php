@@ -330,6 +330,10 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 				// Create / Update
 				
 				if(empty($id)) {
+					// Validate fields from DAO
+					if(!DAO_Snippet::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if($active_worker->hasPriv('core.snippets.actions.create')) {
 						if(false == ($id = DAO_Snippet::create($fields)))
 							throw new Exception_DevblocksAjaxValidationError('Failed to create the record.');
@@ -341,6 +345,10 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 					}
 					
 				} else {
+					// Validate fields from DAO
+					if(!DAO_Snippet::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(null == ($snippet = DAO_Snippet::get($id)))
 						throw new Exception_DevblocksAjaxValidationError('This record no longer exists.');
 					

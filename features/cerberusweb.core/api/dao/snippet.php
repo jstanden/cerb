@@ -32,6 +32,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		$validation
 			->addField(self::ID)
 			->id()
+			->setEditable(false)
 			;
 		$validation
 			->addField(self::TITLE)
