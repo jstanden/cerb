@@ -769,6 +769,7 @@ class DevblocksEventHelper {
 		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
 		
 		$workers = DAO_Worker::getAll();
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
 		$custom_fields = DAO_CustomField::getAll();
 		$custom_field_values = DevblocksEventHelper::getCustomFieldValuesFromParams($params);
 		
@@ -821,7 +822,11 @@ class DevblocksEventHelper {
 					break;
 			}
 			
-			$out .= $custom_fields[$cf_id]->name . ': ' . $val . "\n";
+			$field = $custom_fields[$cf_id];
+			$fieldset = $field->custom_fieldset_id ? @$custom_fieldsets[$field->custom_fieldset_id] : null;
+			$label = ($fieldset ? ($fieldset->name . ' ') : '') . $field->name;
+			
+			$out .= $label . ': ' . $val . "\n";
 		}
 		
 		return $out;
