@@ -31,6 +31,8 @@ class DAO_Message extends Cerb_ORMHelper {
 	const STORAGE_SIZE = 'storage_size';
 	const RESPONSE_TIME = 'response_time';
 	const HASH_HEADER_MESSAGE_ID = 'hash_header_message_id';
+	const WAS_ENCRYPTED = 'was_encrypted';
+	const WAS_SIGNED = 'was_signed';
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -63,7 +65,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, html_attachment_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size, response_time, is_broadcast, is_not_sent, hash_header_message_id ".
+		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, html_attachment_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size, response_time, is_broadcast, is_not_sent, hash_header_message_id, was_encrypted, was_signed ".
 			"FROM message ".
 			$where_sql.
 			$sort_sql.
@@ -120,6 +122,8 @@ class DAO_Message extends Cerb_ORMHelper {
 			$object->is_broadcast = intval($row['is_broadcast']);
 			$object->is_not_sent = intval($row['is_not_sent']);
 			$object->hash_header_message_id = $row['hash_header_message_id'];
+			$object->was_encrypted = !empty($row['was_encrypted']) ? 1 : 0;
+			$object->was_signed = !empty($row['was_signed']) ? 1 : 0;
 			$objects[$object->id] = $object;
 		}
 		
@@ -292,7 +296,9 @@ class DAO_Message extends Cerb_ORMHelper {
 			"m.storage_size as %s, ".
 			"m.response_time as %s, ".
 			"m.is_broadcast as %s, ".
-			"m.is_not_sent as %s ",
+			"m.is_not_sent as %s, ".
+			"m.was_encrypted as %s, ".
+			"m.was_signed as %s ",
 			SearchFields_Message::ID,
 			SearchFields_Message::ADDRESS_ID,
 			SearchFields_Message::CREATED_DATE,
@@ -306,7 +312,9 @@ class DAO_Message extends Cerb_ORMHelper {
 			SearchFields_Message::STORAGE_SIZE,
 			SearchFields_Message::RESPONSE_TIME,
 			SearchFields_Message::IS_BROADCAST,
-			SearchFields_Message::IS_NOT_SENT
+			SearchFields_Message::IS_NOT_SENT,
+			SearchFields_Message::WAS_ENCRYPTED,
+			SearchFields_Message::WAS_SIGNED
 		);
 		
 		$join_sql = "FROM message m ".
@@ -441,6 +449,8 @@ class SearchFields_Message extends DevblocksSearchFields {
 	const RESPONSE_TIME = 'm_response_time';
 	const IS_BROADCAST = 'm_is_broadcast';
 	const IS_NOT_SENT = 'm_is_not_sent';
+	const WAS_ENCRYPTED = 'm_was_encrypted';
+	const WAS_SIGNED = 'm_was_signed';
 	
 	// Storage
 	const STORAGE_EXTENSION = 'm_storage_extension';
@@ -575,6 +585,8 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::RESPONSE_TIME => new DevblocksSearchField(SearchFields_Message::RESPONSE_TIME, 'm', 'response_time', $translate->_('message.response_time'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Message::IS_BROADCAST => new DevblocksSearchField(SearchFields_Message::IS_BROADCAST, 'm', 'is_broadcast', $translate->_('message.is_broadcast'), Model_CustomField::TYPE_CHECKBOX, true),
 			SearchFields_Message::IS_NOT_SENT => new DevblocksSearchField(SearchFields_Message::IS_NOT_SENT, 'm', 'is_not_sent', $translate->_('message.is_not_sent'), Model_CustomField::TYPE_CHECKBOX, true),
+			SearchFields_Message::WAS_ENCRYPTED => new DevblocksSearchField(SearchFields_Message::WAS_ENCRYPTED, 'm', 'was_encrypted', $translate->_('message.is_encrypted'), Model_CustomField::TYPE_CHECKBOX, true),
+			SearchFields_Message::WAS_SIGNED => new DevblocksSearchField(SearchFields_Message::WAS_SIGNED, 'm', 'was_signed', $translate->_('message.is_signed'), Model_CustomField::TYPE_CHECKBOX, true),
 			
 			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'm', 'storage_extension', null, true),
 			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'm', 'storage_key', null, true),
@@ -634,6 +646,8 @@ class Model_Message {
 	public $is_broadcast;
 	public $is_not_sent;
 	public $hash_header_message_id;
+	public $was_encrypted;
+	public $was_signed;
 	
 	private $_sender_object = null;
 	private $_headers_raw = null;
@@ -1364,6 +1378,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				case SearchFields_Message::TICKET_GROUP_ID:
 				case SearchFields_Message::TICKET_ID:
 				case SearchFields_Message::TICKET_MASK:
+				case SearchFields_Message::WAS_ENCRYPTED:
+				case SearchFields_Message::WAS_SIGNED:
 				case SearchFields_Message::WORKER_ID:
 				case SearchFields_Message::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Message::VIRTUAL_HAS_FIELDSET:
@@ -1432,6 +1448,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::IS_BROADCAST:
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::WAS_ENCRYPTED:
+			case SearchFields_Message::WAS_SIGNED:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
@@ -1506,6 +1524,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Message::IS_BROADCAST),
 				),
+			'isEncrypted' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Message::WAS_ENCRYPTED),
+				),
 			'isNotSent' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
@@ -1515,6 +1538,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Message::IS_OUTGOING),
+				),
+			'isSigned' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Message::WAS_SIGNED),
 				),
 			'notes' =>
 				array(
@@ -1773,6 +1801,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::IS_BROADCAST:
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::WAS_ENCRYPTED:
+			case SearchFields_Message::WAS_SIGNED:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -1816,6 +1846,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::IS_BROADCAST:
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::WAS_ENCRYPTED:
+			case SearchFields_Message::WAS_SIGNED:
 				$this->_renderCriteriaParamBoolean($param);
 				break;
 				
@@ -1920,6 +1952,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::IS_BROADCAST:
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::WAS_ENCRYPTED:
+			case SearchFields_Message::WAS_SIGNED:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -2126,6 +2160,8 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'headers' => $prefix.$translate->_('message.headers'),
 			'reply_cc' => $prefix."Reply Cc",
 			'reply_to' => $prefix."Reply To",
+			'was_encrypted' => $prefix.$translate->_('message.is_encrypted'),
+			'was_signed' => $prefix.$translate->_('message.is_signed'),
 		);
 		
 		// Token types
@@ -2144,6 +2180,8 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'headers' => null,
 			'reply_cc' => Model_CustomField::TYPE_SINGLE_LINE,
 			'reply_to' => Model_CustomField::TYPE_SINGLE_LINE,
+			'was_encrypted' => Model_CustomField::TYPE_CHECKBOX,
+			'was_signed' => Model_CustomField::TYPE_CHECKBOX,
 		);
 		
 		// Custom field/fieldset token labels
@@ -2175,6 +2213,8 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['ticket_id'] = $message->ticket_id;
 			$token_values['worker_id'] = $message->worker_id;
 			$token_values['hash_header_message_id'] = $message->hash_header_message_id;
+			$token_values['was_encrypted'] = $message->was_encrypted;
+			$token_values['was_signed'] = $message->was_signed;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($message, $token_values);

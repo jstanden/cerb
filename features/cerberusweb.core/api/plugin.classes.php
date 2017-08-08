@@ -1130,6 +1130,244 @@ class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	
 };
 
+/**
+ * Based on: https://raw.githubusercontent.com/Mailgarant/switfmailer-openpgp/master/OpenPGPSigner.php
+ *
+ */
+class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
+	protected $micalg = 'SHA256';
+	protected $encrypt = true;
+	
+	protected function createMessage(Swift_Message $message) {
+		$mimeEntity = new Swift_Message('', $message->getBody(), $message->getContentType(), $message->getCharset());
+		$mimeEntity->setChildren($message->getChildren());
+
+		$messageHeaders = $mimeEntity->getHeaders();
+		$messageHeaders->remove('Message-ID');
+		$messageHeaders->remove('Date');
+		$messageHeaders->remove('Subject');
+		$messageHeaders->remove('MIME-Version');
+		$messageHeaders->remove('To');
+		$messageHeaders->remove('From');
+
+		return $mimeEntity;
+	}
+	
+	protected function getSignKey(Swift_Message $message) {
+		if(false == ($gpg = DevblocksPlatform::services()->gpg()))
+			return false;
+		
+		if(false == ($from = $message->getFrom()) || !is_array($from))
+			return false;
+		
+		$email = key($from);
+		
+		$fingerprints = [];
+		
+		if(false != ($keys = $gpg->keyinfo(sprintf("<%s>", $email))) && is_array($keys)) {
+			foreach($keys as $key) {
+				if($this->isValidKey($key, 'sign'))
+				foreach($key['subkeys'] as $subkey) {
+					if($this->isValidKey($subkey, 'sign')) {
+						return $subkey['fingerprint'];
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	protected function getRecipientKeys(Swift_Message $message) {
+		$to = $message->getTo() ?: [];
+		$cc = $message->getCc() ?: [];
+		$bcc = $message->getBcc() ?: [];
+		
+		$recipients = $to + $cc	+ $bcc;
+		
+		if(!is_array($recipients) || empty($recipients))
+			throw new Swift_SwiftException(sprintf('Error: No valid recipients for GPG encryption'));
+		
+		$fingerprints = [];
+		
+		foreach($recipients as $email => $name) {
+			$gpg = DevblocksPlatform::services()->gpg();
+			$found = false;
+
+			if(false != ($keys = $gpg->keyinfo(sprintf("<%s>", $email))) && is_array($keys)) {
+				foreach($keys as $key) {
+					if($this->isValidKey($key, 'encrypt'))
+					foreach($key['subkeys'] as $subkey) {
+						if($this->isValidKey($subkey, 'encrypt')) {
+							$fingerprints[] = $subkey['fingerprint'];
+							$found = true;
+						}
+					}
+				}
+			}
+			
+			if(!$found)
+				throw new Swift_SwiftException(sprintf('Error: No recipient GPG public key for: %s', $email));
+		}
+		
+		return $fingerprints;
+	}
+	
+	protected function isValidKey($key, $purpose) {
+		return !(
+			$key['disabled'] 
+			|| $key['expired'] 
+			|| $key['revoked'] 
+			|| (
+				$purpose == 'sign' 
+				&& !$key['can_sign']
+				) 
+			|| (
+				$purpose == 'encrypt' 
+				&& !$key['can_encrypt']
+			)
+		);
+	}
+	
+	protected function signWithPGP($plaintext, $key_fingerprint) {
+		$gpg = DevblocksPlatform::services()->gpg();
+		
+		if(false != ($signed = $gpg->sign($plaintext, $key_fingerprint)))
+			return $signed;
+		
+		throw new Swift_SwiftException('Error: Failed to sign message (passphrase on the secret key?)');
+	}
+	
+	protected function encryptWithPGP($plaintext, $key_fingerprints) {
+		$gpg = DevblocksPlatform::services()->gpg();
+		
+		if(false != ($encrypted = $gpg->encrypt($plaintext, $key_fingerprints)))
+			return $encrypted;
+		
+		throw new Swift_SwiftException('Error: Failed to encrypt message');
+	}
+	
+	/**
+	 * Change the Swift_Signed_Message to apply the singing.
+	 *
+	 * @param Swift_Message $message
+	 *
+	 * @return self
+	 */
+	public function signMessage(Swift_Message $message) {
+		$sign_key = $this->getSignKey($message);
+		
+		if(false == ($recipient_keys = $this->getRecipientKeys($message)))
+			throw new Swift_SwiftException('Error: No recipient GPG public keys for encryption.');
+		
+		$originalMessage = $this->createMessage($message);
+		$message->setChildren([]);
+		$message->setEncoder(Swift_DependencyContainer::getInstance()->lookup('mime.rawcontentencoder'));
+		
+		if($sign_key) {
+			$type = $message->getHeaders()->get('Content-Type');
+			$type->setValue('multipart/signed');
+			$type->setParameters([
+				'micalg' => sprintf('pgp-%s', DevblocksPlatform::strLower($this->micalg)),
+				'protocol' => 'application/pgp-signature',
+				'boundary' => $message->getBoundary(),
+			]);
+			
+			$signed_body = $originalMessage->toString();
+			
+			$lines = DevblocksPlatform::parseCrlfString(rtrim($signed_body), true);
+			
+			array_walk($lines, function(&$line) {
+				$line = rtrim($line) . "\r\n";
+			});
+			
+			$signed_body = rtrim(implode('', $lines) . "\r\n");
+			
+			$signature = $this->signWithPGP($signed_body, $sign_key);
+			
+			$body = <<< EOD
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+
+--{$message->getBoundary()}
+$signed_body
+--{$message->getBoundary()}
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+$signature
+
+--{$message->getBoundary()}--
+EOD;
+
+		} else { // No signature
+			$body = $originalMessage->toString();
+			
+		}
+		
+		$message->setBody($body);
+		
+		if($this->encrypt) {
+			if($sign_key) {
+				$content = sprintf("%s\r\n%s", $message->getHeaders()->get('Content-Type')->toString(), $body);
+			} else {
+				$content = $body;
+			}
+			
+			$encrypted_body = $this->encryptWithPGP($content, $recipient_keys);
+			
+			$type = $message->getHeaders()->get('Content-Type');
+			$type->setValue('multipart/encrypted');
+			$type->setParameters([
+				'protocol' => 'application/pgp-encrypted',
+				'boundary' => $message->getBoundary(),
+			]);
+			
+			$body = <<< EOD
+This is an OpenPGP/MIME encrypted message (RFC 4880 and 3156)
+
+--{$message->getBoundary()}
+Content-Type: application/pgp-encrypted
+Content-Description: PGP/MIME version identification
+
+Version: 1
+
+--{$message->getBoundary()}
+Content-Type: application/octet-stream; name="encrypted.asc"
+Content-Description: OpenPGP encrypted message
+Content-Disposition: inline; filename="encrypted.asc"
+
+$encrypted_body
+
+--{$message->getBoundary()}--
+EOD;
+		
+			$message->setBody($body);
+		}
+		
+		$message_headers = $message->getHeaders();
+		$message_headers->removeAll('Content-Transfer-Encoding');
+		
+		return $this;
+	}
+
+	/**
+	 * Return the list of header a signer might tamper.
+	 *
+	 * @return array
+	 */
+	public function getAlteredHeaders() {
+		return ['Content-Type', 'Content-Transfer-Encoding', 'Content-Disposition', 'Content-Description'];
+	}
+	
+	/**
+	 * return $this
+	 */
+	public function reset() {
+		return $this;
+	}
+};
+
 class Cerb_SwiftPlugin_TransportExceptionLogger implements Swift_Events_TransportExceptionListener {
 	private $_lastError = null;
 	

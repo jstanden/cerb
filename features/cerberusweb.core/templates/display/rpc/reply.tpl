@@ -197,6 +197,24 @@
 			</fieldset>
 		</td>
 	</tr>
+	
+	{if $gpg && $gpg->isEnabled()}
+	<tr>
+		<td>
+			<fieldset class="peek">
+				<legend>{'common.encryption'|devblocks_translate|capitalize}</legend>
+				
+				<div>
+					<label style="margin-right:10px;">
+					<input type="checkbox" name="options_gpg_encrypt" value="1" {if $draft->params.options_gpg_encrypt}checked="checked"{/if}> 
+					Encrypt message using recipient public keys
+					</label>
+				</div>
+			</fieldset>
+		</td>
+	</tr>
+	{/if}
+	
 	<tr>
 		<td>
 			<fieldset class="peek">

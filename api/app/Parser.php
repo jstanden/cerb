@@ -49,6 +49,8 @@ class CerberusParserMessage {
 	public $htmlbody = '';
 	public $files = array();
 	public $custom_fields = array();
+	public $was_encrypted = false;
+	public $was_signed = false;
 	
 	function build() {
 		$this->_buildHeaders();
@@ -626,7 +628,7 @@ class CerberusParser {
 		return self::_parseMime($mm);
 	}
 	
-	static private function _recurseMimeParts($part, &$results) {
+	static private function _recurseMimeParts($part, &$results, &$mime_meta=[]) {
 		if(!($part instanceof MimeMessage))
 			return false;
 		
@@ -644,6 +646,76 @@ class CerberusParser {
 		$do_recurse = true;
 		
 		switch(DevblocksPlatform::strLower($part->data['content-type'])) {
+			case 'multipart/signed':
+				if($part->get_child_count() != 3)
+					break;
+					
+				$part_signed = $part->get_child(1);
+				$part_signature = $part->get_child(2);
+				
+				$signed_content = $part_signed->extract_body(MAILPARSE_EXTRACT_RETURN);
+				$signature = $part_signature->extract_body(MAILPARSE_EXTRACT_RETURN);
+				
+				$gpg = DevblocksPlatform::services()->gpg();
+				
+				// Denote valid signature on saved message
+				if(false != ($info = $gpg->verify($signed_content, $signature))) {
+					$mime_meta['gpg_signed_verified'] = $info;
+				}
+				break;
+				
+			case 'multipart/encrypted':
+				$do_ignore = true;
+				$do_recurse = false;
+				
+				for($n = 1; $n < $part->get_child_count(); $n++) {
+					$child = $part->get_child($n);
+					
+					if(0 == strcasecmp(@$child->data['content-name'], 'encrypted.asc')) {
+						$encrypted_content = $child->extract_body(MAILPARSE_EXTRACT_RETURN);
+						
+						try {
+							if(false == ($gpg = DevblocksPlatform::services()->gpg()))
+								throw new Exception("The gnupg PHP extension is not installed.");
+								
+							if(false == ($decrypted_content = $gpg->decrypt($encrypted_content)))
+								throw new Exception("Failed to find a decryption key for PGP message content.");
+							
+							if(false == ($decrypted_mime = new MimeMessage("var", rtrim($decrypted_content, PHP_EOL) . PHP_EOL)))
+								throw new Exception("Failed to parse decrypted MIME content.");
+							
+							// Denote encryption on saved message
+							$mime_meta['gpg_encrypted'] = true;
+								
+							// Add to the mime tree
+							$new_mime_parts = [];
+							
+							self::_recurseMimeParts($decrypted_mime, $new_mime_parts, $mime_meta);
+							
+							foreach($new_mime_parts as $k => $v) {
+								$results[$k] = $v;
+							}
+							
+						} catch(Exception $e) {
+							// If we failed, keep the whole part
+							$results[spl_object_hash($part)] = $part;
+						}
+						
+					} else {
+						switch(DevblocksPlatform::strLower($child->data['content-type'])) {
+							// We don't want to add these parts
+							case 'application/pgp-encrypted':
+							case 'multipart/encrypted':
+								break;
+							
+							default:
+								$results[spl_object_hash($child)] = $child;
+								break;
+						}
+					}
+				}
+				break;
+				
 			case 'multipart/alternative':
 			case 'multipart/mixed':
 			case 'multipart/related':
@@ -661,8 +733,9 @@ class CerberusParser {
 			$results[spl_object_hash($part)] = $part;
 		
 		if($do_recurse)
-		for($n = 0; $n < $part->get_child_count(); $n++)
-			self::_recurseMimeParts($part->get_child($n), $results);
+		for($n = 1; $n < $part->get_child_count(); $n++) {
+			self::_recurseMimeParts($part->get_child($n), $results, $mime_meta);
+		}
 	}
 	
 	static private function _getMimePartFilename($part) {
@@ -682,29 +755,6 @@ class CerberusParser {
 		if(!($mm instanceof MimeMessage))
 			return false;
 		
-		/*
-		if(0 == strcasecmp($mm->data['content-type'], 'multipart/encrypted')) {
-			// [TODO] Decrypt the PGP part, recurse, return
-			var_dump($mm);
-			
-			$mime_parts = [];
-			self::_recurseMimeParts($mm, $mime_parts);
-			
-			if(is_array($mime_parts))
-			foreach($mime_parts as $section_idx => $section) {
-				if(0 == strcasecmp('encrypted.asc', $section->data['content-name'])) {
-					try {
-						$encrypted_content = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
-						var_dump($encrypted_content);
-						
-					} catch (Exception $e) {
-						var_dump($e);
-					}
-				}
-			}
-		}
-		*/
-		
 		$message = new CerberusParserMessage();
 		@$message->encoding = $mm->data['charset'];
 		@$message->body_encoding = $message->encoding; // default
@@ -712,8 +762,20 @@ class CerberusParser {
 		$message->raw_headers = $mm->extract_headers(MAILPARSE_EXTRACT_RETURN);
 		$message->headers = CerberusParser::fixQuotePrintableArray($mm->data['headers']);
 		
-		$mime_parts = array();
-		self::_recurseMimeParts($mm, $mime_parts);
+		$mime_parts = [];
+		$mime_meta = [];
+
+		self::_recurseMimeParts($mm, $mime_parts, $mime_meta);
+		
+		// Was it encrypted?
+		if(isset($mime_meta['gpg_encrypted']) && $mime_meta['gpg_encrypted']) {
+			$message->was_encrypted = true;
+		}
+		
+		// Was it signed?
+		if(isset($mime_meta['gpg_signed_verified']) && $mime_meta['gpg_signed_verified']) {
+			$message->was_signed = true;
+		}
 		
 		if(is_array($mime_parts))
 		foreach($mime_parts as $section_idx => $section) {
@@ -818,6 +880,11 @@ class CerberusParser {
 			
 			$content_type = DevblocksPlatform::strLower(isset($section->data['content-type']) ? $section->data['content-type'] : '');
 			$content_filename = self::_getMimePartFilename($section);
+			
+			if(DevblocksPlatform::strLower(@$section->data['content-type']) == 'multipart/signed') {
+				$content_filename = sprintf('signed_message_source_%s.txt', uniqid());
+				continue;
+			}
 			
 			$attach = new ParseFileBuffer($section);
 			
@@ -1247,7 +1314,7 @@ class CerberusParser {
 			if(!empty($sender)) {
 				DAO_Ticket::createRequester($sender->email, $model->getTicketId());
 			}
-				
+			
 			// Add the other TO/CC addresses to the ticket
 			if(DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ, CerberusSettingsDefaults::PARSER_AUTO_REQ)) {
 				$destinations = $model->getRecipients();
@@ -1292,6 +1359,8 @@ class CerberusParser {
 			DAO_Message::CREATED_DATE => $model->getDate(),
 			DAO_Message::ADDRESS_ID => $model->getSenderAddressModel()->id,
 			DAO_Message::WORKER_ID => $model->isSenderWorker() ? $model->getSenderWorkerModel()->id : 0,
+			DAO_Message::WAS_ENCRYPTED => $message->was_encrypted ? 1 : 0,
+			DAO_Message::WAS_SIGNED => $message->was_signed ? 1 : 0,
 		);
 		
 		if(!isset($message->headers['message-id'])) {

@@ -113,6 +113,34 @@
 	</table>
 </fieldset>
 
+<fieldset class="peek compose-attachments">
+	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
+	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<ul class="bubbles chooser-container">
+	{if $draft->params.file_ids}
+	{foreach from=$draft->params.file_ids item=file_id}
+		{$file = DAO_Attachment::get($file_id)}
+		{if !empty($file)}
+			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size} bytes) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		{/if} 
+	{/foreach}
+	{/if}
+	</ul>
+</fieldset>
+
+{if $gpg && $gpg->isEnabled()}
+<fieldset class="peek">
+	<legend>{'common.encryption'|devblocks_translate|capitalize}</legend>
+	
+	<div>
+		<label style="margin-right:10px;">
+		<input type="checkbox" name="options_gpg_encrypt" value="1" {if $draft->params.options_gpg_encrypt}checked="checked"{/if}> 
+		Encrypt message using recipient public keys
+		</label>
+	</div>
+</fieldset>
+{/if}
+
 <fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
@@ -192,21 +220,6 @@
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false}
-
-<fieldset class="peek compose-attachments">
-	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
-	<ul class="bubbles chooser-container">
-	{if $draft->params.file_ids}
-	{foreach from=$draft->params.file_ids item=file_id}
-		{$file = DAO_Attachment::get($file_id)}
-		{if !empty($file)}
-			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size} bytes) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
-		{/if} 
-	{/foreach}
-	{/if}
-	</ul>
-</fieldset>
 
 <div class="status"></div>
 

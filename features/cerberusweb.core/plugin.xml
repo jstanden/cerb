@@ -62,7 +62,7 @@
 		<patch version="7.3.0" revision="1190" file="patches/7.x/7.3.0.php" />
 		
 		<patch version="8.0.0" revision="1206" file="patches/8.x/8.0.0.php" />
-		<patch version="8.1.0" revision="1221" file="patches/8.x/8.1.0.php" />
+		<patch version="8.1.0" revision="1224" file="patches/8.x/8.1.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -73,6 +73,8 @@
 		</file>
 		
 		<file path="api/plugin.classes.php">
+			<class name="Cerb_SwiftPlugin_GPGSigner" />
+			<class name="Cerb_SwiftPlugin_TransportExceptionLogger" />
 			<class name="ChPageController" />
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
@@ -352,6 +354,14 @@
 			<class name="Model_FileBundle" />
 			<class name="SearchFields_FileBundle" />
 			<class name="View_FileBundle" />
+		</file>
+		
+		<file path="api/dao/gpg_public_key.php">
+			<class name="Context_GpgPublicKey" />
+			<class name="DAO_GpgPublicKey" />
+			<class name="Model_GpgPublicKey" />
+			<class name="SearchFields_GpgPublicKey" />
+			<class name="View_GpgPublicKey" />
 		</file>
 		
 		<file path="api/dao/group.php">
@@ -1746,6 +1756,40 @@
 						-->
 						<data key="create" />
 						<data key="links" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.gpg_public_key</id>
+			<name>Public Key</name>
+			<class>
+				<file>api/dao/gpg_public_key.php</file>
+				<name>Context_GpgPublicKey</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="public key" value="singular" />
+						<data key="public keys" value="plural" />
+						<data key="key" value="singular short" />
+						<data key="keys" value="plural short" />
+					</value>
+				</param>
+				<param key="alias" value="gpg_public_key" />
+				<param key="dao_class" value="DAO_GpgPublicKey" />
+				<param key="view_class" value="View_GpgPublicKey" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
 					</value>
 				</param>
 			</params>
@@ -4459,6 +4503,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="file_bundle" />
+				</params>
+			</extension>
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.gpg_public_key</id>
+				<name>Gpg Public Key Section</name>
+				<class>
+					<file>api/uri/profiles/gpg_public_key.php</file>
+					<name>PageSection_ProfilesGpgPublicKey</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="gpg_public_key" />
 				</params>
 			</extension>
 		

@@ -4890,7 +4890,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
 		$tpl->assign('custom_fields', $custom_fields);
-
+		
+		// GPG
+		$gpg = DevblocksPlatform::services()->gpg();
+		$tpl->assign('gpg', $gpg);
+		
 		// HTML templates
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);

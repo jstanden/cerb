@@ -435,6 +435,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Options
 		
 		@$options_dont_send = DevblocksPlatform::importGPC($_POST['options_dont_send'],'integer',0);
+		@$options_gpg_encrypt = DevblocksPlatform::importGPC(@$_POST['options_gpg_encrypt'],'integer',0);
 		
 		// Attachments
 		
@@ -474,6 +475,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			'ticket_reopen' => $ticket_reopen,
 			'link_forward_files' => true,
 			'worker_id' => $active_worker->id,
+			'gpg_encrypt' => !empty($options_gpg_encrypt),
 		);
 
 		// #commands

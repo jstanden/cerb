@@ -80,6 +80,9 @@
 				{if $ticket}
 				<input type="checkbox" name="row_id[]" value="{$result.m_id}" style="display:none;">
 				{if $ticket->status_id == Model_Ticket::STATUS_DELETED}<span class="glyphicons glyphicons-circle-remove" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $ticket->status_id == Model_Ticket::STATUS_CLOSED}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(80,80,80);font-size:14px;"></span> {elseif $ticket->status_id == Model_Ticket::STATUS_WAITING}<span class="glyphicons glyphicons-clock" style="color:rgb(39,123,213);font-size:14px;"></span>{/if}
+				{if $result.m_was_encrypted}
+					<span class="glyphicons glyphicons-lock" style="color:rgb(80,80,80);font-size:14px;" title="{'common.encrypted'|devblocks_translate|capitalize}"></span>
+				{/if}
 				<a href="{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}&focus=message&focusid={$result.m_id}{/devblocks_url}" class="subject">{if !empty($ticket->subject)}{$ticket->subject}{else}(no subject){/if}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$result.m_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 				{/if} 
@@ -130,7 +133,7 @@
 					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker_id}">{$workers.{$worker_id}->getName()}</a>
 				{/if}
 				</td>
-			{elseif $column=="m_is_outgoing" || $column=="m_is_broadcast"}
+			{elseif in_array($column, ["m_is_outgoing", "m_is_broadcast", "m_is_not_sent", "m_was_encrypted", "m_was_signed"])}
 				<td data-column="{$column}">
 					{if !empty($result.$column)}{'common.yes'|devblocks_translate|lower}{else}{'common.no'|devblocks_translate|lower}{/if}
 				</td>

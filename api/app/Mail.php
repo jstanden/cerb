@@ -249,6 +249,7 @@ class CerberusMail {
 		 'ticket_reopen'
 		 'dont_send'
 		 'draft_id'
+		 'gpg_encrypt'
 		 */
 		
 		@$group_id = $properties['group_id'];
@@ -422,6 +423,12 @@ class CerberusMail {
 			$outgoing_mail_headers = $email->getHeaders()->toString();
 			$outgoing_message_id = $email->getHeaders()->get('message-id')->getFieldBody();
 			
+			// Encryption
+			if(isset($properties['gpg_encrypt']) && $properties['gpg_encrypt']) {
+				$signer = new Cerb_SwiftPlugin_GPGSigner();
+				$email->attachSigner($signer);
+			}
+			
 			if(!empty($toList) && (!isset($properties['dont_send']) || empty($properties['dont_send']))) {
 				if(!$mail_service->send($email)) {
 					throw new Exception('Mail failed to send: unknown reason');
@@ -513,6 +520,7 @@ class CerberusMail {
 			DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 			DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
 			DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($outgoing_message_id),
+			DAO_Message::WAS_ENCRYPTED => !empty(@$properties['gpg_encrypt']) ? 1 : 0,
 		);
 		$message_id = DAO_Message::create($fields);
 		
@@ -647,6 +655,7 @@ class CerberusMail {
 		'worker_id'
 		'is_autoreply'
 		'custom_fields'
+		'gpg_encrypt'
 		'dont_send'
 		'dont_keep_copy'
 		*/
@@ -916,6 +925,12 @@ class CerberusMail {
 					}
 				}
 			}
+			
+			// Encryption
+			if(isset($properties['gpg_encrypt']) && $properties['gpg_encrypt']) {
+				$signer = new Cerb_SwiftPlugin_GPGSigner();
+				$mail->attachSigner($signer);
+			}
 
 			// Send
 			$recipients = $mail->getTo();
@@ -1030,6 +1045,7 @@ class CerberusMail {
 				DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
 				DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
 				DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($outgoing_message_id),
+				DAO_Message::WAS_ENCRYPTED => !empty(@$properties['gpg_encrypt']) ? 1 : 0,
 			);
 			$message_id = DAO_Message::create($fields);
 			

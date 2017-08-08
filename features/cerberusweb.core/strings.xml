@@ -747,6 +747,16 @@
 				<seg>Enabled</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.encrypted">
+			<tuv xml:lang="en_US">
+				<seg>encrypted</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.encryption">
+			<tuv xml:lang="en_US">
+				<seg>encryption</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.entity">
 			<tuv xml:lang="en_US">
 				<seg>entity</seg>
@@ -810,6 +820,11 @@
 		<tu tuid="common.expire">
 			<tuv xml:lang="en_US">
 				<seg>expire</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.expired">
+			<tuv xml:lang="en_US">
+				<seg>expired</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.expires">
@@ -1015,6 +1030,26 @@
 		<tu tuid="common.key">
 			<tuv xml:lang="en_US">
 				<seg>key</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.key.private">
+			<tuv xml:lang="en_US">
+				<seg>private key</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.key.public">
+			<tuv xml:lang="en_US">
+				<seg>public key</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.keys.private">
+			<tuv xml:lang="en_US">
+				<seg>private keys</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.keys.public">
+			<tuv xml:lang="en_US">
+				<seg>public keys</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.keyboard">
@@ -1718,6 +1753,11 @@
 				<seg>signature</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.signed">
+			<tuv xml:lang="en_US">
+				<seg>signed</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.simulator">
 			<tuv xml:lang="en_US">
 				<seg>simulator</seg>
@@ -2177,6 +2217,13 @@
 			<tuv xml:lang="en_US">
 				<seg>User Agent</seg>
 			</tuv>
+		</tu>
+		
+		<!-- GpgPublicKey -->
+		
+		<tu tuid='dao.gpg_public_key.fingerprint'>
+			<tuv xml:lang="en_US">
+			<seg>Fingerprint</seg></tuv>
 		</tu>
 
 		<!-- Plugin Library -->
@@ -3486,9 +3533,19 @@ For example: http://www.cerbweb.com/support/</seg>
 				<seg>Is Not Sent</seg>
 			</tuv>
 		</tu>
+		<tu tuid="message.is_encrypted">
+			<tuv xml:lang="en_US">
+				<seg>Is Encrypted</seg>
+			</tuv>
+		</tu>
 		<tu tuid="message.is_outgoing">
 			<tuv xml:lang="en_US">
 				<seg>Is Outgoing</seg>
+			</tuv>
+		</tu>
+		<tu tuid="message.is_signed">
+			<tuv xml:lang="en_US">
+				<seg>Is Signed</seg>
 			</tuv>
 		</tu>
 		<tu tuid="message.storage_size">

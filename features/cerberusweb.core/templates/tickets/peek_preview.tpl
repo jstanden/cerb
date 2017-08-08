@@ -8,10 +8,16 @@
 	
 	<span class="tag" style="{if !$message->is_outgoing}color:rgb(185,50,40);{else}color:rgb(100,140,25);{/if}">{if $message->is_outgoing}{if $is_not_sent}{'mail.saved'|devblocks_translate|lower}{else}{'mail.sent'|devblocks_translate|lower}{/if}{else}{'mail.received'|devblocks_translate|lower}{/if}</span>
 	
+	{if $message->was_encrypted}
+		<span class="tag" style="background-color:rgb(250,220,74);color:rgb(165,100,33);" title="{'common.encrypted'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-lock"></span></span>
+	{/if}
+	
 	{if $message_worker}
+		{if $message->was_signed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(66,131,73);" title="{'common.signed'|devblocks_translate|capitalize}"></span>{/if}
 		<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$message_worker->id}">{if 0 != strlen($message_worker->getName())}{$message_worker->getName()}{else}&lt;{$message_worker->getEmailString()}&gt;{/if}</a>
 	{else}
 		{if $message_contact}
+			{if $message->was_signed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(66,131,73);" title="{'common.signed'|devblocks_translate|capitalize}"></span>{/if}
 			{$message_contact_org = $message_contact->getOrg()}
 			<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$message_contact->id}">{$message_contact->getName()}</a>
 			&nbsp;
@@ -23,7 +29,8 @@
 				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$message_contact_org->id}"><b>{$message_contact_org->name}</b></a>
 			{/if}
 		{else}
-		<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$message_sender->id}">&lt;{$message_sender->email}&gt;</a>
+			{if $message->was_signed}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(66,131,73);" title="{'common.signed'|devblocks_translate|capitalize}"></span>{/if}
+			<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$message_sender->id}">&lt;{$message_sender->email}&gt;</a>
 		{/if}
 	{/if}
 	

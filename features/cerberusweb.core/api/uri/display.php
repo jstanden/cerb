@@ -657,6 +657,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(isset($custom_field_values[$ticket->id]))
 			$tpl->assign('custom_field_values', $custom_field_values[$ticket->id]);
 		
+		// GPG
+		$gpg = DevblocksPlatform::services()->gpg();
+		$tpl->assign('gpg', $gpg);
+		
 		// HTML templates
 		
 		$html_templates = DAO_MailHtmlTemplate::getAll();
@@ -736,6 +740,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'integer',0),
 			'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),
 			'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
+			'gpg_encrypt' => DevblocksPlatform::importGPC(@$_REQUEST['options_gpg_encrypt'],'integer',0),
+			'gpg_sign' => DevblocksPlatform::importGPC(@$_REQUEST['options_gpg_sign'],'integer',0),
 			'worker_id' => @$worker->id,
 			'forward_files' => $file_ids,
 			'link_forward_files' => true,

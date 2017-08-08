@@ -52,6 +52,49 @@ EOD;
 }
 
 // ===========================================================================
+// Add `gpg_public_key` table
+
+if(!isset($tables['gpg_public_key'])) {
+	$sql = sprintf("
+	CREATE TABLE `gpg_public_key` (
+		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		name VARCHAR(255) DEFAULT '',
+		fingerprint VARCHAR(255) DEFAULT '',
+		expires_at int unsigned not null default 0,
+		updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+		primary key (id),
+		index fingerprint (fingerprint(4))
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['gpg_public_key'] = 'gpg_public_key';
+}
+
+// ===========================================================================
+// Add `message.was_encrypted` and `message.was_signed`
+
+if(!isset($tables['message'])) {
+	$logger->error("The 'message' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('message');
+
+$changes = [];
+
+if(!isset($columns['was_encrypted'])) {
+	$changes[] = 'ADD COLUMN was_encrypted tinyint(1) not null default 0';
+	$changes[] = 'ADD INDEX (was_encrypted)';
+}
+	
+if(!isset($columns['was_signed']))
+	$changes[] = 'ADD COLUMN was_signed tinyint(1) not null default 0';
+	
+if(!empty($changes))
+	$db->ExecuteMaster("ALTER TABLE message " . implode(', ', $changes));
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
