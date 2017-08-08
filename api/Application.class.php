@@ -304,6 +304,10 @@ class CerberusApplication extends DevblocksApplication {
 			@mkdir(APP_SMARTY_COMPILE_PATH);
 		}
 
+		if(!file_exists(APP_PATH . "/vendor/")) {
+			$errors[] = APP_PATH . "/vendor/" ." doesn't exist. Did you run `composer install` first?";
+		}
+
 		if(!is_writeable(APP_SMARTY_COMPILE_PATH)) {
 			$errors[] = APP_SMARTY_COMPILE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
@@ -335,7 +339,7 @@ class CerberusApplication extends DevblocksApplication {
 		if(!is_writeable(APP_STORAGE_PATH . "/mail/fail/")) {
 			$errors[] = APP_STORAGE_PATH . "/mail/fail/" ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
-
+		
 		// Requirements
 
 		// PHP Version
