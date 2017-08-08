@@ -185,7 +185,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 				self::_processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.timetracking.update',
@@ -412,7 +412,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM timetracking_entry WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -428,7 +428,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 
 	static function maint() {
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -1019,7 +1019,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1069,7 +1069,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 	}
 	
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1281,7 +1281,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=time_tracking&id='.$context_id, true);
 		return $url;
 	}
@@ -1408,7 +1408,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			$token_values = $this->_importModelCustomFieldsAsValues($timeentry, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d-%s",$timeentry->id, DevblocksPlatform::strToPermalink($timeentry->getSummary())), true);
 			
 			// Worker
@@ -1535,7 +1535,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$active_worker = CerberusApplication::getActiveWorker();

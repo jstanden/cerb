@@ -95,7 +95,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 	}
 	
 	private function _fetchImageFromUrl($url) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$base_url = $url_writer->write('', true);
 		
 		$response = array('status'=>true, 'imageData'=>null);

@@ -125,7 +125,7 @@ class _DevblocksOpenIDManager {
 	}
 	
 	public function getAuthUrl($openid_identifier, $return_to) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Normalize the URL
 		$parts = parse_url($openid_identifier);
@@ -167,7 +167,7 @@ class _DevblocksOpenIDManager {
 	}
 	
 	public function validate($scope) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(!isset($scope['openid_identity']))
 			return false;

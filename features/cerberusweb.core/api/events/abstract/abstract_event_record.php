@@ -265,7 +265,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	}
 	
 	function renderEventParams(Model_TriggerEvent $trigger=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		// [TODO] Formal watched change fields
 		
@@ -300,7 +300,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 		
 		// 'old_' prefixed tokens should use the standard conditions in the delegate
@@ -381,7 +381,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))

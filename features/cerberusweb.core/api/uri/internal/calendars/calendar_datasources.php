@@ -11,7 +11,7 @@ class CalendarDatasource_Calendar extends Extension_CalendarDatasource {
 	function renderConfig(Model_Calendar $calendar, $params, $params_prefix) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('calendar', $calendar);
 		$tpl->assign('params', $params);
 		$tpl->assign('params_prefix', $params_prefix);
@@ -66,7 +66,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 	}
 	
 	function renderConfig(Model_Calendar $calendar, $params, $params_prefix) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('calendar', $calendar);
 		$tpl->assign('params', $params);
 		$tpl->assign('params_prefix', $params_prefix);
@@ -164,7 +164,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 					// [TODO] Paging
 					// [TODO] Subtotals
 					
-					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 					@$template = $params['label'];
 					
 					if(empty($template))

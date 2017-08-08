@@ -81,7 +81,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.calendar_event.update',
@@ -193,7 +193,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM calendar_event WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -694,7 +694,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -715,7 +715,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -866,14 +866,14 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=calendar_event&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$calendar_event = DAO_CalendarEvent::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($calendar_event->name);
@@ -1007,7 +1007,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=calendar_event&id=%d-%s",$calendar_event->id, DevblocksPlatform::strToPermalink($calendar_event->name)), true);
 		}
 
@@ -1102,7 +1102,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;

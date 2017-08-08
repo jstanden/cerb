@@ -82,7 +82,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	 * @return Model_Bucket[]
 	 */
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if($nocache || null === ($buckets = $cache->load(self::CACHE_ALL))) {
 			$buckets = self::getWhere(null, null, false, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
@@ -263,7 +263,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			if($check_deltas) {
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.bucket.update',
@@ -307,7 +307,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		/*
 		 * Notify anything that wants to know when buckets delete.
 		 */
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'bucket.delete',
@@ -361,7 +361,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	
 	static public function maint() {
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -400,7 +400,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	}
 	
 	static public function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 	
@@ -758,7 +758,7 @@ class Model_Bucket {
 		if(empty($worker_model))
 			$worker_model = new Model_Worker();
 		
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$token_labels = array();
 		$token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
@@ -797,7 +797,7 @@ class Model_Bucket {
 		if(empty($worker_model))
 			$worker_model = new Model_Worker();
 		
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$token_labels = array();
 		$token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
@@ -879,14 +879,14 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=bucket&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$bucket = DAO_Bucket::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($bucket->name);
@@ -993,7 +993,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values = $this->_importModelCustomFieldsAsValues($bucket, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=bucket&id=%d-%s",$bucket->id, DevblocksPlatform::strToPermalink($bucket->name)), true);
 		}
 		
@@ -1122,7 +1122,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		$context = CerberusContexts::CONTEXT_BUCKET;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if($context_id && null != ($bucket = DAO_Bucket::get($context_id))) {
@@ -1463,7 +1463,7 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1480,7 +1480,7 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {

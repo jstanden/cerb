@@ -234,7 +234,7 @@ class _DevblocksDatabaseManager {
 				
 			// Otherwise, if we've written to master then start redirecting reads to master
 			} else if(!$this->_has_written) {
-				$cache = DevblocksPlatform::getCacheService();
+				$cache = DevblocksPlatform::services()->cache();
 				$local_only = !$cache->isVolatile() || !isset($_COOKIE['Devblocks']);
 		
 				$cache_key = 'session:db:last_write:' . session_id();
@@ -252,7 +252,7 @@ class _DevblocksDatabaseManager {
 		
 		// Check if we're redirecting read-after-write to master
 		if(APP_DB_OPT_READ_MASTER_AFTER_WRITE && '' != APP_DB_SLAVE_HOST) {
-			$cache = DevblocksPlatform::getCacheService();
+			$cache = DevblocksPlatform::services()->cache();
 			/*
 			 * Only perform READ_MASTER_AFTER_WRITE across HTTP requests if we have a high performing 
 			 * cache and an active worker session. Otherwise only cache for this request.

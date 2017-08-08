@@ -2,7 +2,7 @@
 if (class_exists('Extension_CommunityPortal',true)):
 class ExCommunityPortal extends Extension_CommunityPortal {
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$umsession = ChPortalHelper::getSession();
 		
 		// Here are the most useful objects for implementing a portal:
@@ -20,7 +20,7 @@ class ExCommunityPortal extends Extension_CommunityPortal {
 	}
 	
 	public function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$portal_id = ChPortalHelper::getCode();
 		
 		// This demonstrates how to load portal settings

@@ -446,7 +446,7 @@ if(!isset($tables['context_activity_log'])) {
 	return FALSE;
 }
 
-$url_writer = DevblocksPlatform::getUrlService();
+$url_writer = DevblocksPlatform::services()->url();
 $url_prefix = $url_writer->write('', true, false);
 
 $max_id = 0;
@@ -538,7 +538,7 @@ if(!isset($tables['notification'])) {
 	return FALSE;
 }
 
-$url_writer = DevblocksPlatform::getUrlService();
+$url_writer = DevblocksPlatform::services()->url();
 $url_prefix = $url_writer->write('', true, false);
 
 $sql = sprintf("SELECT id, context, context_id, url FROM notification");

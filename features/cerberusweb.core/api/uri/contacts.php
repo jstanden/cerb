@@ -31,7 +31,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -142,7 +142,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -219,7 +219,7 @@ class ChContactsPage extends CerberusPageExtension {
 	
 		$view_id = DevblocksPlatform::strAlphaNum($point, '\_');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$ids = array();
 		
@@ -270,7 +270,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$org_ids = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($org_ids)) {
@@ -293,7 +293,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$org_ids = DevblocksPlatform::importGPC($_REQUEST['org_id'],'array',array());
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$workers = DAO_Worker::getAll();
@@ -439,7 +439,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$properties = DevblocksPlatform::importGPC($_REQUEST['prop'],'array',array());
 		
 		$db = DevblocksPlatform::services()->database();
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$date = DevblocksPlatform::services()->date();
 		$active_worker = CerberusApplication::getActiveWorker();
 		

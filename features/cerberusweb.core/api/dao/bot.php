@@ -66,7 +66,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 			if($check_deltas) {
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.bot.update',
@@ -183,7 +183,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 	}
 	
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$objects = DAO_Bot::getWhere(
@@ -285,7 +285,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 			DAO_TriggerEvent::deleteByBot($id);
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -458,7 +458,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 
 	public static function clearCache() {
 		// Invalidate cache on changes
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 };
@@ -901,7 +901,7 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -914,7 +914,7 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -1090,7 +1090,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$list = array();
 		
 		$models = DAO_Bot::autocomplete($term);
@@ -1122,7 +1122,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=bot&id='.$context_id, true);
 		return $url;
 	}
@@ -1131,7 +1131,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		if(false == ($bot = DAO_Bot::get($context_id)))
 			return [];
 			
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($bot->name);
@@ -1183,7 +1183,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			$prefix = 'Bot:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BOT);
 
 		// Polymorph
@@ -1384,7 +1384,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_BOT;

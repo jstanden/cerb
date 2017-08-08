@@ -17,7 +17,7 @@
 
 class PageSection_SetupAvatars extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'avatars');
@@ -35,7 +35,7 @@ class PageSection_SetupAvatars extends Extension_PageSection {
 			@$avatar_default_style_contact = DevblocksPlatform::importGPC($_POST['avatar_default_style_contact'],'string',CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_CONTACT);
 			@$avatar_default_style_worker = DevblocksPlatform::importGPC($_POST['avatar_default_style_worker'],'string',CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_WORKER);
 	
-			$settings = $db = DevblocksPlatform::services()->pluginSettings();
+			$settings = DevblocksPlatform::services()->pluginSettings();
 			$settings->set('cerberusweb.core',CerberusSettings::AVATAR_DEFAULT_STYLE_CONTACT, $avatar_default_style_contact);
 			$settings->set('cerberusweb.core',CerberusSettings::AVATAR_DEFAULT_STYLE_WORKER, $avatar_default_style_worker);
 			

@@ -114,7 +114,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			if($check_deltas) {
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.snippet.update',
@@ -316,7 +316,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM snippet_use_history WHERE snippet_id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -1103,7 +1103,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1116,7 +1116,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		if(isset($placeholder_values['dicts'])) {
 			$tpl->assign('dicts', $placeholder_values['dicts']);
 
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			$tpl->assign('tpl_builder', $tpl_builder);
 		}
 		
@@ -1131,7 +1131,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1343,7 +1343,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=snippet&id='.$context_id, true);
 		return $url;
 	}
@@ -1354,7 +1354,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function getMeta($context_id) {
 		$snippet = DAO_Snippet::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		return array(
 			'id' => $context_id,
@@ -1602,7 +1602,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$active_worker = CerberusApplication::getActiveWorker();

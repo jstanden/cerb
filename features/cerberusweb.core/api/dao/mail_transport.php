@@ -50,7 +50,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.mail_transport.update',
@@ -103,7 +103,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 	}
 	
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if($nocache || null === ($mail_transports = $cache->load(self::_CACHE_ALL))) {
 			$mail_transports = DAO_MailTransport::getWhere(
 				null,
@@ -209,7 +209,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		DAO_AddressOutgoing::clearCache();
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -359,7 +359,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 	}
 
 	static public function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
 	}
 };
@@ -678,7 +678,7 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -696,7 +696,7 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -864,14 +864,14 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=mail_transport&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$mail_transport = DAO_MailTransport::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($mail_transport->name);
@@ -960,7 +960,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 			$token_values = $this->_importModelCustomFieldsAsValues($mail_transport, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=mail_transport&id=%d-%s",$mail_transport->id, DevblocksPlatform::strToPermalink($mail_transport->name)), true);
 		}
 		
@@ -1057,7 +1057,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id) && null != ($mail_transport = DAO_MailTransport::get($context_id))) {

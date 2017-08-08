@@ -178,7 +178,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	}
 	
 	static function getAll($nocache=false, $with_disabled=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($results = $cache->load(self::_CACHE_ALL))) {
 			$results = self::getWhere(
@@ -258,7 +258,7 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	}
 	
 	public static function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
 	}
 };

@@ -41,7 +41,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // message id
 		@$hide = DevblocksPlatform::importGPC($_REQUEST['hide'],'integer',0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$message = DAO_Message::get($id);
@@ -155,7 +155,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	function showMessagePeekPopupAction() {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		if(false == ($message = DAO_Message::get($context_id)))
 			return;
@@ -245,7 +245,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 		}
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 				
 		$tpl->assign('ticket_id', $ticket_id);
 		
@@ -400,7 +400,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
 
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Determine if we have an HTML template
@@ -481,10 +481,10 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$reply_mode = DevblocksPlatform::importGPC($_REQUEST['reply_mode'],'integer',0);
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		$active_worker = CerberusApplication::getActiveWorker();  /* @var $active_worker Model_Worker */
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id',$id);
 		$tpl->assign('is_forward',$is_forward);
 		$tpl->assign('reply_mode',$reply_mode);
@@ -1072,7 +1072,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		if($is_ajax) {
 			// Template
-			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('timestamp', time());
 			$html = $tpl->fetch('devblocks:cerberusweb.core::mail/queue/saved.tpl');
 			
@@ -1089,7 +1089,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	function showRelayMessagePopupAction() {
 		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		if(false == ($message = DAO_Message::get($message_id)))
@@ -1131,7 +1131,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$expand_all = DevblocksPlatform::importGPC($_REQUEST['expand_all'],'integer',0);
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1457,7 +1457,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function showContactHistoryAction() {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
@@ -1546,7 +1546,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 				
 		$tpl->assign('ticket_id', $ticket_id);
 		$tpl->assign('requesters', $requesters);

@@ -139,7 +139,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -259,7 +259,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -377,7 +377,7 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 				break;
 			
 			case 'set_importance':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$value = $tpl_builder->build($params['value'], $dict);
 				$value = DevblocksPlatform::intClamp($value, 0, 100);
 				

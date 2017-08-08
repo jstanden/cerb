@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesSnippet extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -121,7 +121,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	function showTabContentAction() {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$context_id || false == ($snippet = DAO_Snippet::get($context_id)))
@@ -138,7 +138,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -211,7 +211,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$form_id = DevblocksPlatform::importGPC($_REQUEST['form_id'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('context', $context);
 		$tpl->assign('form_id', $form_id);
 		

@@ -300,7 +300,7 @@ class ChRest_Contexts extends Extension_RestController {
 		
 		$activities = DevblocksPlatform::getActivityPointRegistry();
 		$translate = DevblocksPlatform::getTranslationService();
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		// Verify the 'on' context and accessibility by active worker
 		if(false == ($result_on = $this->_verifyContextString($on)))

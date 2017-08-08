@@ -2,7 +2,7 @@
 if (class_exists('Extension_MessageToolbarItem',true)):
 	class ExMessageToolbarItem extends Extension_MessageToolbarItem {
 		function render(Model_Message $message) {
-			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl = DevblocksPlatform::services()->template();
 			$translate = DevblocksPlatform::getTranslationService();
 			
 			$tpl->assign('translate', $translate);

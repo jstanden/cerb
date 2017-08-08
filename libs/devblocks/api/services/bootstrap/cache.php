@@ -281,14 +281,14 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 	}
 	
 	function renderConfig() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('cacher', $this);
 		$tpl->assign('cacher_config', $this->getConfig());
 		$tpl->display('devblocks:devblocks.core::cache_engine/disk/config.tpl');
 	}
 	
 	function renderStatus() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('cacher', $this);
 		$tpl->assign('cacher_config', $this->getConfig());
 		$tpl->display('devblocks:devblocks.core::cache_engine/disk/status.tpl');
@@ -484,14 +484,14 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 	}
 	
 	function renderConfig() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('cacher', $this);
 		$tpl->assign('cacher_config', $this->getConfig());
 		$tpl->display('devblocks:devblocks.core::cache_engine/memcached/config.tpl');
 	}
 	
 	function renderStatus() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('cacher', $this);
 		$tpl->assign('cacher_config', $this->getConfig());
 		$tpl->display('devblocks:devblocks.core::cache_engine/memcached/status.tpl');
@@ -617,14 +617,14 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 	}
 	
 	function renderConfig() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('cacher', $this);
 		$tpl->assign('cacher_config', $this->getConfig());
 		$tpl->display('devblocks:devblocks.core::cache_engine/redis/config.tpl');
 	}
 
 	function renderStatus() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('cacher', $this);
 		$tpl->assign('cacher_config', $this->getConfig());
 		$tpl->display('devblocks:devblocks.core::cache_engine/redis/status.tpl');

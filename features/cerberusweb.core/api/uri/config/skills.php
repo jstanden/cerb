@@ -18,7 +18,7 @@
 class PageSection_SetupSkills extends Extension_PageSection {
 	function render() {
 		$visit = CerberusApplication::getVisit();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$response = DevblocksPlatform::getHttpResponse();
 		
 		$stack = $response->path;
@@ -35,7 +35,7 @@ class PageSection_SetupSkills extends Extension_PageSection {
 	}
 
 	function showSkillsetsTabAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Skillset');
 		$defaults->id = 'setup_skillsets';
@@ -51,7 +51,7 @@ class PageSection_SetupSkills extends Extension_PageSection {
 	}
 	
 	function showSkillsTabAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Skill');
 		$defaults->id = 'setup_skills';

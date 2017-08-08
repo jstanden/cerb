@@ -116,7 +116,7 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.context_bulk_update.update',
@@ -202,7 +202,7 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 	 * @return Model_ContextBulkUpdate[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::getCacheService();
+		//$cache = DevblocksPlatform::services()->cache();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_ContextBulkUpdate::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
@@ -329,7 +329,7 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM context_bulk_update WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',

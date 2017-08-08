@@ -193,7 +193,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		}
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -260,7 +260,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		$db->ExecuteMaster("DROP TABLE _tmp_maint_message");
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -963,7 +963,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	}
 	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile'));
 		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile'));
@@ -973,7 +973,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	}
 	
 	function renderConfig() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile'));
 		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile'));
@@ -1709,7 +1709,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 		
@@ -1778,7 +1778,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 	
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -2061,7 +2061,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 
 		if(null == ($message = DAO_Message::get($context_id)))
 			return FALSE;
@@ -2220,7 +2220,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values = $this->_importModelCustomFieldsAsValues($message, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%d/message/%d", $message->ticket_id, $message->id), true);
 		}
 
@@ -2427,7 +2427,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl->assign('view_id', $view_id);

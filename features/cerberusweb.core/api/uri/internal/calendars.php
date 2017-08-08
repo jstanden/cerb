@@ -28,7 +28,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
 			return;
@@ -65,7 +65,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$calendar = DAO_Calendar::get($calendar_id);
 		

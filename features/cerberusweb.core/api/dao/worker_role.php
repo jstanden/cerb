@@ -61,7 +61,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			if($check_deltas) {
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.role.update',
@@ -81,7 +81,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	}
 	
 	static function getRolesByWorker($worker_id, $nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($roles = $cache->load(self::_CACHE_WORKER_ROLES_PREFIX.$worker_id))) {
 			$worker = DAO_Worker::get($worker_id);
@@ -119,7 +119,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	}
 	
 	static function getCumulativePrivsByWorker($worker_id, $nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 
 		if($nocache || null === ($privs = $cache->load(self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id))) {
 			if(false === ($worker = DAO_Worker::get($worker_id)))
@@ -154,7 +154,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	}
 	
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if($nocache || null === ($roles = $cache->load(self::_CACHE_ROLES_ALL))) {
 			$roles = DAO_WorkerRole::getWhere(
 				null,
@@ -295,7 +295,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		self::clearWorkerCache();
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -357,12 +357,12 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	}
 	
 	static function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ROLES_ALL);
 	}
 	
 	static function clearWorkerCache($worker_id=null) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(!empty($worker_id)) {
 			$cache->remove(self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id);
@@ -787,7 +787,7 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -800,7 +800,7 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -927,13 +927,13 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=role&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(null == ($worker_role = DAO_WorkerRole::get($context_id)))
 			return false;
@@ -1013,7 +1013,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			$token_values = $this->_importModelCustomFieldsAsValues($role, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=role&id=%d-%s",$role->id, DevblocksPlatform::strToPermalink($role->name)), true);
 		}
 		
@@ -1091,7 +1091,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_ROLE;

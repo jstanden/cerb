@@ -43,7 +43,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.calendar.update',
@@ -115,7 +115,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	 * @return Model_Calendar[]
 	 */
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if($nocache || null === ($calendars = $cache->load(self::CACHE_ALL))) {
 			$calendars = DAO_Calendar::getWhere(
 				array(),
@@ -259,7 +259,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		DAO_Worker::updateWhere(array(DAO_Worker::CALENDAR_ID => 0), sprintf("%s IN (%s)", DAO_Worker::CALENDAR_ID, $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -411,7 +411,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	}
 
 	static public function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 };
@@ -1071,7 +1071,7 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1084,7 +1084,7 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -1254,14 +1254,14 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=calendar&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$calendar = DAO_Calendar::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($calendar->name);
@@ -1368,7 +1368,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			$token_values = $this->_importModelCustomFieldsAsValues($calendar, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=calendar&id=%d-%s",$calendar->id, DevblocksPlatform::strToPermalink($calendar->name)), true);
 			
 			// Owner
@@ -1587,7 +1587,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_CALENDAR;

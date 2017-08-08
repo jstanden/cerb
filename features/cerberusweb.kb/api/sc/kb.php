@@ -30,7 +30,7 @@ class UmScKbController extends Extension_UmScController {
 	}
 	
 	function renderSidebar(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
 		@$q = DevblocksPlatform::importGPC($_POST['q'],'string','');
 		$tpl->assign('q', $q);
@@ -39,7 +39,7 @@ class UmScKbController extends Extension_UmScController {
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
 		$umsession = ChPortalHelper::getSession();
 		
@@ -129,10 +129,10 @@ class UmScKbController extends Extension_UmScController {
 				
 				// Template overrides
 				
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$function_cerb_file_url = new Twig_SimpleFunction('cerb_file_url', function ($id) {
-					$url_writer = DevblocksPlatform::getUrlService();
+					$url_writer = DevblocksPlatform::services()->url();
 					
 					if(false == ($file = DAO_Attachment::get($id)))
 						return null;
@@ -276,7 +276,7 @@ class UmScKbController extends Extension_UmScController {
 	}
 	
 	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->templateSandbox();
 
 		// Knowledgebase
 		
@@ -390,7 +390,7 @@ class UmSc_KbArticleView extends C4_AbstractView {
 	function render() {
 		//$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 

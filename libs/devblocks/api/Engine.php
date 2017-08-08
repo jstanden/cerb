@@ -486,7 +486,7 @@ abstract class DevblocksEngine {
 	 * @return DevblocksHttpRequest
 	 */
 	static function readRequest() {
-		$url = DevblocksPlatform::getUrlService();
+		$url = DevblocksPlatform::services()->url();
 
 		$location = self::getWebPath();
 

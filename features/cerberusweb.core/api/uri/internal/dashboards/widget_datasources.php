@@ -11,7 +11,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 	}
 	
 	function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('widget', $widget);
 		$tpl->assign('params', $params);
@@ -623,7 +623,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 
 class WorkspaceWidgetDatasource_Manual extends Extension_WorkspaceWidgetDatasource {
 	function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('widget', $widget);
 		$tpl->assign('params', $params);
@@ -642,7 +642,7 @@ class WorkspaceWidgetDatasource_Manual extends Extension_WorkspaceWidgetDatasour
 
 class WorkspaceWidgetDatasource_BotBehavior extends Extension_WorkspaceWidgetDatasource {
 	function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('widget', $widget);
 		$tpl->assign('params', $params);
@@ -700,7 +700,7 @@ class WorkspaceWidgetDatasource_BotBehavior extends Extension_WorkspaceWidgetDat
 
 class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource {
 	function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('widget', $widget);
 		$tpl->assign('params', $params);
@@ -710,7 +710,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 	}
 	
 	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		@$url = $params['url'];
 		

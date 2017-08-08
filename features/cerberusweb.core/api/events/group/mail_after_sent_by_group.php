@@ -24,7 +24,7 @@ class Event_MailAfterSentByGroup extends AbstractEvent_Message {
 	}
 	
 	static function trigger($context_id, $group_id) {
-		$events = DevblocksPlatform::getEventService();
+		$events = DevblocksPlatform::services()->event();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,

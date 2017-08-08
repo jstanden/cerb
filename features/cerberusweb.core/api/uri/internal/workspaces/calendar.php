@@ -2,7 +2,7 @@
 if(class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 	public function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('workspace_page', $page);
 		$tpl->assign('workspace_tab', $tab);
@@ -11,7 +11,7 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 	}
 	
 	public function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('workspace_page', $page);
 		$tpl->assign('workspace_tab', $tab);
@@ -40,7 +40,7 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);

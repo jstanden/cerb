@@ -75,7 +75,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			$event->setEvent($event_model, $macro);
 			$values = $event->getValues();
 			
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			@$run_relative_timestamp = strtotime($tpl_builder->build(sprintf("{{%s|date}}",$object->run_relative), $values));
 			
 			if(empty($run_relative_timestamp))
@@ -772,7 +772,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 	function render() {
 		$this->_sanitize();
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 		
@@ -785,7 +785,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {

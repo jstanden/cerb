@@ -1664,8 +1664,8 @@ class CerberusContexts {
 	}
 
 	static public function formatActivityLogEntry($entry, $format=null, $scrub_tokens=array(), $personalize=false) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$url_writer = DevblocksPlatform::services()->url();
 		$translate = DevblocksPlatform::getTranslationService();
 
 		// Load the translated version of the message
@@ -2304,7 +2304,7 @@ class Context_Application extends Extension_DevblocksContext {
 	}
 
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 
 		return array(
 			'id' => 0,
@@ -2324,7 +2324,7 @@ class Context_Application extends Extension_DevblocksContext {
 		if(is_null($prefix))
 			$prefix = 'Application:';
 
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_APPLICATION);
 
 		// Polymorph
@@ -2598,7 +2598,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			if(isset($session['refreshed_at']) && (time() - $session['refreshed_at'] >= 150)) { // !$is_ajax
 				// If the cookie is going to expire at a future date, extend it
 				if($maxlifetime) {
-					$url_writer = DevblocksPlatform::getUrlService();
+					$url_writer = DevblocksPlatform::services()->url();
 					setcookie('Devblocks', $id, time()+$maxlifetime, '/', NULL, $url_writer->isSSL(), true);
 				}
 

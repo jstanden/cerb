@@ -9,7 +9,7 @@ class ExReport extends Extension_Report {
 		@$date_to = DevblocksPlatform::importGPC($_REQUEST['date_to'], 'string', 'now');
 		
 		$db = DevblocksPlatform::services()->database();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);

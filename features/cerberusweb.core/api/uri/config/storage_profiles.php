@@ -20,7 +20,7 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
 			return;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'storage_profiles');
@@ -41,7 +41,7 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		// Storage engines

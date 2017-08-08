@@ -17,7 +17,7 @@
 
 class PageSection_SetupMailFailed extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 
 		$visit->set(ChConfigurationPage::ID, 'mail_failed');
@@ -38,7 +38,7 @@ class PageSection_SetupMailFailed extends Extension_PageSection {
 		@$file = basename(DevblocksPlatform::importGPC($_REQUEST['file'],'string',''));
 		@$view_id = basename(DevblocksPlatform::importGPC($_REQUEST['view_id'],'string',''));
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		// Resolve any symbolic links
@@ -482,7 +482,7 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -506,7 +506,7 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 

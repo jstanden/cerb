@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$request = DevblocksPlatform::getHttpRequest();
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -184,7 +184,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 				$id = DAO_TimeTrackingEntry::create($fields);
 				
 				$translate = DevblocksPlatform::getTranslationService();
-				$url_writer = DevblocksPlatform::getUrlService();
+				$url_writer = DevblocksPlatform::services()->url();
 				
 				// Context Link (if given)
 				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
@@ -347,7 +347,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($id_csv)) {

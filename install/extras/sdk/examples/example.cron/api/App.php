@@ -10,7 +10,7 @@ class ExCron extends CerberusCronPageExtension {
 	}
 	
 	public function configure($instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->cache_lifetime = "0";
 
 		// [TODO] Load settings

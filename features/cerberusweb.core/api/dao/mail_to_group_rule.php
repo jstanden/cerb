@@ -49,7 +49,7 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 	}
 	
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($results = $cache->load(self::_CACHE_ALL))) {
 			$results = self::getWhere(
@@ -174,7 +174,7 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 	}
 	
 	static function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
 	}
 };

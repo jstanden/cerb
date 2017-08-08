@@ -92,7 +92,7 @@ class ChRest_Snippets extends Extension_RestController implements IExtensionRest
 				if(!$context && $context_id)
 					$this->error(self::ERRNO_PARAM_INVALID, "Plaintext snippets don't target records.");
 				
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$target_values = [];
 				

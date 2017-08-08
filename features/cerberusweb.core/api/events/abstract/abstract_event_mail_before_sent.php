@@ -324,7 +324,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -453,7 +453,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -499,7 +499,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 
 		switch($token) {
 			case 'append_to_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$content = $tpl_builder->build($params['content'], $dict);
 				$dict->content .= "\r\n" . $content;
 				
@@ -514,7 +514,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				break;
 				
 			case 'prepend_to_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$content = $tpl_builder->build($params['content'], $dict);
 				$dict->content = $content . "\r\n" . $dict->content;
 				
@@ -529,7 +529,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				break;
 				
 			case 'replace_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$replace = $tpl_builder->build($params['replace'], $dict);
 				$with = $tpl_builder->build($params['with'], $dict);
 				
@@ -556,7 +556,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_header':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$header = $tpl_builder->build($params['header'], $dict);
 				$value = $tpl_builder->build($params['value'], $dict);
@@ -605,17 +605,17 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 
 		switch($token) {
 			case 'append_to_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$dict->content .= "\r\n" . $tpl_builder->build($params['content'], $dict);
 				break;
 				
 			case 'prepend_to_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$dict->content = $tpl_builder->build($params['content'], $dict) . "\r\n" . $dict->content;
 				break;
 				
 			case 'replace_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$replace = $tpl_builder->build($params['replace'], $dict);
 				$with = $tpl_builder->build($params['with'], $dict);
 				
@@ -631,7 +631,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_header':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$header = $tpl_builder->build($params['header'], $dict);
 				$value = $tpl_builder->build($params['value'], $dict);

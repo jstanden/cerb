@@ -2000,12 +2000,12 @@ class DevblocksPlatform extends DevblocksEngine {
 			
 			// Flush template cache
 			if(!APP_SMARTY_COMPILE_PATH_MULTI_TENANT) {
-				$tpl = DevblocksPlatform::getTemplateService();
+				$tpl = DevblocksPlatform::services()->template();
 				$tpl->clearCompiledTemplate();
 			}
 			
 			if(!APP_SMARTY_SANDBOX_COMPILE_PATH_MULTI_TENANT) {
-				$tpl = DevblocksPlatform::getTemplateSandboxService();
+				$tpl = DevblocksPlatform::services()->templateSandbox();
 				$tpl->clearCompiledTemplate();
 			}
 			

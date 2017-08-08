@@ -24,7 +24,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	 * @param CerberusParserModel $parser_model
 	 */
 	static function trigger(&$parser_model) { //, Model_Message $message, Model_Ticket $ticket, Model_Group $group
-		$events = DevblocksPlatform::getEventService();
+		$events = DevblocksPlatform::services()->event();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
@@ -232,7 +232,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -446,7 +446,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -516,7 +516,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
 			case 'append_to_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$content = $tpl_builder->build($params['content'], $dict);
 				$dict->body = $dict->body . "\r\n" . $content;
 				
@@ -535,7 +535,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'prepend_to_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$content = $tpl_builder->build($params['content'], $dict);
 				$dict->body = $content . "\r\n" . $dict->body;
 				
@@ -550,7 +550,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'replace_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$replace = $tpl_builder->build($params['replace'], $dict);
 				$with = $tpl_builder->build($params['with'], $dict);
 				
@@ -584,7 +584,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 			
 			case 'redirect_email':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$to = $tpl_builder->build($params['to'], $dict);
 			
 				$out = sprintf(">>> Redirecting message to:\n%s",
@@ -610,7 +610,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'send_email_sender':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$subject = $tpl_builder->build($params['subject'], $dict);
 				$content = $tpl_builder->build($params['content'], $dict);
 				
@@ -625,7 +625,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_header':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$header = $tpl_builder->build($params['header'], $dict);
 				$value = $tpl_builder->build($params['value'], $dict);
@@ -686,7 +686,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							$value = $params['value'];
 							break;
 						default:
-							$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+							$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 							$value = $tpl_builder->build($params['value'], $dict);
 							break;
 					}
@@ -727,7 +727,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
 			case 'append_to_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$dict->body .= "\r\n" . $tpl_builder->build($params['content'], $dict);
 				break;
 				
@@ -736,12 +736,12 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'prepend_to_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$dict->body = $tpl_builder->build($params['content'], $dict) . "\r\n" . $dict->body;
 				break;
 				
 			case 'replace_content':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$replace = $tpl_builder->build($params['replace'], $dict);
 				$with = $tpl_builder->build($params['with'], $dict);
 				
@@ -761,7 +761,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 			
 			case 'redirect_email':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				@$to = $tpl_builder->build($params['to'], $dict);
 				
 				@$parser_model = $dict->_parser_model;
@@ -791,7 +791,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 
 			case 'send_email_sender':
 				// Translate message tokens
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$subject = $tpl_builder->build($params['subject'], $dict);
 				$body = $tpl_builder->build($params['content'], $dict);
 				
@@ -828,7 +828,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'set_header':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$header = DevblocksPlatform::strLower($tpl_builder->build($params['header'], $dict));
 				$value = $tpl_builder->build($params['value'], $dict);
@@ -907,7 +907,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							$value = $params['value'];
 							break;
 						default:
-							$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+							$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 							$value = $tpl_builder->build($params['value'], $dict);
 							break;
 					}

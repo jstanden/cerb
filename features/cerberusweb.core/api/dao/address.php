@@ -106,7 +106,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.address.update',
@@ -131,7 +131,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$do = $update->actions;
 		$ids = $update->context_ids;
@@ -198,7 +198,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		}
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -231,7 +231,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$search->delete($ids);
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -1376,7 +1376,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		
 		$tpl->assign('view', $this);
@@ -1400,7 +1400,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -1654,13 +1654,13 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=address&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 
 		if(null == ($address = DAO_Address::get($context_id)))
 			return array();
@@ -1716,7 +1716,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$models = DAO_Address::autocomplete($term);
 		$list = array();
@@ -1762,7 +1762,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$prefix = 'Email:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
 		
 		// Polymorph
@@ -2010,7 +2010,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$context = CerberusContexts::CONTEXT_ADDRESS;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id)) {

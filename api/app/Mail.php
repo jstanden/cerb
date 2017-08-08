@@ -1258,7 +1258,7 @@ class CerberusMail {
 
 		$sender_name = $sender->getName();
 		
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$ticket_url = $url_writer->write(sprintf('c=profiles&w=ticket&mask=%s', $ticket->mask), true);
 
 		if($relay_spoof_from) {
@@ -1448,7 +1448,7 @@ class CerberusMail {
 		$embedded_files = array();
 		$exclude_files = array();
 		
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$base_url = $url_writer->write('c=files', true) . '/';
 		
 		// Generate an HTML part using Parsedown
@@ -1462,7 +1462,7 @@ class CerberusMail {
 			
 			// Use an HTML template wrapper if we have one
 			if($html_template instanceof Model_MailHtmlTemplate) {
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$html_body = $tpl_builder->build(
 					$html_template->content,

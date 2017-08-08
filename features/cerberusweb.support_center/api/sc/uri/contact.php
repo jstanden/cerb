@@ -11,7 +11,7 @@ class UmScContactController extends Extension_UmScController {
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->templateSandbox();
 
 		$umsession = ChPortalHelper::getSession();
 		
@@ -111,7 +111,7 @@ class UmScContactController extends Extension_UmScController {
 	}
 
 	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->templateSandbox();
 
 		$captcha_enabled = DAO_CommunityToolProperty::get($instance->code, self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);

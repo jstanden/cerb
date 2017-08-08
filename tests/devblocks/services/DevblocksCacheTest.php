@@ -5,7 +5,7 @@ class DevblocksCacheTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	function testCachePersistSave() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		$expected = true;
 		$actual = $cache->save('test123', 'test.cache');
@@ -17,7 +17,7 @@ class DevblocksCacheTest extends PHPUnit_Framework_TestCase {
 	 * @depends testCachePersistSave
 	 */
 	function testCachePersistRead() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		$expected = 'test123';
 		$actual = $cache->load('test.cache');
@@ -29,7 +29,7 @@ class DevblocksCacheTest extends PHPUnit_Framework_TestCase {
 	 * @depends testCachePersistRead
 	 */
 	function testCachePersistRemove() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		$expected = true;
 		$actual = $cache->remove('test.cache');
@@ -38,7 +38,7 @@ class DevblocksCacheTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	function testCacheLocalSave() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		$expected = true;
 		$actual = $cache->save('this is some data', 'test.cache.local', array(), 0, true);
@@ -50,7 +50,7 @@ class DevblocksCacheTest extends PHPUnit_Framework_TestCase {
 	 * @depends testCacheLocalSave
 	 */
 	function testCacheLocalRead() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		$expected = 'this is some data';
 		$actual = $cache->load('test.cache.local', false, true);
@@ -62,7 +62,7 @@ class DevblocksCacheTest extends PHPUnit_Framework_TestCase {
 	 * @depends testCacheLocalRead
 	 */
 	function testCacheLocalRemove() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		$expected = true;
 		$actual = $cache->remove('test.cache.local', true);

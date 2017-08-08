@@ -80,7 +80,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				$path = APP_TEMP_PATH . DIRECTORY_SEPARATOR;
 				$file = $path . 'cerb_update_lock';
 				
-				$settings = $db = DevblocksPlatform::services()->pluginSettings();
+				$settings = DevblocksPlatform::services()->pluginSettings();
 				
 				$authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS,CerberusSettingsDefaults::AUTHORIZED_IPS);
 				$authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);

@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesGroup extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$request = DevblocksPlatform::getHttpRequest();
 		
 		$context = CerberusContexts::CONTEXT_GROUP;
@@ -273,7 +273,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		if(!$id || false == ($group = DAO_Group::get($id)))
 			return;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Worker');
 		$defaults->id = 'group_members';
@@ -297,7 +297,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		if(!$id || false == ($group = DAO_Group::get($id)))
 			return;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Bucket');
 		$defaults->id = 'group_buckets';
@@ -326,7 +326,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

@@ -44,7 +44,7 @@ class PageMenuItem_SetupSimulator extends Extension_PageMenuItem {
 	const ID = 'simulator.setup.menu.mail.simulator';
 	
 	public function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:cerberusweb.simulator::setup/menu_simulator.tpl');
 	}
 };
@@ -53,7 +53,7 @@ class PageSection_SetupSimulator extends Extension_PageSection {
 	const ID = 'simulator.setup.section.simulator';
 	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$flavors = array(
 			'hosting' => 'Web Hosting',
@@ -143,7 +143,7 @@ class PageSection_SetupSimulator extends Extension_PageSection {
 		try {
 			@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer',0);
 			
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			$title = "{{action}} {{whos}} {{thing}} {{because}}";
 			
@@ -238,7 +238,7 @@ class PageSection_SetupSimulator extends Extension_PageSection {
 		try {
 			@$how_many = DevblocksPlatform::importGPC($_POST['how_many'],'integer',0);
 			
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			$org_name_tpl = "{{intro}}{{consonant}}{{vowel}} {{industry}}{{suffix}}";
 			$website_tpl = "http://{{intro}}{{consonant}}{{vowel}}{{industry}}.cerberusdemo.com/";

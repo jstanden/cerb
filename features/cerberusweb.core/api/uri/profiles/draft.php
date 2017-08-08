@@ -117,7 +117,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			return;
 		}
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('timestamp', time());
 		$html = $tpl->fetch('devblocks:cerberusweb.core::mail/queue/saved.tpl');
 		
@@ -147,7 +147,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if(null != ($draft = DAO_MailQueue::get($id)))
@@ -161,7 +161,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($id_csv)) {

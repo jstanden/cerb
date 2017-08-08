@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -194,7 +194,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 	function getSignatureParsedownPreviewAction() {
 		@$signature = DevblocksPlatform::importGPC($_REQUEST['data'],'string', '');
 		
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		header('Content-Type: text/html; charset=' . LANG_CHARSET_CODE);
@@ -219,7 +219,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

@@ -25,7 +25,7 @@ if(class_exists('Extension_WorkspacePage')):
 class WorkspacePage_Workspace extends Extension_WorkspacePage {
 	function renderPage(Model_WorkspacePage $page) {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('page', $page);
 
@@ -103,7 +103,7 @@ endif;
 if(class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 	public function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('workspace_page', $page);
 		$tpl->assign('workspace_tab', $tab);
@@ -115,7 +115,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 	}
 	
 	function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/worklists/config.tpl');
 	}
 	

@@ -136,7 +136,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	}
 	
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$objects = DAO_CustomFieldset::getWhere(
@@ -314,7 +314,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM custom_fieldset WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -450,7 +450,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	
 	public static function clearCache() {
 		// Invalidate cache on changes
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 
@@ -762,7 +762,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -774,7 +774,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -932,7 +932,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		if(false == ($cfieldset = DAO_CustomFieldset::get($context_id)))
 			return null;
 			
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		return array(
 			'id' => $context_id,

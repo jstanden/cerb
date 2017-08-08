@@ -65,7 +65,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		}
 		
 		// New task
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'task.create',
@@ -108,7 +108,7 @@ class DAO_Task extends Cerb_ORMHelper {
 				self::_processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.task.update',
@@ -129,7 +129,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$do = $update->actions;
 		$ids = $update->context_ids;
@@ -357,7 +357,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM task WHERE id IN (%s)", $ids_list));
 
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -379,7 +379,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -989,7 +989,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1015,7 +1015,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 		
@@ -1207,7 +1207,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=task&id='.$context_id, true);
 		return $url;
 	}
@@ -1361,7 +1361,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$token_values = $this->_importModelCustomFieldsAsValues($task, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=task&id=%d-%s",$task->id, DevblocksPlatform::strToPermalink($task->title)), true);
 		}
 		
@@ -1484,7 +1484,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_TASK;

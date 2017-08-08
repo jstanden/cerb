@@ -119,7 +119,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			if($check_deltas) {
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.kb_article.update',
@@ -203,7 +203,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$search->delete($ids);
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -217,7 +217,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	
 	static function maint() {
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -723,7 +723,7 @@ class Model_KbArticle {
 		
 		switch($this->format) {
 			case self::FORMAT_HTML:
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$html = $tpl_builder->build($this->content, array());
 				break;
 				
@@ -732,7 +732,7 @@ class Model_KbArticle {
 				break;
 				
 			case self::FORMAT_MARKDOWN:
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$html = DevblocksPlatform::parseMarkdown($tpl_builder->build($this->content, array()));
 				break;
 		}
@@ -815,7 +815,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		if(empty($context_id))
 			return '';
 		
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d", $context_id, true));
 		return $url;
 	}
@@ -934,7 +934,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			$token_values = $this->_importModelCustomFieldsAsValues($article, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d-%s",$article->id, DevblocksPlatform::strToPermalink($article->title)), true);
 		}
 		
@@ -1038,7 +1038,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		if(!empty($context_id)) {
 			$article = DAO_KbArticle::get($context_id);
@@ -1294,7 +1294,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1311,7 +1311,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {

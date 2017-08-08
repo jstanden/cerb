@@ -23,7 +23,7 @@ class PageSection_InternalResponsibilities extends Extension_PageSection {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'string', '');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		switch($context) {
 			case CerberusContexts::CONTEXT_WORKER:
@@ -68,7 +68,7 @@ class PageSection_InternalResponsibilities extends Extension_PageSection {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'string', '');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		switch($context) {
 			case CerberusContexts::CONTEXT_GROUP:

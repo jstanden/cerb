@@ -17,7 +17,7 @@
 
 class PageSection_SetupPortals extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'portals');
@@ -34,7 +34,7 @@ class PageSection_SetupPortals extends Extension_PageSection {
 	}
 	
 	function showAddPortalPeekAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tool_manifests = DevblocksPlatform::getExtensions('cerb.portal', false);
 		

@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesBehavior extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -228,7 +228,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								
 							// If the worker hasn't been prompted, do that now
 							} else {
-								$tpl = DevblocksPlatform::getTemplateService();
+								$tpl = DevblocksPlatform::services()->template();
 								$tpl->assign('import_json', $import_json);
 								$tpl->assign('import_fields', $configure_fields);
 								$config_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/prompted/configure_json_import.tpl');
@@ -448,7 +448,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		if(empty($id))
 			return;
@@ -476,7 +476,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			return;
 		}
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		// Get all events
 		$events = Extension_DevblocksEvent::getByContext($bot->owner_context, false);
@@ -604,7 +604,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				
 			// If the worker hasn't been prompted, do that now
 			} else {
-				$tpl = DevblocksPlatform::getTemplateService();
+				$tpl = DevblocksPlatform::services()->template();
 				$tpl->assign('import_json', $behavior_json);
 				$tpl->assign('import_fields', $configure_fields);
 				$config_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/prompted/configure_json_import.tpl');
@@ -633,7 +633,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

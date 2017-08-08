@@ -17,7 +17,7 @@
 
 class PageSection_SetupScheduler extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'scheduler');
@@ -38,7 +38,7 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 		if(null == ($job = DevblocksPlatform::getExtension($id, true)))
 			return;
 			
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('job', $job);
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/scheduler/job.tpl');
 	}

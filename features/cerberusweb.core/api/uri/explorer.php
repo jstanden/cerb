@@ -60,7 +60,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$worker = CerberusApplication::getActiveWorker();
 		if(empty($worker)) {

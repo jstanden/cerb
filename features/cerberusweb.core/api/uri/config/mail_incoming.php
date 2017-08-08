@@ -17,9 +17,9 @@
 
 class PageSection_SetupMailIncoming extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_incoming');
 		
@@ -54,7 +54,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			
 			// Save
 			
-			$settings = $db = DevblocksPlatform::services()->pluginSettings();
+			$settings = DevblocksPlatform::services()->pluginSettings();
 			$settings->set('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ, $parser_autoreq);
 			$settings->set('cerberusweb.core',CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, $parser_autoreq_exclude);
 			$settings->set('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED, $attachments_enabled);

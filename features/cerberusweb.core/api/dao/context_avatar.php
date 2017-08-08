@@ -45,7 +45,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.context_avatar.update',
@@ -194,7 +194,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 	 * @return Model_ContextAvatar[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::getCacheService();
+		//$cache = DevblocksPlatform::services()->cache();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_ContextAvatar::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
@@ -312,7 +312,7 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM context_avatar WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -619,7 +619,7 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 	}
 
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile', 'devblocks.storage.engine.disk'));
 		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile', 'devblocks.storage.engine.disk'));
@@ -629,7 +629,7 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 	}
 	
 	function renderConfig() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile', 'devblocks.storage.engine.disk'));
 		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile', 'devblocks.storage.engine.disk'));

@@ -42,7 +42,7 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 			if($check_deltas) {
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.example_object.update',
@@ -177,7 +177,7 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 	
 	static function maint() {
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -200,7 +200,7 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -577,7 +577,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -604,7 +604,7 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 	}
 	
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -710,7 +710,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 	
 	function getMeta($context_id) {
 		$example = DAO_ExampleObject::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		//$friendly = DevblocksPlatform::strToPermalink($example->name);
 		
@@ -789,7 +789,7 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 			$token_values = $this->_importModelCustomFieldsAsValues($object, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			//$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=example.object&id=%d-%s",$object->id, DevblocksPlatform::strToPermalink($object->name)), true);
 		}
 

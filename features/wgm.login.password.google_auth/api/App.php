@@ -57,7 +57,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 	}
 	
 	function renderWorkerPrefs($worker) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('worker', $worker);
 		$tpl->display('devblocks:wgm.login.password.google_auth::login/prefs.tpl');
 	}
@@ -86,7 +86,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 	
 	private function _renderLoginForm(Model_Worker $worker) {
 		// draws HTML form of controls needed for login information
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('worker', $worker);
 		
@@ -98,7 +98,7 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 	
 	private function _renderLoginSetupForm(Model_Worker $worker) {
 		// draws HTML form of controls needed for login information
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$tpl->assign('worker', $worker);
 

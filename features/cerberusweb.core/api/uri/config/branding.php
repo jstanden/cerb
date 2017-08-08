@@ -17,7 +17,7 @@
 
 class PageSection_SetupBranding extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'branding');
@@ -47,7 +47,7 @@ class PageSection_SetupBranding extends Extension_PageSection {
 			if(!empty($favicon) && null == parse_url($favicon, PHP_URL_SCHEME))
 				throw new Exception("The favicon URL is not valid. Please include a full URL like http://example.com/favicon.ico");
 				
-			$settings = $db = DevblocksPlatform::services()->pluginSettings();
+			$settings = DevblocksPlatform::services()->pluginSettings();
 			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $title);
 			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_FAVICON_URL, $favicon);
 			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_LOGO_URL, $logo); // [TODO] Enforce some kind of max resolution?

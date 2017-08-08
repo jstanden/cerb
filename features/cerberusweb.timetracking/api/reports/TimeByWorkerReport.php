@@ -3,7 +3,7 @@ if (class_exists('Extension_Report',true)):
 class ChReportTimeSpentWorker extends Extension_Report {
 	function render() {
 		$db = DevblocksPlatform::services()->database();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$date = DevblocksPlatform::services()->date();
 		
 		// Use the worker's timezone for MySQL date functions

@@ -545,7 +545,7 @@ if(!isset($columns['context_id'])) {
 	$db->ExecuteMaster("ALTER TABLE notification ADD COLUMN context_id INT UNSIGNED NOT NULL DEFAULT 0, ADD INDEX context_id (context_id)");
 	
 	// Base URL
-	$url_writer = DevblocksPlatform::getUrlService();
+	$url_writer = DevblocksPlatform::services()->url();
 	$base_url = $url_writer->write('', true, false);
 	$base_url_noprotocol = preg_replace('#^(http|https)://#','',$base_url);
 	

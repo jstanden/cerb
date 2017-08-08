@@ -83,7 +83,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	 * @return Model_Group[]
 	 */
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if($nocache || null === ($groups = $cache->load(self::CACHE_ALL))) {
 			$groups = DAO_Group::getWhere(
 				null,
@@ -308,7 +308,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			if($check_deltas) {
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.group.update',
@@ -354,7 +354,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		/*
 		 * Notify anything that wants to know when groups delete.
 		 */
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'group.delete',
@@ -393,7 +393,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		}
 
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -419,7 +419,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' group_setting records.');
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -579,7 +579,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	static function getRosters() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null === ($objects = $cache->load(self::CACHE_ROSTERS))) {
 			$db = DevblocksPlatform::services()->database();
@@ -635,7 +635,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	static public function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 		$cache->remove(self::CACHE_ROSTERS);
 	}
@@ -984,7 +984,7 @@ class DAO_GroupSettings extends Cerb_ORMHelper {
 			$db->qstr($value)
 		));
 		
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 	
@@ -1003,7 +1003,7 @@ class DAO_GroupSettings extends Cerb_ORMHelper {
 	}
 	
 	static function getSettings($group_id=0) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if(null === ($groups = $cache->load(self::CACHE_ALL))) {
 			$db = DevblocksPlatform::services()->database();
 	
@@ -1261,7 +1261,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1278,7 +1278,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -1461,7 +1461,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=group&id='.$context_id, true);
 		return $url;
 	}
@@ -1518,7 +1518,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$list = array();
 		
 		list($results, $null) = DAO_Group::search(
@@ -1549,7 +1549,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$prefix = 'Group:';
 			
 		$translate = DevblocksPlatform::getTranslationService();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP);
 		
 		// Polymorph
@@ -1859,7 +1859,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$context = CerberusContexts::CONTEXT_GROUP;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id) && null != ($group = DAO_Group::get($context_id))) {

@@ -198,7 +198,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 			$ids = array($ids);
 		
 		$db = DevblocksPlatform::services()->database();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl_sandbox = DevblocksPlatform::getTemplateSandboxService();
 		
 		if(empty($ids))
@@ -325,7 +325,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	
 	static function importXmlFile($filename, $tag) {
 		$db = DevblocksPlatform::services()->database();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl_sandbox = DevblocksPlatform::getTemplateSandboxService();
 
 		if(!file_exists($filename) && empty($tag))
@@ -531,7 +531,7 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -542,7 +542,7 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {

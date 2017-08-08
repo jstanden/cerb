@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$request = DevblocksPlatform::getHttpRequest();
 		
 		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;

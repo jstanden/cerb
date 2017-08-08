@@ -681,7 +681,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -690,7 +690,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -874,7 +874,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$entry = DAO_ContextActivityLog::get($context_id);
 		

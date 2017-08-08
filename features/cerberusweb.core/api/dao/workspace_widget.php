@@ -160,7 +160,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		
 		// Fire event
 		/*
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -397,7 +397,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 
 		if(null == ($workspace_widget = DAO_WorkspaceWidget::get($context_id)))
 			return array();

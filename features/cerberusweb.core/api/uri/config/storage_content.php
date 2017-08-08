@@ -17,7 +17,7 @@
 
 class PageSection_SetupStorageContent extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'storage_content');
@@ -76,7 +76,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 	function showStorageSchemaAction() {
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$storage_engines = DevblocksPlatform::getExtensions('devblocks.storage.engine', false);
 		$tpl->assign('storage_engines', $storage_engines);
@@ -96,7 +96,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
 		$tpl->assign('schema', $extension);

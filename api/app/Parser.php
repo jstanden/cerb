@@ -867,7 +867,7 @@ class CerberusParser {
 
 		// Handle file attachments
 		
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		$is_attachments_enabled = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_ENABLED,CerberusSettingsDefaults::ATTACHMENTS_ENABLED);
 		$attachments_max_size = $settings->get('cerberusweb.core',CerberusSettings::ATTACHMENTS_MAX_SIZE,CerberusSettingsDefaults::ATTACHMENTS_MAX_SIZE);
 		
@@ -985,7 +985,7 @@ class CerberusParser {
 		 * 'no_autoreply'
 		 */
 		$logger = DevblocksPlatform::services()->log();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 
 		// Make sure the object is well-formatted and ready to send
 		$message->build();

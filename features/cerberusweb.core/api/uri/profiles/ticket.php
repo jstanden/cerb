@@ -17,10 +17,10 @@
 
 class PageSection_ProfilesTicket extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
-		$url = DevblocksPlatform::getUrlService();
+		$url = DevblocksPlatform::services()->url();
 		
 		$context = CerberusContexts::CONTEXT_TICKET;
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -272,7 +272,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		switch($context) {
 			case CerberusContexts::CONTEXT_MESSAGE:
@@ -301,7 +301,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$raw_headers = $message->getHeaders(true);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('raw_headers', $raw_headers);
 		
@@ -314,7 +314,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($ids)) {

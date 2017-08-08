@@ -18,7 +18,7 @@
 class ChReportCustomFieldUsage extends Extension_Report {
 	function render() {
 		$db = DevblocksPlatform::services()->database();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		// Custom Field contexts (tickets, orgs, etc.)
 		$tpl->assign('context_manifests', Extension_DevblocksContext::getAll());

@@ -95,7 +95,7 @@ class Ch_RestPreferencesTab extends Extension_PreferenceTab {
 	const ID = 'rest.preferences.tab.api';
 	
 	function showTab() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_WebApiCredentials');
@@ -120,7 +120,7 @@ class Ch_RestPreferencesTab extends Extension_PreferenceTab {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl->assign('view_id', $view_id);

@@ -23,7 +23,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 
 	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id, $src_context_meta=null, $dst_context_meta=null) {
 		$db = DevblocksPlatform::services()->database();
-		$event = DevblocksPlatform::getEventService();
+		$event = DevblocksPlatform::services()->event();
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		// Don't link something to itself.

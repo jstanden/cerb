@@ -69,7 +69,7 @@ class DAO_BotSession extends Cerb_ORMHelper {
 	 * @return Model_BotSession[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::getCacheService();
+		//$cache = DevblocksPlatform::services()->cache();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_BotSession::UPDATED_AT, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
@@ -176,7 +176,7 @@ class DAO_BotSession extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM bot_session WHERE session_id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',

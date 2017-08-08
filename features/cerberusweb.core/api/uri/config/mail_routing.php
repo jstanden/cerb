@@ -17,7 +17,7 @@
 
 class PageSection_SetupMailRouting extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_routing');
@@ -86,7 +86,7 @@ class PageSection_SetupMailRouting extends Extension_PageSection {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('group_id', $group_id);
 		
 		if(null != ($rule = DAO_MailToGroupRule::get($id))) {

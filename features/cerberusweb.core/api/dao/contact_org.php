@@ -87,7 +87,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			if($check_deltas) {
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.contact_org.update',
@@ -108,7 +108,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$do = $update->actions;
 		$ids = $update->context_ids;
@@ -289,7 +289,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$search->delete($ids);
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -313,7 +313,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		}
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -948,7 +948,7 @@ class Model_ContactOrg {
 	}
 	
 	function getImageUrl() {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		return $url_writer->write(sprintf('c=avatars&type=org&id=%d', $this->id)) . '?v=' . $this->updated;
 	}
 };
@@ -1250,7 +1250,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1273,7 +1273,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1463,7 +1463,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=org&id='.$context_id, true);
 		return $url;
 	}
@@ -1521,7 +1521,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$list = array();
 		
 		if(stristr('none',$term) || stristr('empty',$term) || stristr('no organization',$term)) {
@@ -1560,7 +1560,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$prefix = 'Org:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
 
 		// Polymorph
@@ -1758,7 +1758,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$contact = DAO_ContactOrg::get($context_id);

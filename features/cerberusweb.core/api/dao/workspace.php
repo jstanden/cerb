@@ -47,7 +47,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	}
 
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($pages = $cache->load(self::_CACHE_ALL))) {
 			$pages = self::getWhere(
@@ -353,7 +353,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	}
 
 	static function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
 	}
 };
@@ -391,7 +391,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	}
 	
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($tabs = $cache->load(self::_CACHE_ALL))) {
 			$tabs = self::getWhere(
@@ -654,7 +654,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	}
 
 	static function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
 	}
 	
@@ -1137,7 +1137,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 	function render() {
 		$this->_sanitize();
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1145,7 +1145,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -1253,7 +1253,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 
 		if(null == ($workspace_page = DAO_WorkspacePage::get($context_id)))
 			return array();
@@ -1340,7 +1340,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 			$token_values = $this->_importModelCustomFieldsAsValues($page, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=pages&id=%d-%s",$page->id, DevblocksPlatform::strToPermalink($page->name)), true);
 			
 			$token_values['owner__context'] = $page->owner_context;
@@ -1517,7 +1517,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 
 		if(null == ($workspace_tab = DAO_WorkspaceTab::get($context_id)))
 			return array();

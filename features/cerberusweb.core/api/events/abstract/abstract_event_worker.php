@@ -140,7 +140,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -162,7 +162,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 		switch($as_token) {
 			case 'worker_calendar':
 				@$worker_id = $dict->worker_id;
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 				if(empty($worker_id)) {
 					$pass = false;
@@ -221,7 +221,7 @@ abstract class AbstractEvent_Worker extends Extension_DevblocksEvent {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))

@@ -70,7 +70,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.mailbox.update',
@@ -243,7 +243,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM mailbox WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -788,7 +788,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -801,7 +801,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -989,14 +989,14 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=mailbox&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$mailbox = DAO_Mailbox::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($mailbox->name);
@@ -1083,7 +1083,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values = $this->_importModelCustomFieldsAsValues($mailbox, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=mailbox&id=%d-%s",$mailbox->id, DevblocksPlatform::strToPermalink($mailbox->name)), true);
 		}
 		
@@ -1181,7 +1181,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id) && null != ($mailbox = DAO_Mailbox::get($context_id))) {

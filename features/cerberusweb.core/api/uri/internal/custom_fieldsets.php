@@ -27,7 +27,7 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('layer', $layer);
@@ -222,7 +222,7 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',null);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$tpl->assign('owner_context', $context);
 		$tpl->assign('owner_context_id', $context_id);
@@ -258,7 +258,7 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'], 'integer', 0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('bulk', !empty($bulk) ? true : false);
 		

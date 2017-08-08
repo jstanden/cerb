@@ -24,7 +24,7 @@ class PageSection_InternalSkills extends Extension_PageSection {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -42,7 +42,7 @@ class PageSection_InternalSkills extends Extension_PageSection {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
 		@$skillset_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		if(false != ($skillset = DAO_Skillset::get($skillset_id))) {
 			$skillset->skills = $skillset->getSkills();
@@ -57,7 +57,7 @@ class PageSection_InternalSkills extends Extension_PageSection {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);

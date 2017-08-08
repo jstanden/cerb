@@ -23,7 +23,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		if(!isset($stack[2]))
 			return;
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$request = DevblocksPlatform::getHttpRequest();
 		
 		$context = CerberusContexts::CONTEXT_WORKER;
@@ -304,7 +304,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						// Creating new worker.  If password is empty, email it to them
 						$replyto_default = DAO_AddressOutgoing::getDefault();
 						$replyto_personal = $replyto_default->getReplyPersonal();
-						$url = DevblocksPlatform::getUrlService();
+						$url = DevblocksPlatform::services()->url();
 						$password = CerberusApplication::generatePassword(8);
 						
 						try {
@@ -505,7 +505,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError("You don't have permission to edit this record.", 403);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($id_csv)) {
@@ -692,7 +692,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

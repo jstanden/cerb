@@ -23,7 +23,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		
 		// If everything is fine, invalidate cache
 		
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		@$old_listen_points = DevblocksPlatform::parseCrlfString($behavior->event_params['listen_points']) ?: [];
 		@$new_listen_points = DevblocksPlatform::parseCrlfString($event_params['listen_points']) ?: [];
@@ -93,7 +93,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	}
 	
 	static function getByPoint($point) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = sprintf('interactions_%s', DevblocksPlatform::strAlphaNum($point,'','_'));
 		
 		if(null !== ($behaviors = $cache->load($cache_key))) {
@@ -142,7 +142,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	
 	static function getInteractionMenu(array $interactions) {
 		$interactions_menu = [];
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(false == ($bot_ids = array_column($interactions, 'bot_id')))
 			return [];
@@ -285,7 +285,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	}
 	
 	function renderEventParams(Model_TriggerEvent $trigger=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('trigger', $trigger);
 		
 		$points = [
@@ -319,7 +319,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -355,7 +355,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -379,7 +379,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
 			case 'return_interaction':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				@$behavior_id = intval($params['behavior_id']);
 				
@@ -416,7 +416,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
 			case 'return_interaction':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$actions =& $dict->_actions;
 				

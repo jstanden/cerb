@@ -574,7 +574,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 	
 	static function getAll() {
 		$extensions = DevblocksPlatform::getExtensionRegistry();
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null == ($params = $cache->load(self::_CACHE_ALL))) {
 			$db = DevblocksPlatform::services()->database();
@@ -608,7 +608,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 	}
 	
 	static function getByExtension($extension_id) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = self::_getCacheKey($extension_id);
 		
 		if(null === ($params = $cache->load($cache_key))) {
@@ -658,7 +658,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 			$db->qstr($value)
 		));
 
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove($cache_key);
 		return true;
 	}
@@ -1148,7 +1148,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	}
 	
 	static function getAll() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null === ($profiles = $cache->load(DevblocksPlatform::CACHE_STORAGE_PROFILES))) {
 			$profiles = self::getWhere();
@@ -1163,7 +1163,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	}
 	
 	static private function _clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(DevblocksPlatform::CACHE_STORAGE_PROFILES);
 	}
 	

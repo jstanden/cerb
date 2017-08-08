@@ -20,7 +20,7 @@ class PageSection_SetupSearch extends Extension_PageSection {
 		if(DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE)
 			return;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'search');
@@ -39,7 +39,7 @@ class PageSection_SetupSearch extends Extension_PageSection {
 		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$schema = Extension_DevblocksSearchSchema::get($ext_id);
 		$tpl->assign('schema', $schema);

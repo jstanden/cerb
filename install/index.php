@@ -126,7 +126,7 @@ if(!is_writeable(APP_STORAGE_PATH . "/mail/fail/")) {
 DevblocksPlatform::setLocale('en_US');
 
 // Get a reference to the template system and configure it
-$tpl = DevblocksPlatform::getTemplateService();
+$tpl = DevblocksPlatform::services()->template();
 $tpl->template_dir = APP_PATH . '/install/templates';
 $tpl->caching = 0;
 
@@ -620,7 +620,7 @@ switch($step) {
 
 	// Personalize system information (title, timezone, language)
 	case STEP_CONTACT:
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		
 		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string','do-not-reply@localhost');
 		@$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'],'string','');

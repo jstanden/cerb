@@ -37,7 +37,7 @@ class Page_Search extends CerberusPageExtension {
 	}
 	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$response = DevblocksPlatform::getHttpResponse();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -112,7 +112,7 @@ class Page_Search extends CerberusPageExtension {
 		$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
 		$label = @$aliases['plural'] ?: $context_ext->manifest->name;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('context_ext', $context_ext);
 		$tpl->assign('popup_title', DevblocksPlatform::translateCapitalized('common.search') . ': ' . mb_convert_case($label, MB_CASE_TITLE));
 		$tpl->assign('quick_search_query', $query);
@@ -142,7 +142,7 @@ class Page_Search extends CerberusPageExtension {
 		
 		$view->addParamsWithQuickSearch($query, $replace_params);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view', $view);
 		
 		$html = $tpl->fetch('devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl');

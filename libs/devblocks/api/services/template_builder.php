@@ -689,7 +689,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function function_cerb_avatar_url($context, $id, $updated=0) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 		if(false == ($context_ext = Extension_DevblocksContext::get($id)))
@@ -709,7 +709,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function function_cerb_file_url($id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(false == ($file = DAO_Attachment::get($id)))
 			return null;
@@ -718,7 +718,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function function_cerb_url($url, $full=true, $proxy=true) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		return $url_writer->write($url, $full, $proxy);
 	}
 	

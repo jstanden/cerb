@@ -17,7 +17,7 @@
 
 class PageSection_SetupImportPackage extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		$visit->set(ChConfigurationPage::ID, 'import_package');
@@ -71,7 +71,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			
 			if(is_array($config_prompts) && $config_prompts) {
 				if(!isset($_POST['prompts'])) {
-					$tpl = DevblocksPlatform::getTemplateService();
+					$tpl = DevblocksPlatform::services()->template();
 					$tpl->assign('prompts', $config_prompts);
 					$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/import_package/prompts.tpl');
 					
@@ -436,7 +436,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			
 			$new_json_string = json_encode(array_diff_key($json, ['package'=>true]));
 			
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			$lexer = array(
 				'tag_comment'   => array('{{#', '#}}'),
 				'tag_block'     => array('{{%', '%}}'),
@@ -745,7 +745,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				$bayes::build($classifier_id);
 			}
 			
-			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('records_created', $records_created);
 			$results_html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/import_package/results.tpl');
 			

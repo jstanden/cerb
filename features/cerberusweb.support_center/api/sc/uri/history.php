@@ -9,11 +9,11 @@ class UmScHistoryController extends Extension_UmScController {
 	}
 	
 	function renderSidebar(DevblocksHttpResponse $response) {
-//		$tpl = DevblocksPlatform::getTemplateSandboxService();
+//		$tpl = DevblocksPlatform::services()->templateSandbox();
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
@@ -94,7 +94,7 @@ class UmScHistoryController extends Extension_UmScController {
 	}
 	
 	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->templateSandbox();
 
 		$params = array(
 			'columns' => DAO_CommunityToolProperty::get($instance->code, self::PARAM_WORKLIST_COLUMNS_JSON, '[]', true),
@@ -318,7 +318,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 	function render() {
 		//$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -394,7 +394,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 	function renderCriteria($field) {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
-		$tpl = DevblocksPlatform::getTemplateSandboxService();
+		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
 		$tpl->assign('id', $this->id);
 

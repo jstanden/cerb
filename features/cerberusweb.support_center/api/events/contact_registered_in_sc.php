@@ -24,7 +24,7 @@ class Event_ContactRegisteredInSupportCenter extends AbstractEvent_Contact {
 	}
 	
 	static function trigger($context_id) {
-		$events = DevblocksPlatform::getEventService();
+		$events = DevblocksPlatform::services()->event();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,

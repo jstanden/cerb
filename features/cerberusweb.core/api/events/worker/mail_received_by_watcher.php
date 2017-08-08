@@ -20,7 +20,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	const ID = 'event.mail.received.watcher';
 	
 	static function trigger($message_id, $worker_id) {
-		$events = DevblocksPlatform::getEventService();
+		$events = DevblocksPlatform::services()->event();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
@@ -298,7 +298,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	}
 
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -471,7 +471,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -632,7 +632,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				
 			case 'send_email_recipients':
 				// Translate message tokens
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				@$content = $tpl_builder->build($params['content'], $dict);
 				@$format = $params['format'];

@@ -301,7 +301,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -646,7 +646,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -1009,7 +1009,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 			case 'send_email_recipients':
 				// Translate message tokens
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 				@$content = $tpl_builder->build($params['content'], $dict);
 				@$format = $params['format'];
@@ -1153,7 +1153,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				// Translate message tokens
 				@$value = $params['value'];
 				
-				$builder = DevblocksPlatform::getTemplateBuilder();
+				$builder = DevblocksPlatform::services()->templateBuilder();
 				$value = $builder->build($value, $dict);
 				
 				DAO_Ticket::update($ticket_id,array(

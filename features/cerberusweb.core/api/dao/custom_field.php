@@ -106,7 +106,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	 * @return Model_CustomField[]
 	 */
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$db = DevblocksPlatform::services()->database();
@@ -185,7 +185,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		}
 
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -209,7 +209,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	
 	public static function clearCache() {
 		// Invalidate cache on changes
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 };
@@ -1071,7 +1071,7 @@ class Context_CustomField extends Extension_DevblocksContext {
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$field = DAO_CustomField::get($context_id);
 		

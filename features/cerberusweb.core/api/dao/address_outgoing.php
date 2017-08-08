@@ -58,7 +58,7 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 	 * @return Model_AddressOutgoing[]
 	 */
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 
 		if($nocache || null === ($froms = $cache->load(self::_CACHE_ALL))) {
 			$db = DevblocksPlatform::services()->database();
@@ -220,7 +220,7 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 	}
 	
 	static function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
 		
 		DAO_Group::clearCache();
@@ -243,7 +243,7 @@ class Model_AddressOutgoing {
 	 * @return string
 	 */
 	function getReplyPersonal($worker_model=null) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$token_labels = array();
 		$token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
@@ -289,7 +289,7 @@ class Model_AddressOutgoing {
 			
 		} else {
 			// Parse template
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			$token_labels = array();
 			$token_values = array();
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);

@@ -37,7 +37,7 @@ class DAO_BotInteractionProactive extends Cerb_ORMHelper {
 	}
 	
 	static function getCountByWorker($worker_id) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = sprintf("interactions_proactive_count_%d", $worker_id);
 		
 		if(NULL === ($count = $cache->load($cache_key))) {
@@ -59,7 +59,7 @@ class DAO_BotInteractionProactive extends Cerb_ORMHelper {
 	}
 	
 	static function clearCountByWorker($worker_id) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = sprintf("interactions_proactive_count_%d", $worker_id);
 		$cache->remove($cache_key);
 	}

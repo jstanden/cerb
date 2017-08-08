@@ -55,7 +55,7 @@ class ChKbPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -129,7 +129,7 @@ class ChKbPage extends CerberusPageExtension {
 if (class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 	public function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('workspace_page', $page);
 		$tpl->assign('workspace_tab', $tab);
@@ -175,7 +175,7 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 	}
 	
 	private function _renderCategory($category_id=0, $tab_id) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 
@@ -260,7 +260,7 @@ endif;
 if (class_exists('Extension_ReplyToolbarItem',true)):
 	class ChKbReplyToolbarButton extends Extension_ReplyToolbarItem {
 		function render(Model_Message $message) {
-			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl = DevblocksPlatform::services()->template();
 			
 			$tpl->assign('div', 'replyToolbarOptions'.$message->id);
 			
@@ -312,7 +312,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$root_id = DevblocksPlatform::importGPC($_REQUEST['root_id']);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$tpl->assign('root_id', $root_id);
 		
@@ -415,13 +415,13 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	
 	function showKbCategoryEditPanelAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		if(!$active_worker->hasPriv('core.kb.categories.modify'))
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.update'))
 			return;
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$root_id = DevblocksPlatform::importGPC($_REQUEST['root_id']);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('root_id', $root_id);
 		
@@ -448,7 +448,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		header('Content-type: application/json');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		if(!$active_worker->hasPriv('core.kb.categories.modify'))
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.update'))
 			return;
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
@@ -488,7 +488,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	function getArticleContentAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		// [TODO] ACL
 		// [TODO] Fetch article content from storage
@@ -584,7 +584,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	 * @return Model_KbCategory[]
 	 */
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if($nocache || null === ($categories = $cache->load(self::CACHE_ALL))) {
 			$categories = self::getWhere(
 				null,
@@ -833,7 +833,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	}
 	
 	static public function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 };
@@ -918,7 +918,7 @@ class Context_KbCategory extends Extension_DevblocksContext {
 	
 	function getMeta($context_id) {
 		$category = DAO_KbCategory::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		return array(
 			'id' => $category->id,

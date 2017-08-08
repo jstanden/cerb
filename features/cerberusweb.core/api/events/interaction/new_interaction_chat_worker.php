@@ -184,7 +184,7 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -221,7 +221,7 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -251,7 +251,7 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 			case 'set_bot_name':
 				@$bot_name = $params['name'];
 				
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$bot_name = $tpl_builder->build($bot_name, $dict);
 				
 				$out = sprintf(">>> Setting bot name to: %s\n".
@@ -277,7 +277,7 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 			case 'set_bot_name':
 				@$bot_name = $params['name'];
 				
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$actions =& $dict->_actions;
 				
 				$bot_name = $tpl_builder->build($bot_name, $dict);
@@ -290,7 +290,7 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 				break;
 				
 			case 'switch_behavior':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$actions =& $dict->_actions;
 				

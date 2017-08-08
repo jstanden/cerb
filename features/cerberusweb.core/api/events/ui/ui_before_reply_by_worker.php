@@ -24,7 +24,7 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 	}
 	
 	static function trigger($trigger_id, $context_id, $worker_id, &$actions) {
-		$events = DevblocksPlatform::getEventService();
+		$events = DevblocksPlatform::services()->event();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,
@@ -144,7 +144,7 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -173,7 +173,7 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 		
 		switch($token) {
 			case 'exec_jquery':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$script = $tpl_builder->build($params['jquery_script'], $dict);
 				
 				$out = sprintf(">>> Executing jQuery script:\n\n%s\n",
@@ -193,7 +193,7 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 		switch($token) {
 			case 'exec_jquery':
 				// Return the parsed script to the caller
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$dict->_caller_actions['jquery_scripts'][] = $tpl_builder->build($params['jquery_script'], $dict);
 				break;
 		}

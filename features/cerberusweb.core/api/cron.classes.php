@@ -158,7 +158,7 @@ class ParseCron extends CerberusCronPageExtension {
 	}
 
 	function configure($instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$tpl->assign('max_messages', $this->getParam('max_messages', 500));
 
@@ -206,7 +206,7 @@ class MaintCron extends CerberusCronPageExtension {
 		$logger->info("[Maint] Purged " . $db->Affected_Rows() . " ticket records.");
 
 		// Give plugins a chance to run maintenance (nuke NULL rows, etc.)
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'cron.maint',
@@ -287,7 +287,7 @@ class MaintCron extends CerberusCronPageExtension {
 	}
 
 	function configure($instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$tpl->assign('purge_waitdays', $this->getParam('purge_waitdays', 7));
 
@@ -308,7 +308,7 @@ class MaintCron extends CerberusCronPageExtension {
 class HeartbeatCron extends CerberusCronPageExtension {
 	function run() {
 		// Heartbeat Event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'cron.heartbeat',
@@ -319,7 +319,7 @@ class HeartbeatCron extends CerberusCronPageExtension {
 	}
 
 	function configure($instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:cerberusweb.core::cron/heartbeat/config.tpl');
 	}
 };
@@ -537,7 +537,7 @@ class ImportCron extends CerberusCronPageExtension {
 	
 	// [TODO] Move to an extension
 	private function _handleImportTicket($xml) {
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		$logger = DevblocksPlatform::services()->log();
 		$workers = DAO_Worker::getAll();
 
@@ -912,7 +912,7 @@ class ImportCron extends CerberusCronPageExtension {
 	}
 
 	private function _handleImportWorker($xml) {
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		$logger = DevblocksPlatform::services()->log();
 
 		$sFirstName = (string) $xml->first_name;
@@ -951,7 +951,7 @@ class ImportCron extends CerberusCronPageExtension {
 	}
 
 	private function _handleImportOrg($xml) {
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		$logger = DevblocksPlatform::services()->log();
 
 		$sName = (string) $xml->name;
@@ -987,7 +987,7 @@ class ImportCron extends CerberusCronPageExtension {
 	}
 
 	private function _handleImportAddress($xml) {
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		$logger = DevblocksPlatform::services()->log();
 
 		$sFirstName = (string) $xml->first_name;
@@ -1087,7 +1087,7 @@ class ImportCron extends CerberusCronPageExtension {
 	}
 
 	function configure($instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:cerberusweb.core::cron/import/config.tpl');
 	}
 };
@@ -1214,7 +1214,7 @@ class MailboxCron extends CerberusCronPageExtension {
 				if(in_array($num_fails, array(2,5,10,20))) {
 					$logger->info(sprintf("[Mailboxes] Sending notification about %d consecutive failures on this mailbox", $num_fails));
 					
-					$url_writer = DevblocksPlatform::getUrlService();
+					$url_writer = DevblocksPlatform::services()->url();
 					$admin_workers = DAO_Worker::getAllAdmins();
 					
 					/*
@@ -1355,7 +1355,7 @@ class MailboxCron extends CerberusCronPageExtension {
 	}
 
 	function configure($instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$timeout = ini_get('max_execution_time');
 		$tpl->assign('max_messages', $this->getParam('max_messages', (($timeout) ? 20 : 50)));
@@ -1434,7 +1434,7 @@ class StorageCron extends CerberusCronPageExtension {
 	}
 	
 	function configure($instance) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 //		$timeout = ini_get('max_execution_time');
 //		$tpl->assign('max_messages', $this->getParam('max_messages', (($timeout) ? 20 : 50)));
@@ -1509,7 +1509,7 @@ class MailQueueCron extends CerberusCronPageExtension {
 	}
 
 	function configure($instance) {
-		//$tpl = DevblocksPlatform::getTemplateService();
+		//$tpl = DevblocksPlatform::services()->template();
 		//$tpl->display('devblocks:cerberusweb.core::cron/mail_queue/config.tpl');
 	}
 };

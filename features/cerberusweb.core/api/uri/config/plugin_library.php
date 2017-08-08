@@ -30,12 +30,12 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 		if(!CERB_FEATURES_PLUGIN_LIBRARY)
 			return;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		//$visit->set(ChConfigurationPage::ID, 'plugin_library');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_PluginLibrary');
@@ -92,7 +92,7 @@ class PageSection_SetupPluginLibrary extends Extension_PageSection {
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		if(empty($plugin_id))
 			return;

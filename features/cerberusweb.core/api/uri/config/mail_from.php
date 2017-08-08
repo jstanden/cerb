@@ -17,9 +17,9 @@
 
 class PageSection_SetupMailFrom extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_from');
 
@@ -32,7 +32,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 	function peekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		if(!empty($id) && null != ($address = DAO_AddressOutgoing::get($id)))
 			$tpl->assign('address', $address);

@@ -88,7 +88,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	}
 	
 	public function renderConfigForSchema(Extension_DevblocksSearchSchema $schema) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('engine', $this);
 		
 		$engine_params = $schema->getEngineParams();
@@ -191,7 +191,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 			$max_results
 		);
 
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = sprintf("search:%s", sha1($sql));
 		$is_only_cached_for_request = !$cache->isVolatile();
 		
@@ -435,7 +435,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	}
 	
 	public function renderConfigForSchema(Extension_DevblocksSearchSchema $schema) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('engine', $this);
 		
 		$engine_params = $schema->getEngineParams();
@@ -525,7 +525,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		@$max_results = intval($limit) ?: intval($this->_config['max_results']) ?: 1000;
 		@$max_results = DevblocksPlatform::intClamp($max_results, 1, 1000);
 		
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = sprintf("elasticsearch:%s:%s", $type, sha1($query));
 		$cache_ttl = 300;
 		$is_only_cached_for_request = !$cache->isVolatile();
@@ -718,7 +718,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 	}
 	
 	public function renderConfigForSchema(Extension_DevblocksSearchSchema $schema) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('engine', $this);
 		
 		$engine_params = $schema->getEngineParams();
@@ -863,7 +863,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$start_time = microtime(true);
 		
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$is_only_cached_for_request = !$cache->isVolatile();
 		$cache_ttl = 300;
 		$is_cached = true;

@@ -60,7 +60,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.contact.update',
@@ -85,7 +85,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$do = $update->actions;
 		$ids = $update->context_ids;
@@ -178,7 +178,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		}
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -227,7 +227,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 []
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::getCacheService();
+		//$cache = DevblocksPlatform::services()->cache();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_Contact::ID, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
@@ -366,7 +366,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		$search->delete($ids);
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -946,7 +946,7 @@ class Model_Contact {
 	}
 	
 	function getImageUrl() {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		return $url_writer->write(sprintf('c=avatars&type=contact&id=%d', $this->id)) . '?v=' . $this->updated_at;
 	}
 	
@@ -1350,7 +1350,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1363,7 +1363,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -1619,14 +1619,14 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=contact&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$contact = DAO_Contact::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($contact->getName());
@@ -1656,7 +1656,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$list = array();
 		
 		$models = DAO_Contact::autocomplete($term);
@@ -1699,7 +1699,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$prefix = 'Contact:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONTACT);
 
 		// Polymorph
@@ -1939,7 +1939,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		$context = CerberusContexts::CONTEXT_CONTACT;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id) && null != ($contact = DAO_Contact::get($context_id))) {

@@ -95,7 +95,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.<?php echo $table_name; ?>.update',
@@ -150,7 +150,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	 * @return Model_<?php echo $class_name; ?>[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::getCacheService();
+		//$cache = DevblocksPlatform::services()->cache();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_<?php echo $class_name; ?>::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
@@ -259,7 +259,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM <?php echo $table_name; ?> WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -722,7 +722,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -735,7 +735,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		// [TODO] Move the fields into the proper data type
@@ -969,14 +969,14 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=<?php echo $table_name; ?>&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$<?php echo $ctx_var_model; ?> = DAO_<?php echo $class_name; ?>::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($<?php echo $ctx_var_model; ?>->name);
@@ -1059,7 +1059,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			$token_values = $this->_importModelCustomFieldsAsValues($<?php echo $ctx_var_model; ?>, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=<?php echo $table_name; ?>&id=%d-%s",$<?php echo $ctx_var_model; ?>->id, DevblocksPlatform::strToPermalink($<?php echo $ctx_var_model; ?>->name)), true);
 		}
 		
@@ -1156,7 +1156,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$context = '<?php echo $ctx_ext_id; ?>';
@@ -1754,7 +1754,7 @@ $(function() {
 
 class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1938,7 +1938,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

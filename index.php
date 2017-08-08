@@ -58,7 +58,7 @@ if('' == APP_DB_HOST
 	|| '' == APP_DB_DATABASE
 	|| DevblocksPlatform::isDatabaseEmpty()) {
 		DevblocksPlatform::init();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$base_url = rtrim(preg_replace("/index\.php\/$/i",'',$url_writer->write('',true)),"/");
 		header('Location: '.$base_url.'/install/index.php');
 		exit;

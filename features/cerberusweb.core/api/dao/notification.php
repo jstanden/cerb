@@ -73,7 +73,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 			if($check_deltas) {
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.notification.update',
@@ -98,7 +98,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$do = $update->actions;
 		$ids = $update->context_ids;
@@ -261,7 +261,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	
 	static function getUnreadCountByWorker($worker_id) {
 		$db = DevblocksPlatform::services()->database();
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null === ($count = $cache->load(self::CACHE_COUNT_PREFIX.$worker_id))) {
 			$sql = sprintf("SELECT count(*) ".
@@ -323,7 +323,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM notification WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -423,7 +423,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' notification records.');
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -437,7 +437,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	}
 	
 	static function clearCountCache($worker_id=null) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		$workers = array();
 		
@@ -676,7 +676,7 @@ class Model_Notification {
 		}
 		
 		if(empty($url)) {
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$url = $url_writer->write('c=profiles&obj=worker&who=me&what=notifications', true);
 		}
 		
@@ -918,7 +918,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -930,7 +930,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1102,7 +1102,7 @@ class Context_Notification extends Extension_DevblocksContext {
 	
 	function getMeta($context_id) {
 		$notification = DAO_Notification::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(false == ($url = $notification->getURL())) {
 			$url = $url_writer->writeNoProxy('c=preferences&action=redirectRead&id='.$context_id, true);
@@ -1153,7 +1153,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_NOTIFICATION);
-		$url_writer = DevblocksPLatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 
 		// Polymorph
 		if(is_numeric($notification)) {

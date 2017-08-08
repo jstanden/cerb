@@ -45,7 +45,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	const ID = 'translators.setup.section.translations';
 	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 	
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Translation');
 		$defaults->id = View_Translation::DEFAULT_ID;
@@ -64,7 +64,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	
 	private function _clearCache() {
 		// Reload
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		$langs = DAO_Translation::getDefinedLangCodes();
 		if(is_array($langs) && !empty($langs))
@@ -74,7 +74,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	}
 
 	function showFindStringsPanelAction($model=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$codes = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('codes', $codes);
@@ -142,7 +142,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	}
 	
 	function showAddLanguagePanelAction($model=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		// Language Names
 		$translate = DevblocksPlatform::getTranslationService();
@@ -248,7 +248,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	}
 	
 	function showImportStringsPanelAction($model=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:cerberusweb.translators::config/ajax/import_strings_panel.tpl');
 	}
 
@@ -375,7 +375,7 @@ class ChTranslators_SetupPluginsMenuItem extends Extension_PageMenuItem {
 	const ID = 'translators.setup.menu.plugins.translations';
 	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:cerberusweb.translators::config/menu_item.tpl');
 	}
 }
@@ -669,7 +669,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -686,7 +686,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {

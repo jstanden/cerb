@@ -33,7 +33,7 @@ class ExampleScController extends Extension_UmScController {
 	*/
 
 	public function writeResponse(DevblocksHttpResponse $response) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:example.support_center.page::support_center/page.tpl');
 	}
 
@@ -57,7 +57,7 @@ class ExampleScController extends Extension_UmScController {
 	}
 	
 	public function ajaxMethodAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:example.support_center.page::support_center/ajax.tpl');
 		exit;
 	}

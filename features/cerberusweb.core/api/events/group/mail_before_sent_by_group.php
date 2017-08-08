@@ -19,7 +19,7 @@ class Event_MailBeforeSentByGroup extends AbstractEvent_MailBeforeSent {
 	const ID = 'event.mail.sent.group';
 	
 	static function trigger(&$properties, $message_id=null, $ticket_id=null, $group_id=null) {
-		$events = DevblocksPlatform::getEventService();
+		$events = DevblocksPlatform::services()->event();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				self::ID,

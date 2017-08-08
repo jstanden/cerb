@@ -82,7 +82,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	 * @return Model_DecisionNode[]
 	 */
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if($nocache || null === ($nodes = $cache->load(self::CACHE_ALL))) {
 			$nodes = self::getWhere(
 				array(),
@@ -366,7 +366,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	}
 
 	static public function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 };
@@ -508,7 +508,7 @@ class View_DecisionNode extends C4_AbstractView {
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -521,7 +521,7 @@ class View_DecisionNode extends C4_AbstractView {
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		// [TODO] Move the fields into the proper data type

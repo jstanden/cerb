@@ -77,7 +77,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	 * @return <Model_WebApiCredentials[], NULL, array>
 	 */
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 
 		if($nocache || null === ($credentials = $cache->load(self::_CACHE_ALL))) {
 			$credentials = self::getWhere(
@@ -252,7 +252,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	}
 	
 	static function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
 	}
 };
@@ -460,7 +460,7 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -470,7 +470,7 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {

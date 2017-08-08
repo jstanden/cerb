@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesAddress extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
 		
@@ -231,7 +231,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			/*
 			 * Notify anything that wants to know when Address Peek saves.
 			 */
-			$eventMgr = DevblocksPlatform::getEventService();
+			$eventMgr = DevblocksPlatform::services()->event();
 			$eventMgr->trigger(
 				new Model_DevblocksEvent(
 					'address.peek.saved',
@@ -273,7 +273,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($ids)) {

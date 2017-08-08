@@ -30,7 +30,7 @@ class ChCronController extends DevblocksControllerExtension {
 		$logger = DevblocksPlatform::services()->log();
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		$authorized_ips_str = $settings->get('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS,CerberusSettingsDefaults::AUTHORIZED_IPS);
 		$authorized_ips = DevblocksPlatform::parseCrlfString($authorized_ips_str);
 		
@@ -59,7 +59,7 @@ class ChCronController extends DevblocksControllerExtension {
 		
 		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_APPLICATION, 0);
 		
-		$url = DevblocksPlatform::getUrlService();
+		$url = DevblocksPlatform::services()->url();
 		$time_left = intval(ini_get('max_execution_time')) ?: 86400;
 		
 		$logger->info(sprintf("[Scheduler] Set Time Limit: %d seconds", $time_left));

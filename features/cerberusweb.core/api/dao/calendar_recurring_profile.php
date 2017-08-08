@@ -85,7 +85,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			// Send events
 			if(!empty($check_deltas)) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.calendar_recurring_profile.update',
@@ -211,7 +211,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM calendar_recurring_profile WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -886,7 +886,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -905,7 +905,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 	function renderCriteria($field) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -1093,14 +1093,14 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=calendar_recurring_profile&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$calendar_recurring_profile = DAO_CalendarRecurringProfile::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($calendar_recurring_profile->event_name);
@@ -1243,7 +1243,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=calendar_recurring_event&id=%d-%s",$calendar_recurring_profile->id, DevblocksPlatform::strToPermalink($calendar_recurring_profile->event_name)), true);
 		}
 		
@@ -1335,7 +1335,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;

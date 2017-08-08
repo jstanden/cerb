@@ -24,7 +24,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	const EXTENSION_ID = 'extension_id';
 	
 	static function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
 	}
 	
@@ -84,7 +84,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	}
 	
 	public static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_CommunityTool::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
@@ -386,7 +386,7 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 	const _CACHE_PREFIX = 'um_comtoolprops_';
 	
 	static function getAllByTool($tool_code) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 
 		if(null == ($props = $cache->load(self::_CACHE_PREFIX.$tool_code))) {
 			$props = array();
@@ -450,7 +450,7 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 		));
 		
 		// Invalidate cache
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_PREFIX.$tool_code);
 	}
 };
@@ -705,7 +705,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -721,7 +721,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		
 		switch($field) {

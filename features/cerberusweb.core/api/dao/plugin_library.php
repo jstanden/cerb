@@ -882,7 +882,7 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_QuickS
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -894,7 +894,7 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_QuickS
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {

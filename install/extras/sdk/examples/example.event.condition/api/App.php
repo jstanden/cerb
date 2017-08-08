@@ -3,7 +3,7 @@ class ExampleEventCondition_ExampleCondition extends Extension_DevblocksEventCon
 	const ID = 'exampleeventcondition.condition';
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 		
 		if(!is_null($seq))

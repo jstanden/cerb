@@ -25,7 +25,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 	function render() {
 		$translate = DevblocksPlatform::getTranslationService();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$response = DevblocksPlatform::getHttpResponse();
 		$visit = CerberusApplication::getVisit();
 
@@ -121,7 +121,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	
 	function showWatcherTabAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		// Activities
 		$activities = DevblocksPlatform::getActivityPointRegistry();
@@ -149,7 +149,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($ids)) {
@@ -256,7 +256,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -398,7 +398,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 	function showGeneralTabAction() {
 		$date_service = DevblocksPlatform::services()->date();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
@@ -443,7 +443,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	}
 
 	function showSecurityTabAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
@@ -488,7 +488,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 	}
 	
 	function showSessionsTabAction() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
@@ -532,7 +532,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$worker = CerberusApplication::getActiveWorker();
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$pref_errors = array();
 
 		$worker_fields = array();
@@ -667,9 +667,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 
 	private function _sendConfirmationEmail($to, $worker) {
 		$translate = DevblocksPlatform::getTranslationService();
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
-		$url_writer = DevblocksPlatform::getUrlService();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		$url_writer = DevblocksPlatform::services()->url();
+		$tpl = DevblocksPlatform::services()->template();
 
 		if(false == ($addy = DAO_Address::lookupAddress($to, true)))
 			return false;

@@ -97,7 +97,7 @@ class ChReportGroupBots extends Extension_ReportGroup {
 if(class_exists('Extension_WorkspacePage')):
 class ChReportsWorkspacePage extends Extension_WorkspacePage {
 	function renderPage(Model_WorkspacePage $page) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

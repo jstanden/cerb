@@ -369,7 +369,7 @@ abstract class C4_AbstractView {
 		
 		// Replace placeholders
 
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$dict = new DevblocksDictionaryDelegate($this->getPlaceholderValues());
 		$query = $tpl_builder->build($query, $dict);
 		
@@ -628,7 +628,7 @@ abstract class C4_AbstractView {
 		$param_key = $param->field;
 		settype($param_key, 'string');
 
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		if(is_string($param->value)) {
 			if(false !== ($value = $tpl_builder->build($param->value, $args['placeholder_values']))) {
@@ -1831,7 +1831,7 @@ abstract class C4_AbstractView {
 		if(!$this instanceof IAbstractView_Subtotals)
 			return;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -3038,7 +3038,7 @@ abstract class C4_AbstractView {
 			return false;
 		
 		try {
-			$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			if(
 				!isset($params['worker_id'])

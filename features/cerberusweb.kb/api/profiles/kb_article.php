@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesKbArticle extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$request = DevblocksPlatform::getHttpRequest();
 		$translate = DevblocksPlatform::getTranslationService();
@@ -128,7 +128,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		if(!$id || false == ($article = DAO_KbArticle::get($id)))
 			return;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('article', $article);
 		
 		$tpl->display('devblocks:cerberusweb.kb::kb/ajax/tab_article.tpl');
@@ -140,7 +140,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($id_csv)) {

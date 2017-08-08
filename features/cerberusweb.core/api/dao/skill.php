@@ -42,7 +42,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.skill.update',
@@ -100,7 +100,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 	 * @return Model_Skill[]
 	 */
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$objects = DAO_Skill::getWhere(
@@ -220,7 +220,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM skill WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -369,7 +369,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 	
 	public static function clearCache() {
 		// Invalidate cache on changes
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 
@@ -695,7 +695,7 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -712,7 +712,7 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -896,14 +896,14 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=skill&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$skill = DAO_Skill::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($skill->name);
@@ -986,7 +986,7 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values = $this->_importModelCustomFieldsAsValues($skill, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=skill&id=%d-%s",$skill->id, DevblocksPlatform::strToPermalink($skill->name)), true);
 		}
 		
@@ -1083,7 +1083,7 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if(!empty($context_id) && null != ($skill = DAO_Skill::get($context_id))) {

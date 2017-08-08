@@ -528,7 +528,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$logger->info('[Maint] Fixed ' . $db->Affected_Rows() . ' tickets in missing buckets.');
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -742,7 +742,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			/*
 			 * Notify anything that wants to know when tickets merge.
 			 */
-			$eventMgr = DevblocksPlatform::getEventService();
+			$eventMgr = DevblocksPlatform::services()->event();
 			$eventMgr->trigger(
 				new Model_DevblocksEvent(
 					'ticket.action.merge',
@@ -931,7 +931,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				self::_processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.ticket.update',
@@ -953,7 +953,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$do = $update->actions;
 		$ids = $update->context_ids;
@@ -3394,7 +3394,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -3453,12 +3453,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function renderCustomizeOptions() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:cerberusweb.core::internal/views/options/ticket.tpl');
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -4170,7 +4170,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		if(empty($context_id))
 			return '';
 		
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=ticket&id='.$context_id, true);
 		return $url;
 	}
@@ -4188,7 +4188,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$friendly = DevblocksPlatform::strToPermalink($ticket->mask);
 		
 		if(!empty($friendly)) {
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$url = $url_writer->writeNoProxy('c=profiles&type=ticket&mask='.$ticket->mask, true);
 			
 		} else {
@@ -4391,7 +4391,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values = $this->_importModelCustomFieldsAsValues($ticket, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['url'] = $url_writer->writeNoProxy('c=profiles&type=ticket&id='.$ticket->mask,true);
 
 			// Group
@@ -4581,7 +4581,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				break;
 				
 			case 'signature':
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				if(false == ($active_worker = CerberusApplication::getActiveWorker()))
 					break;
@@ -4775,7 +4775,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		if(!$active_worker->hasPriv('core.mail.send'))
 			return;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		// Groups
@@ -4942,7 +4942,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		@$msgid = DevblocksPlatform::importGPC($_REQUEST['msgid'],'integer',0);
 		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'string',null);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$context = CerberusContexts::CONTEXT_TICKET;
 		$active_worker = CerberusApplication::getActiveWorker();

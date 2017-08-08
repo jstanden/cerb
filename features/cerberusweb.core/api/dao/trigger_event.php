@@ -93,7 +93,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	 * @return Model_TriggerEvent[]
 	 */
 	static function getAll($nocache=false) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		if($nocache || null === ($behaviors = $cache->load(self::CACHE_ALL))) {
 			$behaviors = self::getWhere(
 				null,
@@ -503,7 +503,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	}
 
 	static public function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 	
@@ -958,7 +958,7 @@ class Model_TriggerEvent {
 					@$foreach_json = $nodes[$node_id]->params['foreach_json'];
 					@$as_placeholder = $nodes[$node_id]->params['as_placeholder'];
 					
-					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 					
 					if(empty($foreach_json) || empty($as_placeholder)) {
 						$pass = false;
@@ -1535,7 +1535,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -1556,7 +1556,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -1735,7 +1735,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$list = array();
 		
 		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BEHAVIOR);
@@ -1769,14 +1769,14 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=trigger_event&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$trigger_event = DAO_TriggerEvent::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($trigger_event->title);
@@ -1882,7 +1882,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$token_values = $this->_importModelCustomFieldsAsValues($trigger_event, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=behavior&id=%d-%s",$trigger_event->id, DevblocksPlatform::strToPermalink($trigger_event->title)), true);
 		}
 		
@@ -1994,7 +1994,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_BEHAVIOR;

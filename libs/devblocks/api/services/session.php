@@ -23,7 +23,7 @@ class _DevblocksSessionManager {
 	static function getInstance() {
 		static $instance = null;
 		if(null == $instance) {
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			
 			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 			

@@ -49,7 +49,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.connected_account.update',
@@ -178,7 +178,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 	 * @return Model_ConnectedAccount[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::getCacheService();
+		//$cache = DevblocksPlatform::services()->cache();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_ConnectedAccount::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
@@ -275,7 +275,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 	}
 	
 	static function setAndEncryptParams($id, array $params) {
-		$encrypt = DevblocksPlatform::getEncryptionService();
+		$encrypt = DevblocksPlatform::services()->encryption();
 		$ciphertext = $encrypt->encrypt(json_encode($params));
 		
 		return DAO_ConnectedAccount::update($id, [
@@ -299,7 +299,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM connected_account WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -556,7 +556,7 @@ class Model_ConnectedAccount {
 		if($actor && !Context_ConnectedAccount::isReadableByActor($this, $actor))
 			return false;
 		
-		$encrypt = DevblocksPlatform::getEncryptionService();
+		$encrypt = DevblocksPlatform::services()->encryption();
 		
 		if(false == ($json = $encrypt->decrypt($this->params_json_encrypted)))
 			return false;
@@ -805,7 +805,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -822,7 +822,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -976,7 +976,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$list = array();
 		
 		$models = DAO_ConnectedAccount::autocomplete($term);
@@ -1007,14 +1007,14 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=connected_account&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$connected_account = DAO_ConnectedAccount::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($connected_account->name);
@@ -1107,7 +1107,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			$token_values = $this->_importModelCustomFieldsAsValues($connected_account, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=connected_account&id=%d-%s",$connected_account->id, DevblocksPlatform::strToPermalink($connected_account->name)), true);
 		}
 		
@@ -1227,7 +1227,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;

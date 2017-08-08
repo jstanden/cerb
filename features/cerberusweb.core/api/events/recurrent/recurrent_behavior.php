@@ -19,7 +19,7 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 	const ID = 'event.behavior.recurrent';
 	
 	function renderEventParams(Model_TriggerEvent $trigger=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		// Timezones
 		$date = DevblocksPlatform::services()->date();
@@ -181,7 +181,7 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 	}
 	
 	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -217,7 +217,7 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))

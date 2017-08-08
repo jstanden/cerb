@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesBot extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -305,7 +305,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		// Admins can see all owners at once
 		if(empty($va_id) && !$active_worker->is_superuser)
@@ -342,7 +342,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

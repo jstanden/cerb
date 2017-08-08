@@ -25,7 +25,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		// Globals for Community Tool template scope
 		$translate = DevblocksPlatform::getTranslationService();
@@ -65,7 +65,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$stack = $response->path;
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		// Globals for Community Tool template scope
 		$translate = DevblocksPlatform::getTranslationService();

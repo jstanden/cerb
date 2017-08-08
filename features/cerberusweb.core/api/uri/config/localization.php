@@ -17,7 +17,7 @@
 
 class PageSection_SetupLocalization extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$date = DevblocksPlatform::services()->date();
 		
@@ -39,7 +39,7 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 			@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string','');
 			@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string',CerberusSettingsDefaults::TIME_FORMAT);
 	
-			$settings = $db = DevblocksPlatform::services()->pluginSettings();
+			$settings = DevblocksPlatform::services()->pluginSettings();
 			$settings->set('cerberusweb.core',CerberusSettings::TIMEZONE, $timezone);
 			$settings->set('cerberusweb.core',CerberusSettings::TIME_FORMAT, $time_format);
 			

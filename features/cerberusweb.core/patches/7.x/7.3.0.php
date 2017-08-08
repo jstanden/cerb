@@ -453,7 +453,7 @@ if(isset($columns['guid'])) {
 // Clean up attachment_link GUID references in content
 
 function cerb730_extractInternalURLsFromContent($content) {
-	$url_writer = DevblocksPlatform::getUrlService();
+	$url_writer = DevblocksPlatform::services()->url();
 	$img_baseurl = $url_writer->write('c=files', true, false);
 	$img_baseurl_parts = parse_url($img_baseurl);
 	

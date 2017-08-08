@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesClassifier extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -227,7 +227,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 			return;
 		}
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('classifier_id', $classifier_id);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/classifier/import_popup.tpl');
@@ -317,7 +317,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -391,7 +391,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		@$text = DevblocksPlatform::importGPC($_REQUEST['text'], 'string', '');
 		
 		$bayes = DevblocksPlatform::services()->bayesClassifier();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$environment = [

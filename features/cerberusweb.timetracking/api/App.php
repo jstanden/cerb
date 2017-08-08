@@ -43,7 +43,7 @@
 if (class_exists('Extension_AppPreBodyRenderer',true)):
 	class ChTimeTrackingPreBodyRenderer extends Extension_AppPreBodyRenderer {
 		function render() {
-			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('current_timestamp', time());
 			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/prebody.tpl');
 		}
@@ -55,7 +55,7 @@ class ChTimeTrackingProfileScript extends Extension_ContextProfileScript {
 	const ID = 'timetracking.profile_script.timer';
 	
 	function renderScript($context, $context_id) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$tpl->assign('page_context', $context);
 		$tpl->assign('page_context_id', $context_id);
@@ -68,7 +68,7 @@ endif;
 if (class_exists('Extension_ReplyToolbarItem',true)):
 	class ChTimeTrackingReplyToolbarTimer extends Extension_ReplyToolbarItem {
 		function render(Model_Message $message) {
-			$tpl = DevblocksPlatform::getTemplateService();
+			$tpl = DevblocksPlatform::services()->template();
 			
 			$tpl->assign('message', $message); /* @var $message Model_Message */
 			
@@ -194,7 +194,7 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -271,8 +271,8 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 	const ID = 'timetracking.setup.section.timetracking';
 	
 	function render() {
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
-		$tpl = DevblocksPlatform::getTemplateService();
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		$tpl = DevblocksPlatform::services()->template();
 
 		$activities = DAO_TimeTrackingActivity::getWhere();
 		$tpl->assign('activities', $activities);
@@ -281,7 +281,7 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 	}
 
 	function saveAction() {
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
 
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
@@ -318,7 +318,7 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 	function getActivityAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		if(!empty($id) && null != ($activity = DAO_TimeTrackingActivity::get($id)))
 			$tpl->assign('activity', $activity);
@@ -333,7 +333,7 @@ class ChTimeTracking_SetupPluginsMenuItem extends Extension_PageMenuItem {
 	const ID = 'timetracking.setup.menu.plugins.timetracking';
 	
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:cerberusweb.timetracking::config/menu_item.tpl');
 	}
 }

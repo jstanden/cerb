@@ -29,9 +29,9 @@ class ChPrintController extends DevblocksControllerExtension {
 		array_shift($stack); // print
 		@$object = DevblocksPlatform::strLower(array_shift($stack)); // ticket|message|etc
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		
-		$settings = $db = DevblocksPlatform::services()->pluginSettings();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 		$tpl->assign('settings', $settings);
 		
 		$translate = DevblocksPlatform::getTranslationService();

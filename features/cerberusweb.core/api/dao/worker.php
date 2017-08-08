@@ -59,7 +59,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 
 	static function clearCache() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 	}
 	
@@ -182,7 +182,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @return Model_Worker[]
 	 */
 	static function getAll($nocache=false, $with_disabled=true) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($workers = $cache->load(self::CACHE_ALL))) {
 			$workers = self::getWhere(
@@ -511,7 +511,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				self::_processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.worker.update',
@@ -537,7 +537,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$do = $update->actions;
 		$ids = $update->context_ids;
@@ -678,7 +678,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		}
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.maint',
@@ -706,7 +706,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		/* This event fires before the delete takes place in the db,
 		 * so we can denote what is actually changing against the db state
 		 */
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'worker.delete',
@@ -758,7 +758,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$search->delete(array($id));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -771,7 +771,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		// Invalidate caches
 		self::clearCache();
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(DAO_Group::CACHE_ROSTERS);
 	}
 	
@@ -954,7 +954,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function autocomplete($term, $as='models', $query=null) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$db = DevblocksPlatform::services()->database();
 		$workers = DAO_Worker::getAll();
 		$objects = array();
@@ -1543,7 +1543,7 @@ class Model_Worker {
 	}
 	
 	function getImageUrl() {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		return $url_writer->write(sprintf('c=avatars&type=worker&id=%d', $this->id)) . '?v=' . $this->updated;
 	}
 	
@@ -2155,7 +2155,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -2235,7 +2235,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -2431,7 +2431,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 		));
 		
 		// Invalidate cache
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_PREFIX.$worker_id);
 	}
 	
@@ -2447,7 +2447,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 		));
 		
 		// Invalidate cache
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_PREFIX.$worker_id);
 	}
 	
@@ -2484,7 +2484,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 	}
 	
 	static function getByWorker($worker_id) {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null === ($objects = $cache->load(self::CACHE_PREFIX.$worker_id))) {
 			$db = DevblocksPlatform::services()->database();
@@ -2533,7 +2533,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=worker&id='.$context_id, true);
 		return $url;
 	}
@@ -2543,7 +2543,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(null == ($worker = DAO_Worker::get($context_id)))
 			return false;
@@ -2601,7 +2601,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$results = DAO_Worker::autocomplete($term, 'models', $query);
 		$list = array();
 
@@ -2638,7 +2638,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$prefix = 'Worker:';
 			
 		$translate = DevblocksPlatform::getTranslationService();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 		
 		// Polymorph
@@ -2863,7 +2863,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$context = CerberusContexts::CONTEXT_WORKER;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if(false == ($worker = DAO_Worker::get($context_id))) {

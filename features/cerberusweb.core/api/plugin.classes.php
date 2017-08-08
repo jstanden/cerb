@@ -396,7 +396,7 @@ class ServiceProvider_Cerb extends Extension_ServiceProvider implements IService
 	const ID = 'core.service.provider.cerb';
 	
 	function renderConfigForm(Model_ConnectedAccount $account) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$params = $account->decryptParams($active_worker);
@@ -476,7 +476,7 @@ class ServiceProvider_Cerb extends Extension_ServiceProvider implements IService
 
 class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -491,7 +491,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 	}
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$out = null;
 		
@@ -566,7 +566,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 	}
 	
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		@$http_verb = $params['http_verb'];
 		@$http_url = $tpl_builder->build($params['http_url'], $dict);
@@ -723,7 +723,7 @@ class BotAction_ScheduleInteractionProactive extends Extension_DevblocksEventAct
 	const ID = 'core.bot.action.interaction_proactive.schedule';
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 		
 		if(!is_null($seq))
@@ -737,7 +737,7 @@ class BotAction_ScheduleInteractionProactive extends Extension_DevblocksEventAct
 	}
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$date = DevblocksPlatform::services()->date();
 
 		$out = null;
@@ -794,7 +794,7 @@ class BotAction_ScheduleInteractionProactive extends Extension_DevblocksEventAct
 	}
 	
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$on = $params['on'];
 		@$behavior_id = $params['behavior_id'];
@@ -831,7 +831,7 @@ class BotAction_CalculateTimeElapsed extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.calculate_time_elapsed';
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 		
 		if(!is_null($seq))
@@ -848,7 +848,7 @@ class BotAction_CalculateTimeElapsed extends Extension_DevblocksEventAction {
 	}
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$date = DevblocksPlatform::services()->date();
 
 		$out = null;
@@ -890,7 +890,7 @@ class BotAction_CalculateTimeElapsed extends Extension_DevblocksEventAction {
 	}
 	
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$date_from = $tpl_builder->build($params['date_from'], $dict);
 		@$date_to = $tpl_builder->build($params['date_to'], $dict);
@@ -931,7 +931,7 @@ class BotAction_CalculateTimeElapsed extends Extension_DevblocksEventAction {
 
 class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 		
 		if(!is_null($seq))
@@ -941,7 +941,7 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 	}
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$out = null;
 		
@@ -991,7 +991,7 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 	}
 	
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$file_name = $tpl_builder->build($params['file_name'], $dict);
 		@$file_type = $tpl_builder->build($params['file_type'], $dict);
@@ -1056,7 +1056,7 @@ class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	const ID = 'core.va.action.classifier_prediction';
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 		
 		$classifiers = DAO_Classifier::getReadableByActor(CerberusContexts::CONTEXT_BOT, $trigger->bot_id);
@@ -1069,7 +1069,7 @@ class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	}
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$classifier_id = $params['classifier_id'];
 		@$content = $tpl_builder->build($params['content'], $dict);
@@ -1393,7 +1393,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 	private $_logger = null;
 	
 	function renderConfig(Model_MailTransport $model) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('model', $model);
 		$tpl->assign('extension', $this);
 		$tpl->display('devblocks:cerberusweb.core::internal/mail_transport/smtp/config.tpl');
@@ -1559,7 +1559,7 @@ class CerbMailTransport_Null extends Extension_MailTransport {
 	const ID = 'core.mail.transport.null';
 	
 	function renderConfig(Model_MailTransport $model) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('model', $model);
 		$tpl->assign('extension', $this);
 		$tpl->display('devblocks:cerberusweb.core::internal/mail_transport/null/config.tpl');

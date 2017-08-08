@@ -130,7 +130,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 
 	static function flushTriggerChangedContextsEvents() {
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 
 		if(is_array(self::$_changed_contexts))
 		foreach(self::$_changed_contexts as $context => $context_ids) {
@@ -182,7 +182,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	public static function getAliasesForAllContexts() {
-		$cache = DevblocksPlatform::getCacheService();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null !== ($results = $cache->load(DevblocksPlatform::CACHE_CONTEXT_ALIASES)))
 			return $results;
@@ -1201,7 +1201,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$conditions = $this->getConditions($trigger, false);
 		$condition_extensions = $this->getConditionExtensions($trigger);
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -1342,7 +1342,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			case '_custom_script':
 				@$tpl = DevblocksPlatform::importVar($params['tpl'],'string','');
 
-				$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$value = $tpl_builder->build($tpl, $dict);
 
 				if(false === $value) {
@@ -1504,7 +1504,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
 							
-							$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+							$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 							@$param_value = $tpl_builder->build($params['value'], $dict);
 
 							$logger->info(sprintf("Text: `%s` %s%s `%s`",
@@ -1778,7 +1778,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	function renderAction($token, $trigger, $params=array(), $seq=null) {
 		$actions = $this->getActionExtensions($trigger);
 
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('trigger', $trigger);
 		$tpl->assign('params', $params);
 
@@ -2066,7 +2066,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 					
 				case '_set_custom_var':
-					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 					@$var = $params['var'];
 					@$value = $params['value'];
@@ -2090,8 +2090,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 
 				case '_set_custom_var_snippet':
-					$tpl_builder = DevblocksPlatform::getTemplateBuilder();
-					$cache = DevblocksPlatform::getCacheService();
+					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+					$cache = DevblocksPlatform::services()->cache();
 
 					@$on = $params['on'];
 					@$snippet_id = $params['snippet_id'];
