@@ -120,7 +120,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	}
 	
 	static function addLinks($context, $context_id, $file_ids) {
-		$db = DevblocksPlatform::services()->database();
+		$db = DevblocksPlatform::getDatabaseService();
 		
 		if(!is_array($file_ids))
 			$file_ids = array($file_ids);
