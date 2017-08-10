@@ -8,64 +8,9 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.calls.actions.update_all">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.calls.actions.update_nobody">
 			<tuv xml:lang="ru_RU">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.calls.view.actions.export">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.addy.actions.update">
-			<tuv xml:lang="ru_RU">
-				<seg>[Адресная книга] Может изменять адреса электронной почты контакта</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.addy.view.actions.broadcast">
-			<tuv xml:lang="ru_RU">
-				<seg>[Адресная книга] Может создавать сообщения для адресных списков</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.addy.view.actions.export">
-			<tuv xml:lang="ru_RU">
-				<seg>[Адресная книга] Может экспортировать список адресов электронной почты в CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.actions.delete">
-			<tuv xml:lang="ru_RU">
-				<seg>[Адресная книга] Может удалять данные о компании</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.actions.merge">
-			<tuv xml:lang="ru_RU">
-				<seg>[Адресная книга] Может объединять организации</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.actions.update">
-			<tuv xml:lang="ru_RU">
-				<seg>[Адресная книга] Может изменять данные о компании</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.view.actions.export">
-			<tuv xml:lang="ru_RU">
-				<seg>[Адресная книга] Может экспортировать списки компании в CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.person.actions.delete">
-			<tuv xml:lang="ru_RU">
-				<seg>[Адресная книга] Может удалять зарегистрированные контакты</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.person.actions.update">
-			<tuv xml:lang="ru_RU">
-				<seg>[Адресная книга] Может изменять зарегистрированные контакты</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.display.actions.attachments.download">
@@ -93,59 +38,9 @@
 				<seg>[Показ заявки] Может делить заявки</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.message.actions.delete">
-			<tuv xml:lang="ru_RU">
-				<seg>[Показ заявок] Может удалять сообщения в заявках</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.kb.articles.modify">
-			<tuv xml:lang="ru_RU">
-				<seg>[База знаний] Может управлять статьями</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.kb.categories.modify">
-			<tuv xml:lang="ru_RU">
-				<seg>[База знаний] Может управлять категориями</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.mail.draft.delete_all">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.mail.save_without_sending">
 			<tuv xml:lang="ru_RU">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.mail.send">
-			<tuv xml:lang="ru_RU">
-				<seg>[Почта] Может создавать новые сообщение из хелпдеска</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.snippets.actions.create">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.actions.create">
-			<tuv xml:lang="ru_RU">
-				<seg>[Задачи] Может создавать задачи</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.actions.delete">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.actions.update_all">
-			<tuv xml:lang="ru_RU">
-				<seg>[Задачи] Может управлять задачами любого пользователя</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.view.actions.export">
-			<tuv xml:lang="ru_RU">
-				<seg>[Задачи] Может экспортировать списки задач в CSV/XML</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.ticket.actions.assign">
@@ -158,11 +53,6 @@
 				<seg>[Заявки] Может закрывать заявки</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.delete">
-			<tuv xml:lang="ru_RU">
-				<seg>[Заявки] Может удалять заявки</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.move">
 			<tuv xml:lang="ru_RU">
 				<seg>[Заявки] Может передвигать заявки между очередями</seg>
@@ -173,26 +63,6 @@
 				<seg>[Заявки] Может помечать заявки как спам</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.view.actions.broadcast_reply">
-			<tuv xml:lang="ru_RU">
-				<seg>[Заявки] Может создавать ответа для списков заявок</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.view.actions.bulk_update">
-			<tuv xml:lang="ru_RU">
-				<seg>[Заявки] Может использовать глобальное обновление заявок в списках</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.view.actions.export">
-			<tuv xml:lang="ru_RU">
-				<seg>[Заявки] Может экспортировать списки заявок в CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.view.actions.merge">
-			<tuv xml:lang="ru_RU">
-				<seg>[Заявки] Может объединять заявки в списках</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.watchers.assign">
 			<tuv xml:lang="ru_RU">
 				<seg/>
@@ -201,66 +71,6 @@
 		<tu tuid="acl.core.watchers.unassign">
 			<tuv xml:lang="ru_RU">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.create">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.delete">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.import">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.update_all">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.view.actions.broadcast">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.view.actions.export">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.datacenter.domains.actions.delete">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.actions.create">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.actions.delete_all">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.actions.update_all">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.view.actions.export">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.kb.articles.actions.update_all">
-			<tuv xml:lang="ru_RU">
-				<seg>[База знаний] Может использовать глобальное обновление статей</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.reports.group.custom_fields">
@@ -303,24 +113,9 @@
 				<seg>[Отчеты] Может просматривать группу 'Отчеты по исполнителям' </seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.timetracking.actions.create">
-			<tuv xml:lang="ru_RU">
-				<seg>[Контроль времени] Может использовать контроль времени</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.actions.update_all">
-			<tuv xml:lang="ru_RU">
-				<seg>[Контроль времени] Can manage everyone's time slips</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.timetracking.report.group.time">
 			<tuv xml:lang="ru_RU">
 				<seg>[Отчеты] Может просматривать группу 'Отчеты по контролю времени' </seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.view.actions.export">
-			<tuv xml:lang="ru_RU">
-				<seg>[Контроль времени] Может экспортировать списки контроля времени в CSV/XML</seg>
 			</tuv>
 		</tu>
 		<tu tuid="activities.calendar_event.created">

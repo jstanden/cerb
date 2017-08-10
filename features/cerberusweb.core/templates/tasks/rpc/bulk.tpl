@@ -48,7 +48,7 @@
 					<select name="params[status]">
 						<option value="0">{'status.open'|devblocks_translate}</option>
 						<option value="1">{'status.completed'|devblocks_translate}</option>
-						{if $active_worker->hasPriv('core.tasks.actions.delete')}
+						{if $active_worker->hasPriv('contexts.cerberusweb.contexts.task.delete')}
 						<option value="2">{'status.deleted'|devblocks_translate}</option>
 						{/if}
 					</select>

@@ -156,8 +156,8 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError("Record not found.");
 				
 				// Check privs
-				if(!(($active_worker->hasPriv('timetracking.actions.create') && $active_worker->id==$entry->worker_id)
-					|| $active_worker->hasPriv('timetracking.actions.update_all')))
+				if(!(($active_worker->hasPriv('contexts.cerberusweb.contexts.timetracking.create') && $active_worker->id==$entry->worker_id)
+					|| $active_worker->hasPriv('contexts.cerberusweb.contexts.timetracking.update')))
 						throw new Exception_DevblocksAjaxValidationError("You do not have permission to delete this record.");
 						
 				DAO_TimeTrackingEntry::delete($id);

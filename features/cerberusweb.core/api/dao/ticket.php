@@ -4772,7 +4772,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->hasPriv('core.mail.send'))
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
 			return;
 		
 		$tpl = DevblocksPlatform::services()->template();

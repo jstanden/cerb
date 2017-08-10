@@ -201,7 +201,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		try {
 			if(!empty($id) && !empty($do_delete)) { // delete
 				// [TODO] Delete ACL
-				if(!$active_worker->hasPriv('crm.opp.actions.create'))
+				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.opp.delete'))
 					throw new Exception_DevblocksAjaxValidationError("You don't have permission to delete this record.");
 				
 				if(false == ($opp = DAO_CrmOpportunity::get($id)))
@@ -240,7 +240,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				
 				// Create
 				if(empty($id)) {
-					if(empty($id) && !$active_worker->hasPriv('crm.opp.actions.create'))
+					if(empty($id) && !$active_worker->hasPriv('contexts.cerberusweb.contexts.opp.create'))
 						throw new Exception_DevblocksAjaxValidationError("You don't have permission to create this record.");
 					
 					$fields[DAO_CrmOpportunity::CREATED_DATE] = time();
@@ -254,7 +254,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 					
 				// Update
 				} else {
-					if(empty($id) && !$active_worker->hasPriv('crm.opp.actions.update_all'))
+					if(empty($id) && !$active_worker->hasPriv('contexts.cerberusweb.contexts.opp.update'))
 						throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
 					
 					DAO_CrmOpportunity::update($id, $fields);
@@ -445,7 +445,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		
 		// Do: Status
 		if(0 != strlen($status)) {
-			if('deleted' == $status && !($active_worker && $active_worker->hasPriv('crm.opp.actions.delete'))) {
+			if('deleted' == $status && !($active_worker && $active_worker->hasPriv('contexts.cerberusweb.contexts.opp.delete'))) {
 				// Do nothing if we don't have delete permission
 			} else {
 				$do['status'] = $status;
@@ -484,7 +484,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 			$do['watchers'] = $watcher_params;
 			
 		// Broadcast: Mass Reply
-		if($active_worker->hasPriv('crm.opp.view.actions.broadcast')) {
+		if($active_worker->hasPriv('contexts.cerberusweb.contexts.opp.broadcast')) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
 			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);

@@ -5,18 +5,6 @@
 		srclang="en-us" o-tmf="abc" />
 	<body>
 
-		<!-- ACL -->
-		
-		<tu tuid='acl.core.kb.articles.modify'>
-			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can manage articles</seg></tuv>
-		</tu>
-		<tu tuid='acl.core.kb.categories.modify'>
-			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can manage categories</seg></tuv>
-		</tu>
-		<tu tuid='acl.kb.articles.actions.update_all'>
-			<tuv xml:lang="en_US"><seg>[Knowledgebase] Can bulk update articles</seg></tuv>
-		</tu>
-
 		<!-- Common Strings -->
 
 		<tu tuid='kb.common.knowledgebase_article'>

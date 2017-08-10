@@ -62,7 +62,7 @@
 		<patch version="7.3.0" revision="1190" file="patches/7.x/7.3.0.php" />
 		
 		<patch version="8.0.0" revision="1206" file="patches/8.x/8.0.0.php" />
-		<patch version="8.1.0" revision="1224" file="patches/8.x/8.1.0.php" />
+		<patch version="8.1.0" revision="1225" file="patches/8.x/8.1.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -1021,25 +1021,6 @@
 	<!-- Permissions -->
 
 	<acl>
-		<!-- Contexts -->
-		<priv id="context.contact.worklist.broadcast" label="acl.context.contact.worklist.broadcast" />
-		<priv id="context.org.worklist.broadcast" label="acl.context.org.worklist.broadcast" />
-		<priv id="context.worker.worklist.broadcast" label="acl.context.worker.worklist.broadcast" />
-	
-		<!-- Addy Book -->
-		<priv id="core.addybook.addy.actions.update" label="acl.core.addybook.addy.actions.update" />
-		<priv id="core.addybook.addy.view.actions.broadcast" label="acl.core.addybook.addy.view.actions.broadcast" />
-		<priv id="core.addybook.addy.view.actions.export" label="acl.core.addybook.addy.view.actions.export" />
-		<priv id="core.addybook.org.actions.merge" label="acl.core.addybook.org.actions.merge" />
-		<priv id="core.addybook.org.actions.update" label="acl.core.addybook.org.actions.update" />
-		<priv id="core.addybook.org.actions.delete" label="acl.core.addybook.org.actions.delete" />
-		<priv id="core.addybook.org.view.actions.export" label="acl.core.addybook.org.view.actions.export" />
-		<priv id="core.addybook.person.actions.delete" label="acl.core.addybook.person.actions.delete" />
-		<priv id="core.addybook.person.actions.update" label="acl.core.addybook.person.actions.update" />
-
-		<!-- Comments -->
-		<priv id="core.comment.actions.update.own" label="acl.core.comment.actions.update.own" />
-		
 		<!-- Display Ticket -->
 		<priv id="core.display.actions.attachments.download" label="acl.core.display.actions.attachments.download" />
 		<priv id="core.display.actions.forward" label="acl.core.display.actions.forward" />
@@ -1047,32 +1028,15 @@
 		<priv id="core.display.actions.reply" label="acl.core.display.actions.reply" />
 		<priv id="core.display.actions.split" label="acl.core.display.actions.split" />
 		
-		<priv id="core.display.message.actions.delete" label="acl.core.display.message.actions.delete" />
-
 		<!-- Mail page -->
 		<priv id="core.mail.save_without_sending" label="acl.core.mail.save_without_sending" />
-		<priv id="core.mail.send" label="acl.core.mail.send" />
-		<priv id="core.mail.draft.delete_all" label="acl.core.mail.draft.delete_all" />
 
-		<!-- Snippets -->
-		<priv id="core.snippets.actions.create" label="acl.core.snippets.actions.create" />
-
-		<!-- Tasks -->
-		<priv id="core.tasks.actions.create" label="acl.core.tasks.actions.create" />
-		<priv id="core.tasks.actions.update_all" label="acl.core.tasks.actions.update_all" />
-		<priv id="core.tasks.actions.delete" label="acl.core.tasks.actions.delete" />
-		<priv id="core.tasks.view.actions.export" label="acl.core.tasks.view.actions.export" />
-		
 		<!-- Tickets -->
 		<priv id="core.ticket.actions.assign" label="acl.core.ticket.actions.assign" />
 		<priv id="core.ticket.actions.close" label="acl.core.ticket.actions.close" />
 		<priv id="core.ticket.actions.delete" label="acl.core.ticket.actions.delete" />
 		<priv id="core.ticket.actions.move" label="acl.core.ticket.actions.move" />
 		<priv id="core.ticket.actions.spam" label="acl.core.ticket.actions.spam" />
-		<priv id="core.ticket.view.actions.broadcast_reply" label="acl.core.ticket.view.actions.broadcast_reply" />
-		<priv id="core.ticket.view.actions.bulk_update" label="acl.core.ticket.view.actions.bulk_update" />
-		<priv id="core.ticket.view.actions.export" label="acl.core.ticket.view.actions.export" />
-		<priv id="core.ticket.view.actions.merge" label="acl.core.ticket.view.actions.merge" />
 
 		<!-- Watchers -->
 		<priv id="core.watchers.assign" label="acl.core.watchers.assign" />
@@ -1112,6 +1076,9 @@
 						-->
 					</value>
 				</param>
+				<param key="acl">
+					<value/>
+				</param>
 			</params>
 		</extension>
 		
@@ -1143,6 +1110,14 @@
 						<data key="va_variable" />
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1172,6 +1147,14 @@
 						<data key="links" />
 						<data key="search" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -1206,7 +1189,21 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>
@@ -1239,6 +1236,14 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="import" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1267,6 +1272,15 @@
 						<!-- <data key="search" /> -->
 						<data key="va_variable" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -1300,6 +1314,14 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1329,6 +1351,15 @@
 						<!-- <data key="search" /> -->
 						<data key="va_variable" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -1365,6 +1396,14 @@
 						-->
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1395,6 +1434,13 @@
 						<data key="search" />
 					</value>
 					-->
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
+					</value>
 				</param>
 			</params>
 		</extension>
@@ -1432,10 +1478,24 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
 					</value>
 				</param>
 				<param key="context_expand_export" value="org_" />
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1467,6 +1527,15 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1495,10 +1564,20 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
 					</value>
 				</param>
 				<param key="context_expand_export" value="owner_" />
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1528,10 +1607,20 @@
 						<data key="links" />
 						<data key="search" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
 					</value>
 				</param>
 				<param key="context_expand_export" value="calendar_" />
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1561,10 +1650,20 @@
 						<data key="links" />
 						<data key="search" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
 					</value>
 				</param>
 				<param key="context_expand_export" value="calendar_" />
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1598,6 +1697,14 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1628,6 +1735,13 @@
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -1664,6 +1778,12 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="delete" />
+						<data key="export" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1689,6 +1809,14 @@
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>
@@ -1722,7 +1850,17 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -1758,6 +1896,14 @@
 						<data key="links" />
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1789,7 +1935,17 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -1826,6 +1982,15 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1851,6 +2016,14 @@
 				<param key="options">
 					<value>
 						<data key="custom_fields" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -1889,6 +2062,15 @@
 					</value>
 				</param>
 				<param key="context_expand_export" value="ticket_,ticket_bucket,ticket_group,sender_,sender_org_" />
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -1917,6 +2099,15 @@
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>
@@ -1954,7 +2145,21 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>
@@ -1980,6 +2185,16 @@
 				<param key="options">
 					<value>
 						<data key="custom_fields" />
+						<data key="watchers" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -2013,6 +2228,14 @@
 						<data key="va_variable" />
 						<data key="workspace" />
 						-->
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -2050,6 +2273,14 @@
 						-->
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2081,6 +2312,16 @@
 					</value>
 				</param>
 				<param key="context_expand_export" value="owner_" />
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2110,7 +2351,19 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>
@@ -2148,10 +2401,23 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
 					</value>
 				</param>
 				<param key="context_expand_export" value="group_,bucket_,owner_,latest_message_sender_" />
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2179,6 +2445,16 @@
 						<data key="search" />
 						<data key="workspace" />
 						<data key="va_variable" />
+						<data key="watchers" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -2215,7 +2491,18 @@
 						<data key="owner" />
 						<data key="search" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -2261,6 +2548,16 @@
 					</value>
 				</param>
 				<param key="context_expand_export" value="address_" />
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="export" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -2292,6 +2589,13 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -2321,6 +2625,15 @@
 						<data key="workspace" />
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -2348,6 +2661,15 @@
 						<!-- <data key="va_variable" /> -->
 					</value>
 				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="update" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -2373,6 +2695,15 @@
 				<param key="options">
 					<value>
 						<!--<data key="va_variable" />-->
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>

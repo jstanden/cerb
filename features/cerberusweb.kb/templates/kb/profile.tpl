@@ -21,7 +21,7 @@
 	{if $pref_keyboard_shortcuts}
 	<small>
 		{'common.keyboard'|devblocks_translate|lower}:
-		{if $active_worker->hasPriv('core.kb.articles.modify')}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
+		{if $active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.update')}(<b>e</b>) {'common.edit'|devblocks_translate|lower}{/if}
 		(<b>1-9</b>) change tab 
 	</small> 
 	{/if}
@@ -144,7 +144,7 @@ $(document).keypress(function(event) {
 				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;
-		{if $active_worker->hasPriv('core.kb.articles.modify')}
+		{if $active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.update')}
 		case 101:  // (E) edit
 			try {
 				$('#btnDisplayKbEdit').click();

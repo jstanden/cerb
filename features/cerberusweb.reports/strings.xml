@@ -14,28 +14,28 @@
 		<!-- ACL -->
 
 		<tu tuid='acl.reports.group.custom_fields'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Custom Field' reports</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Can view Custom Field reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.groups'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Group' reports</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Can view Group reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.orgs'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Organization' reports</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Can view Organization reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.snippets'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Snippets' reports</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Can view Snippets reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.spam'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Spam' reports</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Can view Spam reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.tickets'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Ticket' reports</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Can view Ticket reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.bots'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Bot' reports</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Can view Bot reports</seg></tuv>
 		</tu>
 		<tu tuid='acl.reports.group.workers'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Worker' reports</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Can view Worker reports</seg></tuv>
 		</tu>
 		
 		<!-- Reports Common -->

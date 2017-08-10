@@ -88,9 +88,9 @@
 <div class="status"></div>
 
 <div class="buttons">
-	{if (empty($opp) && $active_worker->hasPriv('crm.opp.actions.create')) || (!empty($opp) && $active_worker->hasPriv('crm.opp.actions.update_all'))}
+	{if (empty($opp) && $active_worker->hasPriv('contexts.cerberusweb.contexts.opp.create')) || (!empty($opp) && $active_worker->hasPriv('contexts.cerberusweb.contexts.opp.update'))}
 		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
-		{if $active_worker->hasPriv('crm.opp.actions.delete') && !empty($opp)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opp.delete') && !empty($opp)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	{else}
 		<fieldset class="delete">
 			You do not have permission to modify this record.

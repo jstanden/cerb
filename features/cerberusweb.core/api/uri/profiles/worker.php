@@ -600,7 +600,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
 		// Broadcast: Compose
-		if($active_worker->hasPriv('context.worker.worklist.broadcast')) {
+		if($active_worker->hasPriv('contexts.cerberusweb.contexts.worker.broadcast')) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
 			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);

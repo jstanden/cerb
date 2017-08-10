@@ -23,6 +23,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const PARAMS_JSON = 'params_json';
+	const PRIVS_JSON = 'privs_json';
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -131,18 +132,19 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			if(false === ($roles = DAO_WorkerRole::getRolesByWorker($worker_id)))
 				return false;
 			
-			$privs = array();
+			$privs = [];
 			
 			foreach($roles as $role_id => $role) {
 				switch($role->params['what']) {
 					case 'all':
-						$privs = array('*' => array());
+						$privs = ['*' => []];
 						$cache->save($privs, self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id);
 						return;
 						break;
 						
 					case 'itemized':
-						$privs = array_merge($privs, DAO_WorkerRole::getRolePrivileges($role_id));
+						$role_privs = array_fill_keys($role->privs, []);
+						$privs = array_merge($privs, $role_privs);
 						break;
 				}
 			}
@@ -183,7 +185,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, params_json ".
+		$sql = "SELECT id, name, params_json, privs_json, updated_at ".
 			"FROM worker_role ".
 			$where_sql.
 			$sort_sql.
@@ -262,11 +264,14 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_WorkerRole();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			
 			@$params = json_decode($row['params_json'], true) or array();
 			$object->params = $params;
+			
+			@$privs = json_decode($row['privs_json'], true) or [];
+			$object->privs = $privs;
 			
 			$objects[$object->id] = $object;
 		}
@@ -289,7 +294,6 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM worker_role WHERE id IN (%s)", $ids_list));
-		$db->ExecuteMaster(sprintf("DELETE FROM worker_role_acl WHERE role_id IN (%s)", $ids_list));
 
 		self::clearCache();
 		self::clearWorkerCache();
@@ -307,53 +311,6 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		);
 		
 		return true;
-	}
-	
-	static function getRolePrivileges($role_id) {
-		// [TODO] Cache all?
-		
-		$db = DevblocksPlatform::services()->database();
-		$acl = DevblocksPlatform::getAclRegistry();
-		
-		$privs = array();
-		
-		$results = $db->GetArraySlave(sprintf("SELECT priv_id FROM worker_role_acl WHERE role_id = %d", $role_id));
-
-		foreach($results as $row) {
-			@$priv = $row['priv_id'];
-			$privs[$priv] = isset($acl[$priv]) ? $acl[$priv] : array();
-		}
-		
-		return $privs;
-	}
-	
-	/**
-	 * @param integer $role_id
-	 * @param array $privileges
-	 * @param boolean $replace
-	 */
-	static function setRolePrivileges($role_id, $privileges) {
-		if(!is_array($privileges)) $privileges = array($privileges);
-		$db = DevblocksPlatform::services()->database();
-		
-		if(empty($role_id))
-			return;
-		
-		// Wipe all privileges on blank replace
-		$sql = sprintf("DELETE FROM worker_role_acl WHERE role_id = %d", $role_id);
-		$db->ExecuteMaster($sql);
-
-		// Set ACLs according to the new list
-		if(!empty($privileges)) {
-			foreach($privileges as $priv) { /* @var $priv DevblocksAclPrivilege */
-				$sql = sprintf("INSERT INTO worker_role_acl (role_id, priv_id) ".
-					"VALUES (%d, %s)",
-					$role_id,
-					$db->qstr($priv)
-				);
-				$db->ExecuteMaster($sql);
-			}
-		}
 	}
 	
 	static function clearCache() {
@@ -384,10 +341,10 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"worker_role.id as %s, ".
 			"worker_role.name as %s, ".
-			"worker_role.params_json as %s ",
+			"worker_role.params_json as %s, ".
 				SearchFields_WorkerRole::ID,
 				SearchFields_WorkerRole::NAME,
-				SearchFields_WorkerRole::PARAMS_JSON
+				SearchFields_WorkerRole::PARAMS_JSON,
 			);
 			
 		$join_sql = "FROM worker_role ";
@@ -508,6 +465,7 @@ class Model_WorkerRole {
 	public $id;
 	public $name;
 	public $params = [];
+	public $privs = [];
 	
 	function getWorkerIds() {
 		@$who = $this->params['who'];
@@ -1090,6 +1048,83 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		return $view;
 	}
 	
+	private function _getPluginPrivileges() {
+		$plugins = DevblocksPlatform::getPluginRegistry();
+		$acls = DevblocksPlatform::getAclRegistry();
+		
+		unset($plugins['devblocks.core']);
+		
+		$plugins_acl = [];
+		
+		if(is_array($plugins))
+		foreach($plugins as $plugin_id => $plugin) {
+			$plugins_acl[$plugin_id] = [
+				'label' => $plugin->name,
+				'privs' => [],
+			];
+		}
+		
+		if(is_array($acls))
+		foreach($acls as $acl_key => $acl) {
+			$plugin_id = $acl->plugin_id;
+			
+			if(empty($plugin_id) || !isset($plugins_acl[$plugin_id]))
+				continue;
+			
+			$plugins_acl[$plugin_id]['privs'][$acl->id] = DevblocksPlatform::translate($acl->label);
+		}
+		
+		// Sort privs within each plugin
+		if(is_array($plugins_acl))
+		foreach($plugins_acl as &$plugin) {
+			asort($plugin['privs']);
+		}
+		
+		// Sort plugins
+		DevblocksPlatform::sortObjects($plugins_acl, '[label]');
+		
+		// Move Cerb back to the top
+		$cerb_acl = $plugins_acl['cerberusweb.core'];
+		unset($plugins_acl['cerberusweb.core']);
+		$keys = array_keys($plugins_acl);
+		$values = array_values($plugins_acl);
+		array_unshift($keys, 'cerberusweb.core');
+		array_unshift($values, $cerb_acl);
+		$plugins_acl = array_combine($keys, $values);
+		
+		return $plugins_acl;
+	}
+	
+	private function _formatCorePrivileges(array $core_acl) {
+		$result = [];
+		
+		if(isset($core_acl['privs']) && is_array($core_acl['privs']))
+		foreach($core_acl['privs'] as $priv => $label) {
+			if(mb_ereg('^\[(.*?)\] (.*?)$', $label, $matches)) {
+				$section = $matches[1];
+				$label = $matches[2];
+				
+				if(!isset($result[$section]))
+					$result[$section] = [
+						'label' => $section,
+						'privs' => [],
+					];
+				
+				$result[$section]['privs'][$priv] = $label;
+				
+			} else {
+				$result[''] = [
+					'label' => '',
+					'privs' => [],
+				];
+				
+				$result['']['privs'][$priv] = $label;
+			}
+		}
+		
+		return $result;
+	}
+	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
@@ -1104,47 +1139,14 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			if(isset($model))
 				$tpl->assign('model', $model);
 			
-			$plugins = DevblocksPlatform::getPluginRegistry();
-			$acls = DevblocksPlatform::getAclRegistry();
+			$plugins_acl = $this->_getPluginPrivileges();
 			
-			unset($plugins['devblocks.core']);
-			
-			$plugins_acl = [];
-			
-			foreach($plugins as $plugin_id => $plugin) {
-				$plugins_acl[$plugin_id] = [
-					'label' => $plugin->name,
-					'privs' => [],
-				];
-			}
-			
-			foreach($acls as $acl_key => $acl) {
-				$plugin_id = $acl->plugin_id;
-				
-				if(empty($plugin_id) || !isset($plugins_acl[$plugin_id]))
-					continue;
-				
-				$plugins_acl[$plugin_id]['privs'][$acl->id] = DevblocksPlatform::translate($acl->label);
-			}
-			
-			// Sort privs within each plugin
-			foreach($plugins_acl as &$plugin) {
-				asort($plugin['privs']);
-			}
-			
-			// Sort plugins
-			DevblocksPlatform::sortObjects($plugins_acl, '[label]');
-			
-			// Move Cerb back to the top
-			$cerb_acl = $plugins_acl['cerberusweb.core'];
+			$core_acl = $plugins_acl['cerberusweb.core'];
 			unset($plugins_acl['cerberusweb.core']);
-			$keys = array_keys($plugins_acl);
-			$values = array_values($plugins_acl);
-			array_unshift($keys, 'cerberusweb.core');
-			array_unshift($values, $cerb_acl);
-			$plugins_acl = array_combine($keys, $values);
-			
 			$tpl->assign('plugins_acl', $plugins_acl);
+			
+			$core_acl = $this->_formatCorePrivileges($core_acl);
+			$tpl->assign('core_acl', $core_acl);
 			
 			$groups = DAO_Group::getAll();
 			$tpl->assign('groups', $groups);
@@ -1152,8 +1154,17 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			$workers = DAO_Worker::getAllActive();
 			$tpl->assign('workers', $workers);
 			
-			$role_privs = DAO_WorkerRole::getRolePrivileges($context_id);
+			if(is_array($model->privs)) {
+				$role_privs = array_fill_keys($model->privs, []);
+			} else {
+				$model->privs = [];
+			}
+			
 			$tpl->assign('role_privs', $role_privs);
+			
+			// Contexts
+			$contexts = Extension_DevblocksContext::getAll(false);
+			$tpl->assign('contexts', $contexts);
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);

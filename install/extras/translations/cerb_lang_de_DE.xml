@@ -8,64 +8,9 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.calls.actions.update_all">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.calls.actions.update_nobody">
 			<tuv xml:lang="de_DE">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.calls.view.actions.export">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.addy.actions.update">
-			<tuv xml:lang="de_DE">
-				<seg>[Adressbuch] Kann E-Mail-Adressen modifizieren</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.addy.view.actions.broadcast">
-			<tuv xml:lang="de_DE">
-				<seg>[Adressbuch] Kann verfasste E-Mail an Adresslisten senden</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.addy.view.actions.export">
-			<tuv xml:lang="de_DE">
-				<seg>[Adressbuch] Kann E-Mail-Adressen exportieren in CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.actions.delete">
-			<tuv xml:lang="de_DE">
-				<seg>[Adressbuch] Kann Organisationen löschen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.actions.merge">
-			<tuv xml:lang="de_DE">
-				<seg>[Adressbuch] Kann Organisationen verschmelzen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.actions.update">
-			<tuv xml:lang="de_DE">
-				<seg>[Adressbuch] Kann Organisationen modifizieren</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.view.actions.export">
-			<tuv xml:lang="de_DE">
-				<seg>[Adressbuch] Kann Organisationen exportieren in CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.person.actions.delete">
-			<tuv xml:lang="de_DE">
-				<seg>[Adressbuch] Kann registrierte Kontakte löschen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.person.actions.update">
-			<tuv xml:lang="de_DE">
-				<seg>[Adressbuch] Kann registrierte Kontakte modifizieren</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.display.actions.attachments.download">
@@ -93,59 +38,9 @@
 				<seg>[Ticketansicht] Kann Tickets teilen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.message.actions.delete">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.kb.articles.modify">
-			<tuv xml:lang="de_DE">
-				<seg>[Hilfedatenbank] Kann Artikel verfassen/bearbeiten</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.kb.categories.modify">
-			<tuv xml:lang="de_DE">
-				<seg>[Hilfedatenbank] Kann Kategorien verfassen/bearbeiten</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.mail.draft.delete_all">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.mail.save_without_sending">
 			<tuv xml:lang="de_DE">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.mail.send">
-			<tuv xml:lang="de_DE">
-				<seg>[Email] Kann neue Nachrichten aus dem Helpdesk verfassen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.snippets.actions.create">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.actions.create">
-			<tuv xml:lang="de_DE">
-				<seg>[Aufgaben] Kann Aufgaben erstellen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.actions.delete">
-			<tuv xml:lang="de_DE">
-				<seg>[Aufgaben] Kann Aufgaben löschen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.actions.update_all">
-			<tuv xml:lang="de_DE">
-				<seg>[Aufgaben] Kann die Aufgaben jedes Bearbeiters übernehmen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.view.actions.export">
-			<tuv xml:lang="de_DE">
-				<seg>[Aufgaben] Kann Aufgaben exportieren in CSV/XML</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.ticket.actions.assign">
@@ -173,26 +68,6 @@
 				<seg>[Tickets] Kann Tickets als Spam markieren</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.view.actions.broadcast_reply">
-			<tuv xml:lang="de_DE">
-				<seg>[Tickets] Kann Antworten zu Ticket-Listen senden</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.view.actions.bulk_update">
-			<tuv xml:lang="de_DE">
-				<seg>[Tickets] Kann Tickets in Stapelverarbeitung editieren</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.view.actions.export">
-			<tuv xml:lang="de_DE">
-				<seg>[Tickets] Kann Tickets exportieren in CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.view.actions.merge">
-			<tuv xml:lang="de_DE">
-				<seg>[Tickets] Kann Tickets dieser Liste verschmelzen</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.watchers.assign">
 			<tuv xml:lang="de_DE">
 				<seg/>
@@ -201,66 +76,6 @@
 		<tu tuid="acl.core.watchers.unassign">
 			<tuv xml:lang="de_DE">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.create">
-			<tuv xml:lang="de_DE">
-				<seg>[Absatzchancen] Kann Absatzchancen erstellen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.delete">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.import">
-			<tuv xml:lang="de_DE">
-				<seg>[Absatzchancen] Kann Absatzchancen aus CSV-Dateien importieren</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.update_all">
-			<tuv xml:lang="de_DE">
-				<seg>[Absatzchancen] Kann Absatzchancen jeden Benutzers verwalten</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.view.actions.broadcast">
-			<tuv xml:lang="de_DE">
-				<seg>[Absatzchancen] Kann E-Mail an Listen der Absatzchancen senden</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.view.actions.export">
-			<tuv xml:lang="de_DE">
-				<seg>[Absatzchancen] Kann Liste der Absatzchancen exportieren in CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.datacenter.domains.actions.delete">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.actions.create">
-			<tuv xml:lang="de_DE">
-				<seg>[Feedback] Kann Feedback-Einträge erstellen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.actions.delete_all">
-			<tuv xml:lang="de_DE">
-				<seg>[Feedback] Kann Feedback-Einträge jedes Mitabreiters löschen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.actions.update_all">
-			<tuv xml:lang="de_DE">
-				<seg>[Feedback] Kann Feedback-Einträge jedes Mitabreiters bearbeiten</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.view.actions.export">
-			<tuv xml:lang="de_DE">
-				<seg>[Feedback] Kann Feedback-Liste exportieren in CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.kb.articles.actions.update_all">
-			<tuv xml:lang="de_DE">
-				<seg>[Hilfedatenbank] Kann Artikel als Stapel bearbeiten</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.reports.group.custom_fields">
@@ -303,24 +118,9 @@
 				<seg>[Berichte] Kann Berichte der Mitarbeiter-Auswertung einsehen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.timetracking.actions.create">
-			<tuv xml:lang="de_DE">
-				<seg>[Zeiterfassung] Kann die Zeiterfassung nutzen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.actions.update_all">
-			<tuv xml:lang="de_DE">
-				<seg>[Zeiterfassung] Kann die Zeitbelege jeden Mitarbeiters bearbeiten</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.timetracking.report.group.time">
 			<tuv xml:lang="de_DE">
 				<seg>[Berichte] Kann Berichte der Zeiterfassung einsehen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.view.actions.export">
-			<tuv xml:lang="de_DE">
-				<seg>[Zeiterfassung] Kann die Zeitbelege exportieren in CSV/XML</seg>
 			</tuv>
 		</tu>
 		<tu tuid="activities.calendar_event.created">

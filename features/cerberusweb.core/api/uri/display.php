@@ -190,7 +190,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				throw new Exception_DevblocksAjaxValidationError("You are not authorized to modify this record.");
 			
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				if(!$active_worker->hasPriv('core.display.message.actions.delete'))
+				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.message.delete'))
 					throw new Exception_DevblocksAjaxValidationError("You are not authorized to delete this record.");
 				
 				DAO_Message::delete($id);
@@ -241,7 +241,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$active_worker->hasPriv('core.ticket.view.actions.merge')) {
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.merge')) {
 			return;
 		}
 		
@@ -268,7 +268,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$refresh_id = !empty($src_ticket) ? $src_ticket->mask : $src_ticket_id;
 		
 		// ACL
-		if(!$active_worker->hasPriv('core.ticket.view.actions.merge')) {
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.merge')) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$refresh_id)));
 			exit;
 		}
@@ -1322,7 +1322,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->hasPriv('core.display.message.actions.delete'))
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.message.delete'))
 			return;
 		
 		if(null == ($message = DAO_Message::get($id)))

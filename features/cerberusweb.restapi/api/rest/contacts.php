@@ -60,7 +60,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 	
 	function deleteAction($stack) {
 		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker->hasPriv('core.addybook.person.actions.delete'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.contact.delete'))
 			$this->error(self::ERRNO_ACL);
 
 		$id = array_shift($stack);
@@ -255,7 +255,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.addybook.person.actions.update'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.contact.update'))
 			$this->error(self::ERRNO_ACL);
 		
 		// Validate the ID
@@ -344,7 +344,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.addybook.person.actions.update'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.contact.create'))
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(
@@ -441,7 +441,7 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid contact ID %d", $id));
 
 		// ACL
-		if(!$worker->hasPriv('core.addybook.person.actions.update'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.contact.comment'))
 			$this->error(self::ERRNO_ACL);
 		
 		// Required fields

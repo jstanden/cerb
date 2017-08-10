@@ -43,7 +43,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_MESSAGE context_id=$model->id}
 
-{if !empty($model->id) && $active_worker->hasPriv('core.display.message.actions.delete')}
+{if !empty($model->id) && $active_worker->hasPriv('contexts.cerberusweb.contexts.message.delete')}
 <fieldset style="display:none;" class="delete">
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 	
@@ -58,7 +58,7 @@
 
 <div class="buttons">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv('core.display.message.actions.delete')}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($model->id) && $active_worker->hasPriv('contexts.cerberusweb.contexts.message.delete')}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
 

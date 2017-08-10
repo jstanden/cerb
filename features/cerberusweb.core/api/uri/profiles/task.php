@@ -158,7 +158,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // delete
-				if(!$active_worker->hasPriv('core.tasks.actions.delete'))
+				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.task.delete'))
 					throw new Exception_DevblocksAjaxValidationError("You don't have permission to delete this record.");
 				
 				DAO_Task::delete($id);
@@ -348,7 +348,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 					if(isset($params[$action])) {
 						switch($params[$action]) {
 							case '2':
-								if($active_worker->hasPriv('core.tasks.actions.delete'))
+								if($active_worker->hasPriv('contexts.cerberusweb.contexts.task.delete'))
 									$do['delete'] = true;
 									break;
 								break;

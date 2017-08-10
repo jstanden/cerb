@@ -63,7 +63,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	
 	function deleteAction($stack) {
 		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker->hasPriv('core.kb.articles.modify'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.kb_article.delete'))
 			$this->error(self::ERRNO_ACL);
 
 		$id = array_shift($stack);
@@ -80,10 +80,6 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	private function getId($id) {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('plugin.cerberusweb.kb'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -230,10 +226,6 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 	function postSearch() {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('plugin.cerberusweb.kb'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
@@ -247,7 +239,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid article ID '%d'", $id));
 			
 		// ACL
-		if(!($worker->hasPriv('core.kb.articles.modify')))
+		if(!($worker->hasPriv('contexts.cerberusweb.contexts.kb_article.update')))
 			$this->error(self::ERRNO_ACL);
 			
 		$putfields = array(
@@ -300,7 +292,7 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.kb.articles.modify'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.kb_article.create'))
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(

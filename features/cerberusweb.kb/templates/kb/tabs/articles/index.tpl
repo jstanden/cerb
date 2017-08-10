@@ -5,7 +5,7 @@
 	<input type="hidden" name="a" value="">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-	{if $active_worker->hasPriv('core.kb.categories.modify')}
+	{if $active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.update')}
 		{$parent_id = 0}
 		{if $root_id}
 			{assign var=parent_id value=$categories.$root_id->parent_id}

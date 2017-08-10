@@ -65,14 +65,7 @@
 		<template path="support_center/kb/view.tpl" />
 	</templates>
 
-	<!-- Permissions -->
-	
-	<acl>
-		<!-- KB -->
-		<priv id="core.kb.articles.modify" label="acl.core.kb.articles.modify" />
-		<priv id="core.kb.categories.modify" label="acl.core.kb.categories.modify" />
-		<priv id="kb.articles.actions.update_all" label="acl.kb.articles.actions.update_all" />
-	</acl>
+	<!-- Extensions -->
 	
 	<extensions>
 	
@@ -126,7 +119,18 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>
@@ -163,6 +167,13 @@
 						<data key="workspace" />
 					</value>
 					-->
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
+					</value>
 				</param>
 			</params>
 		</extension>

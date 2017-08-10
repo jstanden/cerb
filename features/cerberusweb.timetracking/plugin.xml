@@ -63,10 +63,7 @@
 	</activity_points>
 	
 	<acl>
-		<priv id="timetracking.actions.create" label="acl.timetracking.actions.create" />
-		<priv id="timetracking.actions.update_all" label="acl.timetracking.actions.update_all" />
 		<priv id="timetracking.report.group.time" label="acl.timetracking.report.group.time" />
-		<priv id="timetracking.view.actions.export" label="acl.timetracking.view.actions.export" />
 	</acl>
 	
 	<extensions>
@@ -104,7 +101,18 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>

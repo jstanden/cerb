@@ -395,7 +395,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	function saveComposePeekAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->hasPriv('core.mail.send'))
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
 			return;
 		
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');

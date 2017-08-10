@@ -1653,7 +1653,7 @@ class Model_Worker {
 		
 		// If they have the 'everything' privilege, or no roles, permit non-config ACL
 		if(isset($privs['*']))
-			return ("core.config"==substr($priv_id,0,11)) ? false : true;
+			return !DevblocksPlatform::strStartsWith($priv_id, 'core.config');
 		
 		if(!empty($priv_id) && isset($privs[$priv_id]))
 			return true;

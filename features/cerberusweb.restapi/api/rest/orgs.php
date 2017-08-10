@@ -59,7 +59,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 	
 	function deleteAction($stack) {
 		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker->hasPriv('core.addybook.org.actions.delete'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.org.delete'))
 			$this->error(self::ERRNO_ACL);
 
 		$id = array_shift($stack);
@@ -239,7 +239,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.addybook.org.actions.update'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.org.update'))
 			$this->error(self::ERRNO_ACL);
 		
 		// Validate the ID
@@ -291,7 +291,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.addybook.org.actions.update'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.org.create'))
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(
@@ -354,7 +354,7 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid org ID %d", $id));
 
 		// ACL
-		if(!$worker->hasPriv('core.addybook.org.actions.update'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.org.update'))
 			$this->error(self::ERRNO_ACL);
 		
 		// Required fields

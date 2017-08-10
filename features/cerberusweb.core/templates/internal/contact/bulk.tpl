@@ -130,7 +130,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
-{if $active_worker->hasPriv('context.contact.worklist.broadcast')}
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.contact.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_CONTACT}
 {/if}
 

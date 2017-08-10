@@ -34,7 +34,7 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 	
 	function deleteAction($stack) {
 		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker->hasPriv('core.display.message.actions.delete'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.message.delete'))
 			$this->error(self::ERRNO_ACL);
 
 		$id = array_shift($stack);

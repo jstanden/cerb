@@ -122,12 +122,12 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$who = DevblocksPlatform::importGPC($_REQUEST['who'],'string','');
 				@$what = DevblocksPlatform::importGPC($_REQUEST['what'],'string','');
-				@$acl_privs = DevblocksPlatform::importGPC($_REQUEST['acl_privs'],'array',array());
+				@$acl_privs = DevblocksPlatform::importGPC($_REQUEST['acl_privs'],'array', []);
 				
 				if(empty($name))
 					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
 				
-				$params = array();
+				$params = [];
 				
 				// Apply to
 				switch($who) {
@@ -137,13 +137,13 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 						
 					case 'groups':
 						$params['who'] = $who;
-						@$who_ids = DevblocksPlatform::importGPC($_REQUEST['group_ids'],'array',array());
+						@$who_ids = DevblocksPlatform::importGPC($_REQUEST['group_ids'],'array', []);
 						$params['who_list'] = DevblocksPlatform::sanitizeArray($who_ids, 'integer');
 						break;
 						
 					case 'workers':
 						$params['who'] = $who;
-						@$who_ids = DevblocksPlatform::importGPC($_REQUEST['worker_ids'],'array',array());
+						@$who_ids = DevblocksPlatform::importGPC($_REQUEST['worker_ids'],'array', []);
 						$params['who_list'] = DevblocksPlatform::sanitizeArray($who_ids, 'integer');
 						break;
 						
@@ -156,12 +156,12 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 				switch($what) {
 					case 'all': // all
 						$params['what'] = $what;
-						$acl_privs = array();
+						$acl_privs = [];
 						break;
 						
 					case 'none': // none
 						$params['what'] = $what;
-						$acl_privs = array();
+						$acl_privs = [];
 						break;
 						
 					case 'itemized': // itemized
@@ -185,6 +185,7 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 						DAO_WorkerRole::NAME => $name,
 						DAO_WorkerRole::PARAMS_JSON => json_encode($params),
 						//DAO_WorkerRole::UPDATED_AT => time(),
+						DAO_WorkerRole::PRIVS_JSON => json_encode($acl_privs),
 					);
 					$id = DAO_WorkerRole::create($fields);
 					
@@ -196,13 +197,10 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 						DAO_WorkerRole::NAME => $name,
 						DAO_WorkerRole::PARAMS_JSON => json_encode($params),
 						//DAO_WorkerRole::UPDATED_AT => time(),
+						DAO_WorkerRole::PRIVS_JSON => json_encode($acl_privs),
 					);
 					DAO_WorkerRole::update($id, $fields);
-					
 				}
-	
-				// Update role privs
-				DAO_WorkerRole::setRolePrivileges($id, $acl_privs, true);
 				
 				// Custom fields
 				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());

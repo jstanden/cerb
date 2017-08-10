@@ -21,7 +21,7 @@
 	<legend>Set Fields</legend>
 	
 	<table cellspacing="0" cellpadding="2" width="100%">
-		{if $active_worker->hasPriv('core.addybook.org.actions.delete')}
+		{if $active_worker->hasPriv('contexts.cerberusweb.contexts.org.delete')}
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
 			<td width="100%"><select name="status">
@@ -78,11 +78,11 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
-{if $active_worker->hasPriv('context.org.worklist.broadcast')}
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.org.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_ORG}
 {/if}
 
-{if $active_worker->hasPriv('core.addybook.org.actions.update')}<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.org.update.bulk')}<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
 <br>
 </form>
 

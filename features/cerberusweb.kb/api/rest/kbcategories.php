@@ -65,7 +65,7 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 	function deleteAction($stack) {
 		$worker = CerberusApplication::getActiveWorker();
 
-		if(!$worker->hasPriv('core.kb.categories.modify'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.kb_category.delete'))
 			$this->error(self::ERRNO_ACL);
 
 		$id = array_shift($stack);
@@ -82,10 +82,6 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 	private function getId($id) {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('plugin.cerberusweb.kb'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -207,10 +203,6 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 	function postSearch() {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('plugin.cerberusweb.kb'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
@@ -224,7 +216,7 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid category ID '%d'", $id));
 			
 		// ACL
-		if(!($worker->hasPriv('core.kb.categories.modify')))
+		if(!($worker->hasPriv('contexts.cerberusweb.contexts.kb_category.update')))
 			$this->error(self::ERRNO_ACL);
 			
 		$putfields = array(
@@ -265,7 +257,7 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.kb.categories.modify'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.kb_category.create'))
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(

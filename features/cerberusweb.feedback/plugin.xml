@@ -38,13 +38,6 @@
 		</file>
 	</class_loader>
 	
-	<acl>
-		<priv id="feedback.actions.create" label="acl.feedback.actions.create" />
-		<priv id="feedback.actions.update_all" label="acl.feedback.actions.update_all" />
-		<priv id="feedback.actions.delete_all" label="acl.feedback.actions.delete_all" />
-		<priv id="feedback.view.actions.export" label="acl.feedback.view.actions.export" />
-	</acl>
-	
 	<extensions>
 	
 		<!-- Contexts -->
@@ -73,10 +66,20 @@
 						<data key="links" />
 						<data key="search" />
 						<data key="snippets" />
+						<data key="watchers" />
 						<data key="workspace" />
 					</value>
 				</param>
 				<param key="context_expand_export" value="author_" />
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
 			</params>
 		</extension>
 	

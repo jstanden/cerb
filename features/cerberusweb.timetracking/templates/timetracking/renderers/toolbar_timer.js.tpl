@@ -1,4 +1,4 @@
-{if $active_worker->hasPriv('timetracking.actions.create')}
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.timetracking.create')}
 
 <script type="text/javascript">
 var $subpage = $('BODY > DIV.cerb-subpage');

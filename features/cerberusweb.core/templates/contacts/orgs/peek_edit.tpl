@@ -119,9 +119,9 @@
 <div class="status"></div>
 
 <div class="buttons">
-	{if $active_worker->hasPriv('core.addybook.org.actions.update')}
+	{if $active_worker->hasPriv('contexts.cerberusweb.contexts.org.update')}
 		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		{if $active_worker->hasPriv('core.addybook.org.actions.delete') && !empty($org->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		{if $active_worker->hasPriv('contexts.cerberusweb.contexts.org.delete') && !empty($org->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	{else}
 		<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>
 	{/if}

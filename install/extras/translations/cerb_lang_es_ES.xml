@@ -8,62 +8,7 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.calls.actions.update_all">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.calls.actions.update_nobody">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.calls.view.actions.export">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.addy.actions.update">
-			<tuv xml:lang="es_ES">
-				<seg>[Contactos] Puede modificar direcciones de correo de los contactos</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.addy.view.actions.broadcast">
-			<tuv xml:lang="es_ES">
-				<seg>[Contactos] Puede remitir el mensaje a listas de direcciones</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.addy.view.actions.export">
-			<tuv xml:lang="es_ES">
-				<seg>[Contactos] Puede exportar listas de direcciones de correo a CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.actions.delete">
-			<tuv xml:lang="es_ES">
-				<seg>[Contactos] Puede eliminar compañías</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.actions.merge">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.actions.update">
-			<tuv xml:lang="es_ES">
-				<seg>[Contactos] Puede modificar compañías</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.org.view.actions.export">
-			<tuv xml:lang="es_ES">
-				<seg>[Contactos] Puede exportar listas de compañías a CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.person.actions.delete">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.addybook.person.actions.update">
 			<tuv xml:lang="es_ES">
 				<seg/>
 			</tuv>
@@ -93,59 +38,9 @@
 				<seg>[Mostrar Ticket] Puede dividir tickets</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.message.actions.delete">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.kb.articles.modify">
-			<tuv xml:lang="es_ES">
-				<seg>[Base de conocimientos] Puede gestionar artículos</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.kb.categories.modify">
-			<tuv xml:lang="es_ES">
-				<seg>[Base de conocimientos] Puede gestionar categorías</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.mail.draft.delete_all">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.mail.save_without_sending">
 			<tuv xml:lang="es_ES">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.mail.send">
-			<tuv xml:lang="es_ES">
-				<seg>[Correo] Puede redactar nuevos mensajes desde el Helpdesk</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.snippets.actions.create">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.actions.create">
-			<tuv xml:lang="es_ES">
-				<seg>[Tareas] Puede crear tareas</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.actions.delete">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.actions.update_all">
-			<tuv xml:lang="es_ES">
-				<seg>[Tareas] Puede gestionar tareas de todo el mundo</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.tasks.view.actions.export">
-			<tuv xml:lang="es_ES">
-				<seg>[Tareas] Puede exportar listas de tareas a CSV/XML</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.core.ticket.actions.assign">
@@ -173,26 +68,6 @@
 				<seg>[Tickets] Puede marcar tickets como spam</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.view.actions.broadcast_reply">
-			<tuv xml:lang="es_ES">
-				<seg>[Tiques] Puede remitir la respuesta a listas de tiques</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.view.actions.bulk_update">
-			<tuv xml:lang="es_ES">
-				<seg>[Tickets] Puede actualizar masivamente tickets en listas</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.view.actions.export">
-			<tuv xml:lang="es_ES">
-				<seg>[Tickets] Puede exportar listas de tickets a CSV/XML</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.view.actions.merge">
-			<tuv xml:lang="es_ES">
-				<seg>[Tickets] Puede fusionar tickets de las listas</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.watchers.assign">
 			<tuv xml:lang="es_ES">
 				<seg/>
@@ -201,66 +76,6 @@
 		<tu tuid="acl.core.watchers.unassign">
 			<tuv xml:lang="es_ES">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.create">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.delete">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.import">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.actions.update_all">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.view.actions.broadcast">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.crm.opp.view.actions.export">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.datacenter.domains.actions.delete">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.actions.create">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.actions.delete_all">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.actions.update_all">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.feedback.view.actions.export">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.kb.articles.actions.update_all">
-			<tuv xml:lang="es_ES">
-				<seg>[Base de conocimientos] Puede realizar actualizaciones masivas en artículos</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.reports.group.custom_fields">
@@ -303,24 +118,9 @@
 				<seg>[Grupo de Informes] Puede ver el grupo 'Informes de Usuarios'</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.timetracking.actions.create">
-			<tuv xml:lang="es_ES">
-				<seg>[Control de Horas] Puede controlar las horas</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.actions.update_all">
-			<tuv xml:lang="es_ES">
-				<seg>[Control de Horas] Puede gestionar las horas realizadas de todos</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.timetracking.report.group.time">
 			<tuv xml:lang="es_ES">
 				<seg>[Grupo de Informes] Puede ver el grupo 'Informes de Control de Horas'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.view.actions.export">
-			<tuv xml:lang="es_ES">
-				<seg>[Control de Horas] Puede exportar listas de control de horas a CSV/XML</seg>
 			</tuv>
 		</tu>
 		<tu tuid="activities.calendar_event.created">

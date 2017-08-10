@@ -2464,6 +2464,8 @@ class ChInternalController extends DevblocksControllerExtension {
 	function viewShowExportAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id']);
 
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
@@ -2473,6 +2475,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('view', $view);
 
 		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
+			return false;
+		
+		// Check privs
+		if(!$active_worker->hasPriv(sprintf("contexts.%s.export", $context_ext->id)))
 			return false;
 		
 		$tokens = $context_ext->getCardProperties();
@@ -2496,6 +2502,8 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function doViewExportAction() {
 		@$cursor_key = DevblocksPlatform::importGPC($_REQUEST['cursor_key'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		header("Content-Type: application/json; charset=" . LANG_CHARSET_CODE);
 		

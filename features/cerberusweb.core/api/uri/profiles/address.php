@@ -170,7 +170,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			@$is_defunct = DevblocksPlatform::importGPC($_REQUEST['is_defunct'],'bit',0);
 			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 			
-			if(!$active_worker->hasPriv('core.addybook.addy.actions.update'))
+			if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.address.update'))
 				throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
 				
 			// Common fields
@@ -350,7 +350,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		}
 		
 		// Broadcast: Compose
-		if($active_worker->hasPriv('core.addybook.addy.view.actions.broadcast')) {
+		if($active_worker->hasPriv('contexts.cerberusweb.contexts.address.broadcast')) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
 			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);

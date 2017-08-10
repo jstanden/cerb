@@ -443,7 +443,7 @@ class ChContactsPage extends CerberusPageExtension {
 		$date = DevblocksPlatform::services()->date();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->hasPriv('core.addybook.org.actions.merge'))
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.org.merge'))
 			return false;
 		
 		// Sanitize

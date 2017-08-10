@@ -59,11 +59,11 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
-{if $active_worker->hasPriv('core.addybook.addy.view.actions.broadcast')}
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.address.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_ADDRESS}
 {/if}
 
-{if $active_worker->hasPriv('core.addybook.addy.actions.update')}
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.address.update')}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 {/if}
 <br>

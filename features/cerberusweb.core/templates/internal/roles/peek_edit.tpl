@@ -51,39 +51,114 @@
 				<label><input type="radio" name="what" value="all" {if $model->params.what=='all'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.all'|devblocks_translate|capitalize}</label>
 				<label><input type="radio" name="what" value="none" {if empty($model) || $model->params.what=='none'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.none'|devblocks_translate|capitalize}</label>
 				<label><input type="radio" name="what" value="itemized" {if $model->params.what=='itemized'}checked="checked"{/if} onclick="$('#configAclItemized').show();"> Itemized:</label>
-			
-				<div id="configAclItemized" style="display:block;padding-top:5px;{if $model->params.what != 'itemized'}display:none;{/if}">
-				{foreach from=$plugins_acl item=plugin key=plugin_id}
-					{$plugin_priv = "plugin.{$plugin_id}"}
-					<fieldset class="peek">
-						<legend>
-							<label>
-							{if $plugin_id=="cerberusweb.core"}
-								<input type="hidden" name="acl_privs[]" value="plugin.cerberusweb.core">
-							{else}
-								<input type="checkbox" name="acl_privs[]" value="{$plugin_priv}" {if isset($role_privs.$plugin_priv)}checked="checked"{/if} onchange="toggleDiv('privs{$plugin_id}',(this.checked)?'block':'none');">
-							{/if}
-							{$plugin.label}
-							</label>
-						</legend>
-						
-						<div id="privs{$plugin_id}" style="padding-left:10px;margin-bottom:5px;display:{if $plugin_id=="cerberusweb.core" || isset($role_privs.$plugin_priv)}block{else}none{/if}">
-							<a href="javascript:;" style="font-size:90%;" onclick="checkAll('privs{$plugin_id}');">check all</a>
-							
-							<div style="margin-top:5px;margin-left:5px;">
-								{foreach from=$plugin.privs item=priv key=priv_id}
-									<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
-								{/foreach}
-							</div>
-						</div>
-					</fieldset>
-				{/foreach}
-				</div>
 			</td>
 		</tr>
 	</table>
-	
 </fieldset>
+
+<div id="configAclItemized" style="display:block;{if $model->params.what != 'itemized'}display:none;{/if}">
+	<ul>
+		<li><a href="#roleEditorPrivsGeneral">{'common.global'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#roleEditorPrivsRecords">{'common.records'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#roleEditorPrivsPlugins">{'common.plugins'|devblocks_translate|capitalize}</a></li>
+	</ul>
+	
+	<div id="roleEditorPrivsGeneral">
+		<div style="margin-bottom:10px;">
+			<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsGeneral');">check all</a>
+		</div>
+		
+		{foreach from=$core_acl item=section}
+			{if empty($section.privs)}
+			{else}
+			<fieldset class="peek black">
+				<legend>
+					<label>
+					{$section.label}
+					</label>
+				</legend>
+				
+				<div style="padding-left:10px;">
+					{foreach from=$section.privs item=priv key=priv_id}
+						<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
+					{/foreach}
+				</div>
+			</fieldset>
+			{/if}
+		{/foreach}
+		
+		<div style="margin-top:5px;margin-left:5px;">
+			{foreach from=$core_acl.privs item=priv key=priv_id}
+				<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
+			{/foreach}
+		</div>
+	</div>
+	
+	<div id="roleEditorPrivsRecords">
+	<div style="margin-bottom:10px;">
+		<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsRecords');">check all</a>
+	</div>
+	
+	{$priv_labels = []}
+	{$priv_labels['broadcast'] = 'common.broadcast'|devblocks_translate|capitalize}
+	{$priv_labels['comment'] = 'common.comment'|devblocks_translate|capitalize}
+	{$priv_labels['create'] = 'common.create'|devblocks_translate|capitalize}
+	{$priv_labels['delete'] = 'common.delete'|devblocks_translate|capitalize}
+	{$priv_labels['export'] = 'common.export'|devblocks_translate|capitalize}
+	{$priv_labels['import'] = 'common.import'|devblocks_translate|capitalize}
+	{$priv_labels['merge'] = 'common.merge'|devblocks_translate|capitalize}
+	{$priv_labels['update'] = 'common.update'|devblocks_translate|capitalize}
+	{$priv_labels['update.bulk'] = 'common.update.bulk'|devblocks_translate|capitalize}
+	{$priv_labels['watchers'] = 'common.watchers'|devblocks_translate|capitalize}
+	
+	{foreach from=$contexts item=context key=context_id}
+		{$priv_prefix = "contexts.{$context_id}"}
+		{$available_privs = $context->params.acl[0]}
+		
+		{if $available_privs}
+		<fieldset class="peek black">
+			<legend>
+				<label>
+				{$aliases = Extension_DevblocksContext::getAliasesForContext($contexts[$context_id])}
+				{$aliases.plural|default:$context->name|capitalize}
+				</label>
+			</legend>
+			
+			<div id="contexts{$context_id}" style="padding-left:10px;">
+				{foreach from=$available_privs item=null key=priv}
+				{$priv_id = "{$priv_prefix}.{$priv}"}
+				<label><input type="checkbox" name="acl_privs[]" value="{$priv_prefix}.{$priv}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv_labels.$priv}</label><br>
+				{/foreach}
+			</div>
+		</fieldset>
+		{/if}
+	{/foreach}
+	</div>
+	
+	<div id="roleEditorPrivsPlugins">
+	<div style="margin-bottom:10px;">
+		<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsPlugins');">check all</a>
+	</div>
+	{foreach from=$plugins_acl item=plugin key=plugin_id}
+		{if empty($plugin.privs)}
+		{else}
+		<fieldset class="peek black">
+			<legend>
+				<label>
+				{$plugin.label}
+				</label>
+			</legend>
+			
+			<div id="privs{$plugin_id}" style="padding-left:10px">
+				{foreach from=$plugin.privs item=priv key=priv_id}
+					<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
+				{/foreach}
+			</div>
+		</fieldset>
+		{/if}
+	{/foreach}
+	</div>
+</div>
 
 {if !empty($custom_fields)}
 <fieldset class="peek">
@@ -109,7 +184,7 @@
 
 <div class="status"></div>
 
-<div class="buttons">
+<div class="buttons" style="margin-top:15px;">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
@@ -132,6 +207,9 @@ $(function() {
 		var $who = $frm.find('input:radio[name=who]');
 		var $who_groups = $('#configAclWhoGroups');
 		var $who_workers = $('#configAclWhoWorkers');
+		
+		// Tabs
+		$('#configAclItemized').tabs();
 		
 		$who.on('change', function(e) {
 			var $radio = $(this);

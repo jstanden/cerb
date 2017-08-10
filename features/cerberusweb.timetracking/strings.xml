@@ -22,17 +22,8 @@
 		
 		<!-- ACL -->
 		
-		<tu tuid='acl.timetracking.actions.create'>
-			<tuv xml:lang="en_US"><seg>[Time Tracking] Can track time</seg></tuv>
-		</tu>
-		<tu tuid='acl.timetracking.actions.update_all'>
-			<tuv xml:lang="en_US"><seg>[Time Tracking] Can manage everyone's time slips</seg></tuv>
-		</tu>
 		<tu tuid='acl.timetracking.report.group.time'>
-			<tuv xml:lang="en_US"><seg>[Report Group] Can view the 'Time Tracking Reports' group</seg></tuv>
-		</tu>
-		<tu tuid='acl.timetracking.view.actions.export'>
-			<tuv xml:lang="en_US"><seg>[Time Tracking] Can export time tracking lists to CSV/XML</seg></tuv>
+			<tuv xml:lang="en_US"><seg>Can view Time Tracking reports</seg></tuv>
 		</tu>
 		
 		<!-- Common  -->

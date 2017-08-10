@@ -183,7 +183,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		try {
 		
 			if(!empty($id) && !empty($delete)) { // delete
-				if(!$active_worker->hasPriv('core.addybook.org.actions.delete'))
+				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.org.delete'))
 					throw new Exception_DevblocksAjaxValidationError("You don't have permission to delete this record.");
 				
 				DAO_ContactOrg::delete($id);
@@ -213,7 +213,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'org_name');
 				
 				// Privs
-				if($active_worker->hasPriv('core.addybook.org.actions.update')) {
+				if($active_worker->hasPriv('contexts.cerberusweb.contexts.org.update')) {
 					$fields = array(
 						DAO_ContactOrg::NAME => $org_name,
 						DAO_ContactOrg::STREET => $street,
@@ -363,7 +363,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		if(strlen($status) > 0) {
 			switch($status) {
 				case 'deleted':
-					if($active_worker->hasPriv('core.addybook.org.actions.delete')) {
+					if($active_worker->hasPriv('contexts.cerberusweb.contexts.org.delete')) {
 						$do['delete'] = true;
 					}
 					break;
@@ -401,7 +401,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
 		
 		// Broadcast: Compose
-		if($active_worker->hasPriv('context.org.worklist.broadcast')) {
+		if($active_worker->hasPriv('contexts.cerberusweb.contexts.org.broadcast')) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
 			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);

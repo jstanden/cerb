@@ -43,15 +43,6 @@
 		</file>
 	</class_loader>
 	
-	<acl>
-		<priv id="crm.opp.actions.create" label="acl.crm.opp.actions.create" />
-		<priv id="crm.opp.actions.import" label="acl.crm.opp.actions.import" />
-		<priv id="crm.opp.actions.update_all" label="acl.crm.opp.actions.update_all" />
-		<priv id="crm.opp.actions.delete" label="acl.crm.opp.actions.delete" />
-		<priv id="crm.opp.view.actions.broadcast" label="acl.crm.opp.view.actions.broadcast" />
-		<priv id="crm.opp.view.actions.export" label="acl.crm.opp.view.actions.export" />
-	</acl>
-	
 	<!-- Activity Points -->
 	
 	<activity_points>
@@ -114,10 +105,24 @@
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
 					</value>
 				</param>
 				<param key="context_expand_export" value="email_" />
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
 			</params>
 		</extension>
 	

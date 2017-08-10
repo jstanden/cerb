@@ -56,10 +56,6 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	private function getId($id) {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('plugin.cerberusweb.timetracking'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -227,10 +223,6 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	function postSearch() {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('plugin.cerberusweb.timetracking'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
@@ -244,7 +236,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid time tracking ID '%d'", $id));
 			
 		// ACL
-		if(!($worker->hasPriv('timetracking.actions.update_all') || $time_entry->worker_id == $worker->id))
+		if(!($worker->hasPriv('contexts.cerberusweb.contexts.timetracking.update') || $time_entry->worker_id == $worker->id))
 			$this->error(self::ERRNO_ACL);
 			
 		$putfields = array(
@@ -303,7 +295,7 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('timetracking.actions.create'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.timetracking.create'))
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(

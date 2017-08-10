@@ -147,10 +147,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 	function getId($id) {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('plugin.cerberusweb.crm'))
-			$this->error(self::ERRNO_ACL);
-		
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -240,10 +236,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 	function postSearch() {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		// ACL
-		if(!$worker->hasPriv('plugin.cerberusweb.crm'))
-			$this->error(self::ERRNO_ACL);
-
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
@@ -257,7 +249,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid opportunity ID '%d'", $id));
 			
 		// ACL
-		if(!($worker->hasPriv('crm.opp.actions.update_all') || $opp->worker_id==$worker->id))
+		if(!($worker->hasPriv('contexts.cerberusweb.contexts.opp.update') || $opp->worker_id==$worker->id))
 			$this->error(self::ERRNO_ACL);
 		
 		$putfields = array(
@@ -329,7 +321,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('crm.opp.actions.create'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.opp.create'))
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(
@@ -405,7 +397,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid opp ID %d", $id));
 
 		// ACL
-		if(!$worker->hasPriv('core.addybook.org.actions.update'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.opp.update'))
 			$this->error(self::ERRNO_ACL);
 		
 		// Required fields

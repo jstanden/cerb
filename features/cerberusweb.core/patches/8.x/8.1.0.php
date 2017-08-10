@@ -95,6 +95,120 @@ if(!empty($changes))
 	$db->ExecuteMaster("ALTER TABLE message " . implode(', ', $changes));
 
 // ===========================================================================
+// Add `worker_role.updated_at` and `worker_role.privs_json`
+
+if(!isset($tables['worker_role'])) {
+	$logger->error("The 'worker_role' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_role');
+
+$changes = [];
+
+if(!isset($columns['privs_json']))
+	$changes[] = 'ADD COLUMN privs_json MEDIUMTEXT';
+	
+if(!empty($changes))
+	$db->ExecuteMaster("ALTER TABLE worker_role " . implode(', ', $changes));
+
+// ===========================================================================
+// Migrate `worker_role_acl` to `worker_role.privs_json`
+
+if(isset($tables['worker_role_acl'])) {
+	$results = $db->GetArrayMaster("SELECT DISTINCT role_id FROM worker_role_acl");
+	$role_ids = array_column($results, 'role_id');
+	
+	$remapping = [
+		'calls.actions.update_all' => 'contexts.cerberusweb.contexts.call.update',
+		'context.contact.worklist.broadcast' => 'contexts.cerberusweb.contexts.contact.broadcast',
+		'context.org.worklist.broadcast' => 'contexts.cerberusweb.contexts.org.broadcast',
+		'context.worker.worklist.broadcast' => 'contexts.cerberusweb.contexts.worker.broadcast',
+		'core.addybook.addy.actions.update' => 'contexts.cerberusweb.contexts.address.update',
+		'core.addybook.addy.view.actions.broadcast' => 'contexts.cerberusweb.contexts.address.broadcast',
+		'core.addybook.addy.view.actions.export' => 'contexts.cerberusweb.contexts.address.export',
+		'core.addybook.contact.view.actions.export' => 'contexts.cerberusweb.contexts.contact.export',
+		'core.addybook.org.actions.delete' => 'contexts.cerberusweb.contexts.org.delete',
+		'core.addybook.org.actions.merge' => 'contexts.cerberusweb.contexts.org.merge',
+		'core.addybook.org.actions.update' => 'contexts.cerberusweb.contexts.org.update',
+		'core.addybook.org.view.actions.export' => 'contexts.cerberusweb.contexts.org.export',
+		'core.addybook.person.actions.delete' => 'contexts.cerberusweb.contexts.contact.delete',
+		'core.addybook.person.actions.update' => 'contexts.cerberusweb.contexts.contact.update',
+		'core.comment.actions.update.own' => 'contexts.cerberusweb.contexts.comment.update',
+		'core.display.message.actions.delete' => 'contexts.cerberusweb.contexts.message.delete',
+		'core.kb.articles.modify' => 'contexts.cerberusweb.contexts.kb_article.update',
+		'core.kb.categories.modify' => 'contexts.cerberusweb.contexts.kb_category.update',
+		'core.mail.draft.delete_all' => 'contexts.cerberusweb.contexts.draft.delete',
+		'core.mail.send' => 'contexts.cerberusweb.contexts.ticket.create', 
+		'core.snippets.actions.create' => 'contexts.cerberusweb.contexts.snippet.create',
+		'core.tasks.actions.create' => 'contexts.cerberusweb.contexts.task.create',
+		'core.tasks.actions.delete' => 'contexts.cerberusweb.contexts.task.delete',
+		'core.tasks.actions.update_all' => 'contexts.cerberusweb.contexts.task.update.bulk',
+		'core.tasks.view.actions.export' => 'contexts.cerberusweb.contexts.task.export',
+		'core.ticket.view.actions.broadcast_reply' => 'contexts.cerberusweb.contexts.ticket.broadcast',
+		'core.ticket.view.actions.bulk_update' => 'contexts.cerberusweb.contexts.ticket.update.bulk',
+		'core.ticket.view.actions.export' => 'contexts.cerberusweb.contexts.ticket.export',
+		'core.ticket.view.actions.merge' => 'contexts.cerberusweb.contexts.ticket.merge',
+		'crm.opp.actions.create' => 'contexts.cerberusweb.contexts.opp.create',
+		'crm.opp.actions.delete' => 'contexts.cerberusweb.contexts.opp.delete',
+		'crm.opp.actions.import' => 'contexts.cerberusweb.contexts.opp.import',
+		'crm.opp.actions.update_all' => 'contexts.cerberusweb.contexts.opp.update',
+		'crm.opp.view.actions.broadcast' => 'contexts.cerberusweb.contexts.opp.broadcast',
+		'crm.opp.view.actions.export' => 'contexts.cerberusweb.contexts.opp.export',
+		'datacenter.domains.actions.delete' => 'contexts.cerberusweb.contexts.datacenter.domain.delete',
+		'feedback.actions.create' => 'contexts.cerberusweb.contexts.feedback.create',
+		'feedback.actions.delete_all' => 'contexts.cerberusweb.contexts.feedback.delete',
+		'feedback.actions.update_all' => 'contexts.cerberusweb.contexts.feedback.update',
+		'feedback.view.actions.export' => 'contexts.cerberusweb.contexts.feedback.export',
+		'kb.articles.actions.update_all' => 'contexts.cerberusweb.contexts.kb_article.update.bulk',
+		'timetracking.actions.create' => 'contexts.cerberusweb.contexts.timetracking.create',
+		'timetracking.actions.update_all' => 'contexts.cerberusweb.contexts.timetracking.update.bulk',
+		'timetracking.views.actions.export' => 'contexts.cerberusweb.contexts.timetracking.export',
+	];
+	
+	foreach($role_ids as $role_id) {
+		$sql = sprintf("SELECT priv_id FROM worker_role_acl WHERE role_id = %d ORDER BY priv_id", $role_id);
+		$results = $db->GetArrayMaster($sql);
+		$privs = array_column($results, 'priv_id');
+		
+		foreach($privs as $idx => &$priv) {
+			if(DevblocksPlatform::strStartsWith($priv, 'plugin.')) {
+				unset($privs[$idx]);
+				continue;
+			}
+			
+			switch($priv) {
+				case 'core.kb.categories.modify':
+					unset($privs[$idx]);
+					$privs[] = 'contexts.cerberusweb.contexts.kb_category.create';
+					$privs[] = 'contexts.cerberusweb.contexts.kb_category.update';
+					$privs[] = 'contexts.cerberusweb.contexts.kb_category.delete';
+					continue;
+					break;
+			}
+			
+			// Are we renaming the privilege?
+			if(isset($remapping[$priv]))
+				$priv = $remapping[$priv];
+		}
+		
+		sort($privs);
+		
+		$privs_json = json_encode(array_values($privs));
+		
+		// Update role
+		$db->ExecuteMaster(sprintf("UPDATE worker_role SET privs_json = %s WHERE id = %d",
+			$db->qstr($privs_json),
+			$role_id
+		));
+	}
+	
+	// Drop table
+	$db->ExecuteMaster('DROP TABLE worker_role_acl');
+	unset($tables['worker_role_acl']);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

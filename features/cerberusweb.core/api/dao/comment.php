@@ -1188,7 +1188,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			if($dict->author__context == $actor->_context && $dict->author_id == $actor->id)
 				if(false != (@$worker = $workers[$actor->id]))
 					// And they have permission to edit their own comments
-					if($worker->hasPriv('core.comment.actions.update.own'))
+					if($worker->hasPriv('contexts.cerberusweb.contexts.comment.update'))
 						$results[$id] = true;
 		}
 		

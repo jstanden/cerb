@@ -27,7 +27,7 @@
 				<option value="open">{'crm.opp.status.open'|devblocks_translate}</option>
 				<option value="won">{'crm.opp.status.closed.won'|devblocks_translate}</option>
 				<option value="lost">{'crm.opp.status.closed.lost'|devblocks_translate}</option>
-				{if $active_worker->hasPriv('crm.opp.actions.delete')}
+				{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opp.delete')}
 				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
 				{/if}
 			</select>
@@ -35,7 +35,7 @@
 			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'crm.opp.status.open'|devblocks_translate|lower}</button>
 			<button type="button" onclick="this.form.status.selectedIndex = 2;">{'crm.opp.status.closed.won'|devblocks_translate|lower}</button>
 			<button type="button" onclick="this.form.status.selectedIndex = 3;">{'crm.opp.status.closed.lost'|devblocks_translate|lower}</button>
-			{if $active_worker->hasPriv('crm.opp.actions.delete')}
+			{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opp.delete')}
 			<button type="button" onclick="this.form.status.selectedIndex = 4;">{'status.deleted'|devblocks_translate|lower}</button>
 			{/if}
 			</td>
@@ -86,7 +86,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
-{if $active_worker->hasPriv('crm.opp.view.actions.broadcast')}
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opp.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_OPPORTUNITY}
 {/if}
 

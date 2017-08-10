@@ -306,7 +306,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	
 	function showArticleEditPanelAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		if(!$active_worker->hasPriv('core.kb.articles.modify'))
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.update'))
 			return;
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
@@ -347,7 +347,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 
 	function saveArticleEditPanelAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		if(!$active_worker->hasPriv('core.kb.articles.modify'))
+		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.update'))
 			return;
 		
 		$translate = DevblocksPlatform::getTranslationService();

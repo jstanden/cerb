@@ -69,7 +69,7 @@
 			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{'display.shortcut.delete'|devblocks_translate}" id="btnDelete" type="button" onclick="this.form.status_id.value='{Model_Ticket::STATUS_DELETED}';this.form.submit();"><span class="glyphicons glyphicons-circle-remove"></span></button>{/if}
 		{/if}
 		
-		{if $active_worker->hasPriv('core.ticket.view.actions.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('merge','c=display&a=showMergePanel&ticket_id={$dict->id}',null,false,'50%');" title="{'mail.merge'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-git-merge"></span></button>{/if}
+		{if $active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('merge','c=display&a=showMergePanel&ticket_id={$dict->id}',null,false,'50%');" title="{'mail.merge'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-git-merge"></span></button>{/if}
 		
 		{/if}
 		

@@ -72,20 +72,6 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 	function deleteAction($stack) {
 		// Consistency with the Web-UI
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
-		
-//		$worker = CerberusApplication::getActiveWorker();
-//		if(!$worker->hasPriv('core.addybook.person.actions.delete'))
-//			$this->error(self::ERRNO_ACL);
-//
-//		$id = array_shift($stack);
-//
-//		if(null == ($task = DAO_Address::get($id)))
-//			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid address ID %d", $id));
-//
-//		DAO_Address::delete($id);
-//
-//		$result = array('id' => $id);
-//		$this->success($result);
 	}
 	
 	private function _getPagesList() {

@@ -134,7 +134,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			&&
 				(
 					$active_worker->id == $draft->worker_id
-					|| $active_worker->hasPriv('core.mail.draft.delete_all')
+					|| $active_worker->hasPriv('contexts.cerberusweb.contexts.draft.delete')
 				)
 			) {
 			DAO_MailQueue::delete($draft_id);

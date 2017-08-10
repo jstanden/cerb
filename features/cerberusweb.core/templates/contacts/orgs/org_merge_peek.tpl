@@ -20,7 +20,7 @@
 </ul>
 <br>
 
-{if $active_worker->hasPriv('core.addybook.org.actions.update')}
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.org.merge')}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
 {/if}
 </form>

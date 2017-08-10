@@ -14,27 +14,6 @@
 			<tuv xml:lang="en_US"><seg>Opportunity</seg></tuv>
 		</tu>
 		
-		<!-- ACL -->
-		
-		<tu tuid='acl.crm.opp.actions.create'>
-			<tuv xml:lang="en_US"><seg>[Opportunities] Can create opportunities</seg></tuv>
-		</tu>
-		<tu tuid='acl.crm.opp.actions.import'>
-			<tuv xml:lang="en_US"><seg>[Opportunities] Can import opportunities from CSV files</seg></tuv>
-		</tu>
-		<tu tuid='acl.crm.opp.actions.update_all'>
-			<tuv xml:lang="en_US"><seg>[Opportunities] Can edit opportunities</seg></tuv>
-		</tu>
-		<tu tuid='acl.crm.opp.actions.delete'>
-			<tuv xml:lang="en_US"><seg>[Opportunities] Can delete opportunities</seg></tuv>
-		</tu>
-		<tu tuid='acl.crm.opp.view.actions.broadcast'>
-			<tuv xml:lang="en_US"><seg>[Opportunities] Can broadcast e-mail to opportunity lists</seg></tuv>
-		</tu>
-		<tu tuid='acl.crm.opp.view.actions.export'>
-			<tuv xml:lang="en_US"><seg>[Opportunities] Can export opportunity lists to CSV/XML</seg></tuv>
-		</tu>
-
 		<!-- Activities -->
 		
 		<tu tuid='activities.opp.status'>

@@ -592,7 +592,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		$worker = CerberusApplication::getActiveWorker();
 
 		// ACL
-		if(!$worker->hasPriv('core.mail.send'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
 			$this->error(self::ERRNO_ACL, 'Access denied to compose mail.');
 		
 		$ticket_id = $this->_handlePostCompose();

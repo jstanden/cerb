@@ -88,7 +88,7 @@
 
 <div class="status"></div>
 
-{if $active_worker->hasPriv('core.addybook.addy.actions.update')}
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.address.update')}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>

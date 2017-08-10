@@ -235,7 +235,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid task ID '%d'", $id));
 			
 		// ACL
-		if(!($worker->hasPriv('core.tasks.actions.update_all') || $task->worker_id == $worker->id))
+		if(!($worker->hasPriv('contexts.cerberusweb.contexts.task.update') || $task->worker_id == $worker->id))
 			$this->error(self::ERRNO_ACL);
 			
 		$putfields = array(
@@ -282,7 +282,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.tasks.actions.create'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.task.create'))
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(
@@ -340,7 +340,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid task ID %d", $id));
 
 		// ACL
-		if(!($worker->hasPriv('core.tasks.actions.update_all') || $task->worker_id==$worker->id))
+		if(!($worker->hasPriv('contexts.cerberusweb.contexts.task.update') || $task->worker_id==$worker->id))
 			$this->error(self::ERRNO_ACL);
 		
 		// Required fields

@@ -39,7 +39,7 @@
 				<button type="button" onclick="displayReply('{$draft->params.in_reply_message_id}',{if $draft->type=='ticket.forward'}1{else}0{/if},{$draft_id});"><span class="glyphicons glyphicons-share"></span> {'Resume'|devblocks_translate|capitalize}</button>
 			{/if}
 			
-			{if $draft->worker_id==$active_worker->id || $active_worker->hasPriv('core.mail.draft.delete_all')}
+			{if $draft->worker_id==$active_worker->id || $active_worker->hasPriv('contexts.cerberusweb.contexts.draft.delete')}
 				<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this draft?')) { genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=draft&action=deleteDraft&draft_id={$draft_id}', function(o) { $('#draft{$draft_id}').remove(); } ); } "><span class="glyphicons glyphicons-circle-remove" title="{'common.delete'|devblocks_translate|lower}"></span> {'common.delete'|devblocks_translate|capitalize}</button>&nbsp;
 			{/if}
 			</div>
@@ -47,7 +47,7 @@
 	</div>
 	
 	{if is_array($draft_notes) && isset($draft_notes.{$draft->id})}
-	{$draft_readonly = !($draft->worker_id==$active_worker->id || $active_worker->hasPriv('core.mail.draft.delete_all'))}
+	{$draft_readonly = !($draft->worker_id==$active_worker->id || $active_worker->hasPriv('contexts.cerberusweb.contexts.draft.delete'))}
 	<div id="draft{$draft->id}_notes" style="background-color:rgb(255,255,255);">
 		{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl" message_notes=$draft_notes message_id=$draft->id readonly=false}
 	</div>
