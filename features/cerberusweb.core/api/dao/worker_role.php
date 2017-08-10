@@ -24,6 +24,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const PARAMS_JSON = 'params_json';
 	const PRIVS_JSON = 'privs_json';
+	const UPDATED_AT = 'updated_at';
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -42,6 +43,9 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
 		
 		// Make a diff for the requested objects in batches
 		
@@ -266,8 +270,9 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			$object = new Model_WorkerRole();
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
+			$object->updated_at = intval($row['updated_at']);
 			
-			@$params = json_decode($row['params_json'], true) or array();
+			@$params = json_decode($row['params_json'], true) or [];
 			$object->params = $params;
 			
 			@$privs = json_decode($row['privs_json'], true) or [];
@@ -342,9 +347,11 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			"worker_role.id as %s, ".
 			"worker_role.name as %s, ".
 			"worker_role.params_json as %s, ".
+			"worker_role.updated_at as %s ",
 				SearchFields_WorkerRole::ID,
 				SearchFields_WorkerRole::NAME,
 				SearchFields_WorkerRole::PARAMS_JSON,
+				SearchFields_WorkerRole::UPDATED_AT
 			);
 			
 		$join_sql = "FROM worker_role ";
@@ -466,6 +473,7 @@ class Model_WorkerRole {
 	public $name;
 	public $params = [];
 	public $privs = [];
+	public $updated_at;
 	
 	function getWorkerIds() {
 		@$who = $this->params['who'];
@@ -507,6 +515,7 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 	const ID = 'w_id';
 	const NAME = 'w_name';
 	const PARAMS_JSON = 'w_params_json';
+	const UPDATED_AT = 'w_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -558,6 +567,7 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'worker_role', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'worker_role', 'name', $translate->_('common.name'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'worker_role', 'updated_at', $translate->_('common.updated'), null, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -588,6 +598,7 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 
 		$this->view_columns = array(
 			SearchFields_WorkerRole::NAME,
+			SearchFields_WorkerRole::UPDATED_AT,
 		);
 
 		$this->addColumnsHidden(array(
@@ -901,17 +912,18 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			DevblocksPlatform::strToPermalink($worker_role->name)
 		);
 		
-		return array(
+		return [
 			'id' => $worker_role->id,
 			'name' => $worker_role->name,
 			'permalink' => $url_writer->writeNoProxy('c=profiles&type=role&who='.$who, true),
-			'updated' => 0, // [TODO]
-		);
+			'updated' => $worker_role->updated_at,
+		];
 	}
 	
 	function getDefaultProperties() {
-		return array(
-		);
+		return [
+			'updated_at'
+		];
 	}
 	
 	function getContext($role, &$token_labels, &$token_values, $prefix=null) {
@@ -937,6 +949,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
 		// Token types
@@ -944,6 +957,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
 		// Custom field/fieldset token labels
@@ -966,6 +980,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			$token_values['_label'] = $role->name;
 			$token_values['id'] = $role->id;
 			$token_values['name'] = $role->name;
+			$token_values['updated_at'] = $role->updated_at;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($role, $token_values);

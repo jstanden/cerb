@@ -106,11 +106,18 @@ list($columns, $indexes) = $db->metaTable('worker_role');
 
 $changes = [];
 
+if(!isset($columns['updated_at'])) {
+	$changes[] = 'ADD COLUMN updated_at int unsigned not null default 0';
+	$changes[] = 'ADD INDEX (updated_at)';
+}
+	
 if(!isset($columns['privs_json']))
 	$changes[] = 'ADD COLUMN privs_json MEDIUMTEXT';
 	
 if(!empty($changes))
 	$db->ExecuteMaster("ALTER TABLE worker_role " . implode(', ', $changes));
+
+$db->ExecuteMaster('UPDATE worker_role SET updated_at = UNIX_TIMESTAMP() WHERE updated_at = 0');
 
 // ===========================================================================
 // Migrate `worker_role_acl` to `worker_role.privs_json`

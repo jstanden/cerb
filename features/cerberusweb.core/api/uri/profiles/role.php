@@ -47,13 +47,19 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 	
 		// Properties
 			
-		$properties = array();
+		$properties = [];
 		
-		$properties['id'] = array(
+		$properties['id'] = [
 			'label' => DevblocksPlatform::translate('common.id'),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $worker_role->id,
-		);
+		];
+		
+		$properties['updated_at'] = [
+			'label' => DevblocksPlatform::translate('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $worker_role->updated_at,
+		];
 		
 		// Custom Fields
 
@@ -184,8 +190,8 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 					$fields = array(
 						DAO_WorkerRole::NAME => $name,
 						DAO_WorkerRole::PARAMS_JSON => json_encode($params),
-						//DAO_WorkerRole::UPDATED_AT => time(),
 						DAO_WorkerRole::PRIVS_JSON => json_encode($acl_privs),
+						DAO_WorkerRole::UPDATED_AT => time(),
 					);
 					$id = DAO_WorkerRole::create($fields);
 					
@@ -196,8 +202,8 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 					$fields = array(
 						DAO_WorkerRole::NAME => $name,
 						DAO_WorkerRole::PARAMS_JSON => json_encode($params),
-						//DAO_WorkerRole::UPDATED_AT => time(),
 						DAO_WorkerRole::PRIVS_JSON => json_encode($acl_privs),
+						DAO_WorkerRole::UPDATED_AT => time(),
 					);
 					DAO_WorkerRole::update($id, $fields);
 				}
