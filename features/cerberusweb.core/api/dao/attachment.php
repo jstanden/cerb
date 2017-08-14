@@ -292,7 +292,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 				break;
 				
 			default:
-				if(false == ($manifest = DevblocksPlatform::getExtension($context)))
+				if(false == ($manifest = Extension_DevblocksContext::get($context, false)))
 					break;
 				
 				if(false == ($aliases = Extension_DevblocksContext::getAliasesForContext($manifest)))
@@ -1401,7 +1401,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 				continue;
 			
 			foreach($links as $context => $ids) {
-				if(false == ($mft = DevblocksPlatform::getExtension($context, false)))
+				if(false == ($mft = Extension_DevblocksContext::get($context, false)))
 					continue;
 				
 				$class = $mft->class;

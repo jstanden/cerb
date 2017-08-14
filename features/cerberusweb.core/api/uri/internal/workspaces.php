@@ -127,7 +127,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 		if(is_array($ids) && !empty($ids))
 			foreach($ids as $idx => $id) {
 			if(!is_numeric($id)) { // Create
-				if(null == ($context_ext = DevblocksPlatform::getExtension($id, true))) /* @var $context_ext Extension_DevblocksContext */
+				if(null == ($context_ext = Extension_DevblocksContext::get($id)))
 					continue;
 					
 				if(null == ($view = $context_ext->getChooserView()))  /* @var $view C4_AbstractView */

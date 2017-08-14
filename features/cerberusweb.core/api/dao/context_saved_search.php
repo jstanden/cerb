@@ -558,7 +558,7 @@ class Model_ContextSavedSearch {
 		if($as_instance) {
 			return Extension_DevblocksContext::get($this->context);
 		} else {
-			return DevblocksPlatform::getExtension($this->context, false);
+			return Extension_DevblocksContext::get($this->context, false);
 		}
 	}
 	

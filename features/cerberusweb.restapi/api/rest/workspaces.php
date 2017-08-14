@@ -198,7 +198,7 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 		$view_id = 'cust_' . $workspace_worklist->id;
 		
 			// Make sure our workspace source has a valid renderer class
-		if(null == ($ext = DevblocksPlatform::getExtension($workspace_worklist->context, true))) { /* @var $ext Extension_DevblocksContext */
+		if(null == ($ext = Extension_DevblocksContext::get($workspace_worklist->context))) {
 			return;
 		}
 		

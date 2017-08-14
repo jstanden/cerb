@@ -31,8 +31,8 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			&& intval($src_context_id) == intval($dst_context_id))
 				return false;
 		
-		$ext_src_context = DevblocksPlatform::getExtension($src_context, true); /* @var $context Extension_DevblocksContext */
-		$ext_dst_context = DevblocksPlatform::getExtension($dst_context, true); /* @var $context Extension_DevblocksContext */
+		$ext_src_context = Extension_DevblocksContext::get($src_context);
+		$ext_dst_context = Extension_DevblocksContext::get($dst_context);
 		
 		if(false == $src_context_meta)
 			@$src_context_meta = $ext_src_context->getMeta($src_context_id);
@@ -445,8 +445,8 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$ext_src_context = DevblocksPlatform::getExtension($src_context, true); /* @var $context Extension_DevblocksContext */
-		$ext_dst_context = DevblocksPlatform::getExtension($dst_context, true); /* @var $context Extension_DevblocksContext */
+		$ext_src_context = Extension_DevblocksContext::get($src_context);
+		$ext_dst_context = Extension_DevblocksContext::get($dst_context);
 		
 		if(false == $src_context_meta)
 			@$src_context_meta = $ext_src_context->getMeta($src_context_id);

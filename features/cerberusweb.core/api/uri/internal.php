@@ -1103,7 +1103,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string', '');
 		@$query_req = DevblocksPlatform::importGPC($_REQUEST['qr'],'string', '');
 
-		if(null == ($context_extension = DevblocksPlatform::getExtension($context, true)))
+		if(null == ($context_extension = Extension_DevblocksContext::get($context)))
 			return;
 		
 		if(false == ($view = $context_extension->getChooserView()))
@@ -1208,7 +1208,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$tpl = DevblocksPlatform::services()->template();
 		
-		if(false == ($context_ext = DevblocksPlatform::getExtension($context, true)))
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
 		$tpl->assign('context_ext', $context_ext);

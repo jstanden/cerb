@@ -1603,7 +1603,7 @@ class Cron_BotScheduledBehavior extends CerberusCronPageExtension {
 							throw new Exception("Incomplete macro.");
 					
 						// Load context
-						if(null == ($context_ext = DevblocksPlatform::getExtension($behavior->context, true)))
+						if(null == ($context_ext = Extension_DevblocksContext::get($behavior->context)))
 							throw new Exception("Invalid context.");
 					
 						// [TODO] ACL: Ensure access to the context object

@@ -44,7 +44,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		 * Log the activity of a new comment being created
 		 */
 		
-		$context = DevblocksPlatform::getExtension($fields[self::CONTEXT], true); /* @var $context Extension_DevblocksContext */
+		$context = Extension_DevblocksContext::get($fields[self::CONTEXT]);
 		$meta = $context->getMeta($fields[self::CONTEXT_ID]);
 		
 		$entry = array(

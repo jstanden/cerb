@@ -1932,7 +1932,7 @@ class CerberusContexts {
 		
 		// Forced actor
 		if(!empty($actor_context)) {
-			if(null != ($ctx = DevblocksPlatform::getExtension($actor_context, true))
+			if(null != ($ctx = Extension_DevblocksContext::get($actor_context))
 				&& $ctx instanceof Extension_DevblocksContext) {
 				$meta = $ctx->getMeta($actor_context_id);
 				$actor_name = $meta['name'];
@@ -1975,7 +1975,7 @@ class CerberusContexts {
 					$actor_context = self::$_default_actor_context;
 					$actor_context_id = self::$_default_actor_context_id;
 
-					if(null != ($ctx = DevblocksPlatform::getExtension($actor_context, true))
+					if(null != ($ctx = Extension_DevblocksContext::get($actor_context))
 						&& $ctx instanceof Extension_DevblocksContext) {
 						$meta = $ctx->getMeta($actor_context_id);
 						$actor_name = $meta['name'];
@@ -2012,7 +2012,7 @@ class CerberusContexts {
 	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=array(), $also_notify_ignore_self=false) {
 		// Target meta
 		if(!isset($target_meta)) {
-			if(null != ($target_ctx = DevblocksPlatform::getExtension($target_context, true))
+			if(null != ($target_ctx = Extension_DevblocksContext::get($target_context))
 				&& $target_ctx instanceof Extension_DevblocksContext) {
 					$target_meta = $target_ctx->getMeta($target_context_id);
 			}

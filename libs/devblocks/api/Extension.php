@@ -265,7 +265,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		@$ctx_id = $aliases[$alias];
 		
 		// If this is a valid context, return it
-		if($ctx_id && false != ($ctx = DevblocksPlatform::getExtension($ctx_id, $as_instance))) {
+		if($ctx_id && false != ($ctx = Extension_DevblocksContext::get($ctx_id, $as_instance))) {
 			return $ctx;
 		}
 		
@@ -290,27 +290,31 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 
 	/**
-	 * Lazy loader + cache
+	 * 
 	 * @param string $context
 	 * @return Extension_DevblocksContext
 	 */
-	public static function get($context) {
-		static $contexts = null;
-
-		/*
-		 * Lazy load
-		 */
-
-		if(isset($contexts[$context]))
-			return $contexts[$context];
-
-		if(!isset($contexts[$context])) {
-			if(null == ($ext = DevblocksPlatform::getExtension($context, true)))
-				return null;
-
-			$contexts[$context] = $ext;
-			return $ext;
+	public static function get($context, $as_instance=true) {
+		static $_cache = [];
+		
+		if($as_instance && isset($_cache[$context]))
+			return $_cache[$context];
+		
+		$contexts = self::getAll(false);
+		
+		if(isset($contexts[$context])) {
+			$manifest = $contexts[$context]; /* @var $manifest DevblocksExtensionManifest */
+			
+			if(!$as_instance) {
+				return $manifest;
+				
+			} else {
+				$_cache[$context] = $manifest->createInstance();
+				return $_cache[$context];
+			}
 		}
+
+		return false;
 	}
 	
 	static function getOwnerTree(array $contexts=['app','bot','group','role','worker']) {
@@ -1853,7 +1857,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 				default:
 					// Variables
-					if(DevblocksPlatform::strStartsWith($token, 'var_')) {
+					} else if(DevblocksPlatform::strStartsWith($token, 'var_')) {
 						@$var = $trigger->variables[$token];
 						@$var_type = $var['type'];
 

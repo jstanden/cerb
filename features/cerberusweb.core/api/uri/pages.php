@@ -710,7 +710,7 @@ class Page_Custom extends CerberusPageExtension {
 		$view_id = 'cust_' . $list->id;
 	
 		// Make sure our workspace source has a valid renderer class
-		if(null == ($ext = DevblocksPlatform::getExtension($list->context, true))) { /* @var $ext Extension_DevblocksContext */
+		if(null == ($ext = Extension_DevblocksContext::get($list->context))) {
 			return;
 		}
 		

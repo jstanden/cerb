@@ -52,7 +52,7 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		$tpl->assign('ext_id', $ext_id);
 
 		//  Make sure the extension exists before continuing
-		if(false == ($context_manifest = DevblocksPlatform::getExtension($ext_id, false)))
+		if(false == ($context_manifest = Extension_DevblocksContext::get($ext_id, false)))
 			return;
 		
 		$tpl->assign('context_manifest', $context_manifest);
