@@ -525,8 +525,8 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					
 					@$event_params = isset($behavior['event']['params']) ? $behavior['event']['params'] : '';
 					$error = null;
-					
-					if(false !== (@$event = Extension_DevblocksEvent::get($behavior['event']['key'], true)))
+
+					if(false != (@$event = Extension_DevblocksEvent::get($behavior['event']['key'], true)))
 						$event->prepareEventParams(null, $event_params, $error);
 					
 					DAO_TriggerEvent::update($id, [
