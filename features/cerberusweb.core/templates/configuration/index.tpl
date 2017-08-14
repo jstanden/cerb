@@ -19,6 +19,7 @@
 					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
 					<li><a href="{devblocks_url}c=config&a=cards{/devblocks_url}">{'common.cards'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
+					<li><a href="{devblocks_url}c=config&a=records{/devblocks_url}">{'common.custom_records'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=skills{/devblocks_url}">{'common.skills'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">Snippets</a></li>
 					

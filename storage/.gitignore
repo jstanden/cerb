@@ -1,6 +1,7 @@
 .gnupg
 _master.key
 attachments
+classes
 context_avatar
 message_content
 tmp/cache

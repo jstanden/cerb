@@ -243,6 +243,18 @@
 		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.records</id>
+			<name>Records</name>
+			<class>
+				<file>api/rest/records.php</file>
+				<name>ChRest_Records</name>
+			</class>
+			<params>
+				<param key="uri" value="records" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.saved_searches</id>
 			<name>Saved Searches</name>
 			<class>

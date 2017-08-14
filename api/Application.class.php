@@ -964,6 +964,7 @@ class CerberusContexts {
 	const CONTEXT_CONTEXT_AVATAR = 'cerberusweb.contexts.context.avatar';
 	const CONTEXT_CUSTOM_FIELD = 'cerberusweb.contexts.custom_field';
 	const CONTEXT_CUSTOM_FIELDSET = 'cerberusweb.contexts.custom_fieldset';
+	const CONTEXT_CUSTOM_RECORD = 'cerberusweb.contexts.custom_record';
 	const CONTEXT_DOMAIN = 'cerberusweb.contexts.datacenter.domain';
 	const CONTEXT_DRAFT = 'cerberusweb.contexts.mail.draft';
 	const CONTEXT_FEED = 'cerberusweb.contexts.feed';

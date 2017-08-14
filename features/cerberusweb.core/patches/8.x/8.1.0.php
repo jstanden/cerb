@@ -230,6 +230,24 @@ if(!file_exists($gpg_agent_config_path))
 	file_put_contents($gpg_agent_config_path, "batch\n");
 
 // ===========================================================================
+// Add `custom_record`
+
+if(!isset($tables['custom_record'])) {
+	$sql = sprintf("
+	CREATE TABLE `custom_record` (
+		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		name VARCHAR(255) DEFAULT '',
+		params_json TEXT,
+		updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+		primary key (id)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['custom_record'] = 'custom_record';
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

@@ -647,6 +647,16 @@
 				<seg>Custom Fieldsets</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.custom_record">
+			<tuv xml:lang="en_US">
+				<seg>Custom Record</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.custom_records">
+			<tuv xml:lang="en_US">
+				<seg>Custom Records</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.customize">
 			<tuv xml:lang="en_US">
 				<seg>customize</seg>

@@ -157,7 +157,61 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 */
 	public static function getAll($as_instances=false, $with_options=null) {
 		$contexts = DevblocksPlatform::getExtensions('devblocks.context', $as_instances);
-
+		
+		// [TODO] Include custom records
+		// [TODO] ::getAll() cache
+		if(false != ($custom_records = DAO_CustomRecord::getAll()) && is_array($custom_records))
+		foreach($custom_records as $custom_record) {
+			$context_id = sprintf('contexts.custom_record.%d', $custom_record->id);
+			// [TODO] Cache the manifest json on the record?
+			$manifest = new DevblocksExtensionManifest();
+			$manifest->id = $context_id;
+			$manifest->plugin_id = 'cerberusweb.core';
+			$manifest->point = Extension_DevblocksContext::ID;
+			$manifest->name = $custom_record->name;
+			$manifest->file = 'api/dao/abstract_custom_record.php';
+			$manifest->class = 'Context_AbstractCustomRecord_' . $custom_record->id;
+			$manifest->params = [
+				'alias' => 'custom_record_' . $custom_record->id, // [TODO]
+				'dao_class' => 'DAO_AbstractCustomRecord_' . $custom_record->id,
+				'view_class' => 'View_AbstractCustomRecord_' . $custom_record->id,
+				'acl' => [
+					0 => [
+						'comment' => '',
+						'create' => '',
+						'delete' => '',
+						'export' => '',
+						'update' => '',
+					],
+				],
+				'options' => [
+					0 => [
+						'cards' => '',
+						'create' => '',
+						'custom_fields' => '',
+						'links' => '',
+						'search' => '',
+						'snippets' => '',
+						'va_variable' => '',
+						'watchers' => '',
+						'workspace' => '',
+					],
+				],
+				'names' => [
+					0 => [
+						DevblocksPlatform::strLower($custom_record->name) => 'singular',
+						DevblocksPlatform::strLower($custom_record->name) => 'plural',
+					]
+				],
+			];
+			
+			if($as_instances) {
+				$contexts[$context_id] = $manifest->createInstance();
+			} else {
+				$contexts[$context_id] = $manifest;
+			}
+		}
+		
 		if($as_instances)
 			DevblocksPlatform::sortObjects($contexts, 'manifest->name');
 		else

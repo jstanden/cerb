@@ -85,6 +85,14 @@
 			<class name="IServiceProvider_OAuthRefresh" />
 		</file>
 		
+		<file path="api/dao/abstract_custom_record.php">
+			<class name="Context_AbstractCustomRecord" />
+			<class name="DAO_AbstractCustomRecord" />
+			<class name="Model_AbstractCustomRecord" />
+			<class name="SearchFields_AbstractCustomRecord" />
+			<class name="View_AbstractCustomRecord" />
+		</file>
+		
 		<file path="api/dao/abstract_view.php">
 			<class name="C4_AbstractLoader" />
 			<class name="C4_AbstractModel" />
@@ -329,6 +337,14 @@
 			<class name="Model_CustomFieldset" />
 			<class name="SearchFields_CustomFieldset" />
 			<class name="View_CustomFieldset" />
+		</file>
+		
+		<file path="api/dao/custom_record.php">
+			<class name="Context_CustomRecord" />
+			<class name="DAO_CustomRecord" />
+			<class name="Model_CustomRecord" />
+			<class name="SearchFields_CustomRecord" />
+			<class name="View_CustomRecord" />
 		</file>
 
 		<file path="api/dao/decision_node.php">
@@ -1434,6 +1450,48 @@
 				</param>
 				<param key="acl">
 					<value>
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.custom_record</id>
+			<name>Custom Record</name>
+			<class>
+				<file>api/dao/custom_record.php</file>
+				<name>Context_CustomRecord</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="custom record" value="singular" />
+						<data key="custom records" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="custom_record" />
+				<param key="dao_class" value="DAO_CustomRecord" />
+				<param key="view_class" value="View_CustomRecord" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -4601,6 +4659,19 @@
 			<!-- Profile Page Sections -->
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.abstract_custom_record</id>
+				<name>Abstract Custom Record Section</name>
+				<class>
+					<file>api/uri/profiles/abstract_custom_record.php</file>
+					<name>PageSection_ProfilesAbstractCustomRecord</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="abstract_custom_record" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.address</id>
 				<name>Address Section</name>
 				<class>
@@ -4781,7 +4852,20 @@
 					<param key="uri" value="custom_fieldset" />
 				</params>
 			</extension>
-
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.custom_record</id>
+				<name>Custom Record Section</name>
+				<class>
+					<file>api/uri/profiles/custom_record.php</file>
+					<name>PageSection_ProfilesCustomRecord</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="custom_record" />
+				</params>
+			</extension>
+			
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.context_saved_search</id>
 				<name>Saved Search Section</name>
