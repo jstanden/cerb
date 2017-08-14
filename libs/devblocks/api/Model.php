@@ -1961,9 +1961,9 @@ class DevblocksExtensionManifest {
 
 		$class_file = $plugin->getStoragePath() . '/' . $this->file;
 		$class_name = $this->class;
-
-		DevblocksPlatform::registerClasses($class_file,array($class_name));
-
+		
+		DevblocksPlatform::registerClasses($class_file, [$class_name]);
+		
 		if(!class_exists($class_name, true)) {
 			return null;
 		}
@@ -1998,7 +1998,10 @@ class DevblocksExtensionManifest {
 	 * @return boolean
 	 */
 	function hasOption($key) {
-		if(!isset($this->params['options']) || !is_array($this->params['options']))
+		if(!isset($this->params['options']) || !is_array($this->params['options']) || empty($this->params['options']))
+			return false;
+		
+		if(!isset($this->params['options'][0]))
 			return false;
 		
 		$options = $this->params['options'][0];

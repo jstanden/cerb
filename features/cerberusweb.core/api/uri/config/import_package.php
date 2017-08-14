@@ -475,6 +475,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				
 				$custom_fields = $custom_fieldset['fields'];
 				
+				if(is_array($custom_fields))
 				foreach($custom_fields as $pos => $custom_field) {
 					$uid = $custom_field['uid'];
 					$id = $uids[$uid];
@@ -519,6 +520,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				
 				$behaviors = $bot['behaviors'];
 				
+				if(is_array($behaviors))
 				foreach($behaviors as $behavior) {
 					$uid = $behavior['uid'];
 					$id = $uids[$uid];

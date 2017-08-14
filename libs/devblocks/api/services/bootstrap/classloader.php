@@ -40,7 +40,7 @@ class _DevblocksClassLoadManager {
 	}
 	
 	public function loadClass($className) {
-		if(class_exists($className))
+		if(class_exists($className, false))
 			return;
 		
 		@$file = $this->classMap[$className];

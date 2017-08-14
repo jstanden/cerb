@@ -164,9 +164,9 @@ class ChRest_Comments extends Extension_RestController implements IExtensionRest
 			$objects = array();
 			
 			$models = CerberusContexts::getModels(CerberusContexts::CONTEXT_COMMENT, array_keys($results));
-			
 			unset($results);
 			
+			if(is_array($models))
 			foreach($models as $id => $model) {
 				$values = $this->getContext($model);
 				$objects[$id] = $values;

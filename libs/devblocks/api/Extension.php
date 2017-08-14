@@ -685,6 +685,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $view;
 	}
 
+	/**
+	 * 
+	 * @param string $view_id
+	 * @return C4_AbstractView
+	 */
 	abstract function getChooserView($view_id=null);
 	abstract function getView($context=null, $context_id=null, $options=array(), $view_id=null);
 

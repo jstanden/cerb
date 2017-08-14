@@ -136,7 +136,7 @@
 		
 		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.contacts</id>
-			<name>Contexts</name>
+			<name>Contacts</name>
 			<class>
 				<file>api/rest/contacts.php</file>
 				<name>ChRest_Contacts</name>
