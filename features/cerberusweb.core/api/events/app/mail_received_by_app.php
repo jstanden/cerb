@@ -144,6 +144,26 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		);
 		
 		/**
+		 * Parent Ticket
+		 */
+		
+		$ticket = !empty($parser_model) ? $parser_model->getTicketModel() : null;
+		
+		$ticket_labels = array();
+		$ticket_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket, $ticket_labels, $ticket_values, null, true);
+
+		// Merge
+		CerberusContexts::merge(
+			'parent_ticket_',
+			'Parent ',
+			$ticket_labels,
+			$ticket_values,
+			$labels,
+			$values
+		);
+		
+		/**
 		 * Return
 		 */
 
