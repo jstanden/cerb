@@ -367,28 +367,14 @@ class ChDebugController extends DevblocksControllerExtension  {
 
 				header("Content-type: application/json");
 				
-				$output = array(
-					'bots' => array(),
-				);
+				$output = [
+					'bots' => [],
+				];
 				
-				$vas = DAO_Bot::getAll();
+				$bots = DAO_Bot::getAll();
 				
-				foreach($vas as $va) {
-					$output['bots'][$va->id] = array(
-						'label' => $va->name,
-						'owner_context' => $va->owner_context,
-						'owner_context_id' => $va->owner_context_id,
-						'behaviors' => array(),
-					);
-					
-					$behaviors = $va->getBehaviors(null, true);
-					
-					foreach($behaviors as $behavior) {
-						if(false !== ($json = $behavior->exportToJson())) {
-							$json_array = json_decode($json, true);
-							$output['bots'][$va->id]['behaviors'][] = $json_array;
-						}
-					}
+				foreach($bots as $bot) {
+					$output['bots'][$bot->id] = json_decode($bot->exportToJson());
 				}
 				
 				echo DevblocksPlatform::strFormatJson($output);

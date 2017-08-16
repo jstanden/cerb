@@ -635,6 +635,39 @@ class Model_Bot {
 		
 		return $manifests;
 	}
+	
+	function exportToJson() {
+		$bot_data = array(
+			'uid' => 'bot_'.$this->id,
+			'name' => $this->name,
+			'owner' => [
+				'context' => $this->owner_context,
+				'id' => $this->owner_context_id,
+			],
+			'is_disabled' => $this->is_disabled ? true : false,
+			'params' => $this->params,
+			'image' => null,
+			'behaviors' => [],
+		);
+		
+		if(false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_BOT, $this->id))) {
+			if(false != ($image = Storage_ContextAvatar::get($avatar)))
+				$bot_data['image'] = 'data:image/png;base64,' . base64_encode($image);
+		}
+		
+		$behaviors = $this->getBehaviors(null, true);
+		
+		foreach($behaviors as $behavior) {
+			if(null == ($event = $behavior->getEvent()))
+				return;
+			
+			$behavior_json = $behavior->exportToJson(0);
+			$behavior_data = json_decode($behavior_json, true);
+			$bot_data['behaviors'][] = $behavior_data['behavior'];
+		}
+		
+		return DevblocksPlatform::strFormatJson($bot_data);
+	}
 };
 
 class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
