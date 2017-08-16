@@ -98,7 +98,8 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		
 		$prefix = 'Message ';
 
-		$values['headers'] = array();
+		$labels['headers'] = $prefix.'headers';
+		$values['headers'] = [];
 		
 		$labels['body'] = $prefix.'body';
 		$values['body'] = '';
