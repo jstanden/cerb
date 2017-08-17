@@ -545,6 +545,12 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			
 			if(isset($response['error']) && !empty($response['error'])) {
 				$out .= sprintf(">>> Error in response:\n%s\n", $response['error']);
+			} else {
+				if(isset($response['info']))
+					$out .= sprintf(">>> Debug:\n%s\n\n", DevblocksPlatform::strFormatJson(json_encode($response['info'])));
+				
+				if(isset($response['body']))
+					$out .= sprintf(">>> Body:\n%s\n", $response['body']);
 			}
 		}
 		
