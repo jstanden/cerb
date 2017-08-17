@@ -239,6 +239,13 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			$tpl->assign('namePrefix','condition'.$seq);
 		
 		switch($as_token) {
+			case 'attachment_name':
+			case 'attachment_mimetype':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_string.tpl');
+				break;
+			case 'attachment_size':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				break;
 			// [TODO] Internalize
 			case 'header':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_group/condition_header.tpl');
