@@ -4,20 +4,20 @@
 	<name>Simulator</name>
 	<description>A tool that makes it easy to create batches of realistic sample tickets, tasks, and organizations; useful for evaluations, plugin development, and testing.  This adds a Simulator option to the Setup Plugins menu.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>8.0.6</version>
+	<version>8.1.0</version>
 	<link>http://wiki.cerbweb.com/Features:Ticket_Simulator</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="8.0" max="8.0.99" />
+		<app_version min="8.1" max="8.1.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="8.0.0" />
+		<require plugin_id="cerberusweb.core" version="8.1.0" />
 	</dependencies>
 
 	<!-- Extensions -->

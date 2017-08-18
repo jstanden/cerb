@@ -11,13 +11,13 @@
  	<!-- Requirements -->
 
 	<requires>
-		<app_version min="8.0" max="8.0.99" />
+		<app_version min="8.1" max="8.1.99" />
 	</requires>
  
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="8.0.0" />
+		<require plugin_id="cerberusweb.core" version="8.1.0" />
 		<require plugin_id="cerberusweb.reports" version="6.0.0" />
 	</dependencies>
 
