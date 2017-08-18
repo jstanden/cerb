@@ -69,7 +69,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 			<td width="100%">
-				<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->subject}" autocomplete="off" required>
+				<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->subject}" autocomplete="off">
 			</td>
 		</tr>
 		<tr>
@@ -156,7 +156,7 @@
 		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if (empty($draft) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_WAITING)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.waiting'|devblocks_translate}</label>
 		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if (empty($draft) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_CLOSED)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.closed'|devblocks_translate}</label>{/if}
 		
-		<div id="divComposeClosed{$popup_uniqid}" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin-top:5px;margin-left:10px;">
+		<div id="divComposeClosed{$popup_uniqid}" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin:5px 0px 0px 20px;">
 			<b>{'display.reply.next.resume'|devblocks_translate}</b><br>
 			{'display.reply.next.resume_eg'|devblocks_translate}<br> 
 			<input type="text" name="ticket_reopen" size="64" class="input_date" value="{$draft->params.ticket_reopen}"><br>
@@ -417,8 +417,6 @@
 			if(window.console)
 				console.log(e);
 		}
-		
-		$frm.validate();
 		
 		// @who and #command
 		
@@ -808,28 +806,23 @@
 		$frm.find(':input:text:first').focus().select();
 		
 		$frm.find('button.submit').click(function() {
-			var $frm = $(this).closest('form');
-			var $input = $frm.find('input#emailinput{$popup_uniqid}');
 			var $status = $frm.find('div.status').html('').hide();
+			$status.text('').hide();
 			
-			var $to = $frm.find('input[name=to]');
-			var $cc = $frm.find('input[name=cc]');
-			var $bcc = $frm.find('input[name=bcc]');
-			
-			// If we have a Cc:/Bcc: but no To:
-			if($to.val().length == 0 && ($cc.val().length > 0 || $bcc.val().length > 0)) {
-				$status.text("A 'To:' address is required when using 'Cc:' and 'Bcc:'.").addClass('error').fadeIn();
-				return false;
-			}
-			
-			if($frm.validate().form()) {
-				if(null != draftComposeAutoSaveInterval) { 
-					clearTimeout(draftComposeAutoSaveInterval);
-					draftComposeAutoSaveInterval = null;
+			// Validate via Ajax before sending
+			genericAjaxPost($frm, '', 'c=tickets&a=validateComposeJson', function(json) {
+				if(json && json.status) {
+					if(null != draftComposeAutoSaveInterval) { 
+						clearTimeout(draftComposeAutoSaveInterval);
+						draftComposeAutoSaveInterval = null;
+					}
+					
+					genericAjaxPopupPostCloseReloadView(null,'frmComposePeek{$popup_uniqid}','{$view_id}',false,'compose_save');
+					
+				} else {
+					$status.text(json.message).addClass('error').fadeIn();
 				}
-				
-				genericAjaxPopupPostCloseReloadView(null,'frmComposePeek{$popup_uniqid}','{$view_id}',false,'compose_save');
-			}
+			});
 		});
 		
 		{if $org}
