@@ -1213,7 +1213,8 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			if(is_array($model->privs)) {
 				$role_privs = array_fill_keys($model->privs, []);
 			} else {
-				$model->privs = [];
+				$role_privs = [];
+				$model->privs = $role_privs;
 			}
 			
 			$tpl->assign('role_privs', $role_privs);

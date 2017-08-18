@@ -71,14 +71,15 @@
 		{foreach from=$core_acl item=section}
 			{if empty($section.privs)}
 			{else}
+			{$container_id = uniqid()}
 			<fieldset class="peek black">
-				<legend>
+				<legend onclick="checkAll('privs{$container_id}');">
 					<label>
 					{$section.label}
 					</label>
 				</legend>
 				
-				<div style="padding-left:10px;">
+				<div id="privs{$container_id}" style="padding-left:10px;">
 					{foreach from=$section.privs item=priv key=priv_id}
 						<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
 					{/foreach}
@@ -118,7 +119,7 @@
 		{if $available_privs}
 		<fieldset class="peek black">
 			<legend>
-				<label>
+				<label onclick="checkAll('contexts{$context_id}');">
 				{$aliases = Extension_DevblocksContext::getAliasesForContext($contexts[$context_id])}
 				{$aliases.plural|default:$context->name|capitalize}
 				</label>
@@ -144,7 +145,7 @@
 		{else}
 		<fieldset class="peek black">
 			<legend>
-				<label>
+				<label onclick="checkAll('privs{$plugin_id}');">
 				{$plugin.label}
 				</label>
 			</legend>
@@ -209,7 +210,11 @@ $(function() {
 		var $who_workers = $('#configAclWhoWorkers');
 		
 		// Tabs
-		$('#configAclItemized').tabs();
+		var $tabs = $('#configAclItemized').tabs();
+		
+		$tabs.find('fieldset > legend').on('mousedown', function(e) {
+			e.preventDefault();
+		});
 		
 		$who.on('change', function(e) {
 			var $radio = $(this);
