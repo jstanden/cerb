@@ -90,6 +90,12 @@ class ChRest_Contexts extends Extension_RestController {
 				'id' => $context->id,
 				'name' => $context->name,
 				'plugin_id' => $context->plugin_id,
+				'alias' => $context->params['alias'],
+				'params' => [
+					'names' => $context->params['names'][0],
+					'acl' => @$context->params['acl'][0] ? array_keys($context->params['acl'][0]) : [],
+					'options' => @$context->params['options'][0] ? array_keys($context->params['options'][0]) : [],
+				]
 			);
 			
 			// [TODO] Filter custom fieldsets by owner?  (API worker?)
