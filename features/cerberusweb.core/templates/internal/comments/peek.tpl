@@ -10,7 +10,7 @@
 			{/if}
 			
 			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
-			<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$dict->target__context} context.id:{$dict->target_id}"><span class="glyphicons glyphicons-conversation"></span> {'common.reply'|devblocks_translate|capitalize}</button>
+			{if $active_worker->hasPriv("contexts.{$dict->target__context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$dict->target__context} context.id:{$dict->target_id}"><span class="glyphicons glyphicons-conversation"></span> {'common.reply'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>

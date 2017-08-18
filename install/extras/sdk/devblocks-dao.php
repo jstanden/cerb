@@ -1349,7 +1349,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			{/if}
 			
 			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
-			<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+			{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
 </div>
@@ -1711,19 +1711,6 @@ $(function() {
 		hotkey_activated = true;
 	
 		switch(event.keypress_event.which) {
-			{*
-			case 98: // (b) bulk update
-				$btn = $view_actions.find('button.action-bulkupdate');
-			
-				if(event.indirect) {
-					$btn.select().focus();
-					
-				} else {
-					$btn.click();
-				}
-				break;
-			*}
-			
 			case 101: // (e) explore
 				$btn = $view_actions.find('button.action-explore');
 			

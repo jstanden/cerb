@@ -149,17 +149,6 @@ $frm.bind('keyboard_shortcut',function(event) {
 	hotkey_activated = true;
 
 	switch(event.keypress_event.which) {
-		case 98: // (b) bulk update
-			$btn = $view_actions.find('button.action-bulkupdate');
-		
-			if(event.indirect) {
-				$btn.select().focus();
-				
-			} else {
-				$btn.click();
-			}
-			break;
-		
 		default:
 			hotkey_activated = false;
 			break;
