@@ -235,7 +235,7 @@
 							{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->status_id == Model_Ticket::STATUS_CLOSED)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>{/if}
 							<br>
 							
-							<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin:10px 0px 0px 20px;">
+							<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin:5px 0px 0px 20px;">
 							<b>{'display.reply.next.resume'|devblocks_translate}</b> {'display.reply.next.resume_eg'|devblocks_translate}<br> 
 							<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
 							{'display.reply.next.resume_blank'|devblocks_translate}<br>
@@ -312,6 +312,8 @@
 	</tr>
 	<tr>
 		<td id="reply{$message->id}_buttons">
+			<div class="status"></div>
+		
 			<button type="button" class="send split-left" onclick="$(this).closest('td').find('ul li:first a').click();" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'display.ui.send_message'|devblocks_translate}{/if}</button><!--
 			--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 			<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
@@ -724,7 +726,7 @@
 		// Focus
 		
 		{if !$is_forward}
-			$textarea = $frm2.find('textarea[name=content]');
+			var $textarea = $frm2.find('textarea[name=content]');
 			$textarea.focus();
 			setElementSelRange($textarea.get(0), 0, 0);
 		{else}
@@ -736,51 +738,54 @@
 		var $buttons = $('#reply{$message->id}_buttons');
 		
 		$buttons.find('a.send').click(function() {
-			if($('#reply{$message->id}_part1').validate().form()) {
-				if(null != draftAutoSaveInterval) {
-					clearTimeout(draftAutoSaveInterval);
-					draftAutoSaveInterval = null;
+			var $button = $(this);
+			var $status = $frm2.find('div.status').html('').hide();
+			$status.text('').hide();
+			
+			// Validate via Ajax before sending
+			genericAjaxPost($frm2, '', 'c=display&a=validateReplyJson', function(json) {
+				if(json && json.status) {
+					if(null != draftAutoSaveInterval) {
+						clearTimeout(draftAutoSaveInterval);
+						draftAutoSaveInterval = null;
+					}
+					
+					$frm2.find('input:hidden[name=reply_mode]').val('');
+					$button.closest('td').hide();
+					showLoadingPanel();
+					$frm2.submit();
+					
+				} else {
+					$status.text(json.message).addClass('error').fadeIn();
 				}
-				
-				var $frm = $(this).closest('form');
-				$frm.find('input:hidden[name=reply_mode]').val('');
-				$(this).closest('td').hide();
-				showLoadingPanel();
-				$frm.submit();
-			}
+			});
 		});
 		
 		$buttons.find('a.save').click(function() {
-			if($('#reply{$message->id}_part1').validate().form()) {
-				if(null != draftAutoSaveInterval) {
-					clearTimeout(draftAutoSaveInterval);
-					draftAutoSaveInterval = null;
-				}
-				
-				var $frm = $(this).closest('form');
-				$frm.find('input:hidden[name=reply_mode]').val('save');
-				$(this).closest('td').hide();
-				showLoadingPanel();
-				$frm.submit();
+			if(null != draftAutoSaveInterval) {
+				clearTimeout(draftAutoSaveInterval);
+				draftAutoSaveInterval = null;
 			}
+			
+			var $frm = $(this).closest('form');
+			$frm.find('input:hidden[name=reply_mode]').val('save');
+			$(this).closest('td').hide();
+			showLoadingPanel();
+			$frm.submit();
 		});
 
 		$buttons.find('a.draft').click(function() {
-			if($('#reply{$message->id}_part1').validate().form()) {
-				if(null != draftAutoSaveInterval) {
-					clearTimeout(draftAutoSaveInterval);
-					draftAutoSaveInterval = null;
-				}
-				
-				var $frm = $(this).closest('form');
-				$frm.find('input:hidden[name=a]').val('saveDraftReply');
-				$(this).closest('td').hide();
-				showLoadingPanel();
-				$frm.submit();
+			if(null != draftAutoSaveInterval) {
+				clearTimeout(draftAutoSaveInterval);
+				draftAutoSaveInterval = null;
 			}
+			
+			var $frm = $(this).closest('form');
+			$frm.find('input:hidden[name=a]').val('saveDraftReply');
+			$(this).closest('td').hide();
+			showLoadingPanel();
+			$frm.submit();
 		});
-		
-		$frm.validate();
 		
 		// Interactions
 		var $interaction_container = $('#replyInteractions{$message->id}');

@@ -703,6 +703,110 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');
 	}
+	
+	function validateReplyJsonAction() {
+		header('Content-Type: application/json; charset=utf-8');
+		
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$ticket_mask = DevblocksPlatform::importGPC($_REQUEST['ticket_mask'],'string');
+		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
+		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
+		@$reply_mode = DevblocksPlatform::importGPC($_REQUEST['reply_mode'],'string','');
+		
+		@$to = DevblocksPlatform::importGPC(@$_REQUEST['to']);
+		
+		// Attachments
+		@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'],'array',array());
+		$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('unique', 'nonzero'));
+		
+		try {
+			if(null == ($worker = CerberusApplication::getActiveWorker()))
+				throw new Exception_DevblocksAjaxValidationError("You're not signed in.");
+			
+			if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+				throw new Exception_DevblocksAjaxValidationError("You're replying to an invalid ticket.");
+			
+			$properties = array(
+				'draft_id' => $draft_id,
+				'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
+				'ticket_id' => $ticket_id,
+				'is_forward' => $is_forward,
+				'to' => $to,
+				'cc' => DevblocksPlatform::importGPC(@$_REQUEST['cc']),
+				'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
+				'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
+				'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
+				'content_format' => DevblocksPlatform::importGPC(@$_REQUEST['format'],'string',''),
+				'html_template_id' => DevblocksPlatform::importGPC(@$_REQUEST['html_template_id'],'integer',0),
+				'status_id' => DevblocksPlatform::importGPC(@$_REQUEST['status_id'],'integer',0),
+				'group_id' => DevblocksPlatform::importGPC(@$_REQUEST['group_id'],'integer',0),
+				'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'integer',0),
+				'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),
+				'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
+				'gpg_encrypt' => DevblocksPlatform::importGPC(@$_REQUEST['options_gpg_encrypt'],'integer',0),
+				'gpg_sign' => DevblocksPlatform::importGPC(@$_REQUEST['options_gpg_sign'],'integer',0),
+				'worker_id' => @$worker->id,
+				'forward_files' => $file_ids,
+				'link_forward_files' => true,
+			);
+			
+			if(empty($properties['to']))
+				throw new Exception_DevblocksAjaxValidationError("The 'To:' is required.");
+			
+			if(empty($properties['subject']))
+				throw new Exception_DevblocksAjaxValidationError("The 'Subject:' is required.");
+			
+			// Validate GPG if used (we need public keys for all recipients)
+			if($properties['gpg_encrypt']) {
+				if(false == ($gpg = DevblocksPlatform::services()->gpg()) ||!$gpg->isEnabled())
+					throw new Exception_DevblocksAjaxValidationError("The 'gnupg' PHP extension is not installed.");
+				
+				$email_addresses = DevblocksPlatform::parseCsvString(sprintf("%s%s%s",
+					!empty($properties['to']) ? ($properties['to'] . ', ') : '',
+					!empty($properties['cc']) ? ($properties['cc'] . ', ') : '',
+					!empty($properties['bcc']) ? ($properties['bcc'] . ', ') : ''
+				));
+				
+				$email_models = DAO_Address::lookupAddresses($email_addresses, true);
+				$emails_to_check = array_flip(array_column(DevblocksPlatform::objectsToArrays($email_models), 'email'));
+				
+				foreach($email_models as $email_model) {
+					if(false == ($info = $gpg->keyinfo(sprintf("<%s>", $email_model->email))) || !is_array($info))
+						continue;
+					
+					foreach($info as $key) {
+						foreach($key['uids'] as $uid) {
+							unset($emails_to_check[$uid['email']]);
+						}
+					}
+				}
+				
+				if(!empty($emails_to_check)) {
+					throw new Exception_DevblocksAjaxValidationError("Can't send encrypted message. We don't have a GPG public key for: " . implode(', ', array_keys($emails_to_check)));
+				}
+			}
+			
+			//throw new Exception_DevblocksAjaxValidationError("You did it!");
+			
+			// [TODO] Give bot behaviors a stab at it
+			
+			echo json_encode([
+				'status' => true,
+			]);
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode([
+				'status' => false,
+				'message' => $e->getMessage(),
+			]);
+			
+		} catch (Exception $e) {
+			echo json_encode([
+				'status' => false,
+				'message' => 'An unexpected error occurred.',
+			]);
+		}
+	}
 
 	function sendReplyAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
