@@ -180,6 +180,7 @@ function DevblocksClass() {
 		var $status = $popup.find('div.status');
 		var options = e.data;
 		var is_delete = (options && options.mode == 'delete');
+		var is_continue = (options && options.mode == 'continue');
 		
 		if(options && options.before && typeof options.before == 'function') {
 			options.before(e, $frm);
@@ -228,7 +229,12 @@ function DevblocksClass() {
 				if(e.view_id)
 					genericAjaxGet('view'+e.view_id, 'c=internal&a=viewRefresh&id=' + e.view_id);
 				
-				genericAjaxPopupClose($popup, event);
+				if(is_continue) {
+					Devblocks.showSuccess($status, "Saved!");
+					
+				} else {
+					genericAjaxPopupClose($popup, event);
+				}
 				
 			} else {
 				// Output errors
