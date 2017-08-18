@@ -17,14 +17,67 @@
 
 class DAO_Attachment extends Cerb_ORMHelper {
 	const ID = 'id';
-	const NAME = 'name';
 	const MIME_TYPE = 'mime_type';
+	const NAME = 'name';
 	const STORAGE_EXTENSION = 'storage_extension';
 	const STORAGE_KEY = 'storage_key';
-	const STORAGE_SIZE = 'storage_size';
 	const STORAGE_PROFILE_ID = 'storage_profile_id';
 	const STORAGE_SHA1HASH = 'storage_sha1hash';
+	const STORAGE_SIZE = 'storage_size';
 	const UPDATED = 'updated';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::MIME_TYPE)
+			->string()
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::STORAGE_EXTENSION)
+			->string()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::STORAGE_KEY)
+			->string()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::STORAGE_PROFILE_ID)
+			->uint(4)
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::STORAGE_SHA1HASH)
+			->string()
+			->setMaxLength(40)
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::STORAGE_SIZE)
+			->uint(4)
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::UPDATED)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
 	
 	public static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -1548,7 +1601,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_ATTACHMENT;
 		$token_values['_types'] = $token_types;
@@ -1572,6 +1625,18 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		return true;
 	}
 
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_Attachment::ID,
+			'mime_type' => DAO_Attachment::MIME_TYPE,
+			'name' => DAO_Attachment::NAME,
+			'size' => DAO_Attachment::STORAGE_SIZE,
+			'storage_extension' => DAO_Attachment::STORAGE_EXTENSION,
+			'storage_key' => DAO_Attachment::STORAGE_KEY,
+			'updated' => DAO_Attachment::UPDATED,
+		];
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;

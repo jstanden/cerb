@@ -41,13 +41,53 @@
  */
 
 class DAO_DevblocksSession extends Cerb_ORMHelper {
-	const SESSION_KEY = 'session_key';
 	const CREATED = 'created';
-	const UPDATED = 'updated';
 	const SESSION_DATA = 'session_data';
+	const SESSION_KEY = 'session_key';
+	const UPDATED = 'updated';
+	const USER_AGENT = 'user_agent';
 	const USER_ID = 'user_id';
 	const USER_IP = 'user_ip';
-	const USER_AGENT = 'user_agent';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CREATED)
+			->timestamp()
+			;
+		$validation
+			->addField(self::SESSION_DATA)
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
+			->addField(self::SESSION_KEY)
+			->string()
+			->setMaxLength(64)
+			;
+		$validation
+			->addField(self::UPDATED)
+			->timestamp()
+			;
+		$validation
+			->addField(self::USER_AGENT)
+			->string()
+			;
+		$validation
+			->addField(self::USER_ID)
+			->id()
+			;
+		$validation
+			->addField(self::USER_IP)
+			->string()
+			->setMaxLength(32)
+			;
+			
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();

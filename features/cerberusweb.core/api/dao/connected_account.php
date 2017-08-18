@@ -1,14 +1,61 @@
 <?php
 class DAO_ConnectedAccount extends Cerb_ORMHelper {
+	const CREATED_AT = 'created_at';
+	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const NAME = 'name';
-	const EXTENSION_ID = 'extension_id';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const PARAMS_JSON = 'params_json';
-	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
 
+		$validation
+			->addField(self::CREATED_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+			
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		if(!isset($fields[self::CREATED_AT]))
 			$fields[self::CREATED_AT] = time();
@@ -1112,6 +1159,17 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_ConnectedAccount::ID,
+			'name' => DAO_ConnectedAccount::NAME,
+			'owner__context' => DAO_ConnectedAccount::OWNER_CONTEXT,
+			'owner_id' => DAO_ConnectedAccount::OWNER_CONTEXT_ID,
+			'service' => DAO_ConnectedAccount::EXTENSION_ID,
+			'updated_at' => DAO_ConnectedAccount::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

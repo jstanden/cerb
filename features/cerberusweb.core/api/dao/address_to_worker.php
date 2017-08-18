@@ -16,13 +16,45 @@
 ***********************************************************************/
 
 class DAO_AddressToWorker extends Cerb_ORMHelper {
-	const _CACHE_ALL = 'cerb:dao:address_to_worker:all';
-	
 	const ADDRESS_ID = 'address_id';
-	const WORKER_ID = 'worker_id';
-	const IS_CONFIRMED = 'is_confirmed';
 	const CODE = 'code';
 	const CODE_EXPIRE = 'code_expire';
+	const IS_CONFIRMED = 'is_confirmed';
+	const WORKER_ID = 'worker_id';
+	
+	const _CACHE_ALL = 'cerb:dao:address_to_worker:all';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ADDRESS_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CODE)
+			->string()
+			->setMaxLength(32)
+			;
+		$validation
+			->addField(self::CODE_EXPIRE)
+			->timestamp()
+			;
+		$validation
+			->addField(self::IS_CONFIRMED)
+			->bit()
+			;
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			->setRequired(true)
+			;
+		
+		return $validation->getFields();
+	}
 
 	static function assign($address_id, $worker_id, $is_confirmed=false) {
 		$db = DevblocksPlatform::services()->database();

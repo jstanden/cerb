@@ -16,15 +16,58 @@
  ***********************************************************************/
 
 class DAO_CustomField extends Cerb_ORMHelper {
+	const CONTEXT = 'context';
+	const CUSTOM_FIELDSET_ID = 'custom_fieldset_id';
 	const ID = 'id';
 	const NAME = 'name';
-	const TYPE = 'type';
-	const CONTEXT = 'context';
-	const POS = 'pos';
 	const PARAMS_JSON = 'params_json';
-	const CUSTOM_FIELDSET_ID = 'custom_fieldset_id';
+	const POS = 'pos';
+	const TYPE = 'type';
 	
 	const CACHE_ALL = 'ch_customfields';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CUSTOM_FIELDSET_ID)
+			->id()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(128)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::POS)
+			->uint(2)
+			;
+		$validation
+			->addField(self::TYPE)
+			->string()
+			->setMaxLength(1)
+			;
+			
+		return $validation->getFields();
+	}
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -215,10 +258,39 @@ class DAO_CustomField extends Cerb_ORMHelper {
 };
 
 class DAO_CustomFieldValue extends Cerb_ORMHelper {
-	const FIELD_ID = 'field_id';
 	const CONTEXT = 'context';
 	const CONTEXT_ID = 'context_id';
+	const FIELD_ID = 'field_id';
 	const FIELD_VALUE = 'field_value';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::FIELD_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::FIELD_VALUE)
+			->string()
+			->setRequired(true)
+			;
+		
+		return $validation->getFields();
+	}
 	
 	public static function getValueTableName($field_id) {
 		$field = DAO_CustomField::get($field_id);
@@ -1150,6 +1222,12 @@ class Context_CustomField extends Extension_DevblocksContext {
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		// [TODO] No searchfields_ for custom fields
+		return [
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

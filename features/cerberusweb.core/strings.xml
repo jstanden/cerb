@@ -2317,9 +2317,24 @@
 
 		<!-- Errors -->
 		
+		<tu tuid="error.core.no_acl.create">
+			<tuv xml:lang="en_US">
+				<seg>You do not have permission to create this record.</seg>
+			</tuv>
+		</tu>
+		<tu tuid="error.core.no_acl.delete">
+			<tuv xml:lang="en_US">
+				<seg>You do not have permission to delete this record.</seg>
+			</tuv>
+		</tu>
 		<tu tuid="error.core.no_acl.edit">
 			<tuv xml:lang="en_US">
 				<seg>You do not have permission to modify this record.</seg>
+			</tuv>
+		</tu>
+		<tu tuid="error.core.no_acl.view">
+			<tuv xml:lang="en_US">
+				<seg>You do not have permission to view this record.</seg>
 			</tuv>
 		</tu>
 

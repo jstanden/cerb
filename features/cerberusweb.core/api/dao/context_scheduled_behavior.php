@@ -16,15 +16,67 @@
 ***********************************************************************/
 
 class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
-	const ID = 'id';
+	const BEHAVIOR_ID = 'behavior_id';
 	const CONTEXT = 'context';
 	const CONTEXT_ID = 'context_id';
-	const BEHAVIOR_ID = 'behavior_id';
-	const RUN_DATE = 'run_date';
-	const RUN_RELATIVE = 'run_relative';
-	const RUN_LITERAL = 'run_literal';
-	const VARIABLES_JSON = 'variables_json';
+	const ID = 'id';
 	const REPEAT_JSON = 'repeat_json';
+	const RUN_DATE = 'run_date';
+	const RUN_LITERAL = 'run_literal';
+	const RUN_RELATIVE = 'run_relative';
+	const VARIABLES_JSON = 'variables_json';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::BEHAVIOR_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::REPEAT_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::RUN_DATE)
+			->timestamp()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::RUN_LITERAL)
+			->string()
+			;
+		$validation
+			->addField(self::RUN_RELATIVE)
+			->string()
+			;
+		$validation
+			->addField(self::VARIABLES_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+			
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();

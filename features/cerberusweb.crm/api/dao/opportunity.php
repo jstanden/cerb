@@ -16,16 +16,72 @@
  ***********************************************************************/
 
 class DAO_CrmOpportunity extends Cerb_ORMHelper {
-	const ID = 'id';
-	const NAME = 'name';
 	const AMOUNT = 'amount';
-	const PRIMARY_EMAIL_ID = 'primary_email_id';
-	const CREATED_DATE = 'created_date';
-	const UPDATED_DATE = 'updated_date';
 	const CLOSED_DATE = 'closed_date';
-	const IS_WON = 'is_won';
+	const CREATED_DATE = 'created_date';
+	const ID = 'id';
 	const IS_CLOSED = 'is_closed';
+	const IS_WON = 'is_won';
+	const NAME = 'name';
+	const PRIMARY_EMAIL_ID = 'primary_email_id';
+	const UPDATED_DATE = 'updated_date';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// decimal(8,2)
+		$validation
+			->addField(self::AMOUNT)
+			->float()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::CLOSED_DATE)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::CREATED_DATE)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::IS_CLOSED)
+			->bit()
+			;
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::IS_WON)
+			->bit()
+			;
+		// varchar(255)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::PRIMARY_EMAIL_ID)
+			->id()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_DATE)
+			->timestamp()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1333,6 +1389,19 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'amount' => DAO_CrmOpportunity::AMOUNT,
+			'created' => DAO_CrmOpportunity::CREATED_DATE,
+			'email_id' => DAO_CrmOpportunity::PRIMARY_EMAIL_ID,
+			'id' => DAO_CrmOpportunity::ID,
+			'is_closed' => DAO_CrmOpportunity::IS_CLOSED,
+			'is_won' => DAO_CrmOpportunity::IS_WON,
+			'title' => DAO_CrmOpportunity::NAME,
+			'updated' => DAO_CrmOpportunity::UPDATED_DATE,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

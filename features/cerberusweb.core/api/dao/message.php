@@ -16,24 +16,122 @@
 ***********************************************************************/
 
 class DAO_Message extends Cerb_ORMHelper {
-	const ID = 'id';
-	const TICKET_ID = 'ticket_id';
-	const CREATED_DATE = 'created_date';
 	const ADDRESS_ID = 'address_id';
-	const IS_BROADCAST = 'is_broadcast';
-	const IS_OUTGOING = 'is_outgoing';
-	const IS_NOT_SENT = 'is_not_sent';
-	const WORKER_ID = 'worker_id';
+	const CREATED_DATE = 'created_date';
+	const HASH_HEADER_MESSAGE_ID = 'hash_header_message_id';
 	const HTML_ATTACHMENT_ID = 'html_attachment_id';
+	const ID = 'id';
+	const IS_BROADCAST = 'is_broadcast';
+	const IS_NOT_SENT = 'is_not_sent';
+	const IS_OUTGOING = 'is_outgoing';
+	const RESPONSE_TIME = 'response_time';
 	const STORAGE_EXTENSION = 'storage_extension';
 	const STORAGE_KEY = 'storage_key';
 	const STORAGE_PROFILE_ID = 'storage_profile_id';
 	const STORAGE_SIZE = 'storage_size';
-	const RESPONSE_TIME = 'response_time';
-	const HASH_HEADER_MESSAGE_ID = 'hash_header_message_id';
+	const TICKET_ID = 'ticket_id';
 	const WAS_ENCRYPTED = 'was_encrypted';
 	const WAS_SIGNED = 'was_signed';
+	const WORKER_ID = 'worker_id';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::ADDRESS_ID)
+			->id()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::CREATED_DATE)
+			->timestamp()
+			;
+		// varchar(40)
+		$validation
+			->addField(self::HASH_HEADER_MESSAGE_ID)
+			->string()
+			->setMaxLength(40)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::HTML_ATTACHMENT_ID)
+			->id()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::IS_BROADCAST)
+			->bit()
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::IS_NOT_SENT)
+			->bit()
+			;
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::IS_OUTGOING)
+			->bit()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::RESPONSE_TIME)
+			->uint(4)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::STORAGE_EXTENSION)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::STORAGE_KEY)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::STORAGE_PROFILE_ID)
+			->id()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::STORAGE_SIZE)
+			->uint(4)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::TICKET_ID)
+			->id()
+			;
+		// tinyint(1)
+		$validation
+			->addField(self::WAS_ENCRYPTED)
+			->bit()
+			;
+		// tinyint(1)
+		$validation
+			->addField(self::WAS_SIGNED)
+			->bit()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -2271,6 +2369,25 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'created' => DAO_Message::CREATED_DATE,
+			'hash_header_message_id' => DAO_Message::HASH_HEADER_MESSAGE_ID,
+			'html_attachment_id' => DAO_Message::HTML_ATTACHMENT_ID,
+			'id' => DAO_Message::ID,
+			'is_broadcast' => DAO_Message::IS_BROADCAST,
+			'is_not_sent' => DAO_Message::IS_NOT_SENT,
+			'is_outgoing' => DAO_Message::IS_OUTGOING,
+			'response_time' => DAO_Message::RESPONSE_TIME,
+			'sender_id' => DAO_Message::ADDRESS_ID,
+			'storage_size' => DAO_Message::STORAGE_SIZE,
+			'ticket_id' => DAO_Message::TICKET_ID,
+			'was_encrypted' => DAO_Message::WAS_ENCRYPTED,
+			'was_signed' => DAO_Message::WAS_SIGNED,
+			'worker_id' => DAO_Message::WORKER_ID,
+		];
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

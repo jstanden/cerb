@@ -1,25 +1,15 @@
 <?php
 class DAO_ContextSavedSearch extends Cerb_ORMHelper {
+	const CONTEXT = 'context';
 	const ID = 'id';
 	const NAME = 'name';
-	const CONTEXT = 'context';
-	const TAG = 'tag';
-	const QUERY = 'query';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
+	const QUERY = 'query';
+	const TAG = 'tag';
 	const UPDATED_AT = 'updated_at';
-
-	static function create($fields) {
-		$db = DevblocksPlatform::services()->database();
-		
-		$sql = "INSERT INTO context_saved_search () VALUES ()";
-		$db->ExecuteMaster($sql);
-		$id = $db->LastInsertId();
-		
-		self::update($id, $fields);
-		
-		return $id;
-	}
+	
+	private function __construct() {}
 	
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
@@ -49,7 +39,7 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		$validation
 			->addField(self::QUERY)
 			->string()
-			->setMaxLength(pow(2,16)-1)
+			->setMaxLength(65535)
 			;
 		$validation
 			->addField(self::TAG)
@@ -72,6 +62,18 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 			;
 		
 		return $validation->getFields();
+	}
+	
+	static function create($fields) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = "INSERT INTO context_saved_search () VALUES ()";
+		$db->ExecuteMaster($sql);
+		$id = $db->LastInsertId();
+		
+		self::update($id, $fields);
+		
+		return $id;
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
@@ -1000,6 +1002,19 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'context' => DAO_ContextSavedSearch::CONTEXT,
+			'id' => DAO_ContextSavedSearch::ID,
+			'name' => DAO_ContextSavedSearch::NAME,
+			'owner__context' => DAO_ContextSavedSearch::OWNER_CONTEXT,
+			'owner_id' => DAO_ContextSavedSearch::OWNER_CONTEXT_ID,
+			'query' => DAO_ContextSavedSearch::QUERY,
+			'tag' => DAO_ContextSavedSearch::TAG,
+			'updated_at' => DAO_ContextSavedSearch::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

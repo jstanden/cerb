@@ -18,12 +18,48 @@
 class DAO_AddressOutgoing extends Cerb_ORMHelper {
 	const ADDRESS_ID = 'address_id';
 	const IS_DEFAULT = 'is_default';
-	const REPLY_PERSONAL = 'reply_personal';
-	const REPLY_SIGNATURE = 'reply_signature';
 	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
 	const REPLY_MAIL_TRANSPORT_ID = 'reply_mail_transport_id';
+	const REPLY_PERSONAL = 'reply_personal';
+	const REPLY_SIGNATURE = 'reply_signature';
 	
 	const _CACHE_ALL = 'dao_address_outgoing_all';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			// [TODO] Must be unique
+			->addField(self::ADDRESS_ID) 
+			->id()
+			->setRequired($bool)
+			;
+		$validation
+			->addField(self::IS_DEFAULT)
+			->bit()
+			;
+		$validation
+			->addField(self::REPLY_HTML_TEMPLATE_ID)
+			->id()
+			;
+		$validation
+			->addField(self::REPLY_MAIL_TRANSPORT_ID)
+			->id()
+			;
+		$validation
+			->addField(self::REPLY_PERSONAL)
+			->string()
+			->setMaxLength(128)
+			;
+		$validation
+			->addField(self::REPLY_SIGNATURE)
+			->string(pow(2,24)-1)
+			;
+		
+		return $validation->getFields();
+	}
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();

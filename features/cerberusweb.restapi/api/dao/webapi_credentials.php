@@ -1,14 +1,58 @@
 <?php
 class DAO_WebApiCredentials extends Cerb_ORMHelper {
-	const _CACHE_ALL = 'dao_webapi_credentials_all';
-	
+	const ACCESS_KEY = 'access_key';
 	const ID = 'id';
 	const LABEL = 'label';
-	const WORKER_ID = 'worker_id';
-	const ACCESS_KEY = 'access_key';
-	const SECRET_KEY = 'secret_key';
 	const PARAMS_JSON = 'params_json';
+	const SECRET_KEY = 'secret_key';
+	const WORKER_ID = 'worker_id';
+	
+	const _CACHE_ALL = 'dao_webapi_credentials_all';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(255)
+		$validation
+			->addField(self::ACCESS_KEY)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::LABEL)
+			->string()
+			->setMaxLength(255)
+			;
+		// text
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::SECRET_KEY) // [TODO] Encrypt
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		

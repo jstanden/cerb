@@ -1104,6 +1104,7 @@
 				<param key="view_class" value="View_Attachment" />
 				<param key="options">
 					<value>
+						<data key="create" />
 						<data key="cards" />
 						<data key="links" />
 						<data key="search" />
@@ -1114,6 +1115,7 @@
 				<param key="acl">
 					<value>
 						<data key="comment" />
+						<data key="create" />
 						<data key="delete" />
 						<data key="export" />
 						<data key="update" />
@@ -1144,6 +1146,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="search" />
@@ -1781,7 +1784,6 @@
 				</param>
 				<param key="acl">
 					<value>
-						<data key="delete" />
 						<data key="export" />
 					</value>
 				</param>
@@ -2499,11 +2501,8 @@
 				<param key="acl">
 					<value>
 						<data key="comment" />
-						<data key="delete" />
 						<data key="export" />
 						<data key="import" />
-						<data key="merge" />
-						<data key="update" />
 					</value>
 				</param>
 			</params>

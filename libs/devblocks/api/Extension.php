@@ -117,8 +117,10 @@ interface IDevblocksContextExtension {
 }
 
 abstract class Extension_DevblocksContext extends DevblocksExtension implements IDevblocksContextExtension {
+	const ID = 'devblocks.context';
+	
 	static $_changed_contexts = array();
-
+	
 	static function markContextChanged($context, $context_ids) {
 		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
@@ -511,6 +513,50 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	abstract function getRandom();
 	abstract function getMeta($context_id);
 	abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
+	abstract function getKeyToDaoFieldMap();
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		return true;
+	}
+	
+	function getDaoFieldsFromKeysAndValues($data, &$out_fields, &$out_custom_fields, &$error) {
+		$out_fields = $out_custom_fields = [];
+		$error = null;
+		
+		$context = static::ID;
+		
+		$map = $this->getKeyToDaoFieldMap();
+		
+		if(!$this->_getDaoCustomFieldsFromKeysAndValues($context, $data, $out_custom_fields, $error))
+			return false;
+		
+		// Remove custom fields from data
+		if(is_array($out_custom_fields))
+		foreach($out_custom_fields as $field_id => $value)
+			unset($data['custom_' . $field_id]);
+		
+		if(is_array($data))
+		foreach($data as $key => $value) {
+			$fields = [];
+			
+			if(!$this->getDaoFieldsFromKeyAndValue($key, $value, $fields, $error))
+				return false;
+			
+			if(!empty($fields)) {
+				$out_fields = array_merge($out_fields, $fields);
+				continue;
+			}
+			
+			if(!isset($map[$key])) {
+				$error = sprintf("'%s' is not an editable field.", $key);
+				return false;
+			}
+			
+			$out_fields[$map[$key]] = $value;
+		}
+		
+		return true;
+	}
 	
 	function getDefaultProperties() {
 		return array();
@@ -695,6 +741,30 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 	function lazyLoadContextValues($token, $dictionary) { return array(); }
 
+	protected function _getDaoCustomFieldsFromKeysAndValues($context, array &$data, &$out_custom_fields, &$error=null) {
+		$error = null;
+		$custom_fields = null;
+		
+		if(is_array($data))
+		foreach($data as $key => $value) {
+			if(DevblocksPlatform::strStartsWith($key, 'custom_')) {
+				if(is_null($custom_fields))
+					$custom_fields = DAO_CustomField::getByContext($context);
+				
+				$custom_field_id = substr($key,strrpos($key,'_')+1);
+				
+				if(!$custom_field_id || !isset($custom_fields[$custom_field_id])) {
+					$error = sprintf("'%s' is not a valid custom field", $key);
+					return false;
+				}
+				
+				$out_custom_fields[$custom_field_id] = $value;
+			}
+		}
+		
+		return true;
+	}
+	
 	protected function _importModelCustomFieldsAsValues($model, $token_values) {
 		@$custom_fields = $model->custom_fields;
 

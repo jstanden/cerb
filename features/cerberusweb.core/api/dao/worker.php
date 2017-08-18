@@ -16,8 +16,6 @@
 ***********************************************************************/
 
 class DAO_Worker extends Cerb_ORMHelper {
-	const CACHE_ALL = 'ch_workers';
-	
 	const AT_MENTION_NAME = 'at_mention_name';
 	const AUTH_EXTENSION_ID = 'auth_extension_id';
 	const CALENDAR_ID = 'calendar_id';
@@ -33,10 +31,132 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const LOCATION = 'location';
 	const MOBILE = 'mobile';
 	const PHONE = 'phone';
-	const TIME_FORMAT = 'time_format';
 	const TIMEZONE = 'timezone';
+	const TIME_FORMAT = 'time_format';
 	const TITLE = 'title';
 	const UPDATED = 'updated';
+	
+	const CACHE_ALL = 'ch_workers';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(64)
+		$validation
+			->addField(self::AT_MENTION_NAME)
+			->string()
+			->setMaxLength(64)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::AUTH_EXTENSION_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::CALENDAR_ID)
+			->id()
+			;
+		// date
+		$validation
+			->addField(self::DOB)
+			->string()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::EMAIL_ID)
+			->id()
+			->setRequired(true)
+			;
+		// varchar(128)
+		$validation
+			->addField(self::FIRST_NAME)
+			->string()
+			->setMaxLength(128)
+			->setRequired(true)
+			;
+		// char(1)
+		$validation
+			->addField(self::GENDER)
+			->string()
+			->setMaxLength(1)
+			->setPossibleValues(['','F','M'])
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::IS_DISABLED)
+			->bit()
+			;
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::IS_SUPERUSER)
+			->bit()
+			;
+		// varchar(16)
+		$validation
+			->addField(self::LANGUAGE)
+			->string()
+			->setMaxLength(16)
+			;
+		// varchar(128)
+		$validation
+			->addField(self::LAST_NAME)
+			->string()
+			->setMaxLength(128)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::LOCATION)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(64)
+		$validation
+			->addField(self::MOBILE)
+			->string()
+			->setMaxLength(64)
+			;
+		// varchar(64)
+		$validation
+			->addField(self::PHONE)
+			->string()
+			->setMaxLength(64)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::TIMEZONE)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(64)
+		$validation
+			->addField(self::TIME_FORMAT)
+			->string()
+			->setMaxLength(64)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::TITLE)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED)
+			->timestamp()
+			;
+
+		return $validation->getFields();
+	}
 	
 	static function create($fields) {
 		if(empty($fields[DAO_Worker::EMAIL_ID]))
@@ -2421,7 +2541,36 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 };
 
 class DAO_WorkerPref extends Cerb_ORMHelper {
+	const SETTING = 'setting';
+	const VALUE = 'value';
+	const WORKER_ID = 'worker_id';
+	
 	const CACHE_PREFIX = 'ch_workerpref_';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::SETTING)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::VALUE)
+			->string()
+			->setMaxLength(65535)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			->setRequired(true)
+			;
+		
+		return $validation->getFields();
+	}
 	
 	static function delete($worker_id, $key) {
 		$db = DevblocksPlatform::services()->database();
@@ -2778,6 +2927,29 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'address_id' => DAO_Worker::EMAIL_ID,
+			'at_mention_name' => DAO_Worker::AT_MENTION_NAME,
+			'calendar_id' => DAO_Worker::CALENDAR_ID,
+			'dob' => DAO_Worker::DOB,
+			'first_name' => DAO_Worker::FIRST_NAME,
+			'gender' => DAO_Worker::GENDER,
+			'id' => DAO_Worker::ID,
+			'is_disabled' => DAO_Worker::IS_DISABLED,
+			'is_superuser' => DAO_Worker::IS_SUPERUSER,
+			'language' => DAO_Worker::LANGUAGE,
+			'last_name' => DAO_Worker::LAST_NAME,
+			'location' => DAO_Worker::LOCATION,
+			'mobile' => DAO_Worker::MOBILE,
+			'phone' => DAO_Worker::PHONE,
+			'time_format' => DAO_Worker::TIME_FORMAT,
+			'timezone' => DAO_Worker::TIMEZONE,
+			'title' => DAO_Worker::TITLE,
+			'updated' => DAO_Worker::UPDATED,
+		];
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

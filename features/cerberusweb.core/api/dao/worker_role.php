@@ -16,15 +16,48 @@
  ***********************************************************************/
 
 class DAO_WorkerRole extends Cerb_ORMHelper {
-	const _CACHE_ROLES_ALL = 'ch_roles_all';
-	const _CACHE_WORKER_PRIVS_PREFIX = 'ch_privs_worker_';
-	const _CACHE_WORKER_ROLES_PREFIX = 'ch_roles_worker_';
-	
 	const ID = 'id';
 	const NAME = 'name';
 	const PARAMS_JSON = 'params_json';
 	const PRIVS_JSON = 'privs_json';
 	const UPDATED_AT = 'updated_at';
+	
+	const _CACHE_ROLES_ALL = 'ch_roles_all';
+	const _CACHE_WORKER_PRIVS_PREFIX = 'ch_privs_worker_';
+	const _CACHE_WORKER_ROLES_PREFIX = 'ch_roles_worker_';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::PRIVS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -991,6 +1024,14 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_WorkerRole::ID,
+			'name' => DAO_WorkerRole::NAME,
+			'updated_at' => DAO_WorkerRole::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

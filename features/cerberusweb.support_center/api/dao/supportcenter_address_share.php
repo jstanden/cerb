@@ -1,8 +1,32 @@
 <?php
 class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
+	const IS_ENABLED = 'is_enabled';
 	const SHARE_ADDRESS_ID = 'share_address_id';
 	const WITH_ADDRESS_ID = 'with_address_id';
-	const IS_ENABLED = 'is_enabled';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::IS_ENABLED)
+			->bit()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::SHARE_ADDRESS_ID)
+			->id()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::WITH_ADDRESS_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
 	
 	static function getContactAddressesWithShared($contact_id, $only_ids=false) {
 		$db = DevblocksPlatform::services()->database();

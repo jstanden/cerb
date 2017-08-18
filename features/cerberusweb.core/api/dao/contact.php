@@ -1,25 +1,124 @@
 <?php
 class DAO_Contact extends Cerb_ORMHelper {
-	const ID = 'id';
-	const PRIMARY_EMAIL_ID = 'primary_email_id';
-	const FIRST_NAME = 'first_name';
-	const LAST_NAME = 'last_name';
-	const TITLE = 'title';
-	const ORG_ID = 'org_id';
-	const USERNAME = 'username';
-	const GENDER = 'gender';
-	const DOB = 'dob';
-	const LOCATION = 'location';
-	const PHONE = 'phone';
-	const MOBILE = 'mobile';
-	const AUTH_SALT = 'auth_salt';
 	const AUTH_PASSWORD = 'auth_password';
+	const AUTH_SALT = 'auth_salt';
 	const CREATED_AT = 'created_at';
-	const UPDATED_AT = 'updated_at';
-	const LAST_LOGIN_AT = 'last_login_at';
+	const DOB = 'dob';
+	const FIRST_NAME = 'first_name';
+	const GENDER = 'gender';
+	const ID = 'id';
 	const LANGUAGE = 'language';
+	const LAST_LOGIN_AT = 'last_login_at';
+	const LAST_NAME = 'last_name';
+	const LOCATION = 'location';
+	const MOBILE = 'mobile';
+	const ORG_ID = 'org_id';
+	const PHONE = 'phone';
+	const PRIMARY_EMAIL_ID = 'primary_email_id';
 	const TIMEZONE = 'timezone';
-
+	const TITLE = 'title';
+	const UPDATED_AT = 'updated_at';
+	const USERNAME = 'username';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::AUTH_PASSWORD)
+			->string()
+			->setMaxLength(64)
+			;
+		$validation
+			->addField(self::AUTH_SALT)
+			->string()
+			->setMaxLength(64)
+			;
+		$validation
+			->addField(self::CREATED_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::DOB)
+			->string() // [TODO] ->date()
+			;
+		$validation
+			->addField(self::FIRST_NAME)
+			->string()
+			->setMaxLength(128)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::GENDER)
+			->string()
+			->setMaxLength(1)
+			->setPossibleValues(['','F','M'])
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::LANGUAGE)
+			->string()
+			->setMaxLength(16)
+			;
+		$validation
+			->addField(self::LAST_LOGIN_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::LAST_NAME)
+			->string()
+			->setMaxLength(128)
+			;
+		$validation
+			->addField(self::LOCATION)
+			->string()
+			;
+		$validation
+			->addField(self::MOBILE)
+			->string()
+			->setMaxLength(64)
+			;
+		$validation
+			->addField(self::ORG_ID)
+			->id()
+			;
+		$validation
+			->addField(self::PHONE)
+			->string()
+			->setMaxLength(64)
+			;
+		$validation
+			->addField(self::PRIMARY_EMAIL_ID)
+			->id()
+			;
+		$validation
+			->addField(self::TIMEZONE)
+			->string()
+			->setMaxLength(128)
+			;
+		$validation
+			->addField(self::TITLE)
+			->string()
+			->setMaxLength(255)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::USERNAME)
+			->string()
+			->setMaxLength(64)
+			;
+			
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1832,7 +1931,26 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		
 		return true;
 	}
-
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'email_id' => DAO_Contact::PRIMARY_EMAIL_ID,
+			'first_name' => DAO_Contact::FIRST_NAME,
+			'gender' => DAO_Contact::GENDER,
+			'id' => DAO_Contact::ID,
+			'language' => DAO_Contact::LANGUAGE,
+			'last_login_at' => DAO_Contact::LAST_LOGIN_AT,
+			'last_name' => DAO_Contact::LAST_NAME,
+			'location' => DAO_Contact::LOCATION,
+			'mobile' => DAO_Contact::MOBILE,
+			'org_id' => DAO_Contact::ORG_ID,
+			'phone' => DAO_Contact::PHONE,
+			'timezone' => DAO_Contact::TIMEZONE,
+			'title' => DAO_Contact::TITLE,
+			'username' => DAO_Contact::USERNAME,
+		];
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;

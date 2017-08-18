@@ -1,16 +1,68 @@
 <?php
 class DAO_ContextAvatar extends Cerb_ORMHelper {
-	const ID = 'id';
+	const CONTENT_TYPE = 'content_type';
 	const CONTEXT = 'context';
 	const CONTEXT_ID = 'context_id';
-	const CONTENT_TYPE = 'content_type';
+	const ID = 'id';
 	const IS_APPROVED = 'is_approved';
-	const UPDATED_AT = 'updated_at';
 	const STORAGE_EXTENSION = 'storage_extension';
 	const STORAGE_KEY = 'storage_key';
-	const STORAGE_SIZE = 'storage_size';
 	const STORAGE_PROFILE_ID = 'storage_profile_id';
+	const STORAGE_SIZE = 'storage_size';
+	const UPDATED_AT = 'updated_at';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
 
+		$validation
+			->addField(self::CONTENT_TYPE)
+			->string()
+			;
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::IS_APPROVED)
+			->bit()
+			;
+		$validation
+			->addField(self::STORAGE_EXTENSION)
+			->string()
+			;
+		$validation
+			->addField(self::STORAGE_KEY)
+			->string()
+			;
+		$validation
+			->addField(self::STORAGE_PROFILE_ID)
+			->id()
+			;
+		$validation
+			->addField(self::STORAGE_SIZE)
+			->uint()
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		

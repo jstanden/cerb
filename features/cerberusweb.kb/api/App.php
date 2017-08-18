@@ -503,11 +503,38 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 };
 
 class DAO_KbCategory extends Cerb_ORMHelper {
+	const ID = 'id';
+	const NAME = 'name';
+	const PARENT_ID = 'parent_id';
+	
 	const CACHE_ALL = 'ch_cache_kbcategories_all';
 	
-	const ID = 'id';
-	const PARENT_ID = 'parent_id';
-	const NAME = 'name';
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(64)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(64)
+			->setRequired(true)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::PARENT_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -990,6 +1017,14 @@ class Context_KbCategory extends Extension_DevblocksContext {
 		}
 		
 		return TRUE;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_KbCategory::ID,
+			'name' => DAO_KbCategory::NAME,
+			'parent_id' => DAO_KbCategory::PARENT_ID,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

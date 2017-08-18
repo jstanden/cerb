@@ -16,30 +16,156 @@
 ***********************************************************************/
 
 class DAO_Ticket extends Cerb_ORMHelper {
-	const ID = 'id';
-	const MASK = 'mask';
-	const SUBJECT = 'subject';
-	const STATUS_ID = 'status_id';
-	const GROUP_ID = 'group_id';
 	const BUCKET_ID = 'bucket_id';
-	const ORG_ID = 'org_id';
-	const OWNER_ID = 'owner_id';
-	const IMPORTANCE = 'importance';
+	const CLOSED_AT = 'closed_at';
+	const CREATED_DATE = 'created_date';
+	const ELAPSED_RESOLUTION_FIRST = 'elapsed_resolution_first';
+	const ELAPSED_RESPONSE_FIRST = 'elapsed_response_first';
 	const FIRST_MESSAGE_ID = 'first_message_id';
 	const FIRST_OUTGOING_MESSAGE_ID = 'first_outgoing_message_id';
+	const FIRST_WROTE_ID = 'first_wrote_address_id';
+	const GROUP_ID = 'group_id';
+	const ID = 'id';
+	const IMPORTANCE = 'importance';
+	const INTERESTING_WORDS = 'interesting_words';
 	const LAST_MESSAGE_ID = 'last_message_id';
 	const LAST_WROTE_ID = 'last_wrote_address_id';
-	const FIRST_WROTE_ID = 'first_wrote_address_id';
-	const CREATED_DATE = 'created_date';
-	const UPDATED_DATE = 'updated_date';
-	const CLOSED_AT = 'closed_at';
-	const REOPEN_AT = 'reopen_at';
-	const SPAM_TRAINING = 'spam_training';
-	const SPAM_SCORE = 'spam_score';
-	const INTERESTING_WORDS = 'interesting_words';
+	const MASK = 'mask';
 	const NUM_MESSAGES = 'num_messages';
-	const ELAPSED_RESPONSE_FIRST = 'elapsed_response_first';
-	const ELAPSED_RESOLUTION_FIRST = 'elapsed_resolution_first';
+	const ORG_ID = 'org_id';
+	const OWNER_ID = 'owner_id';
+	const REOPEN_AT = 'reopen_at';
+	const SPAM_SCORE = 'spam_score';
+	const SPAM_TRAINING = 'spam_training';
+	const STATUS_ID = 'status_id';
+	const SUBJECT = 'subject';
+	const UPDATED_DATE = 'updated_date';
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::BUCKET_ID)
+			->id()
+			;
+		$validation
+			->addField(self::CLOSED_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::CREATED_DATE)
+			->timestamp()
+			;
+		$validation
+			->addField(self::ELAPSED_RESOLUTION_FIRST)
+			->uint(4)
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::ELAPSED_RESPONSE_FIRST)
+			->uint(4)
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::FIRST_MESSAGE_ID)
+			->setEditable(false)
+			->id()
+			;
+		$validation
+			->addField(self::FIRST_OUTGOING_MESSAGE_ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::FIRST_WROTE_ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::GROUP_ID)
+			->id()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::IMPORTANCE)
+			->number()
+			->setMin(0)
+			->setMax(100)
+			;
+		$validation
+			->addField(self::INTERESTING_WORDS)
+			->string()
+			->setMaxLength(255)
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::LAST_MESSAGE_ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::LAST_WROTE_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::MASK)
+			->string()
+			->setMaxLength(255)
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NUM_MESSAGES)
+			->uint(4)
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::ORG_ID)
+			->id()
+			;
+		$validation
+			->addField(self::OWNER_ID)
+			->id()
+			;
+		$validation
+			->addField(self::REOPEN_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::STATUS_ID)
+			->number()
+			->setMin(0)
+			->setMax(3)
+			;
+		$validation
+			->addField(self::SPAM_SCORE)
+			->float()
+			->setMin(0.0)
+			->setMax(1.0)
+			;
+		$validation
+			->addField(self::SPAM_TRAINING)
+			->string()
+			->setMaxLength(1)
+			->setPossibleValues(['','N','S'])
+			;
+		$validation
+			->addField(self::SUBJECT)
+			->string()
+			->setMaxLength(255)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::UPDATED_DATE)
+			->timestamp()
+			;
+
+		return $validation->getFields();
+	}
 	
 	static function authorizeByParticipantsAndMessages(array $participant_ids, array $message_ids) {
 		$db = DevblocksPlatform::services()->database();
@@ -4524,6 +4650,27 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			);
 			
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'bucket_id' => DAO_Ticket::BUCKET_ID,
+			'closed' => DAO_Ticket::CLOSED_AT,
+			'created' => DAO_Ticket::CREATED_DATE,
+			'elapsed_response_first' => DAO_Ticket::ELAPSED_RESPONSE_FIRST,
+			'elapsed_resolution_first' => DAO_Ticket::ELAPSED_RESOLUTION_FIRST,
+			'group_id' => DAO_Ticket::GROUP_ID,
+			'id' => DAO_Ticket::ID,
+			'importance' => DAO_Ticket::IMPORTANCE,
+			'org_id' => DAO_Ticket::ORG_ID,
+			'owner_id' => DAO_Ticket::OWNER_ID,
+			'reopen_date' => DAO_Ticket::REOPEN_AT,
+			'spam_score' => DAO_Ticket::SPAM_SCORE,
+			'spam_training' => DAO_Ticket::SPAM_TRAINING,
+			'status_id' => DAO_Ticket::STATUS_ID,
+			'subject' => DAO_Ticket::SUBJECT,
+			'updated' => DAO_Ticket::UPDATED_DATE,
+		];
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

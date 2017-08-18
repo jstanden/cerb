@@ -16,18 +16,69 @@
 ***********************************************************************/
 
 class DAO_Address extends Cerb_ORMHelper {
-	const ID = 'id';
-	const EMAIL = 'email';
-	const HOST = 'host';
 	const CONTACT_ID = 'contact_id';
 	const CONTACT_ORG_ID = 'contact_org_id';
-	const NUM_SPAM = 'num_spam';
-	const NUM_NONSPAM = 'num_nonspam';
+	const EMAIL = 'email';
+	const HOST = 'host';
+	const ID = 'id';
 	const IS_BANNED = 'is_banned';
 	const IS_DEFUNCT = 'is_defunct';
+	const NUM_NONSPAM = 'num_nonspam';
+	const NUM_SPAM = 'num_spam';
 	const UPDATED = 'updated';
 	
 	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CONTACT_ID)
+			->id()
+			;
+		$validation
+			->addField(self::CONTACT_ORG_ID)
+			->id()
+			;
+		$validation
+			->addField(self::EMAIL)
+			->string()
+			->setUnique(true, 'DAO_Address')
+			;
+		$validation
+			->addField(self::HOST)
+			->string()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::IS_BANNED)
+			->bit()
+			;
+		$validation
+			->addField(self::IS_DEFUNCT)
+			->bit()
+			;
+		$validation
+			->addField(self::NUM_NONSPAM)
+			->uint()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NUM_SPAM)
+			->uint()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::UPDATED)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
 	
 	/**
 	 * Creates a new email address record.
@@ -1893,6 +1944,21 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'contact_id' => DAO_Address::CONTACT_ID,
+			'email' => DAO_Address::EMAIL,
+			'host' => DAO_Address::HOST,
+			'id' => DAO_Address::ID,
+			'is_banned' => DAO_Address::IS_BANNED,
+			'is_defunct' => DAO_Address::IS_DEFUNCT,
+			'num_nonspam' => DAO_Address::NUM_NONSPAM,
+			'num_spam' => DAO_Address::NUM_SPAM,
+			'org_id' => DAO_Address::CONTACT_ORG_ID,
+			'updated' => DAO_Address::UPDATED,
+		];
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

@@ -1,13 +1,59 @@
 <?php
 class DAO_BotInteractionProactive extends Cerb_ORMHelper {
 	const ACTOR_BOT_ID = 'actor_bot_id';
-	const WORKER_ID = 'worker_id';
+	const BEHAVIOR_ID = 'behavior_id';
+	const EXPIRES_AT = 'expires_at';
 	const INTERACTION = 'interaction';
 	const INTERACTION_PARAMS_JSON = 'interaction_params_json';
-	const BEHAVIOR_ID = 'behavior_id';
 	const RUN_AT = 'run_at';
 	const UPDATED_AT = 'updated_at';
-	const EXPIRES_AT = 'expires_at';
+	const WORKER_ID = 'worker_id';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ACTOR_BOT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::BEHAVIOR_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::EXPIRES_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::INTERACTION)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::INTERACTION_PARAMS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
+			->addField(self::RUN_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			->setRequired(true)
+			;
+		
+		return $validation->getFields();
+	}
 	
 	static function create($worker_id, $behavior_id, $interaction, array $interaction_params=[], $actor_bot_id, $expires_at=0, $run_at=null) {
 		$db = DevblocksPlatform::services()->database();

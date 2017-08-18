@@ -1,15 +1,63 @@
 <?php
 class DAO_MailTransport extends Cerb_ORMHelper {
+	const CREATED_AT = 'created_at';
+	const EXTENSION_ID = 'extension_id';
+	const ID = 'id';
+	const IS_DEFAULT = 'is_default';
+	const NAME = 'name';
+	const PARAMS_JSON = 'params_json';
+	const UPDATED_AT = 'updated_at';
+	
 	const _CACHE_ALL = 'mail_transports_all';
 	
-	const ID = 'id';
-	const NAME = 'name';
-	const EXTENSION_ID = 'extension_id';
-	const IS_DEFAULT = 'is_default';
-	const CREATED_AT = 'created_at';
-	const UPDATED_AT = 'updated_at';
-	const PARAMS_JSON = 'params_json';
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::CREATED_AT)
+			->timestamp()
+			;
+		// varchar(255)
+		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::IS_DEFAULT)
+			->bit()
+			;
+		// varchar(255)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			;
+		// text
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -965,6 +1013,16 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'created' => DAO_MailTransport::CREATED_AT,
+			'id' => DAO_MailTransport::ID,
+			'is_default' => DAO_MailTransport::IS_DEFAULT,
+			'name' => DAO_MailTransport::NAME,
+			'updated_at' => DAO_MailTransport::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

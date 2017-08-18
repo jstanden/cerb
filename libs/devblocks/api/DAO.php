@@ -14,10 +14,142 @@ abstract class DevblocksORMHelper {
 		$validation = DevblocksPlatform::services()->validation();
 		$valid_fields = get_called_class()::getFields();
 		
+		// Check required fields on creation
+		if(is_array($valid_fields) && !$id)
+		foreach($valid_fields as $field_key => $field) {
+			if($field->_type->isRequired()) {
+				if(!isset($fields[$field_key]) || 0 == strlen($fields[$field_key])) {
+					$error = sprintf("'%s' is required.", $field_key);
+					return false;
+				}
+			}
+		}
+		
 		if(is_array($fields))
 		foreach($fields as $field_key => $value) {
 			if(false == (@$field = $valid_fields[$field_key])) { /* @var $field _DevblocksValidationField */
 				$error = sprintf("'%s' is not a valid field.", $field_key);
+				return false;
+			}
+			
+			try {
+				$validation->validate($field, $value, ['id' => $id]);
+				
+			} catch (Exception_DevblocksValidationError $e) {
+				$error = $e->getMessage();
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	static function validateCustomFields(array &$fields, $context, &$error=null, $id=null) {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$custom_fields = DAO_CustomField::getByContext($context);
+		
+		if(is_array($custom_fields))
+		foreach($custom_fields as $field_id => $custom_field) {
+			switch($custom_field->type) {
+				case Model_CustomField::TYPE_CHECKBOX:
+					$validation
+						->addField($field_id)
+						->number()
+						->setMin(0)
+						->setMax(1)
+						;
+					break;
+				case Model_CustomField::TYPE_DATE:
+					$validation
+						->addField($field_id)
+						->timestamp()
+						->setMin(0)
+						->setMax(pow(2,32))
+						;
+					break;
+				case Model_CustomField::TYPE_DROPDOWN:
+					$validation
+						->addField($field_id)
+						->string()
+						->setMaxLength(255)
+						->setPossibleValues($custom_field->params['options'] ?: [])
+						;
+					break;
+				case Model_CustomField::TYPE_FILE:
+					$validation
+						->addField($field_id)
+						->number()
+						->setMin(0)
+						->setMax(pow(2,32))
+					;
+					break;
+				case Model_CustomField::TYPE_FILES:
+					// [TODO]
+					break;
+				case Model_CustomField::TYPE_LINK:
+					// [TODO]
+					break;
+				case Model_CustomField::TYPE_LIST:
+					// [TODO]
+					break;
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					// [TODO] Array
+					/*
+					$validation
+						->addField($field_id)
+						->string()
+						->setMaxLength(255)
+						->setPossibleValues($custom_field->params['options'] ?: [])
+						;
+					*/
+					break;
+				case Model_CustomField::TYPE_MULTI_LINE:
+					$validation
+						->addField($field_id)
+						->string()
+						->setMaxLength(16777215)
+					;
+					break;
+				case Model_CustomField::TYPE_NUMBER:
+					$validation
+						->addField($field_id)
+						->number()
+						->setMin(0)
+						->setMax(pow(2,32))
+					;
+					break;
+				case Model_CustomField::TYPE_SINGLE_LINE:
+					$validation
+						->addField($field_id)
+						->string()
+						->setMaxLength(255)
+					;
+					break;
+				case Model_CustomField::TYPE_URL:
+					$validation
+						->addField($field_id)
+						->string()
+						->setMaxLength(255)
+					;
+					break;
+				case Model_CustomField::TYPE_WORKER:
+					$validation
+						->addField($field_id)
+						->number()
+						->setMin(0)
+						->setMax(pow(2,32)) // [TODO] Check ref against 0|worker.id
+					;
+					break;
+			}
+		}
+		
+		$valid_fields = $validation->getFields();
+		
+		if(is_array($fields))
+		foreach($fields as $field_key => $value) {
+			if(false == (@$field = $valid_fields[$field_key])) { /* @var $field _DevblocksValidationField */
+				$error = sprintf("'%s' is not a valid custom field.", $field_key);
 				return false;
 			}
 			
@@ -348,6 +480,8 @@ abstract class DevblocksORMHelper {
 };
 
 class DAO_Platform extends DevblocksORMHelper {
+	private function __construct() {}
+	
 	static function cleanupPluginTables() {
 		$db = DevblocksPlatform::services()->database();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
@@ -513,6 +647,37 @@ class DAO_Platform extends DevblocksORMHelper {
 };
 
 class DAO_DevblocksSetting extends DevblocksORMHelper {
+	const PLUGIN_ID = 'plugin_id';
+	const SETTING = 'setting';
+	const VALUE = 'value';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(128)
+		$validation
+			->addField(self::PLUGIN_ID)
+			->string()
+			->setMaxLength(128)
+			;
+		// varchar(128)
+		$validation
+			->addField(self::SETTING)
+			->string()
+			->setMaxLength(128)
+			;
+		// text
+		$validation
+			->addField(self::VALUE)
+			->string()
+			->setMaxLength(65535)
+			;
+		
+		return $validation->getFields();
+	}
+	
 	static function set($plugin_id, $key, $value) {
 		if(false == ($db = DevblocksPlatform::services()->database()))
 			return;
@@ -565,6 +730,33 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 	const EXTENSION_ID = 'extension_id';
 	const PROPERTY = 'property';
 	const VALUE = 'value';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(128)
+		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setMaxLength(128)
+			;
+		// varchar(128)
+		$validation
+			->addField(self::PROPERTY)
+			->string()
+			->setMaxLength(128)
+			;
+		// text
+		$validation
+			->addField(self::VALUE)
+			->string()
+			->setMaxLength(65535)
+			;
+
+		return $validation->getFields();
+	}
 	
 	static private function _getCacheKey($extension_id) {
 		return sprintf("devblocks:ext:%s:params",
@@ -666,11 +858,50 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 
 class DAO_Translation extends DevblocksORMHelper {
 	const ID = 'id';
-	const STRING_ID = 'string_id';
 	const LANG_CODE = 'lang_code';
 	const STRING_DEFAULT = 'string_default';
+	const STRING_ID = 'string_id';
 	const STRING_OVERRIDE = 'string_override';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(16)
+		$validation
+			->addField(self::LANG_CODE)
+			->string()
+			->setMaxLength(16)
+			;
+		// text
+		$validation
+			->addField(self::STRING_DEFAULT)
+			->string()
+			->setMaxLength(65535)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::STRING_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		// text
+		$validation
+			->addField(self::STRING_OVERRIDE)
+			->string()
+			->setMaxLength(65535)
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1064,6 +1295,43 @@ class SearchFields_Translation extends DevblocksSearchFields {
 };
 
 class DAO_DevblocksStorageQueue extends DevblocksORMHelper {
+	const STORAGE_EXTENSION = 'storage_extension';
+	const STORAGE_KEY = 'storage_key';
+	const STORAGE_NAMESPACE = 'storage_namespace';
+	const STORAGE_PROFILE_ID = 'storage_profile_id';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(128)
+		$validation
+			->addField(self::STORAGE_EXTENSION)
+			->string()
+			->setMaxLength(128)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::STORAGE_KEY)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(64)
+		$validation
+			->addField(self::STORAGE_NAMESPACE)
+			->string()
+			->setMaxLength(64)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::STORAGE_PROFILE_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function getPendingProfiles() {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1118,11 +1386,44 @@ class DAO_DevblocksStorageQueue extends DevblocksORMHelper {
 };
 
 class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
+	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const NAME = 'name';
-	const EXTENSION_ID = 'extension_id';
 	const PARAMS_JSON = 'params_json';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(255)
+		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(128)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(128)
+			;
+		// longtext
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(4294967295)
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		

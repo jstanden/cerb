@@ -4065,6 +4065,157 @@ class C4_AbstractViewLoader {
 };
 
 class DAO_WorkerViewModel extends Cerb_ORMHelper {
+	const CLASS_NAME = 'class_name';
+	const COLUMNS_HIDDEN_JSON = 'columns_hidden_json';
+	const COLUMNS_JSON = 'columns_json';
+	const IS_EPHEMERAL = 'is_ephemeral';
+	const OPTIONS_JSON = 'options_json';
+	const PARAMS_DEFAULT_JSON = 'params_default_json';
+	const PARAMS_EDITABLE_JSON = 'params_editable_json';
+	const PARAMS_HIDDEN_JSON = 'params_hidden_json';
+	const PARAMS_REQUIRED_JSON = 'params_required_json';
+	const PLACEHOLDER_LABELS_JSON = 'placeholder_labels_json';
+	const PLACEHOLDER_VALUES_JSON = 'placeholder_values_json';
+	const RENDER_FILTERS = 'render_filters';
+	const RENDER_LIMIT = 'render_limit';
+	const RENDER_PAGE = 'render_page';
+	const RENDER_SORT_JSON = 'render_sort_json';
+	const RENDER_SUBTOTALS = 'render_subtotals';
+	const RENDER_TEMPLATE = 'render_template';
+	const RENDER_TOTAL = 'render_total';
+	const TITLE = 'title';
+	const VIEW_ID = 'view_id';
+	const WORKER_ID = 'worker_id';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(255)
+		$validation
+			->addField(self::CLASS_NAME)
+			->string()
+			->setMaxLength(255)
+			;
+		// text
+		$validation
+			->addField(self::COLUMNS_HIDDEN_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// text
+		$validation
+			->addField(self::COLUMNS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::IS_EPHEMERAL)
+			->bit()
+			;
+		// text
+		$validation
+			->addField(self::OPTIONS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// text
+		$validation
+			->addField(self::PARAMS_DEFAULT_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// text
+		$validation
+			->addField(self::PARAMS_EDITABLE_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// text
+		$validation
+			->addField(self::PARAMS_HIDDEN_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// text
+		$validation
+			->addField(self::PARAMS_REQUIRED_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// mediumtext
+		$validation
+			->addField(self::PLACEHOLDER_LABELS_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		// mediumtext
+		$validation
+			->addField(self::PLACEHOLDER_VALUES_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		// tinyint(1)
+		$validation
+			->addField(self::RENDER_FILTERS)
+			->uint(1)
+			;
+		// smallint(5) unsigned
+		$validation
+			->addField(self::RENDER_LIMIT)
+			->uint(2)
+			;
+		// smallint(5) unsigned
+		$validation
+			->addField(self::RENDER_PAGE)
+			->uint(2)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::RENDER_SORT_JSON)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::RENDER_SUBTOTALS)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::RENDER_TEMPLATE)
+			->string()
+			->setMaxLength(255)
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::RENDER_TOTAL)
+			->uint(1)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::TITLE)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::VIEW_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
+	
 	/**
 	 *
 	 * @param string $where

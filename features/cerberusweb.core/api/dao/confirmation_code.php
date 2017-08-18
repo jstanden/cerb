@@ -16,11 +16,45 @@
 ***********************************************************************/
 
 class DAO_ConfirmationCode extends Cerb_ORMHelper {
-	const ID = 'id';
-	const NAMESPACE_KEY = 'namespace_key';
 	const CONFIRMATION_CODE = 'confirmation_code';
 	const CREATED = 'created';
+	const ID = 'id';
 	const META_JSON = 'meta_json';
+	const NAMESPACE_KEY = 'namespace_key';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CONFIRMATION_CODE)
+			->string()
+			->setMaxLength(64)
+			->setUnique(true, get_class($this))
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CREATED)
+			->timestamp()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::META_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::NAMESPACE_KEY)
+			->string()
+			;
+			
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();

@@ -16,16 +16,64 @@
 ***********************************************************************/
 
 class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
-	const _CACHE_ALL = 'cerb_cache_mail_html_template_all';
-	
+	const CONTENT = 'content';
 	const ID = 'id';
 	const NAME = 'name';
-	const UPDATED_AT = 'updated_at';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
-	const CONTENT = 'content';
 	const SIGNATURE = 'signature';
+	const UPDATED_AT = 'updated_at';
+	
+	const _CACHE_ALL = 'cerb_cache_mail_html_template_all';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// mediumtext
+		$validation
+			->addField(self::CONTENT)
+			->string()
+			->setMaxLength(16777215)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(128)
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			;
+		// int(11)
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			;
+		// mediumtext
+		$validation
+			->addField(self::SIGNATURE)
+			->string()
+			->setMaxLength(16777215)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -972,6 +1020,16 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'content' => DAO_MailHtmlTemplate::CONTENT,
+			'id' => DAO_MailHtmlTemplate::ID,
+			'name' => DAO_MailHtmlTemplate::NAME,
+			'signature' => DAO_MailHtmlTemplate::SIGNATURE,
+			'updated_at' => DAO_MailHtmlTemplate::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -43,12 +43,59 @@
 class DAO_FeedbackEntry extends Cerb_ORMHelper {
 	const ID = 'id';
 	const LOG_DATE = 'log_date';
-	const WORKER_ID = 'worker_id';
-	const QUOTE_TEXT = 'quote_text';
-	const QUOTE_MOOD = 'quote_mood';
-	const QUOTE_ADDRESS_ID = 'quote_address_id';
 	const SOURCE_URL = 'source_url';
+	const QUOTE_ADDRESS_ID = 'quote_address_id';
+	const QUOTE_MOOD = 'quote_mood';
+	const QUOTE_TEXT = 'quote_text';
+	const WORKER_ID = 'worker_id';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::LOG_DATE)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::QUOTE_ADDRESS_ID)
+			->id()
+			;
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::QUOTE_MOOD)
+			->uint(1)
+			;
+		// text
+		$validation
+			->addField(self::QUOTE_TEXT)
+			->string()
+			->setMaxLength(65535)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::SOURCE_URL)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1387,6 +1434,18 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'author_id' => DAO_FeedbackEntry::QUOTE_ADDRESS_ID,
+			'created' => DAO_FeedbackEntry::LOG_DATE,
+			'id' => DAO_FeedbackEntry::ID,
+			'quote_mood_id' => DAO_FeedbackEntry::QUOTE_MOOD,
+			'quote_text' => DAO_FeedbackEntry::QUOTE_TEXT,
+			'url' => DAO_FeedbackEntry::SOURCE_URL,
+			'worker_id' => DAO_FeedbackEntry::WORKER_ID,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

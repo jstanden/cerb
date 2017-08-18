@@ -1,14 +1,57 @@
 <?php
 class DAO_ClassifierClass extends Cerb_ORMHelper {
+	const CLASSIFIER_ID = 'classifier_id';
+	const DICTIONARY_SIZE = 'dictionary_size';
+	const ID = 'id';
+	const NAME = 'name';
+	const SLOTS_JSON = 'slots_json';
+	const TRAINING_COUNT = 'training_count';
+	const UPDATED_AT = 'updated_at';
+	
 	const _CACHE_ALL = 'cerb_classifier_classes';
 	
-	const ID = 'id';
-	const CLASSIFIER_ID = 'classifier_id';
-	const NAME = 'name';
-	const UPDATED_AT = 'updated_at';
-	const SLOTS_JSON = 'slots_json';
-	const DICTIONARY_SIZE = 'dictionary_size';
-	const TRAINING_COUNT = 'training_count';
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CLASSIFIER_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::DICTIONARY_SIZE)
+			->uint()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::SLOTS_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::TRAINING_COUNT)
+			->uint()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+			
+		return $validation->getFields();
+	}
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -987,6 +1030,15 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'classifier_id' => DAO_ClassifierClass::CLASSIFIER_ID,
+			'id' => DAO_ClassifierClass::ID,
+			'name' => DAO_ClassifierClass::NAME,
+			'updated_at' => DAO_ClassifierClass::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -16,15 +16,62 @@
 ***********************************************************************/
 
 class DAO_ContextActivityLog extends Cerb_ORMHelper {
-	const ID = 'id';
 	const ACTIVITY_POINT = 'activity_point';
 	const ACTOR_CONTEXT = 'actor_context';
 	const ACTOR_CONTEXT_ID = 'actor_context_id';
-	const TARGET_CONTEXT = 'target_context';
-	const TARGET_CONTEXT_ID = 'target_context_id';
 	const CREATED = 'created';
 	const ENTRY_JSON = 'entry_json';
-
+	const ID = 'id';
+	const TARGET_CONTEXT = 'target_context';
+	const TARGET_CONTEXT_ID = 'target_context_id';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ACTIVITY_POINT)
+			->string()
+			->setMaxLength(128)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::ACTOR_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::ACTOR_CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CREATED)
+			->timestamp()
+			;
+		$validation
+			->addField(self::ENTRY_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::TARGET_CONTEXT)
+			->context()
+			;
+		$validation
+			->addField(self::TARGET_CONTEXT_ID)
+			->id()
+			;
+			
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -979,6 +1026,17 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'actor__context' => DAO_ContextActivityLog::ACTOR_CONTEXT,
+			'actor_id' => DAO_ContextActivityLog::ACTOR_CONTEXT_ID,
+			'created' => DAO_ContextActivityLog::CREATED,
+			'id' => DAO_ContextActivityLog::ID,
+			'target__context' => DAO_ContextActivityLog::TARGET_CONTEXT,
+			'target_id' => DAO_ContextActivityLog::TARGET_CONTEXT_ID,
+		];
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

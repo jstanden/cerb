@@ -5,6 +5,35 @@ class DAO_BotDatastore extends Cerb_ORMHelper {
 	const DATA_VALUE = 'data_value';
 	const EXPIRES_AT = 'expires_at';
 	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::BOT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::DATA_KEY)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::DATA_VALUE)
+			->string()
+			->setMaxLength(65535)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::EXPIRES_AT)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
+	
 	static function get($bot_id, $key) {
 		$db = DevblocksPlatform::services()->database();
 		

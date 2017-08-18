@@ -16,17 +16,64 @@
 ***********************************************************************/
 
 class DAO_DecisionNode extends Cerb_ORMHelper {
-	const CACHE_ALL = 'cerberus_cache_decision_nodes_all';
-	
 	const ID = 'id';
-	const PARENT_ID = 'parent_id';
-	const TRIGGER_ID = 'trigger_id';
 	const NODE_TYPE = 'node_type';
-	const TITLE = 'title';
 	const PARAMS_JSON = 'params_json';
+	const PARENT_ID = 'parent_id';
 	const POS = 'pos';
 	const STATUS_ID = 'status_id';
+	const TITLE = 'title';
+	const TRIGGER_ID = 'trigger_id';
+	
+	const CACHE_ALL = 'cerberus_cache_decision_nodes_all';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NODE_TYPE)
+			->string()
+			->setMaxLength(16)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(4294967295)
+			;
+		$validation
+			->addField(self::PARENT_ID)
+			->id()
+			;
+		$validation
+			->addField(self::POS)
+			->uint(2)
+			;
+		$validation
+			->addField(self::STATUS_ID)
+			->uint(1)
+			;
+		$validation
+			->addField(self::TITLE)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::TRIGGER_ID)
+			->id()
+			->setRequired(true)
+			;
+			
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		

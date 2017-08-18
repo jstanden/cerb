@@ -16,12 +16,44 @@
 ***********************************************************************/
 
 class DAO_CommunityTool extends Cerb_ORMHelper {
-	const _CACHE_ALL = 'dao_communitytool_all';
-	
-	const ID = 'id';
-	const NAME = 'name';
 	const CODE = 'code';
 	const EXTENSION_ID = 'extension_id';
+	const ID = 'id';
+	const NAME = 'name';
+	
+	const _CACHE_ALL = 'dao_communitytool_all';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CODE)
+			->string()
+			->setMaxLength(8)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setMaxLength(128)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(128)
+			->setRequired(true)
+			;
+			
+		return $validation->getFields();
+	}
 	
 	static function clearCache() {
 		$cache = DevblocksPlatform::services()->cache();
@@ -379,11 +411,36 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 };
 
 class DAO_CommunityToolProperty extends Cerb_ORMHelper {
-	const TOOL_CODE = 'tool_code';
 	const PROPERTY_KEY = 'property_key';
 	const PROPERTY_VALUE = 'property_value';
+	const TOOL_CODE = 'tool_code';
 	
 	const _CACHE_PREFIX = 'um_comtoolprops_';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::PROPERTY_KEY)
+			->string()
+			->setMaxLength(64)
+			;
+		$validation
+			->addField(self::PROPERTY_VALUE)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::TOOL_CODE)
+			->string()
+			->setMaxLength(8)
+			->setRequired(true)
+			;
+		
+		return $validation->getFields();
+	}
 	
 	static function getAllByTool($tool_code) {
 		$cache = DevblocksPlatform::services()->cache();
@@ -456,11 +513,42 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 };
 
 class DAO_CommunitySession extends Cerb_ORMHelper {
-	const SESSION_ID = 'session_id';
 	const CREATED = 'created';
-	const UPDATED = 'updated';
 	const CSRF_TOKEN = 'csrf_token';
 	const PROPERTIES = 'properties';
+	const SESSION_ID = 'session_id';
+	const UPDATED = 'updated';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CREATED)
+			->timestamp()
+			;
+		$validation
+			->addField(self::CSRF_TOKEN)
+			->string()
+			;
+		$validation
+			->addField(self::PROPERTIES)
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
+			->addField(self::SESSION_ID)
+			->string()
+			->setMaxLength(64)
+			;
+		$validation
+			->addField(self::UPDATED)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
 	
 	static public function save(Model_CommunitySession $session) {
 		$db = DevblocksPlatform::services()->database();

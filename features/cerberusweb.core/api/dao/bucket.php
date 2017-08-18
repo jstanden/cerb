@@ -18,15 +18,65 @@
 class DAO_Bucket extends Cerb_ORMHelper {
 	const CACHE_ALL = 'cerberus_cache_buckets_all';
 	
-	const ID = 'id';
-	const NAME = 'name';
 	const GROUP_ID = 'group_id';
+	const ID = 'id';
 	const IS_DEFAULT = 'is_default';
+	const NAME = 'name';
 	const REPLY_ADDRESS_ID = 'reply_address_id';
+	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
 	const REPLY_PERSONAL = 'reply_personal';
 	const REPLY_SIGNATURE = 'reply_signature';
-	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
 	const UPDATED_AT = 'updated_at';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::GROUP_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::IS_DEFAULT)
+			->bit()
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::REPLY_ADDRESS_ID)
+			->id()
+			;
+		$validation
+			->addField(self::REPLY_HTML_TEMPLATE_ID)
+			->id()
+			;
+		$validation
+			->addField(self::REPLY_PERSONAL)
+			->string()
+			->setMaxLength(128)
+			;
+		$validation
+			->addField(self::REPLY_SIGNATURE)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -1035,6 +1085,16 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'group_id' => DAO_Bucket::GROUP_ID,
+			'id' => DAO_Bucket::ID,
+			'is_default' => DAO_Bucket::IS_DEFAULT,
+			'name' => DAO_Bucket::NAME,
+			'updated_at' => DAO_Bucket::UPDATED_AT,
+		];
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

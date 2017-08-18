@@ -41,13 +41,57 @@
  */
 
 class DAO_DevblocksTemplate extends DevblocksORMHelper {
-	const ID = 'id';
-	const PLUGIN_ID = 'plugin_id';
-	const PATH = 'path';
-	const TAG = 'tag';
-	const LAST_UPDATED = 'last_updated';
 	const CONTENT = 'content';
+	const ID = 'id';
+	const LAST_UPDATED = 'last_updated';
+	const PATH = 'path';
+	const PLUGIN_ID = 'plugin_id';
+	const TAG = 'tag';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// mediumtext
+		$validation
+			->addField(self::CONTENT)
+			->string()
+			->setMaxLength(16777215)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::LAST_UPDATED)
+			->timestamp()
+			;
+		// varchar(255)
+		$validation
+			->addField(self::PATH)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::PLUGIN_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::TAG)
+			->string()
+			->setMaxLength(255)
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -384,6 +428,18 @@ class Model_DevblocksTemplate {
 	public $tag;
 	public $last_updated;
 	public $content;
+	
+	function getDefaultContent() {
+		// Pull from filesystem for editing
+		$content = '';
+		if(null != ($plugin = DevblocksPlatform::getPlugin($this->plugin_id))) {
+			$path = $plugin->getStoragePath() . '/templates/' . $this->path;
+			if(file_exists($path)) {
+				$content = file_get_contents($path);
+			}
+		}
+		return $content;
+	}
 };
 
 class SearchFields_DevblocksTemplate extends DevblocksSearchFields {

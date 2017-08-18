@@ -16,13 +16,57 @@
 ***********************************************************************/
 
 class DAO_Comment extends Cerb_ORMHelper {
-	const ID = 'id';
+	const COMMENT = 'comment';
 	const CONTEXT = 'context';
 	const CONTEXT_ID = 'context_id';
 	const CREATED = 'created';
+	const ID = 'id';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
-	const COMMENT = 'comment';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::COMMENT)
+			->string()
+			->setMaxLength(65535)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CREATED)
+			->timestamp()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+			
+		return $validation->getFields();
+	}
 
 	static function create($fields, $also_notify_worker_ids=array(), $file_ids=array()) {
 		$db = DevblocksPlatform::services()->database();
@@ -1298,6 +1342,18 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'author__context' => DAO_Comment::OWNER_CONTEXT,
+			'author_id' => DAO_Comment::OWNER_CONTEXT_ID,
+			'comment' => DAO_Comment::COMMENT,
+			'created' => DAO_Comment::CREATED,
+			'id' => DAO_Comment::ID,
+			'target__context' => DAO_Comment::CONTEXT,
+			'target_id' => DAO_Comment::CONTEXT_ID,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

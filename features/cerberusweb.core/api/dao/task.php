@@ -16,17 +16,83 @@
 ***********************************************************************/
 
 class DAO_Task extends Cerb_ORMHelper {
-	const ID = 'id';
-	const TITLE = 'title';
+	const COMPLETED_DATE = 'completed_date';
 	const CREATED_AT = 'created_at';
-	const UPDATED_DATE = 'updated_date';
-	const OWNER_ID = 'owner_id';
-	const IMPORTANCE = 'importance';
 	const DUE_DATE = 'due_date';
+	const ID = 'id';
+	const IMPORTANCE = 'importance';
+	const OWNER_ID = 'owner_id';
 	const REOPEN_AT = 'reopen_at';
 	const STATUS_ID = 'status_id';
-	const COMPLETED_DATE = 'completed_date';
+	const TITLE = 'title';
+	const UPDATED_DATE = 'updated_date';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::COMPLETED_DATE)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::CREATED_AT)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::DUE_DATE)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::IMPORTANCE)
+			->uint(1)
+			->setMin(0)
+			->setMax(100)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::OWNER_ID)
+			->id()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::REOPEN_AT)
+			->timestamp()
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::STATUS_ID)
+			->uint(1)
+			->setMin(0)
+			->setMax(3)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::TITLE)
+			->string()
+			->setMaxLength(255)
+			->setRequired(true)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_DATE)
+			->timestamp()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields, $custom_fields=array()) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1389,6 +1455,21 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			);
 
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'created' => DAO_Task::CREATED_AT,
+			'completed' => DAO_Task::COMPLETED_DATE,
+			'due' => DAO_Task::DUE_DATE,
+			'id' => DAO_Task::ID,
+			'importance' => DAO_Task::IMPORTANCE,
+			'owner_id' => DAO_Task::OWNER_ID,
+			'reopen' => DAO_Task::REOPEN_AT,
+			'status_id' => DAO_Task::STATUS_ID,
+			'title' => DAO_Task::TITLE,
+			'updated' => DAO_Task::UPDATED_DATE,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

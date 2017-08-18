@@ -16,62 +16,76 @@
 ***********************************************************************/
 
 class DAO_Snippet extends Cerb_ORMHelper {
+	const CONTENT = 'content';
+	const CONTEXT = 'context';
+	const CUSTOM_PLACEHOLDERS_JSON = 'custom_placeholders_json';
 	const ID = 'id';
-	const TITLE = 'title';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
-	const CONTEXT = 'context';
-	const CONTENT = 'content';
+	const TITLE = 'title';
 	const TOTAL_USES = 'total_uses';
 	const UPDATED_AT = 'updated_at';
-	const CUSTOM_PLACEHOLDERS_JSON = 'custom_placeholders_json';
+	
+	private function __construct() {}
 
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
+		// longtext
+		$validation
+			->addField(self::CONTENT)
+			->string()
+			->setMaxLength(4294967295)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::CONTEXT)
+			->string()
+			->setMaxLength(255)
+			;
+		// mediumtext
+		$validation
+			->addField(self::CUSTOM_PLACEHOLDERS_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		// int(10) unsigned
 		$validation
 			->addField(self::ID)
 			->id()
 			->setEditable(false)
 			;
+		// varchar(128)
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		// int(11)
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		// varchar(255)
 		$validation
 			->addField(self::TITLE)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
+			->setNotEmpty(true)
 			;
-		$validation
-			->addField(self::OWNER_CONTEXT)
-			->context()
-			;
-		$validation
-			->addField(self::OWNER_CONTEXT_ID)
-			->id()
-			;
-		$validation
-			->addField(self::CONTEXT)
-			->context()
-			;
-		$validation
-			->addField(self::CONTENT)
-			->string()
-			->setMaxLength(pow(2,32-1))
-			;
+		// int(10) unsigned
 		$validation
 			->addField(self::TOTAL_USES)
-			->number()
-			->setMin(0)
-			->setMax(pow(2,32))
+			->uint(4)
 			;
+		// int(10) unsigned
 		$validation
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-		$validation
-			->addField(self::CUSTOM_PLACEHOLDERS_JSON)
-			->string()
-			->setMaxLength(pow(2,24-1))
-			;
-		
+
 		return $validation->getFields();
 	}
 	
@@ -1519,6 +1533,19 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		}
 
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'content' => DAO_Snippet::CONTENT,
+			'context' => DAO_Snippet::CONTEXT,
+			'id' => DAO_Snippet::ID,
+			'owner__context' => DAO_Snippet::OWNER_CONTEXT,
+			'owner_id' => DAO_Snippet::OWNER_CONTEXT_ID,
+			'title' => DAO_Snippet::TITLE,
+			'total_uses' => DAO_Snippet::TOTAL_USES,
+			'updated_at' => DAO_Snippet::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -16,19 +16,83 @@
 ***********************************************************************/
 
 class DAO_TriggerEvent extends Cerb_ORMHelper {
-	const CACHE_ALL = 'cerberus_cache_behavior_all';
-	
+	const BOT_ID = 'bot_id';
+	const EVENT_PARAMS_JSON = 'event_params_json';
+	const EVENT_POINT = 'event_point';
 	const ID = 'id';
-	const TITLE = 'title';
 	const IS_DISABLED = 'is_disabled';
 	const IS_PRIVATE = 'is_private';
-	const EVENT_POINT = 'event_point';
-	const BOT_ID = 'bot_id';
 	const PRIORITY = 'priority';
+	const TITLE = 'title';
 	const UPDATED_AT = 'updated_at';
-	const EVENT_PARAMS_JSON = 'event_params_json';
 	const VARIABLES_JSON = 'variables_json';
+	
+	const CACHE_ALL = 'cerberus_cache_behavior_all';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::BOT_ID)
+			->id()
+			;
+		// text
+		$validation
+			->addField(self::EVENT_PARAMS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::EVENT_POINT)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// tinyint(4)
+		$validation
+			->addField(self::IS_DISABLED)
+			->bit()
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::IS_PRIVATE)
+			->bit()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::PRIORITY)
+			->uint(4)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::TITLE)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		// text
+		$validation
+			->addField(self::VARIABLES_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1901,6 +1965,19 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'bot_id' => DAO_TriggerEvent::BOT_ID,
+			'event_point' => DAO_TriggerEvent::EVENT_POINT,
+			'id' => DAO_TriggerEvent::ID,
+			'is_disabled' => DAO_TriggerEvent::IS_DISABLED,
+			'is_private' => DAO_TriggerEvent::IS_PRIVATE,
+			'name' => DAO_TriggerEvent::TITLE,
+			'priority' => DAO_TriggerEvent::PRIORITY,
+			'updated_at' => DAO_TriggerEvent::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

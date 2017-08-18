@@ -43,6 +43,34 @@
 class DAO_TimeTrackingActivity extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
+	const RATE = 'rate';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			->setRequired(true)
+			;
+		// decimal(8,2)
+		$validation
+			->addField(self::RATE)
+			->float()
+			;
+
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -139,13 +167,53 @@ class Model_TimeTrackingActivity {
 };
 
 class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
-	const ID = 'id';
-	const TIME_ACTUAL_MINS = 'time_actual_mins';
-	const LOG_DATE = 'log_date';
-	const WORKER_ID = 'worker_id';
 	const ACTIVITY_ID = 'activity_id';
+	const ID = 'id';
 	const IS_CLOSED = 'is_closed';
+	const LOG_DATE = 'log_date';
+	const TIME_ACTUAL_MINS = 'time_actual_mins';
+	const WORKER_ID = 'worker_id';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::ACTIVITY_ID)
+			->id()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::IS_CLOSED)
+			->bit()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::LOG_DATE)
+			->timestamp()
+			;
+		// smallint(5) unsigned
+		$validation
+			->addField(self::TIME_ACTUAL_MINS)
+			->uint(2)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1442,6 +1510,17 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'activity_id' => DAO_TimeTrackingEntry::ACTIVITY_ID,
+			'id' => DAO_TimeTrackingEntry::ID,
+			'is_closed' => DAO_TimeTrackingEntry::IS_CLOSED,
+			'log_date' => DAO_TimeTrackingEntry::LOG_DATE,
+			'mins' => DAO_TimeTrackingEntry::TIME_ACTUAL_MINS,
+			'worker_id' => DAO_TimeTrackingEntry::WORKER_ID,
+		];
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

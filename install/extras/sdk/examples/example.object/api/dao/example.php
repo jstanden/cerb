@@ -1,8 +1,35 @@
 <?php
 class DAO_ExampleObject extends Cerb_ORMHelper {
+	const CREATED = 'created';
 	const ID = 'id';
 	const NAME = 'name';
-	const CREATED = 'created';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::CREATED)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			->setRequired(true)
+			;
+
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -794,6 +821,14 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		}
 
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'created' => DAO_ExampleObject::CREATED,
+			'id' => DAO_ExampleObject::ID,
+			'name' => DAO_ExampleObject::NAME,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

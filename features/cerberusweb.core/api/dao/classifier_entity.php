@@ -1,13 +1,50 @@
 <?php
 class DAO_ClassifierEntity extends Cerb_ORMHelper {
-	const _CACHE_ALL = 'cerb_classifier_entities';
-	
+	const DESCRIPTION = 'description';
 	const ID = 'id';
 	const NAME = 'name';
-	const TYPE = 'type';
-	const DESCRIPTION = 'description';
 	const PARAMS_JSON = 'params_json';
+	const TYPE = 'type';
 	const UPDATED_AT = 'updated_at';
+	
+	const _CACHE_ALL = 'cerb_classifier_entities';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::DESCRIPTION)
+			->string()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::TYPE)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+			
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -924,6 +961,16 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'description' => DAO_ClassifierEntity::DESCRIPTION,
+			'id' => DAO_ClassifierEntity::ID,
+			'name' => DAO_ClassifierEntity::NAME,
+			'type' => DAO_ClassifierEntity::TYPE,
+			'updated_at' => DAO_ClassifierEntity::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

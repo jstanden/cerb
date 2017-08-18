@@ -16,17 +16,84 @@
  ***********************************************************************/
 
 class DAO_PluginLibrary extends Cerb_ORMHelper {
-	const ID = 'id';
-	const PLUGIN_ID = 'plugin_id';
-	const NAME = 'name';
 	const AUTHOR = 'author';
 	const DESCRIPTION = 'description';
-	const LINK = 'link';
-	const LATEST_VERSION = 'latest_version';
 	const ICON_URL = 'icon_url';
+	const ID = 'id';
+	const LATEST_VERSION = 'latest_version';
+	const LINK = 'link';
+	const NAME = 'name';
+	const PLUGIN_ID = 'plugin_id';
 	const REQUIREMENTS_JSON = 'requirements_json';
 	const UPDATED = 'updated';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(255)
+		$validation
+			->addField(self::AUTHOR)
+			->string()
+			->setMaxLength(255)
+			;
+		// text
+		$validation
+			->addField(self::DESCRIPTION)
+			->string()
+			->setMaxLength(65535)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::ICON_URL)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::LATEST_VERSION)
+			->uint(4)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::LINK)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::PLUGIN_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		// text
+		$validation
+			->addField(self::REQUIREMENTS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED)
+			->timestamp()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		

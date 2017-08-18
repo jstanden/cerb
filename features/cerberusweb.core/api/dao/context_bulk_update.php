@@ -1,16 +1,73 @@
 <?php
 class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
-	const ID = 'id';
+	const ACTIONS_JSON = 'actions_json';
 	const BATCH_KEY = 'batch_key';
 	const CONTEXT = 'context';
 	const CONTEXT_IDS = 'context_ids';
-	const NUM_RECORDS = 'num_records';
-	const WORKER_ID = 'worker_id';
-	const VIEW_ID = 'view_id';
 	const CREATED_AT = 'created_at';
+	const ID = 'id';
+	const NUM_RECORDS = 'num_records';
 	const STATUS_ID = 'status_id';
-	const ACTIONS_JSON = 'actions_json';
-
+	const VIEW_ID = 'view_id';
+	const WORKER_ID = 'worker_id';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ACTIONS_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::BATCH_KEY)
+			->string()
+			->setMaxLength(40)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CONTEXT_IDS)
+			->string()
+			->setMaxLength(16777215)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::CREATED_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NUM_RECORDS)
+			->uint()
+			;
+		$validation
+			->addField(self::STATUS_ID)
+			->uint(1)
+			;
+		$validation
+			->addField(self::VIEW_ID)
+			->string()
+			->setMaxLength(128)
+			;
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			;
+			
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		

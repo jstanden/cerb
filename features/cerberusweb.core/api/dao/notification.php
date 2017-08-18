@@ -16,17 +16,70 @@
 ***********************************************************************/
 
 class DAO_Notification extends Cerb_ORMHelper {
-	const CACHE_COUNT_PREFIX = 'notification_count_';
-	
-	const ID = 'id';
+	const ACTIVITY_POINT = 'activity_point';
 	const CONTEXT = 'context';
 	const CONTEXT_ID = 'context_id';
 	const CREATED_DATE = 'created_date';
-	const WORKER_ID = 'worker_id';
-	const IS_READ = 'is_read';
-	const ACTIVITY_POINT = 'activity_point';
 	const ENTRY_JSON = 'entry_json';
+	const ID = 'id';
+	const IS_READ = 'is_read';
+	const WORKER_ID = 'worker_id';
+	
+	const CACHE_COUNT_PREFIX = 'notification_count_';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(255)
+		$validation
+			->addField(self::ACTIVITY_POINT)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::CONTEXT)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::CONTEXT_ID)
+			->id()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::CREATED_DATE)
+			->timestamp()
+			;
+		// text
+		$validation
+			->addField(self::ENTRY_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::IS_READ)
+			->bit()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::WORKER_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1252,6 +1305,18 @@ class Context_Notification extends Extension_DevblocksContext {
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'activity_point' => DAO_Notification::ACTIVITY_POINT,
+			'created' => DAO_Notification::CREATED_DATE,
+			'event_json' => DAO_Notification::ENTRY_JSON,
+			'id' => DAO_Notification::ID,
+			'is_read' => DAO_Notification::IS_READ,
+			'target__context' => DAO_Notification::CONTEXT,
+			'target_id' => DAO_Notification::CONTEXT_ID
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

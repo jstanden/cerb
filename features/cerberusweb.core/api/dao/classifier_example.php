@@ -1,10 +1,42 @@
 <?php
 class DAO_ClassifierExample extends Cerb_ORMHelper {
-	const ID = 'id';
-	const CLASSIFIER_ID = 'classifier_id';
 	const CLASS_ID = 'class_id';
+	const CLASSIFIER_ID = 'classifier_id';
 	const EXPRESSION = 'expression';
+	const ID = 'id';
 	const UPDATED_AT = 'updated_at';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CLASS_ID)
+			->id()
+			;
+		$validation
+			->addField(self::CLASSIFIER_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::EXPRESSION)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+			
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -978,6 +1010,16 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'class_id' => DAO_ClassifierExample::CLASS_ID,
+			'classifier_id' => DAO_ClassifierExample::CLASSIFIER_ID,
+			'expression' => DAO_ClassifierExample::EXPRESSION,
+			'id' => DAO_ClassifierExample::ID,
+			'updated_at' => DAO_ClassifierExample::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -16,22 +16,117 @@
  ***********************************************************************/
 
 class DAO_Mailbox extends Cerb_ORMHelper {
-	const ID = 'id';
+	const AUTH_DISABLE_PLAIN = 'auth_disable_plain';
+	const CHECKED_AT = 'checked_at';
+	const DELAY_UNTIL = 'delay_until';
 	const ENABLED = 'enabled';
-	const NAME = 'name';
-	const PROTOCOL = 'protocol';
 	const HOST = 'host';
-	const USERNAME = 'username';
+	const ID = 'id';
+	const MAX_MSG_SIZE_KB = 'max_msg_size_kb';
+	const NAME = 'name';
+	const NUM_FAILS = 'num_fails';
 	const PASSWORD = 'password';
 	const PORT = 'port';
-	const NUM_FAILS = 'num_fails';
-	const DELAY_UNTIL = 'delay_until';
-	const TIMEOUT_SECS = 'timeout_secs';
-	const MAX_MSG_SIZE_KB = 'max_msg_size_kb';
+	const PROTOCOL = 'protocol';
 	const SSL_IGNORE_VALIDATION = 'ssl_ignore_validation';
-	const AUTH_DISABLE_PLAIN = 'auth_disable_plain';
+	const TIMEOUT_SECS = 'timeout_secs';
 	const UPDATED_AT = 'updated_at';
-	const CHECKED_AT = 'checked_at';
+	const USERNAME = 'username';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::AUTH_DISABLE_PLAIN)
+			->bit()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::CHECKED_AT)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::DELAY_UNTIL)
+			->timestamp()
+			;
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::ENABLED)
+			->bit()
+			;
+		// varchar(128)
+		$validation
+			->addField(self::HOST)
+			->string()
+			->setMaxLength(128)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::MAX_MSG_SIZE_KB)
+			->uint(4)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			;
+		// tinyint(4)
+		$validation
+			->addField(self::NUM_FAILS)
+			->uint(1)
+			;
+		// varchar(128)
+		$validation
+			->addField(self::PASSWORD)
+			->string()
+			->setMaxLength(128)
+			;
+		// smallint(5) unsigned
+		$validation
+			->addField(self::PORT)
+			->uint(2)
+			;
+		// varchar(32)
+		$validation
+			->addField(self::PROTOCOL)
+			->string()
+			->setMaxLength(32)
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::SSL_IGNORE_VALIDATION)
+			->bit()
+			;
+		// mediumint(8) unsigned
+		$validation
+			->addField(self::TIMEOUT_SECS)
+			->uint(2)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		// varchar(128)
+		$validation
+			->addField(self::USERNAME)
+			->string()
+			->setMaxLength(128)
+			;
+
+		return $validation->getFields();
+	}
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -1088,6 +1183,15 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'checked_at' => DAO_Mailbox::CHECKED_AT,
+			'id' => DAO_Mailbox::ID,
+			'name' => DAO_Mailbox::NAME,
+			'updated_at' => DAO_Mailbox::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

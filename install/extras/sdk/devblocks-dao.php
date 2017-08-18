@@ -60,6 +60,21 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		printf ( "\tconst %s = '%s';\n", strtoupper ( $field_name ), $field_name );
 	}
 	?>
+	
+	private function __construct() {}
+	
+	// [TODO]
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -1078,6 +1093,15 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		}
 		
 		return true;
+	}
+	
+	// [TODO]
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_<?php echo $class_name ?>::ID,
+			'name' => DAO_<?php echo $class_name ?>::NAME,
+			'updated_at' => DAO_<?php echo $class_name ?>::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

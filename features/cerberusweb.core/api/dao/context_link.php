@@ -20,6 +20,35 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 	const FROM_CONTEXT_ID = 'from_context_id';
 	const TO_CONTEXT = 'to_context';
 	const TO_CONTEXT_ID = 'to_context_id';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::FROM_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::FROM_CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::TO_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::TO_CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		
+		return $validation->getFields();
+	}
 
 	static public function setLink($src_context, $src_context_id, $dst_context, $dst_context_id, $src_context_meta=null, $dst_context_meta=null) {
 		$db = DevblocksPlatform::services()->database();

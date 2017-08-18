@@ -16,14 +16,51 @@
 ***********************************************************************/
 
 class DAO_WorkspacePage extends Cerb_ORMHelper {
-	const _CACHE_ALL = 'ch_workspace_pages';
-	
+	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
-	const EXTENSION_ID = 'extension_id';
+	
+	const _CACHE_ALL = 'ch_workspace_pages';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(255)
+		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -359,15 +396,58 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 };
 
 class DAO_WorkspaceTab extends Cerb_ORMHelper {
-	const _CACHE_ALL = 'ch_workspace_tabs';
-	
+	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const NAME = 'name';
-	const WORKSPACE_PAGE_ID = 'workspace_page_id';
-	const POS = 'pos';
-	const EXTENSION_ID = 'extension_id';
 	const PARAMS_JSON = 'params_json';
+	const POS = 'pos';
+	const WORKSPACE_PAGE_ID = 'workspace_page_id';
+	
+	const _CACHE_ALL = 'ch_workspace_tabs';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(255)
+		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(128)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(128)
+			;
+		// text
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// tinyint(3) unsigned
+		$validation
+			->addField(self::POS)
+			->uint(1)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::WORKSPACE_PAGE_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -879,11 +959,47 @@ class Model_WorkspaceTab {
 };
 
 class DAO_WorkspaceList extends Cerb_ORMHelper {
-	const ID = 'id';
-	const WORKSPACE_TAB_ID = 'workspace_tab_id';
 	const CONTEXT = 'context';
-	const LIST_VIEW = 'list_view';
+	const ID = 'id';
 	const LIST_POS = 'list_pos';
+	const LIST_VIEW = 'list_view';
+	const WORKSPACE_TAB_ID = 'workspace_tab_id';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// varchar(255)
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// smallint(5) unsigned
+		$validation
+			->addField(self::LIST_POS)
+			->uint(2)
+			;
+		// mediumtext
+		$validation
+			->addField(self::LIST_VIEW)
+			->string()
+			->setMaxLength(16777215)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::WORKSPACE_TAB_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -1350,6 +1466,16 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		return true;
 	}
 	
+	function getKeyToDaoFieldMap() {
+		return [
+			'extension_id' => DAO_WorkspacePage::EXTENSION_ID,
+			'id' => DAO_WorkspacePage::ID,
+			'name' => DAO_WorkspacePage::NAME,
+			'owner__context' => DAO_WorkspacePage::OWNER_CONTEXT,
+			'owner_id' => DAO_WorkspacePage::OWNER_CONTEXT_ID,
+		];
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;
@@ -1606,6 +1732,15 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'extension_id' => DAO_WorkspaceTab::EXTENSION_ID,
+			'id' => DAO_WorkspaceTab::ID,
+			'name' => DAO_WorkspaceTab::NAME,
+			'page_id' => DAO_WorkspaceTab::WORKSPACE_PAGE_ID,
+		];
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

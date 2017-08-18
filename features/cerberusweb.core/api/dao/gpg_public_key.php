@@ -1,10 +1,42 @@
 <?php
 class DAO_GpgPublicKey extends Cerb_ORMHelper {
+	const EXPIRES_AT = 'expires_at';
+	const FINGERPRINT = 'fingerprint';
 	const ID = 'id';
 	const NAME = 'name';
-	const FINGERPRINT = 'fingerprint';
-	const EXPIRES_AT = 'expires_at';
 	const UPDATED_AT = 'updated_at';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::EXPIRES_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::FINGERPRINT)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+			
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -947,6 +979,16 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 		return true;
 	}
 
+	function getKeyToDaoFieldMap() {
+		return [
+			'expires_at' => DAO_GpgPublicKey::EXPIRES_AT,
+			'fingerprint' => DAO_GpgPublicKey::FINGERPRINT,
+			'id' => DAO_GpgPublicKey::ID,
+			'name' => DAO_GpgPublicKey::NAME,
+			'updated_at' => DAO_GpgPublicKey::UPDATED_AT,
+		];
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;

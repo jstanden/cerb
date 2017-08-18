@@ -16,14 +16,52 @@
 ***********************************************************************/
 
 class DAO_FileBundle extends Cerb_ORMHelper {
-	const CACHE_ALL = 'cerb.dao.file_bundles.all';
-	
 	const ID = 'id';
 	const NAME = 'name';
-	const TAG = 'tag';
-	const UPDATED_AT = 'updated_at';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
+	const TAG = 'tag';
+	const UPDATED_AT = 'updated_at';
+	
+	const CACHE_ALL = 'cerb.dao.file_bundles.all';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::TAG)
+			->string()
+			->setMaxLength(128)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+			
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -1107,6 +1145,15 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_FileBundle::ID,
+			'name' => DAO_FileBundle::NAME,
+			'tag' => DAO_FileBundle::TAG,
+			'updated_at' => DAO_FileBundle::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

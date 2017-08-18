@@ -2269,6 +2269,13 @@ class CerberusContexts {
 };
 
 class DAO_Application extends Cerb_ORMHelper {
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		return $validation->getFields();
+	}
+	
 	static function getWhere($where=null, $sortBy='', $sortAsc=true, $limit=null) {
 		return [
 			0 => new Model_Application(),
@@ -2374,7 +2381,11 @@ class Context_Application extends Extension_DevblocksContext {
 
 		return true;
 	}
-
+	
+	function getKeyToDaoFieldMap() {
+		return [];
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;
@@ -2799,6 +2810,14 @@ class CerberusVisit extends DevblocksVisit {
 };
 
 class Cerb_ORMHelper extends DevblocksORMHelper {
+	/**
+	 * @override
+	 * @return array
+	 */
+	protected static function getFields() {
+		return [];
+	}
+	
 	static public function escape($str) {
 		$db = DevblocksPlatform::services()->database();
 		return $db->escape($str);

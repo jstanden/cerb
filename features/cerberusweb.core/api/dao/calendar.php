@@ -1,13 +1,52 @@
 <?php
 class DAO_Calendar extends Cerb_ORMHelper {
-	const CACHE_ALL = 'cerb_calendars_all';
-	
 	const ID = 'id';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const PARAMS_JSON = 'params_json';
 	const UPDATED_AT = 'updated_at';
+	
+	const CACHE_ALL = 'cerb_calendars_all';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
+	
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -1379,6 +1418,16 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		return true;
 	}
 
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_Calendar::ID,
+			'name' => DAO_Calendar::NAME,
+			'owner__context' => DAO_Calendar::OWNER_CONTEXT,
+			'owner_id' => DAO_Calendar::OWNER_CONTEXT_ID,
+			'updated_at' => DAO_Calendar::UPDATED_AT,
+		];
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;

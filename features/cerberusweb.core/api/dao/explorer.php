@@ -17,8 +17,32 @@
 
 class DAO_ExplorerSet extends Cerb_ORMHelper {
 	const HASH = 'hash';
-	const POS = 'pos';
 	const PARAMS_JSON = 'params_json';
+	const POS = 'pos';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::HASH)
+			->string()
+			->setMaxLength(32)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(4294967295)
+			;
+		$validation
+			->addField(self::POS)
+			->uint()
+			;
+		
+		return $validation->getFields();
+	}
 	
 	static function createFromModels($models) {
 		// Polymorph

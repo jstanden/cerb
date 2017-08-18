@@ -1,8 +1,31 @@
 <?php
 class DAO_BotSession extends Cerb_ORMHelper {
-	const SESSION_ID = 'session_id';
 	const SESSION_DATA = 'session_data';
+	const SESSION_ID = 'session_id';
 	const UPDATED_AT = 'updated_at';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::SESSION_DATA)
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
+			->addField(self::SESSION_ID)
+			->string()
+			->setMaxLength(40)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();

@@ -1,15 +1,62 @@
 <?php
 class DAO_Classifier extends Cerb_ORMHelper {
-	const _CACHE_ALL = 'cerb_classifiers';
-	
+	const CREATED_AT = 'created_at';
+	const DICTIONARY_SIZE = 'dictionary_size';
 	const ID = 'id';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
-	const CREATED_AT = 'created_at';
-	const UPDATED_AT = 'updated_at';
-	const DICTIONARY_SIZE = 'dictionary_size';
 	const PARAMS_JSON = 'params_json';
+	const UPDATED_AT = 'updated_at';
+	
+	const _CACHE_ALL = 'cerb_classifiers';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+
+		$validation
+			->addField(self::CREATED_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::DICTIONARY_SIZE)
+			->uint()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+			
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -1080,6 +1127,17 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'created_at' => DAO_Classifier::CREATED_AT,
+			'id' => DAO_Classifier::ID,
+			'name' => DAO_Classifier::NAME,
+			'owner__context' => DAO_Classifier::OWNER_CONTEXT,
+			'owner_id' => DAO_Classifier::OWNER_CONTEXT_ID,
+			'updated_at' => DAO_Classifier::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

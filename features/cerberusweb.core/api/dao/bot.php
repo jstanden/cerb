@@ -16,17 +16,67 @@
 ***********************************************************************/
 
 class DAO_Bot extends Cerb_ORMHelper {
-	const ID = 'id';
-	const NAME = 'name';
 	const AT_MENTION_NAME = 'at_mention_name';
+	const CREATED_AT = 'created_at';
+	const ID = 'id';
+	const IS_DISABLED = 'is_disabled';
+	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
-	const IS_DISABLED = 'is_disabled';
 	const PARAMS_JSON = 'params_json';
-	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
 	
 	const CACHE_ALL = 'ch_bots';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::AT_MENTION_NAME)
+			->string()
+			;
+		$validation
+			->addField(self::CREATED_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::IS_DISABLED)
+			->bit()
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -1271,6 +1321,19 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		return true;
 	}
 
+	function getKeyToDaoFieldMap() {
+		return [
+			'created_at' => DAO_Bot::CREATED_AT,
+			'id' => DAO_Bot::ID,
+			'is_disabled' => DAO_Bot::IS_DISABLED,
+			'mention_name' => DAO_Bot::AT_MENTION_NAME,
+			'name' => DAO_Bot::NAME,
+			'owner__context' => DAO_Bot::OWNER_CONTEXT,
+			'owner_id' => DAO_Bot::OWNER_CONTEXT_ID,
+			'updated_at' => DAO_Bot::UPDATED_AT,
+		];
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;

@@ -16,15 +16,69 @@
  ***********************************************************************/
 
 class DAO_WorkspaceWidget extends Cerb_ORMHelper {
-	const ID = 'id';
+	const CACHE_TTL = 'cache_ttl';
 	const EXTENSION_ID = 'extension_id';
-	const WORKSPACE_TAB_ID = 'workspace_tab_id';
+	const ID = 'id';
 	const LABEL = 'label';
-	const UPDATED_AT = 'updated_at';
 	const PARAMS_JSON = 'params_json';
 	const POS = 'pos';
-	const CACHE_TTL = 'cache_ttl';
+	const UPDATED_AT = 'updated_at';
+	const WORKSPACE_TAB_ID = 'workspace_tab_id';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// mediumint(8) unsigned
+		$validation
+			->addField(self::CACHE_TTL)
+			->uint(3)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::LABEL)
+			->string()
+			->setMaxLength(255)
+			;
+		// text
+		$validation
+			->addField(self::PARAMS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// char(4)
+		$validation
+			->addField(self::POS)
+			->string()
+			->setMaxLength(4)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::WORKSPACE_TAB_ID)
+			->id()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -489,6 +543,14 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_WorkspaceWidget::ID,
+			'extension_id' => DAO_WorkspaceWidget::EXTENSION_ID,
+			'tab_id' => DAO_WorkspaceWidget::WORKSPACE_TAB_ID,
+		];
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

@@ -1,8 +1,30 @@
 <?php
 class DAO_MessageHeaders extends Cerb_ORMHelper {
-	const MESSAGE_ID = 'message_id';
 	const HEADERS = 'headers';
+	const MESSAGE_ID = 'message_id';
 
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// text
+		$validation
+			->addField(self::HEADERS)
+			->string()
+			->setMaxLength(65535)
+			->setRequired(true)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::MESSAGE_ID)
+			->id()
+			->setRequired(true)
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function upsert($message_id, $raw_headers) {
 		$db = DevblocksPlatform::services()->database();
 		

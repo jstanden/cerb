@@ -16,20 +16,76 @@
 ***********************************************************************/
 
 class DAO_ContactOrg extends Cerb_ORMHelper {
+	const CITY = 'city';
+	const COUNTRY = 'country';
+	const CREATED = 'created';
+	const EMAIL_ID = 'email_id';
 	const ID = 'id';
 	const NAME = 'name';
-	const STREET = 'street';
-	const CITY = 'city';
-	const PROVINCE = 'province';
-	const POSTAL = 'postal';
-	const COUNTRY = 'country';
 	const PHONE = 'phone';
-	const WEBSITE = 'website';
-	const CREATED = 'created';
+	const POSTAL = 'postal';
+	const PROVINCE = 'province';
+	const STREET = 'street';
 	const UPDATED = 'updated';
-	const EMAIL_ID = 'email_id';
+	const WEBSITE = 'website';
 	
 	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CITY)
+			->string()
+			;
+		$validation
+			->addField(self::COUNTRY)
+			->string()
+			;
+		$validation
+			->addField(self::CREATED)
+			->timestamp()
+			;
+		$validation
+			->addField(self::EMAIL_ID)
+			->id()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			;
+		$validation
+			->addField(self::PHONE)
+			->string()
+			;
+		$validation
+			->addField(self::POSTAL)
+			->string()
+			;
+		$validation
+			->addField(self::PROVINCE)
+			->string()
+			;
+		$validation
+			->addField(self::STREET)
+			->string()
+			;
+		$validation
+			->addField(self::UPDATED)
+			->timestamp()
+			;
+		$validation
+			->addField(self::WEBSITE)
+			->string()
+			;
+		
+		return $validation->getFields();
+	}
 	
 	/**
 	 * Enter description here...
@@ -1664,7 +1720,24 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 
 		return true;
 	}
-
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'city' => DAO_ContactOrg::CITY,
+			'country' => DAO_ContactOrg::COUNTRY,
+			'created' => DAO_ContactOrg::CREATED,
+			'email_id' => DAO_ContactOrg::EMAIL_ID,
+			'id' => DAO_ContactOrg::ID,
+			'name' => DAO_ContactOrg::NAME,
+			'phone' => DAO_ContactOrg::PHONE,
+			'postal' => DAO_ContactOrg::POSTAL,
+			'province' => DAO_ContactOrg::PROVINCE,
+			'street' => DAO_ContactOrg::STREET,
+			'updated' => DAO_ContactOrg::UPDATED,
+			'website' => DAO_ContactOrg::WEBSITE,
+		];
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;

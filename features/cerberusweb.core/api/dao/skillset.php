@@ -1,12 +1,43 @@
 <?php
 class DAO_Skillset extends Cerb_ORMHelper {
+	const CREATED_AT = 'created_at';
 	const ID = 'id';
 	const NAME = 'name';
-	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
 	
 	const CACHE_ALL = 'dao_skillsets_all';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::CREATED_AT)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -919,6 +950,14 @@ class Context_Skillset extends Extension_DevblocksContext implements IDevblocksC
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_Skillset::ID,
+			'name' => DAO_Skillset::NAME,
+			'updated_at' => DAO_Skillset::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

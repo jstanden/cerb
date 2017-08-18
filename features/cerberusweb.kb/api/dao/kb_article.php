@@ -16,12 +16,55 @@
  ***********************************************************************/
 
 class DAO_KbArticle extends Cerb_ORMHelper {
+	const CONTENT = 'content';
+	const FORMAT = 'format';
 	const ID = 'id';
 	const TITLE = 'title';
 	const UPDATED = 'updated';
 	const VIEWS = 'views';
-	const FORMAT = 'format';
-	const CONTENT = 'content';
+	
+	private function __construct() {}
+
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// mediumtext
+		$validation
+			->addField(self::CONTENT)
+			->string()
+			->setMaxLength(16777215)
+			;
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::FORMAT)
+			->uint(1)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(128)
+		$validation
+			->addField(self::TITLE)
+			->string()
+			->setMaxLength(128)
+			->setRequired(true)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::VIEWS)
+			->uint(4)
+			;
+
+		return $validation->getFields();
+	}
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -939,6 +982,16 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		}
 		
 		return TRUE;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'content' => DAO_KbArticle::CONTENT,
+			'id' => DAO_KbArticle::ID,
+			'title' => DAO_KbArticle::TITLE,
+			'updated' => DAO_KbArticle::UPDATED,
+			'views' => DAO_KbArticle::VIEWS,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

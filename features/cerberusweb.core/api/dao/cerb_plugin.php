@@ -16,15 +16,65 @@
  ***********************************************************************/
 
 class DAO_CerbPlugin extends Cerb_ORMHelper {
-	const ID = 'id';
-	const ENABLED = 'enabled';
-	const NAME = 'name';
-	const DESCRIPTION = 'description';
 	const AUTHOR = 'author';
-	const VERSION = 'version';
+	const DESCRIPTION = 'description';
 	const DIR = 'dir';
+	const ENABLED = 'enabled';
+	const ID = 'id';
 	const LINK = 'link';
 	const MANIFEST_CACHE_JSON = 'manifest_cache_json';
+	const NAME = 'name';
+	const VERSION = 'version';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+
+		$validation
+			->addField(self::AUTHOR)
+			->string()
+			->setMaxLength(64)
+			;
+		$validation
+			->addField(self::DESCRIPTION)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::DIR)
+			->string()
+			;
+		$validation
+			->addField(self::ENABLED)
+			->bit()
+			;
+		$validation
+			->addField(self::ID)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::LINK)
+			->string()
+			->setMaxLength(128)
+			;
+		$validation
+			->addField(self::MANIFEST_CACHE_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			;
+		$validation
+			->addField(self::VERSION)
+			->uint()
+			;
+		
+		return $validation->getFields();
+	}
 
 	/**
 	 * @param string $where

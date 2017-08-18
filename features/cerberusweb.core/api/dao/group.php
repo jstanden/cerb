@@ -16,15 +16,50 @@
 ***********************************************************************/
 
 class DAO_Group extends Cerb_ORMHelper {
+	const CREATED = 'created';
+	const ID = 'id';
+	const IS_DEFAULT = 'is_default';
+	const IS_PRIVATE = 'is_private';
+	const NAME = 'name';
+	const UPDATED = 'updated';
+	
 	const CACHE_ALL = 'cerberus_cache_groups_all';
 	const CACHE_ROSTERS = 'ch_group_rosters';
 	
-	const ID = 'id';
-	const NAME = 'name';
-	const IS_DEFAULT = 'is_default';
-	const IS_PRIVATE = 'is_private';
-	const CREATED = 'created';
-	const UPDATED = 'updated';
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CREATED)
+			->timestamp()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::IS_DEFAULT)
+			->bit()
+			;
+		$validation
+			->addField(self::IS_PRIVATE)
+			->bit()
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::UPDATED)
+			->timestamp()
+			;
+			
+		return $validation->getFields();
+	}
 	
 	// Groups
 	
@@ -969,10 +1004,40 @@ class Model_Group {
 };
 
 class DAO_GroupSettings extends Cerb_ORMHelper {
-	const CACHE_ALL = 'ch_group_settings';
+	const GROUP_ID = 'group_id';
+	const SETTING = 'setting';
+	const VALUE = 'value';
 	
 	const SETTING_SUBJECT_HAS_MASK = 'subject_has_mask';
 	const SETTING_SUBJECT_PREFIX = 'subject_prefix';
+	
+	const CACHE_ALL = 'ch_group_settings';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::GROUP_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::SETTING)
+			->string()
+			->setMaxLength(64)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::VALUE)
+			->string()
+			->setMaxLength(65535)
+			->setRequired(true)
+			;
+		
+		return $validation->getFields();
+	}
 	
 	static function set($group_id, $key, $value) {
 		$db = DevblocksPlatform::services()->database();
@@ -1648,6 +1713,17 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		);
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'created' => DAO_Group::CREATED,
+			'id' => DAO_Group::ID,
+			'is_default' => DAO_Group::IS_DEFAULT,
+			'is_private' => DAO_Group::IS_PRIVATE,
+			'name' => DAO_Group::NAME,
+			'updated' => DAO_Group::UPDATED,
+		];
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

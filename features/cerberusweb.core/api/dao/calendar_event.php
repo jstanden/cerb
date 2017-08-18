@@ -16,12 +16,47 @@
  ***********************************************************************/
 
 class DAO_CalendarEvent extends Cerb_ORMHelper {
-	const ID = 'id';
-	const NAME = 'name';
 	const CALENDAR_ID = 'calendar_id';
-	const IS_AVAILABLE = 'is_available';
-	const DATE_START = 'date_start';
 	const DATE_END = 'date_end';
+	const DATE_START = 'date_start';
+	const ID = 'id';
+	const IS_AVAILABLE = 'is_available';
+	const NAME = 'name';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CALENDAR_ID)
+			->id()
+			;
+		$validation
+			->addField(self::DATE_END)
+			->timestamp()
+			;
+		$validation
+			->addField(self::DATE_START)
+			->timestamp()
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::IS_AVAILABLE)
+			->bit()
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		if(
@@ -1012,6 +1047,17 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		}
 
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'calendar_id' => DAO_CalendarEvent::CALENDAR_ID,
+			'date_end' => DAO_CalendarEvent::DATE_END,
+			'date_start' => DAO_CalendarEvent::DATE_START,
+			'id' => DAO_CalendarEvent::ID,
+			'is_available' => DAO_CalendarEvent::IS_AVAILABLE,
+			'name' => DAO_CalendarEvent::NAME,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

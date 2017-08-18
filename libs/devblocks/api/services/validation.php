@@ -11,10 +11,33 @@ class _DevblocksValidationField {
 	
 	/**
 	 * 
+	 * @return _DevblocksValidationTypeNumber
+	 */
+	function bit() {
+		$this->_type = new _DevblocksValidationTypeNumber();
+		
+		// Defaults for bit type
+		return $this->_type
+			->setMin(0)
+			->setMax(1)
+			;
+	}
+	
+	/**
+	 * 
 	 * @return _DevblocksValidationTypeContext
 	 */
 	function context() {
 		$this->_type = new _DevblocksValidationTypeContext();
+		return $this->_type;
+	}
+	
+	/**
+	 * 
+	 * @return _DevblocksValidationTypeFloat
+	 */
+	function float() {
+		$this->_type = new _DevblocksValidationTypeFloat();
 		return $this->_type;
 	}
 	
@@ -47,7 +70,9 @@ class _DevblocksValidationField {
 	 */
 	function string() {
 		$this->_type = new _DevblocksValidationTypeString();
-		return $this->_type;
+		return $this->_type
+			->setMaxLength(255)
+			;
 	}
 	
 	/**
@@ -60,13 +85,25 @@ class _DevblocksValidationField {
 			->setMin(0)
 			->setMax(pow(2,32)) // 4 unsigned bytes
 			;
-		;
+	}
+	
+	/**
+	 * 
+	 * @return DevblocksValidationTypeNumber
+	 */
+	function uint($bytes=4) {
+		$this->_type = new _DevblocksValidationTypeNumber();
+		return $this->_type
+			->setMin(0)
+			->setMax(pow(2,$bytes*8))
+			;
 	}
 }
 
 class _DevblocksValidationType {
 	public $_data = [
 		'editable' => true,
+		'required' => false,
 	];
 	
 	function __construct() {
@@ -75,11 +112,44 @@ class _DevblocksValidationType {
 	
 	function setEditable($bool) {
 		$this->_data['editable'] = $bool ? true : false;
+		return $this;
+	}
+	
+	function isRequired() {
+		return @$this->_data['required'] ? true : false;
+	}
+	
+	function setRequired($bool) {
+		$this->_data['required'] = $bool ? true : false;
+		return $this;
 	}
 }
 
 class _DevblocksValidationTypeContext extends _DevblocksValidationType {
 	
+}
+
+class _DevblocksValidationTypeFloat extends _DevblocksValidationType {
+	function __construct() {
+		parent::__construct();
+		return $this;
+	}
+	
+	function setMin($n) {
+		if(!is_numeric($n))
+			return false;
+		
+		$this->_data['min'] = floatval($n);
+		return $this;
+	}
+	
+	function setMax($n) {
+		if(!is_numeric($n))
+			return false;
+		
+		$this->_data['max'] = floatval($n);
+		return $this;
+	}
 }
 
 class _DevblocksValidationTypeNumber extends _DevblocksValidationType {

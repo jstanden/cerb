@@ -1,12 +1,46 @@
 <?php
 class DAO_CustomFieldset extends Cerb_ORMHelper {
+	const CONTEXT = 'context';
 	const ID = 'id';
 	const NAME = 'name';
-	const CONTEXT = 'context';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 
 	const CACHE_ALL = 'ch_CustomFieldsets';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
+			->setRequired(true)
+			;
+			
+		return $validation->getFields();
+	}
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
@@ -1025,6 +1059,16 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		}
 
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'context' => DAO_CustomFieldset::CONTEXT,
+			'id' => DAO_CustomFieldset::ID,
+			'name' => DAO_CustomFieldset::NAME,
+			'owner__context' => DAO_CustomFieldset::OWNER_CONTEXT,
+			'owner_id' => DAO_CustomFieldset::OWNER_CONTEXT_ID,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

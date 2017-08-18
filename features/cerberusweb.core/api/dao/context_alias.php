@@ -2,8 +2,40 @@
 class DAO_ContextAlias extends Cerb_ORMHelper {
 	const CONTEXT = 'context';
 	const ID = 'id';
-	const MAME = 'name';
+	const IS_PRIMARY = 'is_primary';
+	const NAME = 'name';
 	const TERMS = 'terms';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CONTEXT)
+			->context()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::IS_PRIMARY)
+			->bit()
+			;
+		$validation
+			->addField(self::NAME)
+			->string()
+			;
+		$validation
+			->addField(self::TERMS)
+			->string()
+			;
+			
+		return $validation->getFields();
+	}
 	
 	static function get($context, $id, $with_primary=false) {
 		$db = DevblocksPlatform::services()->database();

@@ -16,16 +16,72 @@
  ***********************************************************************/
 
 class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
-	const ID = 'id';
-	const EVENT_NAME = 'event_name';
-	const IS_AVAILABLE = 'is_available';
 	const CALENDAR_ID = 'calendar_id';
-	const TZ = 'tz';
-	const EVENT_START = 'event_start';
 	const EVENT_END = 'event_end';
-	const RECUR_START = 'recur_start';
-	const RECUR_END = 'recur_end';
+	const EVENT_NAME = 'event_name';
+	const EVENT_START = 'event_start';
+	const ID = 'id';
+	const IS_AVAILABLE = 'is_available';
 	const PATTERNS = 'patterns';
+	const RECUR_END = 'recur_end';
+	const RECUR_START = 'recur_start';
+	const TZ = 'tz';
+	
+	private function __construct() {}
+	
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField(self::CALENDAR_ID)
+			->id()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::EVENT_END)
+			->string()
+			->setMaxLength(128)
+			;
+		$validation
+			->addField(self::EVENT_NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::EVENT_START)
+			->string()
+			->setMaxLength(128)
+			;
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::IS_AVAILABLE)
+			->bit()
+			;
+		$validation
+			->addField(self::PATTERNS)
+			->string()
+			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::RECUR_END)
+			->timestamp()
+			;
+		$validation
+			->addField(self::RECUR_START)
+			->timestamp()
+			;
+		$validation
+			->addField(self::TZ)
+			->string()
+			->setMaxLength(128)
+			;
+		
+		return $validation->getFields();
+	}
 
 	static function create($fields) {
 		if(
@@ -1248,6 +1304,21 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'calendar_id' => DAO_CalendarRecurringProfile::CALENDAR_ID,
+			'event_end' => DAO_CalendarRecurringProfile::EVENT_END,
+			'event_start' => DAO_CalendarRecurringProfile::EVENT_START,
+			'id' => DAO_CalendarRecurringProfile::ID,
+			'is_available' => DAO_CalendarRecurringProfile::IS_AVAILABLE,
+			'name' => DAO_CalendarRecurringProfile::EVENT_NAME,
+			'patterns' => DAO_CalendarRecurringProfile::PATTERNS,
+			'recur_end' => DAO_CalendarRecurringProfile::RECUR_END,
+			'recur_start' => DAO_CalendarRecurringProfile::RECUR_START,
+			'tz' => DAO_CalendarRecurringProfile::TZ,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
