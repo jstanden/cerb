@@ -338,7 +338,7 @@ class ChSignInPage extends CerberusPageExtension {
 		 * Log activity (worker.logged_in)
 		 */
 		$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
-		$user_agent = UserAgentParser::parse();
+		$user_agent = DevblocksPlatform::getClientUserAgent();
 		$user_agent_string = sprintf("%s%s%s",
 			$user_agent['browser'],
 			!empty($user_agent['version']) ? (' ' . $user_agent['version']) : '',

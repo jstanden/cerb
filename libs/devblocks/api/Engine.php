@@ -439,6 +439,11 @@ abstract class DevblocksEngine {
 		return $ip;
 	}
 	
+	static function getClientUserAgent() {
+		require_once(DEVBLOCKS_PATH . 'libs/user_agent_parser.php');
+		return parse_user_agent();
+	}
+	
 	static function getHostname() {
 		$app_hostname = APP_HOSTNAME;
 		
