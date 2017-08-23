@@ -1057,6 +1057,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'owner__label' => $prefix.$translate->_('common.owner'),
 			'tag' => $prefix.$translate->_('common.tag'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -1067,6 +1068,7 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'owner__label' => 'context_url',
 			'tag' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -1091,6 +1093,8 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 			$token_values['_label'] = $file_bundle->name;
 			$token_values['id'] = $file_bundle->id;
 			$token_values['name'] = $file_bundle->name;
+			$token_values['owner__context'] = $file_bundle->owner_context;
+			$token_values['owner_id'] = $file_bundle->owner_context_id;
 			$token_values['tag'] = $file_bundle->tag;
 			$token_values['updated_at'] = $file_bundle->updated_at;
 			

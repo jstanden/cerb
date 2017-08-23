@@ -152,7 +152,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 					break;
 			}
 			
-			if(!CerberusContexts::isWriteableByActor($owner_context, $owner_context_id, $active_worker)) {
+			if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker)) {
 				$owner_context = null;
 				$owner_context_id = null;
 			}
