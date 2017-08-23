@@ -1111,7 +1111,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		$fields = array(
 			DAO_FeedbackEntry::QUOTE_MOOD => intval($mood),
 			DAO_FeedbackEntry::QUOTE_TEXT => $quote,
-			DAO_FeedbackEntry::QUOTE_ADDRESS_ID => intval($address_id),
+			DAO_FeedbackEntry::QUOTE_ADDRESS_ID => @intval($address_id),
 			DAO_FeedbackEntry::SOURCE_URL => $url,
 		);
 

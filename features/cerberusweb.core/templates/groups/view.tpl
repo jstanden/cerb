@@ -144,9 +144,8 @@ $frm_actions.find('button.action-explore').click(function() {
 $frm.bind('keyboard_shortcut',function(event) {
 	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
 	
-	$view_actions = $('#{$view->id}_actions');
-	
-	hotkey_activated = true;
+	var $view_actions = $('#{$view->id}_actions');
+	var hotkey_activated = true;
 
 	switch(event.keypress_event.which) {
 		default:

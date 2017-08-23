@@ -1501,6 +1501,7 @@ class _DevblocksBayesClassifierService {
 		
 		$params = [];
 		
+		if(@isset($class_data[$predicted_class_id]['entities']) && is_array($class_data[$predicted_class_id]['entities']))
 		foreach($class_data[$predicted_class_id]['entities'] as $entity_type => $results) {
 			if(!isset($params[$entity_type]))
 				$params[$entity_type] = [];
@@ -1929,8 +1930,8 @@ class _DevblocksBayesClassifierService {
 				'text' => $text,
 				//'words' => $words,
 				//'tags' => $tags,
-				'classifier' => array_intersect_key($classifiers[$classifier_id],['id'=>true,'name'=>true]),
-				'classification' => array_intersect_key($classes[$predicted_class_id],['id'=>true,'name'=>true,'attribs'=>true]),
+				'classifier' => @array_intersect_key($classifiers[$classifier_id],['id'=>true,'name'=>true]) ?: [],
+				'classification' => @array_intersect_key($classes[$predicted_class_id],['id'=>true,'name'=>true,'attribs'=>true]) ?: [],
 				'confidence' => $predicted_class_confidence,
 				'params' => $params
 			]

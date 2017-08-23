@@ -328,8 +328,8 @@ class Page_Custom extends CerberusPageExtension {
 			$list_view->num_rows = $view_model->renderLimit;
 			$list_view->params = $view_model->paramsEditable;
 			$list_view->params_required = $view_model->paramsRequired;
-			$list_view->sort_by = $view_model->renderSortBy;
-			$list_view->sort_asc = $view_model->renderSortAsc;
+			$list_view->sort_by = @array_keys($view_model->renderSort) ?: [];
+			$list_view->sort_asc = @array_values($view_model->renderSort) ?: [];
 			$list_view->subtotals = $view_model->renderSubtotals;
 			
 			$list_id = DAO_WorkspaceList::create(array(
@@ -378,8 +378,8 @@ class Page_Custom extends CerberusPageExtension {
 			$list_view->num_rows = $view_model->renderLimit;
 			$list_view->params = $view_model->paramsEditable;
 			$list_view->params_required = $view_model->paramsRequired;
-			$list_view->sort_by = $view_model->renderSortBy;
-			$list_view->sort_asc = $view_model->renderSortAsc;
+			$list_view->sort_by = @array_keys($view_model->renderSort) ?: [];
+			$list_view->sort_asc = @array_values($view_model->renderSort) ?: [];
 			$list_view->subtotals = $view_model->renderSubtotals;
 			
 			$list_id = DAO_WorkspaceList::create(array(
@@ -427,8 +427,8 @@ class Page_Custom extends CerberusPageExtension {
 			$list_view->num_rows = $view_model->renderLimit;
 			$list_view->params = $view_model->paramsEditable;
 			$list_view->params_required = $view_model->paramsRequired;
-			$list_view->sort_by = $view_model->renderSortBy;
-			$list_view->sort_asc = $view_model->renderSortAsc;
+			$list_view->sort_by = @array_keys($view_model->renderSort) ?: [];
+			$list_view->sort_asc = @array_values($view_model->renderSort) ?: [];
 			$list_view->subtotals = $view_model->renderSubtotals;
 			
 			$list_id = DAO_WorkspaceList::create(array(
