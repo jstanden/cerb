@@ -75,7 +75,7 @@
 				{else}
 					<b class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</b>
 				{/if}
-				{if $active_worker->is_superuser||$result.m_worker_id==$active_worker->id}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=draft&action=showDraftsPeek&view_id={$view->id}&id={$result.m_id}', null, false, '50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
+				{if $active_worker->is_superuser || $result.m_worker_id==$active_worker->id}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=draft&action=showDraftsPeek&view_id={$view->id}&id={$result.m_id}', null, false, '50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -147,7 +147,7 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
-		{if $active_worker->hasPriv('contexts.{$view_context}.update.bulk')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=draft&action=showDraftsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span></a> bulk update</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=draft&action=showDraftsBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span></a> bulk update</button>{/if}
 	</div>
 	{/if}
 </div>

@@ -1,3 +1,4 @@
+{$peek_context = CerberusContexts::CONTEXT_WORKSPACE_TAB}
 <form action="#" method="post" id="frmEditWorkspaceTab" onsubmit="return false;">
 <input type="hidden" name="c" value="pages">
 <input type="hidden" name="a" value="doEditWorkspaceTabJson">
@@ -46,7 +47,7 @@
 
 <div class="toolbar">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
-	{if !empty($workspace_tab)}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($workspace_tab) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
 

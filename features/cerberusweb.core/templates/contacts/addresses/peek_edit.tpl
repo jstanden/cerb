@@ -1,3 +1,4 @@
+{$peek_context = CerberusContexts::CONTEXT_ADDRESS}
 {$form_id = "formAddressPeek{uniqid()}"}
 <form action="#" method="POST" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
@@ -84,11 +85,12 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS context_id=$address->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$address->id}
 
 <div class="status"></div>
 
-{if $active_worker->hasPriv('contexts.cerberusweb.contexts.address.update')}
+{if (!$address && $active_worker->hasPriv("contexts.{$peek_context}.create")) 
+	|| ($address && $active_worker->hasPriv("contexts.{$peek_context}.update"))}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>

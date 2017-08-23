@@ -1915,7 +1915,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->is_superuser)
+		if(!$active_worker->hasPriv(sprintf("contexts.%s.update.bulk", CerberusContexts::CONTEXT_SNIPPET)))
 			return;
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -1945,7 +1945,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	function startSnippetBulkUpdateJsonAction() {
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-		$ids = array();
+		$ids = [];
 		
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
@@ -1955,8 +1955,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Snippet fields
 		@$owner = trim(DevblocksPlatform::importGPC($_POST['owner'],'string',''));
 
-		$do = array();
+		$do = [];
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf("contexts.%s.update.bulk", CerberusContexts::CONTEXT_SNIPPET)))
+			return;
 		
 		// Do: Due
 		if(0 != strlen($owner))

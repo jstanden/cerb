@@ -243,7 +243,6 @@
 							
 							<div style="margin-bottom:10px;"></div>
 							
-							{if $active_worker->hasPriv('core.ticket.actions.move')}
 							<b>{'display.reply.next.move'|devblocks_translate}</b>
 							<br>
 							
@@ -266,7 +265,6 @@
 							</select>
 							<br>
 							<br>
-							{/if}
 							
 							<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
 							<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>

@@ -1,5 +1,5 @@
 {if empty($columns)}
-	{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
+	{if Context_WorkspacePage::isWriteableByActor($page, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}
 	<form action="#" onsubmit="return false;">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	<div class="help-box" style="padding:5px;border:0;">
@@ -23,7 +23,7 @@
 	{/if}
 {/if}
 
-{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
+{if Context_WorkspacePage::isWriteableByActor($page, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}
 <form id="frmAddWidget{$workspace_tab->id}" action="#">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 <button type="button" class="add_widget"><span class="glyphicons glyphicons-circle-plus"></span> Add Widget</button>

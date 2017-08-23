@@ -1,3 +1,4 @@
+{$peek_context = CerberusContexts::CONTEXT_KB_ARTICLE}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="kb.ajax">
@@ -53,7 +54,7 @@
 		</fieldset>
 		{/if}
 		
-		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_KB_ARTICLE context_id=$article->id}
+		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$article->id}
 	</div>
 	
 	<div id="kbArticleAttachments">
@@ -80,8 +81,8 @@
 </div> 
 
 <div style="margin-top:10px;">
-	{if $active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.update')}<button type="button" id="btnKbArticleEditSave"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if} 
-	{if !empty($article) && $active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.delete')}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this article?')) { this.form.do_delete.value='1';$('#btnKbArticleEditSave').click(); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if (!$article->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($article->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" id="btnKbArticleEditSave"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if} 
+	{if !empty($article) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this article?')) { this.form.do_delete.value='1';$('#btnKbArticleEditSave').click(); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 </form>
 

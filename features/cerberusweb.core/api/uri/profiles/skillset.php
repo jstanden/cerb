@@ -113,12 +113,18 @@ class PageSection_ProfilesSkillset extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($id) && !empty($do_delete)) { // Delete
+			if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_SKILLSET)))
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+			
 			DAO_Skillset::delete($id);
 			
 		} else {
 			@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 			
 			if(empty($id)) { // New
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_SKILLSET)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+				
 				$fields = array(
 					DAO_Skillset::CREATED_AT => time(),
 					DAO_Skillset::UPDATED_AT => time(),
@@ -130,6 +136,9 @@ class PageSection_ProfilesSkillset extends Extension_PageSection {
 					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_SKILLSET, $id);
 				
 			} else { // Edit
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_SKILLSET)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+				
 				$fields = array(
 					DAO_Skillset::UPDATED_AT => time(),
 					DAO_Skillset::NAME => $name,

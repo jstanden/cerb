@@ -27,7 +27,7 @@
 				<option value="open">{'crm.opp.status.open'|devblocks_translate}</option>
 				<option value="won">{'crm.opp.status.closed.won'|devblocks_translate}</option>
 				<option value="lost">{'crm.opp.status.closed.lost'|devblocks_translate}</option>
-				{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opp.delete')}
+				{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opportunity.delete')}
 				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
 				{/if}
 			</select>
@@ -35,13 +35,12 @@
 			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'crm.opp.status.open'|devblocks_translate|lower}</button>
 			<button type="button" onclick="this.form.status.selectedIndex = 2;">{'crm.opp.status.closed.won'|devblocks_translate|lower}</button>
 			<button type="button" onclick="this.form.status.selectedIndex = 3;">{'crm.opp.status.closed.lost'|devblocks_translate|lower}</button>
-			{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opp.delete')}
+			{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opportunity.delete')}
 			<button type="button" onclick="this.form.status.selectedIndex = 4;">{'status.deleted'|devblocks_translate|lower}</button>
 			{/if}
 			</td>
 		</tr>
 		
-		{if $active_worker->hasPriv('core.watchers.assign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Add watchers:</td>
 			<td width="100%">
@@ -51,9 +50,7 @@
 				</div>
 			</td>
 		</tr>
-		{/if}
 		
-		{if $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Remove watchers:</td>
 			<td width="100%">
@@ -63,7 +60,6 @@
 				</div>
 			</td>
 		</tr>
-		{/if}
 
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}:</td>
@@ -86,7 +82,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
-{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opp.broadcast')}
+{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opportunity.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_OPPORTUNITY}
 {/if}
 

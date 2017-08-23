@@ -16,7 +16,7 @@
 			<li class="drag" tab_id="{$tab->id}"><a href="{devblocks_url}ajax.php?c=pages&a=showWorkspaceTab&point={$point}&id={$tab->id}&request={$response_uri|escape:'url'}{/devblocks_url}">{$tab->name}</a></li>
 		{/foreach}
 
-		{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
+		{if Context_WorkspacePage::isWriteableByActor($page, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.create")}
 			<li><a href="{devblocks_url}ajax.php?c=pages&a=showAddTabs&page_id={$page->id}{/devblocks_url}">+</a></li>
 		{/if}
 	</ul>

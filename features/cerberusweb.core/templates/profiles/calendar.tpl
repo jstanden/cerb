@@ -16,7 +16,7 @@
 		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
 		
 		<!-- Edit -->
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		<button type="button" id="btnDisplayCalendarEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 		
@@ -99,7 +99,7 @@ $(function() {
 	$('#btnProfileCard').cerbPeekTrigger();
 	
 	// Edit
-	{if $is_writeable}
+	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 	$('#btnDisplayCalendarEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {

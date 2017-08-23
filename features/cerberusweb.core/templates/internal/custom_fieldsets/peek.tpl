@@ -1,6 +1,7 @@
+{$peek_context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET}
 {$is_writeable = !$custom_fieldset->id || Context_CustomFieldset::isWriteableByActor($custom_fieldset, $active_worker)}
 
-{if !$is_writeable}
+{if !$is_writeable || !$active_worker->hasPriv("contexts.{$peek_context}.update")}
 <div class="error-box">
 	{'error.core.no_acl.edit'|devblocks_translate}
 </div>
@@ -65,7 +66,7 @@
 	{foreach from=$custom_fields item=f key=field_id name=fields}
 		{assign var=type_code value=$f->type}
 		<tr class="sortable">
-			<td valign="top" width="1%" nowrap="nowrap">{if $is_writeable}<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>{/if}</td>
+			<td valign="top" width="1%" nowrap="nowrap">{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span>{/if}</td>
 			<td valign="top" width="1%" nowrap="nowrap">{$types.$type_code}</td>
 			<td valign="top" width="98%">
 				<input type="hidden" name="types[]" value="{$f->type}">
@@ -86,7 +87,7 @@
 				{/if}
 			</td>
 			<td width="1%" valign="top" nowrap="nowrap">
-				{if $is_writeable}<span class="glyphicons glyphicons-circle-minus delete" style="color:rgb(200,0,0);margin-left:5px;cursor:pointer;"></span>{/if}
+				{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}<span class="glyphicons glyphicons-circle-minus delete" style="color:rgb(200,0,0);margin-left:5px;cursor:pointer;"></span>{/if}
 			</td>
 		</tr>
 	{/foreach}
@@ -126,7 +127,7 @@
 	
 	<tr>
 		<td colspan="4">
-			{if $is_writeable}<button type="button" class="add"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span></button>{/if}
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}<button type="button" class="add"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span></button>{/if}
 		</td>
 	</tr>
 	</table>
@@ -143,10 +144,10 @@
 {/if}
 
 <div class="buttons">
-{if empty($custom_fieldset->id) || $is_writeable}
+{if $active_worker->hasPriv("contexts.{$peek_context}.update") && (empty($custom_fieldset->id) || $is_writeable)}
 	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView('{$layer}','frmCustomFieldsetPeek','{$view_id}',false,'custom_fieldset_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 {/if}
-{if !empty($custom_fieldset->id) && $is_writeable}
+{if !empty($custom_fieldset->id) && $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.delete")}
 	<button type="button" onclick="$(this).closest('div.buttons').hide().prev('fieldset.delete').show();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 {/if}
 </div>
@@ -167,7 +168,7 @@ $(function() {
 		$popup.dialog('option','title', 'Modify Custom Fieldset');
 		{/if}
 
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
 		$popup.find('input:text:first').focus().select();
 		{else}
 		$popup.find('input,select,textarea').attr('disabled','disabled');

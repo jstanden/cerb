@@ -158,8 +158,8 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // delete
-				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.task.delete'))
-					throw new Exception_DevblocksAjaxValidationError("You don't have permission to delete this record.");
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_TASK)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_Task::delete($id);
 				
@@ -226,10 +226,16 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				
 				// Save
 				if(!empty($id)) {
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_TASK)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
 					DAO_Task::update($id, $fields);
 					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
 					
 				} else {
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_TASK)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
 					$custom_fields = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TASK, $field_ids);
 					
 					if(false == ($id = DAO_Task::create($fields, $custom_fields)))
@@ -247,7 +253,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				}
 	
 				// Comments
-				if(!empty($comment) && !empty($id)) {
+				if(!empty($comment) && !empty($id) && $active_worker->hasPriv(sprintf("contexts.%s.comment", CerberusContexts::CONTEXT_TASK))) {
 					$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
 					
 					$fields = array(

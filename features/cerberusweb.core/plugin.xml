@@ -1025,7 +1025,6 @@
 		<!-- Display Ticket -->
 		<priv id="core.display.actions.attachments.download" label="acl.core.display.actions.attachments.download" />
 		<priv id="core.display.actions.forward" label="acl.core.display.actions.forward" />
-		<priv id="core.display.actions.note" label="acl.core.display.actions.note" />
 		<priv id="core.display.actions.reply" label="acl.core.display.actions.reply" />
 		<priv id="core.display.actions.split" label="acl.core.display.actions.split" />
 		
@@ -1033,15 +1032,8 @@
 		<priv id="core.mail.save_without_sending" label="acl.core.mail.save_without_sending" />
 
 		<!-- Tickets -->
-		<priv id="core.ticket.actions.assign" label="acl.core.ticket.actions.assign" />
 		<priv id="core.ticket.actions.close" label="acl.core.ticket.actions.close" />
-		<priv id="core.ticket.actions.delete" label="acl.core.ticket.actions.delete" />
-		<priv id="core.ticket.actions.move" label="acl.core.ticket.actions.move" />
 		<priv id="core.ticket.actions.spam" label="acl.core.ticket.actions.spam" />
-
-		<!-- Watchers -->
-		<priv id="core.watchers.assign" label="acl.core.watchers.assign" />
-		<priv id="core.watchers.unassign" label="acl.core.watchers.unassign" />
 	</acl>
 
 	<!-- Extensions -->
@@ -1441,9 +1433,6 @@
 				</param>
 				<param key="acl">
 					<value>
-						<data key="create" />
-						<data key="delete" />
-						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -1492,7 +1481,7 @@
 						<data key="broadcast" />
 						<data key="comment" />
 						<data key="create" />
-						<data key="delete" />
+						<!--<data key="delete" />-->
 						<data key="export" />
 						<data key="import" />
 						<data key="merge" />
@@ -1703,7 +1692,6 @@
 				</param>
 				<param key="acl">
 					<value>
-						<data key="create" />
 						<data key="delete" />
 						<data key="export" />
 						<data key="update" />
@@ -1901,10 +1889,7 @@
 				</param>
 				<param key="acl">
 					<value>
-						<data key="create" />
-						<data key="delete" />
 						<data key="export" />
-						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -1988,8 +1973,6 @@
 				<param key="acl">
 					<value>
 						<data key="comment" />
-						<data key="create" />
-						<data key="delete" />
 						<data key="export" />
 						<data key="update" />
 					</value>
@@ -2023,10 +2006,6 @@
 				</param>
 				<param key="acl">
 					<value>
-						<data key="create" />
-						<data key="delete" />
-						<data key="export" />
-						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -2068,8 +2047,8 @@
 				<param key="acl">
 					<value>
 						<data key="comment" />
-						<data key="create" />
-						<data key="delete" />
+						<!--<data key="create" />-->
+						<!--<data key="delete" />-->
 						<data key="export" />
 						<data key="update" />
 					</value>
@@ -2106,11 +2085,11 @@
 				</param>
 				<param key="acl">
 					<value>
-						<data key="create" />
-						<data key="delete" />
+						<!--<data key="create" />-->
+						<!--<data key="delete" />-->
 						<data key="export" />
-						<data key="update" />
-						<data key="update.bulk" />
+						<!--<data key="update" />-->
+						<data key="update.bulk" />-->
 					</value>
 				</param>
 			</params>
@@ -2193,11 +2172,6 @@
 				</param>
 				<param key="acl">
 					<value>
-						<data key="comment" />
-						<data key="create" />
-						<data key="delete" />
-						<data key="export" />
-						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -2502,7 +2476,6 @@
 					<value>
 						<data key="comment" />
 						<data key="export" />
-						<data key="import" />
 					</value>
 				</param>
 			</params>
@@ -2550,12 +2523,8 @@
 				<param key="context_expand_export" value="address_" />
 				<param key="acl">
 					<value>
-						<data key="broadcast" />
 						<data key="comment" />
 						<data key="export" />
-						<data key="merge" />
-						<data key="update" />
-						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>
@@ -2593,7 +2562,6 @@
 					<value>
 						<data key="comment" />
 						<data key="export" />
-						<data key="update" />
 					</value>
 				</param>
 			</params>

@@ -40,7 +40,7 @@
 		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$dict->_context}" data-context-id="{$dict->id}"><span class="glyphicons glyphicons-nameplate"></span></button>
 		
 		<!-- Edit -->
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		<button type="button" id="btnDisplayTicketEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 
@@ -49,7 +49,7 @@
 		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true watchers_group_id=$dict->group_id watchers_bucket_id=$dict->bucket_id}
 		</span>
 		
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		
 		{if $dict->status_id != Model_Ticket::STATUS_DELETED}
 			{if $dict->status_id == Model_Ticket::STATUS_CLOSED}
@@ -66,10 +66,10 @@
 		{if $dict->status_id == Model_Ticket::STATUS_DELETED}
 			<button type="button" title="{'common.undelete'|devblocks_translate|capitalize}" onclick="this.form.status_id.value='{Model_Ticket::STATUS_OPEN}';this.form.submit();"><span class="glyphicons glyphicons-upload"></span></button>
 		{else}
-			{if $active_worker->hasPriv('core.ticket.actions.delete')}<button title="{'display.shortcut.delete'|devblocks_translate}" id="btnDelete" type="button" onclick="this.form.status_id.value='{Model_Ticket::STATUS_DELETED}';this.form.submit();"><span class="glyphicons glyphicons-circle-remove"></span></button>{/if}
+			{if $active_worker->hasPriv("contexts.{$page_context}.delete")}<button title="{'display.shortcut.delete'|devblocks_translate}" id="btnDelete" type="button" onclick="this.form.status_id.value='{Model_Ticket::STATUS_DELETED}';this.form.submit();"><span class="glyphicons glyphicons-circle-remove"></span></button>{/if}
 		{/if}
 		
-		{if $active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.merge')}<button id="btnMerge" type="button" onclick="genericAjaxPopup('merge','c=display&a=showMergePanel&ticket_id={$dict->id}',null,false,'50%');" title="{'mail.merge'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-git-merge"></span></button>{/if}
+		{if $active_worker->hasPriv("contexts.{$page_context}.merge")}<button id="btnMerge" type="button" onclick="genericAjaxPopup('merge','c=display&a=showMergePanel&ticket_id={$dict->id}',null,false,'50%');" title="{'mail.merge'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-git-merge"></span></button>{/if}
 		
 		{/if}
 		
@@ -88,7 +88,7 @@
 		(<b>o</b>) {'common.comment'|devblocks_translate} 
 		{if $dict->status_id != Model_Ticket::STATUS_CLOSED && $active_worker->hasPriv('core.ticket.actions.close')}(<b>c</b>) {'common.close'|devblocks_translate|lower} {/if}
 		{if !$dict->spam_training && $active_worker->hasPriv('core.ticket.actions.spam')}(<b>s</b>) {'common.spam'|devblocks_translate|lower} {/if}
-		{if $dict->status_id != Model_Ticket::STATUS_DELETED && $active_worker->hasPriv('core.ticket.actions.delete')}(<b>x</b>) {'common.delete'|devblocks_translate|lower} {/if}
+		{if $dict->status_id != Model_Ticket::STATUS_DELETED && $active_worker->hasPriv("contexts.{$page_context}.delete")}(<b>x</b>) {'common.delete'|devblocks_translate|lower} {/if}
 		{if empty($dict->owner_id)}(<b>t</b>) {'common.assign'|devblocks_translate|lower} {/if}
 		{if !empty($dict->owner_id)}(<b>u</b>) {'common.unassign'|devblocks_translate|lower} {/if}
 		{if !$expand_all}(<b>a</b>) {'display.button.read_all'|devblocks_translate|lower} {/if} 

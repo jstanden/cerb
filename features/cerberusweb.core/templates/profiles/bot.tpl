@@ -21,7 +21,7 @@
 			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
 		
 			<!-- Edit -->
-			{if $is_writeable}
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 				<button type="button" id="btnDisplayBotEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
 			
@@ -30,7 +30,7 @@
 			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 			</span>
 			
-			{if $is_writeable}
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.comment")}
 				<button type="button" id="btnProfileAddComment" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$page_context} context.id:{$page_context_id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 			{/if}
 		</form>
@@ -116,7 +116,7 @@ $(function() {
 	
 	// Edit
 	
-	{if $is_writeable}
+	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 	$('#btnDisplayBotEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {

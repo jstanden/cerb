@@ -1,5 +1,7 @@
 <form action="#" style="margin:5px;">
+{if $active_worker->hasPriv("contexts.{$context}.comment")}
 <button type="button" id="btnComment" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$context} context.id:{$context_id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+{/if}
 </form>
 
 {* Display Notes *}

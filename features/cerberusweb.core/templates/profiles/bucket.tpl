@@ -21,7 +21,7 @@
 			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
 			
 			<!-- Edit -->
-			{if $is_writeable}
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 			<button type="button" id="btnDisplayBucketEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
 		</form>

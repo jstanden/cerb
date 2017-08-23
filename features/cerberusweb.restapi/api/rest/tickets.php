@@ -227,7 +227,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 					
 				case Model_Ticket::STATUS_DELETED:
 					// ACL
-					if(!$worker->hasPriv('core.ticket.actions.delete'))
+					if(!$worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_TICKET)))
 						$this->error(self::ERRNO_ACL, 'Access denied to delete tickets.');
 		
 					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_DELETED;
@@ -278,7 +278,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('core.ticket.actions.delete'))
+		if(!$worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_TICKET)))
 			$this->error(self::ERRNO_ACL, 'Access denied to delete tickets.');
 
 		if(null == ($ticket = DAO_Ticket::get($id)))

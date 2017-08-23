@@ -14,7 +14,7 @@
 		</span>
 		
 		<!-- Edit -->
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		<button type="button" id="btnDisplayClassifierEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</button>
 		{/if}
 	</form>

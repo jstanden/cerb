@@ -1,3 +1,4 @@
+{$peek_context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmWidgetEdit">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="handleSectionAction">
@@ -41,15 +42,17 @@
 {$extension->renderConfig($widget)}
 {/if}
 
+{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}
 <fieldset class="delete" style="display:none;">
 	<legend>Are you sure you want to delete this widget?</legend>
 	<button type="button" class="red delete">{'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" onclick="$(this).closest('fieldset').fadeOut().siblings('div.toolbar').fadeIn();">{'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
+{/if}
 
 <div style="margin-top:10px;" class="toolbar">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($widget) && !empty($widget->id)}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if (!$widget->id && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")) || ($widget->id && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.update"))}<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($widget->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).closest('div.toolbar').fadeOut().siblings('fieldset.delete').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

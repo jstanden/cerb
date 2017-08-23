@@ -5,16 +5,16 @@
 	<input type="hidden" name="a" value="">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-	{if $active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.update')}
-		{$parent_id = 0}
-		{if $root_id}
-			{assign var=parent_id value=$categories.$root_id->parent_id}
-		{/if}
-			
-		{if !empty($root_id)}<button type="button" class="category_edit"><span class="glyphicons glyphicons-folder-closed"></span></a> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
-		<button type="button" class="category_add"><span class="glyphicons glyphicons-folder-plus"></span> Add {if empty($root_id)}Topic{else}Subcategory{/if}</button>
-			
-		<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="glyphicons glyphicons-circle-plus"></span> Add Article</button>
+	{$parent_id = 0}
+	{if $root_id}
+		{assign var=parent_id value=$categories.$root_id->parent_id}
+	{/if}
+		
+	{if !empty($root_id) && $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.update")}<button type="button" class="category_edit"><span class="glyphicons glyphicons-folder-closed"></span></a> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
+	{if $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.create")}<button type="button" class="category_add"><span class="glyphicons glyphicons-folder-plus"></span> Add {if empty($root_id)}Topic{else}Subcategory{/if}</button>{/if}
+		
+	{if $active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.create')}
+	<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="glyphicons glyphicons-circle-plus"></span> Add Article</button>
 	{/if}
 </form>
 

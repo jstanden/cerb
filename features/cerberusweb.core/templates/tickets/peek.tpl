@@ -18,9 +18,9 @@
 		<div style="margin-top:5px;">
 			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 			{if $is_readable}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
-			{if $is_writeable}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
 			
-			{if $is_writeable}
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
 				{if !empty($dict->id)}
 					{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
 					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
@@ -103,7 +103,7 @@ $(function() {
 		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
 		// Edit button
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {

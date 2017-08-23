@@ -1,3 +1,4 @@
+{$peek_context = CerberusContexts::CONTEXT_CALENDAR}
 {$form_id = "frmCalendarPeek{uniqid()}"}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
@@ -34,7 +35,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_CALENDAR context_id=$model->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {* Datasources *}
 
@@ -119,7 +120,7 @@
 
 <div class="buttons">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

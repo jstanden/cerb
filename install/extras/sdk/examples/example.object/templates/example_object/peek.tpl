@@ -1,3 +1,4 @@
+{$peek_context = Context_ExampleObject::ID}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmExampleObject">
 <input type="hidden" name="c" value="example.objects">
 <input type="hidden" name="a" value="saveEntryPopup">
@@ -41,7 +42,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=Context_ExampleObject::ID context_id=$model->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
@@ -57,7 +58,7 @@
 
 <div class="toolbar">
 	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmExampleObject','{$view_id}',false,'example_object_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $model->id}<button type="button" onclick="$toolbar=$(this).closest('div.toolbar').fadeOut();$toolbar.siblings('fieldset.delete').fadeIn();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$toolbar=$(this).closest('div.toolbar').fadeOut();$toolbar.siblings('fieldset.delete').fadeIn();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>

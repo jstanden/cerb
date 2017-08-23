@@ -37,7 +37,6 @@
 		</tr>
 		
 		{* Group/Bucket *}
-		{if $active_worker->hasPriv('core.ticket.actions.move')}
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="middle" align="right">Bucket: </td>
 			<td width="100%">
@@ -62,7 +61,6 @@
 				</div>
 			</td>
 		</tr>
-		{/if}
 		
 		{* Status *}
 		<tr>
@@ -71,7 +69,7 @@
 				<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" onclick="toggleDiv('ticketClosed','none');" {if $ticket->status_id == Model_Ticket::STATUS_OPEN}checked{/if}> {'status.open'|devblocks_translate|capitalize}</label>
 				<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" onclick="toggleDiv('ticketClosed','block');" {if $ticket->status_id == Model_Ticket::STATUS_WAITING}checked{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
 				{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->status_id == Model_Ticket::STATUS_CLOSED)}<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" onclick="toggleDiv('ticketClosed','block');" {if $ticket->status_id == Model_Ticket::STATUS_CLOSED}checked{/if}> {'status.closed'|devblocks_translate|capitalize}</label>{/if}
-				{if $active_worker->hasPriv('core.ticket.actions.delete') || ($ticket->status_id == Model_Ticket::STATUS_DELETED)}<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_DELETED}" onclick="toggleDiv('ticketClosed','none');" {if $ticket->status_id == Model_Ticket::STATUS_DELETED}checked{/if}> {'status.deleted'|devblocks_translate|capitalize}</label>{/if}
+				{if $active_worker->hasPriv("contexts.{$peek_context}.delete") || ($ticket->status_id == Model_Ticket::STATUS_DELETED)}<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_DELETED}" onclick="toggleDiv('ticketClosed','none');" {if $ticket->status_id == Model_Ticket::STATUS_DELETED}checked{/if}> {'status.deleted'|devblocks_translate|capitalize}</label>{/if}
 				
 				<div id="ticketClosed" style="display:{if in_array($ticket->status_id,[Model_Ticket::STATUS_WAITING,Model_Ticket::STATUS_CLOSED])}block{else}none{/if};margin:5px 0px 5px 15px;">
 					<b>{'display.reply.next.resume'|devblocks_translate}:</b><br>

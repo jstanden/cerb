@@ -6,14 +6,16 @@
 		<a href="javascript:;" class="dashboard-widget-menu"><span class="glyphicons glyphicons-cogwheel"></span></a>
 		
 		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;margin-left:-180px;">
-			{if Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker)}
+			{if Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.update")}
 			<li><a href="javascript:;" class="dashboard-widget-edit" onclick="genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id={$widget->id}',null,false,'50%');">Configure</a></li>
 			{/if}
 			<li><a href="javascript:;" class="dashboard-widget-refresh" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1');">Refresh</a></li>
 			
+			{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.export")}
 			<li><a href="javascript:;" class="dashboard-widget-export" onclick="genericAjaxPopup('widget_export','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetExportPopup&widget_id={$widget->id}',null,false,'650');">Export Widget</a></li>
+			{/if}
 			
-			{if $widget_extension instanceof ICerbWorkspaceWidget_ExportData}
+			{if $widget_extension instanceof ICerbWorkspaceWidget_ExportData && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.export")}
 			<li><a href="javascript:;" class="dashboard-widget-export-data" onclick="genericAjaxPopup('widget_export_data','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetExportDataPopup&widget_id={$widget->id}',null,false,'650');">Export Data</a></li>
 			{/if}
 		</ul>

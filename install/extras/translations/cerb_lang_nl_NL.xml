@@ -23,11 +23,6 @@
 				<seg>[Toon ticket] Kan tickets doorsturen naar e-mailadressen van derden</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.note">
-			<tuv xml:lang="nl_NL">
-				<seg>[Toon ticket] Kan sticky note toevoegen aan tickets</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.reply">
 			<tuv xml:lang="nl_NL">
 				<seg>[Toon ticket] Kan tickets beantwoorden</seg>
@@ -43,39 +38,14 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.assign">
-			<tuv xml:lang="nl_NL">
-				<seg>[Tickets] Kan tickets aan andere werkers toewijzen</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.close">
 			<tuv xml:lang="nl_NL">
 				<seg>[Tickets] Kan tickets sluiten</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.delete">
-			<tuv xml:lang="nl_NL">
-				<seg>[Tickets] Kan tickets verwijderen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.actions.move">
-			<tuv xml:lang="nl_NL">
-				<seg>[Tickets] Kan tickets verplaatsen</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.spam">
 			<tuv xml:lang="nl_NL">
 				<seg>[Tickets] Kan tickets als spam rapporteren</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.assign">
-			<tuv xml:lang="nl_NL">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.unassign">
-			<tuv xml:lang="nl_NL">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="acl.reports.group.custom_fields">

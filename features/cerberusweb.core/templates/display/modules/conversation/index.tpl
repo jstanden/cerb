@@ -1,5 +1,5 @@
 <form style="margin:5px;">
-	<button type="button" id="btnComment" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_TICKET} context.id:{$ticket->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+	{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_TICKET}.comment")}<button type="button" id="btnComment" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_TICKET} context.id:{$ticket->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
 	{if !$expand_all}<button id="btnReadAll" title="{'display.shortcut.read_all'|devblocks_translate}" type="button" onclick="document.location='{devblocks_url}c=profiles&type=ticket&id={$ticket->mask}&tab=conversation&opt=read_all{/devblocks_url}';"><span class="glyphicons glyphicons-book-open"></span> {'display.button.read_all'|devblocks_translate|capitalize}</button>{/if} 
 </form>
 

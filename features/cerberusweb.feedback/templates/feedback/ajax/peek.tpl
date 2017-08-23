@@ -1,3 +1,4 @@
+{$peek_context = CerberusContexts::CONTEXT_FEEDBACK}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmFeedbackEntry">
 <input type="hidden" name="c" value="feedback">
 <input type="hidden" name="a" value="saveEntry">
@@ -42,14 +43,14 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_FEEDBACK context_id=$model->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 <input type="hidden" name="source_extension_id" value="{$source_extension_id}">
 <input type="hidden" name="source_id" value="{$source_id}">
 <br>
 
-<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmFeedbackEntry', '{$view_id}');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-{if !empty($model->id) && $active_worker->id == $model->worker_id || $active_worker->hasPriv('contexts.cerberusweb.contexts.feedback.delete')}<button type="button" onclick="if(confirm('Permanently delete this feedback?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'frmFeedbackEntry', '{$view_id}'); } "><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+{if (!$model->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($model->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" onclick="genericAjaxPopupPostCloseReloadView(null,'frmFeedbackEntry', '{$view_id}');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
+{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="if(confirm('Permanently delete this feedback?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'frmFeedbackEntry', '{$view_id}'); } "><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 
 </form>
 

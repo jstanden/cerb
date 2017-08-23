@@ -163,7 +163,7 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
-		{if $active_worker->hasPriv('contexts.{$view_context}.update.bulk')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=internal&a=showSnippetBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 	</div>
 	{/if}
 </div>

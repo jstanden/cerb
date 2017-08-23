@@ -23,11 +23,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.note">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.reply">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -38,37 +33,12 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.assign">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.close">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.delete">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.actions.move">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.spam">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.assign">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.unassign">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

@@ -112,7 +112,7 @@
 				<div id="subject_{$result.f_id}_{$view->id}" style="margin:5px;margin-left:10px;font-size:12px;">
 					<input type="checkbox" name="row_id[]" value="{$result.f_id}" style="display:none;">
 					{$result.f_quote_text} 
-					{if ($active_worker->hasPriv('contexts.cerberusweb.contexts.feedback.create') && $result.f_worker_id==$active_worker->id) || $active_worker->hasPriv('contexts.cerberusweb.contexts.feedback.update')}
+					{if $active_worker->hasPriv('contexts.cerberusweb.contexts.feedback.update')}
 						<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_FEEDBACK}&context_id={$result.f_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 					{/if}
 				</div>
@@ -147,7 +147,7 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
-		{if $active_worker->hasPriv('contexts.{$view_context}.update.bulk')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=feedback&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=feedback&a=showBulkPanel&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 	</div>
 	{/if}
 </div>

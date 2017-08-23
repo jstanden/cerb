@@ -14,7 +14,7 @@
 		</span>
 		
 		<!-- Edit -->
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		<button type="button" id="btnDisplaySkillsetEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>

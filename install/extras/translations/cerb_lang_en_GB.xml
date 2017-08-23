@@ -13,11 +13,6 @@
 				<seg>[Tickets] Can forward tickets to third-party email addresses</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.note">
-			<tuv xml:lang="en_GB">
-				<seg>[Tickets] Can add sticky notes to tickets</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.reply">
 			<tuv xml:lang="en_GB">
 				<seg>[Tickets] Can reply to tickets</seg>
@@ -33,39 +28,14 @@
 				<seg>[Mail] Can save replies to the ticket history without sending mail</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.assign">
-			<tuv xml:lang="en_GB">
-				<seg>[Tickets] Can assign tickets to other workers</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.close">
 			<tuv xml:lang="en_GB">
 				<seg>[Tickets] Can close tickets</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.delete">
-			<tuv xml:lang="en_GB">
-				<seg>[Tickets] Can delete tickets</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.actions.move">
-			<tuv xml:lang="en_GB">
-				<seg>[Tickets] Can move tickets</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.spam">
 			<tuv xml:lang="en_GB">
 				<seg>[Tickets] Can report tickets as spam</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.assign">
-			<tuv xml:lang="en_GB">
-				<seg>[Watchers] Can add other workers as watchers</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.unassign">
-			<tuv xml:lang="en_GB">
-				<seg>[Watchers] Can remove other workers as watchers</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.reports.group.bots">

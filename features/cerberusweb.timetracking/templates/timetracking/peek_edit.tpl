@@ -1,3 +1,4 @@
+{$peek_context = CerberusContexts::CONTEXT_TIMETRACKING}
 {$form_id = uniqid()}
 {if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
 
@@ -74,7 +75,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TIMETRACKING context_id=$model->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
@@ -108,7 +109,7 @@
 	<button type="button" class="cancel"><span class="glyphicons glyphicons-stop" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 {else}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+	{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 {/if}
 </div>
 

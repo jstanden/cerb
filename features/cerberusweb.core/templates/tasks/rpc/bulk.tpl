@@ -92,7 +92,6 @@
 		</tr>
 		{/if}
 
-		{if $active_worker->hasPriv('core.watchers.assign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="left" valign="top">
 				<label>
@@ -107,9 +106,7 @@
 				</div>
 			</td>
 		</tr>
-		{/if}
 		
-		{if $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="left" valign="top">
 				<label>
@@ -124,7 +121,6 @@
 				</div>
 			</td>
 		</tr>
-		{/if}
 		
 	</table>
 </fieldset>

@@ -7,7 +7,7 @@
 <div class="cerb-profile-toolbar">
 	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
 		<!-- Edit -->
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		<button type="button" id="btnDisplayFileBundleEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 		
@@ -95,7 +95,7 @@ $(function() {
 
 	var tabs = $("#file_bundleTabs").tabs(tabOptions);
 	
-	{if $is_writeable}
+	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 	$('#btnDisplayFileBundleEdit').bind('click', function() {
 		var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
 		$popup.one('file_bundle_save', function(event) {

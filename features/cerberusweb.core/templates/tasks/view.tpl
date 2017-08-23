@@ -167,7 +167,7 @@
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-always-show action-explore"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
-		{if $active_worker->hasPriv('contexts.{$view_context}.update.bulk')}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=task&action=showBulkPopup&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=task&action=showBulkPopup&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		<button type="button" class="action-close" onclick="genericAjaxPost($(this).closest('form'),'view{$view->id}','c=profiles&a=handleSectionAction&section=task&action=viewMarkCompleted');"><span class="glyphicons glyphicons-circle-ok"></span> {'status.closed'|devblocks_translate|lower}</button>
 	</div>
 	{/if}

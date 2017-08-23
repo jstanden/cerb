@@ -30,7 +30,7 @@
 			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
 			
 			<!-- Edit -->
-			{if $is_writeable}
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 			<button type="button" id="btnDisplayContactEdit" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</button>
 			{/if}
 			

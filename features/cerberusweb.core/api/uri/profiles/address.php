@@ -170,9 +170,6 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			@$is_defunct = DevblocksPlatform::importGPC($_REQUEST['is_defunct'],'bit',0);
 			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 			
-			if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.address.update'))
-				throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
-				
 			// Common fields
 			$fields = array(
 				DAO_Address::CONTACT_ORG_ID => $org_id,
@@ -182,6 +179,9 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			);
 			
 			if(empty($id)) {
+				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.address.create'))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+				
 				if(empty($email))
 					throw new Exception_DevblocksAjaxValidationError("The 'Email' field is required.", 'email');
 				
@@ -212,6 +212,9 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 				}
 				
 			} else {
+				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.address.update'))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+				
 				if(false != ($address = DAO_Address::get($id))) {
 					$email = $address->email;
 					DAO_Address::update($id, $fields);

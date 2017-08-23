@@ -1,3 +1,4 @@
+{$peek_context = CerberusContexts::CONTEXT_MAILBOX}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmMailboxPeek">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
@@ -114,7 +115,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_MAILBOX context_id=$model->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
@@ -139,7 +140,7 @@
 <div class="buttons">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {$translate->_('common.save_changes')|capitalize}</button>
 	<button type="button" class="tester"><span class="glyphicons glyphicons-cogwheel"></span> {'common.test'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 {if !empty($model->id)}

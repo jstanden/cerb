@@ -23,11 +23,6 @@
 				<seg>[Mostrar Ticket] Pode encaminhar tickets para endereços de email de terceiros</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.note">
-			<tuv xml:lang="pt_PT">
-				<seg>[Mostrar Ticket] Pode adicionar notas aos tickets</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.reply">
 			<tuv xml:lang="pt_PT">
 				<seg>[Mostrar Ticket] Pode responder aos tickets</seg>
@@ -43,39 +38,14 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.assign">
-			<tuv xml:lang="pt_PT">
-				<seg>[Tickets] Pode atribuir tarefas a outros agentes</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.close">
 			<tuv xml:lang="pt_PT">
 				<seg>[Tickets] Pode fechar tickets</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.delete">
-			<tuv xml:lang="pt_PT">
-				<seg>[Tickets] Pode eliminar tickets</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.actions.move">
-			<tuv xml:lang="pt_PT">
-				<seg>[Tickets] Pode mover tickets</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.spam">
 			<tuv xml:lang="pt_PT">
 				<seg>[Tickets] Pode reportar tickets como SPAM</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.assign">
-			<tuv xml:lang="pt_PT">
-				<seg>[Observadores] Pode adicionar outros colaboradores como observadores</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.unassign">
-			<tuv xml:lang="pt_PT">
-				<seg>[Observadores] Pode remover outros colaboradores como observadores</seg>
 			</tuv>
 		</tu>
 		<tu tuid="acl.reports.group.custom_fields">

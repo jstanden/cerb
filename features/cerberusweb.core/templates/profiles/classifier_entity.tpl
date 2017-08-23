@@ -16,7 +16,7 @@
 		</span>
 		
 		<!-- Edit -->
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		<button type="button" id="btnDisplayClassifierEntityEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -86,7 +86,7 @@ $(function() {
 	var tabs = $("#classifier_entityTabs").tabs(tabOptions);
 
 	// Edit
-	{if $is_writeable}
+	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 	$('#btnDisplayClassifierEntityEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {

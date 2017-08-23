@@ -14,7 +14,7 @@
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
 		<!-- Edit -->
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		<button type="button" id="btnDisplayConnectedAccountEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -81,7 +81,7 @@ $(function() {
 
 	var tabs = $("#connected_accountTabs").tabs(tabOptions);
 	
-	{if $is_writeable}
+	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 	$('#btnDisplayConnectedAccountEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {

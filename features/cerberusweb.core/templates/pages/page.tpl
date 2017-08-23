@@ -19,11 +19,11 @@
 			--><button class="config-page split-right" type="button"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 			<ul class="cerb-popupmenu cerb-float">
 				{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
-					<li><a href="javascript:;" class="edit-page">Edit Page</a></li>
-					{if $page->extension_id == 'core.workspace.page.workspace'}<li><a href="javascript:;" class="edit-tab">Edit Tab</a></li>{/if}
+					{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.update")}<li><a href="javascript:;" class="edit-page">Edit Page</a></li>{/if}
+					{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.update")}<li><a href="javascript:;" class="edit-tab">Edit Tab</a></li>{/if}
 				{/if}
-				<li><a href="javascript:;" class="export-page">Export Page</a></li>
-				{if $page->extension_id == 'core.workspace.page.workspace'}<li><a href="javascript:;" class="export-tab">Export Tab</a></li>{/if}
+				{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.export")}<li><a href="javascript:;" class="export-page">Export Page</a></li>{/if}
+				{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.export")}<li><a href="javascript:;" class="export-tab">Export Tab</a></li>{/if}
 			</ul>
 		</div>
 	</div>

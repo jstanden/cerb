@@ -14,7 +14,7 @@
 		
 			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
 			
-			{if $active_worker->id == $dict->worker_id || $active_worker->hasPriv('contexts.cerberusweb.contexts.timetracking.update')}
+			{if $active_worker->id == $dict->worker_id && $active_worker->hasPriv("contexts.{$peek_context}.update")}
 			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 			{/if}
 			

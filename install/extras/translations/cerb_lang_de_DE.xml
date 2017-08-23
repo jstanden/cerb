@@ -23,11 +23,6 @@
 				<seg>[Ticketansicht] Kann Tickets an Dritte weiterleiten</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.note">
-			<tuv xml:lang="de_DE">
-				<seg>[Ticketansicht] Kann Tickets wichtige Notizen hinzufügen</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.reply">
 			<tuv xml:lang="de_DE">
 				<seg>[Ticketansicht] Kann Tickets beantworten</seg>
@@ -43,39 +38,14 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.assign">
-			<tuv xml:lang="de_DE">
-				<seg>[Tickets] Kann Tickets anderen Bearbeitern zuweisen</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.close">
 			<tuv xml:lang="de_DE">
 				<seg>[Tickets] Kann Tickets schließen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.delete">
-			<tuv xml:lang="de_DE">
-				<seg>[Tickets] Kann Tickets löschen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.ticket.actions.move">
-			<tuv xml:lang="de_DE">
-				<seg>[Tickets] Kann Tickets verschieben</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.spam">
 			<tuv xml:lang="de_DE">
 				<seg>[Tickets] Kann Tickets als Spam markieren</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.assign">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.unassign">
-			<tuv xml:lang="de_DE">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="acl.reports.group.custom_fields">

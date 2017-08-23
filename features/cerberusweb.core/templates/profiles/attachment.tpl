@@ -10,7 +10,7 @@
 		{if $is_downloadable}
 			<button type="button" id="btnDisplayAttachmentDownload"><span class="glyphicons glyphicons-cloud-download"></span> {'common.download'|devblocks_translate|capitalize}</button>
 		{/if}
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 			<button type="button" id="btnDisplayAttachmentEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -92,7 +92,7 @@ $(function() {
 	
 	// Edit
 	
-	{if $is_writeable}
+	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 	$('#btnDisplayAttachmentEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {

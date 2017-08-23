@@ -23,11 +23,6 @@
 				<seg>[Показ заявки] Может пересылать заявки на сторонние адреса электронной почты</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.display.actions.note">
-			<tuv xml:lang="ru_RU">
-				<seg>[Показ заявки] Может добавлять стикеры к заявкам</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.display.actions.reply">
 			<tuv xml:lang="ru_RU">
 				<seg>[Показ заявки] Может отвечать на заявки</seg>
@@ -43,34 +38,14 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.assign">
-			<tuv xml:lang="ru_RU">
-				<seg>[Заявки] Может назначать заявки другим сотрудникам</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.close">
 			<tuv xml:lang="ru_RU">
 				<seg>[Заявки] Может закрывать заявки</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.core.ticket.actions.move">
-			<tuv xml:lang="ru_RU">
-				<seg>[Заявки] Может передвигать заявки между очередями</seg>
-			</tuv>
-		</tu>
 		<tu tuid="acl.core.ticket.actions.spam">
 			<tuv xml:lang="ru_RU">
 				<seg>[Заявки] Может помечать заявки как спам</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.assign">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.core.watchers.unassign">
-			<tuv xml:lang="ru_RU">
-				<seg/>
 			</tuv>
 		</tu>
 		<tu tuid="acl.reports.group.custom_fields">

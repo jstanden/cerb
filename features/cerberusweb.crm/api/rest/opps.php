@@ -249,7 +249,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid opportunity ID '%d'", $id));
 			
 		// ACL
-		if(!($worker->hasPriv('contexts.cerberusweb.contexts.opp.update') || $opp->worker_id==$worker->id))
+		if(!($worker->hasPriv('contexts.cerberusweb.contexts.opportunity.update') || $opp->worker_id==$worker->id))
 			$this->error(self::ERRNO_ACL);
 		
 		$putfields = array(
@@ -321,7 +321,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-		if(!$worker->hasPriv('contexts.cerberusweb.contexts.opp.create'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.opportunity.create'))
 			$this->error(self::ERRNO_ACL);
 		
 		$postfields = array(
@@ -397,7 +397,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid opp ID %d", $id));
 
 		// ACL
-		if(!$worker->hasPriv('contexts.cerberusweb.contexts.opp.update'))
+		if(!$worker->hasPriv('contexts.cerberusweb.contexts.opportunity.update'))
 			$this->error(self::ERRNO_ACL);
 		
 		// Required fields

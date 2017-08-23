@@ -19,7 +19,6 @@
 	<legend>Set Fields</legend>
 	<table cellspacing="0" cellpadding="2" width="100%">
 	
-		{if $active_worker->hasPriv('core.watchers.assign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Add watchers:</td>
 			<td width="100%">
@@ -29,9 +28,7 @@
 				</div>
 			</td>
 		</tr>
-		{/if}
 		
-		{if $active_worker->hasPriv('core.watchers.unassign')}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">Remove watchers:</td>
 			<td width="100%">
@@ -41,7 +38,6 @@
 				</div>
 			</td>
 		</tr>
-		{/if}
 		
 	</table>
 </fieldset>

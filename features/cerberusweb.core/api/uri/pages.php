@@ -822,6 +822,10 @@ class Page_Custom extends CerberusPageExtension {
 		}
 	
 		if(!empty($workspace_page_id) && $do_delete) { // Delete
+			if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WORKSPACE_PAGE)))
+				return;
+				//throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+			
 			DAO_WorkspacePage::delete($workspace_page_id);
 	
 		} else { // Create/Edit
@@ -843,7 +847,7 @@ class Page_Custom extends CerberusPageExtension {
 					$owner_context = null;
 			}
 			
-			if(!CerberusContexts::isWriteableByActor($owner_context, $owner_context_id, $active_worker)) {
+			if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker)) {
 				$owner_context = null;
 				$owner_context_id = null;
 			}
@@ -854,6 +858,9 @@ class Page_Custom extends CerberusPageExtension {
 			}
 				
 			if(empty($workspace_page_id)) {
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_WORKSPACE_PAGE)))
+					return;
+				
 				// Extension
 				$fields[DAO_WorkspacePage::EXTENSION_ID] = $extension_id;
 	
@@ -872,6 +879,9 @@ class Page_Custom extends CerberusPageExtension {
 				}
 				
 			} else {
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_WORKSPACE_PAGE)))
+					return;
+				
 				DAO_WorkspacePage::update($workspace_page_id, $fields);
 	
 			}
@@ -918,7 +928,7 @@ class Page_Custom extends CerberusPageExtension {
 					break;
 			}
 			
-			if(!CerberusContexts::isWriteableByActor($owner_context, $owner_context_id, $active_worker))
+			if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
 				throw new Exception();
 			
 			if(empty($owner_context))

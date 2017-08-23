@@ -125,6 +125,9 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 				throw new Exception_DevblocksAjaxValidationError("The 'gnupg' PHP extension is not enabled.");
 			
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_GPG_PUBLIC_KEY)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_GpgPublicKey::delete($id);
 				
 				echo json_encode(array(
@@ -139,6 +142,9 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 				@$public_key = DevblocksPlatform::importGPC($_REQUEST['public_key'], 'string', '');
 				
 				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_GPG_PUBLIC_KEY)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
 					if(empty($public_key))
 						throw new Exception_DevblocksAjaxValidationError("The 'Key' field is required.", 'public_key');
 					
@@ -198,8 +204,37 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $id);
 					}
 					
+					if($id) {
+						// Links
+						$uid_emails = [];
+						
+						foreach($keyinfo['uids'] as $idx => $uid) {
+							if(!isset($uid['email']))
+								continue;
+							
+							$uid_emails[DevblocksPlatform::strLower($uid['email'])] = true;
+						}
+						
+						$email_addys = DAO_Address::lookupAddresses(array_keys($uid_emails), true);
+						
+						if(is_array($email_addys))
+						foreach($email_addys as $email_addy) {
+							DAO_ContextLink::setLink(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $id, CerberusContexts::CONTEXT_ADDRESS, $email_addy->id);
+							
+							// Has contact
+							if($email_addy->contact_id)
+								DAO_ContextLink::setLink(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $id, CerberusContexts::CONTEXT_CONTACT, $email_addy->contact_id);
+							
+							// Has bare org
+							if($email_addy->contact_org_id && !$email_addy->contact_id)
+								DAO_ContextLink::setLink(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $id, CerberusContexts::CONTEXT_ORG, $email_addy->contact_org_id);
+						}
+					}
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_GPG_PUBLIC_KEY)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
 					$fields = array(
 						DAO_GpgPublicKey::NAME => $name,
 						DAO_GpgPublicKey::UPDATED_AT => time(),
@@ -209,31 +244,6 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 				}
 				
 				if($id) {
-					// Links
-					
-					$uid_emails = [];
-					
-					foreach($keyinfo['uids'] as $idx => $uid) {
-						if(!isset($uid['email']))
-							continue;
-						
-						$uid_emails[DevblocksPlatform::strLower($uid['email'])] = true;
-					}
-					
-					$email_addys = DAO_Address::lookupAddresses(array_keys($uid_emails), true);
-					
-					foreach($email_addys as $email_addy) {
-						DAO_ContextLink::setLink(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $id, CerberusContexts::CONTEXT_ADDRESS, $email_addy->id);
-						
-						// Has contact
-						if($email_addy->contact_id)
-							DAO_ContextLink::setLink(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $id, CerberusContexts::CONTEXT_CONTACT, $email_addy->contact_id);
-						
-						// Has bare org
-						if($email_addy->contact_org_id && !$email_addy->contact_id)
-							DAO_ContextLink::setLink(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $id, CerberusContexts::CONTEXT_ORG, $email_addy->contact_org_id);
-					}
-					
 					// Custom fields
 					
 					@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());

@@ -1344,7 +1344,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
 			{/if}
 		
-			{if $is_writeable}
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
 			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 			{/if}
 			
@@ -1408,7 +1408,7 @@ $(function() {
 		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
 		// Edit button
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
@@ -1460,6 +1460,7 @@ $(function() {
 
 <b>templates/<?php echo $table_name; ?>/peek_edit.tpl</b><br>
 <textarea style="width:98%;height:200px;">
+{$peek_context = '<?php echo $ctx_ext_id; ?>'}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
@@ -1492,7 +1493,7 @@ $(function() {
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context='<?php echo $ctx_ext_id; ?>' context_id=$model->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 <fieldset class="peek">
 	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
@@ -1516,7 +1517,7 @@ $(function() {
 
 <div class="buttons">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -2056,7 +2057,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		</span>
 		
 		<!-- Edit -->
-		{if $is_writeable}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		<button type="button" id="btnDisplay<?php echo $class_name; ?>Edit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
@@ -2128,7 +2129,7 @@ $(function() {
 	$('#btnProfileCard').cerbPeekTrigger();
 	
 	// Edit
-	{if $is_writeable}
+	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 	$('#btnDisplay<?php echo $class_name; ?>Edit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {

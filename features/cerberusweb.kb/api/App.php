@@ -306,11 +306,15 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	
 	function showArticleEditPanelAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.update'))
-			return;
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$root_id = DevblocksPlatform::importGPC($_REQUEST['root_id']);
+		
+		if(!$id && !$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.create'))
+			return;
+		
+		if($id && !$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.update'))
+			return;
 		
 		$tpl = DevblocksPlatform::services()->template();
 
@@ -347,8 +351,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 
 	function saveArticleEditPanelAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.update'))
-			return;
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -372,6 +374,9 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 				$title = '(' . $translate->_('kb_article.title') . ')';
 			
 			if(empty($id)) { // create
+				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.create'))
+					return;
+				
 				$fields = array(
 					DAO_KbArticle::TITLE => $title,
 					DAO_KbArticle::FORMAT => $format,
@@ -386,6 +391,9 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 				}
 				
 			} else { // update
+				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.update'))
+					return;
+				
 				$fields = array(
 					DAO_KbArticle::TITLE => $title,
 					DAO_KbArticle::FORMAT => $format,
@@ -415,11 +423,15 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	
 	function showKbCategoryEditPanelAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.update'))
-			return;
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$root_id = DevblocksPlatform::importGPC($_REQUEST['root_id']);
+		
+		if(!$id && !$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.create'))
+			return;
+		
+		if($id && !$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.update'))
+			return;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -448,8 +460,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		header('Content-type: application/json');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.update'))
-			return;
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string');
@@ -459,11 +469,17 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		$refresh_id = 0;
 		
 		if(!empty($id) && !empty($delete)) {
+			if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.delete'))
+				return;
+			
 			$ids = DAO_KbCategory::getDescendents($id);
 			DAO_KbCategory::delete($ids);
 			$refresh_id = $parent_id;
 			
 		} elseif(empty($id)) { // create
+			if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.create'))
+				return;
+			
 			$fields = array(
 				DAO_KbCategory::NAME => $name,
 				DAO_KbCategory::PARENT_ID => $parent_id,
@@ -472,6 +488,9 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			$refresh_id = $parent_id;
 			
 		} else { // update
+			if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.kb_category.update'))
+				return;
+			
 			$fields = array(
 				DAO_KbCategory::NAME => $name,
 				DAO_KbCategory::PARENT_ID => $parent_id,

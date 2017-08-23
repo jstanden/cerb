@@ -1,3 +1,4 @@
+{$peek_context = CerberusContexts::CONTEXT_BUCKET}
 {$form_id = "frmBucketPeek{uniqid()}"}
 
 {$types = $values._types}
@@ -128,7 +129,7 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_BUCKET context_id=$bucket->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$bucket->id}
 
 {if !empty($bucket->id)}
 <fieldset style="display:none;" class="delete">
@@ -155,7 +156,7 @@
 
 <div class="buttons">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($bucket->id) && !$bucket->is_default}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if !empty($bucket->id) && !$bucket->is_default && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
