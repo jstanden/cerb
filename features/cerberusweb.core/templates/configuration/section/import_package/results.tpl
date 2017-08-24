@@ -10,7 +10,7 @@
 	
 	<ul class="bubbles">
 	{foreach from=$records_created[CerberusContexts::CONTEXT_CUSTOM_FIELDSET] item=record key=context}
-	<li><a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=handleSectionAction&section=custom_fieldsets&action=showCustomFieldsetPeek&id={$record.id}', null, false, '50%');">{$record.label}</a></li>
+	<li><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-context-id="{$record.id}">{$record.label}</a></li>
 	{/foreach}
 	</ul>
 </fieldset>

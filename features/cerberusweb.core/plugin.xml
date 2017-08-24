@@ -1731,8 +1731,10 @@
 				</param>
 				<param key="acl">
 					<value>
+						<data key="comment" />
 						<data key="create" />
 						<data key="delete" />
+						<data key="export" />
 						<data key="update" />
 					</value>
 				</param>
@@ -4766,6 +4768,19 @@
 				</params>
 			</extension>
 			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.custom_fieldset</id>
+				<name>Custom Fieldset Section</name>
+				<class>
+					<file>api/uri/profiles/custom_fieldset.php</file>
+					<name>PageSection_ProfilesCustomFieldset</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="custom_fieldset" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.context_saved_search</id>
 				<name>Saved Search Section</name>

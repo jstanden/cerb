@@ -578,6 +578,9 @@ class Model_CustomFieldset {
 	 * @return Model_CustomField[]
 	 */
 	function getCustomFields() {
+		if(!$this->id)
+			return [];
+		
 		$fields = DAO_CustomField::getAll();
 		$results = array();
 		
@@ -949,7 +952,9 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 	}
 };
 
-class Context_CustomFieldset extends Extension_DevblocksContext {
+class Context_CustomFieldset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = 'cerberusweb.contexts.custom_fieldset';
+	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $models, 'owner_', $ignore_admins);
 	}
@@ -960,6 +965,15 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 	
 	function getRandom() {
 		return DAO_CustomFieldset::random();
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::services()->url();
+		$url = $url_writer->writeNoProxy('c=profiles&type=custom_fieldset&id='.$context_id, true);
+		return $url;
 	}
 	
 	function getMeta($context_id) {
@@ -1000,7 +1014,6 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 	
 	function getDefaultProperties() {
 		return array(
-			'name',
 			'owner__label',
 		);
 	}
@@ -1176,5 +1189,107 @@ class Context_CustomFieldset extends Extension_DevblocksContext {
 		
 		$view->renderTemplate = 'context';
 		return $view;
+	}
+	
+	function showCustomFieldsetPeekAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+
+		$tpl->assign('view_id', $view_id);
+		$tpl->assign('layer', $layer);
+		
+
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/peek_edit.tpl');
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
+		
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		
+		if(!empty($context_id)) {
+			$model = DAO_CustomFieldset::get($context_id);
+			
+		} else {
+			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
+			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
+		
+			$model = new Model_CustomFieldset();
+			$model->id = 0;
+			$model->owner_context = !empty($owner_context) ? $owner_context : '';
+			$model->owner_context_id = $owner_context_id;
+		}
+		
+		if(empty($context_id) || $edit) {
+			if(isset($model))
+				$tpl->assign('model', $model);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			$custom_fields = $model->getCustomFields();
+			$tpl->assign('custom_fields', $custom_fields);
+			
+			// Contexts
+			
+			$contexts = Extension_DevblocksContext::getAll(false, array('custom_fields'));
+			$tpl->assign('contexts', $contexts);
+			
+			$link_contexts = Extension_DevblocksContext::getAll(false, array('workspace'));
+			$tpl->assign('link_contexts', $link_contexts);
+			
+			// Owner
+			
+			$owners_menu = Extension_DevblocksContext::getOwnerTree();
+			$tpl->assign('owners_menu', $owners_menu);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/peek.tpl');
+		}
 	}
 };
