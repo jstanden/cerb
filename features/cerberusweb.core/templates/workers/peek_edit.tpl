@@ -49,28 +49,28 @@
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap" align="right"><b>{'common.phone'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" align="right">{'common.phone'|devblocks_translate|capitalize}:</td>
 			<td width="99%">
 				<input type="text" name="phone" value="{$worker->phone}" style="width:98%;" autocomplete="off" spellcheck="false">
 			</td>
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap" align="right"><b>{'common.mobile'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" align="right">{'common.mobile'|devblocks_translate|capitalize}:</td>
 			<td width="99%">
 				<input type="text" name="mobile" value="{$worker->mobile}" style="width:98%;" autocomplete="off" spellcheck="false">
 			</td>
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap" align="right"><b>{'common.location'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" align="right">{'common.location'|devblocks_translate|capitalize}:</td>
 			<td width="99%">
 				<input type="text" name="location" value="{$worker->location}" style="width:98%;" autocomplete="off" spellcheck="false">
 			</td>
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top" align="right"><b>{'common.gender'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.gender'|devblocks_translate|capitalize}:</td>
 			<td width="99%">
 				<label><input type="radio" name="gender" value="M" {if $worker->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
 				 &nbsp; 
@@ -83,7 +83,7 @@
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap" align="right"><b>{'common.dob'|devblocks_translate|capitalize}:</b></td>
+			<td width="1%" nowrap="nowrap" align="right">{'common.dob'|devblocks_translate|capitalize}:</td>
 			<td width="99%">
 				<input type="text" name="dob" value="{if $worker->dob}{$worker->dob}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
 			</td>
