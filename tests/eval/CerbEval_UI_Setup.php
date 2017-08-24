@@ -436,8 +436,10 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			
 			$driver->executeScript(sprintf("$('div.minicolors ul.minicolors-swatches li:nth-child(%d)').click().parent().parent().hide();", $group['bgindex']));
 
-			$avatar_popup->findElement(WebDriverBy::name('initials'))
-				->sendKeys($group['emoji']);
+			// [JSJ] Headless Chrome doesn't support SMP unicode characters for sendKeys(), so we have to use jQuery to set the emoji
+			//$avatar_popup->findElement(WebDriverBy::name('initials'))
+			//	->sendKeys($group['emoji']);
+			$driver->executeScript(sprintf("$('body > div.ui-dialog:last-of-type input[name=\'initials\']').val('%s');", $group["emoji"]));
 			
 			$avatar_popup->findElement(WebDriverBy::cssSelector('fieldset.cerb-avatar-monogram button'))
 				->click();
