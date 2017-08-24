@@ -1274,44 +1274,95 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		$context = CerberusContexts::CONTEXT_FILE_BUNDLE;
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		if(!empty($context_id) && null != ($file_bundle = DAO_FileBundle::get($context_id))) {
+		$model = null;
+		
+		if(!empty($context_id) && null != ($model = DAO_FileBundle::get($context_id))) {
 			// ACL
-			if(!Context_FileBundle::isWriteableByActor($file_bundle, $active_worker))
+			if(!Context_FileBundle::isWriteableByActor($model, $active_worker))
 				return;
 			
-			$tpl->assign('model', $file_bundle);
+			$tpl->assign('model', $model);
 		}
 		
-		// Custom fields
-		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_FILE_BUNDLE, false);
-		$tpl->assign('custom_fields', $custom_fields);
-		
-		if(!empty($context_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_FILE_BUNDLE, $context_id);
-			if(isset($custom_field_values[$context_id]))
-				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+		if($edit) {
+			// Custom fields
+			
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+			
+			if(!empty($context_id)) {
+				$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+				if(isset($custom_field_values[$context_id]))
+					$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			}
+	
+			// Ownership
+	
+			$owners_menu = Extension_DevblocksContext::getOwnerTree(['app','group','role','worker']);
+			$tpl->assign('owners_menu', $owners_menu);
+			
+			// Attachments
+			
+			$attachments = DAO_Attachment::getByContextIds($context, $context_id);
+			$tpl->assign('attachments', $attachments);
+			
+			// Comments
+			
+			$comments = DAO_Comment::getByContext($context, $context_id);
+			$comments = array_reverse($comments, true);
+			$tpl->assign('comments', $comments);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/file_bundle/peek_edit.tpl');
+			
+		} else {
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$activity_counts = array(
+				'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+			
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			// Interactions
+			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+			$tpl->assign('interactions_menu', $interactions_menu);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/file_bundle/peek.tpl');
 		}
-
-		// Ownership
-
-		$owners_menu = Extension_DevblocksContext::getOwnerTree(['app','group','role','worker']);
-		$tpl->assign('owners_menu', $owners_menu);
-		
-		// Attachments
-		
-		$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_FILE_BUNDLE, $context_id);
-		$tpl->assign('attachments', $attachments);
-		
-		// Comments
-		
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_FILE_BUNDLE, $context_id);
-		$comments = array_reverse($comments, true);
-		$tpl->assign('comments', $comments);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/file_bundle/peek.tpl');
 	}
 };

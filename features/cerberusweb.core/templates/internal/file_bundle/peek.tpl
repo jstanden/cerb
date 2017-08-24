@@ -1,168 +1,116 @@
+{$div_id = "peek{uniqid()}"}
 {$peek_context = CerberusContexts::CONTEXT_FILE_BUNDLE}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmFileBundlePeek">
-<input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="file_bundle">
-<input type="hidden" name="action" value="savePeek">
-<input type="hidden" name="view_id" value="{$view_id}">
-{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
-<input type="hidden" name="do_delete" value="0">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+{$is_writeable = Context_FileBundle::isWriteableByActor($model, $active_worker)}
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
-	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-			</td>
-		</tr>
+<div id="{$div_id}">
+	<div style="float:left;">
+		<h1>
+			{$model->name}
+		</h1>
 		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.tag'|devblocks_translate}:</b></td>
-			<td width="99%">
-				<input type="text" name="tag" value="{$model->tag}" style="width:50%;" placeholder="example" title="This tag can be used in snippets and other text commands to quickly attach these files. The tag name can contain letters, numbers, dashes, and underscores, without spaces.">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-			</td>
-			<td width="99%">
-				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-			</td>
-		</tr>
-	</table>
-	
-</fieldset>
-
-<fieldset class="peek">
-	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-	
-	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
-	<ul class="chooser-container bubbles" style="display:inline-block;">
-		{foreach from=$attachments item=attachment}
-		<li>
-		{$attachment->name} ({$attachment->storage_size|devblocks_prettybytes:1})
-		<input type="hidden" name="file_ids[]" value="{$attachment->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
-		</li>
-		{/foreach}
-	</ul>
-</fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
-
-<fieldset class="peek">
-	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="2" cols="45" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
-</fieldset>
-
-{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to delete this file bundle?
+		<div style="margin-top:5px;">
+			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+			{if $model}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$model->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
+			{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$model->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
+		</div>
 	</div>
+</div>
+
+<div style="clear:both;padding-top:10px;"></div>
+
+{if !empty($properties)}
+<fieldset class="peek">
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
-	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<div class="cerb-properties-grid" data-column-width="100">
+		
+		{$labels = $dict->_labels}
+		{$types = $dict->_types}
+		{foreach from=$properties item=k name=props}
+		{if $dict->$k}
+		<div>
+			{if $k == 'xxx'}
+				<label>{$labels.$k}</label>
+				{$dict->$k}
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+			{/if}
+		</div>
+		{/if}
+		{/foreach}
+	</div>
 </fieldset>
 {/if}
 
-<div class="buttons">
-	{if (!$model->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($model->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmFileBundlePeek','{$view_id}', false, 'file_bundle_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {$translate->_('common.save_changes')|capitalize}</button>{/if}
-	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
-</div>
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$model->id}
 
-{if !empty($model->id)}
-<div style="float:right;">
-	<a href="{devblocks_url}c=profiles&type=file_bundle&id={$model->id}-{$model->name|devblocks_permalink}{/devblocks_url}">view full record</a>
-</div>
-<br clear="all">
-{/if}
-</form>
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$peek_context context_id=$dict->id view_id=$view_id}
+
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $div = $('#{$div_id}');
+	var $popup = genericAjaxPopupFind($div);
+	var $layer = $popup.attr('data-layer');
 	
-	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{'File Bundle'|escape:'javascript' nofilter}");
+	var $timeline = {$timeline_json|default:'{}' nofilter};
+
+	$popup.one('popup_open',function(event,ui) {
+		$popup.dialog('option','title', "{'common.file_bundle'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
-
-		var $textarea = $popup.find('textarea[name=comment]');
 		
-		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-
-		$textarea.autosize();
+		// Properties grid
+		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
-		// Owner
+		// Edit button
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
+		$popup.find('button.cerb-peek-edit')
+			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
+			.on('cerb-peek-saved', function(e) {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$model->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			.on('cerb-peek-deleted', function(e) {
+				genericAjaxPopupClose($layer);
+			})
+			;
+		{/if}
 		
-		var $owners_menu = $popup.find('fieldset:first ul.owners-menu');
-		var $ul = $owners_menu.siblings('ul.chooser-container');
+		// Comments
+		$popup.find('button.cerb-peek-comments-add')
+			.cerbPeekTrigger()
+			.on('cerb-peek-saved', function() {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$model->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			;
 		
-		$ul.on('bubble-remove', function(e, ui) {
-			e.stopPropagation();
-			$(e.target).closest('li').remove();
-			$ul.hide();
-			$owners_menu.show();
-		});
+		// Peeks
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
 		
-		$owners_menu.menu({
-			select: function(event, ui) {
-				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
+		// Searches
+		$popup.find('button.cerb-search-trigger')
+			.cerbSearchTrigger()
+			;
+		
+		// View profile
+		$popup.find('.cerb-peek-profile').click(function(e) {
+			if(e.shiftKey || e.metaKey) {
+				window.open('{devblocks_url}c=profiles&type=file_bundle&id={$model->id}-{$model->name|devblocks_permalink}{/devblocks_url}', '_blank');
 				
-				if(undefined == token || undefined == label)
-					return;
-				
-				$owners_menu.hide();
-				
-				// Build bubble
-				
-				var context_data = token.split(':');
-				var $li = $('<li/>');
-				var $label = $('<a href="javascript:;" class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
-				$label.cerbPeekTrigger().appendTo($li);
-				var $hidden = $('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
-				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				var $a = $('<a href="javascript:;" onclick="$(this).trigger(\'bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
-				
-				$ul.find('> *').remove();
-				$ul.append($li);
-				$ul.show();
+			} else {
+				document.location='{devblocks_url}c=profiles&type=file_bundle&id={$model->id}-{$model->name|devblocks_permalink}{/devblocks_url}';
 			}
 		});
 		
-		// Attachments
+		// Interactions
+		var $interaction_container = $popup;
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
 		
-		$popup.find('button.chooser_file').each(function() {
-			ajax.chooserFile(this,'file_ids');
-		});
-		
-		// @mentions
-		
-		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-
-		$textarea.atwho({
-			at: '@',
-			{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-			{literal}insertTpl: '@${at_mention}',{/literal}
-			data: atwho_workers,
-			searchKey: '_index',
-			limit: 10
-		});
+		// Timeline
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
 	});
-});	
+});
 </script>
