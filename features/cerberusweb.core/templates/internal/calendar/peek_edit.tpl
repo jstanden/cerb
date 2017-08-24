@@ -207,6 +207,8 @@ $(function() {
 				$params.fadeOut();
 			}
 		});
+		
+		$popup.find('input:text[name=name]').focus();
 	});
 });
 </script>

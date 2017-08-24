@@ -130,8 +130,6 @@ $(function() {
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', 'Sender Address');
 		
-		$popup.find('textarea[name=reply_signature]').autosize();
-		
 		// Placeholders
 		
 		var $placeholder_menu_trigger = $popup.find('button.cerb-popupmenu-trigger');

@@ -121,6 +121,9 @@ $(function() {
 				$ul.show();
 			}
 		});
+		
+		// Focus
+		$popup.find('input:text[name=name]').focus();
 	});
 });
 </script>

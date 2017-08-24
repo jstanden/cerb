@@ -165,6 +165,9 @@ $(function() {
 		// Triggers
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		$popup.find('.chooser-abstract').cerbChooserTrigger();
+		
+		// Focus
+		$popup.find('input:text[name=event_name]').focus();
 	});
 });
 </script>
