@@ -36,6 +36,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			->addField(self::CONTENT)
 			->string()
 			->setMaxLength(4294967295)
+			->setRequired(true)
 			;
 		// varchar(255)
 		$validation

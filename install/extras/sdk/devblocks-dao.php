@@ -1875,6 +1875,9 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", '<?php echo $ctx_ext_id; ?>')))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_<?php echo $class_name; ?>::delete($id);
 				
 				echo json_encode(array(
@@ -1892,20 +1895,34 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
 				
 				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", '<?php echo $ctx_ext_id; ?>')))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+				
 					$fields = array(
 						DAO_<?php echo $class_name; ?>::UPDATED_AT => time(),
 						DAO_<?php echo $class_name; ?>::NAME => $name,
 					);
+					
+					if(!DAO_<?php echo $class_name; ?>::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_<?php echo $class_name; ?>::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, '<?php echo $ctx_ext_id; ?>', $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", '<?php echo $ctx_ext_id; ?>')))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+						
 					$fields = array(
 						DAO_<?php echo $class_name; ?>::UPDATED_AT => time(),
 						DAO_<?php echo $class_name; ?>::NAME => $name,
 					);
+					
+					if(!DAO_<?php echo $class_name; ?>::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_<?php echo $class_name; ?>::update($id, $fields);
 					
 				}

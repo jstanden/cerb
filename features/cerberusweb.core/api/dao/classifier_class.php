@@ -19,6 +19,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 			->addField(self::CLASSIFIER_ID)
 			->id()
 			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CLASSIFIER))
 			;
 		$validation
 			->addField(self::DICTIONARY_SIZE)

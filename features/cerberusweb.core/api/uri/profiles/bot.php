@@ -187,9 +187,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				
 				$is_disabled = DevblocksPlatform::intClamp($is_disabled, 0, 1);
 				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
-				
 				// Owner
 			
 				$owner_ctx = '';
@@ -242,6 +239,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						DAO_Bot::PARAMS_JSON => json_encode($params),
 					);
 					
+					if(!DAO_Bot::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(false == ($id = DAO_Bot::create($fields)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
 					
@@ -261,6 +261,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						DAO_Bot::OWNER_CONTEXT_ID => $owner_ctx_id,
 						DAO_Bot::PARAMS_JSON => json_encode($params),
 					);
+					
+					if(!DAO_Bot::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Bot::update($id, $fields);
 				}
 	

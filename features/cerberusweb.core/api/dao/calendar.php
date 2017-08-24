@@ -22,6 +22,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		$validation
 			->addField(self::NAME)
 			->string()
+			->setNotEmpty(true)
 			->setRequired(true)
 			;
 		$validation

@@ -182,26 +182,10 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.address.create'))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
 				
-				if(empty($email))
-					throw new Exception_DevblocksAjaxValidationError("The 'Email' field is required.", 'email');
-				
-				$validated_emails = CerberusUtils::parseRfcAddressList($email);
-				
-				if(empty($validated_emails) || !is_array($validated_emails))
-					throw new Exception_DevblocksAjaxValidationError("The given email address is invalid.", 'email');
-				
-				$email = $validated_emails[0]->mailbox . '@' . $validated_emails[0]->host;
-				
-				if(false != DAO_Address::getByEmail($email))
-					throw new Exception_DevblocksAjaxValidationError('A record already exists for the given email address.', 'email');
-				
-				if($contact_id && false == DAO_Contact::get($contact_id))
-					throw new Exception_DevblocksAjaxValidationError('The given contact record is invalid.', 'contact_id');
-				
-				if($org_id && false == DAO_ContactOrg::get($org_id))
-					throw new Exception_DevblocksAjaxValidationError('The given organization record is invalid.', 'org_id');
-				
 				$fields[DAO_Address::EMAIL] = $email;
+				
+				if(!DAO_Address::validate($fields, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 
 				if(false == ($id = DAO_Address::create($fields)))
 					throw new Exception_DevblocksAjaxValidationError('An unexpected error occurred while trying to save the record.');
@@ -215,10 +199,10 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.address.update'))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 				
-				if(false != ($address = DAO_Address::get($id))) {
-					$email = $address->email;
-					DAO_Address::update($id, $fields);
-				}
+				if(!DAO_Address::validate($fields, $error, $id))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				DAO_Address::update($id, $fields);
 			}
 	
 			if($id) {

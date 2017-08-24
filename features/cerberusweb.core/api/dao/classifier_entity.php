@@ -27,6 +27,14 @@ class DAO_ClassifierEntity extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setRequired(true)
+			->addValidator(function($value, &$error) {
+				if($value != DevblocksPlatform::strAlphaNum($value, '.', '')) {
+					$error = "Names can only contain A-Z, a-z, 0-9, and period.";
+					return false;
+				}
+				
+				return true;
+			})
 			;
 		$validation
 			->addField(self::PARAMS_JSON)
@@ -37,6 +45,7 @@ class DAO_ClassifierEntity extends Cerb_ORMHelper {
 			->addField(self::TYPE)
 			->string()
 			->setRequired(true)
+			->setPossibleValues(['list','regexp','text'])
 			;
 		$validation
 			->addField(self::UPDATED_AT)

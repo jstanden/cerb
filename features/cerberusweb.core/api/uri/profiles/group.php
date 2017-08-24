@@ -135,6 +135,9 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				throw new Exception_DevblocksAjaxValidationError("You do not have access to modify this group.");
 		
 			if($do_delete) {
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_GROUP)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				@$move_deleted_buckets = DevblocksPlatform::importGPC($_REQUEST['move_deleted_buckets'],'array',array());
 				$buckets = DAO_Bucket::getAll();
 				
@@ -164,15 +167,18 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 				@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'bit',0);
 			
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.");
-				
 				$fields = array(
 					DAO_Group::NAME => $name,
 					DAO_Group::IS_PRIVATE => $is_private,
 				);
 				
 				if(empty($group_id)) { // new
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_GROUP)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
+					if(!DAO_Group::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$group_id = DAO_Group::create($fields);
 					
 					// View marquee
@@ -181,6 +187,12 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					}
 					
 				} else { // update
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_GROUP)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
+					if(!DAO_Group::validate($fields, $error, $group_id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Group::update($group_id, $fields);
 				}
 				

@@ -109,8 +109,8 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			if(!$active_worker->is_superuser)
-				throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this record.");
+			if(!$active_worker->is_superuser || !$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE)))
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				DAO_MailHtmlTemplate::delete($id);
@@ -127,9 +127,6 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 				@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
 				@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'], 'string', '');
 				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
-	
 				$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
 				$owner_ctx_id = 0;
 				
@@ -143,6 +140,12 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 				);
 				
 				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
+					if(!DAO_MailHtmlTemplate::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(false == ($id = DAO_MailHtmlTemplate::create($fields)))
 						return false;
 					
@@ -150,10 +153,16 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
+					if(!DAO_MailHtmlTemplate::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_MailHtmlTemplate::update($id, $fields);
 					
 				}
-	
+				
 				if($id) {
 					// Custom fields
 					@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());

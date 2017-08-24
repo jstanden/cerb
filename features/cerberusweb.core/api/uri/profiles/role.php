@@ -115,6 +115,9 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->is_superuser || !$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_ROLE)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_WorkerRole::delete($id);
 				
 				echo json_encode(array(
@@ -129,9 +132,6 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 				@$who = DevblocksPlatform::importGPC($_REQUEST['who'],'string','');
 				@$what = DevblocksPlatform::importGPC($_REQUEST['what'],'string','');
 				@$acl_privs = DevblocksPlatform::importGPC($_REQUEST['acl_privs'],'array', []);
-				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
 				
 				$params = [];
 				
@@ -187,24 +187,38 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError("The 'Privileges' field is required.", 'what');
 					
 				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_ROLE)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
 					$fields = array(
 						DAO_WorkerRole::NAME => $name,
 						DAO_WorkerRole::PARAMS_JSON => json_encode($params),
 						DAO_WorkerRole::PRIVS_JSON => json_encode($acl_privs),
 						DAO_WorkerRole::UPDATED_AT => time(),
 					);
+					
+					if(!DAO_WorkerRole::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_WorkerRole::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ROLE, $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_ROLE)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
 					$fields = array(
 						DAO_WorkerRole::NAME => $name,
 						DAO_WorkerRole::PARAMS_JSON => json_encode($params),
 						DAO_WorkerRole::PRIVS_JSON => json_encode($acl_privs),
 						DAO_WorkerRole::UPDATED_AT => time(),
 					);
+					
+					if(!DAO_WorkerRole::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_WorkerRole::update($id, $fields);
 				}
 				

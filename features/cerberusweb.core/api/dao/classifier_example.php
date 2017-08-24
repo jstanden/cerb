@@ -14,16 +14,19 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CLASS_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, true))
 			;
 		$validation
 			->addField(self::CLASSIFIER_ID)
 			->id()
 			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CLASSIFIER))
 			;
 		$validation
 			->addField(self::EXPRESSION)
 			->string()
 			->setMaxLength(16777215)
+			->setRequired(true)
 			;
 		$validation
 			->addField(self::ID)

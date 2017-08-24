@@ -42,6 +42,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
 			;
 		// text
 		$validation

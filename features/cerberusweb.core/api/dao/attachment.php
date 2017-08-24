@@ -39,10 +39,12 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$validation
 			->addField(self::MIME_TYPE)
 			->string()
+			->setNotEmpty(true)
 			;
 		$validation
 			->addField(self::NAME)
 			->string()
+			->setNotEmpty(true)
 			->setRequired(true)
 			;
 		$validation

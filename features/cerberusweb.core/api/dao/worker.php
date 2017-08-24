@@ -59,6 +59,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CALENDAR_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CALENDAR, true))
 			;
 		// date
 		$validation
@@ -70,6 +71,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::EMAIL_ID)
 			->id()
 			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
 			;
 		// varchar(128)
 		$validation

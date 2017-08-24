@@ -126,17 +126,8 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 				@$query = DevblocksPlatform::importGPC($_REQUEST['query'], 'string', '');
 				@$tag = DevblocksPlatform::importGPC($_REQUEST['tag'], 'string', '');
 				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
-				
-				if(empty($context))
-					throw new Exception_DevblocksAjaxValidationError("The 'Type' field is required.", 'context');
-				
 				if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 					throw new Exception_DevblocksAjaxValidationError("The 'Type' field is invalid.", 'context');
-				
-				if(empty($query))
-					throw new Exception_DevblocksAjaxValidationError("The 'Query' field is required.", 'query');
 				
 				@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
 				
@@ -154,21 +145,8 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 						break;
 				}
 				
-				if(empty($owner_context))
-					throw new Exception_DevblocksAjaxValidationError("The 'Owner' field is required.", 'owner');
-				
 				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
-				
-				if(!empty($tag) && 0 != strcasecmp($tag, DevblocksPlatform::strAlphaNum($tag, '-')))
-					throw new Exception_DevblocksAjaxValidationError("The 'Tag' field may only contain letters, numbers, and dashes.", 'tag');
-				
-				if(strlen($tag) > 64)
-					throw new Exception_DevblocksAjaxValidationError("The 'Tag' field must be shorter than 64 characters.", 'tag');
-				
-				// Check tag uniqueness
-				if($tag && false != ($hit = DAO_ContextSavedSearch::getByTag($tag)) && $hit->id != $id)
-					throw new Exception_DevblocksAjaxValidationError(sprintf("The tag '%s' already exists.", $tag), 'tag');
 				
 				$tag = DevblocksPlatform::strAlphaNum($tag, '-');
 					

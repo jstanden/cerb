@@ -31,7 +31,7 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 			->addField(self::CONFIRMATION_CODE)
 			->string()
 			->setMaxLength(64)
-			->setUnique(true, get_class($this))
+			->setUnique(get_class($this))
 			->setRequired(true)
 			;
 		$validation

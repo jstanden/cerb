@@ -199,6 +199,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			if(empty($first_name)) $first_name = "Anonymous";
 			
 			if(!empty($id) && !empty($delete)) {
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WORKER)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				// Can't delete or disable self
 				if($active_worker->id == $id)
 					throw new Exception_DevblocksAjaxValidationError("You can't delete yourself.");
@@ -248,12 +251,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				
 				// ============================================
 				// Validation
-				
-				if(empty($first_name))
-					throw new Exception_DevblocksAjaxValidationError("The 'First Name' field is required.", 'first_name');
-				
-				if(empty($email_id))
-					throw new Exception_DevblocksAjaxValidationError("The 'Email' field is required.", 'email_id');
 				
 				if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
 					throw new Exception_DevblocksAjaxValidationError("The specified date of birth is invalid.", 'dob');
@@ -346,7 +343,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						}
 					}
 					
-					// [TODO] Fix the redundancy here between create/update (unset common $fields)
 					$fields = array(
 						DAO_Worker::FIRST_NAME => $first_name,
 						DAO_Worker::LAST_NAME => $last_name,
@@ -365,6 +361,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::MOBILE => $mobile,
 						DAO_Worker::PHONE => $phone,
 					);
+					
+					if(!DAO_Worker::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					if(false == ($id = DAO_Worker::create($fields)))
 						return false;
@@ -429,6 +428,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_Worker::PHONE => $phone,
 					DAO_Worker::CALENDAR_ID => $calendar_id,
 				);
+				
+				if(!DAO_Worker::validate($fields, $error, $id))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				// Update worker
 				DAO_Worker::update($id, $fields);

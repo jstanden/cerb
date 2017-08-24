@@ -54,6 +54,7 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 			->addField(self::TAG)
 			->string()
 			->setMaxLength(128)
+			->setUnique('DAO_FileBundle')
 			;
 		$validation
 			->addField(self::UPDATED_AT)

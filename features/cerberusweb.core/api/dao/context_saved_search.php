@@ -17,6 +17,7 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CONTEXT)
 			->context()
+			->setRequired(true)
 			;
 		$validation
 			->addField(self::ID)
@@ -27,10 +28,12 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
 			;
 		$validation
 			->addField(self::OWNER_CONTEXT)
 			->context()
+			->setRequired(true)
 			;
 		$validation
 			->addField(self::OWNER_CONTEXT_ID)
@@ -40,16 +43,22 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 			->addField(self::QUERY)
 			->string()
 			->setMaxLength(65535)
+			->setRequired(true)
 			;
 		$validation
 			->addField(self::TAG)
 			->string()
 			->setMaxLength(64)
 			->setNotEmpty(false)
-			->setUnique(true, get_class())
-			->addFormatter(function($string, &$error=null) {
+			->setUnique(get_class())
+			->addValidator(function($string, &$error=null) {
 				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-'))) {
-					$error = sprintf("may only contain letters, numbers, and dashes");
+					$error = "may only contain letters, numbers, and dashes";
+					return false;
+				}
+					
+				if(strlen($string) > 64) {
+					$error = "must be shorter than 64 characters.";
 					return false;
 				}
 				

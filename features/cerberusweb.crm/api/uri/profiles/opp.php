@@ -200,8 +200,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 
 		try {
 			if(!empty($id) && !empty($do_delete)) { // delete
-				// [TODO] Delete ACL
-				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.opportunity.delete'))
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_OPPORTUNITY)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				if(false == ($opp = DAO_CrmOpportunity::get($id)))
@@ -222,16 +221,10 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				if($id && false == ($opp = DAO_CrmOpportunity::get($id)))
 					throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
 				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("'Title' is required", 'name');
-				
-				if(false == ($address = DAO_Address::get($email_id)))
-					throw new Exception_DevblocksAjaxValidationError("Invalid email address.");
-			
 				$fields = array(
 					DAO_CrmOpportunity::NAME => $name,
 					DAO_CrmOpportunity::AMOUNT => $amount,
-					DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $address->id,
+					DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $email_id,
 					DAO_CrmOpportunity::UPDATED_DATE => time(),
 					DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
 					DAO_CrmOpportunity::IS_CLOSED => $is_closed,
@@ -240,10 +233,13 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				
 				// Create
 				if(empty($id)) {
-					if(empty($id) && !$active_worker->hasPriv('contexts.cerberusweb.contexts.opportunity.create'))
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_OPPORTUNITY)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
 					
 					$fields[DAO_CrmOpportunity::CREATED_DATE] = time();
+					
+					if(!DAO_CrmOpportunity::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_CrmOpportunity::create($fields);
 					
@@ -254,8 +250,11 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 					
 				// Update
 				} else {
-					if(empty($id) && !$active_worker->hasPriv('contexts.cerberusweb.contexts.opportunity.update'))
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_OPPORTUNITY)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
+					if(!DAO_CrmOpportunity::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_CrmOpportunity::update($id, $fields);
 				}

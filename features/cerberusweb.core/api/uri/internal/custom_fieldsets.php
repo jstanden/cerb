@@ -105,6 +105,10 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		// Delete
 		
 		if($do_delete && $custom_fieldset) {
+			if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CUSTOM_FIELDSET)))
+				return;
+				//throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+			
 			DAO_CustomFieldset::delete($custom_fieldset->id);
 			return;
 		}
@@ -135,12 +139,21 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		
 		// Create field set
 		if(empty($custom_fieldset_id)) {
+			if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CUSTOM_FIELDSET)))
+				return;
+				//throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+			
 			$fields = array(
 				DAO_CustomFieldset::NAME => $name,
 				DAO_CustomFieldset::CONTEXT => $context,
 				DAO_CustomFieldset::OWNER_CONTEXT => $owner_context,
 				DAO_CustomFieldset::OWNER_CONTEXT_ID => $owner_context_id,
 			);
+			// [TOOD]
+			if(!DAO_CustomFieldset::validate($fields, $error))
+				return;
+				//throw new Exception_DevblocksAjaxValidationError($error);
+			
 			$custom_fieldset_id = DAO_CustomFieldset::create($fields);
 			
 			// View marquee
@@ -150,13 +163,21 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 			
 		// Update field set
 		} else {
+			if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CUSTOM_FIELDSET)))
+				return;
+				//throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+			
 			$fields = array(
 				DAO_CustomFieldset::NAME => $name,
 				DAO_CustomFieldset::OWNER_CONTEXT => $owner_context,
 				DAO_CustomFieldset::OWNER_CONTEXT_ID => $owner_context_id,
 			);
-			DAO_CustomFieldset::update($custom_fieldset_id, $fields);
 			
+			if(!DAO_CustomFieldset::validate($fields, $error, $custom_fieldset_id))
+				return;
+				//throw new Exception_DevblocksAjaxValidationError($error);
+				
+			DAO_CustomFieldset::update($custom_fieldset_id, $fields);
 		}
 		
 		foreach($ids as $idx => $id) {

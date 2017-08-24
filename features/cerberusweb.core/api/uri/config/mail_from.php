@@ -69,7 +69,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 		$worker = CerberusApplication::getActiveWorker();
 	
 		if(!$worker || !$worker->is_superuser)
-			throw new Exception("You are not an administrator.");
+			return;
 		
 		switch($form_action) {
 			case 'delete':
@@ -79,7 +79,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 			default:
 				if(empty($id)) { // create
 					if(false === ($address = DAO_Address::lookupAddress($reply_from, true)))
-						throw new Exception();
+						return;
 						
 					$id = $address->id;
 					

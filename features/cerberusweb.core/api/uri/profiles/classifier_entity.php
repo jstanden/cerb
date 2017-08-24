@@ -116,6 +116,9 @@ class PageSection_ProfilesClassifierEntity extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CLASSIFIER_ENTITY)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_ClassifierEntity::delete($id);
 				
 				echo json_encode(array(
@@ -130,17 +133,6 @@ class PageSection_ProfilesClassifierEntity extends Extension_PageSection {
 				@$description = DevblocksPlatform::importGPC($_REQUEST['description'], 'string', '');
 				@$type = DevblocksPlatform::importGPC($_REQUEST['type'], 'string', '');
 				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
-				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
-				
-				// [TODO] Names can only contain A-Z, a-z, 0-9, and period.
-				
-				if($name != DevblocksPlatform::strAlphaNum($name, '.', ''))
-					throw new Exception_DevblocksAjaxValidationError("Names can only contain A-Z, a-z, 0-9, and period.", 'name');
-				
-				if(empty($type) || !in_array($type, ['list','regexp','text']))
-					throw new Exception_DevblocksAjaxValidationError("A valid 'Type' is required.", 'type');
 				
 				// Validate types
 				switch($type) {
@@ -189,6 +181,9 @@ class PageSection_ProfilesClassifierEntity extends Extension_PageSection {
 				}
 				
 				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CLASSIFIER_ENTITY)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
 					$fields = array(
 						DAO_ClassifierEntity::DESCRIPTION => $description,
 						DAO_ClassifierEntity::NAME => $name,
@@ -196,12 +191,19 @@ class PageSection_ProfilesClassifierEntity extends Extension_PageSection {
 						DAO_ClassifierEntity::TYPE => $type,
 						DAO_ClassifierEntity::UPDATED_AT => time(),
 					);
+					
+					if(!DAO_ClassifierEntity::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_ClassifierEntity::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CLASSIFIER_ENTITY, $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CLASSIFIER_ENTITY)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
 					$fields = array(
 						DAO_ClassifierEntity::DESCRIPTION => $description,
 						DAO_ClassifierEntity::NAME => $name,
@@ -209,6 +211,10 @@ class PageSection_ProfilesClassifierEntity extends Extension_PageSection {
 						DAO_ClassifierEntity::TYPE => $type,
 						DAO_ClassifierEntity::UPDATED_AT => time(),
 					);
+					
+					if(!DAO_ClassifierEntity::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_ClassifierEntity::update($id, $fields);
 					
 				}

@@ -38,6 +38,8 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$validation
 			->addField(self::BOT_ID)
 			->id()
+			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_BOT))
 			;
 		// text
 		$validation
@@ -77,6 +79,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			->addField(self::TITLE)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
 			;
 		// int(10) unsigned
 		$validation

@@ -35,15 +35,20 @@ class DAO_Address extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CONTACT_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CONTACT, true))
 			;
 		$validation
 			->addField(self::CONTACT_ORG_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ORG, true))
 			;
 		$validation
 			->addField(self::EMAIL)
 			->string()
-			->setUnique(true, 'DAO_Address')
+			->setUnique('DAO_Address')
+			->setNotEmpty(true)
+			->setRequired(true)
+			->addValidator($validation->validators()->email())
 			;
 		$validation
 			->addField(self::HOST)

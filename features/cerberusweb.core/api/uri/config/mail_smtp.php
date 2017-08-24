@@ -103,19 +103,19 @@ class PageSection_SetupMailSmtp extends Extension_PageSection {
 			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string',null);
 			
 			if(!is_array($params))
-				$params = array();
+				$params = [];
 			
-			$fields = array(
+			$fields = [
 				DAO_MailTransport::NAME => $name,
 				DAO_MailTransport::EXTENSION_ID => $extension_id,
 				DAO_MailTransport::PARAMS_JSON => json_encode($params),
-			);
+			];
 			
 			if(empty($id)) { // New
 				$id = DAO_MailTransport::create($fields);
 				
 				if(!empty($view_id) && !empty($id))
-					C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.mail.transport', $id);
+					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_MAIL_TRANSPORT, $id);
 				
 			} else { // Edit
 				DAO_MailTransport::update($id, $fields);
@@ -128,7 +128,7 @@ class PageSection_SetupMailSmtp extends Extension_PageSection {
 
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.mail.transport', $id, $field_ids);
-		}		
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $id, $field_ids);
+		}
 	}
 }

@@ -42,7 +42,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::OWNER_CONTEXT_ID)
-			->context()
+			->id()
 			->setRequired(true)
 			;
 		$validation

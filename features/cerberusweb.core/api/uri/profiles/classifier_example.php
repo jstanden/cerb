@@ -128,6 +128,9 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				if(false == ($example = DAO_ClassifierExample::get($id)))
 					throw new Exception_DevblocksAjaxValidationError("The record does not exist.");
 				
@@ -148,9 +151,6 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 				@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
 				@$class_id = DevblocksPlatform::importGPC($_REQUEST['class_id'], 'integer', 0);
 				
-				if(empty($classifier_id))
-					throw new Exception_DevblocksAjaxValidationError("The 'Classifier' field is required.", 'classifier_id');
-				
 				if(false == ($classifier = DAO_Classifier::get($classifier_id)))
 					throw new Exception_DevblocksAjaxValidationError("The 'Classifier' is invalid.", 'classifier_id');
 				
@@ -164,9 +164,6 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 				if(!Context_Classifier::isWriteableByActor($classifier, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this record.", 'classifier_id');
 				
-				if(empty($expression))
-					throw new Exception_DevblocksAjaxValidationError("The 'Expression' field is required.", 'expression');
-				
 				$fields = array(
 					DAO_ClassifierExample::EXPRESSION => $expression,
 					DAO_ClassifierExample::CLASSIFIER_ID => $classifier_id,
@@ -175,6 +172,12 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 				);
 				
 				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
+					if(!DAO_ClassifierExample::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_ClassifierExample::create($fields);
 					
 					// Train the model (online learning)
@@ -185,6 +188,12 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE, $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
+					if(!DAO_ClassifierExample::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_ClassifierExample::update($id, $fields);
 				}
 	

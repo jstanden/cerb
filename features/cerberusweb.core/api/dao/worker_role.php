@@ -1186,15 +1186,16 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_ROLE;
+		$model = null;
 		
 		if(!empty($context_id)) {
 			$model = DAO_WorkerRole::get($context_id);
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(isset($model))
-				$tpl->assign('model', $model);
-			
+			if(!isset($model))
+				$model = new Model_WorkerRole();
+				
 			$plugins_acl = $this->_getPluginPrivileges();
 			
 			$core_acl = $plugins_acl['cerberusweb.core'];
@@ -1233,6 +1234,8 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
+			
+			$tpl->assign('model', $model);
 			
 			// View
 			$tpl->assign('id', $context_id);

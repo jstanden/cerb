@@ -6,7 +6,7 @@
 <input type="hidden" name="section" value="role">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
-{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
+{if !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -22,7 +22,7 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top"><b>Apply to:</b></td>
 			<td width="99%">
-				<label><input type="radio" name="who" value="all" {if empty($model) || $model->params.who=='all'}checked="checked"{/if}> {'common.everyone'|devblocks_translate|capitalize}</label><br>
+				<label><input type="radio" name="who" value="all" {if empty($model->id) || $model->params.who=='all'}checked="checked"{/if}> {'common.everyone'|devblocks_translate|capitalize}</label><br>
 				
 				{if !empty($groups)}
 					{$role_is_groups = $model->params.who=='groups'}
@@ -50,7 +50,7 @@
 			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.privileges'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<label><input type="radio" name="what" value="all" {if $model->params.what=='all'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.all'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="what" value="none" {if empty($model) || $model->params.what=='none'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.none'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="what" value="none" {if empty($model->id) || $model->params.what=='none'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.none'|devblocks_translate|capitalize}</label>
 				<label><input type="radio" name="what" value="itemized" {if $model->params.what=='itemized'}checked="checked"{/if} onclick="$('#configAclItemized').show();"> Itemized:</label>
 			</td>
 		</tr>

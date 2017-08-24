@@ -142,7 +142,6 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			
 			if($id && false == ($bucket = DAO_Bucket::get($id)))
 				throw new Exception_DevblocksAjaxValidationError("The specified bucket record doesn't exist.");
 			
@@ -176,14 +175,8 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				@$reply_signature = DevblocksPlatform::importGPC($_REQUEST['reply_signature'],'string','');
 				@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'],'integer',0);
 				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
-				
 				if(empty($id)) { // New
 					@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
-					
-					if(!$group_id || false == ($group = DAO_Group::get($group_id)))
-						throw new Exception_DevblocksAjaxValidationError("The specified group doesn't exist.", 'group_id');
 					
 					$fields = array(
 						DAO_Bucket::NAME => $name,
@@ -194,6 +187,10 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 						DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
 						DAO_Bucket::UPDATED_AT => time(),
 					);
+					
+					if(!DAO_Bucket::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Bucket::create($fields);
 					
 					// Default bucket responsibilities
@@ -211,8 +208,11 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 						DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
 						DAO_Bucket::UPDATED_AT => time(),
 					);
-					DAO_Bucket::update($id, $fields);
 					
+					if(!DAO_Bucket::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					DAO_Bucket::update($id, $fields);
 				}
 	
 				// Custom fields

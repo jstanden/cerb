@@ -142,6 +142,9 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 		try {
 		
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CALENDAR)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_Calendar::delete($id);
 				
 				echo json_encode(array(
@@ -152,9 +155,6 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 				return;
 				
 			} else {
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.","name");
-				
 				// Owner
 				
 				@list($owner_context, $owner_context_id) = explode(':', $owner);
@@ -194,6 +194,9 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 				// Model
 				
 				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CALENDAR)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
 					$fields = array(
 						DAO_Calendar::UPDATED_AT => time(),
 						DAO_Calendar::NAME => $name,
@@ -202,6 +205,9 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 						DAO_Calendar::PARAMS_JSON => json_encode($params),
 					);
 					
+					if(!DAO_Calendar::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(false == ($id = DAO_Calendar::create($fields)))
 						return new Exception_DevblocksAjaxValidationError("An unexpected error occurred while saving the record.");
 					
@@ -209,6 +215,9 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR, $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CALENDAR)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
 					if(false == ($calendar = DAO_Calendar::get($id)))
 						return;
 					
@@ -221,6 +230,9 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 					);
 					
 					$change_fields = Cerb_ORMHelper::uniqueFields($fields, $calendar);
+					
+					if(!DAO_Calendar::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_Calendar::update($id, $change_fields);
 				}

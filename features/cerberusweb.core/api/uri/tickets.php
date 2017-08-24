@@ -251,13 +251,12 @@ class ChTicketsPage extends CerberusPageExtension {
 			@$ticket_reopen = DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string','');
 			@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
 			
+			if(!$active_worker->hasPriv(sprintf('contexts.%s.update', CerberusContexts::CONTEXT_TICKET)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+			
 			// Load the existing model so we can detect changes
 			if(false == ($ticket = DAO_Ticket::get($id)))
 				throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
-			
-			// Validation
-			if(empty($subject))
-				throw new Exception_DevblocksAjaxValidationError("The 'Subject' field is required.", 'subject');
 			
 			$fields = array(
 				DAO_Ticket::SUBJECT => $subject,
@@ -341,6 +340,9 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			// Only update fields that changed
 			$fields = Cerb_ORMHelper::uniqueFields($fields, $ticket);
+			
+			if(!DAO_Ticket::validate($fields, $error, $id))
+				throw new Exception_DevblocksAjaxValidationError($error);
 			
 			// Do it
 			DAO_Ticket::update($id, $fields);

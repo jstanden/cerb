@@ -139,9 +139,6 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
 			@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'integer',0);
 			
-			if(empty($time_actual_mins))
-				throw new Exception_DevblocksAjaxValidationError("The 'Time Spent' field is required.", 'time_actual_mins');
-			
 			// Date
 			@$log_date = DevblocksPlatform::importGPC($_REQUEST['log_date'],'string','now');
 			if(false == (@$log_date = strtotime($log_date)))
@@ -155,11 +152,9 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 				if(false == ($entry = DAO_TimeTrackingEntry::get($id)))
 					throw new Exception_DevblocksAjaxValidationError("Record not found.");
 				
-				// Check privs
-				if(!(($active_worker->hasPriv('contexts.cerberusweb.contexts.timetracking.create') && $active_worker->id==$entry->worker_id)
-					|| $active_worker->hasPriv('contexts.cerberusweb.contexts.timetracking.update')))
-						throw new Exception_DevblocksAjaxValidationError("You do not have permission to delete this record.");
-						
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_TIMETRACKING)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+					
 				DAO_TimeTrackingEntry::delete($id);
 						
 				echo json_encode(array(
@@ -179,7 +174,13 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			);
 	
 			if(empty($id)) { // create
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_TIMETRACKING)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+				
 				$fields[DAO_TimeTrackingEntry::WORKER_ID] = intval($active_worker->id);
+				
+				if(!DAO_TimeTrackingEntry::validate($fields, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				$id = DAO_TimeTrackingEntry::create($fields);
 				
@@ -290,6 +291,12 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 				}
 				
 			} else { // modify
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_TIMETRACKING)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+				
+				if(!DAO_TimeTrackingEntry::validate($fields, $error, $id))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
 				DAO_TimeTrackingEntry::update($id, $fields);
 			}
 			

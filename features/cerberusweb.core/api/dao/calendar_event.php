@@ -31,6 +31,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CALENDAR_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CALENDAR))
 			;
 		$validation
 			->addField(self::DATE_END)
@@ -39,6 +40,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		$validation
 			->addField(self::DATE_START)
 			->timestamp()
+			->setRequired(true)
 			;
 		$validation
 			->addField(self::ID)
@@ -52,6 +54,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		$validation
 			->addField(self::NAME)
 			->string()
+			->setNotEmpty(true)
 			->setRequired(true)
 			;
 		

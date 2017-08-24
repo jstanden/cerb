@@ -204,11 +204,15 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$validation
 			->addField(self::TIME_ACTUAL_MINS)
 			->uint(2)
+			->setNotEmpty(true)
+			->setRequired(true)
 			;
 		// int(10) unsigned
 		$validation
 			->addField(self::WORKER_ID)
 			->id()
+			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER))
 			;
 
 		return $validation->getFields();

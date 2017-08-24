@@ -153,7 +153,9 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		try {
 			// Delete
 			if(!empty($do_delete) && !empty($event_id)) {
-				// [TODO] Check ACL
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CALENDAR_EVENT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_CalendarEvent::delete($event_id);
 				
 				echo json_encode(array(
@@ -184,24 +186,21 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 			
 			// Fields
 			
-			if(empty($name))
-				throw new Exception_DevblocksAjaxValidationError("The 'Name:' is required.", 'name');
-			
-			if(empty($date_start))
-				throw new Exception_DevblocksAjaxValidationError("The 'Start Time:' is required.", 'date_start');
-			
 			$fields = array(
 				DAO_CalendarEvent::NAME => $name,
 				DAO_CalendarEvent::DATE_START => $timestamp_start,
 				DAO_CalendarEvent::DATE_END => $timestamp_end,
 				DAO_CalendarEvent::IS_AVAILABLE => (!empty($is_available)) ? 1 : 0,
+				DAO_CalendarEvent::CALENDAR_ID => $calendar_id,
 			);
 			
 			if(empty($event_id)) {
-				if(empty($calendar_id))
-					throw new Exception_DevblocksAjaxValidationError("The 'Calendar:' is required.", 'calendar_id');
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CALENDAR_EVENT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
 				
-				$fields[DAO_CalendarEvent::CALENDAR_ID] = $calendar_id;
+				if(!DAO_CalendarEvent::validate($fields, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
 				$event_id = DAO_CalendarEvent::create($fields);
 				
 				// View marquee
@@ -210,10 +209,16 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 				}
 				
 			} else {
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CALENDAR_EVENT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+				
 				if(false == ($calendar_event = DAO_CalendarEvent::get($event_id)))
 					return;
 				
 				$changed_fields = Cerb_ORMHelper::uniqueFields($fields, $calendar_event);
+				
+				if(!DAO_CalendarEvent::validate($changed_fields, $error, $event_id))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				if(!empty($changed_fields))
 					DAO_CalendarEvent::update($event_id, $changed_fields);

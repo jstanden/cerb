@@ -67,11 +67,14 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
 			;
 		// int(10) unsigned
 		$validation
 			->addField(self::PRIMARY_EMAIL_ID)
 			->id()
+			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
 			;
 		// int(10) unsigned
 		$validation

@@ -100,6 +100,56 @@ class _DevblocksValidationField {
 	}
 }
 
+class _DevblocksValidators {
+	function contextId($context, $allow_empty=false) {
+		return function($value, &$error=null) use ($context, $allow_empty) {
+			if(!is_numeric($value)) {
+				$error = "must be an ID.";
+				return false;
+			}
+			
+			$id = intval($value);
+			
+			if(empty($id)) {
+				if($allow_empty) {
+					return true;
+					
+				} else {
+					$error = "must not be blank.";
+					return false;
+				}
+			}
+			
+			$models = CerberusContexts::getModels($context, [$id]);
+			
+			if(!isset($models[$id])) {
+				$error = "is not a valid target record.";
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
+	function email() {
+		return function($value, &$error=null) {
+			if(!is_string($value)) {
+				$error = "must be a string.";
+				return false;
+			}
+			
+			$validated_emails = CerberusUtils::parseRfcAddressList($value);
+			
+			if(empty($validated_emails) || !is_array($validated_emails)) {
+				$error = "is invalid. It must be a properly formatted email address.";
+				return false;
+			}
+			
+			return true;
+		};
+	}
+}
+
 class _DevblocksValidationType {
 	public $_data = [
 		'editable' => true,
@@ -120,7 +170,26 @@ class _DevblocksValidationType {
 	}
 	
 	function setRequired($bool) {
+		// If required, it also must not be empty
+		$this->setNotEmpty(true);
+		
 		$this->_data['required'] = $bool ? true : false;
+		return $this;
+	}
+	
+	function setNotEmpty($bool) {
+		$this->_data['not_empty'] = $bool ? true : false;
+		return $this;
+	}
+	
+	function addValidator($callable) {
+		if(!is_callable($callable))
+			return false;
+		
+		if(!isset($this->_data['validators']))
+			$this->_data['validators'] = [];
+		
+		$this->_data['validators'][] = $callable;
 		return $this;
 	}
 }
@@ -176,32 +245,13 @@ class _DevblocksValidationTypeNumber extends _DevblocksValidationType {
 }
 
 class _DevblocksValidationTypeString extends _DevblocksValidationType {
-	// [TODO] JSON formatter
-	// [TODO] formatter vs validator
-	function addFormatter($callable) {
-		// [TODO] Throw?
-		if(!is_callable($callable))
-			return false;
-		
-		if(!isset($this->_data['formatters']))
-			$this->_data['formatters'] = [];
-		
-		$this->_data['formatters'][] = $callable;
-		return $this;
-	}
-	
 	function setMaxLength($length) {
 		$this->_data['length'] = intval($length);
 		return $this;
 	}
 	
-	function setNotEmpty($bool) {
-		$this->_data['not_empty'] = $bool ? true : false;
-		return $this;
-	}
-	
-	function setUnique($bool, $dao_class) {
-		$this->_data['unique'] = $bool ? true : false;
+	function setUnique($dao_class) {
+		$this->_data['unique'] = true;
 		$this->_data['dao_class'] = $dao_class;
 		return $this;
 	}
@@ -232,11 +282,12 @@ class _DevblocksValidationService {
 		return $this->_fields;
 	}
 	
-	/*
-	function getFormatter() {
-		return new _DevblocksValidationField();
+	/**
+	 * return _DevblocksValidators
+	 */
+	function validators() {
+		return new _DevblocksValidators();
 	}
-	*/
 	
 	// (ip, email, phone, etc)
 	function validate(_DevblocksValidationField $field, $value, $scope=[]) {
@@ -250,6 +301,21 @@ class _DevblocksValidationService {
 		if(isset($data['editable'])) {
 			if(!$data['editable'])
 				throw new Exception_DevblocksValidationError(sprintf("'%s' is not editable.", $field_name));
+		}
+		
+		if(isset($data['not_empty']) && $data['not_empty'] && 0 == strlen($value)) {
+			throw new Exception_DevblocksValidationError(sprintf("'%s' must not be blank.", $field_name));
+		}
+		
+		if(isset($data['validators']) && is_array($data['validators']))
+		foreach($data['validators'] as $validator) {
+			if(!is_callable($validator)) {
+				throw new Exception_DevblocksValidationError(sprintf("'%s' has an invalid validator.", $field_name));
+			}
+			
+			if(!$validator($value, $error)) {
+				throw new Exception_DevblocksValidationError(sprintf("'%s' %s", $field_name, $error));
+			}
 		}
 		
 		switch($class_name) {
@@ -278,17 +344,13 @@ class _DevblocksValidationService {
 				break;
 				
 			case '_DevblocksValidationTypeString':
-				if(!is_string($value)) {
+				if(!is_null($value) && !is_string($value)) {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a string (%s).", $field_name, gettype($value)));
 				}
 				
 				if($data) {
 					if(isset($data['length']) && strlen($value) > $data['length']) {
 						throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_name, $data['length']));
-					}
-					
-					if(isset($data['not_empty']) && $data['not_empty'] && 0 == strlen($value)) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must not be blank.", $field_name));
 					}
 					
 					// [TODO] This would have trouble if we were bulk updating a unique field
@@ -305,24 +367,13 @@ class _DevblocksValidationService {
 						}
 						
 						if(!empty($results)) {
-							throw new Exception_DevblocksValidationError(sprintf("'%s' must be unique (%s).", $field_name, $value));
+							throw new Exception_DevblocksValidationError(sprintf("A record already exists with this '%s' (%s). It must be unique.", $field_name, $value));
 						}
 					}
 					
 					if(isset($data['possible_values']) && !in_array($value, $data['possible_values'])) {
 						// [TODO] Handle multiple values
 						throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_name, implode(', ', $data['possible_values'])));
-					}
-					
-					if(isset($data['formatters']) && is_array($data['formatters']))
-					foreach($data['formatters'] as $formatter) {
-						if(!is_callable($formatter)) {
-							throw new Exception_DevblocksValidationError(sprintf("'%s' has an invalid formatter.", $field_name));
-						}
-						
-						if(!$formatter($value, $error)) {
-							throw new Exception_DevblocksValidationError(sprintf("'%s' %s", $field_name, $error));
-						}
 					}
 				}
 				break;

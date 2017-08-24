@@ -181,9 +181,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				// Title
 				@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
 				
-				if(empty($title))
-					throw new Exception_DevblocksAjaxValidationError("The 'title' field is required.", 'title');
-				
 				$fields[DAO_Task::TITLE] = $title;
 				
 				// Completed
@@ -229,12 +226,18 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_TASK)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 					
+					if(!DAO_Task::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Task::update($id, $fields);
 					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
 					
 				} else {
 					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_TASK)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
+					if(!DAO_Task::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$custom_fields = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TASK, $field_ids);
 					

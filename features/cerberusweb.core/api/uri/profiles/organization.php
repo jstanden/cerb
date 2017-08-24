@@ -182,7 +182,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($delete)) { // delete
-				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.org.delete'))
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_ORG)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_ContactOrg::delete($id);
@@ -207,10 +207,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 				@$email_id = DevblocksPlatform::importGPC($_REQUEST['email_id'],'integer',0);
 				
-				// Validation
-				if(empty($org_name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'org_name');
-				
 				// Privs
 				$fields = array(
 					DAO_ContactOrg::NAME => $org_name,
@@ -225,8 +221,11 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				);
 		
 				if($id==0) {
-					if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.org.create'))
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_ORG)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
+					if(!DAO_ContactOrg::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					if(false == ($id = DAO_ContactOrg::create($fields)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
@@ -238,8 +237,11 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 					
 				}
 				else {
-					if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.org.update'))
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_ORG)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
+					if(!DAO_ContactOrg::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_ContactOrg::update($id, $fields);
 				}

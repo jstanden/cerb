@@ -199,6 +199,9 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 						return;
 					}
 					
+					if(!DAO_GpgPublicKey::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(false != ($id = DAO_GpgPublicKey::create($fields))) {
 						if(!empty($view_id))
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $id);
@@ -239,6 +242,9 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 						DAO_GpgPublicKey::NAME => $name,
 						DAO_GpgPublicKey::UPDATED_AT => time(),
 					);
+					
+					if(!DAO_GpgPublicKey::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_GpgPublicKey::update($id, $fields);
 				}

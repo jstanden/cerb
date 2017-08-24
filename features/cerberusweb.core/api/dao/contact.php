@@ -86,6 +86,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		$validation
 			->addField(self::ORG_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ORG, true))
 			;
 		$validation
 			->addField(self::PHONE)
@@ -95,6 +96,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		$validation
 			->addField(self::PRIMARY_EMAIL_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS, true))
 			;
 		$validation
 			->addField(self::TIMEZONE)

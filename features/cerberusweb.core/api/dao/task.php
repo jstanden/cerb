@@ -64,6 +64,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		$validation
 			->addField(self::OWNER_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER, true))
 			;
 		// int(10) unsigned
 		$validation

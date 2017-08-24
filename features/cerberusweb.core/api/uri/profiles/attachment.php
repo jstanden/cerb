@@ -139,6 +139,9 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_ATTACHMENT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_Attachment::delete($id);
 				
 				echo json_encode(array(
@@ -152,26 +155,37 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$mime_type = DevblocksPlatform::importGPC($_REQUEST['mime_type'], 'string', 'application/octet-stream');
 				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
-				
 				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_ATTACHMENT)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
 					$fields = array(
 						DAO_Attachment::NAME => $name,
 						DAO_Attachment::MIME_TYPE => $mime_type,
 						DAO_Attachment::UPDATED => time(),
 					);
+					
+					if(!DAO_Attachment::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Attachment::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ATTACHMENT, $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_ATTACHMENT)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
 					$fields = array(
 						DAO_Attachment::NAME => $name,
 						DAO_Attachment::MIME_TYPE => $mime_type,
 						DAO_Attachment::UPDATED => time(),
 					);
+					
+					if(!DAO_Attachment::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Attachment::update($id, $fields);
 				}
 				

@@ -48,6 +48,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
 			;
 		// varchar(128)
 		$validation

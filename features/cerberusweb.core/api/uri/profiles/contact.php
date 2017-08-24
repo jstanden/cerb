@@ -209,7 +209,8 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		try {
 		
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				// [TODO] [ACL] Check delete permission
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CONTACT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_Contact::delete($id);
 				
@@ -246,18 +247,15 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				
 				// Validation
 				
-				if(empty($first_name))
-					throw new Exception_DevblocksAjaxValidationError("The 'First Name' field is required.", 'first_name');
-				
-				if(!empty($primary_email_id) && false == (DAO_Address::get($primary_email_id)))
-					throw new Exception_DevblocksAjaxValidationError("The specified email address is invalid.", 'primary_email_id');
-
 				if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
 					throw new Exception_DevblocksAjaxValidationError("The specified date of birth is invalid.", 'dob');
 				
 				// Insert/Update
 				
 				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CONTACT)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
 					$fields = array(
 						DAO_Contact::FIRST_NAME => $first_name,
 						DAO_Contact::LAST_NAME => $last_name,
@@ -282,12 +280,18 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						$fields[DAO_Contact::AUTH_PASSWORD] = md5($salt.md5($password));
 					}
 					
+					if(!DAO_Contact::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Contact::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CONTACT, $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CONTACT)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
 					$fields = array(
 						DAO_Contact::FIRST_NAME => $first_name,
 						DAO_Contact::LAST_NAME => $last_name,
@@ -304,6 +308,9 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						DAO_Contact::MOBILE => $mobile,
 						DAO_Contact::UPDATED_AT => time(),
 					);
+					
+					if(!DAO_Contact::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					if(!empty($password)) {
 						$salt = CerberusApplication::generatePassword(8);

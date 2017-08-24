@@ -141,7 +141,9 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				// [TODO] Check ACL
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CLASSIFIER_CLASS)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_ClassifierClass::delete($id);
 				
 				echo json_encode(array(
@@ -155,36 +157,41 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 				@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
-				
 				// [TODO] Attribs
 				
 				if(empty($id)) { // New
-					if(empty($classifier_id))
-						throw new Exception_DevblocksAjaxValidationError("The 'Classifier' field is required.", 'classifier_id');
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CLASSIFIER_CLASS)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
 					
 					$fields = array(
 						DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
-						DAO_ClassifierClass::DICTIONARY_SIZE => 0,
 						DAO_ClassifierClass::NAME => $name,
 						DAO_ClassifierClass::SLOTS_JSON => json_encode([]),
-						DAO_ClassifierClass::TRAINING_COUNT => 0,
 						DAO_ClassifierClass::UPDATED_AT => time(),
 					);
+					
+					if(!DAO_ClassifierClass::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_ClassifierClass::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CLASSIFIER_CLASS)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
 					$fields = array(
 						DAO_ClassifierClass::NAME => $name,
 						DAO_ClassifierClass::SLOTS_JSON => json_encode([]),
 						DAO_ClassifierClass::UPDATED_AT => time(),
 					);
-					DAO_ClassifierClass::update($id, $fields);
 					
+					if(!DAO_ClassifierClass::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					DAO_ClassifierClass::update($id, $fields);
 				}
 	
 				// Custom fields

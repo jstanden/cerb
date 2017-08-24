@@ -36,6 +36,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			->addField(self::CALENDAR_ID)
 			->id()
 			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CALENDAR))
 			;
 		$validation
 			->addField(self::EVENT_END)
@@ -45,6 +46,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		$validation
 			->addField(self::EVENT_NAME)
 			->string()
+			->setNotEmpty(true)
 			->setRequired(true)
 			;
 		$validation

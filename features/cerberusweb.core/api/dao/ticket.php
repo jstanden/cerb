@@ -47,6 +47,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$validation
 			->addField(self::BUCKET_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_BUCKET))
 			;
 		$validation
 			->addField(self::CLOSED_AT)
@@ -68,22 +69,26 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::FIRST_MESSAGE_ID)
-			->setEditable(false)
 			->id()
+			->setEditable(false)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_MESSAGE))
 			;
 		$validation
 			->addField(self::FIRST_OUTGOING_MESSAGE_ID)
 			->id()
 			->setEditable(false)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_MESSAGE))
 			;
 		$validation
 			->addField(self::FIRST_WROTE_ID)
 			->id()
 			->setEditable(false)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
 			;
 		$validation
 			->addField(self::GROUP_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_GROUP))
 			;
 		$validation
 			->addField(self::ID)
@@ -106,11 +111,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			->addField(self::LAST_MESSAGE_ID)
 			->id()
 			->setEditable(false)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_MESSAGE))
 			;
 		$validation
 			->addField(self::LAST_WROTE_ID)
 			->id()
 			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
 			;
 		$validation
 			->addField(self::MASK)
@@ -126,10 +133,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$validation
 			->addField(self::ORG_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ORG, true))
 			;
 		$validation
 			->addField(self::OWNER_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER, true))
 			;
 		$validation
 			->addField(self::REOPEN_AT)
