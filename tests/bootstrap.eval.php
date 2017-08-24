@@ -1,6 +1,6 @@
 <?php
 // The URL to Selenium's WebDriver API
-define('WEBDRIVER_URL', 'http://localhost:4444/wd/hub');
+define('WEBDRIVER_URL', 'http://localhost:4444');
 
 // The URL where you installed Cerb
 define('BROWSER_URL', 'http://localhost:8080/index.php');
@@ -12,6 +12,9 @@ use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverDimension;
+use Facebook\WebDriver\Chrome\ChromeOptions;
+use Facebook\WebDriver\Remote\WebDriverBrowserType;
 
 require_once('vendor/autoload.php');
 
@@ -22,11 +25,24 @@ class CerbTestHelper {
 	static function getInstance() {
 		if(is_null(self::$_instance)) {
 			// Pick one:
-			$capabilities = DesiredCapabilities::safari();
+			//$capabilities = DesiredCapabilities::phantomjs();
+			//$capabilities = DesiredCapabilities::safari();
 			//$capabilities = DesiredCapabilities::firefox();
-			//$capabilities = DesiredCapabilities::chrome();
-			
+			$capabilities = DesiredCapabilities::chrome();
+
+			if($capabilities->getBrowserName() == WebDriverBrowserType::CHROME) {
+				$chromeOptions = new ChromeOptions();
+				$chromeOptions->addArguments(['--headless', 'window-size=1920,1080']);
+				$capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
+			}
+
 			$driver = RemoteWebDriver::create(WEBDRIVER_URL, $capabilities, 5000, 30000);
+
+			if($capabilities->getBrowserName() == WebDriverBrowserType::PHANTOMJS) {
+				$window = new WebDriverDimension(1024, 768);
+				$driver->manage()->window()->setSize($window);
+			}
+
 			//$driver->manage()->window()->maximize();
 			
 			self::$_instance = new CerbTestHelper();

@@ -270,7 +270,7 @@ class CerbEval_UI_SimulateDay1 extends CerbTestBase {
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
-					return 4 == count($objects);
+					return 4 <= count($objects);
 					
 				} catch (NoSuchElementException $nse) {
 					return null;
