@@ -154,6 +154,9 @@ class DAO_Task extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
+		if(!isset($fields[self::UPDATED_DATE]))
+			$fields[self::UPDATED_DATE] = time();
+		
 		// Make a diff for the requested objects in batches
 		
 		$chunks = array_chunk($ids, 100, true);
@@ -1260,6 +1263,8 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 };
 
 class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+	const ID = 'cerberusweb.contexts.task';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
