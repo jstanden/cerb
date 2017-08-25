@@ -85,4 +85,18 @@
 </fieldset>
 {/if}
 
+{if $records_created['cerberusweb.contexts.project.board']}
+<fieldset class="peek">
+	<legend>{'projects.common.boards'|devblocks_translate|capitalize}</legend>
+	
+	<ul class="bubbles">
+	{foreach from=$records_created['cerberusweb.contexts.project.board'] item=record key=context}
+	<li>
+		<a href="javascript:;" class="cerb-peek-trigger" data-context="{'cerberusweb.contexts.project.board'}" data-context-id="{$record.id}">{$record.label}</a>
+	</li>
+	{/foreach}
+	</ul>
+</fieldset>
+{/if}
+
 </div>

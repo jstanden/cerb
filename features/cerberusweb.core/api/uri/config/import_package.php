@@ -121,644 +121,832 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				}
 			}
 			
-			// Objects
-			
-			@$custom_fieldsets = $json['custom_fieldsets'];
-			@$bots = $json['bots'];
-			@$workspaces = $json['workspaces'];
-			@$portals = $json['portals'];
-			@$saved_searches = $json['saved_searches'];
-			@$calendars = $json['calendars'];
-			@$classifiers = $json['classifiers'];
-			
-			$bayes = DevblocksPlatform::services()->bayesClassifier();
-			
 			$uids = [];
 			$records_created = [];
 			
-			///////////////////////////////////////////////////////////////
-			// Validation pass
-			
-			if(is_array($custom_fieldsets))
-			foreach($custom_fieldsets as $custom_fieldset) {
-				$keys_to_require = ['uid','name','context','owner','fields'];
-				$diff = array_diff_key(array_flip($keys_to_require), $custom_fieldset);
-				if(count($diff))
-					throw new Exception(sprintf("Invalid JSON: custom fieldset is missing properties (%s)", implode(', ', array_keys($diff))));
-				
-				@$fields = $custom_fieldset['fields'];
-				$keys_to_require = ['uid','name','type','params'];
-				
-				// Check fields
-				if(is_array($fields))
-				foreach($fields as $field) {
-					$diff = array_diff_key(array_flip($keys_to_require), $field);
-					if(count($diff))
-						throw new Exception(sprintf("Invalid JSON: field is missing properties (%s)", implode(', ', array_keys($diff))));
-				}
-			}
-			
-			if(is_array($bots))
-			foreach($bots as $bot) {
-				$keys_to_require = ['uid','name','owner','is_disabled','params','behaviors'];
-				$diff = array_diff_key(array_flip($keys_to_require), $bot);
-				if(count($diff))
-					throw new Exception(sprintf("Invalid JSON: bot is missing properties (%s)", implode(', ', array_keys($diff))));
-				
-				@$behaviors = $bot['behaviors'];
-				$keys_to_require = ['uid','title','is_disabled','is_private','priority','event','nodes'];
-				
-				// Check behaviors
-				if(is_array($behaviors))
-				foreach($behaviors as $behavior) {
-					$diff = array_diff_key(array_flip($keys_to_require), $behavior);
-					if(count($diff))
-						throw new Exception(sprintf("Invalid JSON: behavior is missing properties (%s)", implode(', ', array_keys($diff))));
-				}
-			}
-			
-			if(is_array($workspaces))
-			foreach($workspaces as $workspace) {
-				$keys_to_require = ['uid','name','extension_id','tabs'];
-				$diff = array_diff_key(array_flip($keys_to_require), $workspace);
-				if(count($diff))
-					throw new Exception(sprintf("Invalid JSON: workspace is missing properties (%s)", implode(', ', array_keys($diff))));
-				
-				@$tabs = $bot['tabs'];
-				$keys_to_require = ['uid','name','extension_id','params'];
-				
-				// Check tabs
-				if(is_array($tabs))
-				foreach($tabs as $tab) {
-					$diff = array_diff_key(array_flip($keys_to_require), $tab);
-					if(count($diff))
-						throw new Exception(sprintf("Invalid JSON: workspace tab is missing properties (%s)", implode(', ', array_keys($diff))));
-				}
-			}
-			
-			if(is_array($portals))
-			foreach($portals as $portal) {
-				$keys_to_require = ['uid','name','extension_id','params'];
-				$diff = array_diff_key(array_flip($keys_to_require), $portal);
-				if(count($diff))
-					throw new Exception(sprintf("Invalid JSON: portal is missing properties (%s)", implode(', ', array_keys($diff))));
-			}
-			
-			if(is_array($saved_searches))
-			foreach($saved_searches as $saved_search) {
-				$keys_to_require = ['uid','name','context','tag','query'];
-				$diff = array_diff_key(array_flip($keys_to_require), $saved_search);
-				if(count($diff))
-					throw new Exception(sprintf("Invalid JSON: saved search is missing properties (%s)", implode(', ', array_keys($diff))));
-			}
-			
-			if(is_array($calendars))
-			foreach($calendars as $calendar) {
-				$keys_to_require = ['uid','name','params'];
-				$diff = array_diff_key(array_flip($keys_to_require), $calendar);
-				if(count($diff))
-					throw new Exception(sprintf("Invalid JSON: calendar is missing properties (%s)", implode(', ', array_keys($diff))));
-				
-				@$events = $calendar['events'];
-				$keys_to_require = ['uid','name','is_available','tz','event_start','event_end','recur_start','recur_end','patterns'];
-				
-				// Check events
-				if(is_array($events))
-				foreach($events as $event) {
-					$diff = array_diff_key(array_flip($keys_to_require), $event);
-					if(count($diff))
-						throw new Exception(sprintf("Invalid JSON: calendar event is missing properties (%s)", implode(', ', array_keys($diff))));
-				}
-			}
-			
-			if(is_array($classifiers))
-			foreach($classifiers as $classifier) {
-				$keys_to_require = ['uid','name','params'];
-				$diff = array_diff_key(array_flip($keys_to_require), $classifier);
-				if(count($diff))
-					throw new Exception(sprintf("Invalid JSON: classifier is missing properties (%s)", implode(', ', array_keys($diff))));
-				
-				@$classes = $classifier['classes'];
-				$keys_to_require = ['uid','name','expressions'];
-				
-				// Check classifications
-				if(is_array($classes))
-				foreach($classes as $class) {
-					$diff = array_diff_key(array_flip($keys_to_require), $class);
-					if(count($diff))
-						throw new Exception(sprintf("Invalid JSON: classification is missing properties (%s)", implode(', ', array_keys($diff))));
-					
-					@$expressions = $class['expressions'];
-					
-					if(!is_array($expressions))
-						continue;
-					
-					foreach($expressions as $expression) {
-						if(!$bayes::verify($expression))
-							throw new Exception(sprintf("Invalid JSON: invalid training in classifier (%s -> %s): %s", $classifier['name'], $class['name'], $expression));
-					}
-				}
-			}
-			
-			///////////////////////////////////////////////////////////////
-			// Insertion pass (when everything is OK)
-			
-			if(is_array($custom_fieldsets))
-			foreach($custom_fieldsets as $custom_fieldset) {
-				$uid = $custom_fieldset['uid'];
-				
-				$custom_fieldset_id = DAO_CustomFieldset::create([
-					DAO_CustomFieldset::NAME => $custom_fieldset['name'],
-					DAO_CustomFieldset::CONTEXT => $custom_fieldset['context'],
-					DAO_CustomFieldset::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-					DAO_CustomFieldset::OWNER_CONTEXT_ID => 0,
-				]);
-				
-				$uids[$custom_fieldset['uid']] = $custom_fieldset_id;
-				
-				$fields = $custom_fieldset['fields'];
-				
-				if(is_array($fields))
-				foreach($fields as $field) {
-					$uid = $field['uid'];
-					
-					$custom_field_id = DAO_CustomField::create([
-						DAO_CustomField::NAME => $uid,
-						DAO_CustomField::TYPE => $field['type'],
-						DAO_CustomField::PARAMS_JSON => json_encode([]),
-						DAO_CustomField::CUSTOM_FIELDSET_ID => $custom_fieldset_id,
-					]);
-					
-					$uids[$field['uid']] = $custom_field_id;
-				}
-			}
-			
-			if(is_array($bots))
-			foreach($bots as $bot) {
-				$uid = $bot['uid'];
-				
-				$bot_id = DAO_Bot::create([
-					DAO_Bot::NAME => $bot['name'],
-					DAO_Bot::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-					DAO_Bot::OWNER_CONTEXT_ID => 0,
-				]);
-				
-				$uids[$uid] = $bot_id;
-				
-				@$behaviors = $bot['behaviors'];
-				
-				if(is_array($behaviors))
-				foreach($behaviors as $behavior) {
-					$uid = $behavior['uid'];
-					
-					$behavior_id = DAO_TriggerEvent::create([
-						DAO_TriggerEvent::TITLE => $behavior['title'],
-						DAO_TriggerEvent::BOT_ID => $bot_id,
-					]);
-					
-					$uids[$uid] = $behavior_id;
-				}
-			}
-			
-			if(is_array($workspaces))
-			foreach($workspaces as $workspace) {
-				$uid = $workspace['uid'];
-				
-				$workspace_id = DAO_WorkspacePage::create([
-					DAO_WorkspacePage::NAME => $workspace['name'],
-					DAO_WorkspacePage::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-					DAO_WorkspacePage::OWNER_CONTEXT_ID => 0,
-				]);
-				
-				$uids[$uid] = $workspace_id;
-				
-				@$tabs = $workspace['tabs'];
-				
-				if(is_array($tabs))
-				foreach($tabs as $tab) {
-					$uid = $tab['uid'];
-					
-					$tab_id = DAO_WorkspaceTab::create([
-						DAO_WorkspaceTab::NAME => $tab['name'],
-						DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $workspace_id,
-					]);
-					
-					$uids[$uid] = $tab_id;
-				}
-			}
-			
-			if(is_array($portals))
-			foreach($portals as $portal) {
-				$uid = $portal['uid'];
-				
-				$portal_code = DAO_CommunityTool::generateUniqueCode(8);
-				
-				$portal_id = DAO_CommunityTool::create([
-					DAO_CommunityTool::NAME => $portal['name'],
-					DAO_CommunityTool::CODE => $portal_code,
-					DAO_CommunityTool::EXTENSION_ID => $portal['extension_id'],
-				]);
-				
-				$uids[$uid] = $portal_id;
-			}
-			
-			if(is_array($saved_searches))
-			foreach($saved_searches as $saved_search) {
-				$uid = $saved_search['uid'];
-				
-				$search_id = DAO_ContextSavedSearch::create([
-					DAO_ContextSavedSearch::NAME => $saved_search['name'],
-					DAO_ContextSavedSearch::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-					DAO_ContextSavedSearch::OWNER_CONTEXT_ID => 0,
-					DAO_ContextSavedSearch::UPDATED_AT => time(),
-				]);
-				
-				$uids[$uid] = $search_id;
-			}
-			
-			if(is_array($calendars))
-			foreach($calendars as $calendar) {
-				$uid = $calendar['uid'];
-				
-				$calendar_id = DAO_Calendar::create([
-					DAO_Calendar::NAME => $calendar['name'],
-					DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-					DAO_Calendar::OWNER_CONTEXT_ID => 0,
-					DAO_Calendar::UPDATED_AT => time(),
-				]);
-				
-				$uids[$uid] = $calendar_id;
-				
-				@$events = $calendar['events'];
-				
-				if(is_array($events))
-				foreach($events as $event) {
-					$uid = $event['uid'];
-					
-					$event_id = DAO_CalendarRecurringProfile::create([
-						DAO_CalendarRecurringProfile::EVENT_NAME => $event['name'],
-						DAO_CalendarRecurringProfile::CALENDAR_ID => $calendar_id,
-					]);
-					
-					$uids[$uid] = $event_id;
-				}
-			}
-			
-			if(is_array($classifiers))
-			foreach($classifiers as $classifier) {
-				$uid = $classifier['uid'];
-				
-				$classifier_id = DAO_Classifier::create([
-					DAO_Classifier::NAME => $classifier['name'],
-					DAO_Classifier::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-					DAO_Classifier::OWNER_CONTEXT_ID => 0,
-					DAO_Classifier::CREATED_AT => time(),
-					DAO_Classifier::UPDATED_AT => time(),
-				]);
-				
-				$uids[$uid] = $classifier_id;
-				
-				@$classes = $classifier['classes'];
-				
-				if(is_array($classes))
-				foreach($classes as $class) {
-					$uid = $class['uid'];
-					
-					$class_id = DAO_ClassifierClass::create([
-						DAO_ClassifierClass::NAME => $class['name'],
-						DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
-						DAO_ClassifierClass::UPDATED_AT => time(),
-					]);
-					
-					$uids[$uid] = $class_id;
-				}
-			}
-			
-			$new_json_string = json_encode(array_diff_key($json, ['package'=>true]));
-			
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-			$lexer = array(
-				'tag_comment'   => array('{{#', '#}}'),
-				'tag_block'     => array('{{%', '%}}'),
-				'tag_variable'  => array('{{{', '}}}'),
-				'interpolation' => array('#{{', '}}'),
-			);
-			
-			// Add UID placeholders
-			$placeholders['uid'] = $uids;
-			
-			$new_json_string = $tpl_builder->build($new_json_string, $placeholders, $lexer);
-			
-			$json = json_decode($new_json_string, true);
-			
-			unset($new_json_string);
-			
-			///////////////////////////////////////////////////////////////
-			// Update pass (finalize data)
-			
-			@$custom_fieldsets = $json['custom_fieldsets'];
-			
-			if(is_array($custom_fieldsets))
-			foreach($custom_fieldsets as $custom_fieldset) {
-				$uid = $custom_fieldset['uid'];
-				$id = $uids[$uid];
-				
-				DAO_CustomFieldset::update($id, [
-					DAO_CustomFieldset::NAME => $custom_fieldset['name'],
-					DAO_CustomFieldset::CONTEXT => $custom_fieldset['context'],
-				]);
-				
-				$records_created[CerberusContexts::CONTEXT_CUSTOM_FIELDSET][] = [
-					'id' => $id,
-					'label' => $custom_fieldset['name'],
-				];
-				
-				$custom_fields = $custom_fieldset['fields'];
-				
-				if(is_array($custom_fields))
-				foreach($custom_fields as $pos => $custom_field) {
-					$uid = $custom_field['uid'];
-					$id = $uids[$uid];
-					
-					DAO_CustomField::update($id, [
-						DAO_CustomField::NAME => $custom_field['name'],
-						DAO_CustomField::TYPE => $custom_field['type'],
-						DAO_CustomField::CONTEXT => $custom_fieldset['context'],
-						DAO_CustomField::POS => $pos,
-						DAO_CustomField::PARAMS_JSON => json_encode($custom_field['params']),
-					]);
-				}
-			}
-			
-			@$bots = $json['bots'];
-			
-			if(is_array($bots))
-			foreach($bots as $bot) {
-				$uid = $bot['uid'];
-				$id = $uids[$uid];
-				
-				DAO_Bot::update($id, [
-					DAO_Bot::NAME => $bot['name'],
-					DAO_Bot::IS_DISABLED => @$bot['is_disabled'] ? 1 : 0,
-					DAO_Bot::CREATED_AT => time(),
-					DAO_Bot::UPDATED_AT => time(),
-					DAO_Bot::PARAMS_JSON => json_encode($bot['params']),
-				]);
-				
-				$records_created[CerberusContexts::CONTEXT_BOT][] = [
-					'id' => $id,
-					'label' => $bot['name'],
-				];
-				
-				// Image
-				
-				if(isset($bot['image']) && !empty($bot['image'])) {
-					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $bot['image']);
-				}
-				
-				// Behaviors
-				
-				$behaviors = $bot['behaviors'];
-				
-				if(is_array($behaviors))
-				foreach($behaviors as $behavior) {
-					$uid = $behavior['uid'];
-					$id = $uids[$uid];
-					
-					@$event_params = isset($behavior['event']['params']) ? $behavior['event']['params'] : '';
-					$error = null;
-
-					if(false != (@$event = Extension_DevblocksEvent::get($behavior['event']['key'], true)))
-						$event->prepareEventParams(null, $event_params, $error);
-					
-					DAO_TriggerEvent::update($id, [
-						DAO_TriggerEvent::EVENT_POINT => $behavior['event']['key'],
-						DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
-						DAO_TriggerEvent::IS_DISABLED => 1, // @$behavior['is_disabled'] ? 1 : 0, // until successfully imported
-						DAO_TriggerEvent::IS_PRIVATE => @$behavior['is_private'] ? 1 : 0,
-						DAO_TriggerEvent::PRIORITY => @$behavior['priority'],
-						DAO_TriggerEvent::TITLE => $behavior['title'],
-						DAO_TriggerEvent::UPDATED_AT => time(),
-						DAO_TriggerEvent::VARIABLES_JSON => isset($behavior['variables']) ? json_encode($behavior['variables']) : '',
-					]);
-					
-					// Create records for all child nodes and link them to the proper parents
-					
-					if(isset($behavior['nodes']))
-					if(false == DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
-						throw new Exception('Failed to import behavior nodes');
-					
-					// Enable the new behavior since we've succeeded
-					
-					DAO_TriggerEvent::update($id, array(
-						DAO_TriggerEvent::IS_DISABLED => @$behavior['is_disabled'] ? 1 : 0,
-					));
-				}
-			}
-			
-			@$workspaces = $json['workspaces'];
-			
-			if(is_array($workspaces))
-			foreach($workspaces as $workspace) {
-				$uid = $workspace['uid'];
-				$id = $uids[$uid];
-				
-				DAO_WorkspacePage::update($id, [
-					DAO_WorkspacePage::NAME => $workspace['name'],
-					DAO_WorkspacePage::EXTENSION_ID => $workspace['extension_id'],
-				]);
-				
-				$records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE][] = [
-					'id' => $id,
-					'label' => $workspace['name'],
-				];
-				
-				$tabs = $workspace['tabs'];
-				
-				foreach($tabs as $tab_idx => $tab) {
-					$uid = $tab['uid'];
-					$id = $uids[$uid];
-					
-					DAO_WorkspaceTab::update($id, [
-						DAO_WorkspaceTab::NAME => $tab['name'],
-						DAO_WorkspaceTab::EXTENSION_ID => $tab['extension_id'],
-						DAO_WorkspaceTab::POS => $tab_idx,
-						DAO_WorkspaceTab::PARAMS_JSON => isset($tab['params']) ? json_encode($tab['params']) : '',
-					]);
-					
-					if(false == ($extension = Extension_WorkspaceTab::get($tab['extension_id']))) /* @var $extension Extension_WorkspaceTab */
-						throw new Exception('Failed to instantiate workspace tab extension: ' . $tab['extension_id']);
-					
-					if(false == ($model = DAO_WorkspaceTab::get($id)))
-						throw new Exception('Failed to load workspace tab model: ' . $tab['extension_id']);
-					
-					$import_json = ['tab' => $tab];
-					$extension->importTabConfigJson($import_json, $model);
-				}
-			}
-			
-			@$portals = $json['portals'];
-			
-			if(is_array($portals))
-			foreach($portals as $portal) {
-				$uid = $portal['uid'];
-				$id = $uids[$uid];
-				
-				DAO_CommunityTool::update($id, [
-					DAO_CommunityTool::NAME => $portal['name'],
-					DAO_CommunityTool::EXTENSION_ID => $portal['extension_id'],
-				]);
-				
-				$portal_model = DAO_CommunityTool::get($id);
-				
-				$records_created[CerberusContexts::CONTEXT_PORTAL][] = [
-					'id' => $id,
-					'label' => $portal['name'],
-					'code' => $portal_model->code,
-				];
-				
-				$params = $portal['params'];
-				
-				if(is_array($params))
-				foreach($params as $k => $v) {
-					$uid = $tab['uid'];
-					$id = $uids[$uid];
-					
-					DAO_CommunityToolProperty::set($portal_model->code, $k, $v);
-				}
-			}
-			
-			@$saved_searches = $json['saved_searches'];
-			
-			if(is_array($saved_searches))
-			foreach($saved_searches as $saved_search) {
-				$uid = $saved_search['uid'];
-				$id = $uids[$uid];
-				
-				DAO_ContextSavedSearch::update($id, [
-					DAO_ContextSavedSearch::NAME => $saved_search['name'],
-					DAO_ContextSavedSearch::CONTEXT => $saved_search['context'],
-					DAO_ContextSavedSearch::TAG => $saved_search['tag'],
-					DAO_ContextSavedSearch::QUERY => $saved_search['query'],
-					DAO_ContextSavedSearch::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-					DAO_ContextSavedSearch::OWNER_CONTEXT_ID => 0,
-				]);
-				
-				$records_created[CerberusContexts::CONTEXT_SAVED_SEARCH][] = [
-					'id' => $id,
-					'label' => $saved_search['name'],
-				];
-			}
-			
-			@$calendars = $json['calendars'];
-			
-			if(is_array($calendars))
-			foreach($calendars as $calendar) {
-				$uid = $calendar['uid'];
-				$id = $uids[$uid];
-				
-				DAO_Calendar::update($id, [
-					DAO_Calendar::NAME => $calendar['name'],
-					DAO_Calendar::PARAMS_JSON => isset($calendar['params']) ? json_encode($calendar['params']) : '',
-					DAO_Calendar::UPDATED_AT => time(),
-					DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-					DAO_Calendar::OWNER_CONTEXT_ID => 0,
-				]);
-				
-				$records_created[CerberusContexts::CONTEXT_CALENDAR][] = [
-					'id' => $id,
-					'label' => $calendar['name'],
-				];
-				
-				$calendar_id = $id;
-				@$events = $calendar['events'];
-				
-				if(is_array($events))
-				foreach($events as $event) {
-					$uid = $event['uid'];
-					$id = $uids[$uid];
-					
-					$event_id = DAO_CalendarRecurringProfile::update($id, [
-						DAO_CalendarRecurringProfile::EVENT_NAME => $event['name'],
-						DAO_CalendarRecurringProfile::CALENDAR_ID => $calendar_id,
-						DAO_CalendarRecurringProfile::IS_AVAILABLE => @$event['is_available'] ? 1 : 0,
-						DAO_CalendarRecurringProfile::TZ => $event['tz'],
-						DAO_CalendarRecurringProfile::EVENT_START => $event['event_start'],
-						DAO_CalendarRecurringProfile::EVENT_END => $event['event_end'],
-						DAO_CalendarRecurringProfile::RECUR_START => $event['recur_start'],
-						DAO_CalendarRecurringProfile::RECUR_END => $event['recur_end'],
-						DAO_CalendarRecurringProfile::PATTERNS => implode("\n", is_array(@$event['patterns']) ? $event['patterns'] : []),
-					]);
-				}
-			}
-			
-			@$classifiers = $json['classifiers'];
-			
-			if(is_array($classifiers))
-			foreach($classifiers as $classifier) {
-				$uid = $classifier['uid'];
-				$id = $uids[$uid];
-				$classifier_id = $id;
-				
-				DAO_Classifier::update($id, [
-					DAO_Classifier::NAME => $classifier['name'],
-					DAO_Classifier::PARAMS_JSON => isset($classifier['params']) ? json_encode($classifier['params']) : '',
-					DAO_Classifier::UPDATED_AT => time(),
-					DAO_Classifier::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-					DAO_Classifier::OWNER_CONTEXT_ID => 0,
-				]);
-				
-				$records_created[CerberusContexts::CONTEXT_CLASSIFIER][] = [
-					'id' => $id,
-					'label' => $classifier['name'],
-				];
-				
-				@$classes = $classifier['classes'];
-				
-				if(is_array($classes))
-				foreach($classes as $class) {
-					$uid = $class['uid'];
-					$id = $uids[$uid];
-					$class_id = $id;
-					
-					DAO_ClassifierClass::update($id, [
-						DAO_ClassifierClass::NAME => $class['name'],
-						DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
-						DAO_ClassifierClass::UPDATED_AT => time(),
-					]);
-					
-					@$expressions = $class['expressions'];
-					
-					if(!is_array($expressions))
-						continue;
-					
-					foreach($expressions as $expression) {
-						DAO_ClassifierExample::create([
-							DAO_ClassifierExample::CLASSIFIER_ID => $classifier_id,
-							DAO_ClassifierExample::CLASS_ID => $class_id,
-							DAO_ClassifierExample::EXPRESSION => $expression,
-							DAO_ClassifierExample::UPDATED_AT => time(),
-						]);
-						
-						$bayes::train($expression, $classifier_id, $class_id, true);
-					}
-				}
-				
-				$bayes::build($classifier_id);
-			}
+			$this->_packageValidate($json, $uids, $records_created);
+			$this->_packageGenerateIds($json, $uids, $records_created);
+			$this->_packageImport($json, $uids, $records_created);
 			
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('records_created', $records_created);
 			$results_html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/import_package/results.tpl');
 			
 			echo json_encode(array('status' => true, 'results_html' => $results_html));
-			return;
-				
+			
 		} catch(Exception $e) {
 			// [TODO] On failure, delete temporary UIDs?
 			
 			echo json_encode(array('status' => false, 'error' => $e->getMessage()));
 			return;
+		}
+	}
+	
+	private function _packageValidate(&$json, &$uids, &$records_created) {
+		@$custom_fieldsets = $json['custom_fieldsets'];
+		
+		if(is_array($custom_fieldsets))
+		foreach($custom_fieldsets as $custom_fieldset) {
+			$keys_to_require = ['uid','name','context','owner','fields'];
+			$diff = array_diff_key(array_flip($keys_to_require), $custom_fieldset);
+			if(count($diff))
+				throw new Exception(sprintf("Invalid JSON: custom fieldset is missing properties (%s)", implode(', ', array_keys($diff))));
+			
+			@$fields = $custom_fieldset['fields'];
+			$keys_to_require = ['uid','name','type','params'];
+			
+			// Check fields
+			if(is_array($fields))
+			foreach($fields as $field) {
+				$diff = array_diff_key(array_flip($keys_to_require), $field);
+				if(count($diff))
+					throw new Exception(sprintf("Invalid JSON: field is missing properties (%s)", implode(', ', array_keys($diff))));
+			}
+		}
+		
+		@$bots = $json['bots'];
+		
+		if(is_array($bots))
+		foreach($bots as $bot) {
+			$keys_to_require = ['uid','name','owner','is_disabled','params','behaviors'];
+			$diff = array_diff_key(array_flip($keys_to_require), $bot);
+			if(count($diff))
+				throw new Exception(sprintf("Invalid JSON: bot is missing properties (%s)", implode(', ', array_keys($diff))));
+			
+			@$behaviors = $bot['behaviors'];
+			$keys_to_require = ['uid','title','is_disabled','is_private','priority','event','nodes'];
+			
+			// Check behaviors
+			if(is_array($behaviors))
+			foreach($behaviors as $behavior) {
+				$diff = array_diff_key(array_flip($keys_to_require), $behavior);
+				if(count($diff))
+					throw new Exception(sprintf("Invalid JSON: behavior is missing properties (%s)", implode(', ', array_keys($diff))));
+			}
+		}
+		
+		@$workspaces = $json['workspaces'];
+		
+		if(is_array($workspaces))
+		foreach($workspaces as $workspace) {
+			$keys_to_require = ['uid','name','extension_id','tabs'];
+			$diff = array_diff_key(array_flip($keys_to_require), $workspace);
+			if(count($diff))
+				throw new Exception(sprintf("Invalid JSON: workspace is missing properties (%s)", implode(', ', array_keys($diff))));
+			
+			@$tabs = $bot['tabs'];
+			$keys_to_require = ['uid','name','extension_id','params'];
+			
+			// Check tabs
+			if(is_array($tabs))
+			foreach($tabs as $tab) {
+				$diff = array_diff_key(array_flip($keys_to_require), $tab);
+				if(count($diff))
+					throw new Exception(sprintf("Invalid JSON: workspace tab is missing properties (%s)", implode(', ', array_keys($diff))));
+			}
+		}
+		
+		@$portals = $json['portals'];
+		
+		if(is_array($portals))
+		foreach($portals as $portal) {
+			$keys_to_require = ['uid','name','extension_id','params'];
+			$diff = array_diff_key(array_flip($keys_to_require), $portal);
+			if(count($diff))
+				throw new Exception(sprintf("Invalid JSON: portal is missing properties (%s)", implode(', ', array_keys($diff))));
+		}
+	
+		@$saved_searches = $json['saved_searches'];
+		
+		if(is_array($saved_searches))
+		foreach($saved_searches as $saved_search) {
+			$keys_to_require = ['uid','name','context','tag','query'];
+			$diff = array_diff_key(array_flip($keys_to_require), $saved_search);
+			if(count($diff))
+				throw new Exception(sprintf("Invalid JSON: saved search is missing properties (%s)", implode(', ', array_keys($diff))));
+		}
+		
+		@$calendars = $json['calendars'];
+		
+		if(is_array($calendars))
+		foreach($calendars as $calendar) {
+			$keys_to_require = ['uid','name','params'];
+			$diff = array_diff_key(array_flip($keys_to_require), $calendar);
+			if(count($diff))
+				throw new Exception(sprintf("Invalid JSON: calendar is missing properties (%s)", implode(', ', array_keys($diff))));
+			
+			@$events = $calendar['events'];
+			$keys_to_require = ['uid','name','is_available','tz','event_start','event_end','recur_start','recur_end','patterns'];
+			
+			// Check events
+			if(is_array($events))
+			foreach($events as $event) {
+				$diff = array_diff_key(array_flip($keys_to_require), $event);
+				if(count($diff))
+					throw new Exception(sprintf("Invalid JSON: calendar event is missing properties (%s)", implode(', ', array_keys($diff))));
+			}
+		}
+		
+		@$classifiers = $json['classifiers'];
+		$bayes = DevblocksPlatform::services()->bayesClassifier();
+		
+		if(is_array($classifiers))
+		foreach($classifiers as $classifier) {
+			$keys_to_require = ['uid','name','params'];
+			$diff = array_diff_key(array_flip($keys_to_require), $classifier);
+			if(count($diff))
+				throw new Exception(sprintf("Invalid JSON: classifier is missing properties (%s)", implode(', ', array_keys($diff))));
+			
+			@$classes = $classifier['classes'];
+			$keys_to_require = ['uid','name','expressions'];
+			
+			// Check classifications
+			if(is_array($classes))
+			foreach($classes as $class) {
+				$diff = array_diff_key(array_flip($keys_to_require), $class);
+				if(count($diff))
+					throw new Exception(sprintf("Invalid JSON: classification is missing properties (%s)", implode(', ', array_keys($diff))));
+				
+				@$expressions = $class['expressions'];
+				
+				if(!is_array($expressions))
+					continue;
+				
+				foreach($expressions as $expression) {
+					if(!$bayes::verify($expression))
+						throw new Exception(sprintf("Invalid JSON: invalid training in classifier (%s -> %s): %s", $classifier['name'], $class['name'], $expression));
+				}
+			}
+		}
+		
+		@$project_boards = $json['project_boards'];
+		
+		if(is_array($project_boards))
+		foreach($project_boards as $project_board) {
+			$keys_to_require = ['uid','name','columns'];
+			$diff = array_diff_key(array_flip($keys_to_require), $project_board);
+			if(count($diff))
+				throw new Exception(sprintf("Invalid JSON: project board is missing properties (%s)", implode(', ', array_keys($diff))));
+			
+			@$columns = $project_board['columns'];
+			
+			// Validate columns
+			if(is_array($columns))
+			foreach($columns as $column) {
+				$keys_to_require = ['uid','name'];
+				$diff = array_diff_key(array_flip($keys_to_require), $column);
+				if(count($diff))
+					throw new Exception(sprintf("Invalid JSON: project board column is missing properties (%s)", implode(', ', array_keys($diff))));
+				
+				@$cards = $column['cards'];
+				
+				// Validate column cards
+				if(is_array($cards))
+				foreach($cards as $card) {
+					$keys_to_require = ['uid','_context'];
+					$diff = array_diff_key(array_flip($keys_to_require), $card);
+					if(count($diff))
+						throw new Exception(sprintf("Invalid JSON: project card is missing properties (%s)", implode(', ', array_keys($diff))));
+					
+					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
+						throw new Exception(sprintf("Unknown context '%s' on project card.", $card['_context']));
+					
+					$dict = array_diff_key($card, ['_context'=>true,'uid'=>true]);
+					$fields = $custom_fields = [];
+					$error = null;
+					
+					if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
+						throw new Exception(sprintf("Error on project card (%s): %s", $card['uid'], $error));
+					
+					$dao_class = $context_ext->getDaoClass();
+					
+					// [TODO] Throw a subclass of Exception
+					if(!$dao_class::validate($fields, $error))
+						throw new Exception($error);
+				}
+			}
+		}
+	}
+	
+	private function _packageGenerateIds(&$json, &$uids, &$records_created) {
+		@$custom_fieldsets = $json['custom_fieldsets'];
+		
+		if(is_array($custom_fieldsets))
+		foreach($custom_fieldsets as $custom_fieldset) {
+			$uid = $custom_fieldset['uid'];
+			
+			$custom_fieldset_id = DAO_CustomFieldset::create([
+				DAO_CustomFieldset::NAME => $custom_fieldset['name'],
+				DAO_CustomFieldset::CONTEXT => $custom_fieldset['context'],
+				DAO_CustomFieldset::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_CustomFieldset::OWNER_CONTEXT_ID => 0,
+			]);
+			
+			$uids[$custom_fieldset['uid']] = $custom_fieldset_id;
+			
+			$fields = $custom_fieldset['fields'];
+			
+			if(is_array($fields))
+			foreach($fields as $field) {
+				$uid = $field['uid'];
+				
+				$custom_field_id = DAO_CustomField::create([
+					DAO_CustomField::NAME => $uid,
+					DAO_CustomField::TYPE => $field['type'],
+					DAO_CustomField::PARAMS_JSON => json_encode([]),
+					DAO_CustomField::CUSTOM_FIELDSET_ID => $custom_fieldset_id,
+				]);
+				
+				$uids[$field['uid']] = $custom_field_id;
+			}
+		}
+		
+		@$bots = $json['bots'];
+		
+		if(is_array($bots))
+		foreach($bots as $bot) {
+			$uid = $bot['uid'];
+			
+			$bot_id = DAO_Bot::create([
+				DAO_Bot::NAME => $bot['name'],
+				DAO_Bot::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_Bot::OWNER_CONTEXT_ID => 0,
+			]);
+			
+			$uids[$uid] = $bot_id;
+			
+			@$behaviors = $bot['behaviors'];
+			
+			if(is_array($behaviors))
+			foreach($behaviors as $behavior) {
+				$uid = $behavior['uid'];
+				
+				$behavior_id = DAO_TriggerEvent::create([
+					DAO_TriggerEvent::TITLE => $behavior['title'],
+					DAO_TriggerEvent::BOT_ID => $bot_id,
+				]);
+				
+				$uids[$uid] = $behavior_id;
+			}
+		}
+		
+		@$workspaces = $json['workspaces'];
+		
+		if(is_array($workspaces))
+		foreach($workspaces as $workspace) {
+			$uid = $workspace['uid'];
+			
+			$workspace_id = DAO_WorkspacePage::create([
+				DAO_WorkspacePage::NAME => $workspace['name'],
+				DAO_WorkspacePage::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_WorkspacePage::OWNER_CONTEXT_ID => 0,
+			]);
+			
+			$uids[$uid] = $workspace_id;
+			
+			@$tabs = $workspace['tabs'];
+			
+			if(is_array($tabs))
+			foreach($tabs as $tab) {
+				$uid = $tab['uid'];
+				
+				$tab_id = DAO_WorkspaceTab::create([
+					DAO_WorkspaceTab::NAME => $tab['name'],
+					DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $workspace_id,
+				]);
+				
+				$uids[$uid] = $tab_id;
+			}
+		}
+		
+		@$portals = $json['portals'];
+		
+		if(is_array($portals))
+		foreach($portals as $portal) {
+			$uid = $portal['uid'];
+			
+			$portal_code = DAO_CommunityTool::generateUniqueCode(8);
+			
+			$portal_id = DAO_CommunityTool::create([
+				DAO_CommunityTool::NAME => $portal['name'],
+				DAO_CommunityTool::CODE => $portal_code,
+				DAO_CommunityTool::EXTENSION_ID => $portal['extension_id'],
+			]);
+			
+			$uids[$uid] = $portal_id;
+		}
+		
+		@$saved_searches = $json['saved_searches'];
+		
+		if(is_array($saved_searches))
+		foreach($saved_searches as $saved_search) {
+			$uid = $saved_search['uid'];
+			
+			$search_id = DAO_ContextSavedSearch::create([
+				DAO_ContextSavedSearch::NAME => $saved_search['name'],
+				DAO_ContextSavedSearch::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_ContextSavedSearch::OWNER_CONTEXT_ID => 0,
+				DAO_ContextSavedSearch::UPDATED_AT => time(),
+			]);
+			
+			$uids[$uid] = $search_id;
+		}
+		
+		@$calendars = $json['calendars'];
+		
+		if(is_array($calendars))
+		foreach($calendars as $calendar) {
+			$uid = $calendar['uid'];
+			
+			$calendar_id = DAO_Calendar::create([
+				DAO_Calendar::NAME => $calendar['name'],
+				DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_Calendar::OWNER_CONTEXT_ID => 0,
+				DAO_Calendar::UPDATED_AT => time(),
+			]);
+			
+			$uids[$uid] = $calendar_id;
+			
+			@$events = $calendar['events'];
+			
+			if(is_array($events))
+			foreach($events as $event) {
+				$uid = $event['uid'];
+				
+				$event_id = DAO_CalendarRecurringProfile::create([
+					DAO_CalendarRecurringProfile::EVENT_NAME => $event['name'],
+					DAO_CalendarRecurringProfile::CALENDAR_ID => $calendar_id,
+				]);
+				
+				$uids[$uid] = $event_id;
+			}
+		}
+		
+		@$classifiers = $json['classifiers'];
+		
+		if(is_array($classifiers))
+		foreach($classifiers as $classifier) {
+			$uid = $classifier['uid'];
+			
+			$classifier_id = DAO_Classifier::create([
+				DAO_Classifier::NAME => $classifier['name'],
+				DAO_Classifier::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_Classifier::OWNER_CONTEXT_ID => 0,
+				DAO_Classifier::CREATED_AT => time(),
+				DAO_Classifier::UPDATED_AT => time(),
+			]);
+			
+			$uids[$uid] = $classifier_id;
+			
+			@$classes = $classifier['classes'];
+			
+			if(is_array($classes))
+			foreach($classes as $class) {
+				$uid = $class['uid'];
+				
+				$class_id = DAO_ClassifierClass::create([
+					DAO_ClassifierClass::NAME => $class['name'],
+					DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
+					DAO_ClassifierClass::UPDATED_AT => time(),
+				]);
+				
+				$uids[$uid] = $class_id;
+			}
+		}
+		
+		@$project_boards = $json['project_boards'];
+		
+		if(is_array($project_boards))
+		foreach($project_boards as $project_board) {
+			$uid = $project_board['uid'];
+			
+			$project_board_id = DAO_ProjectBoard::create([
+				DAO_ProjectBoard::NAME => $project_board['name'],
+				DAO_ProjectBoard::PARAMS_JSON => '{}',
+				DAO_ProjectBoard::COLUMNS_JSON => '[]',
+				DAO_ProjectBoard::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_ProjectBoard::OWNER_CONTEXT_ID => 0,
+				DAO_ProjectBoard::UPDATED_AT => time(),
+			]);
+			
+			$uids[$uid] = $project_board_id;
+			
+			@$columns = $project_board['columns'];
+			
+			if(is_array($columns))
+			foreach($columns as $column) {
+				$uid_column = $column['uid'];
+				
+				$column_id = DAO_ProjectBoardColumn::create([
+					DAO_ProjectBoardColumn::NAME => $column['name'],
+					DAO_ProjectBoardColumn::BOARD_ID => $project_board_id,
+					DAO_ProjectBoardColumn::UPDATED_AT => time(),
+				]);
+				
+				$uids[$uid_column] = $column_id;
+				
+				@$cards = $column['cards'];
+				
+				if(is_array($cards))
+				foreach($cards as $card) {
+					$uid_card = $card['uid'];
+					
+					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
+						throw new Exception(sprintf("Unknown context on project card (%s)", $card['_context']));
+					
+					$dict = array_diff_key($card, ['_context'=>true,'uid'=>true]);
+					$fields = $custom_fields = [];
+					$error = null;
+					
+					if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
+						throw new Exception(sprintf("Error on project card (%s): %s", $uid_card, $error));
+					
+					$dao_class = $context_ext->getDaoClass();
+					
+					$card_id = $dao_class::create($fields);
+					
+					$uids[$uid_card] = $card_id;
+				}
+			}
+		}
+		
+		$new_json_string = json_encode(array_diff_key($json, ['package'=>true]));
+		
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$lexer = array(
+			'tag_comment'   => array('{{#', '#}}'),
+			'tag_block'     => array('{{%', '%}}'),
+			'tag_variable'  => array('{{{', '}}}'),
+			'interpolation' => array('#{{', '}}'),
+		);
+		
+		// Add UID placeholders
+		$placeholders['uid'] = $uids;
+		
+		$new_json_string = $tpl_builder->build($new_json_string, $placeholders, $lexer);
+		
+		$json = json_decode($new_json_string, true);
+	}
+
+	private function _packageImport(&$json, &$uids, &$records_created) {
+		@$custom_fieldsets = $json['custom_fieldsets'];
+		
+		if(is_array($custom_fieldsets))
+		foreach($custom_fieldsets as $custom_fieldset) {
+			$uid = $custom_fieldset['uid'];
+			$id = $uids[$uid];
+			
+			DAO_CustomFieldset::update($id, [
+				DAO_CustomFieldset::NAME => $custom_fieldset['name'],
+				DAO_CustomFieldset::CONTEXT => $custom_fieldset['context'],
+			]);
+			
+			$records_created[CerberusContexts::CONTEXT_CUSTOM_FIELDSET][] = [
+				'id' => $id,
+				'label' => $custom_fieldset['name'],
+			];
+			
+			$custom_fields = $custom_fieldset['fields'];
+			
+			if(is_array($custom_fields))
+			foreach($custom_fields as $pos => $custom_field) {
+				$uid = $custom_field['uid'];
+				$id = $uids[$uid];
+				
+				DAO_CustomField::update($id, [
+					DAO_CustomField::NAME => $custom_field['name'],
+					DAO_CustomField::TYPE => $custom_field['type'],
+					DAO_CustomField::CONTEXT => $custom_fieldset['context'],
+					DAO_CustomField::POS => $pos,
+					DAO_CustomField::PARAMS_JSON => json_encode($custom_field['params']),
+				]);
+			}
+		}
+		
+		@$bots = $json['bots'];
+		
+		if(is_array($bots))
+		foreach($bots as $bot) {
+			$uid = $bot['uid'];
+			$id = $uids[$uid];
+			
+			DAO_Bot::update($id, [
+				DAO_Bot::NAME => $bot['name'],
+				DAO_Bot::IS_DISABLED => @$bot['is_disabled'] ? 1 : 0,
+				DAO_Bot::CREATED_AT => time(),
+				DAO_Bot::UPDATED_AT => time(),
+				DAO_Bot::PARAMS_JSON => json_encode($bot['params']),
+			]);
+			
+			$records_created[CerberusContexts::CONTEXT_BOT][] = [
+				'id' => $id,
+				'label' => $bot['name'],
+			];
+			
+			// Image
+			
+			if(isset($bot['image']) && !empty($bot['image'])) {
+				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $bot['image']);
+			}
+			
+			// Behaviors
+			
+			$behaviors = $bot['behaviors'];
+			
+			if(is_array($behaviors))
+			foreach($behaviors as $behavior) {
+				$uid = $behavior['uid'];
+				$id = $uids[$uid];
+				
+				@$event_params = isset($behavior['event']['params']) ? $behavior['event']['params'] : '';
+				$error = null;
+
+				if(false != (@$event = Extension_DevblocksEvent::get($behavior['event']['key'], true)))
+					$event->prepareEventParams(null, $event_params, $error);
+				
+				DAO_TriggerEvent::update($id, [
+					DAO_TriggerEvent::EVENT_POINT => $behavior['event']['key'],
+					DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
+					DAO_TriggerEvent::IS_DISABLED => 1, // @$behavior['is_disabled'] ? 1 : 0, // until successfully imported
+					DAO_TriggerEvent::IS_PRIVATE => @$behavior['is_private'] ? 1 : 0,
+					DAO_TriggerEvent::PRIORITY => @$behavior['priority'],
+					DAO_TriggerEvent::TITLE => $behavior['title'],
+					DAO_TriggerEvent::UPDATED_AT => time(),
+					DAO_TriggerEvent::VARIABLES_JSON => isset($behavior['variables']) ? json_encode($behavior['variables']) : '',
+				]);
+				
+				// Create records for all child nodes and link them to the proper parents
+				
+				if(isset($behavior['nodes']))
+				if(false == DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
+					throw new Exception('Failed to import behavior nodes');
+				
+				// Enable the new behavior since we've succeeded
+				
+				DAO_TriggerEvent::update($id, array(
+					DAO_TriggerEvent::IS_DISABLED => @$behavior['is_disabled'] ? 1 : 0,
+				));
+			}
+		}
+		
+		@$workspaces = $json['workspaces'];
+		
+		if(is_array($workspaces))
+		foreach($workspaces as $workspace) {
+			$uid = $workspace['uid'];
+			$id = $uids[$uid];
+			
+			DAO_WorkspacePage::update($id, [
+				DAO_WorkspacePage::NAME => $workspace['name'],
+				DAO_WorkspacePage::EXTENSION_ID => $workspace['extension_id'],
+			]);
+			
+			$records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE][] = [
+				'id' => $id,
+				'label' => $workspace['name'],
+			];
+			
+			$tabs = $workspace['tabs'];
+			
+			foreach($tabs as $tab_idx => $tab) {
+				$uid = $tab['uid'];
+				$id = $uids[$uid];
+				
+				DAO_WorkspaceTab::update($id, [
+					DAO_WorkspaceTab::NAME => $tab['name'],
+					DAO_WorkspaceTab::EXTENSION_ID => $tab['extension_id'],
+					DAO_WorkspaceTab::POS => $tab_idx,
+					DAO_WorkspaceTab::PARAMS_JSON => isset($tab['params']) ? json_encode($tab['params']) : '',
+				]);
+				
+				if(false == ($extension = Extension_WorkspaceTab::get($tab['extension_id']))) /* @var $extension Extension_WorkspaceTab */
+					throw new Exception('Failed to instantiate workspace tab extension: ' . $tab['extension_id']);
+				
+				if(false == ($model = DAO_WorkspaceTab::get($id)))
+					throw new Exception('Failed to load workspace tab model: ' . $tab['extension_id']);
+				
+				$import_json = ['tab' => $tab];
+				$extension->importTabConfigJson($import_json, $model);
+			}
+		}
+		
+		@$portals = $json['portals'];
+		
+		if(is_array($portals))
+		foreach($portals as $portal) {
+			$uid = $portal['uid'];
+			$id = $uids[$uid];
+			
+			DAO_CommunityTool::update($id, [
+				DAO_CommunityTool::NAME => $portal['name'],
+				DAO_CommunityTool::EXTENSION_ID => $portal['extension_id'],
+			]);
+			
+			$portal_model = DAO_CommunityTool::get($id);
+			
+			$records_created[CerberusContexts::CONTEXT_PORTAL][] = [
+				'id' => $id,
+				'label' => $portal['name'],
+				'code' => $portal_model->code,
+			];
+			
+			$params = $portal['params'];
+			
+			if(is_array($params))
+			foreach($params as $k => $v) {
+				$uid = $tab['uid'];
+				$id = $uids[$uid];
+				
+				DAO_CommunityToolProperty::set($portal_model->code, $k, $v);
+			}
+		}
+		
+		@$saved_searches = $json['saved_searches'];
+		
+		if(is_array($saved_searches))
+		foreach($saved_searches as $saved_search) {
+			$uid = $saved_search['uid'];
+			$id = $uids[$uid];
+			
+			DAO_ContextSavedSearch::update($id, [
+				DAO_ContextSavedSearch::NAME => $saved_search['name'],
+				DAO_ContextSavedSearch::CONTEXT => $saved_search['context'],
+				DAO_ContextSavedSearch::TAG => $saved_search['tag'],
+				DAO_ContextSavedSearch::QUERY => $saved_search['query'],
+				DAO_ContextSavedSearch::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_ContextSavedSearch::OWNER_CONTEXT_ID => 0,
+			]);
+			
+			$records_created[CerberusContexts::CONTEXT_SAVED_SEARCH][] = [
+				'id' => $id,
+				'label' => $saved_search['name'],
+			];
+		}
+		
+		@$calendars = $json['calendars'];
+		
+		if(is_array($calendars))
+		foreach($calendars as $calendar) {
+			$uid = $calendar['uid'];
+			$id = $uids[$uid];
+			
+			DAO_Calendar::update($id, [
+				DAO_Calendar::NAME => $calendar['name'],
+				DAO_Calendar::PARAMS_JSON => isset($calendar['params']) ? json_encode($calendar['params']) : '',
+				DAO_Calendar::UPDATED_AT => time(),
+				DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_Calendar::OWNER_CONTEXT_ID => 0,
+			]);
+			
+			$records_created[CerberusContexts::CONTEXT_CALENDAR][] = [
+				'id' => $id,
+				'label' => $calendar['name'],
+			];
+			
+			$calendar_id = $id;
+			@$events = $calendar['events'];
+			
+			if(is_array($events))
+			foreach($events as $event) {
+				$uid = $event['uid'];
+				$id = $uids[$uid];
+				
+				$event_id = DAO_CalendarRecurringProfile::update($id, [
+					DAO_CalendarRecurringProfile::EVENT_NAME => $event['name'],
+					DAO_CalendarRecurringProfile::CALENDAR_ID => $calendar_id,
+					DAO_CalendarRecurringProfile::IS_AVAILABLE => @$event['is_available'] ? 1 : 0,
+					DAO_CalendarRecurringProfile::TZ => $event['tz'],
+					DAO_CalendarRecurringProfile::EVENT_START => $event['event_start'],
+					DAO_CalendarRecurringProfile::EVENT_END => $event['event_end'],
+					DAO_CalendarRecurringProfile::RECUR_START => $event['recur_start'],
+					DAO_CalendarRecurringProfile::RECUR_END => $event['recur_end'],
+					DAO_CalendarRecurringProfile::PATTERNS => implode("\n", is_array(@$event['patterns']) ? $event['patterns'] : []),
+				]);
+			}
+		}
+		
+		@$classifiers = $json['classifiers'];
+		$bayes = DevblocksPlatform::services()->bayesClassifier();
+		
+		if(is_array($classifiers))
+		foreach($classifiers as $classifier) {
+			$uid = $classifier['uid'];
+			$id = $uids[$uid];
+			$classifier_id = $id;
+			
+			DAO_Classifier::update($id, [
+				DAO_Classifier::NAME => $classifier['name'],
+				DAO_Classifier::PARAMS_JSON => isset($classifier['params']) ? json_encode($classifier['params']) : '',
+				DAO_Classifier::UPDATED_AT => time(),
+				DAO_Classifier::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_Classifier::OWNER_CONTEXT_ID => 0,
+			]);
+			
+			$records_created[CerberusContexts::CONTEXT_CLASSIFIER][] = [
+				'id' => $id,
+				'label' => $classifier['name'],
+			];
+			
+			@$classes = $classifier['classes'];
+			
+			if(is_array($classes))
+			foreach($classes as $class) {
+				$uid = $class['uid'];
+				$id = $uids[$uid];
+				$class_id = $id;
+				
+				DAO_ClassifierClass::update($id, [
+					DAO_ClassifierClass::NAME => $class['name'],
+					DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
+					DAO_ClassifierClass::UPDATED_AT => time(),
+				]);
+				
+				@$expressions = $class['expressions'];
+				
+				if(!is_array($expressions))
+					continue;
+				
+				foreach($expressions as $expression) {
+					DAO_ClassifierExample::create([
+						DAO_ClassifierExample::CLASSIFIER_ID => $classifier_id,
+						DAO_ClassifierExample::CLASS_ID => $class_id,
+						DAO_ClassifierExample::EXPRESSION => $expression,
+						DAO_ClassifierExample::UPDATED_AT => time(),
+					]);
+					
+					$bayes::train($expression, $classifier_id, $class_id, true);
+				}
+			}
+			
+			$bayes::build($classifier_id);
+		}
+		
+		@$project_boards = $json['project_boards'];
+		
+		if(is_array($project_boards))
+		foreach($project_boards as $project_board) {
+			$uid = $project_board['uid'];
+			$project_board_id = $uids[$uid];
+			
+			@$columns = $project_board['columns'];
+			$column_ids = [];
+			
+			if(is_array($columns))
+			foreach($columns as $column) {
+				$uid = $column['uid'];
+				$column_id = $uids[$uid];
+				$column_ids[] = $column_id;
+				
+				// Cards
+				@$cards = $column['cards'];
+				$card_ids = [];
+				
+				if(is_array($cards))
+				foreach($cards as $card) {
+					$uid = $card['uid'];
+					$card_id = $uids[$uid];
+					$card_ids[] = $card_id;
+					
+					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
+						throw new Exception(sprintf("Unknown extension on project card (%s): %s", $card['uid'], $card['_context']));
+					
+					// Set custom fields
+					
+					$dict = array_diff_key($card, ['_context'=>true,'uid'=>true]);
+					$fields = $custom_fields = [];
+					$error = null;
+					
+					if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
+						throw new Exception(sprintf("Error on project card (%s): %s", $uid_card, $error));
+					
+					DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $card_id, $custom_fields);
+					
+					// Add a record link card<->column
+					DAO_ContextLink::setLink($context_ext->id, $card_id, Context_ProjectBoardColumn::ID, $column_id);
+				}
+				
+				DAO_ProjectBoardColumn::update($column_id, [
+					DAO_ProjectBoardColumn::NAME => $column['name'],
+					DAO_ProjectBoardColumn::BOARD_ID => $project_board_id,
+					DAO_ProjectBoardColumn::CARDS_JSON => json_encode($card_ids),
+					DAO_ProjectBoardColumn::PARAMS_JSON => isset($column['params']) ? json_encode($column['params']) : '',
+					DAO_ProjectBoardColumn::UPDATED_AT => time(),
+				]);
+			}
+			
+			DAO_ProjectBoard::update($project_board_id, [
+				DAO_ProjectBoard::NAME => $project_board['name'],
+				DAO_ProjectBoard::COLUMNS_JSON => json_encode($column_ids),
+				DAO_ProjectBoard::PARAMS_JSON => isset($project_board['params']) ? json_encode($project_board['params']) : '',
+				DAO_ProjectBoard::UPDATED_AT => time(),
+				DAO_ProjectBoard::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+				DAO_ProjectBoard::OWNER_CONTEXT_ID => 0,
+			]);
+			
+			$records_created['cerberusweb.contexts.project.board'][] = [
+				'id' => $project_board_id,
+				'label' => $project_board['name'],
+			];
 		}
 	}
 };
