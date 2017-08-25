@@ -360,11 +360,14 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 };
 
 abstract class Extension_RestController extends DevblocksExtension {
-	const ERRNO_CUSTOM = 0;
-	const ERRNO_ACL = 1;
-	const ERRNO_NOT_IMPLEMENTED = 2;
-	const ERRNO_SEARCH_FILTERS_INVALID = 20;
-	
+	const ERRNO_CUSTOM = 'ERROR';
+	const ERRNO_ACL = 'ERROR_PERMISSIONS';
+	const ERRNO_NOT_IMPLEMENTED = 'ERROR_NOT_IMPLEMENTED';
+	const ERRNO_NOT_FOUND = 'ERROR_NOT_FOUND';
+	const ERRNO_PARAM_INVALID = 'ERROR_PARAM_INVALID';
+	const ERRNO_PARAM_REQUIRED = 'ERROR_PARAM_REQUIRED';
+	const ERRNO_SEARCH_FILTERS_INVALID = 'ERROR_SEARCH_FILTERS_INVALID';
+
 	private $_activeWorker = null; /* @var $_activeWorker Model_Worker */
 	private $_format = 'json';
 	private $_payload = '';
@@ -374,14 +377,8 @@ abstract class Extension_RestController extends DevblocksExtension {
 	 * @param string $message
 	 */
 	protected function error($code, $message='') {
-		// Polymorph for convenience
-		if(is_string($code)) {
-			$message = $code;
-			$code = self::ERRNO_CUSTOM;
-		}
-		
 		// Error codes
-		switch(intval($code)) {
+		switch($code) {
 			case self::ERRNO_ACL:
 				if(empty($message))
 					$message = 'Access denied.';
@@ -390,6 +387,21 @@ abstract class Extension_RestController extends DevblocksExtension {
 			case self::ERRNO_NOT_IMPLEMENTED:
 				if(empty($message))
 					$message = 'Not implemented.';
+				break;
+
+			case self::ERRNO_NOT_FOUND:
+				if(empty($message))
+					$message = 'Record not found.';
+				break;
+
+			case self::ERRNO_PARAM_INVALID:
+				if(empty($message))
+					$message = 'Parameter is invalid.';
+				break;
+
+			case self::ERRNO_PARAM_REQUIRED:
+				if(empty($message))
+					$message = 'Required parameter is missing.';
 				break;
 
 			case self::ERRNO_SEARCH_FILTERS_INVALID:
@@ -723,7 +735,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 		if(is_array($required))
 		foreach($required as $reqfield)
 			if(!isset($fields[$reqfield]))
-				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is a required field.", $reqfield));
+				$this->error(self::ERRNO_PARAM_REQUIRED, sprintf("'%s' is a required field.", $reqfield));
 	}
 
 	protected function _handleCustomFields($scope_array) {
