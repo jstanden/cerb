@@ -1477,6 +1477,33 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'updated' => DAO_Task::UPDATED_DATE,
 		];
 	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'owner':
+				break;
+				
+			case 'status':
+				$statuses_to_ids = [
+					'o' => 0,
+					'w' => 2,
+					'c' => 1,
+				];
+				
+				$status_label = DevblocksPlatform::strLower(mb_substr($value,0,1));
+				@$status_id = $statuses_to_ids[$status_label];
+				
+				if(is_null($status_id)) {
+					$error = 'Status must be: open, waiting, or closed.';
+					return false;
+				}
+				
+				$out_fields[DAO_Task::STATUS_ID] = $status_id;
+				break;
+		}
+		
+		return true;
+	}
 
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
