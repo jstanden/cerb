@@ -30,7 +30,7 @@
 					<option value="=" {if $crit_field.oper=="="}selected="selected"{/if}>=</option>
 					<option value="!=" {if $crit_field.oper=="!="}selected="selected"{/if}>!=</option>
 					<option value=">" {if $crit_field.oper==">"}selected="selected"{/if}>&gt;</option>
-					<option value="<" {if $crit_field.oper=="<"}selected="selected"{/if}>&lt;</option>
+					<option value="<" {if $crit_field.oper==chr(60)}selected="selected"{/if}>&lt;</option>
 				</select>
 				<input type="text" name="value_cf_{$field_id}" size="12" value="{$crit_field.value}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);">
 			{elseif 'C'==$field->type}

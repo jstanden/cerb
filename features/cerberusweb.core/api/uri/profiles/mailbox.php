@@ -169,6 +169,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::profiles/mailbox.tpl');
 	}
 	
+	// [TODO] Cards/ajax
 	function savePeekJsonAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		

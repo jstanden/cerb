@@ -564,7 +564,7 @@ class View_DecisionNode extends C4_AbstractView {
 		//$tpl->assign('custom_fields', $custom_fields);
 
 		// [TODO] Set your template path
-		$tpl->display('devblocks:example.plugin::path/to/view.tpl');
+		//$tpl->display('devblocks:example.plugin::path/to/view.tpl');
 	}
 
 	function renderCriteria($field) {

@@ -28,7 +28,6 @@ class CrmEventListener extends DevblocksEventListenerExtension {
 	}
 };
 
-if(class_exists('Extension_DevblocksEventAction')):
 class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
@@ -199,4 +198,3 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 	}
 	
 };
-endif;

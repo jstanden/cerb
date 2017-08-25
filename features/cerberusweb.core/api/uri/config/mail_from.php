@@ -68,6 +68,7 @@ class PageSection_SetupMailFrom extends Extension_PageSection {
 
 		$worker = CerberusApplication::getActiveWorker();
 	
+		// [TODO] Throw exceptions and switch this to a proper ajax editor popup
 		if(!$worker || !$worker->is_superuser)
 			return;
 		

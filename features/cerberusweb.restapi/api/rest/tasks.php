@@ -129,7 +129,7 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 		
 		// ACL
 //		if(!$worker->hasPriv('...'))
-//			$this->error("Access denied.");
+//			$this->error(self::ERRNO_ACL);
 
 		$container = $this->search(array(
 			array('id', '=', $id),

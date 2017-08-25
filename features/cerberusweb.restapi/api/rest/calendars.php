@@ -130,7 +130,7 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 		
 		// ACL
 //		if(!$worker->hasPriv('...'))
-//			$this->error("Access denied.");
+//			$this->error(self::ERRNO_ACL);
 
 		$container = $this->search(array(
 			array('id', '=', $id),

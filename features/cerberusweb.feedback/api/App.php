@@ -1571,7 +1571,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		} elseif(!empty($id)) { // Were we given a model ID to load?
 			if(null == ($model = DAO_FeedbackEntry::get($id))) {
 				$id = null;
-				$model = new Model_Feedback();
+				$model = new Model_FeedbackEntry();
 			}
 		}
 

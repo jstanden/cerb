@@ -104,6 +104,7 @@ class PageSection_ProfilesSkill extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/skills/profile.tpl');
 	}
 	
+	// [TODO] cards
 	function savePeekAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		

@@ -86,6 +86,7 @@ class PageSection_SetupMailSmtp extends Extension_PageSection {
 		echo json_encode(array('status'=>true));
 	}
 	
+	// [TODO] Cards/ajax
 	function saveTransportPeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');

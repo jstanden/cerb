@@ -523,7 +523,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$out_fields = $out_custom_fields = [];
 		$error = null;
 		
-		$context = static::ID;
+		$context = $this->id;
 		
 		$map = $this->getKeyToDaoFieldMap();
 		

@@ -22,7 +22,7 @@
 			
 			<!-- Edit -->
 			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-			<button type="button" id="btnDisplayBucketEdit" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			<button type="button" id="btnDisplayBucketEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
 		</form>
 		
@@ -95,13 +95,21 @@ $(function() {
 	
 	$('#btnProfileCard').cerbPeekTrigger();
 	
-	$('#btnDisplayBucketEdit').bind('click', function() {
-		$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
-		$popup.one('bucket_save', function(event) {
-			event.stopPropagation();
+	$('#btnDisplayBucketEdit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
 			document.location.reload();
-		});
-	});
+		})
+		.on('cerb-peek-deleted', function(e) {
+			document.location.href = '{devblocks_url}{/devblocks_url}';
+			
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+	;
 	
 	// Interactions
 	var $interaction_container = $('#spanInteractions');

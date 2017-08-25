@@ -1,5 +1,4 @@
 <?php
-if(class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 	public function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$tpl = DevblocksPlatform::services()->template();
@@ -77,4 +76,3 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 		return true;
 	}
 }
-endif;
