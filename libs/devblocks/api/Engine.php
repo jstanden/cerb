@@ -1,5 +1,5 @@
 <?php
-include_once(APP_PATH . '/vendor/autoload.php');
+@include_once(APP_PATH . '/vendor/autoload.php');
 
 include_once(DEVBLOCKS_PATH . "api/Model.php");
 include_once(DEVBLOCKS_PATH . "api/DAO.php");

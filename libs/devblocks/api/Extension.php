@@ -1932,7 +1932,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 				default:
 					// Variables
-					} else if(DevblocksPlatform::strStartsWith($token, 'var_')) {
+					if(DevblocksPlatform::strStartsWith($token, 'var_')) {
 						@$var = $trigger->variables[$token];
 						@$var_type = $var['type'];
 
