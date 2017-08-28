@@ -20,7 +20,7 @@ class CerbEval_UI_SimulateDay3 extends CerbTestBase {
 		
 		$cerb->replyOnTicket(10, file_get_contents('resources/convos/010_mobile_app/2.txt'));
 		
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
@@ -44,7 +44,7 @@ class CerbEval_UI_SimulateDay3 extends CerbTestBase {
 		
 		$cerb->replyOnTicket(11, file_get_contents('resources/convos/011_kb_translations/2.txt'));
 		
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));

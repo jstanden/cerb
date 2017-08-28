@@ -146,13 +146,19 @@ class CerbTestHelper {
 		
 		$this->getPathAndWait('/');
 		
-		$worker_menu = $driver->findElement(WebDriverBy::id('lnkSignedIn'));
+		$by = WebDriverBy::id('lnkSignedIn');
+		
+		$driver->wait(10)->until(
+			WebDriverExpectedCondition::presenceOfElementLocated($by)
+		);
+		
+		$worker_menu = $driver->findElement($by);
 		$worker_menu->getLocationOnScreenOnceScrolledIntoView();
 		$worker_menu->click();
 		
-		$by = WebDriverBy::cssSelector('#menuSignedIn li:nth-child(6) a');
+		$by = WebDriverBy::cssSelector('#menuSignedIn li:nth-child(7) a');
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated($by)
 		);
 		
@@ -180,7 +186,7 @@ class CerbTestHelper {
 		
 		$by = WebDriverBy::cssSelector('textarea.reply[name=content]');
 			
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated($by)
 		);
 		
@@ -203,7 +209,7 @@ class CerbTestHelper {
 		
 		$by = WebDriverBy::id('btnComment');
 			
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated($by)
 		);
 		
@@ -212,7 +218,7 @@ class CerbTestHelper {
 		
 		$popups = [];
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10, 250)->until(
 			function() use (&$driver, &$popups) {
 				try {
 					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
@@ -236,7 +242,7 @@ class CerbTestHelper {
 		$popup->findElement(WebDriverBy::cssSelector('button.submit'))
 			->click();
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10, 250)->until(
 			function() use (&$driver) {
 				try {
 					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));

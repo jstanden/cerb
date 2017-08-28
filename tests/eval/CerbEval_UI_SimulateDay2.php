@@ -20,7 +20,7 @@ class CerbEval_UI_SimulateDay2 extends CerbTestBase {
 		
 		$cerb->replyOnTicket(4, file_get_contents('resources/convos/004_no_mail_received/2.txt'));
 		
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
@@ -44,7 +44,7 @@ class CerbEval_UI_SimulateDay2 extends CerbTestBase {
 		
 		$cerb->replyOnTicket(6, file_get_contents('resources/convos/006_german_translation/2.txt'));
 		
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
@@ -68,7 +68,7 @@ class CerbEval_UI_SimulateDay2 extends CerbTestBase {
 		
 		$cerb->replyOnTicket(7, file_get_contents('resources/convos/007_itil_compliance/2.txt'));
 		
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
@@ -109,7 +109,7 @@ class CerbEval_UI_SimulateDay2 extends CerbTestBase {
 		
 		$cerb->replyOnTicket(7, file_get_contents('resources/convos/005_swift_api/2.txt'));
 		
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
@@ -133,7 +133,7 @@ class CerbEval_UI_SimulateDay2 extends CerbTestBase {
 		
 		$cerb->replyOnTicket(7, file_get_contents('resources/convos/009_backups_process/2.txt'));
 		
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));
@@ -174,7 +174,7 @@ class CerbEval_UI_SimulateDay2 extends CerbTestBase {
 		
 		$cerb->replyOnTicket(8, file_get_contents('resources/convos/008_charity_discount/2.txt'));
 		
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#conversation > div'));

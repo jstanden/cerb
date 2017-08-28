@@ -22,7 +22,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			
 			$hide_this->click();
 			
-			$driver->wait(5, 250)->until(
+			$driver->wait(10)->until(
 				WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::id('tourForm'))
 			);
 			
@@ -92,7 +92,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$popup->findElement(WebDriverBy::name('extension_id'))
 			->sendKeys('n');
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('div.mail-transport-params'), 'Null Mailer')
 		);
 		
@@ -118,7 +118,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$by = WebDriverBy::cssSelector('#frmSetupMailFrom button');
 		
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated($by)
 		);
 		
@@ -140,7 +140,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$form->submit();
 
-		$driver->wait(5)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$objects = $driver->findElements(WebDriverBy::cssSelector('#frmSetupMailFrom > fieldset'));
@@ -184,7 +184,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$popup->findElement(WebDriverBy::cssSelector('button.submit'))
 			->click();
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
@@ -307,7 +307,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			$worker_popup->findElement(WebDriverBy::cssSelector('button.submit'))
 				->click();
 			
-			$driver->wait(5, 250)->until(
+			$driver->wait(10)->until(
 				function() use (&$driver) {
 					try {
 						$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
@@ -328,7 +328,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			$popup->findElement(WebDriverBy::cssSelector('button.submit'))
 				->click();
 			
-			$driver->wait(5, 250)->until(
+			$driver->wait(10)->until(
 				function() use (&$driver) {
 					try {
 						$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
@@ -452,7 +452,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			$avatar_popup->findElement(WebDriverBy::cssSelector('button.canvas-avatar-export'))
 				->click();
 
-			$driver->wait(5, 250)->until(
+			$driver->wait(10)->until(
 				function() use (&$driver) {
 					try {
 						$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
@@ -486,7 +486,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			$popup->findElement(WebDriverBy::cssSelector('button.submit'))
 				->click();
 			
-			$driver->wait(5, 250)->until(
+			$driver->wait(10)->until(
 				function() use (&$driver) {
 					try {
 						$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
@@ -519,7 +519,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$form->submit();
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$select = $driver->findElement(WebDriverBy::name('default_group_id'));
@@ -595,7 +595,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$form->findElement(WebDriverBy::cssSelector('button.submit'))->click();
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
@@ -676,7 +676,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$form->findElement(WebDriverBy::cssSelector('button.submit'))->click();
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$popups = $driver->findElements(WebDriverBy::cssSelector('body > div.ui-dialog'));
@@ -698,7 +698,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$by = WebDriverBy::linkText('Inbound Email Message Processor');
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated($by)
 		);
 		
@@ -707,7 +707,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$driver->findElement($by)
 			->click();
 
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('frmJobcron_parser'))
 		);
 		
@@ -719,7 +719,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$form->findElement(WebDriverBy::cssSelector('button.submit'))
 			->click();
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('#job_cron_parser > span.glyphicons-circle-ok'))
 		);
 		
@@ -730,7 +730,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$driver->findElement(WebDriverBy::linkText('Maintenance'))
 			->click();
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('frmJobcron_maint'))
 		);
 		
@@ -742,7 +742,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$form->findElement(WebDriverBy::cssSelector('button.submit'))
 			->click();
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('#job_cron_maint > span.glyphicons-circle-ok'))
 		);
 		
@@ -753,7 +753,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$driver->findElement(WebDriverBy::linkText('Bot Scheduled Behavior'))
 			->click();
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('frmJobcron_bot_scheduled_behavior'))
 		);
 		
@@ -765,13 +765,13 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$form->findElement(WebDriverBy::cssSelector('button.submit'))
 			->click();
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('#job_cron_bot_scheduled_behavior > span.glyphicons-circle-ok'))
 		);
 		
 		$this->assertTrue(true);
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
 					$icons = $driver->findElements(WebDriverBy::cssSelector('div.cerb-subpage > div > div > span.glyphicons-circle-ok'));
@@ -791,7 +791,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$cerb->getPathAndWait('/config/fields');
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('cfTabs'))
 		);
 		
@@ -804,11 +804,11 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$cerb->getPathAndWait('/config/plugins');
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('pluginTabs'))
 		);
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('viewplugins_installed'))
 		);
 		
@@ -821,14 +821,14 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$cerb->getPathAndWait('/config/plugins/library/');
 		
-		$driver->wait(5, 250)->until(
+		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('btnPluginLibrarySync'))
 		);
 		
 		$button = $driver->findElement(WebDriverBy::id('btnPluginLibrarySync'))
 			->click();
 		
-		$driver->wait(20, 500)->until(
+		$driver->wait(20)->until(
 			WebDriverExpectedCondition::elementTextContains(WebDriverBy::id('divPluginLibrarySync'), 'Success!')
 		);
 		
