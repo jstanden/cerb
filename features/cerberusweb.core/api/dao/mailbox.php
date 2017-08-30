@@ -1285,6 +1285,11 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 	}
 
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(!$active_worker->is_superuser)
+			return;
+
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 

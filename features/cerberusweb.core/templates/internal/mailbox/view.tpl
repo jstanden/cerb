@@ -72,11 +72,9 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.p_id}
 			</td>
-		</tr>
-		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
@@ -89,7 +87,7 @@
 					<span class="glyphicons glyphicons-circle-exclamation-mark" style="font-size:16px;color:rgb(200,0,0);"></span>
 				{/if}
 				<a href="{devblocks_url}c=profiles&type=mailbox&id={$result.p_id}-{$result.p_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.p_name}</a>
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.p_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
+				{if $active_worker->is_superuser}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.p_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>{/if}
 			</td>
 			{elseif in_array($column, ["p_checked_at", "p_updated_at", "p_delay_until"])}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">

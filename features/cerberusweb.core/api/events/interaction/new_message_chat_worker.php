@@ -360,7 +360,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				break;
 
 			case 'worklist_open':
-				$context_mfts = Extension_DevblocksContext::getAll(false);
+				$context_mfts = Extension_DevblocksContext::getAll(false, ['search']);
 				$tpl->assign('context_mfts', $context_mfts);
 
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_worklist_open.tpl');
