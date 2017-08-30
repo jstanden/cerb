@@ -51,7 +51,7 @@
 			{else}
 				<a href="javascript:;" style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
-			
+
 			{* add arrow if sorting by this column, finish table header tag *}
 			{if $header==$view->renderSortBy}
 				<span class="glyphicons {if $view->renderSortAsc}glyphicons-sort-by-attributes{else}glyphicons-sort-by-attributes-alt{/if}" style="font-size:14px;{if $view->options.disable_sorting}color:rgb(80,80,80);{else}color:rgb(39,123,213);{/if}"></span>
@@ -125,11 +125,11 @@
 		{math assign=nextPage equation="x+1" x=$view->renderPage}
 		{math assign=prevPage equation="x-1" x=$view->renderPage}
 		{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
-		
+
 		{* Sanity checks *}
 		{if $toRow > $total}{assign var=toRow value=$total}{/if}
 		{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
-		
+
 		{if $view->renderPage > 0}
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page=0');">&lt;&lt;</a>
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$prevPage}');">&lt;{$translate->_('common.previous_short')|capitalize}</a>
@@ -140,7 +140,7 @@
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewPage&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
 		{/if}
 	</div>
-	
+
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
@@ -160,21 +160,21 @@ $frm = $('#viewForm{$view->id}');
 {if $pref_keyboard_shortcuts}
 $frm.bind('keyboard_shortcut',function(event) {
 	$view_actions = $('#{$view->id}_actions');
-	
+
 	hotkey_activated = true;
 
 	switch(event.keypress_event.which) {
 		case 101: // (e) explore
 			$btn = $view_actions.find('button.action-explore');
-		
+
 			if(event.indirect) {
 				$btn.select().focus();
-				
+
 			} else {
 				$btn.click();
 			}
 			break;
-			
+
 		default:
 			hotkey_activated = false;
 			break;
