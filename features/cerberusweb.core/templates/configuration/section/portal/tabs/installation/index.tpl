@@ -9,6 +9,7 @@ define('REMOTE_HOST', '{$host}');
 define('REMOTE_PORT', '{if !empty($port) && 80!=$port}{$port}{else}80{/if}');
 define('REMOTE_BASE', '{$base}{if !$smarty.const.DEVBLOCKS_REWRITE}/index.php{/if}'); // NO trailing slash!
 define('REMOTE_URI', '{$path}'); // NO trailing slash!
+define('REMOTE_SSL_VALIDATION', true);
 {literal}
 /*
  * ====================================================================
@@ -19,7 +20,6 @@ define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_SSL', null);
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('REMOTE_SSL_VALIDATION', true);
 define('SCRIPT_LAST_MODIFY', 20170613); // last change
 
 class DevblocksProxy {
