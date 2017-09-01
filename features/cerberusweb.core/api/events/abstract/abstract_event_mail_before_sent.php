@@ -66,6 +66,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'worker_id' => $active_worker->id,
 		);
 		
+		$dict->_properties =& $properties;
 		$dict->content =& $properties['content'];
 		$dict->content_format =& $properties['content_format'];
 		$dict->headers =& $properties['headers'];
@@ -116,6 +117,8 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		 */
 		
 		@$properties =& $event_model->params['properties'];
+		$values['_properties'] =& $properties;
+		
 		$prefix = 'Sent message ';
 		
 		$labels['content'] = $prefix.'content';
@@ -465,6 +468,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'append_to_content':
 			case 'prepend_to_content':
+				$tpl->assign('is_sent', true);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_add_content.tpl');
 				break;
 				
@@ -500,14 +504,34 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				@$mode = $params['mode'];
 				$content = $tpl_builder->build($params['content'], $dict);
-				$dict->content .= "\r\n" . $content;
 				
-				$out = sprintf(">>> Appending text to message content\n".
-					"Text:\n%s\n".
-					"Message:\n%s\n",
-					$content,
-					$dict->content
+				if(!isset($dict->_properties['content_appends']))
+					$dict->_properties['content_appends'] = [
+						'sent' => [],
+						'saved' => [],
+					];
+					
+				$label = '';
+				
+				switch($mode) {
+					case 'saved':
+					case 'sent':
+						$label = $mode . ' ';
+						$dict->_properties['content_appends'][$mode][] = $content;
+						break;
+						
+					default:
+						$dict->_properties['content_appends']['saved'][] = $content;
+						$dict->__properties['content_appends']['sent'][] = $content;
+						break;
+				}
+				
+				$out = sprintf(">>> Appending text to %smessage content\n".
+					"%s\n",
+					$label,
+					$content
 				);
 				
 				return $out;
@@ -515,14 +539,34 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				@$mode = $params['mode'];
 				$content = $tpl_builder->build($params['content'], $dict);
-				$dict->content = $content . "\r\n" . $dict->content;
 				
-				$out = sprintf(">>> Prepending text to message content\n".
-					"Text:\n%s\n".
-					"Message:\n%s\n",
-					$content,
-					$dict->content
+				if(!isset($dict->_properties['content_prepends']))
+					$dict->_properties['content_prepends'] = [
+						'sent' => [],
+						'saved' => [],
+					];
+					
+				$label = '';
+				
+				switch($mode) {
+					case 'saved':
+					case 'sent':
+						$label = $mode . ' ';
+						$dict->_properties['content_prepends'][$mode][] = $content;
+						break;
+						
+					default:
+						$dict->_properties['content_prepends']['saved'][] = $content;
+						$dict->_properties['content_prepends']['sent'][] = $content;
+						break;
+				}
+				
+				$out = sprintf(">>> Prepending text to %smessage content\n".
+					"%s\n",
+					$label,
+					$content
 				);
 				
 				return $out;
@@ -606,12 +650,56 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$dict->content .= "\r\n" . $tpl_builder->build($params['content'], $dict);
+				@$mode = $params['mode'];
+				@$content = $tpl_builder->build($params['content'], $dict);
+				
+				if(!isset($dict->_properties['content_appends']))
+					$dict->_properties['content_appends'] = [
+						'sent' => [],
+						'saved' => [],
+					];
+					
+				$label = '';
+				
+				switch($mode) {
+					case 'saved':
+					case 'sent':
+						$label = $mode . ' ';
+						$dict->_properties['content_appends'][$mode][] = $content;
+						break;
+						
+					default:
+						$dict->_properties['content_appends']['saved'][] = $content;
+						$dict->_properties['content_appends']['sent'][] = $content;
+						break;
+				}
 				break;
 				
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$dict->content = $tpl_builder->build($params['content'], $dict) . "\r\n" . $dict->content;
+				@$mode = $params['mode'];
+				@$content = $tpl_builder->build($params['content'], $dict);
+				
+				if(!isset($dict->_properties['content_prepends']))
+					$dict->_properties['content_prepends'] = [
+						'sent' => [],
+						'saved' => [],
+					];
+					
+				$label = '';
+				
+				switch($mode) {
+					case 'saved':
+					case 'sent':
+						$label = $mode . ' ';
+						$dict->_properties['content_prepends'][$mode][] = $content;
+						break;
+						
+					default:
+						$dict->_properties['content_prepends']['saved'][] = $content;
+						$dict->_properties['content_prepends']['sent'][] = $content;
+						break;
+				}
 				break;
 				
 			case 'replace_content':

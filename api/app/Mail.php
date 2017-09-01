@@ -231,25 +231,27 @@ class CerberusMail {
 
 	static function compose($properties) {
 		/*
-		 'group_id'
-		 'bucket_id'
-		 'worker_id'
-		 'owner_id'
-		 'org_id'
-		 'to'
-		 'cc'
-		 'bcc'
-		 'subject'
-		 'content'
-		 'content_format'
-		 'html_template_id'
-		 'files'
-		 'forward_files'
-		 'status_id'
-		 'ticket_reopen'
-		 'dont_send'
-		 'draft_id'
-		 'gpg_encrypt'
+		'group_id'
+		'bucket_id'
+		'worker_id'
+		'owner_id'
+		'org_id'
+		'to'
+		'cc'
+		'bcc'
+		'subject'
+		'content'
+		'content_format'
+		'content_saved'
+		'content_sent'
+		'html_template_id'
+		'files'
+		'forward_files'
+		'status_id'
+		'ticket_reopen'
+		'dont_send'
+		'draft_id'
+		'gpg_encrypt'
 		 */
 		
 		@$group_id = $properties['group_id'];
@@ -281,13 +283,17 @@ class CerberusMail {
 		// Changing the outgoing message through a VA (group)
 		Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
 		
+		// Handle content appends and prepends
+		self::_generateBodiesWithPrependsAppends($properties);
+		
 		@$org_id = $properties['org_id'];
 		@$toStr = $properties['to'];
 		@$cc = $properties['cc'];
 		@$bcc = $properties['bcc'];
 		@$subject = $properties['subject'];
-		@$content = $properties['content'];
 		@$content_format = $properties['content_format'];
+		@$content_saved = $properties['content_saved'];
+		@$content_sent = $properties['content_sent'];
 		@$html_template_id = $properties['html_template_id'];
 		@$files = $properties['files'];
 		@$embedded_files = array();
@@ -386,11 +392,11 @@ class CerberusMail {
 			
 			switch($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateBodyMarkdown($email, $content, $group_id, $bucket->id, $html_template_id);
+					$embedded_files = self::_generateBodyMarkdown($email, $content_sent, $group_id, $bucket->id, $html_template_id);
 					break;
 					
 				default:
-					$email->setBody($content);
+					$email->setBody($content_sent);
 					break;
 			}
 			
@@ -458,7 +464,7 @@ class CerberusMail {
 					DAO_MailQueue::UPDATED => time()+5, // small offset
 					DAO_MailQueue::HINT_TO => $toStr,
 					DAO_MailQueue::SUBJECT => $subject,
-					DAO_MailQueue::BODY => $content,
+					DAO_MailQueue::BODY => $params['content'],
 					DAO_MailQueue::PARAMS_JSON => json_encode($params),
 					DAO_MailQueue::IS_QUEUED => !empty($worker) ? 0 : 1,
 					DAO_MailQueue::QUEUE_DELIVERY_DATE => time(),
@@ -525,7 +531,7 @@ class CerberusMail {
 		$message_id = DAO_Message::create($fields);
 		
 		// Content
-		Storage_MessageContent::put($message_id, $content);
+		Storage_MessageContent::put($message_id, $content_saved);
 
 		// Set recipients to requesters
 		foreach($toList as $to_addy => $to_data) {
@@ -640,8 +646,10 @@ class CerberusMail {
 		'to'
 		'cc'
 		'bcc'
-		'content'
-		'content_format' // markdown, parsedown, html
+		'content',
+		'content_format', // markdown, parsedown, html
+		'content_saved',
+		'content_sent',
 		'html_template_id'
 		'headers'
 		'files'
@@ -690,9 +698,13 @@ class CerberusMail {
 			// Changing the outgoing message through a VA (group)
 			Event_MailBeforeSentByGroup::trigger($properties, $message->id, $ticket->id, $group->id);
 			
+			// Handle content appends and prepends
+			self::_generateBodiesWithPrependsAppends($properties);
+			
 			// Re-read properties
-			@$content = $properties['content'];
 			@$content_format = $properties['content_format'];
+			@$content_saved = $properties['content_saved'];
+			@$content_sent = $properties['content_sent'];
 			@$html_template_id = intval($properties['html_template_id']);
 			@$files = $properties['files'];
 			@$is_forward = $properties['is_forward'];
@@ -890,11 +902,11 @@ class CerberusMail {
 			
 			switch($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateBodyMarkdown($mail, $content, $ticket->group_id, $ticket->bucket_id, $html_template_id);
+					$embedded_files = self::_generateBodyMarkdown($mail, $content_sent, $ticket->group_id, $ticket->bucket_id, $html_template_id);
 					break;
 					
 				default:
-					$mail->setBody($content);
+					$mail->setBody($content_sent);
 					break;
 			}
 	
@@ -1059,7 +1071,7 @@ class CerberusMail {
 			}
 			
 			// Content
-			Storage_MessageContent::put($message_id, $content);
+			Storage_MessageContent::put($message_id, $content_saved);
 
 			// Save cached headers
 			DAO_MessageHeaders::upsert($message_id, $outgoing_mail_headers);
@@ -1441,6 +1453,28 @@ class CerberusMail {
 			
 		} catch (Exception $e) {
 			return false;
+		}
+	}
+	
+	static private function _generateBodiesWithPrependsAppends(&$properties) {
+		if(!isset($properties['content']))
+			return;
+		
+		@$content_prepends = $properties['content_prepends'];
+		@$content_appends = $properties['content_appends'];
+		
+		$properties['content_sent'] = $properties['content_saved'] = $properties['content'];
+		
+		foreach(['saved','sent'] as $type) {
+			if(is_array(@$content_prepends[$type]))
+			foreach($content_prepends[$type] as $prepend) {
+				$properties['content_'.$type] = $prepend . "\r\n" . $properties['content_'.$type];
+			}
+			
+			if(is_array(@$content_appends[$type]))
+			foreach($content_appends[$type] as $append) {
+				$properties['content_'.$type] .= "\r\n" . $append;
+			}
 		}
 	}
 	
