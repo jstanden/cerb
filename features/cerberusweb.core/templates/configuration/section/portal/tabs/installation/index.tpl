@@ -301,6 +301,14 @@ class DevblocksProxy_Curl extends DevblocksProxy {
 		$out = curl_exec($ch);
 		$info = curl_getinfo($ch);
 		
+		// Report errors
+		if(false === $out) {
+			http_response_code(500);
+			$error = curl_error($ch);
+			error_log($error);
+			die("<html><body><h1>" . $error . "</h1></body></html>");
+		}
+		
 		// Status code
 		
 		if(function_exists('http_response_code'))
