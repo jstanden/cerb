@@ -212,6 +212,11 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'label' => 'Bot',
 				'context' => CerberusContexts::CONTEXT_BOT,
 			),
+			'group_watchers' => array(
+				'label' => 'Message ticket group watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
+			),
 			'id' => array(
 				'label' => 'Message',
 				'context' => CerberusContexts::CONTEXT_MESSAGE,
@@ -219,11 +224,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'sender_id' => array(
 				'label' => 'Message sender email',
 				'context' => CerberusContexts::CONTEXT_ADDRESS,
-			),
-			'sender_watchers' => array(
-				'label' => 'Message sender watchers',
-				'context' => CerberusContexts::CONTEXT_WORKER,
-				'is_multiple' => true,
 			),
 			'sender_org' => array(
 				'label' => 'Message sender org',
@@ -234,19 +234,18 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				'context' => CerberusContexts::CONTEXT_WORKER,
 				'is_multiple' => true,
 			),
+			'sender_watchers' => array(
+				'label' => 'Message sender watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
+			),
+			'ticket_bucket_id' => array(
+				'label' => 'Message ticket bucket',
+				'context' => CerberusContexts::CONTEXT_BUCKET,
+			),
 			'ticket_id' => array(
 				'label' => 'Message ticket',
 				'context' => CerberusContexts::CONTEXT_TICKET,
-			),
-			'ticket_watchers' => array(
-				'label' => 'Message ticket watchers',
-				'context' => CerberusContexts::CONTEXT_WORKER,
-				'is_multiple' => true,
-			),
-			'group_watchers' => array(
-				'label' => 'Message ticket group watchers',
-				'context' => CerberusContexts::CONTEXT_WORKER,
-				'is_multiple' => true,
 			),
 			'ticket_org_id' => array(
 				'label' => 'Message ticket org',
@@ -260,6 +259,11 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			'ticket_owner_id' => array(
 				'label' => 'Message ticket owner',
 				'context' => CerberusContexts::CONTEXT_WORKER,
+			),
+			'ticket_watchers' => array(
+				'label' => 'Message ticket watchers',
+				'context' => CerberusContexts::CONTEXT_WORKER,
+				'is_multiple' => true,
 			),
 			'worker_id' => array(
 				'label' => 'Message sender worker',
@@ -746,7 +750,11 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 			
 			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail($trigger);
+				$placeholders = [
+					'ticket_bucket_reply_address_id,group_reply_address_id' => 'Ticket Bucket',
+				];
+				
+				DevblocksEventHelper::renderActionSendEmail($trigger, $placeholders);
 				break;
 				
 			case 'send_email_recipients':

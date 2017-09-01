@@ -78,7 +78,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		@$message_id = $event_model->params['message_id'];
 		@$worker_id = $event_model->params['worker_id'];
-		 
+		
 		$labels = array();
 		$values = array();
 		
@@ -204,12 +204,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				'label' => 'Bot',
 				'context' => CerberusContexts::CONTEXT_BOT,
 			),
-			/*
 			'group_id' => array(
 				'label' => 'Group',
 				'context' => CerberusContexts::CONTEXT_GROUP,
 			),
-			*/
 			'sender_id' => array(
 				'label' => 'Sender email',
 				'context' => CerberusContexts::CONTEXT_ADDRESS,
@@ -227,6 +225,10 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				'label' => 'Sender org_watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 				'is_multiple' => true,
+			),
+			'ticket_bucket_id' => array(
+				'label' => 'Ticket bucket',
+				'context' => CerberusContexts::CONTEXT_BUCKET,
 			),
 			'ticket_id' => array(
 				'label' => 'Ticket',
@@ -514,7 +516,11 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 				break;
 				
 			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail($trigger);
+				$placeholders = [
+					'ticket_bucket_reply_address_id,group_reply_address_id' => 'Ticket Bucket',
+				];
+				
+				DevblocksEventHelper::renderActionSendEmail($trigger, $placeholders);
 				break;
 				
 			case 'send_email_recipients':
