@@ -558,6 +558,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 				if(isset($response['body']))
 					$out .= sprintf(">>> Body:\n%s\n", $response['body']);
 			}
+			
 		} else {
 			$out .= ">>> NOTE: This HTTP request is not configured to run in the simulator.\n";
 		}

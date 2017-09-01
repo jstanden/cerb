@@ -299,7 +299,7 @@ class DevblocksEventHelper {
 				$out .= sprintf("%s\n",
 					$value
 				);
-				 
+				
 				if(!empty($value_key)) {
 					$dict->$value_key = $value;
 				}
@@ -446,7 +446,7 @@ class DevblocksEventHelper {
 				$out .= sprintf("%s\n",
 					$value
 				);
-				 
+				
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
 					$dict->$key_to_set = $value;
@@ -484,7 +484,7 @@ class DevblocksEventHelper {
 				$out .= sprintf("%s\n",
 					$value
 				);
-				 
+				
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
 					$dict->$key_to_set = $value;
@@ -810,6 +810,7 @@ class DevblocksEventHelper {
 					$key_to_set = $value_key.'_'.$field_id;
 					$dict->$key_to_set = implode(', ', $opts);
 
+					// [TODO] In delta mode this replaces the previous values for the behavior run
 					$array =& $dict->$value_key;
 					if(is_array($array))
 						$array[$field_id] = $opts;
@@ -1491,7 +1492,7 @@ class DevblocksEventHelper {
 			
 			default:
 				@$var_type = $var['type'];
-			 
+			
 				if(substr($var_type,0,4) == 'ctx_') {
 					$list_context = substr($var_type,4);
 					DevblocksEventHelper::runActionSetListVariable($token, $list_context, $params, $dict);
@@ -4020,7 +4021,7 @@ class DevblocksEventHelper {
 		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 		
- 		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
+		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
 		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
 		$owner_id = array_shift($owner_ids) ?: 0;
 		
@@ -4110,7 +4111,7 @@ class DevblocksEventHelper {
 		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 		
- 		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
+		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
 		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
 		$owner_id = array_shift($owner_ids) ?: 0;
 		
@@ -4208,7 +4209,7 @@ class DevblocksEventHelper {
 		@$status_id = $params['status_id'];
 		@$reopen_at = $params['reopen_at'];
 		
- 		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
+		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
 		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
 		$owner_id = array_shift($owner_ids) ?: 0;
 		
@@ -4289,7 +4290,7 @@ class DevblocksEventHelper {
 		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',array());
 		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $dict);
 		
- 		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
+		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
 		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
 		$owner_id = array_shift($owner_ids) ?: 0;
 		

@@ -265,13 +265,14 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		switch($as_token) {
 			case 'attachment_name':
 			case 'attachment_mimetype':
-				$not = (substr($params['oper'],0,1) == '!');
-				$oper = ltrim($params['oper'],'!');
-				$attachments = $dict->attachments;
+				@$not = (substr($params['oper'],0,1) == '!');
+				@$oper = ltrim($params['oper'],'!');
+				@$attachments = $dict->attachments;
 				@$param_value = $params['value'];
 				
 				$found = false;
 				
+				if(is_array($attachments))
 				foreach($attachments as $attachment_name => $attachment) {
 					if($found)
 						continue;
