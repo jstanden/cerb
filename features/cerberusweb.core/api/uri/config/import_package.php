@@ -311,14 +311,32 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
 						throw new Exception(sprintf("Unknown context '%s' on project card.", $card['_context']));
 					
-					$dict = array_diff_key($card, ['_context'=>true,'uid'=>true]);
+					// Ignore any keys with placeholders
+					$dict = array_filter($card, function($value, $key) {
+						// Ignore internal keys
+						if(in_array($key, ['_context','uid']))
+							return false;
+						
+						// Ignore keys or values with unfilled placeholders
+						if(
+							false !== strstr($key,'{{{')
+							|| false !== strstr($value,'{{{')
+							) {
+							return false;
+						}
+						
+						return true;
+						
+					}, ARRAY_FILTER_USE_BOTH);
+					
 					$fields = $custom_fields = [];
 					$error = null;
 					
 					if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
 						throw new Exception(sprintf("Error on project card (%s): %s", $card['uid'], $error));
 					
-					$dao_class = $context_ext->getDaoClass();
+					if(false == ($dao_class = $context_ext->getDaoClass()))
+						throw new Exception(sprintf("Error on project card (%s): %s", $uid_card, "Can't load DAO class."));
 					
 					// [TODO] Throw a subclass of Exception
 					if(!$dao_class::validate($fields, $error))
@@ -553,17 +571,15 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					
 					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
 						throw new Exception(sprintf("Unknown context on project card (%s)", $card['_context']));
-					
-					$dict = array_diff_key($card, ['_context'=>true,'uid'=>true]);
+
+					$dict = [];
 					$fields = $custom_fields = [];
 					$error = null;
 					
-					if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
-						throw new Exception(sprintf("Error on project card (%s): %s", $uid_card, $error));
+					if(false == ($dao_class = $context_ext->getDaoClass()))
+						throw new Exception(sprintf("Error on project card (%s): %s", $uid_card, "Can't load DAO class."));
 					
-					$dao_class = $context_ext->getDaoClass();
-					
-					$card_id = $dao_class::create($fields);
+					$card_id = $dao_class::create($dict);
 					
 					$uids[$uid_card] = $card_id;
 				}
@@ -677,7 +693,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				
 				// Create records for all child nodes and link them to the proper parents
 				
-				if(isset($behavior['nodes']))
+				if(isset($behavior['nodes']) && !empty($behavior['nodes']))
 				if(false == DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
 					throw new Exception('Failed to import behavior nodes');
 				
@@ -910,14 +926,17 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($card['_context'], true)))
 						throw new Exception(sprintf("Unknown extension on project card (%s): %s", $card['uid'], $card['_context']));
 					
-					// Set custom fields
-					
 					$dict = array_diff_key($card, ['_context'=>true,'uid'=>true]);
 					$fields = $custom_fields = [];
 					$error = null;
 					
 					if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
 						throw new Exception(sprintf("Error on project card (%s): %s", $uid_card, $error));
+					
+					if(false == ($dao_class = $context_ext->getDaoClass()))
+						throw new Exception(sprintf("Error on project card (%s): %s", $uid_card, "Can't load DAO class."));
+					
+					$dao_class::update($card_id, $fields);
 					
 					DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $card_id, $custom_fields);
 					
