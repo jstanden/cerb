@@ -218,6 +218,18 @@ if(isset($tables['worker_role_acl'])) {
 }
 
 // ===========================================================================
+// Default GPG setup
+
+$gpg_path = APP_STORAGE_PATH . '/.gnupg';
+$gpg_agent_config_path = $gpg_path . '/gpg-agent.conf';
+
+if(!file_exists($gpg_path))
+	@mkdir($gpg_path, 0660);
+
+if(!file_exists($gpg_agent_config_path))
+	file_put_contents($gpg_agent_config_path, "batch\n");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
