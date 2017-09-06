@@ -190,7 +190,7 @@ class CerberusMail {
 			
 			switch($format) {
 				case 'parsedown':
-					self::_generateBodyMarkdown($mail, $body, null, null, $html_template_id);
+					self::_generateMailBodyMarkdown($mail, $body, null, null, $html_template_id);
 					break;
 					
 				default:
@@ -296,7 +296,7 @@ class CerberusMail {
 		@$content_sent = $properties['content_sent'];
 		@$html_template_id = $properties['html_template_id'];
 		@$files = $properties['files'];
-		@$embedded_files = array();
+		@$embedded_files = [];
 		@$forward_files = $properties['forward_files'];
 		
 		@$status_id = $properties['status_id'];
@@ -392,7 +392,7 @@ class CerberusMail {
 			
 			switch($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateBodyMarkdown($email, $content_sent, $group_id, $bucket->id, $html_template_id);
+					$embedded_files = self::_generateMailBodyMarkdown($email, $content_sent, $group_id, $bucket->id, $html_template_id);
 					break;
 					
 				default:
@@ -516,6 +516,22 @@ class CerberusMail {
 		// End "Next:"
 		
 		$ticket_id = DAO_Ticket::create($fields);
+		
+		// Save a copy of the sent HTML body
+		$html_body_id = 0;
+		if($content_format == 'parsedown') {
+			if(false !== ($html = $html_body = DevblocksPlatform::parseMarkdown($content_saved))) {
+				$html_body_id = DAO_Attachment::create([
+					DAO_Attachment::NAME => 'original_message.html',
+					DAO_Attachment::MIME_TYPE => 'text/html',
+					DAO_Attachment::STORAGE_SHA1HASH => sha1($html),
+				]);
+				
+				Storage_Attachments::put($html_body_id, $html);
+				
+				$embedded_files[] = $html_body_id;
+			}
+		}
 
 		$fields = array(
 			DAO_Message::TICKET_ID => $ticket_id,
@@ -527,6 +543,7 @@ class CerberusMail {
 			DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
 			DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($outgoing_message_id),
 			DAO_Message::WAS_ENCRYPTED => !empty(@$properties['gpg_encrypt']) ? 1 : 0,
+			DAO_Message::HTML_ATTACHMENT_ID => $html_body_id,
 		);
 		$message_id = DAO_Message::create($fields);
 		
@@ -710,7 +727,7 @@ class CerberusMail {
 			@$is_forward = $properties['is_forward'];
 			@$is_broadcast = $properties['is_broadcast'];
 			@$forward_files = $properties['forward_files'];
-			@$embedded_files = array();
+			@$embedded_files = [];
 			@$worker_id = $properties['worker_id'];
 			@$subject = $properties['subject'];
 			
@@ -902,14 +919,14 @@ class CerberusMail {
 			
 			switch($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateBodyMarkdown($mail, $content_sent, $ticket->group_id, $ticket->bucket_id, $html_template_id);
+					$embedded_files = self::_generateMailBodyMarkdown($mail, $content_sent, $ticket->group_id, $ticket->bucket_id, $html_template_id);
 					break;
 					
 				default:
 					$mail->setBody($content_sent);
 					break;
 			}
-	
+			
 			// Mime Attachments
 			if (is_array($files) && !empty($files)) {
 				if(isset($files['tmp_name']))
@@ -1045,6 +1062,22 @@ class CerberusMail {
 			
 			unset($response_epoch);
 			
+			// Save a copy of the sent HTML body
+			$html_body_id = 0;
+			if($content_format == 'parsedown') {
+				if(false !== ($html = $html_body = DevblocksPlatform::parseMarkdown($content_saved))) {
+					$html_body_id = DAO_Attachment::create([
+						DAO_Attachment::NAME => 'original_message.html',
+						DAO_Attachment::MIME_TYPE => 'text/html',
+						DAO_Attachment::STORAGE_SHA1HASH => sha1($html),
+					]);
+					
+					Storage_Attachments::put($html_body_id, $html);
+					
+					$embedded_files[] = $html_body_id;
+				}
+			}
+			
 			// Fields
 			
 			$fields = array(
@@ -1058,6 +1091,7 @@ class CerberusMail {
 				DAO_Message::IS_NOT_SENT => @$properties['dont_send'] ? 1 : 0,
 				DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($outgoing_message_id),
 				DAO_Message::WAS_ENCRYPTED => !empty(@$properties['gpg_encrypt']) ? 1 : 0,
+				DAO_Message::HTML_ATTACHMENT_ID => $html_body_id,
 			);
 			$message_id = DAO_Message::create($fields);
 			
@@ -1478,9 +1512,64 @@ class CerberusMail {
 		}
 	}
 	
-	static private function _generateBodyMarkdown(&$mail, &$content, $group_id=0, $bucket_id=0, $html_template_id=0) {
-		$embedded_files = array();
-		$exclude_files = array();
+	static private function _generateTextFromMarkdown($markdown) {
+		$plaintext = null;
+		
+		$url_writer = DevblocksPlatform::services()->url();
+		$base_url = $url_writer->write('c=files', true) . '/';
+		
+		// Strip some Markdown in the plaintext version
+		try {
+			$plaintext = preg_replace_callback(
+				sprintf('|(\!\[inline-image\]\(%s(.*?)\))|', preg_quote($base_url)),
+				function($matches) use ($base_url) {
+					if(3 == count($matches)) {
+						@list($file_id, $file_name) = explode('/', $matches[2], 2);
+						
+						if($file_id && $file_name)
+							return sprintf("[Image %s]", urldecode($file_name));
+					}
+					
+					return $matches[0];
+				},
+				$markdown
+			);
+			
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+		}
+		
+		try {
+			$plaintext = preg_replace_callback(
+				sprintf('|(\!\[Image\]\((.*?)\))|'),
+				function($matches) {
+					if(3 == count($matches)) {
+						return sprintf("%s", $matches[2]);
+					}
+					
+					return $matches[0];
+				},
+				$plaintext
+			);
+			
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+		}
+		
+		try {
+			$plaintext = DevblocksPlatform::parseMarkdown($plaintext);
+			$plaintext = DevblocksPlatform::stripHTML($plaintext);
+			
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+		}
+		
+		return $plaintext;
+	}
+	
+	static private function _generateMailBodyMarkdown(&$mail, &$content, $group_id=0, $bucket_id=0, $html_template_id=0) {
+		$embedded_files = [];
+		$exclude_files = [];
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		$base_url = $url_writer->write('c=files', true) . '/';
@@ -1544,53 +1633,9 @@ class CerberusMail {
 			$mail->addPart($html_body, 'text/html');
 		}
 		
-		// Strip some Markdown in the plaintext version
-		try {
-			$content = preg_replace_callback(
-				sprintf('|(\!\[inline-image\]\(%s(.*?)\))|', preg_quote($base_url)),
-				function($matches) use ($base_url) {
-					if(3 == count($matches)) {
-						@list($file_id, $file_name) = explode('/', $matches[2], 2);
-						
-						if($file_id && $file_name)
-							return sprintf("[Image %s]", urldecode($file_name));
-					}
-					
-					return $matches[0];
-				},
-				$content
-			);
-			
-		} catch (Exception $e) {
-			error_log($e->getMessage());
-		}
+		$plaintext = self::_generateTextFromMarkdown($content);
 		
-		try {
-			$content = preg_replace_callback(
-				sprintf('|(\!\[Image\]\((.*?)\))|'),
-				function($matches) {
-					if(3 == count($matches)) {
-						return sprintf("%s", $matches[2]);
-					}
-					
-					return $matches[0];
-				},
-				$content
-			);
-			
-		} catch (Exception $e) {
-			error_log($e->getMessage());
-		}
-		
-		try {
-			$content = DevblocksPlatform::parseMarkdown($content);
-			$content = DevblocksPlatform::stripHTML($content);
-			
-		} catch (Exception $e) {
-			error_log($e->getMessage());
-		}
-			
-		$mail->addPart($content, 'text/plain');
+		$mail->addPart($plaintext, 'text/plain');
 		
 		return $embedded_files;
 	}
