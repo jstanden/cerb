@@ -647,15 +647,19 @@ class CerberusParser {
 		
 		switch(DevblocksPlatform::strLower($part->data['content-type'])) {
 			case 'multipart/signed':
+				// We only care about PGP signatures
+				if(0 != strcasecmp('application/pgp-signature', $part->data['content-protocol']))
+					break;
+				
 				if($part->get_child_count() != 3)
 					break;
-					
+				
 				$part_signed = $part->get_child(1);
 				$part_signature = $part->get_child(2);
 				
 				$signed_content = $part_signed->extract_body(MAILPARSE_EXTRACT_RETURN);
 				$signature = $part_signature->extract_body(MAILPARSE_EXTRACT_RETURN);
-				
+
 				$gpg = DevblocksPlatform::services()->gpg();
 				
 				// Denote valid signature on saved message
@@ -1167,7 +1171,7 @@ class CerberusParser {
 						'link_forward_files' => true,
 						'worker_id' => $proxy_worker->id,
 					);
-					 
+					
 					// Clean the reply body
 					$body = '';
 					$lines = DevblocksPlatform::parseCrlfString($message->body, true);
@@ -1353,7 +1357,7 @@ class CerberusParser {
 			}
 
 		} // endif ($model->getIsNew())
-		 
+		
 		$fields = array(
 			DAO_Message::TICKET_ID => $model->getTicketId(),
 			DAO_Message::CREATED_DATE => $model->getDate(),
