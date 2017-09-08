@@ -37,7 +37,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			->addField(self::GROUP_ID)
 			->id()
 			->setRequired(true)
-			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_BUCKET))
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_GROUP))
 			;
 		$validation
 			->addField(self::ID)
