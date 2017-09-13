@@ -530,9 +530,13 @@ class DevblocksDictionaryDelegate {
 		}
 		
 		foreach($models as $model_id => $model) {
-			$labels = array();
-			$values = array();
-			CerberusContexts::getContext($context, $model, $labels, $values, null, true, true);
+			$labels = $values = [];
+			
+			if($context == CerberusContexts::CONTEXT_APPLICATION) {
+				$values = ['_context' => $context, 'id' => 0, '_label' => 'Cerb'];
+			} else {
+				CerberusContexts::getContext($context, $model, $labels, $values, null, true, true);
+			}
 			
 			if(isset($values['id']))
 				$dicts[$model_id] = DevblocksDictionaryDelegate::instance($values);
