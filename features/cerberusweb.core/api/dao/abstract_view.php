@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 abstract class C4_AbstractView {
@@ -3679,16 +3679,16 @@ class CerbQuickSearchLexer {
 						$v = $oper_hint . $v;
 						
 					} else if(preg_match('#^(.*)?\.\.\.(.*)#', $v, $matches)) {
-						 $from = trim($matches[1]);
-						 $to = trim($matches[2]);
-						 
-						 if(!is_numeric($from))
+						$from = trim($matches[1]);
+						$to = trim($matches[2]);
+						
+						if(!is_numeric($from))
 							$from = floor(DevblocksPlatform::strTimeToSecs($from) / $interval);
-						 if(!is_numeric($to))
+						if(!is_numeric($to))
 							$to = floor(DevblocksPlatform::strTimeToSecs($to) / $interval);
-						 
-						 $v = sprintf("%s...%s", $from, $to);
-						 
+						
+						$v = sprintf("%s...%s", $from, $to);
+						
 					} else {
 						if(!is_numeric($v))
 							$v = floor(DevblocksPlatform::strTimeToSecs($v) / $interval);

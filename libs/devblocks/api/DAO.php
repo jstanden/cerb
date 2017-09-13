@@ -586,8 +586,8 @@ class DAO_Platform extends DevblocksORMHelper {
 		);
 		
 		if($db->GetOneMaster($sql))
-			 return true;
-			 
+			return true;
+			
 		return false;
 	}
 	
@@ -1165,7 +1165,7 @@ class DAO_Translation extends DevblocksORMHelper {
 				SearchFields_Translation::LANG_CODE,
 				SearchFields_Translation::STRING_DEFAULT,
 				SearchFields_Translation::STRING_OVERRIDE
-			 );
+			);
 		
 		$join_sql =
 			"FROM translation tl ";

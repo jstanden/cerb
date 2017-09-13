@@ -312,17 +312,17 @@ switch($step) {
 		break;
 	
 	case STEP_LICENSE:
-	    @$accept = DevblocksPlatform::importGPC($_POST['accept'],'integer', 0);
-	    
-	    if(1 == $accept) {
+			@$accept = DevblocksPlatform::importGPC($_POST['accept'],'integer', 0);
+			
+			if(1 == $accept) {
 			$tpl->assign('step', STEP_DATABASE);
 			$tpl->display('steps/redirect.tpl');
 			exit;
-	    }
+			}
 		
 		$tpl->assign('template', 'steps/step_license.tpl');
 		
-	    break;
+			break;
 	
 	// Configure and test the database connection
 	// [TODO] This should remind the user to make a backup (and refer to a wiki article how)
@@ -931,7 +931,7 @@ You'll notice that you have three groups:
 * Support: This is a group for holding tickets related to customer service.
 * Sales: This is a group for holding tickets relates to sales.
 
-If these default groups don't meet your needs, feel free to change them by clicking 'Setup' in the top-right and selecting the 'Groups' from the 'Workers and Groups' menu.
+If these default groups don't meet your needs, feel free to change them by clicking 'Search' in the top-right and selecting the 'Groups' from the menu.
 
 Simply reply to this message if you have any questions.  Our response will show up on this page as a new message.
 
@@ -945,7 +945,7 @@ Enjoy!
 -- 
 the Cerb team
 Webgroup Media, LLC.
-http://www.cerbweb.com/
+https://cerb.ai/
 EOF;
 					CerberusParser::parseMessage($message);
 				}

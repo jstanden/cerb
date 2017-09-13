@@ -904,15 +904,15 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		// If no messages, delete the ticket
 		if(empty($first_message) && empty($last_message)) {
-			$fields = array(
+			$fields = [
 				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
-			);
+			];
 			DAO_Ticket::update($id, $fields, false);
 			
-			return FALSE;
+			return false;
 		}
 		
-		$fields = array();
+		$fields = [];
 		
 		// Reindex the first message
 		if($first_message) {
@@ -929,7 +929,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		// Reindex the first outgoing message
 		if(is_array($messages))
 		foreach($messages as $message_id => $message) { /* @var $message Model_Message */
-			if($message->is_outgoing && !empty($worker->id) && !isset($fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID])) {
+			if($message->is_outgoing && !empty($message->worker_id) && !isset($fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID])) {
 				$fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID] = $message_id;
 				$fields[DAO_Ticket::ELAPSED_RESPONSE_FIRST] = max($message->created_date - $ticket->created_date, 0);
 			}
@@ -943,13 +943,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(!empty($closed_at))
 			$fields[DAO_Ticket::ELAPSED_RESOLUTION_FIRST] = max($closed_at - $ticket->created_date, 0);
 		
+		// Reindex message count
+		$fields[DAO_Ticket::NUM_MESSAGES] = count($messages);
+		
 		// Update
 		if(!empty($fields)) {
 			DAO_Ticket::update($id, $fields, false);
 		}
-		
-		// Reindex message count
-		DAO_Ticket::updateMessageCount($id);
 		
 		return TRUE;
 	}
@@ -1044,7 +1044,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			return;
 		
 		if(!is_array($ids))
-			$ids = array($ids);
+			$ids = [$ids];
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1052,7 +1052,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		while($batch_ids = array_shift($chunks)) {
 			if(empty($batch_ids))
 				continue;
-
+			
 			// Send events
 			if($check_deltas) {
 				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TICKET, $batch_ids);
@@ -4166,7 +4166,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	static public function setLastAction($view_id, Model_TicketViewLastAction $last_action=null) {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
 		$view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
-	  
+		
 		if(!is_null($last_action) && !empty($last_action->ticket_ids)) {
 			$view_last_actions[$view_id] = $last_action;
 		} else {
@@ -4174,7 +4174,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				unset($view_last_actions[$view_id]);
 			}
 		}
-	  
+		
 		$visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,$view_last_actions);
 	}
 
@@ -4537,7 +4537,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// First message
 			$token_values['initial_message_id'] = $ticket->first_message_id;
-			 
+			
 			// First response
 			$token_values['initial_response_message_id'] = $ticket->first_outgoing_message_id;
 			

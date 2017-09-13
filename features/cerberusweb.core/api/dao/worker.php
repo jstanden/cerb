@@ -607,7 +607,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	
 	static function update($ids, $fields, $option_bits=0, $check_deltas=true) {
 		if(!is_array($ids))
-			$ids = array($ids);
+			$ids = [$ids];
 		
 		if(!isset($fields[self::UPDATED]) && !($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS))
 			$fields[self::UPDATED] = time();

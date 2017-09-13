@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 /*
@@ -50,7 +50,7 @@ class ParseCron extends CerberusCronPageExtension {
 
 		$timeout = ini_get('max_execution_time');
 		$runtime = microtime(true);
-		 
+		
 		// Allow runtime overloads (by host, etc.)
 		@$opt_parse_max = DevblocksPlatform::importGPC($_REQUEST['parse_max'],'integer');
 		
@@ -83,7 +83,7 @@ class ParseCron extends CerberusCronPageExtension {
 			}
 
 			$files = $this->scanDirMessages($subdir);
-			 
+			
 			foreach($files as $file) {
 				$filePart = basename($file);
 
@@ -115,10 +115,10 @@ class ParseCron extends CerberusCronPageExtension {
 			}
 			if($total <= 0) break;
 		}
-	  
+		
 		unset($files);
 		unset($subdirs);
-	  
+		
 		$logger->info("[Parser] Total Runtime: ".number_format((microtime(true)-$runtime)*1000,2)." ms");
 	}
 
@@ -234,7 +234,7 @@ class MaintCron extends CerberusCronPageExtension {
 		}
 		
 		$logger->info('[Maint] Cleaned up mail directories.');
-	  
+		
 		// [JAS] Remove any empty directories inside storage/import/new
 		$importNewDir = APP_STORAGE_PATH . '/import/new' . DIRECTORY_SEPARATOR;
 		$subdirs = glob($importNewDir . '*', GLOB_ONLYDIR);
@@ -331,7 +331,7 @@ class ImportCron extends CerberusCronPageExtension {
 		$logger->info("[Importer] Starting Import Task");
 		
 		@set_time_limit(1200); // 20m
-		 
+		
 		$importNewDir = APP_STORAGE_PATH . '/import/new/';
 		$importFailDir = APP_STORAGE_PATH . '/import/fail/';
 
@@ -370,7 +370,7 @@ class ImportCron extends CerberusCronPageExtension {
 			}
 
 			$files = $this->scanDirMessages($subdir);
-			 
+			
 			foreach($files as $file) {
 				// If we can't nuke the file, there's no sense in trying to import it
 				if(!is_writeable($file))
@@ -406,7 +406,7 @@ class ImportCron extends CerberusCronPageExtension {
 				if($this->_handleImport($object_type, $xml_root)) { // Success
 					@unlink($file);
 				}
-				 
+				
 				if(--$limit <= 0)
 				break;
 			}
@@ -414,7 +414,7 @@ class ImportCron extends CerberusCronPageExtension {
 			if($limit <= 0)
 			break;
 		}
-	  
+		
 		unset($files);
 		unset($subdirs);
 
@@ -426,27 +426,27 @@ class ImportCron extends CerberusCronPageExtension {
 	private function _handleImport($object_type, $xml) {
 		// [TODO] Import extensions (delegate to plugins)
 		switch($object_type) {
-		 	case 'comment':
-		 		return $this->_handleImportComment($xml);
-		 		break;
-		 	case 'kbarticle':
-		 		return $this->_handleImportKbArticle($xml);
-		 		break;
-		 	case 'ticket':
-		 		return $this->_handleImportTicket($xml);
-		 		break;
-		 	case 'worker':
-		 		return $this->_handleImportWorker($xml);
-		 		break;
-		 	case 'organization':
-		 		return $this->_handleImportOrg($xml);
-		 		break;
-		 	case 'contact':
-		 		return $this->_handleImportAddress($xml);
-		 		break;
-		 	default:
-		 		break;
-		 }
+			case 'comment':
+				return $this->_handleImportComment($xml);
+				break;
+			case 'kbarticle':
+				return $this->_handleImportKbArticle($xml);
+				break;
+			case 'ticket':
+				return $this->_handleImportTicket($xml);
+				break;
+			case 'worker':
+				return $this->_handleImportWorker($xml);
+				break;
+			case 'organization':
+				return $this->_handleImportOrg($xml);
+				break;
+			case 'contact':
+				return $this->_handleImportAddress($xml);
+				break;
+			default:
+				break;
+		}
 	}
 	
 	/* _handleImportKbArticle */
@@ -1183,11 +1183,11 @@ class MailboxCron extends CerberusCronPageExtension {
 			$mailboxes_checked++;
 
 			$logger->info('[Mailboxes] Account being parsed is '. $account->name);
-			 
+			
 			$imap_connect = $account->getImapConnectString();
 
 			$mailbox_runtime = microtime(true);
-			 
+			
 			if(false === ($mailbox = @imap_open($imap_connect,
 				!empty($account->username)?$account->username:"",
 				!empty($account->password)?$account->password:"",
@@ -1238,13 +1238,13 @@ class MailboxCron extends CerberusCronPageExtension {
 				DAO_Mailbox::update($account->id, $fields);
 				continue;
 			}
-			 
+			
 			$messages = array();
 			$mailbox_stats = imap_check($mailbox);
-			 
+			
 			// [TODO] Make this an account setting?
 			$total = min($max_downloads, $mailbox_stats->Nmsgs);
-			 
+			
 			$logger->info("[Mailboxes] Connected to mailbox '".$account->name."' (".number_format((microtime(true)-$mailbox_runtime)*1000,2)." ms)");
 
 			$mailbox_runtime = microtime(true);
@@ -1344,7 +1344,7 @@ class MailboxCron extends CerberusCronPageExtension {
 			imap_expunge($mailbox);
 			imap_close($mailbox);
 			@imap_errors();
-			 
+			
 			$logger->info("[Mailboxes] Closed mailbox (".number_format((microtime(true)-$mailbox_runtime)*1000,2)." ms)");
 		}
 		

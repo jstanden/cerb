@@ -93,7 +93,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				foreach ($authorized_ips as $ip)
 				{
 					if(substr($ip,0,strlen($ip)) == substr(DevblocksPlatform::getClientIp(),0,strlen($ip)))
-				 	{ $pass=true; break; }
+					{ $pass=true; break; }
 				}
 				if(!$pass) {
 					echo vsprintf($translate->_('update.ip_unauthorized'), DevblocksPlatform::getClientIp());
@@ -116,10 +116,10 @@ class ChUpdateController extends DevblocksControllerExtension {
 					$errors[] = sprintf("Your Cerb license coverage for major software updates expired on %s, and %s is not included.  Please <a href='%s' target='_blank'>renew your license</a>%s, <a href='%s'>remove your license</a> and enter Evaluation Mode (1 simultaneous worker), or <a href='%s' target='_blank'>download</a> an earlier version.",
 						gmdate("F d, Y",$u),
 						APP_VERSION,
-						'http://www.cerbweb.com/buy',
+						'https://cerb.ai/download/',
 						!is_null($remuneration->key) ? sprintf(" (%s)",$remuneration->key) : '',
 						$url->write('c=update&a=unlicense'),
-						'http://www.cerbweb.com/download/archives'
+						'https://github.com/cerb/cerb-release'
 					);
 				}
 				

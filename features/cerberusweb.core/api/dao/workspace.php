@@ -1372,7 +1372,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		$url_writer = DevblocksPlatform::services()->url();
 
 		if(null == ($workspace_page = DAO_WorkspacePage::get($context_id)))
-			return array();
+			return [];
 		
 		$url = $url_writer(sprintf("c=pages&id=%d",
 			$workspace_page->id
@@ -1384,12 +1384,12 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		if(!empty($friendly))
 			$url .= '-' . $friendly;
 		
-		return array(
+		return [
 			'id' => $workspace_page->id,
 			'name' => $workspace_page->name,
 			'permalink' => $url,
 			'updated' => 0, // [TODO]
-		);
+		];
 	}
 	
 	function getContext($page, &$token_labels, &$token_values, $prefix=null) {

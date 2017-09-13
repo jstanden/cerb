@@ -77,7 +77,7 @@ class _DevblocksValidationField {
 	
 	/**
 	 * 
-	 * @return DevblocksValidationTypeNumber
+	 * @return _DevblocksValidationTypeNumber
 	 */
 	function timestamp() {
 		$this->_type = new _DevblocksValidationTypeNumber();
@@ -89,7 +89,7 @@ class _DevblocksValidationField {
 	
 	/**
 	 * 
-	 * @return DevblocksValidationTypeNumber
+	 * @return _DevblocksValidationTypeNumber
 	 */
 	function uint($bytes=4) {
 		$this->_type = new _DevblocksValidationTypeNumber();

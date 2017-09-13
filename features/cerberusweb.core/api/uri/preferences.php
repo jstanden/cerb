@@ -369,7 +369,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$stack = $request->path;
 
 		array_shift($stack); // preferences
-		array_shift($stack); // redirectReadAction
+		array_shift($stack); // redirectRead
 		@$id = array_shift($stack); // id
 
 		if(null != ($notification = DAO_Notification::get($id))) {

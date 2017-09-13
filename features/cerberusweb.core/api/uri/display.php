@@ -1040,7 +1040,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
 		@$msg_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
-		 
+		
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
 
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');

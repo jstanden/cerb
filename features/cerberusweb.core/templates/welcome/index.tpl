@@ -33,16 +33,10 @@
 			<a href="https://cerb.ai/docs/" target="_blank">Read the user's guide</a>
 		</li>
 		<li>
-			<a href="http://www.facebook.com/cerbapp" target="_blank">Become a fan on Facebook</a>
+			<a href="http://www.facebook.com/cerbapp" target="_blank">Like us on Facebook</a>
 		</li>
 		<li>
-			<a href="http://twitter.com/cerb_app" target="_blank">Follow our Twitter feed</a>
-		</li>
-		<li>
-			<a href="http://www.linkedin.com/groups/Cerberus-Helpdesk-3317589?mostPopular=&gid=3317589" target="_blank">Join our group on LinkedIn</a>
-		</li>
-		<li>
-			<a href="http://www.delicious.com/url/87392aa502c3ca59cff488666c63bc12" target="_blank">Bookmark our website</a>
+			<a href="http://twitter.com/cerb_ai" target="_blank">Follow us on Twitter</a>
 		</li>
 	</ul>
 </fieldset>

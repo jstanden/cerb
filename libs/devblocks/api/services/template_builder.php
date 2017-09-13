@@ -453,7 +453,7 @@ class DevblocksDictionaryDelegate {
 			$len = strlen($with_prefix);
 			if(0 == strcasecmp($with_prefix, substr($k,0,$len))) {
 				$new_dict[substr($k,$len)] = $v;
- 			}
+			}
 		}
 		
 		return $new_dict;
@@ -522,11 +522,11 @@ class DevblocksDictionaryDelegate {
 		return true;
 	}
 	
-	public static function getDictionariesFromModels(array $models, $context, array $keys=array()) {
-		$dicts = array();
+	public static function getDictionariesFromModels(array $models, $context, array $keys=[]) {
+		$dicts = [];
 		
 		if(empty($models)) {
-			return array();
+			return [];
 		}
 		
 		foreach($models as $model_id => $model) {
@@ -640,13 +640,13 @@ class _DevblocksTwigExpressionVisitor implements Twig_NodeVisitorInterface {
 		return $node;
 	}
 	
- 	function getPriority() {
- 		return 0;
- 	}
- 	
- 	function getFoundTokens() {
- 		return array_keys($this->_tokens);
- 	}
+	function getPriority() {
+		return 0;
+	}
+	
+	function getFoundTokens() {
+		return array_keys($this->_tokens);
+	}
 };
 
 if(class_exists('Twig_Extension', true)):

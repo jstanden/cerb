@@ -149,8 +149,8 @@ class ChPageController extends DevblocksControllerExtension {
 		// [JAS]: Listeners (Step-by-step guided tour, etc.)
 		$listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
 		foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
-			 $inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
-			 $inst->run($response, $tpl);
+			$inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpRequestListenerExtension */
+			$inst->run($response, $tpl);
 		}
 
 		$tpl->assign('active_worker', $active_worker);
