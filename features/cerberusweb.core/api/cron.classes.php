@@ -706,12 +706,6 @@ class ImportCron extends CerberusCronPageExtension {
 			DAO_Ticket::createRequester($sRequesterAddy, $ticket_id);
 		}
 		
-		$first_message_id = 0;
-		$first_wrote_id = 0;
-		$first_outgoing_message_id = 0;
-		$last_message_id = 0;
-		$last_wrote_id = 0;
-		
 		// Create messages
 		if(!is_null($xml->messages)) {
 			$count_messages = count($xml->messages->message);
@@ -762,21 +756,6 @@ class ImportCron extends CerberusCronPageExtension {
 					DAO_Message::WORKER_ID => !empty($msgWorkerId) ? $msgWorkerId : 0,
 				);
 				$email_id = DAO_Message::create($fields);
-				
-				if(empty($first_outgoing_message_id) && $iIsOutgoing)
-					$first_outgoing_message_id = $email_id;
-				
-				// First thread
-				if(1==$seek_messages) {
-					$first_message_id = $email_id;
-					$first_wrote_id = $msgFromInst->id;
-				}
-				
-				// Last thread
-				if($count_messages==$seek_messages) {
-					$last_message_id = $email_id;
-					$last_wrote_id = $msgFromInst->id;
-				}
 				
 				// Create attachments
 				if(!is_null($eMessage->attachments) && $eMessage->attachments instanceof Traversable)
@@ -840,13 +819,7 @@ class ImportCron extends CerberusCronPageExtension {
 			}
 			
 			// Update ticket message meta
-			DAO_Ticket::update($ticket_id, array(
-				DAO_Ticket::FIRST_MESSAGE_ID => $first_message_id,
-				DAO_Ticket::FIRST_WROTE_ID => $first_wrote_id,
-				DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => $first_outgoing_message_id,
-				DAO_Ticket::LAST_MESSAGE_ID => $last_message_id,
-				DAO_Ticket::LAST_WROTE_ID => $last_wrote_id,
-			), false);
+			DAO_Ticket::rebuild($ticket_id);
 		}
 		
 		// Create comments
