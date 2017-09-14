@@ -379,6 +379,9 @@ class ChPreferencesPage extends CerberusPageExtension {
 				case CerberusContexts::CONTEXT_CUSTOM_FIELD:
 				case CerberusContexts::CONTEXT_CUSTOM_FIELDSET:
 				case CerberusContexts::CONTEXT_MESSAGE:
+				case CerberusContexts::CONTEXT_WORKSPACE_PAGE:
+				case CerberusContexts::CONTEXT_WORKSPACE_TAB:
+				case CerberusContexts::CONTEXT_WORKSPACE_WIDGET:
 					// Mark as read before we redirect
 					if(empty($notification->is_read)) {
 						DAO_Notification::update($id, array(
