@@ -60,6 +60,19 @@ class _DevblocksValidationField {
 	
 	/**
 	 * 
+	 * @return _DevblocksValidationTypeString
+	 */
+	function image($type='image/png', $min_width=1, $min_height=1, $max_width=1000, $max_height=1000, $max_size=512000) {
+		$validation = DevblocksPlatform::services()->validation();
+		$this->_type = new _DevblocksValidationTypeString();
+		return $this->_type
+			->setMaxLength(512000)
+			->addValidator($validation->validators()->image($type, $min_width, $min_height, $max_width, $max_height, $max_size))
+			;
+	}
+	
+	/**
+	 * 
 	 * @return _DevblocksValidationTypeNumber
 	 */
 	function number() {
@@ -182,6 +195,73 @@ class _DevblocksValidators {
 			
 			if(empty($validated_emails) || !is_array($validated_emails)) {
 				$error = "is invalid. It must be a comma-separated list of properly formatted email address.";
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
+	function image($type='image/png', $min_width=1, $min_height=1, $max_width=1000, $max_height=1000, $max_size=512000) {
+		return function($value, &$error=null) use ($type, $min_width, $max_width, $min_height, $max_height, $max_size) {
+			if(!is_string($value)) {
+				$error = "must be a base64-encoded string.";
+				return false;
+			}
+			
+			if(!DevblocksPlatform::strStartsWith($value, 'data:')) {
+				$error = "must be start with 'data:'.";
+				return false;
+			}
+			
+			$imagedata = substr($value, 5);
+			
+			if(!DevblocksPlatform::strStartsWith($imagedata,'image/png;base64,')) {
+				$error = "must be a base64-encoded string with the format 'data:image/png;base64,<data>";
+				return false;
+			}
+			
+			// Decode it to binary
+			if(false == ($imagedata = base64_decode(substr($imagedata, 17)))) {
+				$error = "does not contain a valid base64 encoded PNG image.";
+				return false;
+			}
+			
+			if(strlen($imagedata) > $max_size) {
+				$error = sprintf("must be smaller than %s (%s).", DevblocksPlatform::strPrettyBytes($max_size), DevblocksPlatform::strPrettyBytes(strlen($imagedata)));
+				return false;
+			}
+			
+			// Verify the "magic bytes": 89 50 4E 47 0D 0A 1A 0A
+			if('89504e470d0a1a0a' != bin2hex(substr($imagedata,0,8))) {
+				$error = "is not a valid PNG image.";
+				return false;
+			}
+			
+			// Test dimensions
+			
+			if(false == ($size_data = getimagesizefromstring($imagedata)) || !is_array($size_data)) {
+				$error = "error. Failed to determine image dimensions.";
+				return false;
+			}
+			
+			if($size_data[0] < $min_width) {
+				$error = sprintf("must be at least %dpx in width (%dpx).", $min_width, $size_data[0]);
+				return false;
+			}
+			
+			if($size_data[0] > $max_width) {
+				$error = sprintf("must be no more than %dpx in width (%dpx).", $max_width, $size_data[0]);
+				return false;
+			}
+			
+			if($size_data[1] < $min_height) {
+				$error = sprintf("must be at least %dpx in height (%dpx).", $min_height, $size_data[1]);
+				return false;
+			}
+			
+			if($size_data[1] > $max_height) {
+				$error = sprintf("must be no more than %dpx in height (%dpx).", $max_height, $size_data[1]);
 				return false;
 			}
 			
