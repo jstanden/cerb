@@ -116,14 +116,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$validation
 			->addField(self::LAST_WROTE_ID)
 			->id()
-			->setRequired(true)
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
 			;
 		$validation
 			->addField(self::MASK)
 			->string()
 			->setMaxLength(255)
-			->setEditable(false)
+			->setUnique('DAO_Ticket')
 			;
 		$validation
 			->addField(self::NUM_MESSAGES)
@@ -4671,6 +4670,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'group_id' => DAO_Ticket::GROUP_ID,
 			'id' => DAO_Ticket::ID,
 			'importance' => DAO_Ticket::IMPORTANCE,
+			'mask' => DAO_Ticket::MASK,
 			'org_id' => DAO_Ticket::ORG_ID,
 			'owner_id' => DAO_Ticket::OWNER_ID,
 			'reopen_date' => DAO_Ticket::REOPEN_AT,

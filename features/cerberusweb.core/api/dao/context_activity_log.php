@@ -1030,6 +1030,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 	
 	function getKeyToDaoFieldMap() {
 		return [
+			'activity_point' => DAO_ContextActivityLog::ACTIVITY_POINT,
 			'actor__context' => DAO_ContextActivityLog::ACTOR_CONTEXT,
 			'actor_id' => DAO_ContextActivityLog::ACTOR_CONTEXT_ID,
 			'created' => DAO_ContextActivityLog::CREATED,

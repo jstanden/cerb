@@ -71,6 +71,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::EMAIL_ID)
 			->id()
 			->setRequired(true)
+			->setUnique(get_class())
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
 			;
 		// varchar(128)
@@ -2939,6 +2940,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'dob' => DAO_Worker::DOB,
 			'first_name' => DAO_Worker::FIRST_NAME,
 			'gender' => DAO_Worker::GENDER,
+			'email_id' => DAO_Worker::EMAIL_ID,
 			'id' => DAO_Worker::ID,
 			'is_disabled' => DAO_Worker::IS_DISABLED,
 			'is_superuser' => DAO_Worker::IS_SUPERUSER,

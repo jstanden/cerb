@@ -1740,6 +1740,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 			'id' => DAO_WorkspaceTab::ID,
 			'name' => DAO_WorkspaceTab::NAME,
 			'page_id' => DAO_WorkspaceTab::WORKSPACE_PAGE_ID,
+			'pos' => DAO_WorkspaceTab::POS,
 		];
 	}
 	

@@ -1095,6 +1095,8 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'id' => DAO_Bucket::ID,
 			'is_default' => DAO_Bucket::IS_DEFAULT,
 			'name' => DAO_Bucket::NAME,
+			'reply_personal' => DAO_Bucket::REPLY_PERSONAL,
+			'reply_signature' => DAO_Bucket::REPLY_SIGNATURE,
 			'updated_at' => DAO_Bucket::UPDATED_AT,
 		];
 	}

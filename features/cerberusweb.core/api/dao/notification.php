@@ -41,8 +41,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		// varchar(255)
 		$validation
 			->addField(self::CONTEXT)
-			->string()
-			->setMaxLength(255)
+			->context()
 			;
 		// int(10) unsigned
 		$validation
@@ -1310,6 +1309,7 @@ class Context_Notification extends Extension_DevblocksContext {
 	function getKeyToDaoFieldMap() {
 		return [
 			'activity_point' => DAO_Notification::ACTIVITY_POINT,
+			'assignee_id' => DAO_Notification::WORKER_ID,
 			'created' => DAO_Notification::CREATED_DATE,
 			'event_json' => DAO_Notification::ENTRY_JSON,
 			'id' => DAO_Notification::ID,

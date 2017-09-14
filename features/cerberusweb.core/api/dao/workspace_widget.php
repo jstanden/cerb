@@ -547,9 +547,13 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 	
 	function getKeyToDaoFieldMap() {
 		return [
+			'cache_ttl' => DAO_WorkspaceWidget::CACHE_TTL,
 			'id' => DAO_WorkspaceWidget::ID,
 			'extension_id' => DAO_WorkspaceWidget::EXTENSION_ID,
+			'label' => DAO_WorkspaceWidget::LABEL,
+			'pos' => DAO_WorkspaceWidget::POS,
 			'tab_id' => DAO_WorkspaceWidget::WORKSPACE_TAB_ID,
+			'updated_at' => DAO_WorkspaceWidget::UPDATED_AT,
 		];
 	}
 	
