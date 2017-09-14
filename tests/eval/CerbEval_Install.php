@@ -152,4 +152,13 @@ class CerbEval_Install extends PHPUnit_Framework_TestCase {
 		DAO_Worker::setAuth($worker_id, 'cerb');
 		
 	}
+	
+	function testCreateVersionFile() {
+		$path = APP_STORAGE_PATH . 'version.php';
+		$contents = sprintf('<?php define(\'APP_BUILD_CACHED\', %s);', APP_BUILD);
+		
+		if(!file_put_contents($path, $contents)) {
+			$this->assertTrue(false, "Failed to write the version.php file in storage.");
+		}
+	}
 };
