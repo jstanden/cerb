@@ -131,6 +131,7 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.calendar'|devblocks_translate|capitalize|escape:'javascript'}");
+		$popup.css('overflow', 'inherit');
 		
 		// Buttons
 		
