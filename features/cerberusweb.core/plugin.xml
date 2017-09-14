@@ -544,6 +544,7 @@
 		<file path="api/dao/workspace.php">
 			<class name="Context_WorkspacePage" />
 			<class name="Context_WorkspaceTab" />
+			<class name="Context_WorkspaceWorklist" />
 			<class name="DAO_WorkspaceList" />
 			<class name="DAO_WorkspacePage" />
 			<class name="DAO_WorkspaceTab" />
@@ -2721,6 +2722,42 @@
 				<param key="alias" value="workspace_widget" />
 				<param key="dao_class" value="DAO_WorkspaceWidget" />
 				<param key="view_class" value="View_WorkspaceWidget" />
+				<param key="options">
+					<value>
+						<!--<data key="va_variable" />-->
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.workspace.worklist</id>
+			<name>Workspace Worklist</name>
+			<class>
+				<file>api/dao/workspace.php</file>
+				<name>Context_WorkspaceWorklist</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="workspace worklist" value="singular" />
+						<data key="workspace worklists" value="plural" />
+						<data key="worklist" value="singular short" />
+						<data key="worklists" value="plural short" />
+					</value>
+				</param>
+				<param key="alias" value="workspace_list" />
+				<param key="dao_class" value="DAO_WorkspaceList" />
+				<param key="view_class" value="View_WorkspaceList" />
 				<param key="options">
 					<value>
 						<!--<data key="va_variable" />-->
