@@ -599,6 +599,21 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 		// Add UID placeholders
 		$placeholders['uid'] = $uids;
 		
+		// Add defaults
+		$url_writer = DevblocksPlatform::services()->url();
+		$default_replyto = DAO_AddressOutgoing::getDefault();
+		$default_group = DAO_Group::getDefaultGroup();
+		
+		$placeholders['default'] = [
+			'base_url' => $url_writer->write('', true),
+			'group_id' => @$default_group->id ?: 0,
+			'bucket_id' => @$default_group->getDefaultBucket()->id ?: 0,
+			'replyto_id' => @$default_replyto->address_id ?: 0,
+			'replyto_email' => @$default_replyto->email ?: 0,
+		];
+		
+		// Build
+		
 		$new_json_string = $tpl_builder->build($new_json_string, $placeholders, $lexer);
 		
 		$json = json_decode($new_json_string, true);
