@@ -90,15 +90,6 @@ class DAO_Notification extends Cerb_ORMHelper {
 		
 		self::update($id, $fields);
 		
-		// If a worker was provided
-		if(isset($fields[self::WORKER_ID])) {
-			// Invalidate the worker notification count cache
-			self::clearCountCache($fields[self::WORKER_ID]);
-			
-			// Trigger notification
-			Event_NotificationReceivedByWorker::trigger($id, $fields[self::WORKER_ID]);
-		}
-		
 		return $id;
 	}
 	
@@ -138,6 +129,16 @@ class DAO_Notification extends Cerb_ORMHelper {
 				// Log the context update
 				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_NOTIFICATION, $batch_ids);
 			}
+		}
+		
+		// If a worker was provided
+		if(isset($fields[self::WORKER_ID])) {
+			// Invalidate the worker notification count cache
+			self::clearCountCache($fields[self::WORKER_ID]);
+			
+			if(is_array($ids))
+			foreach($ids as $id)
+				Event_NotificationReceivedByWorker::trigger($id, $fields[self::WORKER_ID]);
 		}
 	}
 	
