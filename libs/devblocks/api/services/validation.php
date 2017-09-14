@@ -177,6 +177,12 @@ class _DevblocksValidationType {
 		return $this;
 	}
 	
+	function setUnique($dao_class) {
+		$this->_data['unique'] = true;
+		$this->_data['dao_class'] = $dao_class;
+		return $this;
+	}
+	
 	function setNotEmpty($bool) {
 		$this->_data['not_empty'] = $bool ? true : false;
 		return $this;
@@ -250,12 +256,6 @@ class _DevblocksValidationTypeString extends _DevblocksValidationType {
 		return $this;
 	}
 	
-	function setUnique($dao_class) {
-		$this->_data['unique'] = true;
-		$this->_data['dao_class'] = $dao_class;
-		return $this;
-	}
-	
 	function setPossibleValues(array $possible_values) {
 		$this->_data['possible_values'] = $possible_values;
 		return $this;
@@ -318,6 +318,24 @@ class _DevblocksValidationService {
 			}
 		}
 		
+		// [TODO] This would have trouble if we were bulk updating a unique field
+		if(isset($data['unique']) && $data['unique']) {
+			@$dao_class = $data['dao_class'];
+			
+			if(empty($dao_class))
+				throw new Exception_DevblocksValidationError("'%s' has an invalid unique constraint.", $field_name);
+			
+			if(isset($scope['id'])) {
+				$results = $dao_class::getWhere(sprintf("%s = %s AND id != %d", $dao_class::escape($field_name), $dao_class::qstr($value), $scope['id']), null, null, 1);
+			} else {
+				$results = $dao_class::getWhere(sprintf("%s = %s", $dao_class::escape($field_name), $dao_class::qstr($value)), null, null, 1);
+			}
+			
+			if(!empty($results)) {
+				throw new Exception_DevblocksValidationError(sprintf("A record already exists with this '%s' (%s). It must be unique.", $field_name, $value));
+			}
+		}
+		
 		switch($class_name) {
 			case '_DevblocksValidationTypeContext':
 				if(!is_string($value) || false == ($context_ext = Extension_DevblocksContext::get($value))) {
@@ -351,24 +369,6 @@ class _DevblocksValidationService {
 				if($data) {
 					if(isset($data['length']) && strlen($value) > $data['length']) {
 						throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_name, $data['length']));
-					}
-					
-					// [TODO] This would have trouble if we were bulk updating a unique field
-					if(isset($data['unique']) && $data['unique']) {
-						@$dao_class = $data['dao_class'];
-						
-						if(empty($dao_class))
-							throw new Exception_DevblocksValidationError("'%s' has an invalid unique constraint.", $field_name);
-						
-						if(isset($scope['id'])) {
-							$results = $dao_class::getWhere(sprintf("%s = %s AND id != %d", $dao_class::escape($field_name), $dao_class::qstr($value), $scope['id']), null, null, 1);
-						} else {
-							$results = $dao_class::getWhere(sprintf("%s = %s", $dao_class::escape($field_name), $dao_class::qstr($value)), null, null, 1);
-						}
-						
-						if(!empty($results)) {
-							throw new Exception_DevblocksValidationError(sprintf("A record already exists with this '%s' (%s). It must be unique.", $field_name, $value));
-						}
 					}
 					
 					if(isset($data['possible_values']) && !in_array($value, $data['possible_values'])) {
