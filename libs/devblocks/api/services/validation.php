@@ -487,7 +487,7 @@ class _DevblocksValidationService {
 		
 		switch($class_name) {
 			case '_DevblocksValidationTypeContext':
-				if(!is_string($value) || false == ($context_ext = Extension_DevblocksContext::get($value))) {
+				if(!is_string($value) || false == ($context_ext = Extension_DevblocksContext::getByAlias($value, false))) {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' is not a valid context (%s).", $field_name, $value));
 				}
 				// [TODO] Filter to specific contexts for certain fields
