@@ -1838,10 +1838,10 @@ abstract class C4_AbstractView {
 		$fields = $this->getSubtotalFields();
 		$tpl->assign('subtotal_fields', $fields);
 		
-		$counts = $this->getSubtotalCounts($this->renderSubtotals);
+		$counts = $this->getSubtotalCounts($this->renderSubtotals) ?: [];
 		
 		// Unless we're subtotalling by group, limit the results to top 20
-		if($this->renderSubtotals != 't_group_id')
+		if($this->renderSubtotals != 't_group_id' && is_array($counts))
 			$counts = array_slice($counts, 0, 20);
 		
 		$tpl->assign('subtotal_counts', $counts);
@@ -4026,14 +4026,16 @@ class C4_AbstractViewLoader {
 			}
 		};
 		
-		array_walk(
-			$view_model['params'],
-			$func
-		);
+		if(isset($view_model['params']) && is_array($view_model['params'])) {
+			array_walk(
+				$view_model['params'],
+				$func
+			);
+			
+			$view->addParams($view_model['params'], true);
+		}
 		
-		$view->addParams($view_model['params'], true);
-		
-		if(isset($view_model['params_required'])) {
+		if(isset($view_model['params_required']) && is_array($view_model['params_required'])) {
 			array_walk(
 				$view_model['params_required'],
 				$func
@@ -4053,7 +4055,8 @@ class C4_AbstractViewLoader {
 		$view->setPlaceholderValues($values);
 		
 		// If the param keys changed during unserialization, then consider everything changed
-		if(array_keys($view_model['params']) != array_keys($view->getParams(false))) {
+		$view_params = $view->getParams(false);
+		if(isset($view_model['params']) && is_array($view_model['params']) && is_array($view_params) && array_keys($view_model['params']) != array_keys($view_params)) {
 			$view->_init_checksum = sha1(mt_rand());
 			
 		} else {
