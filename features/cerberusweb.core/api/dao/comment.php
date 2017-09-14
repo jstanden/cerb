@@ -71,6 +71,9 @@ class DAO_Comment extends Cerb_ORMHelper {
 	static function create($fields, $also_notify_worker_ids=array(), $file_ids=array()) {
 		$db = DevblocksPlatform::services()->database();
 		
+		if(!isset($fields[self::CREATED]))
+			$fields[self::CREATED] = time();
+		
 		$db->ExecuteMaster("INSERT INTO comment () VALUES ()");
 		$id = $db->LastInsertId();
 		

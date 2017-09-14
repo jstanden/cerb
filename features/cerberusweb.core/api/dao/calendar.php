@@ -65,6 +65,9 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+			
 		// Make a diff for the requested objects in batches
 		
 		$chunks = array_chunk($ids, 100, true);
