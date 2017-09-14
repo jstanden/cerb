@@ -222,24 +222,18 @@ $(function() {
 	
 	<div class="block" style="display:none;margin:5px;" id="view{$view->id}_va_actions">
 		<b>This worklist was modified by bots:</b>
-		<ul style="margin:0;">
+		
+		<div style="padding:10px;">
+			<ul class="bubbles">
 			{foreach from=$va_behaviors item=bot_behavior name=bot_behaviors}
-			<li>
 				{$bot = $bot_behavior->getBot()}
-				<ul class="bubbles">
-					<li>
-						<a href="{devblocks_url}c=profiles&a=bot&id={$bot->id}{/devblocks_url}" class="cerb-peek-trigger" onclick="return false;" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">
-							<img src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}" class="cerb-avatar">
-							<b>{$bot->name}</b>
-						</a>
-					</li>
-					<li>
-						<a href="{devblocks_url}c=profiles&a=behavior&id={$bot_behavior->id}{/devblocks_url}" class="cerb-peek-trigger" onclick="return false;" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$bot_behavior->id}">{$bot_behavior->title}</a>
-					</li>
-				</ul>
-			</li>
+				<li>
+					<img src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}" class="cerb-avatar">
+					<a href="{devblocks_url}c=profiles&a=behavior&id={$bot_behavior->id}{/devblocks_url}" class="cerb-peek-trigger" onclick="return false;" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$bot_behavior->id}">{$bot_behavior->title}</a>
+				</li>
 			{/foreach}
-		</ul>
+			</ul>
+		</div>
 		
 		<button type="button" onclick="$(this).closest('div.block').fadeOut();">{'common.ok'|devblocks_translate|upper}</button>
 	</div>
