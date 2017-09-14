@@ -100,6 +100,9 @@ class _DevblocksValidationField {
 	}
 }
 
+class _DevblocksFormatters {
+}
+
 class _DevblocksValidators {
 	function contextId($context, $allow_empty=false) {
 		return function($value, &$error=null) use ($context, $allow_empty) {
@@ -185,6 +188,17 @@ class _DevblocksValidationType {
 	
 	function setNotEmpty($bool) {
 		$this->_data['not_empty'] = $bool ? true : false;
+		return $this;
+	}
+	
+	function addFormatter($callable) {
+		if(!is_callable($callable))
+			return false;
+		
+		if(!isset($this->_data['formatters']))
+			$this->_data['formatters'] = [];
+		
+		$this->_data['formatters'][] = $callable;
 		return $this;
 	}
 	
@@ -283,6 +297,13 @@ class _DevblocksValidationService {
 	}
 	
 	/**
+	 * return _DevblocksFormatters
+	 */
+	function formatters() {
+		return new _DevblocksFormatters();
+	}
+	
+	/**
 	 * return _DevblocksValidators
 	 */
 	function validators() {
@@ -290,7 +311,7 @@ class _DevblocksValidationService {
 	}
 	
 	// (ip, email, phone, etc)
-	function validate(_DevblocksValidationField $field, $value, $scope=[]) {
+	function validate(_DevblocksValidationField $field, &$value, $scope=[]) {
 		$field_name = $field->_name;
 		
 		if(false == ($class_name = get_class($field->_type)))
@@ -305,6 +326,17 @@ class _DevblocksValidationService {
 		
 		if(isset($data['not_empty']) && $data['not_empty'] && 0 == strlen($value)) {
 			throw new Exception_DevblocksValidationError(sprintf("'%s' must not be blank.", $field_name));
+		}
+		
+		if(isset($data['formatters']) && is_array($data['formatters']))
+		foreach($data['formatters'] as $formatter) {
+			if(!is_callable($formatter)) {
+				throw new Exception_DevblocksValidationError(sprintf("'%s' has an invalid formatter.", $field_name));
+			}
+			
+			if(!$formatter($value, $error)) {
+				throw new Exception_DevblocksValidationError(sprintf("'%s' %s", $field_name, $error));
+			}
 		}
 		
 		if(isset($data['validators']) && is_array($data['validators']))
