@@ -1374,7 +1374,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		if(null == ($workspace_page = DAO_WorkspacePage::get($context_id)))
 			return [];
 		
-		$url = $url_writer(sprintf("c=pages&id=%d",
+		$url = $url_writer->write(sprintf("c=pages&id=%d",
 			$workspace_page->id
 		));
 		

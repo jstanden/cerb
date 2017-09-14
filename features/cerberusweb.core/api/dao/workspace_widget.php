@@ -457,7 +457,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 			return array();
 		
 		/*
-		$url = $url_writer(sprintf("c=pages&id=%d",
+		$url = $url_writer->write(sprintf("c=pages&id=%d",
 			$workspace_tab->workspace_page_id
 		));
 		*/
