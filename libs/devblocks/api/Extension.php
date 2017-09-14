@@ -264,6 +264,12 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	public static function getByAlias($alias, $as_instance=false) {
 		$aliases = self::getAliasesForAllContexts();
 		
+		// First, try the fully-qualified ID
+		if($alias && false != ($ctx = Extension_DevblocksContext::get($alias, $as_instance))) {
+			return $ctx;
+		}
+		
+		// Otherwise, try it as an alias
 		@$ctx_id = $aliases[$alias];
 		
 		// If this is a valid context, return it
