@@ -29,7 +29,10 @@ class _DevblocksValidationField {
 	 */
 	function context() {
 		$this->_type = new _DevblocksValidationTypeContext();
-		return $this->_type;
+		$validation = DevblocksPlatform::services()->validation();
+		return $this->_type
+			->addFormatter($validation->formatters()->context())
+			;
 	}
 	
 	/**
@@ -101,6 +104,22 @@ class _DevblocksValidationField {
 }
 
 class _DevblocksFormatters {
+	function context() {
+		return function(&$value, &$error=null) {
+			// If this is a valid fully qualified extension ID, accept
+			if(false != (Extension_DevblocksContext::get($value, false)))
+				return true;
+			
+			// Otherwise, check aliases
+			if(false != ($context_mft = Extension_DevblocksContext::getByAlias($value, false))) {
+				$value = $context_mft->id;
+				return true;
+			}
+			
+			$error = "is not a valid context.";
+			return false;
+		};
+	}
 }
 
 class _DevblocksValidators {
