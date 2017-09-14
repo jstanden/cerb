@@ -1461,10 +1461,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		$fields = array(
 			DAO_Ticket::CREATED_DATE => $orig_message->created_date,
 			DAO_Ticket::UPDATED_DATE => $orig_message->created_date,
-			DAO_Ticket::FIRST_MESSAGE_ID => $orig_message->id,
-			DAO_Ticket::LAST_MESSAGE_ID => $orig_message->id,
-			DAO_Ticket::FIRST_WROTE_ID => $orig_message->address_id,
-			DAO_Ticket::LAST_WROTE_ID => $orig_message->address_id,
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
 			DAO_Ticket::MASK => $new_ticket_mask,
 			DAO_Ticket::SUBJECT => (isset($orig_headers['subject']) ? $orig_headers['subject'] : $orig_ticket->subject),
@@ -1492,22 +1488,9 @@ class ChDisplayPage extends CerberusPageExtension {
 			DAO_Message::TICKET_ID => $new_ticket_id
 		));
 		
-		// Reindex the original ticket (last wrote, etc.)
-		$last_message = end($messages); /* @var Model_Message $last_message */
+		DAO_Ticket::rebuild($new_ticket_id);
+		DAO_Ticket::rebuild($orig_ticket->id);
 		
-		if(!($last_message instanceof Model_Message))
-			return;
-		
-		$fields = array(
-			DAO_Ticket::LAST_MESSAGE_ID => $last_message->id,
-			DAO_Ticket::LAST_WROTE_ID => $last_message->address_id
-		);
-		
-		DAO_Ticket::update($orig_ticket->id, $fields, false);
-		
-		DAO_Ticket::updateMessageCount($new_ticket_id);
-		DAO_Ticket::updateMessageCount($orig_ticket->id);
-			
 		/*
 		 * Log activity (Ticket Split)
 		 */
