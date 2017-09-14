@@ -98,7 +98,6 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param integer $id
 	 * @return Model_CommunityTool
@@ -131,7 +130,6 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $code
 	 * @return Model_CommunityTool
@@ -151,7 +149,6 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $ids
 	 * @return Model_CommunityTool[]
@@ -280,7 +277,6 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param DevblocksSearchCriteria[] $params
 	 * @param integer $limit

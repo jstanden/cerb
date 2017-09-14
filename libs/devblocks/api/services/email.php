@@ -17,7 +17,6 @@ class _DevblocksEmailManager {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @return _DevblocksEmailManager
 	 */
@@ -29,7 +28,6 @@ class _DevblocksEmailManager {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @return Swift_Message
 	 */

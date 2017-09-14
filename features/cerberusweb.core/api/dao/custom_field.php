@@ -91,7 +91,6 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param integer $id
 	 * @return Model_CustomField|null

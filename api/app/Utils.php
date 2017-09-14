@@ -41,7 +41,6 @@
  */
 class CerberusUtils {
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $string
 	 * @return array

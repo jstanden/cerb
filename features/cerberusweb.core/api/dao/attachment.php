@@ -102,7 +102,6 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param integer $id
 	 * @return Model_Attachment
@@ -450,7 +449,6 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param DevblocksSearchCriteria[] $params
 	 * @param integer $limit
@@ -738,7 +736,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 	
 	/**
 	 * @param Model_Attachment | $attachment_id
-	 * @return unknown_type
+	 * @return mixed
 	 */
 	public static function get($object, &$fp=null) {
 		if($object instanceof Model_Attachment) {

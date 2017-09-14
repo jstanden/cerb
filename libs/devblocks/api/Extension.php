@@ -2780,7 +2780,6 @@ abstract class DevblocksHttpIO {
 	public $query = array();
 
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $path
 	 */

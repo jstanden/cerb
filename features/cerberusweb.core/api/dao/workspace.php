@@ -308,7 +308,6 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	}
 
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $columns
 	 * @param DevblocksSearchCriteria[] $params
@@ -660,7 +659,6 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $columns
 	 * @param DevblocksSearchCriteria[] $params
@@ -1012,6 +1010,7 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 		);
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
+		
 		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
@@ -1020,7 +1019,6 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param integer $id
 	 * @return Model_WorkspaceList
@@ -1041,7 +1039,6 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $where
 	 * @return Model_WorkspaceList[]

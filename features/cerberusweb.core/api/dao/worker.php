@@ -423,7 +423,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param resource $rs
 	 */
@@ -1129,7 +1128,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param DevblocksSearchCriteria[] $params
 	 * @param integer $limit

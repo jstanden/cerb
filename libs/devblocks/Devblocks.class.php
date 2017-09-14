@@ -648,7 +648,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	/**
 	 * 
-	 * @param unknown $string
+	 * @param string $string
 	 * @return array
 	 * @test DevblocksPlatformTest
 	 */
@@ -1521,7 +1521,7 @@ class DevblocksPlatform extends DevblocksEngine {
 						}
 					}
 				}
-				 
+				
 				$feed['items'][] = array(
 					'date' => empty($date_timestamp) ? time() : $date_timestamp,
 					'link' => $link,
@@ -2127,27 +2127,26 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @return boolean
 	 */
 	static private function _needsToPatch() {
-		 $plugins = DevblocksPlatform::getPluginRegistry();
-		 
-		 // First install or upgrade
-		 if(empty($plugins))
-		 	return true;
+		$plugins = DevblocksPlatform::getPluginRegistry();
+		
+		// First install or upgrade
+		if(empty($plugins))
+			return true;
 
-		 foreach($plugins as $plugin) { /* @var $plugin DevblocksPluginManifest */
-		 	if($plugin->enabled) {
-		 		foreach($plugin->getPatches() as $patch) { /* @var $patch DevblocksPatch */
-		 			if(!$patch->hasRun())
-		 				return true;
-		 		}
-		 	}
-		 }
-		 
-		 return false;
+		foreach($plugins as $plugin) { /* @var $plugin DevblocksPluginManifest */
+			if($plugin->enabled) {
+				foreach($plugin->getPatches() as $patch) { /* @var $patch DevblocksPatch */
+					if(!$patch->hasRun())
+						return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -2286,7 +2285,7 @@ class DevblocksPlatform extends DevblocksEngine {
 
 		$events = array();
 		$plugins = self::getPluginRegistry();
-		 
+		
 		// [JAS]: Event point hashing/caching
 		if(is_array($plugins))
 		foreach($plugins as $plugin) { /* @var $plugin DevblocksPluginManifest */
@@ -2347,7 +2346,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		$extensions = self::getExtensions('devblocks.listener.event',false);
 		$events = array('*');
-		 
+		
 		// [JAS]: Event point hashing/caching
 		if(is_array($extensions))
 		foreach($extensions as $extension) { /* @var $extension DevblocksExtensionManifest */
@@ -2500,7 +2499,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $id
 	 * @return DevblocksPluginManifest
@@ -3003,7 +3001,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
-	 * Enter description here...
 	 *
 	 * @return DevblocksHttpRequest
 	 */
@@ -3019,7 +3016,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	/**
-	 * Enter description here...
 	 *
 	 * @return DevblocksHttpRequest
 	 */

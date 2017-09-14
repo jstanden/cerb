@@ -393,9 +393,8 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
-	 * @param unknown_type $id
+	 * @param integer $id
 	 * @return Model_Address
 	 */
 	static function get($id) {
@@ -415,10 +414,9 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
-	 * @param unknown_type $email
-	 * @param unknown_type $create_if_null
+	 * @param string $email
+	 * @param boolean $create_if_null
 	 * @return Model_Address
 	 */
 	static function lookupAddress($email, $create_if_null=false) {
@@ -456,15 +454,14 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
-	 *
-	 * @param unknown_type $emails
-	 * @param unknown_type $create_if_null
+	 * @param array $emails
+	 * @param boolean $create_if_null
 	 * @return Model_Address[]
 	 */
-	static function lookupAddresses($emails, $create_if_null=false) {
-		$addresses = array();
+	static function lookupAddresses(array $emails, $create_if_null=false) {
+		$addresses = [];
 		
+		if(is_array($emails))
 		foreach($emails as $email) {
 			if(false != ($address = DAO_Address::lookupAddress($email, $create_if_null))) {
 				$addresses[$address->id] = $address;
@@ -624,7 +621,6 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param DevblocksSearchCriteria[] $params
 	 * @param integer $limit
@@ -2080,6 +2076,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		
 		$context = CerberusContexts::CONTEXT_ADDRESS;
 		$active_worker = CerberusApplication::getActiveWorker();
+		$address = null;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);

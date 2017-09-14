@@ -489,7 +489,6 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $columns
 	 * @param DevblocksSearchCriteria[] $params
@@ -708,7 +707,7 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 	
 	/**
 	 * @param Model_ContextAvatar | $avatar_id
-	 * @return unknown_type
+	 * @return mixed
 	 */
 	public static function get($object, &$fp=null) {
 		if($object instanceof Model_ContextAvatar) {

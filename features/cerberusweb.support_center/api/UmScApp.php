@@ -765,7 +765,6 @@ class UmScAbstractViewLoader {
 	}
 
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $class UmScAbstractView
 	 * @param string $view_label ID
@@ -792,7 +791,6 @@ class UmScAbstractViewLoader {
 	}
 
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $class UmScAbstractView
 	 * @param string $view_label ID

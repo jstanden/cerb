@@ -139,7 +139,6 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param integer $worker_id
 	 * @return Model_AddressToWorker[]
@@ -175,7 +174,6 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param integer $address
 	 * @return Model_AddressToWorker
@@ -195,7 +193,6 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param integer $address_id
 	 * @return Model_AddressToWorker
@@ -263,7 +260,6 @@ class DAO_AddressToWorker extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param resource $rs
 	 * @return Model_AddressToWorker[]

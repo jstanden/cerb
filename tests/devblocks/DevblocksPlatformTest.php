@@ -902,16 +902,14 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testStrFormatJson() {
-		
-		$expected = <<< END
-[
-    {
-        "name": "Jeff",
-        "title": "Software Architect",
-        "org": "Webgroup Media LLC"
-    }
-]
-END;
+		$expected = 
+		"[\n".
+		"    {\n".
+		"        \"name\": \"Jeff\",\n".
+		"        \"title\": \"Software Architect\",\n".
+		"        \"org\": \"Webgroup Media LLC\"\n".
+		"    }\n".
+		"]";
 		
 		// Test array input
 		

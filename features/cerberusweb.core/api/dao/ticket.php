@@ -190,7 +190,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $mask
 	 * @return integer
@@ -238,7 +237,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $mask
 	 * @return Model_Ticket
@@ -954,7 +952,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param integer $id
 	 * @return Model_Ticket
@@ -990,7 +987,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param resource $rs
 	 */

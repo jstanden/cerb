@@ -186,8 +186,8 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	/**
 	 *
 	 * Enter description here ...
-	 * @param unknown_type $context
-	 * @param unknown_type $context_id
+	 * @param string $context
+	 * @param integer $context_id
 	 * @return Model_ContextScheduledBehavior
 	 */
 	static public function getByContext($context, $context_id) {
@@ -356,7 +356,6 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $columns
 	 * @param DevblocksSearchCriteria[] $params

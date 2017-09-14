@@ -169,7 +169,6 @@ class _DevblocksUrlManager {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @return boolean
 	 */

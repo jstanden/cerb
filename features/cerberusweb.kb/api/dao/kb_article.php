@@ -113,7 +113,6 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param resource $rs
 	 */

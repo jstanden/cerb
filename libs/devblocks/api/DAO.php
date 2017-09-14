@@ -922,7 +922,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	
 	/**
 	 * @param string $where
-	 * @return Model_TranslationDefault[]
+	 * @return Model_Translation[]
 	 */
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::services()->database();
@@ -938,7 +938,8 @@ class DAO_Translation extends DevblocksORMHelper {
 
 	/**
 	 * @param integer $id
-	 * @return Model_TranslationDefault	 */
+	 * @return Model_Translation
+	 */
 	static function get($id) {
 		if(empty($id))
 			return null;
@@ -1103,7 +1104,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	
 	/**
 	 * @param resource $rs
-	 * @return Model_TranslationDefault[]
+	 * @return Model_Translation[]
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();

@@ -64,7 +64,6 @@ class DAO_Group extends Cerb_ORMHelper {
 	// Groups
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param integer $id
 	 * @return Model_Group
@@ -114,7 +113,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	
 	/**
 	 * 
-	 * @param unknown $nocache
+	 * @param boolean $nocache
 	 * @return Model_Group[]
 	 */
 	static function getAll($nocache=false) {
@@ -275,7 +274,6 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $name
 	 * @return integer
@@ -312,7 +310,6 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $ids
 	 * @param array $fields
@@ -373,7 +370,6 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param integer $id
 	 */

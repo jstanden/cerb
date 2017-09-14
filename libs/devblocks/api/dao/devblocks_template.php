@@ -304,7 +304,6 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $columns
 	 * @param DevblocksSearchCriteria[] $params

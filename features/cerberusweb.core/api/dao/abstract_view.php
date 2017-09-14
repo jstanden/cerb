@@ -1113,7 +1113,6 @@ abstract class C4_AbstractView {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $field
 	 * @param string $oper
@@ -3772,7 +3771,6 @@ endif;
  */
 class C4_AbstractViewLoader {
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $view_id
 	 * @param C4_AbstractViewModel $defaults
@@ -3799,7 +3797,6 @@ class C4_AbstractViewLoader {
 	}
 
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $class C4_AbstractView
 	 * @param string $view_label ID
@@ -3988,10 +3985,7 @@ class C4_AbstractViewLoader {
 	}
 	
 	static function unserializeViewFromAbstractJson($view_model, $view_id) {
-		if(!isset($view_model['context']))
-			return false;
-		
-		$view_context = $view_model['context'];
+		@$view_context = $view_model['context'];
 		
 		if(empty($view_context))
 			return false;
@@ -4046,8 +4040,8 @@ class C4_AbstractViewLoader {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $worker_labels, $worker_values, null, true, true);
 		CerberusContexts::merge('current_worker_', null, $worker_labels, $worker_values, $labels, $values);

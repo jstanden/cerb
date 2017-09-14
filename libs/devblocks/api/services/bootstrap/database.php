@@ -217,7 +217,7 @@ class _DevblocksDatabaseManager {
 	 * 
 	 * @deprecated
 	 * @param string $sql
-	 * @return mysql_result|boolean
+	 * @return mysqli_result|boolean
 	 */
 	function Execute($sql) {
 		return $this->ExecuteMaster($sql);

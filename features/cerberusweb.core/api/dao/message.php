@@ -437,7 +437,6 @@ class DAO_Message extends Cerb_ORMHelper {
 	}
 
 	/**
-	 * Enter description here...
 	 *
 	 * @param DevblocksSearchCriteria[] $params
 	 * @param integer $limit
@@ -1098,7 +1097,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	
 	/**
 	 * @param Model_Message | $message_id
-	 * @return unknown_type
+	 * @return string
 	 */
 	public static function get($object, &$fp=null) {
 		if($object instanceof Model_Message) {

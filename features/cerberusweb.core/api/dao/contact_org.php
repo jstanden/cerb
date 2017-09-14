@@ -90,7 +90,6 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $fields
 	 * @return integer
@@ -113,7 +112,6 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $ids
 	 * @param array $fields
@@ -459,7 +457,6 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	}
 
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $name
 	 * @param boolean $create_if_null
@@ -573,7 +570,6 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param DevblocksSearchCriteria[] $params
 	 * @param integer $limit

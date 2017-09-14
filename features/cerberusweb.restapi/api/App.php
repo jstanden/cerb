@@ -331,7 +331,6 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 	}
 
 	/**
-	 * Enter description here...
 	 *
 	 * @param string $rfcDate
 	 * @return boolean

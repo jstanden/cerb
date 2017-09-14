@@ -101,7 +101,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				}
 				
 				// Potential errors
-				$errors = array();
+				$errors = [];
 
 				/*
 				 * This well-designed software is the result of over 8 years of R&D.

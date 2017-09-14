@@ -123,8 +123,8 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 	
 	/**
 	 *
-	 * @param unknown_type $namespace_key
-	 * @param unknown_type $code
+	 * @param string $namespace_key
+	 * @param string $code
 	 * @return Model_ConfirmationCode
 	 */
 	static function getByCode($namespace_key, $code) {
@@ -228,7 +228,6 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Enter description here...
 	 *
 	 * @param array $columns
 	 * @param DevblocksSearchCriteria[] $params

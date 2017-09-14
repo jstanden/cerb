@@ -22,12 +22,12 @@ class DAO_Bayes {
 	private function __construct() {}
 	
 	/**
-	 * @return CerberusWord[]
+	 * @return array
 	 */
 	static function lookupWordIds($words) {
 		$db = DevblocksPlatform::services()->database();
-		$tmp = array();
-		$outwords = array(); // CerberusWord
+		$tmp = [];
+		$outwords = [];
 		
 		// Escaped set
 		if(is_array($words))
@@ -36,7 +36,7 @@ class DAO_Bayes {
 		}
 		
 		if(empty($words))
-			return array();
+			return [];
 		
 		$sql = sprintf("SELECT id,word,spam,nonspam FROM bayes_words WHERE word IN ('%s')",
 			implode("','", $tmp)
@@ -103,7 +103,7 @@ class DAO_Bayes {
 			$db->ExecuteMaster($sql);
 		}
 		
-		return array('spam' => $spam,'nonspam' => $nonspam);
+		return ['spam' => $spam,'nonspam' => $nonspam];
 	}
 	
 	static function addOneToSpamTotal() {
