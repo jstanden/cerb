@@ -41,17 +41,26 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
-
-		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
-		$tpl->assign('calendar_properties', $calendar_properties);
 		
-		if(null != ($calendar = DAO_Calendar::get(@$tab->params['calendar_id']))) {
+		if(false != ($calendar = DAO_Calendar::get(@$tab->params['calendar_id']))) { /* @var Model_Calendar $calendar */
+			$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
+			$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
+			
 			$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
+			
+			// Occlusion
+			$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
+			$availability->occludeCalendarEvents($calendar_events);
 
 			// Template scope
 			$tpl->assign('calendar', $calendar);
 			$tpl->assign('calendar_events', $calendar_events);
+			
+		} else {
+			$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
 		}
+
+		$tpl->assign('calendar_properties', $calendar_properties);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
 	}
