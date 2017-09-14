@@ -170,6 +170,24 @@ class _DevblocksValidators {
 			return true;
 		};
 	}
+	
+	function emails() {
+		return function($value, &$error=null) {
+			if(!is_string($value)) {
+				$error = "must be a comma-separated string.";
+				return false;
+			}
+			
+			$validated_emails = CerberusMail::parseRfcAddresses($value);
+			
+			if(empty($validated_emails) || !is_array($validated_emails)) {
+				$error = "is invalid. It must be a comma-separated list of properly formatted email address.";
+				return false;
+			}
+			
+			return true;
+		};
+	}
 }
 
 class _DevblocksValidationType {
