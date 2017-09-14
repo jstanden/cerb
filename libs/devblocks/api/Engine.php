@@ -438,6 +438,23 @@ abstract class DevblocksEngine {
 		
 		return $ip;
 	}
+
+	static function isIpAuthorized($ip, array $ip_patterns=[]) {
+		foreach($ip_patterns as $ip_pattern) {
+			// Wildcard subnet match
+			if(DevblocksPlatform::strEndsWith($ip_pattern, ['.'])) {
+				if(DevblocksPlatform::strStartsWith($ip, $ip_pattern))
+					return true;
+			
+			// Otherwise, exact match
+			} else {
+				if($ip == $ip_pattern)
+					return true;
+			}
+		}
+		
+		return false;
+	}
 	
 	static function getClientUserAgent() {
 		require_once(DEVBLOCKS_PATH . 'libs/user_agent_parser.php');
@@ -630,6 +647,17 @@ abstract class DevblocksEngine {
 		// Controllers
 
 		$controller_uri = array_shift($path);
+		
+		// Security: IP Whitelist
+		
+		if(!in_array($controller_uri, array('oauth', 'portal')) && defined('APP_SECURITY_FIREWALL_WHITELIST') && !empty(APP_SECURITY_FIREWALL_WHITELIST)) {
+			@$remote_addr = DevblocksPlatform::getClientIp();
+			$valid_ips = DevblocksPlatform::parseCsvString(APP_SECURITY_FIREWALL_WHITELIST);
+			
+			if(!DevblocksPlatform::isIpAuthorized($remote_addr, $valid_ips)) {
+				DevblocksPlatform::dieWithHttpError(sprintf("<h1>403 Forbidden for %s</h1>", $remote_addr), 403);
+			}
+		}
 		
 		// Security: CSRF
 		

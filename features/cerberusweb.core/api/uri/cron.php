@@ -40,12 +40,7 @@ class ChCronController extends DevblocksControllerExtension {
 		@$is_ignoring_wait = DevblocksPlatform::importGPC($_REQUEST['ignore_wait'],'integer',0);
 		@$is_ignoring_internal = DevblocksPlatform::importGPC($_REQUEST['ignore_internal'],'integer',0);
 		
-		$pass = false;
-		foreach ($authorized_ips as $ip) {
-			if(substr($ip,0,strlen($ip)) == substr(DevblocksPlatform::getClientIp(),0,strlen($ip)))
-		 	{ $pass=true; break; }
-		}
-		if(!$pass) {
+		if(!DevblocksPlatform::isIpAuthorized(DevblocksPlatform::getClientIp(), $authorized_ips)) {
 			echo vsprintf($translate->_('cron.ip_unauthorized'), DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getClientIp()));
 			return;
 		}

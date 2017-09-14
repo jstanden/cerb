@@ -89,13 +89,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 				$authorized_ips = array_merge($authorized_ips, $authorized_ip_defaults);
 				
 				// Is this IP authorized?
-				$pass = false;
-				foreach ($authorized_ips as $ip)
-				{
-					if(substr($ip,0,strlen($ip)) == substr(DevblocksPlatform::getClientIp(),0,strlen($ip)))
-					{ $pass=true; break; }
-				}
-				if(!$pass) {
+				if(!DevblocksPlatform::isIpAuthorized(DevblocksPlatform::getClientIp(), $authorized_ips)) {
 					echo vsprintf($translate->_('update.ip_unauthorized'), DevblocksPlatform::getClientIp());
 					return;
 				}

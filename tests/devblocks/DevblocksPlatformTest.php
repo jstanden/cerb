@@ -339,6 +339,30 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(1.0, $actual);
 	}
 	
+	public function testIsIpAuthorized() {
+		$authorized_ips = ['192.168.1.1','127.0.','::1'];
+		
+		// Exact match
+		$actual = DevblocksPlatform::isIpAuthorized('192.168.1.1', $authorized_ips);
+		$this->assertTrue($actual);
+		
+		// Blocked IP
+		$actual = DevblocksPlatform::isIpAuthorized('8.8.8.8', $authorized_ips);
+		$this->assertFalse($actual);
+		
+		// IPv6 loopback
+		$actual = DevblocksPlatform::isIpAuthorized('::1', $authorized_ips);
+		$this->assertTrue($actual);
+		
+		// strStartsWith collision without wildcard (doesn't end with dot)
+		$actual = DevblocksPlatform::isIpAuthorized('192.168.1.100', $authorized_ips);
+		$this->assertFalse($actual);
+		
+		// Localhost subnet wildcard
+		$actual = DevblocksPlatform::isIpAuthorized('127.0.0.1', $authorized_ips);
+		$this->assertTrue($actual);
+	}
+	
 	public function testObjectsToStrings() {
 		// Objects (__toString)
 		$objects = array(
