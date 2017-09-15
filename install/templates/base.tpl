@@ -14,7 +14,7 @@
 	<tr>
 		<td>Progress: </td>
 		{section start=0 loop=$smarty.const.TOTAL_STEPS name=progress}
-		<td {if $step > $smarty.section.progress.iteration}class='progress_incomplete'{else}class='progress_complete'{/if}>
+		<td {if $smarty.section.progress.iteration > $step}class='progress_incomplete'{else}class='progress_complete'{/if}>
 			&nbsp;
 		</td>
 		{/section}
