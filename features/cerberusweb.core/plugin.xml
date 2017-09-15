@@ -82,6 +82,7 @@
 			<class name="CerbMailTransport_Smtp" />
 			<class name="IServiceProvider_HttpRequestSigner" />
 			<class name="IServiceProvider_OAuth" />
+			<class name="IServiceProvider_OAuthRefresh" />
 		</file>
 		
 		<file path="api/dao/abstract_view.php">

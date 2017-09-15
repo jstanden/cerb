@@ -89,6 +89,73 @@ class _DevblocksOAuthService {
 		return $url;
 	}
 	
+	public function getRefreshToken($refresh_token_url, $postdata=[]) {
+		if(!$this->_consumer_key || !$this->_consumer_secret)
+			return false;
+		
+		$ch = DevblocksPlatform::curlInit($refresh_token_url);
+		
+		$url_parts = parse_url($refresh_token_url);
+		
+		$base_url = sprintf('%s://%s%s%s',
+			$url_parts['scheme'],
+			$url_parts['host'],
+			(isset($url_parts['port']) && !in_array(intval($url_parts['port']),array(0,80,443))) ? sprintf(':%d', $url_parts['port']) : '',
+			$url_parts['path']
+		);
+		
+		$query = [];
+		
+		if(isset($url_parts['query']))
+			parse_str($url_parts['query'], $query);
+		
+		$query = array_map('rawurlencode', $query);
+		$postdata = array_map('rawurlencode', $postdata);
+
+		$http_headers = array(
+			'Content-Type: application/x-www-form-urlencoded',
+			'User-Agent: Cerb ' . APP_VERSION,
+		);
+		
+		if(!empty($accept))
+			$http_headers[] = 'Accept: ' . $accept;
+		
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $http_headers);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, urldecode(http_build_query($postdata)));
+		
+		if(false == ($out = DevblocksPlatform::curlExec($ch))) {
+			error_log(sprintf("cURL error: %s", curl_error($ch)));
+			return false;
+		}
+		
+		$this->_response_info = curl_getinfo($ch);
+		
+		$content_type = $this->_response_info['content_type'];
+		
+		if(false !== strpos($content_type, ';'))
+			@list($content_type, $content_type_opts) = explode(';', $content_type);
+		
+		$results = array();
+		
+		// Handle JSON or FORM responses
+		switch(trim(DevblocksPlatform::strLower($content_type))) {
+			case 'application/json':
+				$results = json_decode($out, true);
+				break;
+				
+			case 'application/x-www-form-urlencoded':
+			case 'text/html':
+			case 'text/plain':
+				parse_str($out, $results);
+				break;
+		}
+		
+		curl_close($ch);
+		
+		return $results;
+	}
+	
 	public function getAccessToken($access_token_url, $postdata=array(), $oauth_headers=array(), $accept=null) {
 		if(!$this->_consumer_key || !$this->_consumer_secret || !$this->_token)
 			return false;
