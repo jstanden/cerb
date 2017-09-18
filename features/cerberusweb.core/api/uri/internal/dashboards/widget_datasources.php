@@ -399,10 +399,11 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					).
 					str_replace('%','%%',$query_parts['join']).
 					str_replace('%','%%',$query_parts['where']).
-					sprintf("GROUP BY DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s') ",
+					sprintf("GROUP BY DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%s')%s ",
 						$xaxis_field->db_table,
 						$xaxis_field->db_column,
-						$date_format_mysql
+						$date_format_mysql,
+						($yaxis_field ? sprintf(", %s.%s", $yaxis_field->db_table, $yaxis_field->db_column) : '')
 					).
 					'ORDER BY histo ASC'
 					;
@@ -487,7 +488,10 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 					switch($xaxis_field->token) {
 						case '_id':
 							$order_by = null;
-							$group_by = sprintf("GROUP BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
+							$group_by = sprintf("GROUP BY %s.id%s ",
+								str_replace('%','%%',$query_parts['primary_table']),
+								($yaxis_field ? sprintf(", %s.%s", $yaxis_field->db_table, $yaxis_field->db_column) : '')
+							);
 							
 							if(empty($order_by))
 								$order_by = sprintf("ORDER BY %s.id ", str_replace('%','%%',$query_parts['primary_table']));
@@ -495,9 +499,10 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 							break;
 
 						default:
-							$group_by = sprintf("GROUP BY %s.%s",
+							$group_by = sprintf("GROUP BY %s.%s%s",
 								$xaxis_field->db_table,
-								$xaxis_field->db_column
+								$xaxis_field->db_column,
+								($yaxis_field ? sprintf(", %s.%s", $yaxis_field->db_table, $yaxis_field->db_column) : '')
 							);
 							
 							$order_by = 'ORDER BY xaxis ASC';
