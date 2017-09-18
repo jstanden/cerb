@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 if(class_exists('Extension_PageSection')):
@@ -233,8 +233,8 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 				'params' => json_decode(json_encode($view->getEditableParams()), true),
 				'params_required' => json_decode(json_encode($view->getParamsRequired()), true),
 				'limit' => $view->renderLimit,
-				'sort_by' => $view->renderSortBy,
-				'sort_asc' => !empty($view->renderSortAsc),
+				'sort_by' => @$view->renderSortBy,
+				'sort_asc' => !empty(@$view->renderSortAsc),
 				'subtotals' => $view->renderSubtotals,
 				'context' => $worklist->context,
 			);
@@ -269,14 +269,14 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 			$view_model = C4_AbstractViewLoader::serializeAbstractView($worklist_view);
 			
 			$list_view = new Model_WorkspaceListView();
-			$list_view->title = $worklist['worklist']['title'];
+			$list_view->title = $worklist['title'];
 			$list_view->options = $view_model->options;
 			$list_view->columns = $view_model->view_columns;
 			$list_view->num_rows = $view_model->renderLimit;
 			$list_view->params = $view_model->paramsEditable;
 			$list_view->params_required = $view_model->paramsRequired;
-			$list_view->sort_by = $view_model->renderSortBy;
-			$list_view->sort_asc = $view_model->renderSortAsc;
+			$list_view->sort_by = key(@$view_model->renderSort);
+			$list_view->sort_asc = current(@$view_model->renderSort);
 			$list_view->subtotals = $view_model->renderSubtotals;
 			
 			$worklist_id = DAO_WorkspaceList::create(array(
