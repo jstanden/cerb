@@ -38,9 +38,7 @@ H2 {
 }
 
 FIELDSET {
-  background-color: white;
-  background-image: url(bg_block.jpg?v=2015030101);
-  background-repeat: repeat-x;
+  background: white;
   border: 1px double #e6e6e6;
   margin-bottom: 5px;
 }
@@ -98,7 +96,7 @@ BUTTON {
   vertical-align: middle;
   cursor: pointer;
   background-color: #f0f0f0;
-  background: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#d2d2d2));
+  background: -webkit-linear-gradient(top, #f0f0f0, #d2d2d2);
   background: -moz-linear-gradient(270deg, #f0f0f0, #d2d2d2);
   background: -o-linear-gradient(top, #f0f0f0, #d2d2d2);
   background: -ms-linear-gradient(top, #f0f0f0, #d2d2d2);
@@ -110,7 +108,7 @@ BUTTON {
 }
 BUTTON:hover {
   background-color: #eef2f5;
-  background: -webkit-gradient(linear, left top, left bottom, from(#eef2f5), to(#a0c6fe));
+  background: -webkit-linear-gradient(top, #eef2f5, #a0c6fe);
   background: -moz-linear-gradient(270deg, #eef2f5, #a0c6fe);
   background: -o-linear-gradient(top, #eef2f5, #a0c6fe);
   background: -ms-linear-gradient(top, #eef2f5, #a0c6fe);
@@ -463,7 +461,7 @@ BUTTON.peek {
 
 BUTTON.green {
   background-color: #dff0b1;
-  background: -webkit-gradient(linear, left top, left bottom, from(#dff0b1), to(#b8d376));
+  background: -webkit-linear-gradient(top, #dff0b1, #b8d376);
   background: -moz-linear-gradient(270deg, #dff0b1, #b8d376);
   background: -o-linear-gradient(top, #dff0b1, #b8d376);
   background: -ms-linear-gradient(top, #dff0b1, #b8d376);
@@ -475,7 +473,7 @@ BUTTON.green:hover {
   background: none;
   color: #323232;
   background-color: #eef2f5;
-  background: -webkit-gradient(linear, left top, left bottom, from(#eef2f5), to(#a0c6fe));
+  background: -webkit-linear-gradient(top, #eef2f5, #a0c6fe);
   background: -moz-linear-gradient(270deg, #eef2f5, #a0c6fe);
   background: -o-linear-gradient(top, #eef2f5, #a0c6fe);
   background: -ms-linear-gradient(top, #eef2f5, #a0c6fe);
@@ -488,7 +486,7 @@ BUTTON.green DIV.badge-count {
 
 BUTTON.red {
   background-color: #fa7d7d;
-  background: -webkit-gradient(linear, left top, left bottom, from(#fa7d7d), to(#c32d2d));
+  background: -webkit-linear-gradient(top, #fa7d7d, #c32d2d);
   background: -moz-linear-gradient(270deg, #fa7d7d, #c32d2d);
   background: -o-linear-gradient(top, #fa7d7d, #c32d2d);
   background: -ms-linear-gradient(top, #fa7d7d, #c32d2d);
@@ -499,7 +497,7 @@ BUTTON.red {
 BUTTON.red:hover {
   background: none;
   background-color: #fa7d7d;
-  background: -webkit-gradient(linear, left top, left bottom, from(#fa7d7d), to(#910f0f));
+  background: -webkit-linear-gradient(top, #fa7d7d, #910f0f);
   background: -moz-linear-gradient(270deg, #fa7d7d, #910f0f);
   background: -o-linear-gradient(top, #fa7d7d, #910f0f);
   background: -ms-linear-gradient(top, #fa7d7d, #910f0f);
@@ -527,7 +525,7 @@ BUTTON.split-right {
   border-color: #969696;
   color: white;
   background-color: #b4b4b4;
-  background: -webkit-gradient(linear, left top, left bottom, from(#b4b4b4), to(#7d7d7d));
+  background: -webkit-linear-gradient(top, #b4b4b4, #7d7d7d);
   background: -moz-linear-gradient(270deg, #b4b4b4, #7d7d7d);
   background: -o-linear-gradient(top, #b4b4b4, #7d7d7d);
   background: -ms-linear-gradient(top, #b4b4b4, #7d7d7d);
@@ -666,7 +664,7 @@ TABLE.worklist TD.title-toolbar {
 
 TABLE.worklistBody th {
   background-color: #f0f0f0;
-  background: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#c8c8c8));
+  background: -webkit-linear-gradient(top, #f0f0f0, #c8c8c8);
   background: -moz-linear-gradient(270deg, #f0f0f0, #c8c8c8);
   background: -o-linear-gradient(top, #f0f0f0, #c8c8c8);
   background: -ms-linear-gradient(top, #f0f0f0, #c8c8c8);
@@ -685,7 +683,7 @@ TABLE.worklistBody th A {
 }
 TABLE.worklistBody th:hover {
   background-color: #c8c8c8;
-  background: -webkit-gradient(linear, left top, left bottom, from(#c8c8c8), to(#969696));
+  background: -webkit-linear-gradient(top, #c8c8c8, #969696);
   background: -moz-linear-gradient(270deg, #c8c8c8, #969696);
   background: -o-linear-gradient(top, #c8c8c8, #969696);
   background: -ms-linear-gradient(top, #c8c8c8, #969696);
@@ -697,7 +695,7 @@ TABLE.worklistBody th:hover A {
 }
 TABLE.worklistBody th.no-sort:hover {
   background-color: #f0f0f0;
-  background: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#c8c8c8));
+  background: -webkit-linear-gradient(top, #f0f0f0, #c8c8c8);
   background: -moz-linear-gradient(270deg, #f0f0f0, #c8c8c8);
   background: -o-linear-gradient(top, #f0f0f0, #c8c8c8);
   background: -ms-linear-gradient(top, #f0f0f0, #c8c8c8);
@@ -854,7 +852,7 @@ DIV.error-box P {
 
 DIV.help-box {
   background-color: #fbec88;
-  background: -webkit-gradient(linear, left top, left bottom, from(#fbec88), to(#ffffc8));
+  background: -webkit-linear-gradient(top, #fbec88, #ffffc8);
   background: -moz-linear-gradient(270deg, #fbec88, #ffffc8);
   background: -o-linear-gradient(top, #fbec88, #ffffc8);
   background: -ms-linear-gradient(top, #fbec88, #ffffc8);
@@ -907,8 +905,12 @@ DIV.message_note H3 {
 
 DIV.block {
   padding: 5px;
-  background-image: url(bg_block.jpg?v=2015030101);
-  background-repeat: repeat-x;
+  background-color: whitesmoke 25px;
+  background: -webkit-linear-gradient(top, whitesmoke 25px, white 75px);
+  background: -moz-linear-gradient(270deg, whitesmoke 25px, white 75px);
+  background: -o-linear-gradient(top, whitesmoke 25px, white 75px);
+  background: -ms-linear-gradient(top, whitesmoke 25px, white 75px);
+  background: linear-gradient(top, whitesmoke 25px, white 75px);
   background-color: white;
   border: 1px solid #e6e6e6;
   -webkit-border-radius: 5px;
@@ -978,7 +980,7 @@ DIV.bubble {
   -ms-border-radius: 5px;
   border-radius: 5px;
   background-color: white;
-  background: -webkit-gradient(linear, left top, left bottom, from(white), to(gainsboro));
+  background: -webkit-linear-gradient(top, white, gainsboro);
   background: -moz-linear-gradient(270deg, white, gainsboro);
   background: -o-linear-gradient(top, white, gainsboro);
   background: -ms-linear-gradient(top, white, gainsboro);
@@ -993,7 +995,7 @@ DIV.bubble A:hover {
 }
 DIV.bubble.bubble-blue {
   background-color: white;
-  background: -webkit-gradient(linear, left top, left bottom, from(white), to(#e8f2fe));
+  background: -webkit-linear-gradient(top, white, #e8f2fe);
   background: -moz-linear-gradient(270deg, white, #e8f2fe);
   background: -o-linear-gradient(top, white, #e8f2fe);
   background: -ms-linear-gradient(top, white, #e8f2fe);
@@ -1027,7 +1029,7 @@ UL.bubbles LI {
   -ms-border-radius: 5px;
   border-radius: 5px;
   background-color: white;
-  background: -webkit-gradient(linear, left top, left bottom, from(white), to(gainsboro));
+  background: -webkit-linear-gradient(top, white, gainsboro);
   background: -moz-linear-gradient(270deg, white, gainsboro);
   background: -o-linear-gradient(top, white, gainsboro);
   background: -ms-linear-gradient(top, white, gainsboro);
@@ -1042,7 +1044,7 @@ UL.bubbles LI A:hover {
 }
 UL.bubbles LI.bubble-gray {
   background-color: white;
-  background: -webkit-gradient(linear, left top, left bottom, from(white), to(gainsboro));
+  background: -webkit-linear-gradient(top, white, gainsboro);
   background: -moz-linear-gradient(270deg, white, gainsboro);
   background: -o-linear-gradient(top, white, gainsboro);
   background: -ms-linear-gradient(top, white, gainsboro);
@@ -1055,7 +1057,7 @@ UL.bubbles LI.bubble-gray A {
 }
 UL.bubbles LI.bubble-blue {
   background-color: white;
-  background: -webkit-gradient(linear, left top, left bottom, from(white), to(#e8f2fe));
+  background: -webkit-linear-gradient(top, white, #e8f2fe);
   background: -moz-linear-gradient(270deg, white, #e8f2fe);
   background: -o-linear-gradient(top, white, #e8f2fe);
   background: -ms-linear-gradient(top, white, #e8f2fe);
@@ -1069,7 +1071,7 @@ UL.bubbles LI.bubble-blue A {
 UL.bubbles.chooser-container LI {
   margin: 3px;
   background-color: white;
-  background: -webkit-gradient(linear, left top, left bottom, from(white), to(gainsboro));
+  background: -webkit-linear-gradient(top, white, gainsboro);
   background: -moz-linear-gradient(270deg, white, gainsboro);
   background: -o-linear-gradient(top, white, gainsboro);
   background: -ms-linear-gradient(top, white, gainsboro);
@@ -1125,7 +1127,7 @@ DIV.badge {
   -ms-border-radius: 5px;
   border-radius: 5px;
   background-color: #b9b9b9;
-  background: -webkit-gradient(linear, left top, left bottom, from(#b9b9b9), to(#a5a5a5));
+  background: -webkit-linear-gradient(top, #b9b9b9, #a5a5a5);
   background: -moz-linear-gradient(270deg, #b9b9b9, #a5a5a5);
   background: -o-linear-gradient(top, #b9b9b9, #a5a5a5);
   background: -ms-linear-gradient(top, #b9b9b9, #a5a5a5);
@@ -1144,7 +1146,7 @@ DIV.badge.selected {
 
 DIV.badge-lightgray {
   background-color: #f0f0f0;
-  background: -webkit-gradient(linear, left top, left bottom, from(#f0f0f0), to(#e6e6e6));
+  background: -webkit-linear-gradient(top, #f0f0f0, #e6e6e6);
   background: -moz-linear-gradient(270deg, #f0f0f0, #e6e6e6);
   background: -o-linear-gradient(top, #f0f0f0, #e6e6e6);
   background: -ms-linear-gradient(top, #f0f0f0, #e6e6e6);
@@ -1158,7 +1160,7 @@ DIV.badge-lightgray A {
 
 DIV.badge-red {
   background-color: red;
-  background: -webkit-gradient(linear, left top, left bottom, from(red), to(#d20000));
+  background: -webkit-linear-gradient(top, red, #d20000);
   background: -moz-linear-gradient(270deg, red, #d20000);
   background: -o-linear-gradient(top, red, #d20000);
   background: -ms-linear-gradient(top, red, #d20000);
@@ -1169,7 +1171,7 @@ DIV.badge-red {
 
 DIV.badge-green {
   background-color: #009600;
-  background: -webkit-gradient(linear, left top, left bottom, from(#009600), to(#007800));
+  background: -webkit-linear-gradient(top, #009600, #007800);
   background: -moz-linear-gradient(270deg, #009600, #007800);
   background: -o-linear-gradient(top, #009600, #007800);
   background: -ms-linear-gradient(top, #009600, #007800);
@@ -1221,8 +1223,8 @@ DIV.cerb-properties > DIV > LABEL {
 }
 
 FIELDSET.properties {
-  margin: 0px 10px 0px 10px;
-  border-width: 2px 0px 0px 0px;
+  border-width: 1px 0px 0px 0px;
+  background-color: white;
 }
 FIELDSET.properties LEGEND {
   color: #323232;
@@ -1268,7 +1270,7 @@ DIV.cerb-properties-grid LABEL {
 }
 
 FIELDSET.peek {
-  border-width: 2px 0px 0px 0px;
+  border-width: 1px 0px 0px 0px;
 }
 FIELDSET.peek LEGEND {
   color: #007800;
@@ -1930,7 +1932,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 
 .ui-tabs .ui-tabs-nav li {
   background-color: white;
-  background: -webkit-gradient(linear, left top, left bottom, from(white), to(#f0f0f0));
+  background: -webkit-linear-gradient(top, white, #f0f0f0);
   background: -moz-linear-gradient(270deg, white, #f0f0f0);
   background: -o-linear-gradient(top, white, #f0f0f0);
   background: -ms-linear-gradient(top, white, #f0f0f0);
@@ -1946,7 +1948,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 
 .ui-tabs .ui-tabs-nav li.ui-state-hover {
   background-color: white;
-  background: -webkit-gradient(linear, left top, left bottom, from(white), to(#c8c8c8));
+  background: -webkit-linear-gradient(top, white, #c8c8c8);
   background: -moz-linear-gradient(270deg, white, #c8c8c8);
   background: -o-linear-gradient(top, white, #c8c8c8);
   background: -ms-linear-gradient(top, white, #c8c8c8);
@@ -1966,7 +1968,7 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 .ui-tabs .ui-tabs-nav li.ui-tabs-active {
   padding-bottom: 0px;
   background-color: #eff9ff;
-  background: -webkit-gradient(linear, left top, left bottom, from(#eff9ff), to(white));
+  background: -webkit-linear-gradient(top, #eff9ff, white);
   background: -moz-linear-gradient(270deg, #eff9ff, white);
   background: -o-linear-gradient(top, #eff9ff, white);
   background: -ms-linear-gradient(top, #eff9ff, white);

@@ -35,9 +35,7 @@ H2 {
 }
 
 FIELDSET {
-	background-color: white;
-	background-image: url(bg_block.jpg?v=#{$timestamp});
-	background-repeat: repeat-x;
+	background: white;
 	border: 1px double rgb(230,230,230);
 	margin-bottom: 5px;
 

@@ -20,7 +20,7 @@
 
 @mixin linear-gradient($from-color, $to-color) {
 	background-color: $from-color;
-	background: -webkit-gradient(linear, left top, left bottom, from($from-color), to($to-color));
+	background: -webkit-linear-gradient(top, $from-color, $to-color);
 	background: -moz-linear-gradient(270deg, $from-color, $to-color);
 	background: -o-linear-gradient(top, $from-color, $to-color);
 	background: -ms-linear-gradient(top, $from-color, $to-color);
