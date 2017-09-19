@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>cerb.project_boards</id>
+	<name>Project Boards</name>
+	<description>Bot-powered project management using Kanban-style boards</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>0.1.0</version>
+	<link>https://cerb.ai/</link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="8.1" max="8.1.99" />
+	</requires>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="8.1.0" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="8.0.0" revision="2" file="patches/8.0.0.php" />
+	</patches>
+
+	<!-- Classloader -->
+	
+	<class_loader>
+		<file path="api/dao/project_board.php">
+			<class name="Context_ProjectBoard" />
+			<class name="DAO_ProjectBoard" />
+			<class name="Model_ProjectBoard" />
+			<class name="SearchFields_ProjectBoard" />
+			<class name="View_ProjectBoard" />
+		</file>
+		
+		<file path="api/dao/project_board_column.php">
+			<class name="Context_ProjectBoardColumn" />
+			<class name="DAO_ProjectBoardColumn" />
+			<class name="Model_ProjectBoardColumn" />
+			<class name="SearchFields_ProjectBoardColumn" />
+			<class name="View_ProjectBoardColumn" />
+		</file>
+	</class_loader>
+
+	<!-- Extensions -->
+
+	<extensions>
+	
+		<!-- Contexts -->
+	
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.project.board</id>
+			<name>Project Board</name>
+			<class>
+				<file>api/dao/project_board.php</file>
+				<name>Context_ProjectBoard</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="project board" value="singular" />
+						<data key="project boards" value="plural" />
+						<data key="board" value="singular short" />
+						<data key="boards" value="plural short" />
+					</value>
+				</param>
+				<param key="alias" value="project_board" />
+				<param key="dao_class" value="DAO_ProjectBoard" />
+				<param key="view_class" value="View_ProjectBoard" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.project.board.column</id>
+			<name>Project Board Column</name>
+			<class>
+				<file>api/dao/project_board_column.php</file>
+				<name>Context_ProjectBoardColumn</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="project board column" value="singular" />
+						<data key="project board columns" value="plural" />
+						<data key="board column" value="singular short" />
+						<data key="board columns" value="plural short" />
+					</value>
+				</param>
+				<param key="alias" value="project_board_column" />
+				<param key="dao_class" value="DAO_ProjectBoardColumn" />
+				<param key="view_class" value="View_ProjectBoardColumn" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<!-- Profile Pages -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>core.page.profiles.project_board</id>
+			<name>Project Board Section</name>
+			<class>
+				<file>api/profiles/project_board.php</file>
+				<name>PageSection_ProfilesProjectBoard</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="project_board" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>projects.page.profiles.project_board_column</id>
+			<name>Project Board Column Section</name>
+			<class>
+				<file>api/profiles/project_board_column.php</file>
+				<name>PageSection_ProfilesProjectBoardColumn</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="project_board_column" />
+			</params>
+		</extension>
+		
+		<!-- Workspace Tabs -->
+		
+		<extension point="cerberusweb.ui.workspace.tab">
+			<id>core.workspace.tab.board</id>
+			<name>Board Workspace Tab</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WorkspaceTab_Board</name>
+			</class>
+			<params>
+				<param key="label" value="Project Board" />
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>
