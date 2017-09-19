@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>cerb.bots.portal.widget</id>
+	<name>Conversational Bot Portal for Public Websites</name>
+	<description>Embed conversational bots on any website</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>0.1.0</version>
+	<link>https://cerb.ai/</link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="8.1.0" max="8.1.99" />
+	</requires>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="8.1.0" />
+	</dependencies>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/events/new_message_chat_portal.php">
+			<class name="Event_NewMessageChatPortal" />
+		</file>
+		<file path="api/events/new_interaction_chat_portal.php">
+			<class name="Event_NewInteractionChatPortal" />
+		</file>
+	</class_loader>
+
+	<!-- Extensions -->
+
+	<extensions>
+	
+		<!-- Community Portals -->
+		
+		<extension point="cerb.portal">
+			<id>cerb.bots.portal</id>
+			<name>Conversational Bot Portal Widget</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Portal_ConvoBotWidget</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Portal chat behaviors -->
+		
+		<extension point="devblocks.event">
+			<id>event.interaction.chat.portal</id>
+			<name>Conversation handle interaction with portal visitor</name>
+			<class>
+				<file>api/events/new_interaction_chat_portal.php</file>
+				<name>Event_NewInteractionChatPortal</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+					</value>
+				</param>
+				<param key="options"/>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.message.chat.portal</id>
+			<name>Conversation with portal visitor</name>
+			<class>
+				<file>api/events/new_message_chat_portal.php</file>
+				<name>Event_NewMessageChatPortal</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="options"/>
+			</params>
+		</extension>
+	
+	</extensions>
+</plugin>
