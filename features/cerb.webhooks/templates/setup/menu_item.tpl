@@ -1,0 +1,1 @@
+<a href="{devblocks_url}c=config&a=webhooks{/devblocks_url}">{'webhooks.common.webhooks'|devblocks_translate}</a>

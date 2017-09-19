@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx PUBLIC "-//LISA OSCAR:1998//DTD for Translation Memory eXchange//EN" "tmx14.dtd">
+<tmx version="1.4">
+	<header creationtool="Cerb" creationtoolversion="6.8.7" srclang="en_US" adminlang="en" datatype="unknown" o-tmf="unknown" segtype="sentence" creationid="" creationdate=""/>
+	<body>
+
+		<!-- Plugin Strings -->
+
+		<tu tuid='webhooks.common.webhook'>
+			<tuv xml:lang="en_US"><seg>Webhook</seg></tuv>
+		</tu>
+		
+		<tu tuid='webhooks.common.webhooks'>
+			<tuv xml:lang="en_US"><seg>Webhooks</seg></tuv>
+		</tu>
+		
+	</body>
+</tmx>
