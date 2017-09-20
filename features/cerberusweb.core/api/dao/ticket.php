@@ -41,6 +41,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const SUBJECT = 'subject';
 	const UPDATED_DATE = 'updated_date';
 	
+	const _PARTICIPANTS = '_participants';
+	
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
@@ -170,6 +172,14 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$validation
 			->addField(self::UPDATED_DATE)
 			->timestamp()
+			;
+		// text
+		$validation
+			->addField(self::_PARTICIPANTS)
+			->string()
+			->setMaxLength(65535)
+			// [TODO] Formatter -> RFC emails
+			->addValidator($validation->validators()->emails())
 			;
 
 		return $validation->getFields();
@@ -1042,6 +1052,17 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$ids = [$ids];
 		
 		// Make a diff for the requested objects in batches
+		
+		if(isset($fields[self::_PARTICIPANTS])) {
+			$participant_emails = CerberusMail::parseRfcAddresses($fields[self::_PARTICIPANTS]);
+			$participant_models = DAO_Address::lookupAddresses(array_keys($participant_emails), true);
+			unset($fields[self::_PARTICIPANTS]);
+			
+			if($participant_models)
+			foreach($ids as $id) {
+				DAO_Ticket::addParticipantIds($id, array_keys($participant_models));
+			}
+		}
 		
 		$chunks = array_chunk($ids, 100, true);
 		while($batch_ids = array_shift($chunks)) {
@@ -4671,6 +4692,36 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'subject' => DAO_Ticket::SUBJECT,
 			'updated' => DAO_Ticket::UPDATED_DATE,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		$dict_key = DevblocksPlatform::strLower($key);
+		switch($dict_key) {
+			case 'participants':
+				$out_fields[DAO_Ticket::_PARTICIPANTS] = $value;
+				break;
+				
+			case 'status':
+				$statuses_to_ids = [
+					'o' => 0,
+					'w' => 1,
+					'c' => 2,
+					'd' => 3,
+				];
+				
+				$status_label = DevblocksPlatform::strLower(mb_substr($value,0,1));
+				@$status_id = $statuses_to_ids[$status_label];
+				
+				if(is_null($status_id)) {
+					$error = 'Status must be: open, waiting, closed, or deleted.';
+					return false;
+				}
+				
+				$out_fields[DAO_Ticket::STATUS_ID] = $status_id;
+				break;
+		}
+		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
