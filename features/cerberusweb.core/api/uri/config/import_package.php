@@ -146,6 +146,57 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 	}
 	
 	private function _packageValidate(&$json, &$uids, &$records_created, &$placeholders) {
+		@$records = $json['records'];
+		
+		// Validate records
+		if(is_array($records))
+		foreach($records as $record) {
+			$keys_to_require = ['uid','_context'];
+			$diff = array_diff_key(array_flip($keys_to_require), $record);
+			if(count($diff))
+				throw new Exception(sprintf("Invalid JSON: record (%s) is missing properties (%s)", $record['uid'], implode(', ', array_keys($diff))));
+			
+			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
+				throw new Exception(sprintf("Unknown context '%s' on record (%s).", $record['_context'], $record['uid']));
+			
+			$fields = $custom_fields = $dict = [];
+			$error = null;
+			
+			if(is_array($record))
+			foreach($record as $key => $value) {
+				// Ignore internal keys
+				if(in_array($key, ['_context','uid'])) {
+					continue;
+				}
+				
+				// Ignore keys or values with unfilled placeholders
+				if(false !== strstr($key,'{{{')) {
+					continue;
+				}
+				
+				$dict[$key] = $value;
+			}
+			
+			if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
+				throw new Exception(sprintf("Error on record (%s): %s", $record['uid'], $error));
+			
+			if(false == ($dao_class = $context_ext->getDaoClass()))
+				throw new Exception(sprintf("Error on record (%s): %s", $record['uid'], "Can't load DAO class."));
+			
+			$excludes = [];
+			
+			if(is_array($fields))
+			foreach($fields as $key => $value) {
+				// Bypass the dynamic value in this phase
+				if(is_string($value) && false !== strstr($value,'{{{')) {
+					$excludes[] = $key;
+				}
+			}
+			
+			if(!$dao_class::validate($fields, $error, null, $excludes))
+				throw new Exception(sprintf("Error on record (%s): %s", $record['uid'], $error));
+		}
+		
 		@$custom_fieldsets = $json['custom_fieldsets'];
 		
 		if(is_array($custom_fieldsets))
@@ -350,6 +401,27 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 	}
 	
 	private function _packageGenerateIds(&$json, &$uids, &$records_created, &$placeholders) {
+		@$records = $json['records'];
+		
+		if(is_array($records))
+		foreach($records as $record) {
+			$uid_record = $record['uid'];
+			
+			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
+				throw new Exception(sprintf("Unknown context on record (%s)", $record['_context']));
+
+			$dict = [];
+			$fields = $custom_fields = [];
+			$error = null;
+			
+			if(false == ($dao_class = $context_ext->getDaoClass()))
+				throw new Exception(sprintf("Error on record (%s): %s", $uid_record, "Can't load DAO class."));
+			
+			$record_id = $dao_class::create($dict);
+			
+			$uids[$uid_record] = $record_id;
+		}
+		
 		@$custom_fieldsets = $json['custom_fieldsets'];
 		
 		if(is_array($custom_fieldsets))
@@ -623,6 +695,40 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 	}
 
 	private function _packageImport(&$json, &$uids, &$records_created) {
+		// Records
+		@$records = $json['records'];
+		$record_ids = [];
+		
+		if(is_array($records))
+		foreach($records as $record) {
+			$uid_record = $record['uid'];
+			$record_id = $uids[$uid_record];
+			$record_ids[] = $record_id;
+			
+			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
+				throw new Exception(sprintf("Unknown extension on record (%s): %s", $uid_record, $record['_context']));
+			
+			$dict = array_diff_key($record, ['_context'=>true,'uid'=>true]);
+			$fields = $custom_fields = [];
+			$error = null;
+			
+			if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
+				throw new Exception(sprintf("Error on record (%s): %s", $uid_record, $error));
+			
+			if(false == ($dao_class = $context_ext->getDaoClass()))
+				throw new Exception(sprintf("Error on record (%s): %s", $uid_record, "Can't load DAO class."));
+			
+			if(!$dao_class::validate($fields, $error, $record_id))
+				throw new Exception(sprintf("Error on record (%s): %s", $uid_record, $error));
+			
+			$dao_class::update($record_id, $fields);
+			
+			if(method_exists($dao_class, 'onUpdateAbstract'))
+				$dao_class::onUpdateAbstract($record_id, $fields);
+			
+			DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $record_id, $custom_fields);
+		}
+		
 		@$custom_fieldsets = $json['custom_fieldsets'];
 		
 		if(is_array($custom_fieldsets))
