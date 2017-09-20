@@ -33,6 +33,8 @@ class DAO_Message extends Cerb_ORMHelper {
 	const WAS_ENCRYPTED = 'was_encrypted';
 	const WAS_SIGNED = 'was_signed';
 	const WORKER_ID = 'worker_id';
+	const _CONTENT = '_content';
+	const _HEADERS = '_headers';
 	
 	private function __construct() {}
 
@@ -128,6 +130,18 @@ class DAO_Message extends Cerb_ORMHelper {
 			->addField(self::WORKER_ID)
 			->id()
 			;
+		// text
+		$validation
+			->addField(self::_CONTENT)
+			->string()
+			->setMaxLength(16777215)
+			;
+		// text
+		$validation
+			->addField(self::_HEADERS)
+			->string()
+			->setMaxLength(16777215)
+			;
 
 		return $validation->getFields();
 	}
@@ -148,9 +162,30 @@ class DAO_Message extends Cerb_ORMHelper {
 		
 		return $id;
 	}
-
-	static function update($id, $fields) {
-		parent::_update($id, 'message', $fields);
+	
+	static function update($ids, $fields) {
+		if(!is_array($ids))
+			$ids = [$ids];
+		
+		if(isset($fields[self::_CONTENT])) {
+			foreach($ids as $id)
+				Storage_MessageContent::put($id, $fields[self::_CONTENT]);
+			unset($fields[self::_CONTENT]);
+		}
+		
+		if(isset($fields[self::_HEADERS])) {
+			foreach($ids as $id)
+				DAO_MessageHeaders::upsert($id, $fields[self::_HEADERS]);
+			unset($fields[self::_HEADERS]);
+		}
+		
+		parent::_update($ids, 'message', $fields);
+	}
+	
+	static function onUpdateAbstract($id, $fields) {
+		if(isset($fields[self::TICKET_ID])) {
+			DAO_Ticket::rebuild($fields[self::TICKET_ID]);
+		}
 	}
 
 	/**
@@ -2387,6 +2422,30 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'was_signed' => DAO_Message::WAS_SIGNED,
 			'worker_id' => DAO_Message::WORKER_ID,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		$dict_key = DevblocksPlatform::strLower($key);
+		switch($dict_key) {
+			case 'sender':
+				if(false == ($address = DAO_Address::lookupAddress($value, true))) {
+					$error = sprintf("Failed to lookup address: %s", $value);
+					return false;
+				}
+				
+				$out_fields[DAO_Message::ADDRESS_ID] = $address->id;
+				break;
+				
+			case 'content':
+				$out_fields[DAO_Message::_CONTENT] = $value;
+				break;
+				
+			case 'headers':
+				$out_fields[DAO_Message::_HEADERS] = $value;
+				break;
+		}
+		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
