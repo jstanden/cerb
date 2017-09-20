@@ -35,7 +35,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CONTENT)
 			->string()
-			->setMaxLength(4294967295)
+			->setMaxLength('32 bits')
 			->setRequired(true)
 			;
 		// varchar(255)
@@ -48,7 +48,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CUSTOM_PLACEHOLDERS_JSON)
 			->string()
-			->setMaxLength(16777215)
+			->setMaxLength('24 bits')
 			;
 		// int(10) unsigned
 		$validation

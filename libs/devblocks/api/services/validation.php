@@ -54,7 +54,7 @@ class _DevblocksValidationField {
 		// Defaults for id type
 		return $this->_type
 			->setMin(0)
-			->setMax(pow(2,32))
+			->setMax('32 bits')
 			;
 	}
 	
@@ -99,7 +99,7 @@ class _DevblocksValidationField {
 		$this->_type = new _DevblocksValidationTypeNumber();
 		return $this->_type
 			->setMin(0)
-			->setMax(pow(2,32)) // 4 unsigned bytes
+			->setMax('32 bits') // 4 unsigned bytes
 			;
 	}
 	
@@ -111,7 +111,7 @@ class _DevblocksValidationField {
 		$this->_type = new _DevblocksValidationTypeNumber();
 		return $this->_type
 			->setMin(0)
-			->setMax(pow(2,$bytes*8))
+			->setMax('32 bits')
 			;
 	}
 }
@@ -365,6 +365,10 @@ class _DevblocksValidationTypeNumber extends _DevblocksValidationType {
 	}
 	
 	function setMin($n) {
+		if(is_string($n)) {
+			$n = DevblocksPlatform::strBitsToInt($n);
+		}
+		
 		if(!is_numeric($n))
 			return false;
 		
@@ -373,6 +377,10 @@ class _DevblocksValidationTypeNumber extends _DevblocksValidationType {
 	}
 	
 	function setMax($n) {
+		if(is_string($n)) {
+			$n = DevblocksPlatform::strBitsToInt($n);
+		}
+		
 		if(!is_numeric($n))
 			return false;
 		
@@ -383,6 +391,10 @@ class _DevblocksValidationTypeNumber extends _DevblocksValidationType {
 
 class _DevblocksValidationTypeString extends _DevblocksValidationType {
 	function setMaxLength($length) {
+		if(is_string($length)) {
+			$length = DevblocksPlatform::strBitsToInt($length);
+		}
+		
 		$this->_data['length'] = intval($length);
 		return $this;
 	}

@@ -69,7 +69,7 @@ abstract class DevblocksORMHelper {
 						->addField($field_id)
 						->timestamp()
 						->setMin(0)
-						->setMax(pow(2,32))
+						->setMax('32 bits')
 						;
 					break;
 				case Model_CustomField::TYPE_DROPDOWN:
@@ -85,7 +85,7 @@ abstract class DevblocksORMHelper {
 						->addField($field_id)
 						->number()
 						->setMin(0)
-						->setMax(pow(2,32))
+						->setMax('32 bits')
 					;
 					break;
 				case Model_CustomField::TYPE_FILES:
@@ -120,7 +120,7 @@ abstract class DevblocksORMHelper {
 						->addField($field_id)
 						->number()
 						->setMin(0)
-						->setMax(pow(2,32))
+						->setMax('32 bits')
 					;
 					break;
 				case Model_CustomField::TYPE_SINGLE_LINE:
@@ -142,7 +142,7 @@ abstract class DevblocksORMHelper {
 						->addField($field_id)
 						->number()
 						->setMin(0)
-						->setMax(pow(2,32)) // [TODO] Check ref against 0|worker.id
+						->setMax('32 bits') // [TODO] Check ref against 0|worker.id
 					;
 					break;
 			}
@@ -1423,7 +1423,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 		$validation
 			->addField(self::PARAMS_JSON)
 			->string()
-			->setMaxLength(4294967295)
+			->setMaxLength('32 bits')
 			;
 
 		return $validation->getFields();

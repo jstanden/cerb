@@ -55,7 +55,8 @@ class DAO_AddressOutgoing extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::REPLY_SIGNATURE)
-			->string(pow(2,24)-1)
+			->string()
+			->setMaxLength('24 bits')
 			;
 		
 		return $validation->getFields();

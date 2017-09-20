@@ -34,7 +34,7 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 		$validation
 			->addField(self::PARAMS_JSON)
 			->string()
-			->setMaxLength(4294967295)
+			->setMaxLength('32 bits')
 			;
 		$validation
 			->addField(self::POS)
