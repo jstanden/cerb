@@ -170,9 +170,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function create($fields) {
-		if(empty($fields[DAO_Worker::EMAIL_ID]))
-			return NULL;
-			
 		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("INSERT INTO worker () ".
