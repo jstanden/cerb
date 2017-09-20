@@ -90,6 +90,45 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		return $id;
 	}
 	
+	static function update($ids, $fields, $check_deltas=true) {
+		if(!is_array($ids))
+			$ids = array($ids);
+		
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ACTIVITY_LOG, $batch_ids);
+			}
+
+			// Make changes
+			parent::_update($batch_ids, 'context_activity_log', $fields);
+			
+			// Send events
+			if($check_deltas) {
+				
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::services()->event();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.context_activity_log.update',
+						array(
+							'fields' => $fields,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ACTIVITY_LOG, $batch_ids);
+			}
+		}
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
