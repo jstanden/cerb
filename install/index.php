@@ -36,7 +36,7 @@ require_once(DEVBLOCKS_PATH . 'Devblocks.class.php');
 require_once(APP_PATH . '/api/Application.class.php');
 require_once(APP_PATH . '/install/classes.php');
 
-DevblocksPlatform::getCacheService()->clean();
+DevblocksPlatform::services()->cache()->clean();
 
 // DevblocksPlatform::init() workaround
 if(!defined('DEVBLOCKS_WEBPATH')) {

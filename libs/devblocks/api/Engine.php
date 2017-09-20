@@ -60,7 +60,9 @@ abstract class DevblocksEngine {
 		if(!file_exists($manifest_file))
 			return NULL;
 
-		$plugin = simplexml_load_file($manifest_file);
+		if(false === ($plugin = @simplexml_load_file($manifest_file)))
+			return NULL;
+		
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 
 		$rel_dir = trim(substr($plugin_path, strlen(APP_PATH)), '/');
