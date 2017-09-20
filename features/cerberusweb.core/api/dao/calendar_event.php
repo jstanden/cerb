@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 class DAO_CalendarEvent extends Cerb_ORMHelper {
@@ -62,12 +62,6 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	}
 
 	static function create($fields) {
-		if(
-			!isset($fields[DAO_CalendarEvent::CALENDAR_ID])
-			|| false == ($calendar = DAO_Calendar::get($fields[DAO_CalendarEvent::CALENDAR_ID]))
-			)
-			return false;
-		
 		$db = DevblocksPlatform::services()->database();
 
 		$sql = "INSERT INTO calendar_event () VALUES ()";
@@ -80,19 +74,24 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		 * Log the activity of a new event being created
 		 */
 		
-		$entry = array(
-			//{{actor}} created event {{event}} on calendar {{target}}
-			'message' => 'activities.calendar_event.created',
-			'variables' => array(
-				'event' => $fields[DAO_CalendarEvent::NAME],
-				'target' => $calendar->name,
-				),
-			'urls' => array(
-				'event' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR_EVENT, $id),
-				'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR, $calendar->id),
-				)
-		);
-		CerberusContexts::logActivity('calendar_event.created', CerberusContexts::CONTEXT_CALENDAR, $calendar->id, $entry, null, null);
+		if(
+			isset($fields[DAO_CalendarEvent::CALENDAR_ID])
+			&& false != ($calendar = DAO_Calendar::get($fields[DAO_CalendarEvent::CALENDAR_ID]))
+			) {
+			$entry = array(
+				//{{actor}} created event {{event}} on calendar {{target}}
+				'message' => 'activities.calendar_event.created',
+				'variables' => array(
+					'event' => $fields[DAO_CalendarEvent::NAME],
+					'target' => $calendar->name,
+					),
+				'urls' => array(
+					'event' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR_EVENT, $id),
+					'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_CALENDAR, $calendar->id),
+					)
+			);
+			CerberusContexts::logActivity('calendar_event.created', CerberusContexts::CONTEXT_CALENDAR, $calendar->id, $entry, null, null);
+		}
 		
 		return $id;
 	}
