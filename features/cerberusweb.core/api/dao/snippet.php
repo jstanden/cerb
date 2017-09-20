@@ -1547,6 +1547,27 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			'updated_at' => DAO_Snippet::UPDATED_AT,
 		];
 	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		$dict_key = DevblocksPlatform::strLower($key);
+		switch($dict_key) {
+			case 'placeholders':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_Snippet::CUSTOM_PLACEHOLDERS_JSON] = $json;
+				break;
+		}
+		
+		return true;
+	}
 
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
