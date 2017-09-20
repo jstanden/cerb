@@ -1952,6 +1952,21 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'email':
+				if(false == ($address = DAO_Address::lookupAddress($value, true))) {
+					$error = sprintf("Failed to lookup address: %s", $value);
+					return false;
+				}
+				
+				$out_fields[DAO_Contact::PRIMARY_EMAIL_ID] = $address->id;
+				break;
+		}
+		
+		return true;
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;
