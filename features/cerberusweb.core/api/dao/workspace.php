@@ -1002,9 +1002,6 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
-		if(empty($fields))
-			return NULL;
-		
 		$sql = sprintf("INSERT INTO workspace_list () ".
 			"VALUES ()"
 		);
