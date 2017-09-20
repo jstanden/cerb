@@ -23,6 +23,8 @@ class DAO_Group extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const UPDATED = 'updated';
 	
+	const _IMAGE = '_image';
+	
 	const CACHE_ALL = 'cerberus_cache_groups_all';
 	const CACHE_ROSTERS = 'ch_group_rosters';
 	
@@ -56,6 +58,12 @@ class DAO_Group extends Cerb_ORMHelper {
 		$validation
 			->addField(self::UPDATED)
 			->timestamp()
+			;
+		
+		// base64 blob png
+		$validation
+			->addField(self::_IMAGE)
+			->image('image/png', 50, 50, 500, 500, 100000)
 			;
 			
 		return $validation->getFields();
@@ -320,6 +328,14 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED]))
 			$fields[self::UPDATED] = time();
+		
+		// Handle avatar images
+		if(isset($fields[self::_IMAGE])) {
+			foreach($ids as $id) {
+				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_GROUP, $id, $fields[self::_IMAGE]);
+			}
+			unset($fields[self::_IMAGE]);
+		}
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1720,6 +1736,17 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'name' => DAO_Group::NAME,
 			'updated' => DAO_Group::UPDATED,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		$dict_key = DevblocksPlatform::strLower($key);
+		switch($dict_key) {
+			case 'image':
+				$out_fields[DAO_Group::_IMAGE] = $value;
+				break;
+		}
+		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
