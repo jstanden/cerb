@@ -99,47 +99,50 @@ class DAO_Address extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
-		if(null == ($email = @$fields[self::EMAIL]))
-			return NULL;
+		$sql = "INSERT INTO address () VALUES ()";
+		$db->ExecuteMaster($sql);
+		$id = $db->LastInsertId();
 		
-		// [TODO] Validate
-		@$addresses = imap_rfc822_parse_adrlist('<'.$email.'>', 'host');
-		
-		if(!is_array($addresses) || empty($addresses))
-			return NULL;
-		
-		$address = array_shift($addresses);
-		
-		if(empty($address->host) || $address->host == 'host')
-			return NULL;
-		
-		$full_address = trim(DevblocksPlatform::strLower($address->mailbox.'@'.$address->host));
-		
-		// Make sure the address doesn't exist already
-		if(null == ($check = self::getByEmail($full_address))) {
-			$sql = sprintf("INSERT INTO address (email,host,contact_id,contact_org_id,num_spam,num_nonspam,is_banned,is_defunct,updated) ".
-				"VALUES (%s,%s,0,0,0,0,0,0,0)",
-				$db->qstr($full_address),
-				$db->qstr(substr($full_address, strpos($full_address, '@')+1))
-			);
-			if(false == ($db->ExecuteMaster($sql)))
-				return false;
-			$id = $db->LastInsertId();
-
-		} else { // update
-			$id = $check->id;
-			unset($fields[self::ID]);
-			unset($fields[self::EMAIL]);
-		}
-
 		self::update($id, $fields);
 		
 		return $id;
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
+		$db = DevblocksPlatform::services()->database();
+		
 		if(!is_array($ids))
-			$ids = array($ids);
+			$ids = [$ids];
+		
+		if(isset($fields[self::EMAIL])) {
+			$email = $fields[self::EMAIL];
+			
+			// We can only set the email address on one record
+			if(count($ids) != 1)
+				return NULL;
+			
+			@$addresses = imap_rfc822_parse_adrlist('<'.$email.'>', 'host');
+			
+			if(!is_array($addresses) || empty($addresses))
+				return NULL;
+			
+			$address = array_shift($addresses);
+			
+			if(empty($address->host) || $address->host == 'host')
+				return NULL;
+			
+			// Format the email address
+			$full_address = trim(DevblocksPlatform::strLower($address->mailbox.'@'.$address->host));
+			
+			$id = $db->GetOne(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($full_address)));
+			
+			// If an email address is a duplicate, we can only set it on the same record
+			if($id && !in_array($id, $ids))
+				return NULL;
+			
+			$fields[self::EMAIL] = $full_address;
+			$fields[self::HOST] = substr($full_address, strpos($full_address, '@')+1);
+		}
 		
 		if(!isset($fields[DAO_Address::UPDATED]))
 			$fields[DAO_Address::UPDATED] = time();
