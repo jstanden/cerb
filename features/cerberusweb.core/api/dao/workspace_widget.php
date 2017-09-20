@@ -556,6 +556,27 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 		];
 	}
 	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		$dict_key = DevblocksPlatform::strLower($key);
+		switch($dict_key) {
+			case 'params':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_WorkspaceWidget::PARAMS_JSON] = $json;
+				break;
+		}
+		
+		return true;
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;
