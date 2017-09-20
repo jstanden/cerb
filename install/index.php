@@ -637,7 +637,7 @@ switch($step) {
 			$validate = imap_rfc822_parse_adrlist(sprintf("<%s>", $default_reply_from),"localhost");
 
 			$fields = array(
-				DAO_AddressOutgoing::REPLY_SIGNATURE => '',
+				DAO_AddressOutgoing::REPLY_SIGNATURE => "-- \n{{first_name}}{% if title %}, {{title}}{% endif %}\n",
 			);
 			
 			if(!empty($default_reply_from) && is_array($validate) && 1==count($validate)) {
