@@ -68,7 +68,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		return $validation->getFields();
 	}
 
-	static function create($fields, $also_notify_worker_ids=array(), $file_ids=array()) {
+	static function create($fields, $also_notify_worker_ids=[], $file_ids=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!isset($fields[self::CREATED]))
@@ -90,59 +90,62 @@ class DAO_Comment extends Cerb_ORMHelper {
 		/*
 		 * Log the activity of a new comment being created
 		 */
-		
-		$context = Extension_DevblocksContext::get($fields[self::CONTEXT]);
-		$meta = $context->getMeta($fields[self::CONTEXT_ID]);
-		
-		$entry = array(
-			//{{actor}} {{common.commented}} on {{object}} {{target}}
-			'message' => 'activities.comment.create',
-			'variables' => array(
-				'object' => mb_convert_case($context->manifest->name, MB_CASE_LOWER),
-				'target' => $meta['name'],
-				),
-			'urls' => array(
-				'common.commented' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_COMMENT, $id),
-				'target' => sprintf("ctx://%s:%d", $fields[self::CONTEXT], $fields[self::CONTEXT_ID]),
-				)
-		);
-		CerberusContexts::logActivity('comment.create', $fields[self::CONTEXT], $fields[self::CONTEXT_ID], $entry, null, null, $also_notify_worker_ids);
-		
-		/*
-		 * Send a new comment event
-		 */
-		
-		$eventMgr = DevblocksPlatform::services()->event();
-		$eventMgr->trigger(
-			new Model_DevblocksEvent(
-				'comment.create',
-				array(
-					'comment_id' => $id,
-					'fields' => $fields,
-				)
-			)
-		);
-		
-		/*
-		 * Trigger global VA behavior
-		 */
-		
-		Event_CommentCreatedByWorker::trigger($id);
-		
-		/*
-		 * Trigger group-level VA behavior
-		 */
-		
-		switch($context->id) {
-			case CerberusContexts::CONTEXT_TICKET:
-				@$ticket_id = $fields[self::CONTEXT_ID];
 
-				// [TODO] This is inefficient
-				if(!empty($ticket_id)) {
-					@$ticket = DAO_Ticket::get($ticket_id);
-					Event_CommentOnTicketInGroup::trigger($id, $ticket_id, $ticket->group_id);
-				}
-				break;
+		if(isset($fields[self::CONTEXT]) && isset($fields[self::CONTEXT_ID])) {
+			$context = Extension_DevblocksContext::get($fields[self::CONTEXT]);
+			
+			$meta = $context->getMeta($fields[self::CONTEXT_ID]);
+			
+			$entry = [
+				//{{actor}} {{common.commented}} on {{object}} {{target}}
+				'message' => 'activities.comment.create',
+				'variables' => array(
+					'object' => mb_convert_case($context->manifest->name, MB_CASE_LOWER),
+					'target' => $meta['name'],
+					),
+				'urls' => array(
+					'common.commented' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_COMMENT, $id),
+					'target' => sprintf("ctx://%s:%d", $fields[self::CONTEXT], $fields[self::CONTEXT_ID]),
+					)
+			];
+			CerberusContexts::logActivity('comment.create', $fields[self::CONTEXT], $fields[self::CONTEXT_ID], $entry, null, null, $also_notify_worker_ids);
+			
+			/*
+			 * Send a new comment event
+			 */
+			
+			$eventMgr = DevblocksPlatform::services()->event();
+			$eventMgr->trigger(
+				new Model_DevblocksEvent(
+					'comment.create',
+					[
+						'comment_id' => $id,
+						'fields' => $fields,
+					]
+				)
+			);
+			
+			/*
+			 * Trigger global VA behavior
+			 */
+			
+			Event_CommentCreatedByWorker::trigger($id);
+			
+			/*
+			 * Trigger group-level VA behavior
+			 */
+			
+			switch($context->id) {
+				case CerberusContexts::CONTEXT_TICKET:
+					@$ticket_id = $fields[self::CONTEXT_ID];
+	
+					// [TODO] This is inefficient
+					if(!empty($ticket_id)) {
+						@$ticket = DAO_Ticket::get($ticket_id);
+						Event_CommentOnTicketInGroup::trigger($id, $ticket_id, $ticket->group_id);
+					}
+					break;
+			}
 		}
 		
 		return $id;
