@@ -4,7 +4,7 @@
 	<legend>
 		{$custom_fieldset->name}
 		{if $owner->_context != CerberusContexts::CONTEXT_APPLICATION}
-		<small>({{$owner->_label}})</small>
+		<small>({$owner->_label})</small>
 		{/if}
 	</legend>
 	<span class="glyphicons glyphicons-circle-remove delete" style="font-size:16px;cursor:pointer;float:right;margin-top:-20px;display:none;"></span>
