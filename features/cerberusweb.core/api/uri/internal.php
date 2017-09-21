@@ -1752,6 +1752,9 @@ class ChInternalController extends DevblocksControllerExtension {
 			$output = $snippet->content;
 		}
 		
+		// Increment the usage counter
+		$snippet->incrementUse($active_worker->id);
+		
 		header('Content-Type: application/json');
 		
 		echo json_encode(array(
