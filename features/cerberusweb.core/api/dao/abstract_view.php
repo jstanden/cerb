@@ -422,7 +422,6 @@ abstract class C4_AbstractView {
 	function addParamsWithQuickSearch($query, $replace=true) {
 		$fields = $this->getParamsFromQuickSearch($query);
 		$this->addParams($fields, $replace);
-		$this->renderPage = 0;
 	}
 	
 	function _getSortFromQuickSearchQuery($sort_query) {

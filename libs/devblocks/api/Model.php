@@ -159,6 +159,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			$view->is_ephemeral = true;
 			$view->setAutoPersist(false);
 			$view->addParamsWithQuickSearch($query, true);
+			$view->renderPage = 0;
 			
 			$params = $view->getParams();
 			
@@ -199,6 +200,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			$view->is_ephemeral = true;
 			$view->setAutoPersist(false);
 			$view->addParamsWithQuickSearch($query, true);
+			$view->renderPage = 0;
 			
 			$params = $view->getParams();
 			
@@ -249,6 +251,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			$view->is_ephemeral = true;
 			$view->setAutoPersist(false);
 			$view->addParamsWithQuickSearch($query, true);
+			$view->renderPage = 0;
 			
 			$params = $view->getParams();
 			
@@ -306,6 +309,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			$view->is_ephemeral = true;
 			$view->setAutoPersist(false);
 			$view->addParamsWithQuickSearch($query, true);
+			$view->renderPage = 0;
 			
 			$params = $view->getParams();
 			

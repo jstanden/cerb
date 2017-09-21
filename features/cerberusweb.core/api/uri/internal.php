@@ -1116,9 +1116,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 		
 		// Query
-		if(!empty($query))
+		if(!empty($query)) {
 			$view->addParamsWithQuickSearch($query, true);
-			
+			$view->renderPage = 0;
+		}
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('context', $context_extension);
 		$tpl->assign('layer', $layer);
@@ -1192,6 +1194,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(!empty($q)) {
 			$view->addParamsWithQuickSearch($q, true);
+			$view->renderPage = 0;
 		}
 		
 		$tpl = DevblocksPlatform::services()->template();

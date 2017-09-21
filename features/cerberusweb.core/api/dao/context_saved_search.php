@@ -583,6 +583,7 @@ class Model_ContextSavedSearch {
 		
 		$view->addParamsWithQuickSearch($this->query, true);
 		$view->renderLimit = $limit;
+		$view->renderPage = 0;
 		$view->renderTotal = false;
 		
 		list($results, $null) = $view->getData();

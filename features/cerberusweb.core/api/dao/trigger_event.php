@@ -1808,6 +1808,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		
 		$view = $context_ext->getSearchView('autocomplete_behavior');
 		$view->renderLimit = 25;
+		$view->renderPage = 0;
 		$view->renderSortBy = SearchFields_TriggerEvent::PRIORITY;
 		$view->renderSortAsc = true;
 		$view->is_ephemeral = true;

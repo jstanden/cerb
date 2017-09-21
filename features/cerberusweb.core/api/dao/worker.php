@@ -1085,6 +1085,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$view = $context_ext->getSearchView('autocomplete_worker');
 		$view->is_ephemeral = true;
+		$view->renderPage = 0;
 		$view->addParamsWithQuickSearch($query, true);
 		$view->addParam(new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED, DevblocksSearchCriteria::OPER_EQ, 0));
 		

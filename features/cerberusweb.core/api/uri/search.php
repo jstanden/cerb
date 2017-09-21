@@ -67,6 +67,7 @@ class Page_Search extends CerberusPageExtension {
 		
 		if(!empty($query)) {
 			$view->addParamsWithQuickSearch($query, true);
+			$view->renderPage = 0;
 			$tpl->assign('quick_search_query', $query);
 		}
 		
@@ -106,8 +107,10 @@ class Page_Search extends CerberusPageExtension {
 		if($id)
 			$view->is_ephemeral = true;
 		
-		if(isset($_REQUEST['q']))
+		if(isset($_REQUEST['q'])) {
 			$view->addParamsWithQuickSearch($query, true);
+			$view->renderPage = 0;
+		}
 		
 		$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
 		$label = @$aliases['plural'] ?: $context_ext->manifest->name;
@@ -141,6 +144,7 @@ class Page_Search extends CerberusPageExtension {
 		}
 		
 		$view->addParamsWithQuickSearch($query, $replace_params);
+		$view->renderPage = 0;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view', $view);

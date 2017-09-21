@@ -925,6 +925,7 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		
 		$view = $context_ext->getSearchView('autocomplete_classifier');
 		$view->renderLimit = 25;
+		$view->renderPage = 0;
 		$view->renderSortBy = SearchFields_ClassifierClass::NAME;
 		$view->renderSortAsc = true;
 		$view->is_ephemeral = true;

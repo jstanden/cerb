@@ -365,6 +365,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$view->is_ephemeral = true;
 		$view->setAutoPersist(false);
 		$view->addParamsWithQuickSearch($query, true);
+		$view->renderPage = 0;
 		$view->renderTotal = true;
 		
 		$query_parts = DAO_Attachment::getSearchQueryComponents($view->view_columns, $view->getParams());
@@ -562,6 +563,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 			$view->is_ephemeral = true;
 			$view->setAutoPersist(false);
 			$view->addParamsWithQuickSearch($query, true);
+			$view->renderPage = 0;
 			
 			$params = $view->getParams();
 			

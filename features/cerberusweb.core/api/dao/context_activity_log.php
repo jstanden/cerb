@@ -401,6 +401,7 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 					$view = $ext->getSearchView(uniqid());
 					$view->is_ephemeral = true;
 					$view->setAutoPersist(false);
+					$view->renderPage = 0;
 					$view->addParamsWithQuickSearch($query, true);
 					
 					$params = $view->getParams();

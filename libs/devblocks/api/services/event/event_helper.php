@@ -1761,6 +1761,7 @@ class DevblocksEventHelper {
 		@$metric_field = $fields[$metric_field]; /* @var $metric_field DevblocksSearchField */
 		
 		$view->addParamsWithQuickSearch($query, true);
+		$view->renderPage = 0;
 		
 		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
 		
