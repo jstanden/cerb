@@ -235,6 +235,15 @@
 		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
 		var $frm = $('#frmComposePeek{$popup_uniqid}');
+		
+		// Close confirmation
+		
+		$popup.on('dialogbeforeclose', function(e, ui) {
+			if(e.keyCode == 27)
+				return confirm('{'warning.core.editor.close'|devblocks_translate}');
+		});
+		
+		// Autocompletes
 
 		ajax.emailAutoComplete('#frmComposePeek{$popup_uniqid} input[name=to]', { multiple: true } );
 		ajax.emailAutoComplete('#frmComposePeek{$popup_uniqid} input[name=cc]', { multiple: true } );

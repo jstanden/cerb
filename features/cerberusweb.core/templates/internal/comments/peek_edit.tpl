@@ -128,6 +128,13 @@ $(function() {
 			.cerbPeekTrigger()
 			;
 		
+		// Close confirmation
+		
+		$popup.on('dialogbeforeclose', function(e, ui) {
+			if(e.keyCode == 27)
+				return confirm('{'warning.core.editor.close'|devblocks_translate}');
+		});
+		
 		// Editor
 		
 		var $textarea = $popup.find('textarea[name=comment]')
@@ -199,7 +206,6 @@ $(function() {
 		$popup.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
-		
 	});
 });
 </script>

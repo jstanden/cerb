@@ -164,6 +164,13 @@ $(function() {
 			$target.remove();
 		});
 		
+		// Close confirmation
+		
+		$popup.on('dialogbeforeclose', function(e, ui) {
+			if(e.keyCode == 27)
+				return confirm('{'warning.core.editor.close'|devblocks_translate}');
+		});
+		
 		// Choosers
 		
 		$popup.find('BUTTON.chooser_group.unbound').each(function() {

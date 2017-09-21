@@ -2357,6 +2357,14 @@
 				<seg>You do not have permission to view this record.</seg>
 			</tuv>
 		</tu>
+		
+		<!-- Warnings -->
+		
+		<tu tuid="warning.core.editor.close">
+			<tuv xml:lang="en_US">
+				<seg>Are you sure you want to close this editor without saving?</seg>
+			</tuv>
+		</tu>
 
 		<!-- ACL -->
 		

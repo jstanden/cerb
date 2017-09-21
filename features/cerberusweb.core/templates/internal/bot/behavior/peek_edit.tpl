@@ -190,6 +190,13 @@ $(function() {
 		$popup.dialog('option','title',"{'common.behavior'|devblocks_translate|capitalize|escape:'javascript'}");
 		$popup.css('overflow', 'inherit');
 		
+		// Close confirmation
+		
+		$popup.on('dialogbeforeclose', function(e, ui) {
+			if(e.keyCode == 27)
+				return confirm('{'warning.core.editor.close'|devblocks_translate}');
+		});
+		
 		$popup.find('.chooser-abstract')
 			.cerbChooserTrigger()
 			.on('cerb-chooser-saved', function(e) {

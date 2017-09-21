@@ -175,6 +175,13 @@ $(function() {
 			$target.remove();
 		});
 		
+		// Close confirmation
+		
+		$popup.on('dialogbeforeclose', function(e, ui) {
+			if(e.keyCode == 27)
+				return confirm('{'warning.core.editor.close'|devblocks_translate}');
+		});
+		
 		var $frm = $popup.find('form#frmDecisionOutcome{$id}');
 		var $legend = $popup.find('fieldset legend');
 		var $menu = $popup.find('fieldset ul.cerb-popupmenu:first');
