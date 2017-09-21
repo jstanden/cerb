@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 class ChCoreTour extends DevblocksHttpResponseListenerExtension {
@@ -216,15 +216,15 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 				
 			case 'preferences':
 				$tour = array(
-			 	   'title' => 'Preferences',
+						'title' => 'Preferences',
 					'body' => 'Use this page to configure your account preferences.',
 				);
 				break;
 
 			case 'groups':
 				$tour = array(
-			 	   'title' => 'Group Setup',
-			  	  'body' => 'This page enables you to configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
+						'title' => 'Group Setup',
+						'body' => 'This page enables you to configure groups for which you are a manager.  This includes members, buckets, mail routing rules, and other group-specific preferences.',
 				);
 				break;
 
@@ -763,7 +763,7 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 		if(empty($triggers))
 			return;
 		
-		if(null == ($mft = DevblocksPlatform::getExtension($event->id, false)))
+		if(null == ($mft = Extension_DevblocksEvent::get($event->id, false)))
 			return;
 		
 		if(null == ($event_ext = $mft->createInstance())

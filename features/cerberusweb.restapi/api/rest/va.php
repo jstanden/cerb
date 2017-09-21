@@ -158,7 +158,7 @@ class ChRest_Bots extends Extension_RestController {
 		}
 		
 		// Load event manifest
-		if(null == ($ext = DevblocksPlatform::getExtension($behavior->event_point, false))) /* @var $ext DevblocksExtensionManifest */
+		if(null == ($ext = Extension_DevblocksEvent::get($behavior->event_point, false))) /* @var $ext DevblocksExtensionManifest */
 			$this->error(self::ERRNO_CUSTOM);
 		
 		// Trigger an arbitrary macro

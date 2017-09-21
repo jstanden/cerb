@@ -739,7 +739,7 @@ class Model_TriggerEvent {
 	 * @return Extension_DevblocksEvent
 	 */
 	public function getEvent() {
-		if(null == ($event = DevblocksPlatform::getExtension($this->event_point, true))
+		if(null == ($event = Extension_DevblocksEvent::get($this->event_point, true))
 			|| !$event instanceof Extension_DevblocksEvent)
 			return NULL;
 		
@@ -2100,7 +2100,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$tpl->assign('bots', $bots);
 			
 			if(!empty($model)) {
-				$ext = DevblocksPlatform::getExtension($model->event_point, true);
+				$ext = Extension_DevblocksEvent::get($model->event_point, true);
 				$tpl->assign('ext', $ext);
 				
 				if(isset($bots[$model->bot_id]))

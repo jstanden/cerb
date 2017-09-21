@@ -20,7 +20,7 @@
 		<li><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$macro->id}">{$macro->title}</a></li>
 	</ul>
 {else}
-	{$event = DevblocksPlatform::getExtension($macro->event_point, false)}
+	{$event = Extension_DevblocksEvent::get($macro->event_point, false)}
 	{$event->name}
 {/if}
 <br>

@@ -5139,8 +5139,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 		} else {
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);

@@ -21,7 +21,7 @@ class _DevblocksEventManager {
 		$events = DevblocksPlatform::getEventRegistry();
 
 		if(null == ($listeners = @$events[$event->id])) {
-			$listeners = array();
+			$listeners = [];
 		}
 
 		// [TODO] Make sure we can't get a double listener
@@ -30,7 +30,7 @@ class _DevblocksEventManager {
 			$listeners[] = $evt;
 		}
 		
-		$runners = array();
+		$runners = [];
 		
 		if(is_array($listeners) && !empty($listeners))
 		foreach($listeners as $listener) { /* @var $listener DevblocksExtensionManifest */

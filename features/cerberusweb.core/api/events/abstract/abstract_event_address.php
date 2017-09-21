@@ -53,15 +53,15 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		
 		/**
 		 * Behavior
 		 */
 		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -81,8 +81,8 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		 * Address
 		 */
 		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $model, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -282,7 +282,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
+			[
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_comment' => array('label' =>'Create comment'),
 				'create_notification' => array('label' =>'Create notification'),
@@ -292,7 +292,7 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 				'set_is_banned' => array('label' => 'Set is banned'),
 				'set_is_defunct' => array('label' => 'Set is defunct'),
 				'set_links' => array('label' => 'Set links'),
-			)
+			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			

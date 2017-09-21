@@ -569,7 +569,7 @@ class Model_ContextScheduledBehavior {
 				throw new Exception("Invalid macro.");
 			
 			// Load event manifest
-			if(null == ($ext = DevblocksPlatform::getExtension($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */
+			if(null == ($ext = Extension_DevblocksEvent::get($macro->event_point, false))) /* @var $ext DevblocksExtensionManifest */
 				throw new Exception("Invalid event.");
 			
 		} catch(Exception $e) {

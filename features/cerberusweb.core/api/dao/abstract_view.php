@@ -426,10 +426,10 @@ abstract class C4_AbstractView {
 	}
 	
 	function _getSortFromQuickSearchQuery($sort_query) {
-		$sort_results = array(
-			'sort_by' => array(),
-			'sort_asc' => array(),
-		);
+		$sort_results = [
+			'sort_by' => [],
+			'sort_asc' => [],
+		];
 		
 		if(empty($sort_query) || !($this instanceof IAbstractView_QuickSearch))
 			return false;

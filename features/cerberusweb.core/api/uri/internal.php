@@ -3627,7 +3627,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$event = null;
 		if(!empty($trigger))
-			if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
+			if(null == ($event = Extension_DevblocksEvent::get($trigger->event_point, true)))
 				return;
 
 		$tpl->assign('event', $event);
@@ -3735,14 +3735,16 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('trigger', $trigger);
 
-		if(null == ($ext_event = DevblocksPlatform::getExtension($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
+		if(null == ($ext_event = Extension_DevblocksEvent::get($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
 			return;
 
 		$event_model = $ext_event->generateSampleEventModel($trigger, $context_id);
 		$ext_event->setEvent($event_model, $trigger);
 		
-		$event_params_json = json_encode($event_model->params);
-		$tpl->assign('event_params_json', $event_params_json);
+		if($event_model instanceof Model_DevblocksEvent) {
+			$event_params_json = json_encode($event_model->params);
+			$tpl->assign('event_params_json', $event_params_json);
+		}
 		
 		$tpl->assign('ext_event', $ext_event);
 		$tpl->assign('event_model', $event_model);
@@ -3753,7 +3755,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		$conditions = $ext_event->getConditions($trigger, false);
 
-		$dictionary = array();
+		$dictionary = [];
 		
 		// Find all nodes on the behavior
 		$nodes = DAO_DecisionNode::getByTriggerParent($trigger->id);
@@ -3803,7 +3805,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	function runBehaviorSimulatorAction() {
 		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
 		@$event_params_json = DevblocksPlatform::importGPC($_POST['event_params_json'],'string', '');
-		@$custom_values = DevblocksPlatform::importGPC($_POST['values'],'array', array());
+		@$custom_values = DevblocksPlatform::importGPC($_POST['values'],'array', []);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$logger = DevblocksPlatform::services()->log('Bot');
@@ -3816,16 +3818,16 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			return;
-
+		
 		$tpl->assign('trigger', $trigger);
 		
- 		if(null == ($ext_event = DevblocksPlatform::getExtension($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
- 			return;
- 		
+		if(null == ($ext_event = Extension_DevblocksEvent::get($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
+			return;
+		
 		// Set the base event scope
 		
 		// [TODO] This is hacky and needs to be handled by the extensions
- 		
+		
 		switch($trigger->event_point) {
 			case Event_MailReceivedByApp::ID:
 				$event_model = $ext_event->generateSampleEventModel($trigger, 0);
@@ -3835,7 +3837,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				$event_model = new Model_DevblocksEvent();
 				$event_model->id = $trigger->event_point;
 				$event_model_params = json_decode($event_params_json, true);
-				$event_model->params = is_array($event_model_params) ? $event_model_params : array();
+				$event_model->params = is_array($event_model_params) ? $event_model_params : [];
 				break;
 		}
 		
@@ -3866,30 +3868,30 @@ class ChInternalController extends DevblocksControllerExtension {
 		$values = $ext_event->getValues();
 		$values = array_merge($values, $custom_values);
 		
- 		// Get conditions
- 		
- 		$conditions = $ext_event->getConditions($trigger, false);
- 		
- 		// Sanitize values
- 		
- 		if(is_array($values))
- 		foreach($values as $k => $v) {
- 			if(
- 				((isset($conditions[$k]) && $conditions[$k]['type'] == Model_CustomField::TYPE_DATE)
- 					|| $k == '_current_time')
- 			) {
- 				if(!is_numeric($v))
- 					$values[$k] = strtotime($v);
- 			}
- 		}
- 		
- 		// Dictionary
- 		
- 		$dict = new DevblocksDictionaryDelegate($values);
- 		
- 		// [TODO] Update variables/values on assocated worklists
- 		
- 		// Behavior data
+		// Get conditions
+		
+		$conditions = $ext_event->getConditions($trigger, false);
+		
+		// Sanitize values
+		
+		if(is_array($values))
+		foreach($values as $k => $v) {
+			if(
+				((isset($conditions[$k]) && $conditions[$k]['type'] == Model_CustomField::TYPE_DATE)
+					|| $k == '_current_time')
+			) {
+				if(!is_numeric($v))
+					$values[$k] = strtotime($v);
+			}
+		}
+		
+		// Dictionary
+		
+		$dict = new DevblocksDictionaryDelegate($values);
+		
+		// [TODO] Update variables/values on assocated worklists
+		
+		// Behavior data
 
 		$behavior_data = $trigger->getDecisionTreeData();
 		$tpl->assign('behavior_data', $behavior_data);
@@ -3980,7 +3982,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			return;
 			
-		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
+		if(null == ($event = Extension_DevblocksEvent::get($trigger->event_point, true)))
 			return; /* @var $event Extension_DevblocksEvent */
 		
 		$tpl->assign('trigger', $trigger);
@@ -4000,7 +4002,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			return;
 			
-		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, true)))
+		if(null == ($event = Extension_DevblocksEvent::get($trigger->event_point, true)))
 			return; /* @var $event Extension_DevblocksEvent */
 			
 		$tpl->assign('trigger', $trigger);
@@ -4022,7 +4024,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(false == ($va = $trigger->getBot()))
 			return;
 		
-		if(null == ($event = DevblocksPlatform::getExtension($trigger->event_point, false)))
+		if(null == ($event = Extension_DevblocksEvent::get($trigger->event_point, false)))
 			return; /* @var $event Extension_DevblocksEvent */
 			
 		$is_writeable = Context_Bot::isWriteableByActor($va, $active_worker);

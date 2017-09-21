@@ -178,8 +178,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						@$event_point = $json['behavior']['event']['key'];
 						
 						if(
-							// [TODO] We should have an Extension_DevblocksEvent::get($id) method
-							false == ($event = DevblocksPlatform::getExtension($event_point, true))
+							false == ($event = Extension_DevblocksEvent::get($event_point, true))
 							|| !($event instanceof Extension_DevblocksEvent)
 						) {
 							throw new Exception_DevblocksAjaxValidationError("The imported behavior specifies an invalid event.");
@@ -344,7 +343,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							if(empty($event_point))
 								throw new Exception_DevblocksAjaxValidationError("The 'Event' field is required.", 'event_point');
 							
-							if(null == ($ext = DevblocksPlatform::getExtension($event_point, true)))
+							if(null == ($ext = Extension_DevblocksEvent::get($event_point, true)))
 								throw new Exception_DevblocksAjaxValidationError("Invalid event.", 'event_point');
 							
 							if(!$bot->canUseEvent($event_point))

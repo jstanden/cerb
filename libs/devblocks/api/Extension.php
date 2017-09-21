@@ -1026,11 +1026,18 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 	public static function get($id, $as_instance=true) {
 		$events = self::getAll(false);
+		
+		if(!isset($events[$id]))
+			return null;
+		
+		$manifest = $events[$id]; /* @var $manifest DevblocksExtensionManifest */
 
-		if(isset($events[$id])) {
-			return $events[$id]->createInstance();
+		if($as_instance) {
+			return $manifest->createInstance();
+		} else {
+			return $events[$id];
 		}
-
+		
 		return null;
 	}
 

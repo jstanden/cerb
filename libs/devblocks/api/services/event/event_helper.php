@@ -2144,7 +2144,7 @@ class DevblocksEventHelper {
 		if(null == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 			return "[ERROR] Behavior does not exist. Skipping...";
 		
-		if(null == ($ext = DevblocksPlatform::getExtension($behavior->event_point, true))) /* @var $ext Extension_DevblocksEvent */
+		if(null == ($ext = Extension_DevblocksEvent::get($behavior->event_point, true))) /* @var $ext Extension_DevblocksEvent */
 			return "[ERROR] Behavior event does not exist. Skipping...";
 		
 		$out = sprintf(">>> Running behavior: %s\n",
@@ -2271,7 +2271,7 @@ class DevblocksEventHelper {
 			return FALSE;
 		
 		// Load event manifest
-		if(false == ($ext = DevblocksPlatform::getExtension($behavior->event_point, false))) /* @var $ext DevblocksExtensionManifest */
+		if(false == ($ext = Extension_DevblocksEvent::get($behavior->event_point, false))) /* @var $ext DevblocksExtensionManifest */
 			return FALSE;
 		
 		if(empty($var))
