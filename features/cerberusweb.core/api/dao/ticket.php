@@ -5104,7 +5104,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 
 		// Template
 		
-		$model = DAO_Ticket::get($context_id);
+		if(false == ($model = DAO_Ticket::get($context_id))) {
+			$tpl->assign('error_message', 'The requested record does not exist.');
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+			return false;
+		}
 		
 		if(empty($context_id) || $edit_mode) {
 			if($model)
