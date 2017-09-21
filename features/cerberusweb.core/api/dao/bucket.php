@@ -1036,8 +1036,9 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			$token_values['group_id'] = $bucket->group_id;
 			
-			if(false != ($replyto = $bucket->getReplyTo()))
+			if(false != ($replyto = $bucket->getReplyTo())) {
 				$token_values['replyto_id'] = $replyto->address_id;
+			}
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($bucket, $token_values);

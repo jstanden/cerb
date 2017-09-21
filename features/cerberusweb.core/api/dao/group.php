@@ -1646,7 +1646,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
-			'reply_address_id' => Model_CustomField::TYPE_NUMBER,
+			'replyto_id' => Model_CustomField::TYPE_NUMBER,
 		);
 		
 		// Custom field/fieldset token labels

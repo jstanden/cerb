@@ -218,7 +218,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 				
 			case 'send_email':
 				$placeholders = [
-					'group_reply_address_id' => 'Group',
+					'group_replyto_id' => 'Group',
 				];
 				
 				DevblocksEventHelper::renderActionSendEmail($trigger, $placeholders);
