@@ -4458,10 +4458,11 @@ class DevblocksEventHelper {
 			$from_address_id = 0;
 			$from_placeholders = DevblocksPlatform::parseCsvString($params['from_address_id']);
 			
+			if(is_array($from_placeholders))
 			foreach($from_placeholders as $from_placeholder) {
 				if(!empty($from_address_id))
 					continue;
-
+				
 				if(isset($dict->$from_placeholder)) {
 					$possible_from_id = $dict->$from_placeholder;
 					
@@ -4544,6 +4545,12 @@ class DevblocksEventHelper {
 					$out .= " * " . $attachment->name . "\n";
 				}
 			}
+		}
+		
+		@$run_in_simulator = $params['run_in_simulator'];
+		
+		if($run_in_simulator) {
+			self::runActionSendEmail($params, $dict);
 		}
 		
 		return $out;

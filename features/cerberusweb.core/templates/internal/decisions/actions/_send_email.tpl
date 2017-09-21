@@ -93,8 +93,7 @@
 	<label><input type="checkbox" name="{$namePrefix}[attachment_vars][]" value="{$var_key}" {if is_array($params.attachment_vars) && in_array($var_key, $params.attachment_vars)}checked="checked"{/if}>{$var.label}</label>
 </div>
 {/if}
-{/foreach}
-{/capture}
+{/foreach}{/capture}
 
 {if $smarty.capture.attachment_vars}
 <b>Attach the files from these variables:</b>
@@ -114,6 +113,12 @@
 		{/if} 
 	{/foreach}
 	</ul>
+</div>
+
+<b>Also send email in simulator mode:</b>
+<div style="margin-left:10px;margin-bottom:10px;">
+	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="1" {if $params.run_in_simulator}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="0" {if !$params.run_in_simulator}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
 </div>
 
 <script type="text/javascript">
