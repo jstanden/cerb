@@ -848,7 +848,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 		switch($column) {
 			case SearchFields_Task::STATUS_ID:
 				$label_map = [0 => 'Open', 1 => 'Closed', 2 => 'Waiting'];
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options');
 				break;
 				
 			case SearchFields_Task::VIRTUAL_CONTEXT_LINK:
