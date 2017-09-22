@@ -221,7 +221,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				);
 		
 				if($id==0) {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_ORG)))
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_ORG)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
 					
 					if(!DAO_ContactOrg::validate($fields, $error))
