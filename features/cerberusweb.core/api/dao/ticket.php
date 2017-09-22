@@ -1506,6 +1506,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
 		@$excludes = DevblocksPlatform::parseCrlfString($exclude_list);
 		
+		if(is_array($addys))
 		foreach($addys as $addy => $addy_data) {
 			try {
 				// Filter out our own addresses

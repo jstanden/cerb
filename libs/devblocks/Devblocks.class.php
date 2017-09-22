@@ -558,12 +558,17 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * Returns a string as a regexp.
 	 * "*bob" returns "/(.*?)bob/".
 	 * @param string $string
+	 * @param boolean $is_substring
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function parseStringAsRegExp($string) {
+	static function parseStringAsRegExp($string, $is_substring=false) {
 		$pattern = str_replace(array('*'),'__any__', $string);
-		$pattern = sprintf("/%s/i",str_replace(array('__any__'),'(.*?)', preg_quote($pattern)));
+		$pattern = sprintf("/%s%s%s/i",
+			!$is_substring ? '^' : '',
+			str_replace(array('__any__'),'(.*?)', preg_quote($pattern)),
+			!$is_substring ? '$' : ''
+		);
 		return $pattern;
 	}
 	

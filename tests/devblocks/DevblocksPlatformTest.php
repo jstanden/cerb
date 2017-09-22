@@ -659,9 +659,29 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testParseStringAsRegExp() {
-		// Wildcards
+		// Wildcard prefix substring
+		$expected = '/(.*?)wildcard/i';
+		$actual = DevblocksPlatform::parseStringAsRegExp('*wildcard', true);
+		$this->assertEquals($expected, $actual);
+		
+		// Wildcard prefix non-substring
+		$expected = '/^(.*?)wildcard$/i';
+		$actual = DevblocksPlatform::parseStringAsRegExp('*wildcard');
+		$this->assertEquals($expected, $actual);
+		
+		// Wildcard suffix substring
 		$expected = '/wildcard(.*?)/i';
-		$actual = DevblocksPlatform::parseStringAsRegExp('wildcard*');
+		$actual = DevblocksPlatform::parseStringAsRegExp('wildcard*', true);
+		$this->assertEquals($expected, $actual);
+		
+		// Test substring
+		$expected = '/text/i';
+		$actual = DevblocksPlatform::parseStringAsRegExp('text', true);
+		$this->assertEquals($expected, $actual);
+		
+		// Test non-substring
+		$expected = '/^text$/i';
+		$actual = DevblocksPlatform::parseStringAsRegExp('text');
 		$this->assertEquals($expected, $actual);
 	}
 	
