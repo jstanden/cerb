@@ -79,7 +79,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 			$fields[self::UPDATED_AT] = time();
 		
 		if(!is_array($ids))
-			$ids = array($ids);
+			$ids = [$ids];
 		
 		// Make a diff for the requested objects in batches
 		

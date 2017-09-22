@@ -124,11 +124,11 @@
 			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.gender'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<label><input type="radio" name="gender" value="M" {if $model->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
-				 &nbsp; 
-				 &nbsp; 
+				&nbsp; 
+				&nbsp; 
 				<label><input type="radio" name="gender" value="F" {if $model->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
-				 &nbsp; 
-				 &nbsp; 
+				&nbsp; 
+				&nbsp; 
 				<label><input type="radio" name="gender" value="" {if empty($model->gender)}checked="checked"{/if}> {'common.unknown'|devblocks_translate|capitalize}</label>
 			</td>
 		</tr>

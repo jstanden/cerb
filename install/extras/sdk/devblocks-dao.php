@@ -926,8 +926,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 <b>plugin.xml</b>
 <br>
 <textarea style="width: 98%; height: 200px;">
-		<!-- Contexts -->
-		
 		<extension point="devblocks.context">
 			<id><?php echo $ctx_ext_id; ?></id>
 			<name><?php echo $object_name; ?></name>
@@ -1742,8 +1740,6 @@ $(function() {
 
 <b>plugin.xml</b><br>
 <textarea style="width:98%;height:200px;">
-		<!-- Profile Page Sections -->
-		
 		<extension point="cerberusweb.ui.page.section">
 			<id><?php echo $plugin_namespace; ?>.page.profiles.<?php echo $table_name; ?></id>
 			<name><?php echo $object_name; ?> Section</name>
