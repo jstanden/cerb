@@ -242,6 +242,12 @@
 
 		ajax.orgAutoComplete('#frmComposePeek{$popup_uniqid} input:text[name=org_name]');
 		
+		// Date helpers
+		
+		$frm.find('input[name=ticket_reopen]')
+			.cerbDateInputHelper()
+			;
+		
 		// Chooser for To/Cc/Bcc recipients
 		$frm.find('a.cerb-recipient-chooser')
 			.click(function(e) {
