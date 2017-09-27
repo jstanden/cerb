@@ -348,7 +348,6 @@ function showLoadingPanel() {
 	}
 	
 	var options = {
-		bgiframe : true,
 		autoOpen : false,
 		closeOnEscape : false,
 		draggable : false,
@@ -455,7 +454,6 @@ function genericAjaxPopupRegister($layer, $popup) {
 function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	// Default options
 	var options = {
-		bgiframe : true,
 		autoOpen : false,
 		closeOnEscape : true,
 		draggable : true,
