@@ -1047,7 +1047,11 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			// Remove min/max sizes
 			// [TODO] Make this configurable
 			$words = array_filter($words, function($word) {
-				if(strlen($word) < 3 || strlen($word) > 83)
+				// Less than 3 characters and not a wildcard
+				if(strlen($word) < 3 && !DevblocksPlatform::strEndsWith($word, '*'))
+					return false;
+				
+				if(strlen($word) > 83)
 					return false;
 				
 				return true;
