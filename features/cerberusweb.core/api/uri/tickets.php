@@ -810,11 +810,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		// Parsed or raw?
 		$active_worker = !empty($raw) ? null : CerberusApplication::getActiveWorker();
 		
-		if(empty($group_id) || null == ($group = DAO_Group::get($group_id))) {
-			$replyto_default = DAO_AddressOutgoing::getDefault();
-			echo $replyto_default->getReplySignature($active_worker);
-			
-		} else {
+		if($group_id && null != ($group = DAO_Group::get($group_id))) {
 			echo $group->getReplySignature($bucket_id, $active_worker);
 		}
 	}

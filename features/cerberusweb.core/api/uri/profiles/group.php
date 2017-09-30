@@ -166,10 +166,18 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 				@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'bit',0);
+				@$reply_address_id = DevblocksPlatform::importGPC($_REQUEST['reply_address_id'],'integer',0);
+				@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'],'integer',0);
+				@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'],'string','');
+				@$reply_signature_id = DevblocksPlatform::importGPC($_REQUEST['reply_signature_id'],'integer',0);
 			
 				$fields = array(
 					DAO_Group::NAME => $name,
 					DAO_Group::IS_PRIVATE => $is_private,
+					DAO_Group::REPLY_ADDRESS_ID => $reply_address_id,
+					DAO_Group::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
+					DAO_Group::REPLY_PERSONAL => $reply_personal,
+					DAO_Group::REPLY_SIGNATURE_ID => $reply_signature_id,
 				);
 				
 				if(empty($group_id)) { // new

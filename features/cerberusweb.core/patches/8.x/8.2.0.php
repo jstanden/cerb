@@ -142,6 +142,87 @@ if(isset($tables['address_outgoing'])) {
 }
 
 // ===========================================================================
+// Add `reply_*` field defaults to the `worker_group` table
+
+if(!isset($tables['worker_group'])) {
+	$logger->error("The 'worker_group' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_group');
+
+$changes = [];
+
+if(!isset($columns['reply_address_id'])) {
+	$changes[] = 'ADD COLUMN reply_address_id int(10) unsigned NOT NULL DEFAULT 0';
+}
+
+if(!isset($columns['reply_personal'])) {
+	$changes[] = "ADD COLUMN reply_personal varchar(255) not null default ''";
+}
+
+if(!isset($columns['reply_signature_id'])) {
+	$changes[] = 'ADD COLUMN reply_signature_id int(10) unsigned NOT NULL DEFAULT 0';
+}
+
+if(!isset($columns['reply_html_template_id'])) {
+	$changes[] = 'ADD COLUMN reply_html_template_id int(10) unsigned NOT NULL DEFAULT 0';
+}
+
+if(!empty($changes))
+	$db->ExecuteMaster("ALTER TABLE worker_group " . implode(', ', $changes));
+
+if(!isset($columns['reply_address_id'])) {
+	// Copy the inbox defaults to the group
+	$db->ExecuteMaster("UPDATE worker_group AS g INNER JOIN bucket AS b ON (b.group_id=g.id AND b.is_default=1) SET g.reply_address_id=b.reply_address_id, g.reply_personal=b.reply_personal, g.reply_signature_id=b.reply_signature_id, g.reply_html_template_id=b.reply_html_template_id");
+	
+	// Copy the replyto defaults to the group
+	$db->ExecuteMaster("UPDATE worker_group AS g INNER JOIN address_outgoing AS ao ON (ao.address_id=g.reply_address_id) SET g.reply_personal=ao.reply_personal WHERE g.reply_personal = ''");
+	$db->ExecuteMaster("UPDATE worker_group AS g INNER JOIN address_outgoing AS ao ON (ao.address_id=g.reply_address_id) SET g.reply_signature_id=ao.reply_signature_id WHERE g.reply_signature_id = 0");
+	$db->ExecuteMaster("UPDATE worker_group AS g INNER JOIN address_outgoing AS ao ON (ao.address_id=g.reply_address_id) SET g.reply_html_template_id=ao.reply_html_template_id WHERE g.reply_html_template_id = 0");
+	
+	// Finally, use the old default replyto for everything else
+	$db->ExecuteMaster("UPDATE worker_group AS g INNER JOIN address_outgoing AS ao ON (ao.is_default=1) SET g.reply_address_id=ao.address_id WHERE g.reply_address_id = 0");
+	$db->ExecuteMaster("UPDATE worker_group AS g INNER JOIN address_outgoing AS ao ON (ao.is_default=1) SET g.reply_personal=ao.reply_personal WHERE g.reply_personal = ''");
+	$db->ExecuteMaster("UPDATE worker_group AS g INNER JOIN address_outgoing AS ao ON (ao.is_default=1) SET g.reply_signature_id=ao.reply_signature_id WHERE g.reply_signature_id = 0");
+	$db->ExecuteMaster("UPDATE worker_group AS g INNER JOIN address_outgoing AS ao ON (ao.is_default=1) SET g.reply_html_template_id=ao.reply_html_template_id WHERE g.reply_html_template_id = 0");
+}
+
+// ===========================================================================
+// Add `mail_transport_id` to the `address` table
+
+if(!isset($tables['address'])) {
+	$logger->error("The 'address' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address');
+
+$changes = [];
+
+if(!isset($columns['mail_transport_id'])) {
+	$changes[] = 'ADD COLUMN mail_transport_id int(10) unsigned NOT NULL DEFAULT 0';
+	$changes[] = 'ADD INDEX (mail_transport_id)';
+}
+
+if(!empty($changes))
+	$db->ExecuteMaster("ALTER TABLE address " . implode(', ', $changes));
+
+// Move the email<->transport link to address records
+if(!isset($columns['mail_transport_id'])) {
+	$db->ExecuteMaster("UPDATE address a INNER JOIN address_outgoing ao ON (ao.address_id=a.id) SET a.mail_transport_id=ao.reply_mail_transport_id");
+	$db->ExecuteMaster("UPDATE address SET mail_transport_id = (SELECT reply_mail_transport_id FROM address_outgoing WHERE is_default = 1) WHERE id IN (SELECT address_id FROM address_outgoing WHERE reply_mail_transport_id = 0)");
+	$db->ExecuteMaster("REPLACE INTO devblocks_setting (plugin_id, setting, value) VALUES ('cerberusweb.core','mail_default_from_id', (SELECT address_id FROM address_outgoing WHERE is_default = 1 LIMIT 1))");
+}
+
+// ===========================================================================
+// Drop the now-redundant sender address table
+
+if(isset($tables['address_outgoing'])) {
+	$db->ExecuteMaster("DROP TABLE address_outgoing");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

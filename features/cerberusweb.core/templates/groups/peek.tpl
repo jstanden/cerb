@@ -103,6 +103,11 @@ $(function() {
 			})
 			;
 		
+		// Peeks
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
+		
 		// Searches
 		$popup.find('button.cerb-search-trigger')
 			.cerbSearchTrigger()

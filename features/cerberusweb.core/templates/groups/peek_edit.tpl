@@ -45,21 +45,99 @@
 	</tr>
 </table>
 
+{if !empty($custom_fields)}
+{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+{/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_GROUP context_id=$group->id}
+
 {$tabs_id = "groupPeekTabs{uniqid()}"}
 <div id="{$tabs_id}" style="margin:5px 0px 15px 0px;">
 
 <ul>
+	<li><a href="#{$tabs_id}Mail">{'common.mail'|devblocks_translate|capitalize}</a></li>
 	<li><a href="#{$tabs_id}Members">{'common.members'|devblocks_translate|capitalize}</a></li>
-	<li><a href="#{$tabs_id}Options">{'common.options'|devblocks_translate|capitalize}</a></li>
 </ul>
 
 {$option_id = "divGroupCfgSubject{uniqid()}"}
-<div id="{$tabs_id}Options">
-	<label><input type="checkbox" name="subject_has_mask" value="1" onclick="toggleDiv('{$option_id}',(this.checked)?'block':'none');" {if $group_settings.subject_has_mask}checked{/if}> Include custom prefix and mask in message subject:</label><br>
-	<blockquote id="{$option_id}" style="margin-left:20px;margin-bottom:0px;display:{if $group_settings.subject_has_mask}block{else}none{/if}">
-		<b>Subject prefix:</b> (optional, e.g. "Billing", "Tech Support")<br>
-		Re: [ <input type="text" name="subject_prefix" placeholder="prefix" value="{$group_settings.subject_prefix}" size="24"> #MASK-12345-678]: This is the subject line<br>
-	</blockquote>
+<div id="{$tabs_id}Mail">
+	<fieldset class="peek">
+		<legend>Group-level mail settings: <small>(bucket defaults)</small></legend>
+
+		<table cellpadding="2" cellspacing="0" border="0" width="100%">
+			<tr>
+				<td align="right" valign="middle" width="0%" nowrap="nowrap">
+					{'common.send.from'|devblocks_translate}: 
+				</td>
+				<td valign="middle" width="100%">
+					<button type="button" class="chooser-abstract" data-field-name="reply_address_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:>0 isBanned:n isDefunct:n" data-query-required="" data-autocomplete="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+					
+					{$replyto = DAO_Address::get($group->reply_address_id)}
+					
+					<ul class="bubbles chooser-container">
+						{if $replyto}
+							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$replyto->id}{/devblocks_url}?v={$replyto->updated_at}"><input type="hidden" name="reply_address_id" value="{$replyto->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$replyto->id}">{$replyto->email}</a></li>
+						{/if}
+					</ul>
+				</td>
+			</tr>
+			
+			<tr>
+				<td align="right" valign="top" width="0%" nowrap="nowrap">
+					{'common.send.as'|devblocks_translate}: 
+				</td>
+				<td valign="top">
+					<textarea name="reply_personal" placeholder="e.g. Customer Support" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" style="width:100%;height:50px;">{$group->reply_personal}</textarea>
+				</td>
+			</tr>
+			
+			<tr>
+				<td align="right" valign="middle" width="0%" nowrap="nowrap">
+					{'common.signature'|devblocks_translate|capitalize}: 
+				</td>
+				<td valign="middle">
+					<button type="button" class="chooser-abstract" data-field-name="reply_signature_id" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+					
+					{$signature = DAO_EmailSignature::get($group->reply_signature_id)}
+					
+					<ul class="bubbles chooser-container">
+						{if $signature}
+							<li><input type="hidden" name="reply_signature_id" value="{$signature->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$signature->id}">{$signature->name}</a></li>
+						{/if}
+					</ul>
+				</td>
+			</tr>
+			
+			<tr>
+				<td align="right" valign="middle" width="0%" nowrap="nowrap">
+					HTML template: 
+				</td>
+				<td valign="middle">
+					<button type="button" class="chooser-abstract" data-field-name="reply_html_template_id" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+					
+					{$html_template = DAO_MailHtmlTemplate::get($group->reply_html_template_id)}
+					
+					<ul class="bubbles chooser-container">
+						{if $html_template}
+							<li><input type="hidden" name="reply_html_template_id" value="{$html_template->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
+						{/if}
+					</ul>
+				</td>
+			</tr>
+		</table>
+	</fieldset>
+
+	<fieldset class="peek">
+		<legend>Ticket masks:</legend>
+
+		<div>
+			<label><input type="checkbox" name="subject_has_mask" value="1" onclick="toggleDiv('{$option_id}',(this.checked)?'block':'none');" {if $group_settings.subject_has_mask}checked{/if}> Include ticket masks in message subjects:</label><br>
+			<blockquote id="{$option_id}" style="margin-left:20px;margin-bottom:0px;display:{if $group_settings.subject_has_mask}block{else}none{/if}">
+				<b>Subject prefix:</b> (optional, e.g. "billing", "tech-support")<br>
+				Re: [ <input type="text" name="subject_prefix" placeholder="prefix" value="{$group_settings.subject_prefix}" size="24"> #MASK-12345-678]: This is the subject line<br>
+			</blockquote>
+		</div>
+	</fieldset>
 </div>
 
 <div id="{$tabs_id}Members" style="max-height: 250px;overflow:auto;">
@@ -71,22 +149,13 @@
 		<option value="1" {if isset($members.{$worker->id}) && !$members.{$worker->id}->is_manager}selected="selected"{/if}>{'common.member'|devblocks_translate|capitalize}</option>
 		<option value="2" style="font-weight:bold;" {if isset($members.{$worker->id}) && $members.{$worker->id}->is_manager}selected="selected"{/if}>{'common.manager'|devblocks_translate|capitalize}</option>
 	</select>
-	 &nbsp; 
-	 {$worker->getName()} {if !empty($worker->title)}<span style="color:rgb(0,120,0);">({$worker->title})</span>{/if}
+	&nbsp; 
+	{$worker->getName()} {if !empty($worker->title)}<span style="color:rgb(0,120,0);">({$worker->title})</span>{/if}
 </div>
 {/foreach}
 </div>
 
 </div>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_GROUP context_id=$group->id}
 
 {if !empty($group->id)}
 <fieldset style="display:none;" class="delete">
@@ -144,12 +213,6 @@
 	{if !empty($group->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
-{if !empty($group->id)}
-<div style="float:right;">
-	<a href="{devblocks_url}&c=profiles&type=group&id={$group->id}{/devblocks_url}-{$group->name|devblocks_permalink}">{'addy_book.peek.view_full'|devblocks_translate}</a>
-</div>
-{/if}
-
 </form>
 
 <script type="text/javascript">
@@ -168,6 +231,20 @@ $(function() {
 		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
 		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
 		ajax.chooserAvatar($avatar_chooser, $avatar_image);
+		
+		// Template builders
+		
+		$popup.find('textarea.cerb-template-trigger')
+			.cerbTemplateTrigger()
+		;
+		
+		$popup.find('button.chooser-abstract')
+			.cerbChooserTrigger()
+			;
+		
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
 
 		// Tabs
 		$('#{$tabs_id}').tabs({ });

@@ -81,12 +81,35 @@
 				<td data-column="{$column}">
 					{$group = $groups.{$result.$column}}
 					{if $group}
-						<a href="{devblocks_url}c=profiles&what=group&id={$group->id}{/devblocks_url}-{$group->name|devblocks_permalink}">{$group->name}</a>
+						<img src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;margin-right:3px;">
+						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}" data-profile-url="{devblocks_url}c=profiles&what=group&id={$group->id}{/devblocks_url}-{$group->name|devblocks_permalink}">{$group->name}</a>
 					{/if}
 				</td>
 			{elseif $column == "b_is_default"}
 				<td data-column="{$column}">
-					{if $result.$column}{'common.yes'|devblocks_translate|lower}{else}{'common.no'|devblocks_translate|lower}{/if}
+					{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(100,100,100);vertical-align:middle;font-size:120%;"></span>{/if}
+				</td>
+			{elseif $column == "b_reply_address_id"}
+				{$replyto_address = $replyto_addresses.{$result.$column}}
+				<td data-column="{$column}">
+					{if $replyto_address}
+					<img src="{devblocks_url}c=avatars&context=address&context_id={$replyto_address->id}{/devblocks_url}?v={$replyto_address->updated_at}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;margin-right:3px;">
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.$column}">{$replyto_address->email}</a>
+					{/if}
+				</td>
+			{elseif $column == "b_reply_html_template_id"}
+				{$html_template = $html_templates.{$result.$column}}
+				<td data-column="{$column}">
+					{if $html_template}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$result.$column}">{$html_template->name}</a>
+					{/if}
+				</td>
+			{elseif $column == "b_reply_signature_id"}
+				{$signature = $signatures.{$result.$column}}
+				<td data-column="{$column}">
+					{if $signature}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$result.$column}">{$signature->name}</a>
+					{/if}
 				</td>
 			{elseif $column == "b_updated_at"}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">

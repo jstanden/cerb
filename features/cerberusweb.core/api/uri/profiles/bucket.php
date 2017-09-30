@@ -170,23 +170,33 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-				@$reply_address_id = DevblocksPlatform::importGPC($_REQUEST['reply_address_id'],'integer',0);
-				@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'],'string','');
-				@$reply_signature = DevblocksPlatform::importGPC($_REQUEST['reply_signature'],'string','');
-				@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'],'integer',0);
+				@$enable_mail = DevblocksPlatform::importGPC($_REQUEST['enable_mail'],'integer',0);
+				
+				$fields = [];
+				
+				if($enable_mail) {
+					@$reply_address_id = DevblocksPlatform::importGPC($_REQUEST['reply_address_id'],'integer',0);
+					@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'],'string','');
+					@$reply_signature_id = DevblocksPlatform::importGPC($_REQUEST['reply_signature_id'],'integer',0);
+					@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'],'integer',0);
+				} else {
+					$reply_address_id = 0;
+					$reply_personal = '';
+					$reply_signature_id = 0;
+					$reply_html_template_id = 0;
+				}
+				
+				$fields[DAO_Bucket::REPLY_ADDRESS_ID] = $reply_address_id;
+				$fields[DAO_Bucket::REPLY_PERSONAL] = $reply_personal;
+				$fields[DAO_Bucket::REPLY_SIGNATURE_ID] = $reply_signature_id;
+				$fields[DAO_Bucket::REPLY_HTML_TEMPLATE_ID] = $reply_html_template_id;
 				
 				if(empty($id)) { // New
 					@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
 					
-					$fields = array(
-						DAO_Bucket::NAME => $name,
-						DAO_Bucket::GROUP_ID => $group_id,
-						DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
-						DAO_Bucket::REPLY_PERSONAL => $reply_personal,
-						DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
-						DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
-						DAO_Bucket::UPDATED_AT => time(),
-					);
+					$fields[DAO_Bucket::NAME] = $name;
+					$fields[DAO_Bucket::GROUP_ID] = $group_id;
+					$fields[DAO_Bucket::UPDATED_AT] = time();
 					
 					if(!DAO_Bucket::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -200,14 +210,8 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BUCKET, $id);
 					
 				} else { // Edit
-					$fields = array(
-						DAO_Bucket::NAME => $name,
-						DAO_Bucket::REPLY_ADDRESS_ID => $reply_address_id,
-						DAO_Bucket::REPLY_PERSONAL => $reply_personal,
-						DAO_Bucket::REPLY_SIGNATURE => $reply_signature,
-						DAO_Bucket::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
-						DAO_Bucket::UPDATED_AT => time(),
-					);
+					$fields[DAO_Bucket::NAME] = $name;
+					$fields[DAO_Bucket::UPDATED_AT] = time();
 					
 					if(!DAO_Bucket::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);

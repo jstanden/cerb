@@ -20,6 +20,10 @@ class DAO_Group extends Cerb_ORMHelper {
 	const ID = 'id';
 	const IS_DEFAULT = 'is_default';
 	const IS_PRIVATE = 'is_private';
+	const REPLY_ADDRESS_ID = 'reply_address_id';
+	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
+	const REPLY_PERSONAL = 'reply_personal';
+	const REPLY_SIGNATURE_ID = 'reply_signature_id';
 	const NAME = 'name';
 	const UPDATED = 'updated';
 	
@@ -54,6 +58,38 @@ class DAO_Group extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setRequired(true)
+			;
+		$validation
+			->addField(self::REPLY_ADDRESS_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
+			->addValidator(function($value, &$error) {
+				if(false == ($address = DAO_Address::get($value))) {
+					$error = "is not a valid email address.";
+					return false;
+				}
+				
+				if(!$address->mail_transport_id) {
+					$error = "is not configured for outgoing mail.";
+					return false;
+				}
+				
+				return true;
+			})
+			;
+		$validation
+			->addField(self::REPLY_HTML_TEMPLATE_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, true))
+			;
+		$validation
+			->addField(self::REPLY_PERSONAL)
+			->string()
+			;
+		$validation
+			->addField(self::REPLY_SIGNATURE_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, true))
 			;
 		$validation
 			->addField(self::UPDATED)
@@ -101,7 +137,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, is_default, is_private, created, updated ".
+		$sql = "SELECT id, name, is_default, is_private, reply_address_id, reply_html_template_id, reply_personal, reply_signature_id, created, updated ".
 			"FROM worker_group ".
 			$where_sql.
 			$sort_sql.
@@ -246,6 +282,10 @@ class DAO_Group extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->is_default = intval($row['is_default']);
 			$object->is_private = intval($row['is_private']);
+			$object->reply_address_id = intval($row['reply_address_id']);
+			$object->reply_html_template_id = intval($row['reply_html_template_id']);
+			$object->reply_personal = $row['reply_personal'];
+			$object->reply_signature_id = intval($row['reply_signature_id']);
 			$object->created = intval($row['created']);
 			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
@@ -701,12 +741,20 @@ class DAO_Group extends Cerb_ORMHelper {
 			"g.name as %s, ".
 			"g.is_default as %s, ".
 			"g.is_private as %s, ".
+			"g.reply_address_id as %s, ".
+			"g.reply_html_template_id as %s, ".
+			"g.reply_personal as %s, ".
+			"g.reply_signature_id as %s, ".
 			"g.created as %s, ".
 			"g.updated as %s ",
 				SearchFields_Group::ID,
 				SearchFields_Group::NAME,
 				SearchFields_Group::IS_DEFAULT,
 				SearchFields_Group::IS_PRIVATE,
+				SearchFields_Group::REPLY_ADDRESS_ID,
+				SearchFields_Group::REPLY_HTML_TEMPLATE_ID,
+				SearchFields_Group::REPLY_PERSONAL,
+				SearchFields_Group::REPLY_SIGNATURE_ID,
 				SearchFields_Group::CREATED,
 				SearchFields_Group::UPDATED
 			);
@@ -820,6 +868,10 @@ class SearchFields_Group extends DevblocksSearchFields {
 	const CREATED = 'g_created';
 	const IS_DEFAULT = 'g_is_default';
 	const IS_PRIVATE = 'g_is_private';
+	const REPLY_ADDRESS_ID = 'g_reply_address_id';
+	const REPLY_HTML_TEMPLATE_ID = 'g_reply_html_template_id';
+	const REPLY_PERSONAL = 'g_reply_personal';
+	const REPLY_SIGNATURE_ID = 'g_reply_signature_id';
 	const UPDATED = 'g_updated';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -881,6 +933,10 @@ class SearchFields_Group extends DevblocksSearchFields {
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'g', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'g', 'is_default', $translate->_('common.default'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'g', 'is_private', $translate->_('common.private'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::REPLY_ADDRESS_ID => new DevblocksSearchField(self::REPLY_ADDRESS_ID, 'g', 'reply_address_id', $translate->_('common.send.from'), Model_CustomField::TYPE_NUMBER, true),
+			self::REPLY_HTML_TEMPLATE_ID => new DevblocksSearchField(self::REPLY_HTML_TEMPLATE_ID, 'g', 'reply_html_template_id', $translate->_('common.email_template'), Model_CustomField::TYPE_NUMBER, true),
+			self::REPLY_PERSONAL => new DevblocksSearchField(self::REPLY_PERSONAL, 'g', 'reply_personal', $translate->_('common.send.as'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::REPLY_SIGNATURE_ID => new DevblocksSearchField(self::REPLY_SIGNATURE_ID, 'g', 'reply_signature_id', $translate->_('common.signature'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'g', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -908,6 +964,10 @@ class Model_Group {
 	public $count;
 	public $is_default = 0;
 	public $is_private = 0;
+	public $reply_address_id = 0;
+	public $reply_personal;
+	public $reply_signature_id = 0;
+	public $reply_html_template_id = 0;
 	public $created;
 	public $updated;
 	
@@ -947,16 +1007,14 @@ class Model_Group {
 	/**
 	 *
 	 * @param integer $bucket_id
-	 * @return Model_AddressOutgoing
+	 * @return Model_Address
 	 */
 	public function getReplyTo($bucket_id=0) {
 		if($bucket_id && $bucket = DAO_Bucket::get($bucket_id)) {
 			return $bucket->getReplyTo();
 			
 		} else {
-			
-			if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($this->id)))
-				return $default_bucket->getReplyTo();
+			return DAO_Address::get($this->reply_address_id);
 		}
 		
 		return null;
@@ -967,9 +1025,7 @@ class Model_Group {
 			return $bucket->getReplyFrom();
 			
 		} else {
-			
-			if(false == ($default_bucket = DAO_Bucket::getDefaultForGroup($this->id)))
-				return $default_bucket->getReplyFrom();
+			return $this->reply_address_id;
 		}
 		
 		return null;
@@ -980,9 +1036,7 @@ class Model_Group {
 			return $bucket->getReplyPersonal($worker_model);
 			
 		} else {
-			
-			if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($this->id)))
-				return $default_bucket->getReplyPersonal($worker_model);
+			return $this->reply_personal;
 		}
 		
 		return null;
@@ -992,10 +1046,8 @@ class Model_Group {
 		if($bucket_id && $bucket = DAO_Bucket::get($bucket_id)) {
 			return $bucket->getReplySignature($worker_model);
 			
-		} else {
-			
-			if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($this->id)))
-				return $default_bucket->getReplySignature($worker_model);
+		} else if (false != ($signature = DAO_EmailSignature::get($this->reply_signature_id))) {
+			return $signature->signature;
 		}
 		
 		return null;
@@ -1006,9 +1058,7 @@ class Model_Group {
 			return $bucket->getReplyHtmlTemplate();
 			
 		} else {
-			
-			if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($this->id)))
-				return $default_bucket->getReplyHtmlTemplate();
+			return DAO_MailHtmlTemplate::get($this->reply_html_template_id);
 		}
 		
 		return null;
@@ -1140,6 +1190,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			SearchFields_Group::NAME,
 			SearchFields_Group::IS_PRIVATE,
 			SearchFields_Group::IS_DEFAULT,
+			SearchFields_Group::REPLY_ADDRESS_ID,
+			SearchFields_Group::REPLY_PERSONAL,
+			SearchFields_Group::REPLY_SIGNATURE_ID,
+			SearchFields_Group::REPLY_HTML_TEMPLATE_ID,
 			SearchFields_Group::UPDATED,
 		);
 		
@@ -1344,6 +1398,15 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 
 		$custom_fields = DAO_CustomField::getByContext(Context_Group::ID);
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		$replyto_addresses = DAO_Address::getLocalAddresses();
+		$tpl->assign('replyto_addresses', $replyto_addresses);
+		
+		$html_templates = DAO_MailHtmlTemplate::getAll();
+		$tpl->assign('html_templates', $html_templates);
+		
+		$signatures = DAO_EmailSignature::getAll();
+		$tpl->assign('signatures', $signatures);
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
@@ -1359,7 +1422,13 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
+			case SearchFields_Group::REPLY_ADDRESS_ID:
+			case SearchFields_Group::REPLY_HTML_TEMPLATE_ID:
+			case SearchFields_Group::REPLY_SIGNATURE_ID:
+				break;
+				
 			case SearchFields_Group::NAME:
+			case SearchFields_Group::REPLY_PERSONAL:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
@@ -1439,7 +1508,13 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$criteria = null;
 
 		switch($field) {
+			case SearchFields_Group::REPLY_ADDRESS_ID:
+			case SearchFields_Group::REPLY_HTML_TEMPLATE_ID:
+			case SearchFields_Group::REPLY_SIGNATURE_ID:
+				break;
+				
 			case SearchFields_Group::NAME:
+			case SearchFields_Group::REPLY_PERSONAL:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -1650,6 +1725,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'is_private' => $prefix.$translate->_('common.private'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated' => $prefix.$translate->_('common.updated'),
+			'reply_personal' => $prefix.$translate->_('common.send.as'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		];
 		
@@ -1664,6 +1740,9 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'updated' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 			'replyto_id' => Model_CustomField::TYPE_NUMBER,
+			'reply_html_template_id' => Model_CustomField::TYPE_NUMBER,
+			'reply_personal' => Model_CustomField::TYPE_SINGLE_LINE,
+			'reply_signature_id' => Model_CustomField::TYPE_NUMBER,
 		];
 		
 		// Custom field/fieldset token labels
@@ -1692,8 +1771,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['name'] = $group->name;
 			$token_values['updated'] = $group->updated;
 			
-			if(false != ($replyto = $group->getReplyTo()))
-				$token_values['replyto_id'] = $replyto->address_id;
+			$token_values['replyto_id'] = $group->reply_address_id;
+			$token_values['reply_html_template_id'] = $group->reply_html_template_id;
+			$token_values['reply_personal'] = $group->reply_personal;
+			$token_values['reply_signature_id'] = $group->reply_signature_id;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($group, $token_values);
@@ -1718,7 +1799,35 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		CerberusContexts::merge(
 			'replyto_',
-			$prefix.'Reply To:',
+			$prefix.'Send from:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		// HTML template
+		$merge_token_labels = [];
+		$merge_token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'reply_html_template_',
+			$prefix.'Email template:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		// Email signature
+		$merge_token_labels = [];
+		$merge_token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'reply_signature_',
+			$prefix.'Signature:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -1735,6 +1844,11 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'is_default' => DAO_Group::IS_DEFAULT,
 			'is_private' => DAO_Group::IS_PRIVATE,
 			'name' => DAO_Group::NAME,
+			'reply_address_id' => DAO_Group::REPLY_ADDRESS_ID,
+			'replyto_id' => DAO_Group::REPLY_ADDRESS_ID,
+			'reply_html_template_id' => DAO_Group::REPLY_HTML_TEMPLATE_ID,
+			'reply_personal' => DAO_Group::REPLY_PERSONAL,
+			'reply_signature_id' => DAO_Group::REPLY_SIGNATURE_ID,
 			'updated' => DAO_Group::UPDATED,
 		];
 	}

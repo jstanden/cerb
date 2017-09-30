@@ -82,6 +82,28 @@
 				<td data-column="{$column}">{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(75,75,75);"></span>{else}{/if}</td>
 			{elseif in_array($column, ["g_created", "g_updated"])}
 				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>&nbsp;</td>
+			{elseif $column == "g_reply_address_id"}
+				{$replyto_address = $replyto_addresses.{$result.$column}}
+				<td data-column="{$column}">
+					{if $replyto_address}
+					<img src="{devblocks_url}c=avatars&context=address&context_id={$replyto_address->id}{/devblocks_url}?v={$replyto_address->updated_at}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;margin-right:3px;">
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.$column}">{$replyto_address->email}</a>
+					{/if}
+				</td>
+			{elseif $column == "g_reply_html_template_id"}
+				{$html_template = $html_templates.{$result.$column}}
+				<td data-column="{$column}">
+					{if $html_template}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$result.$column}">{$html_template->name}</a>
+					{/if}
+				</td>
+			{elseif $column == "g_reply_signature_id"}
+				{$signature = $signatures.{$result.$column}}
+				<td data-column="{$column}">
+					{if $signature}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$result.$column}">{$signature->name}</a>
+					{/if}
+				</td>
 			{else}
 			<td data-column="{$column}">{$result.$column}</td>
 			{/if}
