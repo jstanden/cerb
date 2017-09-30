@@ -2,21 +2,21 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, Webgroup Media LLC <jeff@webgroupmedia.com>
- * @version 2017-03-30
+ * @version 2017-09-26
  */
 
 $plugin_id = 'example.plugin';
 $plugin_namespace = 'example';
 
-$tables = array();
+$tables = [];
 
 $tables['Example_Object'] = "
-id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-name VARCHAR(255) DEFAULT '',
-updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+id int(10) unsigned NOT NULL AUTO_INCREMENT,
+name varchar(255) NOT NULL DEFAULT '',
+updated_at int(10) unsigned NOT NULL DEFAULT '0',
 ";
 
-foreach ( $tables as $table_name => $field_strs ) {
+foreach($tables as $table_name => $field_strs) {
 	// Class
 	$class_name = str_replace ( ' ', '', ucwords ( str_replace ( '_', ' ', $table_name ) ) );
 	$object_name = ucwords ( str_replace ( '_', ' ', $table_name ) );
@@ -210,16 +210,16 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			$ids = array($ids);
 
 		if(empty($ids))
-			return array();
+			return [];
 
 		if(!method_exists(get_called_class(), 'getWhere'))
-			return array();
+			return [];
 
 		$db = DevblocksPlatform::services()->database();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
-		$models = array();
+		$models = [];
 
 		$results = static::getWhere(sprintf("id IN (%s)",
 			implode(',', $ids)
@@ -241,7 +241,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	 * @return Model_<?php echo $class_name; ?>[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -399,7 +399,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		if(!($rs instanceof mysqli_result))
 			return false;
 		
-		$results = array();
+		$results = [];
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object_id = intval($row[SearchFields_<?php echo $class_name; ?>::ID]);
@@ -587,7 +587,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -621,12 +621,12 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = '<?php echo $ctx_ext_id; ?>';
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 //			case SearchFields_<?php echo $class_name; ?>::EXAMPLE_BOOL:
@@ -866,17 +866,17 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 				break;
 				
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
@@ -977,7 +977,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 
 <b>api/dao/<?php echo $table_name; ?>.php</b><br>
 <textarea style="width:98%;height:200px;">
-class Context_<?php echo $class_name;?> extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_<?php echo $class_name;?> extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = '<?php echo $ctx_ext_id; ?>';
 	
 	static function isReadableByActor($models, $actor) {
@@ -1072,7 +1072,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = '<?php echo $ctx_ext_id; ?>';
 		$token_values['_types'] = $token_types;
@@ -1112,10 +1112,10 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1170,7 +1170,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1179,7 +1179,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = '<?php echo $object_name ?>';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
@@ -1254,8 +1254,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 				return;
 			
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
@@ -1266,62 +1266,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			$tpl->display('devblocks:<?php echo $plugin_id; ?>::<?php echo $table_name; ?>/peek.tpl');
 		}
 	}
-	
-	/*
-	function importGetKeys() {
-		// [TODO] Translate
-	
-		$keys = array(
-			'name' => array(
-				'label' => 'Name',
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'param' => SearchFields_<?php echo $class_name; ?>::NAME,
-				'required' => true,
-			),
-			'updated_at' => array(
-				'label' => 'Updated Date',
-				'type' => Model_CustomField::TYPE_DATE,
-				'param' => SearchFields_<?php echo $class_name; ?>::UPDATED_AT,
-			),
-		);
-	
-		$fields = SearchFields_<?php echo $class_name; ?>::getFields();
-		self::_getImportCustomFields($fields, $keys);
-	
-		DevblocksPlatform::sortObjects($keys, '[label]', true);
-	
-		return $keys;
-	}
-	
-	function importKeyValue($key, $value) {
-		switch($key) {
-		}
-	
-		return $value;
-	}
-	
-	function importSaveObject(array $fields, array $custom_fields, array $meta) {
-		// If new...
-		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
-			// Make sure we have a name
-			if(!isset($fields[DAO_<?php echo $class_name; ?>::NAME])) {
-				$fields[DAO_<?php echo $class_name; ?>::NAME] = 'New ' . $this->manifest->name;
-			}
-	
-			// Create
-			$meta['object_id'] = DAO_<?php echo $class_name; ?>::create($fields);
-	
-		} else {
-			// Update
-			DAO_<?php echo $class_name; ?>::update($meta['object_id'], $fields);
-		}
-	
-		// Custom fields
-		if(!empty($custom_fields) && !empty($meta['object_id'])) {
-			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
-		}
-	}
-	*/
 };
 </textarea>
 
@@ -1339,16 +1283,17 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		</h1>
 		
 		<div style="margin-top:5px;">
-			{if !empty($dict->id)}
-				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
-				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
-			{/if}
-		
+			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			
 			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
 			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 			{/if}
 			
-			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			{if !empty($dict->id)}
+				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
+			{/if}
+			
 			{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
@@ -1636,11 +1581,9 @@ $(function() {
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.<?php echo $field_prefix; ?>_id}
 			</td>
-		</tr>
-		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
@@ -1805,7 +1748,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		
 		// Properties
 		
-		$properties = array();
+		$properties = [];
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -1821,7 +1764,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		
 		// Custom Fields
 		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('<?php echo $ctx_ext_id; ?>', $<?php echo $table_name; ?>->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('<?php echo $ctx_ext_id; ?>', $<?php echo $table_name; ?>->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields('<?php echo $ctx_ext_id; ?>', $values);
@@ -1941,7 +1884,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				}
 				
 				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
 				DAO_CustomFieldValue::handleFormPost('<?php echo $ctx_ext_id; ?>', $id, $field_ids);
 				
 				echo json_encode(array(
@@ -1998,7 +1941,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		$pos = 0;
 		
 		do {
-			$models = array();
+			$models = [];
 			list($results, $total) = $view->getData();
 
 			// Summary row
@@ -2066,15 +2009,15 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		<!-- Card -->
 		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
 		
-		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-		</span>
-		
 		<!-- Edit -->
 		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		<button type="button" id="btnDisplay<?php echo $class_name; ?>Edit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
+		
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		</span>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
