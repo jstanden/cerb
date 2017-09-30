@@ -967,6 +967,7 @@ class CerberusContexts {
 	const CONTEXT_CUSTOM_RECORD = 'cerberusweb.contexts.custom_record';
 	const CONTEXT_DOMAIN = 'cerberusweb.contexts.datacenter.domain';
 	const CONTEXT_DRAFT = 'cerberusweb.contexts.mail.draft';
+	const CONTEXT_EMAIL_SIGNATURE = 'cerberusweb.contexts.email.signature';
 	const CONTEXT_FEED = 'cerberusweb.contexts.feed';
 	const CONTEXT_FEED_ITEM = 'cerberusweb.contexts.feed.item';
 	const CONTEXT_FEEDBACK = 'cerberusweb.contexts.feedback';
