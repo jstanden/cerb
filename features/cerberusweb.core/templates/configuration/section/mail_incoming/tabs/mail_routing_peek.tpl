@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="mail_routing">
+<input type="hidden" name="section" value="mail_incoming">
 <input type="hidden" name="action" value="saveMailRoutingRuleAdd">
 <input type="hidden" name="id" value="{$rule->id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -55,7 +55,7 @@
 				{/section}
 				{/section}
 			</select>
-			 <i>to</i> 
+			<i>to</i> 
 			<select name="timeofday_to">
 				{section start=0 loop=24 name=hr}
 				{section start=0 step=30 loop=60 name=min}

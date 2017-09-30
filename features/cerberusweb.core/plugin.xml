@@ -396,6 +396,11 @@
 			<class name="Model_GroupMember" />
 		</file>
 		
+		<file path="api/dao/mail_failed.php">
+			<class name="SearchFields_MailParseFail" />
+			<class name="View_MailParseFail" />
+		</file>
+		
 		<file path="api/dao/mail_html_template.php">
 			<class name="Context_MailHtmlTemplate" />
 			<class name="DAO_MailHtmlTemplate" />
@@ -790,11 +795,6 @@
 		
 		<file path="api/events/worker/notification_received_by_worker.php">
 			<class name="Event_NotificationReceivedByWorker" />
-		</file>
-		
-		<file path="api/uri/config/mail_failed.php">
-			<class name="SearchFields_MailParseFail" />
-			<class name="View_MailParseFail" />
 		</file>
 		
 		<file path="api/uri/portal.php">
@@ -4424,84 +4424,6 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.mail_filtering</id>
-				<name>Mail Filtering Section</name>
-				<class>
-					<file>api/uri/config/mail_filtering.php</file>
-					<name>PageSection_SetupMailFiltering</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="mail_filtering" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.mail_relay</id>
-				<name>Mail Relay Section</name>
-				<class>
-					<file>api/uri/config/mail_relay.php</file>
-					<name>PageSection_SetupMailRelay</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="mail_relay" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.mail_failed</id>
-				<name>Failed Messages Section</name>
-				<class>
-					<file>api/uri/config/mail_failed.php</file>
-					<name>PageSection_SetupMailFailed</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="mail_failed" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.mail_from</id>
-				<name>Mail From Section</name>
-				<class>
-					<file>api/uri/config/mail_from.php</file>
-					<name>PageSection_SetupMailFrom</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="mail_from" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.mail_html</id>
-				<name>HTML Mail Templates Section</name>
-				<class>
-					<file>api/uri/config/mail_html.php</file>
-					<name>PageSection_SetupMailHtml</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="mail_html" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.mail_import</id>
-				<name>Import Messages Section</name>
-				<class>
-					<file>api/uri/config/mail_import.php</file>
-					<name>PageSection_SetupMailImport</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="mail_import" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.mail_incoming</id>
 				<name>Incoming Mail Section</name>
 				<class>
@@ -4524,58 +4446,6 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="mail_outgoing" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.mailboxes</id>
-				<name>Mailboxes Section</name>
-				<class>
-					<file>api/uri/config/mailboxes.php</file>
-					<name>PageSection_SetupMailboxes</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="mailboxes" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.mail_queue</id>
-				<name>Mail Queue Section</name>
-				<class>
-					<file>api/uri/config/mail_queue.php</file>
-					<name>PageSection_SetupMailQueue</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="mail_queue" />
-				</params>
-			</extension>
-		
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.mail_routing</id>
-				<name>Mail Routing Section</name>
-				<class>
-					<file>api/uri/config/mail_routing.php</file>
-					<name>PageSection_SetupMailRouting</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="mail_routing" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.mail_smtp</id>
-				<name>SMTP Section</name>
-				<class>
-					<file>api/uri/config/mail_smtp.php</file>
-					<name>PageSection_SetupMailSmtp</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="mail_smtp" />
 				</params>
 			</extension>
 			

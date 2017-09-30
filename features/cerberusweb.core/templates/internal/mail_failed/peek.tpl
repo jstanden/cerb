@@ -1,8 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupMailFailed" onsubmit="return false;" enctype="multipart/form-data">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="mail_failed">
-<input type="hidden" name="action" value="savePeekPopup">
+<input type="hidden" name="section" value="mail_incoming">
+<input type="hidden" name="action" value="saveMailFailedPeekPopup">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -10,7 +10,7 @@
 <b>storage/mail/fail/{$filename}:</b>
 <div>
 	<input type="hidden" name="file" value="{$filename}">
-	<iframe src="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=mail_failed&action=getRawMessageSource&file={$filename}{/devblocks_url}" style="width:100%;height:250px;margin:0;padding:0;border:1px solid rgb(150,150,150);"></iframe>
+	<iframe src="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=mail_incoming&action=getRawMessageSource&file={$filename}{/devblocks_url}" style="width:100%;height:250px;margin:0;padding:0;border:1px solid rgb(150,150,150);"></iframe>
 </div>
 
 <div class="output" style="display:none;"></div>
@@ -50,8 +50,8 @@ $(function() {
 		$this.find('button.submit').click(function(e) {
 			var $frm = $(this).closest('form');
 			
-			$frm.find('input:hidden[name=section]').val('mail_failed');
-			$frm.find('input:hidden[name=action]').val('parseMessageJson');
+			$frm.find('input:hidden[name=section]').val('mail_incoming');
+			$frm.find('input:hidden[name=action]').val('parseFailedMessageJson');
 			
 			genericAjaxPost($frm, '', '', function(json) {
 				var $frm = $('#frmSetupMailFailed');
@@ -74,7 +74,7 @@ $(function() {
 		$this.find('button.delete').click(function(e) {
 			var $frm = $(this).closest('form');
 
-			$frm.find('input:hidden[name=section]').val('mail_failed');
+			$frm.find('input:hidden[name=section]').val('mail_incoming');
 			$frm.find('input:hidden[name=action]').val('deleteMessageJson');
 			$frm.find('textarea[name=message_content]').val('');
 

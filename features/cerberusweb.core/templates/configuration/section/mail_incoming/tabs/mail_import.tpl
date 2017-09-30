@@ -1,9 +1,7 @@
-<h2>Import Message</h2>
-
 <form id="frmSetupMailImport" action="javascript:;" method="POST" onsubmit="return false;" enctype="multipart/form-data">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="mail_import">
+<input type="hidden" name="section" value="mail_incoming">
 <input type="hidden" name="action" value="parseMessageJson">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -19,31 +17,32 @@
 </form>
 
 <script type="text/javascript">
-var $frm = $('#frmSetupMailImport');
-
-$frm.find('button.submit').click(function() {
+$(function() {
 	var $frm = $('#frmSetupMailImport');
-	var $output = $frm.find('div.output');
-	$output.hide().html('');
 	
-	genericAjaxPost($frm, null, null, function(json) {
+	$frm.find('button.submit').click(function() {
 		var $frm = $('#frmSetupMailImport');
-		var $txt = $frm.find('textarea[name=message_source]');
 		var $output = $frm.find('div.output');
+		$output.hide().html('');
 		
-		// If successful, display a link to the new ticket
-		if(undefined != json.status && true == json.status) {
-			$txt.val('');
+		genericAjaxPost($frm, null, null, function(json) {
+			var $frm = $('#frmSetupMailImport');
+			var $txt = $frm.find('textarea[name=message_source]');
+			var $output = $frm.find('div.output');
 			
-			if(json.message)
-				Devblocks.showSuccess($output, json.message, false, true);
-			
-		// If an error, display it
-		} else if(undefined != json.status && false == json.status) {
-			var message = (undefined != json.log && json.log.length > 0) ? json.log : json.message;
-			Devblocks.showError($output, message, false, true);
-			
-		}
+			// If successful, display a link to the new ticket
+			if(undefined != json.status && true == json.status) {
+				$txt.val('');
+				
+				if(json.message)
+					Devblocks.showSuccess($output, json.message, false, true);
+				
+			// If an error, display it
+			} else if(undefined != json.status && false == json.status) {
+				var message = (undefined != json.log && json.log.length > 0) ? json.log : json.message;
+				Devblocks.showError($output, message, false, true);
+			}
+		});
 	});
 });
 </script>

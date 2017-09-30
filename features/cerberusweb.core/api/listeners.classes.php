@@ -366,69 +366,13 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 						);
 						break;
 						
-					case 'mailboxes':
+					case 'mail_outgoing':
 						$tour = array(
-							'title' => 'Mailboxes',
-							'body' => "Here is where you specify the mailboxes that should be checked for new mail to import into Cerb.",
+							'title' => 'Outgoing Mail',
+							'body' => "This page configures outgoing mail preferences.",
 						);
 						break;
 						
-					case 'mail_routing':
-						$tour = array(
-							'title' => 'Mail Routing',
-							'body' => "Mail routing determines which group should receive a new message.",
-						);
-						break;
-
-					case 'mail_filtering':
-						$tour = array(
-							'title' => 'Mail Filtering',
-							'body' => "Mail filtering provides a way to remove unwanted mail before it is processed or stored by the system.",
-						);
-						break;
-						
-					case 'mail_failed':
-						$tour = array(
-							'title' => 'Failed Messages',
-							'body' => "This page displays messages that were received by the system but failed to process.",
-						);
-						break;
-						
-					case 'mail_import':
-						$tour = array(
-							'title' => 'Import Message',
-							'body' => "This page provides an easy way to import raw RFC-2822 message sources.  This is particularly useful for evaluations, development, and troubleshooting.",
-						);
-						break;
-						
-					case 'mail_relay':
-						$tour = array(
-							'title' => 'External Mail Relay',
-							'body' => "This page configures the external mail relay.",
-						);
-						break;
-						
-					case 'mail_smtp':
-						$tour = array(
-							'title' => 'SMTP Server',
-							'body' => "This is where you configure your outgoing mail server.",
-						);
-						break;
-
-					case 'mail_from':
-						$tour = array(
-							'title' => 'Sender Addresses',
-							'body' => "Each group or bucket can specify a sender address.  This is where you configure all the available sender addresses.  It is <b>very important</b> that these addresses deliver to one of the mailboxes that Cerb checks for new mail, otherwise you won't receive correspondence from your audience.",
-						);
-						break;
-
-					case 'mail_queue':
-						$tour = array(
-							'title' => 'Mail Queue',
-							'body' => "This page displays the mail delivery queue.",
-						);
-						break;
-
 					case 'storage_content':
 						$tour = array(
 							'title' => 'Storage Content',

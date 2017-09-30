@@ -562,6 +562,11 @@
 				<seg>configuration</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.configure">
+			<tuv xml:lang="en_US">
+				<seg>configure</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.connected_account">
 			<tuv xml:lang="en_US">
 				<seg>connected account</seg>
@@ -675,6 +680,11 @@
 		<tu tuid="common.default">
 			<tuv xml:lang="en_US">
 				<seg>Default</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.defaults">
+			<tuv xml:lang="en_US">
+				<seg>Defaults</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.delay">
@@ -1130,6 +1140,26 @@
 				<seg>Mail</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.mail.filtering">
+			<tuv xml:lang="en_US">
+				<seg>Mail filtering</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.mail.incoming">
+			<tuv xml:lang="en_US">
+				<seg>Incoming mail</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.mail.outgoing">
+			<tuv xml:lang="en_US">
+				<seg>Outgoing mail</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.mail.routing">
+			<tuv xml:lang="en_US">
+				<seg>Mail routing</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.mailbox">
 			<tuv xml:lang="en_US">
 				<seg>Mailbox</seg>
@@ -1578,6 +1608,16 @@
 		<tu tuid="common.quick_search">
 			<tuv xml:lang="en_US">
 				<seg>Quick Search</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.queue">
+			<tuv xml:lang="en_US">
+				<seg>queue</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.queues">
+			<tuv xml:lang="en_US">
+				<seg>queues</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.recipient">

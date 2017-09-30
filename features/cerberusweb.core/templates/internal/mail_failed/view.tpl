@@ -67,7 +67,7 @@
 			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.mf_name}" style="display:none;">
 				<b class="subject">{$result.mf_name}</b>
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_failed&action=showPeekPopup&file={$result.mf_name}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_incoming&action=showMailFailedPeekPopup&file={$result.mf_name}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif $column == SearchFields_MailParseFail::CTIME || $column == SearchFields_MailParseFail::MTIME}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
