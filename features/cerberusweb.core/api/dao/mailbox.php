@@ -63,6 +63,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			->addField(self::HOST)
 			->string()
 			->setMaxLength(128)
+			->setRequired(true)
 			;
 		// int(10) unsigned
 		$validation
@@ -80,6 +81,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
 			;
 		// tinyint(4)
 		$validation
@@ -91,6 +93,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			->addField(self::PASSWORD)
 			->string()
 			->setMaxLength(128)
+			->setRequired(true)
 			;
 		// smallint(5) unsigned
 		$validation
@@ -123,6 +126,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			->addField(self::USERNAME)
 			->string()
 			->setMaxLength(128)
+			->setRequired(true)
 			;
 
 		return $validation->getFields();
@@ -507,22 +511,22 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 };
 
 class Model_Mailbox {
-	public $id;
+	public $auth_disable_plain = 0;
+	public $checked_at = 0;
+	public $delay_until = 0;
 	public $enabled=1;
-	public $name;
-	public $protocol='pop3';
 	public $host;
-	public $username;
+	public $id;
+	public $max_msg_size_kb = 25600;
+	public $name;
+	public $num_fails = 0;
 	public $password;
 	public $port=110;
-	public $num_fails = 0;
-	public $delay_until = 0;
-	public $timeout_secs = 30;
-	public $max_msg_size_kb = 25600;
+	public $protocol='pop3';
 	public $ssl_ignore_validation = 0;
-	public $auth_disable_plain = 0;
+	public $timeout_secs = 30;
 	public $updated_at = 0;
-	public $checked_at = 0;
+	public $username;
 
 	function getImapConnectString() {
 		$connect = null;
@@ -565,22 +569,22 @@ class Model_Mailbox {
 };
 
 class SearchFields_Mailbox extends DevblocksSearchFields {
-	const ID = 'p_id';
+	const AUTH_DISABLE_PLAIN = 'p_auth_disable_plain';
+	const CHECKED_AT = 'p_checked_at';
+	const DELAY_UNTIL = 'p_delay_until';
 	const ENABLED = 'p_enabled';
-	const NAME = 'p_name';
-	const PROTOCOL = 'p_protocol';
 	const HOST = 'p_host';
-	const USERNAME = 'p_username';
+	const ID = 'p_id';
+	const MAX_MSG_SIZE_KB = 'p_max_msg_size_kb';
+	const NAME = 'p_name';
+	const NUM_FAILS = 'p_num_fails';
 	const PASSWORD = 'p_password';
 	const PORT = 'p_port';
-	const NUM_FAILS = 'p_num_fails';
-	const DELAY_UNTIL = 'p_delay_until';
-	const TIMEOUT_SECS = 'p_timeout_secs';
-	const MAX_MSG_SIZE_KB = 'p_max_msg_size_kb';
+	const PROTOCOL = 'p_protocol';
 	const SSL_IGNORE_VALIDATION = 'p_ssl_ignore_validation';
-	const AUTH_DISABLE_PLAIN = 'p_auth_disable_plain';
+	const TIMEOUT_SECS = 'p_timeout_secs';
 	const UPDATED_AT = 'p_updated_at';
-	const CHECKED_AT = 'p_checked_at';
+	const USERNAME = 'p_username';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -635,22 +639,22 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'mailbox', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::AUTH_DISABLE_PLAIN => new DevblocksSearchField(self::AUTH_DISABLE_PLAIN, 'mailbox', 'auth_disable_plain', $translate->_('dao.mailbox.auth_disable_plain'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::CHECKED_AT => new DevblocksSearchField(self::CHECKED_AT, 'mailbox', 'checked_at', $translate->_('dao.mailbox.checked_at'), Model_CustomField::TYPE_DATE, true),
+			self::DELAY_UNTIL => new DevblocksSearchField(self::DELAY_UNTIL, 'mailbox', 'delay_until', $translate->_('dao.mailbox.delay_until'), Model_CustomField::TYPE_DATE, true),
 			self::ENABLED => new DevblocksSearchField(self::ENABLED, 'mailbox', 'enabled', $translate->_('common.enabled'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'mailbox', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::PROTOCOL => new DevblocksSearchField(self::PROTOCOL, 'mailbox', 'protocol', $translate->_('dao.mailbox.protocol'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::HOST => new DevblocksSearchField(self::HOST, 'mailbox', 'host', $translate->_('common.host'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::USERNAME => new DevblocksSearchField(self::USERNAME, 'mailbox', 'username', $translate->_('common.user'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'mailbox', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::MAX_MSG_SIZE_KB => new DevblocksSearchField(self::MAX_MSG_SIZE_KB, 'mailbox', 'max_msg_size_kb', $translate->_('dao.mailbox.max_msg_size_kb'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'mailbox', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::NUM_FAILS => new DevblocksSearchField(self::NUM_FAILS, 'mailbox', 'num_fails', $translate->_('dao.mailbox.num_fails'), Model_CustomField::TYPE_NUMBER, true),
 			self::PASSWORD => new DevblocksSearchField(self::PASSWORD, 'mailbox', 'password', $translate->_('common.password'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::PORT => new DevblocksSearchField(self::PORT, 'mailbox', 'port', $translate->_('dao.mailbox.port'), Model_CustomField::TYPE_NUMBER, true),
-			self::NUM_FAILS => new DevblocksSearchField(self::NUM_FAILS, 'mailbox', 'num_fails', $translate->_('dao.mailbox.num_fails'), Model_CustomField::TYPE_NUMBER, true),
-			self::DELAY_UNTIL => new DevblocksSearchField(self::DELAY_UNTIL, 'mailbox', 'delay_until', $translate->_('dao.mailbox.delay_until'), Model_CustomField::TYPE_DATE, true),
-			self::TIMEOUT_SECS => new DevblocksSearchField(self::TIMEOUT_SECS, 'mailbox', 'timeout_secs', $translate->_('dao.mailbox.timeout_secs'), Model_CustomField::TYPE_NUMBER, true),
-			self::MAX_MSG_SIZE_KB => new DevblocksSearchField(self::MAX_MSG_SIZE_KB, 'mailbox', 'max_msg_size_kb', $translate->_('dao.mailbox.max_msg_size_kb'), Model_CustomField::TYPE_NUMBER, true),
+			self::PROTOCOL => new DevblocksSearchField(self::PROTOCOL, 'mailbox', 'protocol', $translate->_('dao.mailbox.protocol'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::SSL_IGNORE_VALIDATION => new DevblocksSearchField(self::SSL_IGNORE_VALIDATION, 'mailbox', 'ssl_ignore_validation', $translate->_('dao.mailbox.ssl_ignore_validation'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::AUTH_DISABLE_PLAIN => new DevblocksSearchField(self::AUTH_DISABLE_PLAIN, 'mailbox', 'auth_disable_plain', $translate->_('dao.mailbox.auth_disable_plain'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::TIMEOUT_SECS => new DevblocksSearchField(self::TIMEOUT_SECS, 'mailbox', 'timeout_secs', $translate->_('dao.mailbox.timeout_secs'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'mailbox', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
-			self::CHECKED_AT => new DevblocksSearchField(self::CHECKED_AT, 'mailbox', 'checked_at', $translate->_('dao.mailbox.checked_at'), Model_CustomField::TYPE_DATE, true),
+			self::USERNAME => new DevblocksSearchField(self::USERNAME, 'mailbox', 'username', $translate->_('common.user'), Model_CustomField::TYPE_SINGLE_LINE, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -674,10 +678,8 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 	const DEFAULT_ID = 'mailboxes';
 
 	function __construct() {
-		$translate = DevblocksPlatform::getTranslationService();
-
 		$this->id = self::DEFAULT_ID;
-		$this->name = mb_convert_case($translate->_('common.mailbox'), MB_CASE_TITLE);
+		$this->name = DevblocksPlatform::translateCapitalized('common.mailboxes');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_Mailbox::NAME;
 		$this->renderSortAsc = true;
@@ -972,8 +974,6 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 
-		$translate = DevblocksPlatform::getTranslationService();
-
 		switch($key) {
 			case SearchFields_Mailbox::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -1108,7 +1108,17 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 
 	function getDefaultProperties() {
 		return array(
+			'is_enabled',
 			'checked_at',
+			'host',
+			'port',
+			'protocol',
+			'username',
+			'num_fails',
+			'timeout_secs',
+			'max_msg_size_kb',
+			'ssl_ignore_validation',
+			'auth_disable_plain',
 			'updated_at',
 		);
 	}
@@ -1134,21 +1144,41 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'auth_disable_plain' => $prefix.$translate->_('dao.mailbox.auth_disable_plain'),
 			'checked_at' => $prefix.$translate->_('dao.mailbox.checked_at'),
+			'host' => $prefix.$translate->_('common.host'),
 			'id' => $prefix.$translate->_('common.id'),
+			'is_enabled' => $prefix.$translate->_('common.enabled'),
+			'max_msg_size_kb' => $prefix.$translate->_('dao.mailbox.max_msg_size_kb'),
 			'name' => $prefix.$translate->_('common.name'),
-			'updated_at' => $prefix.$translate->_('common.updated'),
+			'num_fails' => $prefix.$translate->_('dao.mailbox.num_fails'),
+			'port' => $prefix.$translate->_('dao.mailbox.port'),
+			'protocol' => $prefix.$translate->_('dao.mailbox.protocol'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			'ssl_ignore_validation' => $prefix.$translate->_('dao.mailbox.ssl_ignore_validation'),
+			'timeout_secs' => $prefix.$translate->_('dao.mailbox.timeout_secs'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
+			'username' => $prefix.$translate->_('common.username'),
 		);
 
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'auth_disable_plain' => Model_CustomField::TYPE_CHECKBOX,
 			'checked_at' => Model_CustomField::TYPE_DATE,
+			'host' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'is_enabled' => Model_CustomField::TYPE_CHECKBOX,
+			'max_msg_size_kb' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'updated_at' => Model_CustomField::TYPE_DATE,
+			'num_fails' => Model_CustomField::TYPE_NUMBER,
+			'port' => Model_CustomField::TYPE_NUMBER,
+			'protocol' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
+			'ssl_ignore_validation' => Model_CustomField::TYPE_CHECKBOX,
+			'timeout_secs' => Model_CustomField::TYPE_NUMBER,
+			'updated_at' => Model_CustomField::TYPE_DATE,
+			'username' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 
 		// Custom field/fieldset token labels
@@ -1168,10 +1198,20 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		if($mailbox) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $mailbox->name;
+			$token_values['auth_disable_plain'] = $mailbox->auth_disable_plain;
 			$token_values['checked_at'] = $mailbox->checked_at;
+			$token_values['host'] = $mailbox->host;
 			$token_values['id'] = $mailbox->id;
+			$token_values['is_enabled'] = $mailbox->enabled;
+			$token_values['max_msg_size_kb'] = $mailbox->max_msg_size_kb;
 			$token_values['name'] = $mailbox->name;
+			$token_values['num_fails'] = $mailbox->num_fails;
+			$token_values['port'] = $mailbox->port;
+			$token_values['protocol'] = $mailbox->protocol;
+			$token_values['ssl_ignore_validation'] = $mailbox->ssl_ignore_validation;
+			$token_values['timeout_secs'] = $mailbox->timeout_secs;
 			$token_values['updated_at'] = $mailbox->updated_at;
+			$token_values['username'] = $mailbox->username;
 
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($mailbox, $token_values);
@@ -1186,10 +1226,20 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 
 	function getKeyToDaoFieldMap() {
 		return [
+			'auth_disable_plain' => DAO_Mailbox::AUTH_DISABLE_PLAIN,
 			'checked_at' => DAO_Mailbox::CHECKED_AT,
+			'host' => DAO_Mailbox::HOST,
 			'id' => DAO_Mailbox::ID,
+			'is_enabled' => DAO_Mailbox::ENABLED,
+			'max_msg_size_kb' => DAO_Mailbox::MAX_MSG_SIZE_KB,
 			'name' => DAO_Mailbox::NAME,
+			'num_fails' => DAO_Mailbox::NUM_FAILS,
+			'port' => DAO_Mailbox::PORT,
+			'protocol' => DAO_Mailbox::PROTOCOL,
+			'ssl_ignore_validation' => DAO_Mailbox::SSL_IGNORE_VALIDATION,
+			'timeout_secs' => DAO_Mailbox::TIMEOUT_SECS,
 			'updated_at' => DAO_Mailbox::UPDATED_AT,
+			'username' => DAO_Mailbox::USERNAME,
 		];
 	}
 
@@ -1244,7 +1294,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Mailbox';
+		$view->name = DevblocksPlatform::translateCapitalized('common.mailboxes');
 		/*
 		$view->addParams(array(
 			SearchFields_Mailbox::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_Mailbox::UPDATED_AT,'=',0),
@@ -1266,7 +1316,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		$defaults->id = $view_id;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Mailbox';
+		$view->name = DevblocksPlatform::translateCapitalized('common.mailboxes');
 
 		$params_req = array();
 
@@ -1284,33 +1334,76 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 	}
 
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		if(!$active_worker->is_superuser)
-			return;
-
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
-
-		if(!empty($context_id) && null != ($mailbox = DAO_Mailbox::get($context_id))) {
-			$tpl->assign('model', $mailbox);
-		}
-
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MAILBOX, false);
-		$tpl->assign('custom_fields', $custom_fields);
-
+		
+		$context = 'cerberusweb.contexts.mailbox';
+		
 		if(!empty($context_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MAILBOX, $context_id);
+			$model = DAO_Mailbox::get($context_id);
+		}
+		
+		if(empty($context_id) || $edit) {
+			if(isset($model))
+				$tpl->assign('model', $model);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/mailbox/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/mailbox/peek.tpl');
 		}
-
-		// Comments
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MAILBOX, $context_id);
-		$comments = array_reverse($comments, true);
-		$tpl->assign('comments', $comments);
-
-		$tpl->display('devblocks:cerberusweb.core::internal/mailbox/peek.tpl');
 	}
-
 };

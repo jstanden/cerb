@@ -1135,6 +1135,11 @@
 				<seg>Mailbox</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.mailboxes">
+			<tuv xml:lang="en_US">
+				<seg>Mailboxes</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.manager">
 			<tuv xml:lang="en_US">
 				<seg>Manager</seg>

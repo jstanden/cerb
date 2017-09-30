@@ -30,9 +30,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 
 		@$id = intval($id);
 		
-		if(!$active_worker->is_superuser)
-			return;
-		
 		if(!$id || (false == ($mailbox = DAO_Mailbox::get($id))))
 			return;
 
@@ -169,45 +166,45 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::profiles/mailbox.tpl');
 	}
 	
-	// [TODO] Cards/ajax
 	function savePeekJsonAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		header('Content-Type: application/json');
+		if(!$active_worker || !$active_worker->is_superuser)
+			throw new Exception_DevblocksAjaxValidationError("You are not an administrator.");
+		
+		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			if(!$active_worker || !$active_worker->is_superuser)
-				throw new Exception("You are not an administrator.");
-			
-			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-			@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
-			@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
-	
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", 'cerberusweb.contexts.mailbox')))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_Mailbox::delete($id);
 				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
+				
 			} else {
+				@$auth_disable_plain = DevblocksPlatform::importGPC($_REQUEST['auth_disable_plain'],'integer',0);
 				@$enabled = DevblocksPlatform::importGPC($_POST['enabled'],'integer',0);
-				@$name = DevblocksPlatform::importGPC($_POST['name'],'string');
-				@$protocol = DevblocksPlatform::importGPC($_POST['protocol'],'string');
 				@$host = DevblocksPlatform::importGPC($_POST['host'],'string');
-				@$username = DevblocksPlatform::importGPC($_POST['username'],'string');
+				@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer');
+				@$name = DevblocksPlatform::importGPC($_POST['name'],'string');
 				@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
 				@$port = DevblocksPlatform::importGPC($_POST['port'],'integer');
-				@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer');
-				@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer');
+				@$protocol = DevblocksPlatform::importGPC($_POST['protocol'],'string');
 				@$ssl_ignore_validation = DevblocksPlatform::importGPC($_REQUEST['ssl_ignore_validation'],'integer',0);
-				@$auth_disable_plain = DevblocksPlatform::importGPC($_REQUEST['auth_disable_plain'],'integer',0);
-				
-				if(empty($name))
-					$name = "Mailbox";
-			
-				if(empty($host))
-					throw new Exception("Host is blank.");
-				if(empty($username))
-					throw new Exception("Username is blank.");
-				if(empty($password))
-					throw new Exception("Password is blank.");
+				@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer');
+				@$username = DevblocksPlatform::importGPC($_POST['username'],'string');
 				
 				// Defaults
 				if(empty($port)) {
@@ -227,63 +224,92 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 					}
 				}
 				
-				$fields = array(
-					DAO_Mailbox::ENABLED => $enabled,
-					DAO_Mailbox::NAME => $name,
-					DAO_Mailbox::PROTOCOL => $protocol,
-					DAO_Mailbox::HOST => $host,
-					DAO_Mailbox::USERNAME => $username,
-					DAO_Mailbox::PASSWORD => $password,
-					DAO_Mailbox::PORT => $port,
-					DAO_Mailbox::NUM_FAILS => 0,
-					DAO_Mailbox::DELAY_UNTIL => 0,
-					DAO_Mailbox::TIMEOUT_SECS => $timeout_secs,
-					DAO_Mailbox::MAX_MSG_SIZE_KB => $max_msg_size_kb,
-					DAO_Mailbox::SSL_IGNORE_VALIDATION => $ssl_ignore_validation,
-					DAO_Mailbox::AUTH_DISABLE_PLAIN => $auth_disable_plain,
-					DAO_Mailbox::UPDATED_AT => time(),
-				);
-				
 				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", 'cerberusweb.contexts.mailbox')))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+				
+					$fields = array(
+						DAO_Mailbox::AUTH_DISABLE_PLAIN => $auth_disable_plain,
+						DAO_Mailbox::DELAY_UNTIL => 0,
+						DAO_Mailbox::ENABLED => $enabled,
+						DAO_Mailbox::HOST => $host,
+						DAO_Mailbox::MAX_MSG_SIZE_KB => $max_msg_size_kb,
+						DAO_Mailbox::NAME => $name,
+						DAO_Mailbox::NUM_FAILS => 0,
+						DAO_Mailbox::PASSWORD => $password,
+						DAO_Mailbox::PORT => $port,
+						DAO_Mailbox::PROTOCOL => $protocol,
+						DAO_Mailbox::SSL_IGNORE_VALIDATION => $ssl_ignore_validation,
+						DAO_Mailbox::TIMEOUT_SECS => $timeout_secs,
+						DAO_Mailbox::UPDATED_AT => time(),
+						DAO_Mailbox::USERNAME => $username,
+					);
+					
+					if(!DAO_Mailbox::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Mailbox::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_MAILBOX, $id);
+						C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.mailbox', $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", 'cerberusweb.contexts.mailbox')))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+						
+					$fields = array(
+						DAO_Mailbox::AUTH_DISABLE_PLAIN => $auth_disable_plain,
+						DAO_Mailbox::DELAY_UNTIL => 0,
+						DAO_Mailbox::ENABLED => $enabled,
+						DAO_Mailbox::HOST => $host,
+						DAO_Mailbox::MAX_MSG_SIZE_KB => $max_msg_size_kb,
+						DAO_Mailbox::NAME => $name,
+						DAO_Mailbox::NUM_FAILS => 0,
+						DAO_Mailbox::PASSWORD => $password,
+						DAO_Mailbox::PORT => $port,
+						DAO_Mailbox::PROTOCOL => $protocol,
+						DAO_Mailbox::SSL_IGNORE_VALIDATION => $ssl_ignore_validation,
+						DAO_Mailbox::TIMEOUT_SECS => $timeout_secs,
+						DAO_Mailbox::UPDATED_AT => time(),
+						DAO_Mailbox::USERNAME => $username,
+					);
+					
+					if(!DAO_Mailbox::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Mailbox::update($id, $fields);
 					
 				}
 	
-				// If we're adding a comment
-				if(!empty($comment)) {
-					$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-					
-					$fields = array(
-						DAO_Comment::CREATED => time(),
-						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MAILBOX,
-						DAO_Comment::CONTEXT_ID => $id,
-						DAO_Comment::COMMENT => $comment,
-						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-					);
-					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-				}
-				
 				// Custom fields
 				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MAILBOX, $id, $field_ids);
+				DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.mailbox', $id, $field_ids);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'label' => $name,
+					'view_id' => $view_id,
+				));
+				return;
 			}
 			
-			echo json_encode(array('status'=>true));
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
 			return;
 			
-		} catch(Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
 			return;
 			
 		}
-
 	}
 	
 	function testMailboxJsonAction() {

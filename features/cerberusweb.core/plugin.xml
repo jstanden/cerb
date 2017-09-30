@@ -2286,8 +2286,10 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="mailbox" value="singular" />
-						<data key="mailboxes" value="plural" />
+						<data key="email mailbox" value="singular" />
+						<data key="email mailboxes" value="plural" />
+						<data key="mailbox" value="short singular" />
+						<data key="mailboxes" value="short plural" />
 					</value>
 				</param>
 				<param key="alias" value="mailbox" />
@@ -2295,12 +2297,24 @@
 				<param key="view_class" value="View_Mailbox" />
 				<param key="options">
 					<value>
+						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
+						<data key="links" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
 						<data key="watchers" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="acl">
 					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
