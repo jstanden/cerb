@@ -37,8 +37,6 @@ class ChSignInPage extends CerberusPageExtension {
 		
 		switch($section) {
 			case "recover":
-				// [TODO] If the email account is given we don't need to prompt for the address
-				
 				$tpl = DevblocksPlatform::services()->template();
 				$tpl->assign('email', $email);
 
@@ -92,14 +90,18 @@ class ChSignInPage extends CerberusPageExtension {
 						}
 						
 					} else {
-						$recovery_code = CerberusApplication::generatePassword(8);
-
-						// [TODO] Use the internal account recovery service to send the code by email or SMS
-						// [TODO] This needs to be limited to only recovering once per hour unless successful
+						// [TODO] This needs to be rate-limited to only recovering once per hour unless successful
 						
-						CerberusMail::quickSend($worker->getEmailString(), 'Your account recovery confirmation code', $recovery_code);
+						$labels = $values = [];
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $worker_labels, $worker_values, '', true, true);
+						CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
 						
-						$_SESSION['recovery_code'] = $worker->getEmailString().':'.$recovery_code;
+						$values['code'] = CerberusApplication::generatePassword(8);
+						$values['ip'] = DevblocksPlatform::getClientIp();
+						
+						$_SESSION['recovery_code'] = $worker->getEmailString() . ':' . $values['code'];
+						
+						CerberusApplication::sendEmailTemplate($worker->getEmailString(), 'worker_recover', $values);
 						
 						$tpl->display('devblocks:cerberusweb.core::login/recover/recover2.tpl');
 					}

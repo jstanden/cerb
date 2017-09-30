@@ -687,21 +687,18 @@ class ChPreferencesPage extends CerberusPageExtension {
 			DAO_AddressToWorker::CODE => $code,
 			DAO_AddressToWorker::CODE_EXPIRE => (time() + 24*60*60)
 		));
-
+		
 		// Email the confirmation code to the address
-		// [TODO] This function can return false, and we need to do something different if it does.
-		CerberusMail::quickSend(
-			$addy->email,
-			vsprintf($translate->_('prefs.address.confirm.mail.subject'),
-				$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE,CerberusSettingsDefaults::HELPDESK_TITLE)
-			),
-			vsprintf($translate->_('prefs.address.confirm.mail.body'),
-				array(
-					$worker->getName(),
-					$url_writer->writeNoProxy('c=preferences&a=confirm_email&code='.$code,true)
-				)
-			)
-		);
+		
+		$labels = $values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $worker_labels, $worker_values, '', true, true);
+		CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
+		
+		$values['email'] = $addy->email;
+		$values['code'] = $code;
+		$values['url'] = $url_writer->writeNoProxy('c=preferences&a=confirm_email&code='.$code, true);
+		
+		CerberusApplication::sendEmailTemplate($addy->email, 'worker_confirm_email', $values);
 
 		$output = array(vsprintf($translate->_('prefs.address.confirm.mail.subject'), $addy->email));
 		$tpl->assign('pref_success', $output);

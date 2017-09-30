@@ -547,6 +547,42 @@ class CerberusApplication extends DevblocksApplication {
 
 		return TRUE;
 	}
+	
+	static function sendEmailTemplate($email, $template_id, $values) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$sender_addresses = DAO_Address::getLocalAddresses();
+		$default_sender = DAO_Address::getDefaultLocalAddress();
+		
+		$templates = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_AUTOMATED_TEMPLATES, '', true);
+		$default_templates = json_decode(CerberusSettingsDefaults::MAIL_AUTOMATED_TEMPLATES, true);
+		
+		if(!isset($templates[$template_id]) && !isset($default_templates[$template_id]))
+			return false;
+		
+		@$default_template = $default_templates[$template_id];
+		
+		if(false == (@$template = $templates[$template_id]))
+			$template = $default_template;
+
+		@$send_from_id = $template['send_from_id'] ?: $default_template['send_from_id'];
+		@$send_as = $template['send_as'] ?: $default_template['send_as'];
+		@$subject = $template['subject'] ?: $default_template['subject'];
+		@$body = $template['body'] ?: $default_template['body'];
+		
+		if(!$send_from_id || false == (@$send_from = $sender_addresses[$send_from_id]))
+			$send_from = DAO_Address::getDefaultLocalAddress();
+		
+		@$send_as = $tpl_builder->build($send_as, $values);
+		@$subject = $tpl_builder->build($subject, $values);
+		@$body = $tpl_builder->build($body, $values);
+		
+		if(empty($subject) || empty($body))
+			return false;
+		
+		CerberusMail::quickSend($email, $subject, $body, $send_from->email, $send_as);
+		
+		return true;
+	}
 
 	/**
 	 *
@@ -2558,6 +2594,7 @@ class CerberusSettings {
 	const AVATAR_DEFAULT_STYLE_WORKER = 'avatar_default_style_worker';
 	const HTML_NO_STRIP_MICROSOFT = 'html_no_strip_microsoft';
 	const MAIL_DEFAULT_FROM_ID = 'mail_default_from_id';
+	const MAIL_AUTOMATED_TEMPLATES = 'mail_automated_templates';
 };
 
 class CerberusSettingsDefaults {
@@ -2578,6 +2615,7 @@ class CerberusSettingsDefaults {
 	const AVATAR_DEFAULT_STYLE_WORKER = 'monograms';
 	const HTML_NO_STRIP_MICROSOFT = 0;
 	const MAIL_DEFAULT_FROM_ID = 0;
+	const MAIL_AUTOMATED_TEMPLATES = "{\"worker_invite\":{\"send_from_id\":\"0\",\"send_as\":\"Cerb\",\"subject\":\"Welcome to Cerb!\",\"body\":\"Welcome, {{worker_first_name}}!\\r\\n\\r\\nYour team has invited you to create a new Cerb account at:\\r\\n{{url}}\\r\\n\"},\"worker_confirm_email\":{\"send_from_id\":\"0\",\"send_as\":\"Cerb\",\"subject\":\"Please confirm your email address\",\"body\":\"{{worker_full_name}} just added this email address ({{email}}) to their Cerb account.\\r\\n\\r\\nTo approve and continue, click the following link:\\r\\n{{url}}\\r\\n\\r\\nIf you did not request this, do not click the link above.  The request will expire in 24 hours.\"},\"worker_recover\":{\"send_from_id\":\"0\",\"send_as\":\"Cerb\",\"subject\":\"Your account recovery confirmation code\",\"body\":\"Hi, {{worker_first_name}}.\\r\\n\\r\\nWe recently received a request to reset your account's login information.\\r\\n\\r\\nHere's your account reset confirmation code: {{code}}\\r\\n\\r\\nIP: {{ip}}\\r\\n\\r\\nIf you didn't initiate this request, please forward this message to a system administrator.\"}}";
 };
 
 // [TODO] Implement our own session handler w/o PHP 'session'

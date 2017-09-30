@@ -297,52 +297,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError("The given language is invalid.", 'language');
 				
 				if(empty($id)) {
-					if(empty($password_new)) {
-						// Creating new worker.  If password is empty, email it to them
-						$replyto_default = DAO_AddressOutgoing::getDefault();
-						$replyto_personal = $replyto_default->getReplyPersonal();
-						$url = DevblocksPlatform::services()->url();
-						$password = CerberusApplication::generatePassword(8);
-						
-						try {
-							$mail_service = DevblocksPlatform::services()->mail();
-							$mail = $mail_service->createMessage();
-							
-							$mail->setTo(array($worker_address->email => $first_name . ' ' . $last_name));
-							
-							if(!empty($replyto_personal)) {
-								$mail->setFrom($replyto_default->email, $replyto_personal);
-							} else {
-								$mail->setFrom($replyto_default->email);
-							}
-							
-							$mail->setSubject('Your new Cerb login information!');
-							
-							$headers = $mail->getHeaders();
-							
-							$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
-							
-							$body = sprintf("Your new Cerb login information is below:\r\n".
-								"\r\n".
-								"URL: %s\r\n".
-								"Login: %s\r\n".
-								"\r\n",
-									$url->write('',true),
-									$worker_address->email
-							);
-							
-							$mail->setBody($body);
-		
-							if(!$mail_service->send($mail)) {
-								throw new Exception('Password notification email failed to send.');
-							}
-							
-						} catch (Exception $e) {
-							// [TODO] need to report to the admin when the password email doesn't send.  The try->catch
-							// will keep it from killing php, but the password will be empty and the user will never get an email.
-						}
-					}
-					
 					$fields = array(
 						DAO_Worker::FIRST_NAME => $first_name,
 						DAO_Worker::LAST_NAME => $last_name,
@@ -367,6 +321,20 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					
 					if(false == ($id = DAO_Worker::create($fields)))
 						return false;
+					
+					// Creating new worker.  If no password, email them an invite
+					if(empty($password_new)) {
+						$url = DevblocksPlatform::services()->url();
+						$worker = DAO_Worker::get($id);
+						
+						$labels = $values = [];
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $worker_labels, $worker_values, '', true, true);
+						CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
+						
+						$values['url'] = $url->write('c=login', true) . '?email=' . rawurlencode($worker->getEmailString());
+						
+						CerberusApplication::sendEmailTemplate($worker->getEmailString(), 'worker_invite', $values);
+					}
 					
 					// View marquee
 					if(!empty($id) && !empty($view_id)) {
