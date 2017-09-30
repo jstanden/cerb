@@ -4657,7 +4657,7 @@ class DevblocksEventHelper {
 		
 		// Attachments
 		
-		$file_ids = array();
+		$file_ids = [];
 		
 		// Attachment list variables
 		

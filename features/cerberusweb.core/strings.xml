@@ -629,32 +629,32 @@
 		</tu>
 		<tu tuid="common.custom_field">
 			<tuv xml:lang="en_US">
-				<seg>Custom Field</seg>
+				<seg>custom field</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.custom_fields">
 			<tuv xml:lang="en_US">
-				<seg>Custom Fields</seg>
+				<seg>custom fields</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.custom_fieldset">
 			<tuv xml:lang="en_US">
-				<seg>Custom Fieldset</seg>
+				<seg>custom fieldset</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.custom_fieldsets">
 			<tuv xml:lang="en_US">
-				<seg>Custom Fieldsets</seg>
+				<seg>custom fieldsets</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.custom_record">
 			<tuv xml:lang="en_US">
-				<seg>Custom Record</seg>
+				<seg>custom record</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.custom_records">
 			<tuv xml:lang="en_US">
-				<seg>Custom Records</seg>
+				<seg>custom records</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.customize">
@@ -2124,8 +2124,6 @@
 			</tuv>
 		</tu>
 
-		<!-- DAO -->
-		
 		<!-- CalendarEvent -->
 		
 		<tu tuid="dao.calendar_event.is_available">
@@ -3496,7 +3494,7 @@ For example: http://www.cerbweb.com/support/</seg>
 		</tu>
 		<tu tuid="prefs.address.confirm.mail.body">
 			<tuv xml:lang="en_US">
-				<seg>%s just added this email address to their Cerb6 account.
+				<seg>%s just added this email address to their Cerb account.
 
 To approve and continue, click the following link:
 %s

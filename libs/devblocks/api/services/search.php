@@ -1083,10 +1083,10 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		// Remove 4 byte characters
 		// [TODO] Move to Devblocks?
 		$content = preg_replace('%(?:
-          \xF0[\x90-\xBF][\x80-\xBF]{2}
-        | [\xF1-\xF3][\x80-\xBF]{3}
-        | \xF4[\x80-\x8F][\x80-\xBF]{2}
-    )%xs', '\xEF\xBF\xBD', $content);
+					\xF0[\x90-\xBF][\x80-\xBF]{2}
+				| [\xF1-\xF3][\x80-\xBF]{3}
+				| \xF4[\x80-\x8F][\x80-\xBF]{2}
+		)%xs', '\xEF\xBF\xBD', $content);
 		
 		$fields = array(
 			'id' => intval($id),

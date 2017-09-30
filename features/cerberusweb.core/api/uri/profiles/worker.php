@@ -268,11 +268,11 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				
 				// Verify passwords if not blank
 				if($password_new && ($password_new != $password_verify))
-						throw new Exception_DevblocksAjaxValidationError("The given passwords do not match.", 'password_new');
+					throw new Exception_DevblocksAjaxValidationError("The given passwords do not match.", 'password_new');
 				
 				// Verify auth extension
 				if(false == ($auth_extension = Extension_LoginAuthenticator::get($auth_extension_id)))
-						throw new Exception_DevblocksAjaxValidationError("The login method is invalid.", 'auth_extension_id');
+					throw new Exception_DevblocksAjaxValidationError("The login method is invalid.", 'auth_extension_id');
 				
 				// Verify @mention name
 				if(!empty($at_mention_name)) {
@@ -289,12 +289,12 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$date = DevblocksPlatform::services()->date();
 				$timezones = $date->getTimezones();
 				if(false === array_search($timezone, $timezones))
-						throw new Exception_DevblocksAjaxValidationError("The given timezone is invalid.", 'timezone');
+					throw new Exception_DevblocksAjaxValidationError("The given timezone is invalid.", 'timezone');
 				
 				// Verify language
 				$languages = DAO_Translation::getDefinedLangCodes();
 				if($language && !isset($languages[$language]))
-						throw new Exception_DevblocksAjaxValidationError("The given language is invalid.", 'language');
+					throw new Exception_DevblocksAjaxValidationError("The given language is invalid.", 'language');
 				
 				if(empty($id)) {
 					if(empty($password_new)) {

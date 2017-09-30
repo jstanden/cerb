@@ -74,7 +74,6 @@
 				<label><input type="checkbox" name="is_defunct" value="1" title="Check this box if the email address is no longer active." {if $address->is_defunct}checked="checked"{/if}> {'address.is_defunct'|devblocks_translate|capitalize}</label>
 			</td>
 		</tr>
-		
 	</table>
 </fieldset>
 

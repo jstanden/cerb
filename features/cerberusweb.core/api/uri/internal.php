@@ -1195,8 +1195,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			$view->setPlaceholderLabels($conditions);
 			
 		} elseif(null != $active_worker = CerberusApplication::getActiveWorker()) {
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			$active_worker->getPlaceholderLabelsValues($labels, $values);
 			
 			$view->setPlaceholderLabels($labels);
@@ -1671,7 +1671,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		$list = array();
+		$list = [];
 		
 		// [TODO] Abstractly handle '(no record)' blank functionality?
 		
@@ -1863,8 +1863,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$tpl = DevblocksPlatform::services()->template();
 
-		$token_labels = array();
-		$token_value = array();
+		$token_labels = $token_value = [];
 
 		$ctx = Extension_DevblocksContext::get($snippet_context);
 

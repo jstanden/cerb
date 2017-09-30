@@ -157,7 +157,7 @@ class CerbEval_Install extends PHPUnit_Framework_TestCase {
 	}
 	
 	function testCreateVersionFile() {
-		$path = APP_STORAGE_PATH . 'version.php';
+		$path = APP_STORAGE_PATH . '/version.php';
 		$contents = sprintf('<?php define(\'APP_BUILD_CACHED\', %s);', APP_BUILD);
 		
 		if(!file_put_contents($path, $contents)) {

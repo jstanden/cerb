@@ -103,7 +103,7 @@ class _DevblocksEmailManager {
 					$port
 				);
 				break;
-				 
+				
 			case 'pop3-ssl': // 995
 				$connect = sprintf("{%s:%d/pop3/ssl%s}INBOX",
 					$server,
@@ -111,7 +111,7 @@ class _DevblocksEmailManager {
 					$ssl_ignore_validation ? '/novalidate-cert' : ''
 				);
 				break;
-				 
+				
 			case 'imap': // 143
 				$connect = sprintf("{%s:%d/notls}INBOX",
 					$server,

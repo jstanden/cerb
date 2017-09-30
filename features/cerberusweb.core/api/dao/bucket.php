@@ -1258,27 +1258,27 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			
 		} else {
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			CerberusContexts::getContext($context, $bucket, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
-			$activity_counts = array(
+			$activity_counts = [
 				'tickets' => DAO_Ticket::countsByBucketId($context_id),
 				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_BUCKET, $context_id),
-			);
+			];
 			$tpl->assign('activity_counts', $activity_counts);
 			
 			$links = array(
-				CerberusContexts::CONTEXT_BUCKET => array(
+				CerberusContexts::CONTEXT_BUCKET => [
 					$context_id => 
 						DAO_ContextLink::getContextLinkCounts(
 							CerberusContexts::CONTEXT_BUCKET,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[CerberusContexts::CONTEXT_CUSTOM_FIELDSET]
 						),
-				),
+				],
 			);
 			$tpl->assign('links', $links);
 			

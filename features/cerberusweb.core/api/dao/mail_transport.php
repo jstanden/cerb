@@ -80,7 +80,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		
 		if(!is_array($ids))
 			$ids = [$ids];
-		
+
 		// Make a diff for the requested objects in batches
 		
 		$chunks = array_chunk($ids, 100, true);
@@ -90,7 +90,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $batch_ids);
 			}
 			
 			// Make changes
@@ -110,7 +110,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $batch_ids);
 			}
 		}
 		

@@ -24,7 +24,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 	const SIGNATURE = 'signature';
 	const UPDATED_AT = 'updated_at';
 	
-	const _CACHE_ALL = 'cerb_cache_mail_html_template_all';
+	const _CACHE_ALL = 'mail_html_templates_all';
 	
 	private function __construct() {}
 
@@ -490,13 +490,13 @@ class SearchFields_MailHtmlTemplate extends DevblocksSearchFields {
 };
 
 class Model_MailHtmlTemplate {
+	public $content;
 	public $id;
 	public $name;
-	public $updated_at;
 	public $owner_context;
 	public $owner_context_id;
-	public $content;
 	public $signature;
+	public $updated_at;
 	
 	function getSignature($worker=null) {
 		$signature = $this->signature;
@@ -577,7 +577,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {

@@ -123,20 +123,20 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
+				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'], 'string', '');
 				
 				$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
 				$owner_ctx_id = 0;
 				
 				$fields = array(
-					DAO_MailHtmlTemplate::UPDATED_AT => time(),
+					DAO_MailHtmlTemplate::CONTENT => $content,
 					DAO_MailHtmlTemplate::NAME => $name,
 					DAO_MailHtmlTemplate::OWNER_CONTEXT => $owner_ctx,
 					DAO_MailHtmlTemplate::OWNER_CONTEXT_ID => $owner_ctx_id,
-					DAO_MailHtmlTemplate::CONTENT => $content,
 					DAO_MailHtmlTemplate::SIGNATURE => $signature,
+					DAO_MailHtmlTemplate::UPDATED_AT => time(),
 				);
 				
 				if(empty($id)) { // New

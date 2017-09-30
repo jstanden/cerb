@@ -43,7 +43,6 @@
 			</div>
 		</td>
 	</tr>
-	
 </table>
 
 {$tabs_id = "groupPeekTabs{uniqid()}"}

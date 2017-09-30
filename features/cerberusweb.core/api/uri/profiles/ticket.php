@@ -46,8 +46,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		}
 		
 		// Dictionary
-		$labels = array();
-		$values = array();
+		$labels = $values = [];
 		CerberusContexts::getContext($context, $ticket, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);

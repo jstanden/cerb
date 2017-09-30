@@ -35,7 +35,7 @@
 <div style="clear:both;padding-top:10px;"></div>
 
 <fieldset class="peek">
-	<legend>Contact Info</legend>
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
 	<div class="cerb-properties-grid" data-column-width="100">
 		{$labels = $dict->_labels}

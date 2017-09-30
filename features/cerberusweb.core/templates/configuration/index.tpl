@@ -2,7 +2,7 @@
 	<ul>
 		<li>
 			<div>
-				<a href="javascript:;" class="menu">Configure <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<a href="javascript:;" class="menu">{'common.configure'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><b>System</b></li>
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Branding</a></li>
@@ -15,13 +15,13 @@
 					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">Security</a></li>
 					<li><a href="{devblocks_url}c=config&a=sessions{/devblocks_url}">Sessions</a></li>
 					<li><hr></li>
-					<li><b>{'common.contexts'|devblocks_translate|capitalize}</b></li>
+					<li><b>{'common.records'|devblocks_translate|capitalize}</b></li>
 					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
 					<li><a href="{devblocks_url}c=config&a=cards{/devblocks_url}">{'common.cards'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=records{/devblocks_url}">{'common.custom_records'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=skills{/devblocks_url}">{'common.skills'|devblocks_translate|capitalize}</a></li>
-					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">Snippets</a></li>
+					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">{'common.snippets'|devblocks_translate|capitalize}</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}
 					{if !empty($exts)}

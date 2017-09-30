@@ -1586,12 +1586,12 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	}
 	
 	function getDefaultProperties() {
-		return array(
+		return [
 			'replyto__label',
 			'is_private',
 			'is_default',
 			'updated',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
@@ -1599,10 +1599,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$list = array();
 		
 		list($results, $null) = DAO_Group::search(
-			array(),
-			array(
+			[],
+			[
 				new DevblocksSearchCriteria(SearchFields_Group::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
-			),
+			],
 			25,
 			0,
 			DAO_Group::NAME,
@@ -1610,7 +1610,8 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			false
 		);
 
-		foreach($results AS $row){
+		if(is_array($results))
+		foreach($results as $row){
 			$entry = new stdClass();
 			$entry->label = $row[SearchFields_Group::NAME];
 			$entry->value = $row[SearchFields_Group::ID];
@@ -1624,7 +1625,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	function getContext($group, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Group:';
-			
+		
 		$translate = DevblocksPlatform::getTranslationService();
 		$url_writer = DevblocksPlatform::services()->url();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP);
@@ -1641,7 +1642,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		}
 		
 		// Token labels
-		$token_labels = array(
+		$token_labels = [
 			'_label' => $prefix,
 			'created' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
@@ -1650,10 +1651,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'name' => $prefix.$translate->_('common.name'),
 			'updated' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
-		);
+		];
 		
 		// Token types
-		$token_types = array(
+		$token_types = [
 			'_label' => 'context_url',
 			'created' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
@@ -1663,7 +1664,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'updated' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 			'replyto_id' => Model_CustomField::TYPE_NUMBER,
-		);
+		];
 		
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
@@ -1674,7 +1675,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 
 		$token_values['_context'] = CerberusContexts::CONTEXT_GROUP;
 		$token_values['_types'] = $token_types;
@@ -1702,8 +1703,8 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		}
 		
 		// Reply-To Address
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::scrubTokensWithRegexp(
@@ -1912,12 +1913,6 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Groups';
-		$view->view_columns = array(
-			SearchFields_Group::NAME,
-			SearchFields_Group::IS_DEFAULT,
-			SearchFields_Group::IS_PRIVATE,
-			SearchFields_Group::UPDATED,
-		);
 		$view->addParams(array(
 		), true);
 //		$view->renderSortBy = SearchFields_Group::NAME;

@@ -1759,7 +1759,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getDefaultProperties() {
-		return array(
+		return [
 			'org__label',
 			'contact__label',
 			'is_banned',
@@ -1767,14 +1767,14 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'num_nonspam',
 			'num_spam',
 			'updated',
-		);
+		];
 	}
 	
 	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		$models = DAO_Address::autocomplete($term);
-		$list = array();
+		$list = [];
 		
 		if(stristr('none', $term) || stristr('empty', $term) || stristr('null', $term)) {
 			$empty = new stdClass();
@@ -1794,7 +1794,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$entry->value = $model->id;
 			$entry->icon = $url_writer->write('c=avatars&type=address&id=' . $model->id, true) . '?v=' . $model->updated;
 			
-			$meta = array();
+			$meta = [];
 			
 			if(false != ($full_name = $model->getName()))
 				$meta['full_name'] = $full_name;
@@ -1933,8 +1933,8 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		// Email Org
 		// Only link org placeholders if the org isn't nested under a contact already
 		if(1 == count($context_stack) || !in_array(CerberusContexts::CONTEXT_CONTACT, $context_stack)) {
-			$merge_token_labels = array();
-			$merge_token_values = array();
+			$merge_token_labels = [];
+			$merge_token_values = [];
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, null, $merge_token_labels, $merge_token_values, null, true);
 	
 			CerberusContexts::merge(

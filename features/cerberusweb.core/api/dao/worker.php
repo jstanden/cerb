@@ -1092,7 +1092,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$url_writer = DevblocksPlatform::services()->url();
 		$db = DevblocksPlatform::services()->database();
 		$workers = DAO_Worker::getAll();
-		$objects = array();
+		$objects = [];
 		
 		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER);
 		
