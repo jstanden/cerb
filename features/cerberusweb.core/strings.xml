@@ -1936,6 +1936,16 @@
 				<seg>Tasks</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.team">
+			<tuv xml:lang="en_US">
+				<seg>Team</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.teams">
+			<tuv xml:lang="en_US">
+				<seg>Teams</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.test">
 			<tuv xml:lang="en_US">
 				<seg>Test</seg>
