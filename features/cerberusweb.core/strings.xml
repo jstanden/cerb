@@ -757,6 +757,16 @@
 				<seg>Email Addresses</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.email_template">
+			<tuv xml:lang="en_US">
+				<seg>Email Template</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.email_templates">
+			<tuv xml:lang="en_US">
+				<seg>Email Templates</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.enabled">
 			<tuv xml:lang="en_US">
 				<seg>Enabled</seg>
@@ -976,6 +986,14 @@
 			<tuv xml:lang="en_US">
 				<seg>hours</seg>
 			</tuv>
+		</tu>
+		<tu tuid='common.html_mail_template'>
+			<tuv xml:lang="en_US">
+			<seg>HTML Template</seg></tuv>
+		</tu>
+		<tu tuid='common.html_mail_templates'>
+			<tuv xml:lang="en_US">
+			<seg>HTML Templates</seg></tuv>
 		</tu>
 		<tu tuid="common.id">
 			<tuv xml:lang="en_US">

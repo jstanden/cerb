@@ -1967,7 +1967,7 @@
 		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.mail.html_template</id>
-			<name>HTML Template</name>
+			<name>Email Template</name>
 			<class>
 				<file>api/dao/mail_html_template.php</file>
 				<name>Context_MailHtmlTemplate</name>
@@ -1975,10 +1975,12 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="html template" value="singular" />
-						<data key="html templates" value="plural" />
+						<data key="email template" value="singular" />
+						<data key="email templates" value="plural" />
 						<data key="mail template" value="singular" />
 						<data key="mail templates" value="plural" />
+						<data key="html template" value="singular" />
+						<data key="html templates" value="plural" />
 					</value>
 				</param>
 				<param key="alias" value="html_template" />
@@ -1986,18 +1988,22 @@
 				<param key="view_class" value="View_MailHtmlTemplate" />
 				<param key="options">
 					<value>
-						<!--
-						<data key="search" /> 
+						<data key="cards" />
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
-						-->
-						<data key="create" />
-						<data key="links" />
 					</value>
 				</param>
 				<param key="acl">
 					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
 						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
