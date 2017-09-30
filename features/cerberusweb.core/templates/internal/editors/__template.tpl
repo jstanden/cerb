@@ -10,7 +10,7 @@
 	<div id="peekTemplateTest"></div>
 	
 	<button type="button" class="cerb-popupmenu-trigger">Insert placeholder &#x25be;</button> 
-	<button type="button" onclick="genericAjaxPost('{$frm_id}','peekTemplateTest','c=internal&a=snippetTest&snippet_context={$context_ext->id}&snippet_field=content');">Test</button> 
+	<button type="button" onclick="genericAjaxPost('{$frm_id}','peekTemplateTest','c=internal&a=snippetTest&snippet_context={$context_ext->id}&snippet_key_prefix={$key_prefix}&snippet_field=content');">Test</button> 
 	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '50%');">Help</button> 
 	
 	{function tree level=0}
@@ -51,7 +51,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title', 'Template Editor: {$context_ext->manifest->name|capitalize|escape:'javascript'}');
+		$popup.dialog('option','title', '{{'Template Editor'|capitalize|escape:'javascript'}}');
 		$popup.css('overflow', 'inherit');
 
 		var $textarea = $popup.find('textarea[name=content]');

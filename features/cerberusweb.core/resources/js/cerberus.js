@@ -1076,16 +1076,42 @@ var ajax = new cAjaxCalls();
 			if(!($trigger.is('textarea')))
 				return;
 			
-			var context = $trigger.attr('data-context');
-			var template = $trigger.val();
-			var width = $(window).width()-100;
-			
-			// Context
-			if(!(typeof context == "string") || 0 == context.length)
-				return;
-			
 			$trigger.on('click', function() {
-				var $chooser = genericAjaxPopup("template" + Devblocks.uniqueId(),'c=internal&a=editorOpenTemplate&context=' + encodeURIComponent(context) + '&template=' + encodeURIComponent(template),null,true,width);
+				var context = $trigger.attr('data-context');
+				var label_prefix = $trigger.attr('data-label-prefix');
+				var key_prefix = $trigger.attr('data-key-prefix');
+				var placeholders_json = $trigger.attr('data-placeholders-json');
+				var template = $trigger.val();
+				var width = $(window).width()-100;
+				
+				// Context
+				if(!(typeof context == "string") || 0 == context.length)
+					return;
+				
+				var url = 'c=internal&a=editorOpenTemplate&context=' 
+					+ encodeURIComponent(context) 
+					+ '&template=' + encodeURIComponent(template)
+					+ '&label_prefix=' + (label_prefix ? encodeURIComponent(label_prefix) : '')
+					+ '&key_prefix=' + (key_prefix ? encodeURIComponent(key_prefix) : '')
+					;
+				
+				
+				if(typeof placeholders_json == 'string') {
+					var placeholders = JSON.parse(placeholders_json);
+					
+					if(typeof placeholders == 'object')
+					for(key in placeholders) {
+						url += "&placeholders[" + encodeURIComponent(key) + ']=' + encodeURIComponent(placeholders[key]);
+					}
+				}
+				
+				var $chooser = genericAjaxPopup(
+					"template" + Devblocks.uniqueId(),
+					url,
+					null,
+					true,
+					width
+				);
 				
 				$chooser.on('template_save',function(event) {
 					$trigger.val(event.template);
