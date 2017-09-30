@@ -58,7 +58,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		$tpl->assign('field_types', $types);
 		
 		// Default reply-to
-		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$replyto_default = DAO_Address::getDefaultLocalAddress();
 		$tpl->assign('replyto_default', $replyto_default);
 		
 		$tpl->display('devblocks:cerberusweb.support_center::portal/sc/config/module/contact/situation.tpl');

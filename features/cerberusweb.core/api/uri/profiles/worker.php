@@ -263,7 +263,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				if(false != ($worker_check = DAO_Worker::getByEmail($worker_address->email)) && (empty($id) || $worker_check->id != $id))
 					throw new Exception_DevblocksAjaxValidationError("The given email address is already associated with another worker.", 'email_id');
 				
-				if(DAO_AddressOutgoing::getByEmail($worker_address->email, false))
+				if(DAO_Address::isLocalAddress($worker_address->email))
 					throw new Exception_DevblocksAjaxValidationError("You can not assign an email address to a worker that is already assigned to a group/bucket.", 'email_id');
 				
 				// Verify passwords if not blank

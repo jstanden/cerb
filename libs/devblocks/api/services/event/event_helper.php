@@ -4405,10 +4405,10 @@ class DevblocksEventHelper {
 	static function renderActionSendEmail($trigger, $placeholders=array()) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$replyto_default = DAO_Address::getDefaultLocalAddress();
 		$tpl->assign('replyto_default', $replyto_default);
 		
-		$replyto_addresses = DAO_AddressOutgoing::getAll();
+		$replyto_addresses = DAO_Address::getLocalAddresses();
 		$tpl->assign('replyto_addresses', $replyto_addresses);
 		
 		$event = $trigger->getEvent();
@@ -4477,8 +4477,8 @@ class DevblocksEventHelper {
 		$cc = self::_getEmailsFromTokens($params, $dict, 'cc', 'cc_var');
 		$bcc = self::_getEmailsFromTokens($params, $dict, 'bcc', 'bcc_var');
 
-		$replyto_addresses = DAO_AddressOutgoing::getAll();
-		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$replyto_addresses = DAO_Address::getLocalAddresses();
+		$replyto_default = DAO_Address::getDefaultLocalAddress();
 		
 		if(empty($replyto_default))
 			return "[ERROR] There is no default sender address.  Please configure one from Setup->Mail";
@@ -4504,7 +4504,7 @@ class DevblocksEventHelper {
 		}
 		
 		if(empty($from_address_id) || !isset($replyto_addresses[$from_address_id]))
-			$from_address_id = $replyto_default->address_id;
+			$from_address_id = $replyto_default->id;
 
 		if(empty($from_address_id)) {
 			return "[ERROR] The 'from' address is invalid.";
@@ -4598,8 +4598,8 @@ class DevblocksEventHelper {
 		
 		// From
 		
-		$replyto_addresses = DAO_AddressOutgoing::getAll();
-		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$replyto_addresses = DAO_Address::getLocalAddresses();
+		$replyto_default = DAO_Address::getDefaultLocalAddress();
 		
 		if(empty($replyto_default))
 			return;
@@ -4624,7 +4624,7 @@ class DevblocksEventHelper {
 		}
 		
 		if(empty($from_address_id) || !isset($replyto_addresses[$from_address_id]))
-			$from_address_id = $replyto_default->address_id;
+			$from_address_id = $replyto_default->id;
 		
 		if(empty($from_address_id))
 			return;
@@ -4639,21 +4639,6 @@ class DevblocksEventHelper {
 		// Headers
 		
 		@$headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['headers'], $dict));
-		
-		// Format
-		switch($format) {
-			case 'parsedown':
-				
-				// HTML template
-				
-				// Default to reply-to if empty
-				if(!$html_template_id && false != ($replyto = $replyto_addresses[$from_address_id])) {
-					if(null != ($html_template = $replyto->getReplyHtmlTemplate())) {
-						$html_template_id = $html_template->id;
-					}
-				}
-				break;
-		}
 		
 		// Attachments
 		
@@ -4691,7 +4676,7 @@ class DevblocksEventHelper {
 			$subject,
 			$content,
 			$replyto_addresses[$from_address_id]->email,
-			$replyto_addresses[$from_address_id]->reply_personal,
+			'',
 			$headers,
 			$format,
 			$html_template_id,
@@ -4905,7 +4890,7 @@ class DevblocksEventHelper {
 		if($relay_spoof_from) {
 			$replyto = $group->getReplyTo($bucket_id);
 		} else {
-			$replyto = DAO_AddressOutgoing::getDefault();
+			$replyto = DAO_Address::getDefaultLocalAddress();
 		}
 
 		// Attachments
@@ -4937,16 +4922,8 @@ class DevblocksEventHelper {
 					$mail->setReplyTo($replyto->email);
 					
 				} else {
-					$replyto_personal = $replyto->getReplyPersonal($worker);
-					
-					if(!empty($replyto_personal)) {
-						$mail->setFrom($replyto->email, !empty($replyto_personal) ? $replyto_personal : null);
-						$mail->setReplyTo($replyto->email, !empty($replyto_personal) ? $replyto_personal : null);
-						
-					} else {
-						$mail->setFrom($replyto->email);
-						$mail->setReplyTo($replyto->email);
-					}
+					$mail->setFrom($replyto->email);
+					$mail->setReplyTo($replyto->email);
 				}
 				
 				if(!isset($params['subject']) || empty($params['subject'])) {

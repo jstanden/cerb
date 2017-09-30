@@ -133,7 +133,7 @@ class UmScContactController extends Extension_UmScController {
 		$tpl->assign('groups', $groups);
 		
 		// Default reply-to
-		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$replyto_default = DAO_Address::getDefaultLocalAddress();
 		$tpl->assign('replyto_default', $replyto_default);
 		
 		// Contact: Fields
@@ -161,7 +161,7 @@ class UmScContactController extends Extension_UmScController {
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_ATTACHMENTS_MODE, $iAttachmentsMode);
 
 		// Contact Form
-		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$replyto_default = DAO_Address::getDefaultLocalAddress();
 		
 		// Situations
 		@$aReason = DevblocksPlatform::importGPC($_POST['contact_reason'],'array',array());
@@ -332,7 +332,7 @@ class UmScContactController extends Extension_UmScController {
 		}
 
 		// Dispatch
-		$replyto_default = DAO_AddressOutgoing::getDefault();
+		$replyto_default = DAO_Address::getDefaultLocalAddress();
 		$to = $replyto_default->email;
 		$subject = 'Contact me: Other';
 		

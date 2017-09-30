@@ -823,7 +823,7 @@ class ImportCron extends CerberusCronPageExtension {
 		}
 		
 		// Create comments
-		$default_sender = DAO_AddressOutgoing::getDefault();
+		$default_sender = DAO_Address::getDefaultLocalAddress();
 		
 		if(!is_null($xml->comments->comment) && $xml->comments->comment instanceof Traversable)
 		foreach($xml->comments->comment as $eComment) { /* @var $eMessage SimpleXMLElement */
@@ -835,7 +835,7 @@ class ImportCron extends CerberusCronPageExtension {
 			unset($sCommentTextB64);
 			
 			if(empty($sCommentAuthor) || false == ($commentAuthorInst = CerberusApplication::hashLookupAddress($sCommentAuthor, true))) {
-				$iCommentAuthorId = $default_sender->address_id;
+				$iCommentAuthorId = $default_sender->id;
 			} else {
 				$iCommentAuthorId = $commentAuthorInst->id;
 			}

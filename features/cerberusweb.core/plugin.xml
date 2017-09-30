@@ -115,11 +115,6 @@
 			<class name="View_Address" />
 		</file>
 		
-		<file path="api/dao/address_outgoing.php">
-			<class name="DAO_AddressOutgoing" />
-			<class name="Model_AddressOutgoing" />
-		</file>
-		
 		<file path="api/dao/address_to_worker.php">
 			<class name="DAO_AddressToWorker" />
 			<class name="Model_AddressToWorker" />

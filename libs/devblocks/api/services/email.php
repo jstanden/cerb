@@ -42,10 +42,10 @@ class _DevblocksEmailManager {
 		if(empty($sender))
 			return false;
 		
-		if(false == ($replyto = DAO_AddressOutgoing::getByEmail($sender)))
+		if(false == ($replyto = DAO_Address::getByEmail($sender)))
 			return false;
 		
-		if(false == ($model = $replyto->getReplyMailTransport()))
+		if(false == ($model = $replyto->getMailTransport()))
 			return false;
 		
 		if(false == ($transport = $model->getExtension()))

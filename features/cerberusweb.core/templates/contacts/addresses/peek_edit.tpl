@@ -77,6 +77,35 @@
 	</table>
 </fieldset>
 
+<fieldset class="peek">
+	<legend><label><input type="checkbox" name="outgoing_enabled" value="1" {if $address->mail_transport_id}checked="checked"{/if} onclick="$(this).parent().parent().next('div').toggle();"> Enable as a sender address for outgoing mail</label></legend>
+	
+	{if $active_worker->is_superuser}
+	<div style="{if !$address->mail_transport_id}display:none;{/if}">
+		<table cellpadding="0" cellspacing="2" border="0" width="98%">
+			<tr>
+				<td align="right" valign="middle" width="0%" nowrap="nowrap">
+					<b>{'common.email_transport'|devblocks_translate|capitalize}: </b>
+				</td>
+				<td valign="middle" width="100%">
+					<button type="button" class="chooser-abstract" data-field-name="mail_transport_id" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+					
+					{$mail_transport = DAO_MailTransport::get($address->mail_transport_id)}
+					
+					<ul class="bubbles chooser-container">
+					{if $mail_transport}
+						<li><input type="hidden" name="mail_transport_id" value="{$mail_transport->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$mail_transport->id}">{$mail_transport->name}</a></li>
+					{/if}
+					</ul>
+				</td>
+			</tr>
+		</table>
+	</div>
+	{else}
+	Only <a href="javascript:;" style="font-weight:bold;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isAdmin:y">administrators</a> can configure outgoing mail.
+	{/if}
+</fieldset>
+
 {if !empty($custom_fields)}
 <fieldset class="peek">
 	<legend>{'common.custom_fields'|devblocks_translate}</legend>
@@ -133,6 +162,9 @@ $(function() {
 		
 		// Peek triggers
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+		
+		// Search triggers
+		$popup.find('.cerb-search-trigger').cerbSearchTrigger();
 	});
 });
 </script>

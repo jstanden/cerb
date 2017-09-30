@@ -2556,6 +2556,7 @@ class CerberusSettings {
 	const AVATAR_DEFAULT_STYLE_CONTACT = 'avatar_default_style_contact';
 	const AVATAR_DEFAULT_STYLE_WORKER = 'avatar_default_style_worker';
 	const HTML_NO_STRIP_MICROSOFT = 'html_no_strip_microsoft';
+	const MAIL_DEFAULT_FROM_ID = 'mail_default_from_id';
 };
 
 class CerberusSettingsDefaults {
@@ -2575,6 +2576,7 @@ class CerberusSettingsDefaults {
 	const AVATAR_DEFAULT_STYLE_CONTACT = 'monograms';
 	const AVATAR_DEFAULT_STYLE_WORKER = 'monograms';
 	const HTML_NO_STRIP_MICROSOFT = 0;
+	const MAIL_DEFAULT_FROM_ID = 0;
 };
 
 // [TODO] Implement our own session handler w/o PHP 'session'

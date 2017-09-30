@@ -1732,6 +1732,16 @@
 				<seg>send</seg>
 			</tuv>
 		</tu>
+		<tu tuid='common.send.as'>
+			<tuv xml:lang="en_US">
+				<seg>Send as</seg>
+			</tuv>
+		</tu>
+		<tu tuid='common.send.from'>
+			<tuv xml:lang="en_US">
+				<seg>Send from</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.sender">
 			<tuv xml:lang="en_US">
 				<seg>sender</seg>
@@ -1740,6 +1750,16 @@
 		<tu tuid="common.senders">
 			<tuv xml:lang="en_US">
 				<seg>senders</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.sender_address">
+			<tuv xml:lang="en_US">
+				<seg>sender address</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.sender_addresses">
+			<tuv xml:lang="en_US">
+				<seg>sender addresses</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.service">

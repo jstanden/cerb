@@ -722,25 +722,25 @@ class Model_Bucket {
 	/**
 	 *
 	 * @param integer $bucket_id
-	 * @return Model_AddressOutgoing
+	 * @return Model_Address
 	 */
 	public function getReplyTo() {
 		$from_id = 0;
-		$froms = DAO_AddressOutgoing::getAll();
+		$froms = DAO_Address::getLocalAddresses();
 		
 		// Cascade to bucket
 		$from_id = $this->reply_address_id;
 		
-		// Cascade to group default
-		if(empty($from_id) && empty($this->is_default)) {
+		// Cascade to group
+		if(empty($from_id) && false != ($group = $this->getGroup())) {
 			$default_bucket = DAO_Bucket::getDefaultForGroup($this->group_id);
-			$from_id = $default_bucket->reply_address_id;
+			$from_id = $group->getReplyFrom();
 		}
 		
 		// Cascade to global
 		if(empty($from_id) || !isset($froms[$from_id])) {
-			$from = DAO_AddressOutgoing::getDefault();
-			$from_id = $from->address_id;
+			$from = DAO_Address::getDefaultLocalAddress();
+			$from_id = $from->id;
 		}
 			
 		// Last check
@@ -751,8 +751,8 @@ class Model_Bucket {
 	}
 	
 	public function getReplyFrom() {
-		$froms = DAO_AddressOutgoing::getAll();
-		$default_from = DAO_AddressOutgoing::getDefault();
+		$froms = DAO_Address::getLocalAddresses();
+		$default_from = DAO_Address::getDefaultLocalAddress();
 		$default_bucket = DAO_Bucket::getDefaultForGroup($this->group_id);
 		
 		// Check this bucket
@@ -770,7 +770,7 @@ class Model_Bucket {
 		
 		// Cascade to global
 		if($default_from 
-				&& $from_id = $default_from->address_id
+				&& $from_id = $default_from->id
 				&& isset($froms[$from_id]))
 					return $from_id;
 			
@@ -778,8 +778,7 @@ class Model_Bucket {
 	}
 	
 	public function getReplyPersonal($worker_model=null) {
-		$froms = DAO_AddressOutgoing::getAll();
-		$default_from = DAO_AddressOutgoing::getDefault();
+		$froms = DAO_Address::getLocalAddresses();
 		$default_bucket = DAO_Bucket::getDefaultForGroup($this->group_id);
 		
 		// Check bucket first
@@ -799,11 +798,6 @@ class Model_Bucket {
 					$personal = $default_bucket->getReplyPersonal($worker_model);
 		}
 		
-		// Cascade to global
-		if(empty($personal) 
-				&& $default_from)
-					$personal = $default_from->reply_personal;
-		
 		// If we have a worker model, convert template tokens
 		if(empty($worker_model))
 			$worker_model = new Model_Worker();
@@ -818,9 +812,8 @@ class Model_Bucket {
 	}
 	
 	public function getReplySignature($worker_model=null) {
-		$froms = DAO_AddressOutgoing::getAll();
-		$default_from = DAO_AddressOutgoing::getDefault();
-		$default_bucket = DAO_Bucket::getDefaultForGroup($this->group_id);
+		$froms = DAO_Address::getLocalAddresses();
+		$group = $this->getGroup();
 		
 		// Check bucket first
 		$signature = $this->reply_signature;
@@ -857,8 +850,8 @@ class Model_Bucket {
 	}
 	
 	public function getReplyHtmlTemplate() {
-		$froms = DAO_AddressOutgoing::getAll();
-		$default_from = DAO_AddressOutgoing::getDefault();
+		$froms = DAO_Address::getLocalAddresses();
+		$default_from = DAO_Address::getDefaultLocalAddress();
 		$default_bucket = DAO_Bucket::getDefaultForGroup($this->group_id);
 		
 		// Check bucket first
@@ -877,11 +870,6 @@ class Model_Bucket {
 				&& $default_bucket->id != $this->id)
 					$html_template_id = $default_bucket->reply_html_template_id;
 		
-		// Cascade to global
-		if(empty($html_template_id) 
-				&& $default_from)
-					$html_template_id = $default_from->reply_html_template_id;
-			
 		if($html_template_id)
 			return DAO_MailHtmlTemplate::get($html_template_id);
 		
@@ -1035,10 +1023,6 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['updated_at'] = $bucket->updated_at;
 			
 			$token_values['group_id'] = $bucket->group_id;
-			
-			if(false != ($replyto = $bucket->getReplyTo())) {
-				$token_values['replyto_id'] = $replyto->address_id;
-			}
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($bucket, $token_values);
@@ -1208,10 +1192,6 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 
-		// Reply-to Addresses
-		
-		$tpl->assign('replyto_addresses', DAO_AddressOutgoing::getAll());
-		
 		// Custom fields
 		
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BUCKET, false);
@@ -1537,6 +1517,10 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BUCKET);
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		$replyto_addresses = DAO_Address::getLocalAddresses();
+		$tpl->assign('replyto_addresses', $replyto_addresses);
+		
 
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/bucket/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');

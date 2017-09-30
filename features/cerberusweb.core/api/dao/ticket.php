@@ -1525,7 +1525,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		foreach($addys as $addy => $addy_data) {
 			try {
 				// Filter out our own addresses
-				if(DAO_AddressOutgoing::isLocalAddress($addy))
+				if(DAO_Address::isLocalAddress($addy))
 					continue;
 				
 				// Filter explicit excludes
@@ -1565,7 +1565,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
 		
-		$replyto_addresses = DAO_AddressOutgoing::getAll();
+		$replyto_addresses = DAO_Address::getLocalAddresses();
 
 		if(null == ($address = CerberusApplication::hashLookupAddress($raw_email, true))) {
 			$logger->warn(sprintf("[Parser] %s is a malformed requester e-mail address.", $raw_email));
@@ -1619,7 +1619,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
 		
-		$replyto_addresses = DAO_AddressOutgoing::getAll();
+		$replyto_addresses = DAO_Address::getLocalAddresses();
 		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
 		$addresses = DAO_Address::getIds($address_ids);
 		
@@ -3565,7 +3565,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$group_buckets = DAO_Bucket::getGroups();
 		$tpl->assign('group_buckets', $group_buckets);
 
-		$sender_addresses = DAO_AddressOutgoing::getAll();
+		$sender_addresses = DAO_Address::getLocalAddresses();
 		$tpl->assign('sender_addresses', $sender_addresses);
 		
 		$custom_fields =

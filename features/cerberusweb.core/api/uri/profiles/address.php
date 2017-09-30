@@ -178,6 +178,12 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 				DAO_Address::IS_DEFUNCT => $is_defunct,
 			);
 			
+			if($active_worker->is_superuser) {
+				@$mail_transport_id = DevblocksPlatform::importGPC($_REQUEST['mail_transport_id'],'integer',0);
+				$fields[DAO_Address::MAIL_TRANSPORT_ID] = $mail_transport_id;
+				DAO_Address::clearCache();
+			}
+			
 			if(empty($id)) {
 				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.address.create'))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));

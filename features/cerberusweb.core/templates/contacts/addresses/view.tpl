@@ -123,6 +123,13 @@
 			<td data-column="{$column}">
 				{if $result.$column}Yes{/if}&nbsp;
 			</td>
+			{elseif $column == "a_mail_transport_id"}
+				{$mail_transport = $mail_transports.{$result.$column}}
+				<td data-column="{$column}">
+					{if $mail_transport}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$result.$column}">{$mail_transport->name}</a>
+					{/if}
+				</td>
 			{elseif $column=="a_updated"}
 			<td data-column="{$column}">
 				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>

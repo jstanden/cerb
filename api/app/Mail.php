@@ -70,7 +70,7 @@ class CerberusMail {
 				$check_address = $mailbox.'@'.$host;
 				
 				// If this is a local address and we're excluding them, skip it
-				if(DAO_AddressOutgoing::isLocalAddress($check_address))
+				if(DAO_Address::isLocalAddress($check_address))
 					continue;
 				
 				$skip = false;
@@ -126,13 +126,11 @@ class CerberusMail {
 			$settings = DevblocksPlatform::services()->pluginSettings();
 			
 			if(empty($from_addy) || empty($from_personal)) {
-				if(null == ($replyto_default = DAO_AddressOutgoing::getDefault()))
+				if(false == ($replyto_default = DAO_Address::getDefaultLocalAddress()))
 					throw new Exception("There is no default sender address.");
 				
 				if(empty($from_addy))
 					$from_addy = $replyto_default->email;
-				if(empty($from_personal))
-					$from_personal = $replyto_default->getReplyPersonal();
 			}
 			
 			$mail->setTo(DevblocksPlatform::parseCsvString($to));
@@ -805,7 +803,7 @@ class CerberusMail {
 						continue;
 			
 					// Ourselves?
-					if(DAO_AddressOutgoing::isLocalAddressId($requester->id))
+					if(DAO_Address::isLocalAddressId($requester->id))
 						continue;
 
 					if($is_autoreply) {
@@ -1311,7 +1309,7 @@ class CerberusMail {
 			$replyto = $group->getReplyTo($ticket->bucket_id);
 		} else {
 			// Use the default so our 'From:' is always consistent
-			$replyto = DAO_AddressOutgoing::getDefault();
+			$replyto = DAO_Address::getDefaultLocalAddress();
 		}
 		
 		$attachments = ($include_attachments)
@@ -1353,16 +1351,8 @@ class CerberusMail {
 					$mail->setReplyTo($replyto->email);
 					
 				} else {
-					$replyto_personal = $replyto->getReplyPersonal($worker);
-					
-					if(!empty($replyto_personal)) {
-						$mail->setFrom($replyto->email, !empty($replyto_personal) ? $replyto_personal : null);
-						$mail->setReplyTo($replyto->email, !empty($replyto_personal) ? $replyto_personal : null);
-						
-					} else {
-						$mail->setFrom($replyto->email);
-						$mail->setReplyTo($replyto->email);
-					}
+					$mail->setFrom($replyto->email);
+					$mail->setReplyTo($replyto->email);
 				}
 
 				// Subject

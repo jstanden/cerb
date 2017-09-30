@@ -2450,9 +2450,6 @@ class ChInternalController extends DevblocksControllerExtension {
 						if(!$html_template && false != ($group = DAO_Group::get($broadcast_group_id)))
 							$html_template = $group->getReplyHtmlTemplate(0);
 						
-						if(!$html_template && false != ($replyto = DAO_AddressOutgoing::getDefault()))
-							$html_template = $replyto->getReplyHtmlTemplate();
-						
 						if($html_template)
 							@$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
 						
@@ -4375,16 +4372,6 @@ class ChInternalController extends DevblocksControllerExtension {
 								// Cascade to group/bucket
 								if($_group_id && !$html_template && false != ($_group = DAO_Group::get($_group_id))) {
 									$html_template = $_group->getReplyHtmlTemplate($_bucket_id);
-								}
-								
-								// Cascade to current reply-to
-								if($_replyto_id && !$html_template && false != ($replyto = DAO_AddressOutgoing::get($_replyto_id))) {
-									$html_template = $replyto->getReplyHtmlTemplate();
-								}
-								
-								// Cascade to default reply-to
-								if(!$html_template && false != ($replyto = DAO_AddressOutgoing::getDefault())) {
-									$html_template = $replyto->getReplyHtmlTemplate();
 								}
 								
 								if($html_template) {

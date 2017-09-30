@@ -4,11 +4,7 @@
 		<option value="0">(default)</option>
 		<optgroup label="Sender Addresses">
 			{foreach from=$replyto_addresses key=address_id item=replyto}
-			{if !empty($replyto->reply_personal)}
-			<option value="{$address_id}" {if $params.from_address_id==$address_id}selected="selected"{/if}>{if !empty($replyto->reply_personal)}{$replyto->reply_personal} {/if}&lt;{$replyto->email}&gt;</option>
-			{else}
 			<option value="{$address_id}" {if $params.from_address_id==$address_id}selected="selected"{/if}>{$replyto->email}</option>
-			{/if}
 			{/foreach}
 		</optgroup>
 		{if !empty($placeholders)}

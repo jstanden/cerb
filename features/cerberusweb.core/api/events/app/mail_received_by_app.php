@@ -46,7 +46,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	function generateSampleEventModel(Model_TriggerEvent $trigger, $parser_model=null) { //, Model_Message $message=null, Model_Ticket $ticket=null, Model_Group $group=null
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$replyto = DAO_AddressOutgoing::getDefault();
+		$replyto = DAO_Address::getDefaultLocalAddress();
 		
 		$parser_message = new CerberusParserMessage();
 		$parser_message->headers['to'] = $replyto->email;
@@ -841,7 +841,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					break;
 				
 				// Handle crude reply-as functionality
-				$replyto_addresses = DAO_AddressOutgoing::getAll();
+				$replyto_addresses = DAO_Address::getLocalAddresses();
 				$replyto_address = null;
 				@$recipients = $dict->recipients;
 				
@@ -850,7 +850,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					if(!is_null($replyto_address))
 						continue;
 					
-					foreach($replyto_addresses as $reply_to) { /* @var $reply_to Model_AddressOutgoing */
+					foreach($replyto_addresses as $reply_to) { /* @var $reply_to Model_Address */
 						if(!is_null($replyto_address))
 							continue;
 						
@@ -862,9 +862,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				}
 				
 				if(is_null($replyto_address))
-					$replyto_address = DAO_AddressOutgoing::getDefault();
+					$replyto_address = DAO_Address::getDefaultLocalAddress();
 				
-				CerberusMail::quickSend($to, $subject, $body, $replyto_address->email, $replyto_address->getReplyPersonal());
+				CerberusMail::quickSend($to, $subject, $body, $replyto_address->email, '');
 				break;
 				
 			case 'set_header':
