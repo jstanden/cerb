@@ -645,42 +645,52 @@ class DAO_Address extends Cerb_ORMHelper {
 		}
 	}
 	
-	static function autocomplete($term, $as='models') {
+	static function autocomplete($term, $as='models', $query=null) {
+		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ADDRESS);
+		
+		$view = $context_ext->getSearchView('autocomplete_address');
+		$view->is_ephemeral = true;
+		$view->renderPage = 0;
+		$view->addParamsWithQuickSearch($query, true);
+		
+		$query_parts = DAO_Worker::getSearchQueryComponents([], $view->getParams(), $view->renderSortBy, $view->renderSortAsc);
+		
 		// If we have a special email character then switch to literal email matching
 		if(preg_match('/[\.\@\_]/', $term)) {
 			// If a leading '@', then prefix/trailing wildcard
 			if(substr($term,0,1) == '@') {
-				$query = '*' . $term . '*';
+				$q = '*' . $term . '*';
 			// Otherwise, only suffix wildcard
 			} else {
-				$query = $term . '*';
+				$q = $term . '*';
 			}
 			
-			$params = array(
-				SearchFields_Address::EMAIL => new DevblocksSearchCriteria(SearchFields_Address::EMAIL, DevblocksSearchCriteria::OPER_LIKE, $query),
+			$params = [
+				SearchFields_Address::EMAIL => new DevblocksSearchCriteria(SearchFields_Address::EMAIL, DevblocksSearchCriteria::OPER_LIKE, $q),
 				SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED, DevblocksSearchCriteria::OPER_EQ, 0),
 				SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT, DevblocksSearchCriteria::OPER_EQ, 0),
-			);
+			];
+			
+			$view->addParams($params);
 			
 		// Otherwise, use fulltext
 		} else {
-			$params = array(
+			$params = [
 				SearchFields_Address::FULLTEXT_ADDRESS => new DevblocksSearchCriteria(SearchFields_Address::FULLTEXT_ADDRESS, DevblocksSearchCriteria::OPER_FULLTEXT, $term.'*'),
 				SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED, DevblocksSearchCriteria::OPER_EQ, 0),
 				SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT, DevblocksSearchCriteria::OPER_EQ, 0),
-			);
+			];
+			
+			$view->addParams($params);
 		}
 		
-		list($results, $null) = DAO_Address::search(
-			array(),
-			$params,
-			25,
-			0,
-			SearchFields_Address::NUM_NONSPAM,
-			false,
-			false
-		);
-
+		$view->renderLimit = 25;
+		$view->renderSortBy = SearchFields_Address::NUM_NONSPAM;
+		$view->renderSortAsc = false;
+		$view->renderTotal = false;
+		
+		list($results, $null) = $view->getData();
+		
 		switch($as) {
 			case 'ids':
 				return array_keys($results);
@@ -1864,7 +1874,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		$models = DAO_Address::autocomplete($term);
+		$models = DAO_Address::autocomplete($term, 'models', $query);
 		$list = [];
 		
 		if(stristr('none', $term) || stristr('empty', $term) || stristr('null', $term)) {
