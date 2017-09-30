@@ -20,23 +20,28 @@ This mail transport delivers mail to an <a href="http://en.wikipedia.org/wiki/Si
 <br>
 
 <b>Encryption:</b> (optional)<br>
-<label><input type="radio" name="params[{$extension->id}][encryption]" value="None" {if empty($model->params.encryption) || $model->params.encryption == 'None'}checked{/if}>None</label>&nbsp;&nbsp;&nbsp;
-<label><input type="radio" name="params[{$extension->id}][encryption]" value="TLS" {if $model->params.encryption == 'TLS'}checked{/if}>TLS</label>&nbsp;&nbsp;&nbsp;
-<label><input type="radio" name="params[{$extension->id}][encryption]" value="SSL" {if $model->params.encryption == 'SSL'}checked{/if}>SSL</label><br>
+<label><input type="radio" name="params[{$extension->id}][encryption]" value="None" {if empty($model->params.encryption) || $model->params.encryption == 'None'}checked{/if}> None</label>
+<label><input type="radio" name="params[{$extension->id}][encryption]" value="TLS" {if $model->params.encryption == 'TLS'}checked{/if}> TLS</label>
+<label><input type="radio" name="params[{$extension->id}][encryption]" value="SSL" {if $model->params.encryption == 'SSL'}checked{/if}> SSL</label><br>
 <br>
 
-<b>Authentication:</b> (optional)<br>
-<label><input type="checkbox" name="params[{$extension->id}][auth_enabled]" value="1" class="peek-smtp-auth" {if $model->params.auth_enabled}checked{/if}> Enabled</label><br>
-<br>
-
-<div class="peek-smtp-encryption" style="margin-left:15px;display:{if $model->params.auth_enabled}block{else}none{/if};">
-	<b>Username:</b><br>
-	<input type="text" name="params[{$extension->id}][auth_user]" value="{$model->params.auth_user}" size="45" style="width:95%;"><br>
-	<br>
+<b>Authentication:</b> (optional)
+<div style="margin-bottom:10px;">
+	<label><input type="checkbox" name="params[{$extension->id}][auth_enabled]" value="1" class="peek-smtp-auth" {if $model->params.auth_enabled}checked{/if}> Enabled</label><br>
 	
-	<b>Password:</b><br>
-	<input type="text" name="params[{$extension->id}][auth_pass]" value="{$model->params.auth_pass}" size="45" style="width:95%;"><br>
-	<br>
+	<div class="peek-smtp-encryption" style="margin-left:15px;display:{if $model->params.auth_enabled}block{else}none{/if};">
+		<div style="padding:5px;">
+			<b>Username:</b>
+			<br>
+			<input type="text" name="params[{$extension->id}][auth_user]" value="{$model->params.auth_user}" size="45" style="width:95%;">
+		</div>
+		
+		<div style="padding:5px;">
+			<b>Password:</b>
+			<br>
+			<input type="text" name="params[{$extension->id}][auth_pass]" value="{$model->params.auth_pass}" size="45" style="width:95%;">
+		</div>
+	</div>
 </div>
 
 <b>Timeout:</b><br>
@@ -49,10 +54,6 @@ seconds
 <input type="text" name="params[{$extension->id}][max_sends]" value="{$model->max_sends|default:20}" size="5">
 <i>(tuning this depends on your mail server; default is 20)</i>
 <br>
-<br>
-
-<div class="status"></div>
-
 </fieldset>
 
 <script type="text/javascript">

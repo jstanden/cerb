@@ -75,26 +75,26 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.mail.transport', $mail_transport->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $mail_transport->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields('cerberusweb.contexts.mail.transport', $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets('cerberusweb.contexts.mail.transport', $mail_transport->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $mail_transport->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			'cerberusweb.contexts.mail.transport' => array(
+			CerberusContexts::CONTEXT_MAIL_TRANSPORT => array(
 				$mail_transport->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						'cerberusweb.contexts.mail.transport',
+						CerberusContexts::CONTEXT_MAIL_TRANSPORT,
 						$mail_transport->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -108,11 +108,152 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 			
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, 'cerberusweb.contexts.mail.transport');
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_MAIL_TRANSPORT);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/mail_transport.tpl');
+	}
+	
+	function savePeekJsonAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		try {
+			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_MAIL_TRANSPORT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				DAO_MailTransport::delete($id);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
+				
+			} else {
+				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string',null);
+				@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string',null);
+				@$params = DevblocksPlatform::importGPC($_REQUEST['params'][$extension_id],'array',[]);
+				
+				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_MAIL_TRANSPORT)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+				
+					$fields = array(
+						DAO_MailTransport::EXTENSION_ID => $extension_id,
+						DAO_MailTransport::NAME => $name,
+						DAO_MailTransport::PARAMS_JSON => json_encode($params),
+						DAO_MailTransport::UPDATED_AT => time(),
+					);
+					
+					if(!DAO_MailTransport::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if(!$this->_testTransportParamsAction($extension_id, $params, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					$id = DAO_MailTransport::create($fields);
+					
+					if(!empty($view_id) && !empty($id))
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_MAIL_TRANSPORT, $id);
+					
+				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_MAIL_TRANSPORT)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+						
+					$fields = array(
+						DAO_MailTransport::EXTENSION_ID => $extension_id,
+						DAO_MailTransport::NAME => $name,
+						DAO_MailTransport::PARAMS_JSON => json_encode($params),
+						DAO_MailTransport::UPDATED_AT => time(),
+					);
+					
+					if(!DAO_MailTransport::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if(!$this->_testTransportParamsAction($extension_id, $params, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					DAO_MailTransport::update($id, $fields);
+				}
+				
+				// Custom fields
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $id, $field_ids);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'label' => $name,
+					'view_id' => $view_id,
+				));
+				return;
+			}
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			return;
+			
+		}
+	}
+	
+	function getTransportParamsAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string',null);
+		
+		if(false == ($mail_transport_ext = Extension_MailTransport::get($extension_id)))
+			return;
+		
+		if(empty($id) || false == ($model = DAO_MailTransport::get($id))) {
+			$model = new Model_MailTransport();
+			$model->extension_id = $mail_transport_ext->id;
+		}
+		
+		$mail_transport_ext->renderConfig($model);
+		
+		exit;
+	}
+	
+	private function _testTransportParamsAction($extension_id, array $params, &$error=null) {
+		try {
+			if(empty($extension_id) || false == ($mail_transport_ext = Extension_MailTransport::get($extension_id))) {
+				$error = 'The "transport" field is required.';
+				return false;
+			}
+			
+			// Test the transport specfic parameters
+			if(false == $mail_transport_ext->testConfig($params, $error)) {
+				return false;
+			}
+			
+		} catch(Exception $e) {
+			$error = 'A problem occurred. Please check your settings and try again.';
+			return false;
+		}
+		
+		$error = null;
+		return true;
 	}
 	
 	function viewExploreAction() {

@@ -2096,7 +2096,7 @@
 		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.mail.transport</id>
-			<name>Mail Transport</name>
+			<name>Email Transport</name>
 			<class>
 				<file>api/dao/mail_transport.php</file>
 				<name>Context_MailTransport</name>
@@ -2104,6 +2104,8 @@
 			<params>
 				<param key="names">
 					<value>
+						<data key="email transport" value="singular" />
+						<data key="email transports" value="plural" />
 						<data key="mail transport" value="singular" />
 						<data key="mail transports" value="plural" />
 						<data key="transport" value="singular short" />
@@ -2115,11 +2117,24 @@
 				<param key="view_class" value="View_MailTransport" />
 				<param key="options">
 					<value>
+						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
+						<data key="links" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="acl">
 					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>

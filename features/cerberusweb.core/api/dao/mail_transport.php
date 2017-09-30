@@ -3,7 +3,6 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 	const CREATED_AT = 'created_at';
 	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
-	const IS_DEFAULT = 'is_default';
 	const NAME = 'name';
 	const PARAMS_JSON = 'params_json';
 	const UPDATED_AT = 'updated_at';
@@ -31,11 +30,6 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 			->addField(self::ID)
 			->id()
 			->setEditable(false)
-			;
-		// tinyint(3) unsigned
-		$validation
-			->addField(self::IS_DEFAULT)
-			->bit()
 			;
 		// varchar(255)
 		$validation
@@ -135,7 +129,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, extension_id, is_default, created_at, updated_at, params_json ".
+		$sql = "SELECT id, name, extension_id, created_at, updated_at, params_json ".
 			"FROM mail_transport ".
 			$where_sql.
 			$sort_sql.
@@ -187,22 +181,40 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		return null;
 	}
 	
-	static function setDefault($id) {
-		$db = DevblocksPlatform::services()->database();
-		$db->ExecuteMaster(sprintf("UPDATE mail_transport SET is_default = IF(id=%d,1,0)", $id));
-		self::clearCache();
-	}
-	
-	static function getDefault() {
-		$transports = DAO_MailTransport::getAll();
+	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_MailTransport[]
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
 
-		if(is_array($transports))
-		foreach($transports as $transport) {
-			if($transport->is_default)
-				return $transport;
+		if(empty($ids))
+			return array();
+
+		if(!method_exists(get_called_class(), 'getWhere'))
+			return array();
+
+		$db = DevblocksPlatform::services()->database();
+
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+
+		$models = array();
+
+		$results = static::getWhere(sprintf("id IN (%s)",
+			implode(',', $ids)
+		));
+
+		// Sort $models in the same order as $ids
+		foreach($ids as $id) {
+			if(isset($results[$id]))
+				$models[$id] = $results[$id];
 		}
-		
-		return null;
+
+		unset($results);
+
+		return $models;
 	}
 	
 	/**
@@ -220,7 +232,6 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 			$object->id = $row['id'];
 			$object->name = $row['name'];
 			$object->extension_id = $row['extension_id'];
-			$object->is_default = !empty($row['is_default']) ? 1 : 0;
 			$object->created_at = $row['created_at'];
 			$object->updated_at = $row['updated_at'];
 			
@@ -251,11 +262,11 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM mail_transport WHERE id IN (%s)", $ids_list));
 		
-		// Clear the usage of this transport from reply-to addresses
-		$db->ExecuteMaster(sprintf("UPDATE address_outgoing SET reply_mail_transport_id = 0 WHERE reply_mail_transport_id IN (%s)", $ids_list));
+		// Clear the usage of this transport from addresses
+		$db->ExecuteMaster(sprintf("UPDATE address SET mail_transport_id = 0 WHERE mail_transport_id IN (%s)", $ids_list));
 		
 		self::clearCache();
-		DAO_AddressOutgoing::clearCache();
+		DAO_Address::clearCache();
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::services()->event();
@@ -281,14 +292,12 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 			"mail_transport.id as %s, ".
 			"mail_transport.name as %s, ".
 			"mail_transport.extension_id as %s, ".
-			"mail_transport.is_default as %s, ".
 			"mail_transport.created_at as %s, ".
 			"mail_transport.updated_at as %s, ".
 			"mail_transport.params_json as %s ",
 				SearchFields_MailTransport::ID,
 				SearchFields_MailTransport::NAME,
 				SearchFields_MailTransport::EXTENSION_ID,
-				SearchFields_MailTransport::IS_DEFAULT,
 				SearchFields_MailTransport::CREATED_AT,
 				SearchFields_MailTransport::UPDATED_AT,
 				SearchFields_MailTransport::PARAMS_JSON
@@ -413,13 +422,12 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 };
 
 class SearchFields_MailTransport extends DevblocksSearchFields {
+	const CREATED_AT = 'm_created_at';
+	const EXTENSION_ID = 'm_extension_id';
 	const ID = 'm_id';
 	const NAME = 'm_name';
-	const EXTENSION_ID = 'm_extension_id';
-	const IS_DEFAULT = 'm_is_default';
-	const CREATED_AT = 'm_created_at';
-	const UPDATED_AT = 'm_updated_at';
 	const PARAMS_JSON = 'm_params_json';
+	const UPDATED_AT = 'm_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -477,7 +485,6 @@ class SearchFields_MailTransport extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'mail_transport', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'mail_transport', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'mail_transport', 'extension_id', $translate->_('common.extension'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'mail_transport', 'is_default', $translate->_('common.default'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'mail_transport', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'mail_transport', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'mail_transport', 'params_json', null, null, false),
@@ -501,13 +508,12 @@ class SearchFields_MailTransport extends DevblocksSearchFields {
 };
 
 class Model_MailTransport {
+	public $created_at;
+	public $extension_id;
 	public $id;
 	public $name;
-	public $extension_id;
-	public $is_default;
-	public $created_at;
+	public $params = [];
 	public $updated_at;
-	public $params = array();
 	
 	/**
 	 * @return Extension_MailTransport
@@ -524,7 +530,7 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		$this->name = $translate->_('Mail Transports');
+		$this->name = $translate->_('common.email_transports');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_MailTransport::NAME;
 		$this->renderSortAsc = true;
@@ -586,7 +592,6 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 			switch($field_key) {
 				// Fields
 				case SearchFields_MailTransport::EXTENSION_ID:
-				case SearchFields_MailTransport::IS_DEFAULT:
 					$pass = true;
 					break;
 					
@@ -622,10 +627,6 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		switch($column) {
 			case SearchFields_MailTransport::EXTENSION_ID:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-				break;
-				
-			case SearchFields_MailTransport::IS_DEFAULT:
-				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
 			case SearchFields_MailTransport::VIRTUAL_CONTEXT_LINK:
@@ -673,11 +674,6 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_MAIL_TRANSPORT, 'q' => ''],
 					]
-				),
-			'isDefault' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_BOOL,
-					'options' => array('param_key' => SearchFields_MailTransport::IS_DEFAULT),
 				),
 			'name' => 
 				array(
@@ -757,10 +753,6 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
-			case SearchFields_MailTransport::IS_DEFAULT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-				
 			case SearchFields_MailTransport::CREATED_AT:
 			case SearchFields_MailTransport::UPDATED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
@@ -796,10 +788,6 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_MailTransport::IS_DEFAULT:
-				parent::_renderCriteriaParamBoolean($param);
-				break;
-			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -848,11 +836,6 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case SearchFields_MailTransport::IS_DEFAULT:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
 			case SearchFields_MailTransport::VIRTUAL_CONTEXT_LINK:
 				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
@@ -883,8 +866,8 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 	}
 };
 
-class Context_MailTransport extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
-	const ID = 'cerberusweb.contexts.mail.transport';
+class Context_MailTransport extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+	const ID = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read
@@ -937,8 +920,35 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 	
 	function getDefaultProperties() {
 		return array(
+			'extension_id',
 			'updated_at',
 		);
+	}
+	
+	function autocomplete($term, $query=null) {
+		$url_writer = DevblocksPlatform::services()->url();
+		$list = [];
+		
+		list($results, $null) = DAO_MailTransport::search(
+			[],
+			[
+				new DevblocksSearchCriteria(SearchFields_MailTransport::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
+			],
+			25,
+			0,
+			DAO_MailTransport::NAME,
+			true,
+			false
+		);
+
+		foreach($results AS $row){
+			$entry = new stdClass();
+			$entry->label = $row[SearchFields_MailTransport::NAME];
+			$entry->value = $row[SearchFields_MailTransport::ID];
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($mail_transport, &$token_labels, &$token_values, $prefix=null) {
@@ -963,8 +973,8 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		$token_labels = array(
 			'_label' => $prefix,
 			'created' => $prefix.$translate->_('common.created'),
+			'extension_id' => $prefix.$translate->_('common.type'),
 			'id' => $prefix.$translate->_('common.id'),
-			'is_default' => $prefix.$translate->_('common.default'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -974,8 +984,8 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		$token_types = array(
 			'_label' => 'context_url',
 			'created' => Model_CustomField::TYPE_DATE,
+			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
-			'is_default' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -999,8 +1009,8 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $mail_transport->name;
 			$token_values['created'] = $mail_transport->created_at;
+			$token_values['extension_id'] = $mail_transport->extension_id;
 			$token_values['id'] = $mail_transport->id;
-			$token_values['is_default'] = $mail_transport->is_default;
 			$token_values['name'] = $mail_transport->name;
 			$token_values['updated_at'] = $mail_transport->updated_at;
 			
@@ -1018,8 +1028,8 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 	function getKeyToDaoFieldMap() {
 		return [
 			'created' => DAO_MailTransport::CREATED_AT,
+			'extension_id' => DAO_MailTransport::EXTENSION_ID,
 			'id' => DAO_MailTransport::ID,
-			'is_default' => DAO_MailTransport::IS_DEFAULT,
 			'name' => DAO_MailTransport::NAME,
 			'updated_at' => DAO_MailTransport::UPDATED_AT,
 		];
@@ -1076,7 +1086,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Mail Transports';
+		$view->name = DevblocksPlatform::translateCapitalized('common.email_transports');
 		/*
 		$view->addParams(array(
 			SearchFields_MailTransport::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_MailTransport::UPDATED_AT,'=',0),
@@ -1098,7 +1108,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		$defaults->id = $view_id;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Mail Transport';
+		$view->name = DevblocksPlatform::translateCapitalized('common.email_transports');
 		
 		$params_req = array();
 		
@@ -1118,22 +1128,76 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		if(!empty($context_id) && null != ($mail_transport = DAO_MailTransport::get($context_id))) {
-			$tpl->assign('model', $mail_transport);
-		}
-		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MAIL_TRANSPORT, false);
-		$tpl->assign('custom_fields', $custom_fields);
+		$context = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
 		
 		if(!empty($context_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $context_id);
+			$model = DAO_MailTransport::get($context_id);
+		}
+		
+		if(empty($context_id) || $edit) {
+			if(isset($model))
+				$tpl->assign('model', $model);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
-		}
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			$extensions = Extension_MailTransport::getAll();
+			$tpl->assign('extensions', $extensions);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/mail_transport/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
 
-		$extensions = Extension_MailTransport::getAll();
-		$tpl->assign('extensions', $extensions);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/mail_transport/peek.tpl');
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = array();
+			$values = array();
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/mail_transport/peek.tpl');
+		}
 	}
 };

@@ -1,143 +1,130 @@
-{$peek_context = 'cerberusweb.contexts.mail.transport'}
-<form action="javascript:;" method="post" class="peek-mail-transport" onsubmit="return false;">
-<input type="hidden" name="view_id" value="{$view_id}">
-{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
-<input type="hidden" name="do_delete" value="0">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+{$div_id = "peek{uniqid()}"}
+{$peek_context = CerberusContexts::CONTEXT_MAIL_TRANSPORT}
+{$is_writeable = Context_MailTransport::isWriteableByActor($dict, $active_worker)}
 
-<fieldset class="peek" style="margin-bottom:0px;">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<div id="{$div_id}">
 	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;">
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'mail.transport'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<select name="extension_id">
-					<option value=""></option>
-					{foreach from=$extensions item=extension}
-					<option value="{$extension->id}" {if $extension->id == $model->extension_id}selected="selected"{/if}>{$extension->manifest->name}</option>
-					{/foreach}
-				</select>
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.default'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<label><input type="checkbox" name="is_default" value="1" {if $model->is_default}checked="checked"{/if}> Always use this transport when no others are specified</label>
-			</td>
-		</tr>
-	</table>
-</fieldset>
-
-{$extension = $extensions.{$model->extension_id}}
-
-<div class="mail-transport-params">
-{if $extension}
-{$extension->renderConfig($model)}
-{/if}
+	<div style="float:left;">
+		<h1>
+			{$dict->_label}
+		</h1>
+		
+		<div style="margin-top:5px;">
+			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
+			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			{/if}
+			
+			{if !empty($dict->id)}
+				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
+			{/if}
+			
+			{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
+		</div>
+	</div>
 </div>
 
-{if !empty($custom_fields)}
+<div style="clear:both;padding-top:10px;"></div>
+
 <fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
-
-{if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
-	<div>
-		Are you sure you want to delete this mail transport?
+	<div class="cerb-properties-grid" data-column-width="100">
+	
+		{$labels = $dict->_labels}
+		{$types = $dict->_types}
+		{foreach from=$properties item=k name=props}
+			{if $dict->$k}
+			<div>
+			{if $k == ''}
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+			{/if}
+			</div>
+			{/if}
+		{/foreach}
 	</div>
 	
-	<button type="button" class="delete"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<div style="clear:both;"></div>
+	
+	{*
+	<div style="margin-top:5px;">
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events|default:0}</div> {'common.events'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events_recurring|default:0}</div> {'common.events.recurring'|devblocks_translate|capitalize}</button>
+	</div>
+	*}
+	
 </fieldset>
-{/if}
 
-<div class="popup-status"></div>
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}
 
-<div class="buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	{if !empty($model->id) && !$model->is_default && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
-</div>
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$peek_context context_id=$dict->id view_id=$view_id}
 
-{if !empty($model->id)}
-<div style="float:right;">
-	<a href="{devblocks_url}c=profiles&type=mail_transport&id={$model->id}-{$model->name|devblocks_permalink}{/devblocks_url}">view full record</a>
-</div>
-<br clear="all">
-{/if}
-</form>
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
 <script type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
+	var $div = $('#{$div_id}');
+	var $popup = genericAjaxPopupFind($div);
+	var $layer = $popup.attr('data-layer');
 	
-	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{'Mail Transport'|escape:'javascript' nofilter}");
+	var $timeline = {$timeline_json|default:'{}' nofilter};
+
+	$popup.one('popup_open',function(event,ui) {
+		$popup.dialog('option','title', "{'common.email_transport'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
 		
-		$popup.find('select[name=extension_id]').change(function() {
-			// Load the parameters for the given transport extension
-			genericAjaxPost(
-				$popup.find('form.peek-mail-transport'),
-				$popup.find('div.mail-transport-params'),
-				'c=config&a=handleSectionAction&section=mail_smtp&action=getTransportParams'
-			);
+		// Properties grid
+		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
+		
+		// Edit button
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
+		$popup.find('button.cerb-peek-edit')
+			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
+			.on('cerb-peek-saved', function(e) {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			.on('cerb-peek-deleted', function(e) {
+				genericAjaxPopupClose($layer);
+			})
+			;
+		{/if}
+		
+		// Comments
+		$popup.find('button.cerb-peek-comments-add')
+			.cerbPeekTrigger()
+			.on('cerb-peek-saved', function() {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			;
+		
+		// Peeks
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
+		
+		// Searches
+		$popup.find('.cerb-search-trigger')
+			.cerbSearchTrigger()
+			;
+		
+		// Menus
+		$popup.find('ul.cerb-menu').menu();
+		
+		// View profile
+		$popup.find('.cerb-peek-profile').click(function(e) {
+			if(e.shiftKey || e.metaKey) {
+				window.open('{devblocks_url}c=profiles&type=mail_transport&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				
+			} else {
+				document.location='{devblocks_url}c=profiles&type=mail_transport&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
+			}
 		});
 		
-		$popup.find('button.delete').click(function() {
-			var $frm=$popup.find('form');
-			$frm.find('input:hidden[name=do_delete]').val('1');
-			
-			genericAjaxPost(
-				$popup.find('form.peek-mail-transport'),
-				null,
-				'c=config&a=handleSectionAction&section=mail_smtp&action=saveTransportPeek',
-				function() {
-					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
-					genericAjaxPopupClose('peek', 'mail_transport_save');
-				}
-			);
-		});
-		
-		$popup.find('button.submit').click(function() {
-			// Test and verify the settings, then allow the popup to submit
-			genericAjaxPost(
-				$popup.find('form.peek-mail-transport'),
-				null,
-				'c=config&a=handleSectionAction&section=mail_smtp&action=testTransportParams',
-				function(json) {
-					if(false == json || false == json.status) {
-						Devblocks.showError($popup.find('div.popup-status'),json.error);
-					} else {
-						$popup.find('div.popup-status').hide().html('');
-						
-						genericAjaxPost(
-							$popup.find('form.peek-mail-transport'),
-							null,
-							'c=config&a=handleSectionAction&section=mail_smtp&action=saveTransportPeek',
-							function() {
-								genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
-								genericAjaxPopupClose('peek', 'mail_transport_save');
-							}
-						);
-					}
-				}
-			);
-		});
-		
-		$(this).find('input:text:first').focus();
+		// Timeline
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
 	});
 });
 </script>

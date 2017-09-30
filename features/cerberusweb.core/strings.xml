@@ -767,6 +767,16 @@
 				<seg>Email Templates</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.email_transport">
+			<tuv xml:lang="en_US">
+				<seg>email transport</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.email_transports">
+			<tuv xml:lang="en_US">
+				<seg>email transports</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.enabled">
 			<tuv xml:lang="en_US">
 				<seg>Enabled</seg>
@@ -3309,16 +3319,6 @@ For example: http://www.cerbweb.com/support/</seg>
 		<tu tuid="mail.sent">
 			<tuv xml:lang="en_US">
 				<seg>Sent</seg>
-			</tuv>
-		</tu>
-		<tu tuid="mail.transport">
-			<tuv xml:lang="en_US">
-				<seg>Transport</seg>
-			</tuv>
-		</tu>
-		<tu tuid="mail.transports">
-			<tuv xml:lang="en_US">
-				<seg>Transports</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.view.add_filter">

@@ -1,4 +1,4 @@
-{$view_context = 'cerberusweb.contexts.mail.transport'}
+{$view_context = CerberusContexts::CONTEXT_MAIL_TRANSPORT}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}
@@ -10,7 +10,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
+			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
@@ -34,11 +34,17 @@
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
+<table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
 	<thead>
 	<tr>
+		{if !$view->options.disable_watchers}
+		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.watchers'|devblocks_translate|capitalize}">
+			<span class="glyphicons glyphicons-eye-open" style="color:rgb(80,80,80);"></span>
+		</th>
+		{/if}
+
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th class="{if $view->options.disable_sorting}no-sort{/if}">
@@ -68,27 +74,22 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
+			<td data-column="*_watchers" align="center" nowrap="nowrap" style="padding:5px;">
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.m_id}
+			</td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == "m_name"}
-			<td data-column="{$column}">
+			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.m_id}" style="display:none;">
-				{if $result.m_is_default}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span>{/if}
 				<a href="{devblocks_url}c=profiles&type=mail_transport&id={$result.m_id}-{$result.m_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.m_name}</a>
-				{if $active_worker->is_superuser}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.m_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>{/if}
-			</td>
-			{elseif $column == "m_extension_id"}
-			<td data-column="{$column}">
-				{$mail_transport_ext = $mail_transport_exts.{$result.$column}}
-				{if !empty($mail_transport_ext)}
-					{$mail_transport_ext->name}
-				{/if}
+				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.m_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif in_array($column, ["m_created_at", "m_updated_at"])}
-				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
+				<td>
 					{if !empty($result.$column)}
-						{$result.$column|devblocks_prettytime}&nbsp;
+						<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 					{/if}
 				</td>
 			{else}
@@ -137,33 +138,35 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$frm = $('#viewForm{$view->id}');
-
-{if $pref_keyboard_shortcuts}
-$frm.bind('keyboard_shortcut',function(event) {
-	$view_actions = $('#{$view->id}_actions');
+$(function() {
+	var $frm = $('#viewForm{$view->id}');
 	
-	hotkey_activated = true;
-
-	switch(event.keypress_event.which) {
-		case 101: // (e) explore
-			$btn = $view_actions.find('button.action-explore');
+	{if $pref_keyboard_shortcuts}
+	$frm.bind('keyboard_shortcut',function(event) {
+		$view_actions = $('#{$view->id}_actions');
 		
-			if(event.indirect) {
-				$btn.select().focus();
-				
-			} else {
-				$btn.click();
-			}
-			break;
+		hotkey_activated = true;
+	
+		switch(event.keypress_event.which) {
+			case 101: // (e) explore
+				$btn = $view_actions.find('button.action-explore');
 			
-		default:
-			hotkey_activated = false;
-			break;
-	}
-
-	if(hotkey_activated)
-		event.preventDefault();
+				if(event.indirect) {
+					$btn.select().focus();
+					
+				} else {
+					$btn.click();
+				}
+				break;
+				
+			default:
+				hotkey_activated = false;
+				break;
+		}
+	
+		if(hotkey_activated)
+			event.preventDefault();
+	});
+	{/if}
 });
-{/if}
 </script>

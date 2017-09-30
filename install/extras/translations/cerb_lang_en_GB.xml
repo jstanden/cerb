@@ -3353,16 +3353,6 @@
 				<seg>Sent</seg>
 			</tuv>
 		</tu>
-		<tu tuid="mail.transport">
-			<tuv xml:lang="en_GB">
-				<seg>Transport</seg>
-			</tuv>
-		</tu>
-		<tu tuid="mail.transports">
-			<tuv xml:lang="en_GB">
-				<seg>Transports</seg>
-			</tuv>
-		</tu>
 		<tu tuid="mail.view.add_filter">
 			<tuv xml:lang="en_GB">
 				<seg>-add filter-</seg>
