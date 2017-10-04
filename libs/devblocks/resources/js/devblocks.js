@@ -459,7 +459,20 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		draggable : true,
 		modal : false,
 		resizable : true,
+		height: "auto",
 		width : Math.max(Math.floor($(window).width()/2), 500) + 'px', // Larger of 50% of browser width or 500px
+		dragStop: function(event, ui) {
+			var $popup = $(this);
+			var $dialog = $popup.closest('div.ui-dialog');
+			$popup.css('height', 'auto');
+			$dialog.css('height', 'auto');
+		},
+		resizeStop: function(event, ui) {
+			var $popup = $(this);
+			var $dialog = $popup.closest('div.ui-dialog');
+			$popup.css('height', 'auto');
+			$dialog.css('height', 'auto');
+		},
 		close: function(event, ui) {
 			var $this = $(this);
 			$('#devblocksPopups').removeData($layer);
