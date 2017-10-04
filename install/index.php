@@ -633,33 +633,25 @@ switch($step) {
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
 		
 		if(!empty($form_submit) && !empty($default_reply_from)) {
-			
 			$validate = imap_rfc822_parse_adrlist(sprintf("<%s>", $default_reply_from),"localhost");
 
-			$fields = array(
-				DAO_AddressOutgoing::REPLY_SIGNATURE => "-- \n{{first_name}}{% if title %}, {{title}}{% endif %}\n",
-			);
+			$fields = [
+				DAO_EmailSignature::NAME => 'Default',
+				DAO_EmailSignature::IS_DEFAULT => 1,
+				DAO_EmailSignature::SIGNATURE => "-- \n{{first_name}}{% if title %}, {{title}}{% endif %}\n",
+				DAO_EmailSignature::UPDATED_AT => time(),
+			];
+			$sig_id = DAO_EmailSignature::create($fields);
 			
 			if(!empty($default_reply_from) && is_array($validate) && 1==count($validate)) {
 				if(null != ($address = DAO_Address::lookupAddress($default_reply_from, true))) {
-					$address_id = $address->id;
-					$fields[DAO_AddressOutgoing::ADDRESS_ID] = $address->id;
+					DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::MAIL_DEFAULT_FROM_ID, $address->id);
 				}
 			}
 			
 			if(!empty($default_reply_personal)) {
-				$fields[DAO_AddressOutgoing::REPLY_PERSONAL] = $default_reply_personal;
+				DevblocksPlatform::setPluginSetting('cerberusweb.core', 'mail_default_from_personal', $default_reply_personal);
 			}
-
-			// Create or update
-			if(null == DAO_AddressOutgoing::get($address->id)) {
-				$address_id = DAO_AddressOutgoing::create($fields);
-			} else {
-				DAO_AddressOutgoing::update($address->id, $fields);
-			}
-			
-			if(!empty($address_id))
-				DAO_AddressOutgoing::setDefault($address_id);
 			
 			if(!empty($helpdesk_title))
 				$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $helpdesk_title);
@@ -717,7 +709,6 @@ switch($step) {
 					$fields = array(
 						DAO_MailTransport::NAME => $smtp_host . ' SMTP',
 						DAO_MailTransport::EXTENSION_ID => CerbMailTransport_Smtp::ID,
-						DAO_MailTransport::IS_DEFAULT => 1,
 						DAO_MailTransport::PARAMS_JSON => json_encode($options),
 					);
 					$transport_id = DAO_MailTransport::create($fields);
@@ -727,7 +718,6 @@ switch($step) {
 					$fields = array(
 						DAO_MailTransport::NAME => 'Null Mailer',
 						DAO_MailTransport::EXTENSION_ID => CerbMailTransport_Null::ID,
-						DAO_MailTransport::IS_DEFAULT => 1,
 						DAO_MailTransport::PARAMS_JSON => json_encode(array()),
 					);
 					$transport_id = DAO_MailTransport::create($fields);
@@ -735,14 +725,13 @@ switch($step) {
 				}
 				
 				if($transport_id) {
-					// Set this as the default transport id
-					DAO_MailTransport::setDefault($transport_id);
+					$mail_default_from_id = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_DEFAULT_FROM_ID, 0);
 					
 					// Set it as the transport on the default reply-to
-					if(false != ($default_replyto = DAO_AddressOutgoing::getDefault())) {
-						DAO_AddressOutgoing::update($default_replyto->address_id, array(
-							DAO_AddressOutgoing::REPLY_MAIL_TRANSPORT_ID => $transport_id,
-						));
+					if($mail_default_from_id && false != ($from_addy = DAO_Address::get($mail_default_from_id))) {
+						DAO_Address::update($from_addy->id, [
+							DAO_Address::MAIL_TRANSPORT_ID => $transport_id,
+						]);
 					}
 				}
 				
@@ -801,25 +790,35 @@ switch($step) {
 			if(!empty($worker_email) && !empty($worker_pass) && $worker_pass == $worker_pass2) {
 				// If we have no groups, make a Dispatch group
 				$groups = DAO_Group::getAll(true);
+				$mail_from_address = DAO_Address::getDefaultLocalAddress();
+				
 				if(empty($groups)) {
 					// Dispatch Group
 					$dispatch_gid = DAO_Group::create(array(
 						DAO_Group::NAME => 'Dispatch',
+						DAO_Group::REPLY_ADDRESS_ID => intval($mail_from_address->id),
+						DAO_Group::REPLY_PERSONAL => '',
+						DAO_Group::REPLY_HTML_TEMPLATE_ID => 0,
+						DAO_Group::REPLY_SIGNATURE_ID => 1,
+						DAO_Group::IS_DEFAULT => 1,
 					));
 					
 					// Support Group
 					$support_gid = DAO_Group::create(array(
 						DAO_Group::NAME => 'Support',
+						DAO_Group::REPLY_ADDRESS_ID => intval($mail_from_address->id),
+						DAO_Group::REPLY_PERSONAL => '',
+						DAO_Group::REPLY_HTML_TEMPLATE_ID => 0,
+						DAO_Group::REPLY_SIGNATURE_ID => 1,
 					));
 
 					// Sales Group
 					$sales_gid = DAO_Group::create(array(
 						DAO_Group::NAME => 'Sales',
-					));
-					
-					// Default catchall
-					DAO_Group::update($dispatch_gid, array(
-						DAO_Group::IS_DEFAULT => 1
+						DAO_Group::REPLY_ADDRESS_ID => intval($mail_from_address->id),
+						DAO_Group::REPLY_PERSONAL => '',
+						DAO_Group::REPLY_HTML_TEMPLATE_ID => 0,
+						DAO_Group::REPLY_SIGNATURE_ID => 1,
 					));
 				}
 
@@ -917,7 +916,7 @@ switch($step) {
 				}
 				
 				// Send a first ticket which allows people to reply for support
-				$replyto_default = DAO_AddressOutgoing::getDefault();
+				$replyto_default = DAO_Address::getDefaultLocalAddress();
 				
 				if(null != $replyto_default) {
 					$message = new CerberusParserMessage();
