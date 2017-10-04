@@ -1035,6 +1035,7 @@ class CerberusContexts {
 	const CONTEXT_TASK = 'cerberusweb.contexts.task';
 	const CONTEXT_TICKET = 'cerberusweb.contexts.ticket';
 	const CONTEXT_TIMETRACKING = 'cerberusweb.contexts.timetracking';
+	const CONTEXT_WEBHOOK_LISTENER = 'cerberusweb.contexts.webhook_listener';
 	const CONTEXT_WORKER = 'cerberusweb.contexts.worker';
 	const CONTEXT_WORKSPACE_PAGE = 'cerberusweb.contexts.workspace.page';
 	const CONTEXT_WORKSPACE_TAB = 'cerberusweb.contexts.workspace.tab';

@@ -1,96 +1,130 @@
-{$peek_context = 'cerberusweb.contexts.webhook_listener'}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmWebhookListenerPeek">
-<input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="webhook_listener">
-<input type="hidden" name="action" value="savePeek">
-<input type="hidden" name="view_id" value="{$view_id}">
-{if $model->id}<input type="hidden" name="id" value="{$model->id}">{/if}
-<input type="hidden" name="do_delete" value="0">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+{$div_id = "peek{uniqid()}"}
+{$peek_context = CerberusContexts::CONTEXT_WEBHOOK_LISTENER}
+{$is_writeable = Context_WebhookListener::isWriteableByActor($dict, $active_worker)}
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<div id="{$div_id}">
 	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;">
-			</td>
-		</tr>
-	</table>
-	
-</fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
-
-{foreach from=$webhook_listener_engines item=engine key=engine_id}
-<fieldset class="peek" style="margin-bottom:0;">
-	<legend><label><input type="radio" name="extension_id" value="{$engine->id}" {if $model->id && $model->extension_id == $engine_id}checked="checked"{/if}> {$engine->manifest->name}</label></legend>
-	
-	{if $model->extension_id == $engine_id}
-	<div>
-		{$engine->renderConfig($model)}
+	<div style="float:left;">
+		<h1>
+			{$dict->_label}
+		</h1>
+		
+		<div style="margin-top:5px;">
+			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
+			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			{/if}
+			
+			{if !empty($dict->id)}
+				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
+			{/if}
+			
+			{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
+		</div>
 	</div>
-	{else}
-	<div style="display:none;">
-		{$engine->renderConfig($model)}
-	</div>
-	{/if}
-</fieldset>
-{/foreach}
-
-{if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to delete this webhook listener?
-	</div>
-	
-	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Confirm</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
-</fieldset>
-{/if}
-
-<div class="buttons">
-	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmWebhookListenerPeek','{$view_id}', false, 'webhook_listener_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
-{if !empty($model->id)}
-<div style="float:right;">
-	<a href="{devblocks_url}c=profiles&type=webhook_listener&id={$model->id}-{$model->name|devblocks_permalink}{/devblocks_url}">view full record</a>
-</div>
-<br clear="all">
-{/if}
-</form>
+<div style="clear:both;padding-top:10px;"></div>
+
+<fieldset class="peek">
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+	
+	<div class="cerb-properties-grid" data-column-width="100">
+	
+		{$labels = $dict->_labels}
+		{$types = $dict->_types}
+		{foreach from=$properties item=k name=props}
+			{if $dict->$k}
+			<div>
+			{if $k == ''}
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+			{/if}
+			</div>
+			{/if}
+		{/foreach}
+	</div>
+	
+	<div style="clear:both;"></div>
+	
+	{*
+	<div style="margin-top:5px;">
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events|default:0}</div> {'common.events'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events_recurring|default:0}</div> {'common.events.recurring'|devblocks_translate|capitalize}</button>
+	</div>
+	*}
+	
+</fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}
+
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$peek_context context_id=$dict->id view_id=$view_id}
+
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
 <script type="text/javascript">
-	var $popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $div = $('#{$div_id}');
+	var $popup = genericAjaxPopupFind($div);
+	var $layer = $popup.attr('data-layer');
 	
-	$popup.one('popup_open', function(event,ui) {
-		var $textarea = $(this).find('textarea[name=comment]');
+	var $timeline = {$timeline_json|default:'{}' nofilter};
+
+	$popup.one('popup_open',function(event,ui) {
+		$popup.dialog('option','title', "{'webhooks.common.webhook'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
 		
-		$(this).dialog('option','title',"{'Webhook Listener'|escape:'javascript' nofilter}");
+		// Properties grid
+		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
 		
-		$(this).find('input:text:first').focus();
+		// Edit button
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
+		$popup.find('button.cerb-peek-edit')
+			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
+			.on('cerb-peek-saved', function(e) {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			.on('cerb-peek-deleted', function(e) {
+				genericAjaxPopupClose($layer);
+			})
+			;
+		{/if}
 		
-		// Webhook listener engine fieldsets
+		// Comments
+		$popup.find('button.cerb-peek-comments-add')
+			.cerbPeekTrigger()
+			.on('cerb-peek-saved', function() {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			;
 		
-		var $fieldsets = $popup.find('fieldset');
+		// Peeks
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
 		
-		$popup.find('fieldset legend input:radio').on('click', function() {
-			$fieldsets.find('> div').hide();
-			$(this).closest('fieldset').find('> div').fadeIn();
+		// Searches
+		$popup.find('.cerb-search-trigger')
+			.cerbSearchTrigger()
+			;
+		
+		// Menus
+		$popup.find('ul.cerb-menu').menu();
+		
+		// View profile
+		$popup.find('.cerb-peek-profile').click(function(e) {
+			if(e.shiftKey || e.metaKey) {
+				window.open('{devblocks_url}c=profiles&type=webhook_listener&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				
+			} else {
+				document.location='{devblocks_url}c=profiles&type=webhook_listener&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
+			}
 		});
+		
+		// Timeline
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
 	});
+});
 </script>

@@ -1,4 +1,4 @@
-{$view_context = 'cerberusweb.contexts.webhook_listener'}
+{$view_context = CerberusContexts::CONTEXT_WEBHOOK_LISTENER}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}
@@ -12,7 +12,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
+			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="Subtotals" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
@@ -36,7 +36,7 @@
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
+<table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
 	<thead>
@@ -76,7 +76,7 @@
 			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&type=webhook_listener&id={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.w_name}</a>
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.w_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.w_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif $column == "w_guid"}
 			<td data-column="{$column}">

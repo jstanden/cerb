@@ -68,6 +68,9 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+			
 		// Make a diff for the requested objects in batches
 		
 		$chunks = array_chunk($ids, 100, true);
@@ -77,7 +80,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges('cerberusweb.contexts.webhook_listener', $batch_ids);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $batch_ids);
 			}
 			
 			// Make changes
@@ -97,7 +100,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				DevblocksPlatform::markContextChanged('cerberusweb.contexts.webhook_listener', $batch_ids);
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $batch_ids);
 			}
 		}
 	}
@@ -129,7 +132,26 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		
 		return self::_getObjectsFromResult($rs);
 	}
-
+	
+	/**
+	 *
+	 * @param bool $nocache
+	 * @return Model_WebhookListener[]
+	 */
+	static function getAll($nocache=false) {
+		//$cache = DevblocksPlatform::services()->cache();
+		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+			$objects = self::getWhere(null, DAO_WebhookListener::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			
+			//if(!is_array($objects))
+			//	return false;
+				
+			//$cache->save($objects, self::_CACHE_ALL);
+		//}
+		
+		return $objects;
+	}
+	
 	/**
 	 * @param integer $id
 	 * @return Model_WebhookListener
@@ -165,6 +187,42 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 			return false;
 		
 		return array_shift($results);
+	}
+	
+	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_WebhookListener[]
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+
+		if(empty($ids))
+			return [];
+
+		if(!method_exists(get_called_class(), 'getWhere'))
+			return [];
+
+		$db = DevblocksPlatform::services()->database();
+
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+
+		$models = [];
+
+		$results = static::getWhere(sprintf("id IN (%s)",
+			implode(',', $ids)
+		));
+
+		// Sort $models in the same order as $ids
+		foreach($ids as $id) {
+			if(isset($results[$id]))
+				$models[$id] = $results[$id];
+		}
+
+		unset($results);
+
+		return $models;
 	}
 	
 	/**
@@ -220,7 +278,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 			new Model_DevblocksEvent(
 				'context.delete',
 				array(
-					'context' => 'cerberusweb.contexts.webhook_listener',
+					'context' => CerberusContexts::CONTEXT_WEBHOOK_LISTENER,
 					'context_ids' => $ids
 				)
 			)
@@ -283,7 +341,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 			
-		$from_context = 'cerberusweb.contexts.webhook_listener';
+		$from_context = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
 		$from_index = 'webhook_listener.id';
 		
 		$param_key = $param->field;
@@ -383,18 +441,18 @@ class SearchFields_WebhookListener extends DevblocksSearchFields {
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			'cerberusweb.contexts.webhook_listener' => new DevblocksSearchFieldContextKeys('webhook_listener.id', self::ID),
+			CerberusContexts::CONTEXT_WEBHOOK_LISTENER => new DevblocksSearchFieldContextKeys('webhook_listener.id', self::ID),
 		);
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 			switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, 'cerberusweb.contexts.webhook_listener', self::getPrimaryKey());
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WEBHOOK_LISTENER, self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, 'cerberusweb.contexts.webhook_listener', self::getPrimaryKey());
+				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_WEBHOOK_LISTENER, self::getPrimaryKey());
 				break;
 			
 			default:
@@ -561,7 +619,7 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
-		$context = 'cerberusweb.contexts.webhook_listener';
+		$context = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
 
 		if(!isset($fields[$column]))
 			return array();
@@ -654,7 +712,7 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 		
 		// Add searchable custom fields
 		
-		$fields = self::_appendFieldsFromQuickSearchContext('cerberusweb.contexts.webhook_listener', $fields, null);
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $fields, null);
 		
 		// Add is_sortable
 		
@@ -689,7 +747,7 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.webhook_listener');
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WEBHOOK_LISTENER);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$tpl->assign('view_template', 'devblocks:cerb.webhooks::webhook_listener/view.tpl');
@@ -726,7 +784,7 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 				break;
 				
 			case SearchFields_WebhookListener::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, 'cerberusweb.contexts.webhook_listener');
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_WEBHOOK_LISTENER);
 				break;
 				
 			case SearchFields_WebhookListener::VIRTUAL_WATCHERS:
@@ -833,7 +891,7 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 };
 
 class Context_WebhookListener extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
-	const ID = 'cerberusweb.contexts.webhook_listener';
+	const ID = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admin workers can read
@@ -885,6 +943,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 	
 	function getDefaultProperties() {
 		return array(
+			'guid',
 			'updated_at',
 		);
 	}
@@ -894,7 +953,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			$prefix = 'Webhook Listener:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.webhook_listener');
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WEBHOOK_LISTENER);
 
 		// Polymorph
 		if(is_numeric($webhook_listener)) {
@@ -940,7 +999,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = 'cerberusweb.contexts.webhook_listener';
+		$token_values['_context'] = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
 		$token_values['_types'] = $token_types;
 		
 		if($webhook_listener) {
@@ -972,12 +1031,33 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			'updated_at' => DAO_WebhookListener::UPDATED_AT,
 		];
 	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		$dict_key = DevblocksPlatform::strLower($key);
+		switch($dict_key) {
+			case 'extension_params':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_WebhookListener::EXTENSION_PARAMS_JSON] = $json;
+				break;
+		}
+		
+		return true;
+	}
 
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;
 		
-		$context = 'cerberusweb.contexts.webhook_listener';
+		$context = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
@@ -1061,31 +1141,82 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		if(empty($context_id) || null == ($model = DAO_WebhookListener::get($context_id))) {
-			$model = new Model_WebhookListener();
-		}
-		
-		$tpl->assign('model', $model);
-		
-		// Custom fields
-		
-		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.webhook_listener', false);
-		$tpl->assign('custom_fields', $custom_fields);
+		$context = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
+		$model = null;
 		
 		if(!empty($context_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.webhook_listener', $context_id);
-			if(isset($custom_field_values[$context_id]))
-				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			$model = DAO_WebhookListener::get($context_id);
 		}
 		
-		// Webhook listener extensions
+		if(empty($model))
+			$model = new Model_WebhookListener();
 		
-		$webhook_listener_engines = Extension_WebhookListenerEngine::getAll(true);
-		$tpl->assign('webhook_listener_engines', $webhook_listener_engines);
+		if(empty($context_id) || $edit) {
+			if(isset($model))
+				$tpl->assign('model', $model);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// Webhook listener extensions
+			$webhook_listener_engines = Extension_WebhookListenerEngine::getAll(true);
+			$tpl->assign('webhook_listener_engines', $webhook_listener_engines);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerb.webhooks::webhook_listener/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
 
-		// Template
-		
-		$tpl->display('devblocks:cerb.webhooks::webhook_listener/peek.tpl');
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = [];
+			$values = [];
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerb.webhooks::webhook_listener/peek.tpl');
+		}
 	}
 	
 };

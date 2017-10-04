@@ -117,6 +117,8 @@
 					<value>
 						<data key="webhook" value="singular" />
 						<data key="webhooks" value="plural" />
+						<data key="webhook listener" value="singular" />
+						<data key="webhook listeners" value="plural" />
 					</value>
 				</param>
 				<param key="alias" value="webhook_listener" />
@@ -124,17 +126,24 @@
 				<param key="view_class" value="View_WebhookListener" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
-						<!--<data key="custom_fields" />-->
-						<!--<data key="links" />-->
-						<!--<data key="search" />-->
-						<!--<data key="snippets" />-->
-						<!--<data key="va_variable" />-->
-						<!--<data key="workspace" />-->
+						<data key="cards" />
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="acl">
 					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>

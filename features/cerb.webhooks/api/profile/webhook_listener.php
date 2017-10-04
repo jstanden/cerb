@@ -71,26 +71,26 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 		
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.webhook_listener', $webhook_listener->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $webhook_listener->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields('cerberusweb.contexts.webhook_listener', $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets('cerberusweb.contexts.webhook_listener', $webhook_listener->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $webhook_listener->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			'cerberusweb.contexts.webhook_listener' => array(
+			CerberusContexts::CONTEXT_WEBHOOK_LISTENER => array(
 				$webhook_listener->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						'cerberusweb.contexts.webhook_listener',
+						CerberusContexts::CONTEXT_WEBHOOK_LISTENER,
 						$webhook_listener->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -104,14 +104,118 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 			
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, 'cerberusweb.contexts.webhook_listener');
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_WEBHOOK_LISTENER);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
 		$tpl->display('devblocks:cerb.webhooks::webhook_listener/profile.tpl');
 	}
 	
-	function savePeekAction() {
+	function savePeekJsonAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		try {
+			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WEBHOOK_LISTENER)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				DAO_WebhookListener::delete($id);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
+				
+			} else {
+				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+				@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
+				@$extension_params = DevblocksPlatform::importGPC($_REQUEST['extension_params'], 'array', array());
+				
+				$extension_params = @$extension_params[$extension_id] ?: array();
+				$extension_params_json = json_encode(is_array($extension_params) ? $extension_params : array());
+				
+				if(empty($name))
+					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
+				
+				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_WEBHOOK_LISTENER)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+				
+					$fields = array(
+						DAO_WebhookListener::UPDATED_AT => time(),
+						DAO_WebhookListener::NAME => $name,
+						DAO_WebhookListener::GUID => sha1($name . time() . mt_rand(0,10000)),
+						DAO_WebhookListener::EXTENSION_ID => $extension_id,
+						DAO_WebhookListener::EXTENSION_PARAMS_JSON => $extension_params_json,
+					);
+					
+					if(!DAO_WebhookListener::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					$id = DAO_WebhookListener::create($fields);
+					
+					if(!empty($view_id) && !empty($id))
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $id);
+					
+				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_WEBHOOK_LISTENER)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+						
+					$fields = array(
+						DAO_WebhookListener::UPDATED_AT => time(),
+						DAO_WebhookListener::NAME => $name,
+						DAO_WebhookListener::EXTENSION_ID => $extension_id,
+						DAO_WebhookListener::EXTENSION_PARAMS_JSON => $extension_params_json,
+					);
+					
+					if(!DAO_WebhookListener::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					DAO_WebhookListener::update($id, $fields);
+				}
+	
+				// Custom fields
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $id, $field_ids);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'label' => $name,
+					'view_id' => $view_id,
+				));
+				return;
+			}
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			return;
+			
+		}
+	
+	}
+	
+	function savePeekOLD() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
@@ -141,7 +245,7 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 				$id = DAO_WebhookListener::create($fields);
 				
 				if(!empty($view_id) && !empty($id))
-					C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.webhook_listener', $id);
+					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $id);
 				
 			} else { // Edit
 				$fields = array(
@@ -156,7 +260,7 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.webhook_listener', $id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $id, $field_ids);
 		}
 	}
 	
