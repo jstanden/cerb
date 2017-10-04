@@ -24,6 +24,7 @@
 	
 	<patches>
 		<patch version="6.0.0-dev" revision="1" file="patches/6.0.0.php" />
+		<patch version="8.2.0" revision="2" file="patches/8.2.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -34,6 +35,7 @@
 			<class name="Plugin_RestAPI" />
 		</file>
 		<file path="api/dao/webapi_credentials.php">
+			<class name="Context_WebApiCredentials" />
 			<class name="DAO_WebApiCredentials" />
 			<class name="Model_WebApiCredentials" />
 			<class name="SearchFields_WebApiCredentials" />
@@ -71,7 +73,65 @@
 				<param key="title" value="Cerb API" />
 			</params>
 		</extension>
-
+		
+		<!-- Context -->
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.webapi.credential</id>
+			<name>Web Api Credentials</name>
+			<class>
+				<file>api/dao/webapi_credentials.php</file>
+				<name>Context_WebApiCredentials</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="api credential" value="singular" />
+						<data key="api credentials" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="webapi_credentials" />
+				<param key="dao_class" value="DAO_WebApiCredentials" />
+				<param key="view_class" value="View_WebApiCredentials" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<!-- Profiles -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>api.page.profiles.webapi_credentials</id>
+			<name>WebApi Credentials Section</name>
+			<class>
+				<file>api/profiles/webapi_credentials.php</file>
+				<name>PageSection_ProfilesWebApiCredentials</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="webapi_credentials" />
+			</params>
+		</extension>
+		
 		<!-- REST Controllers -->
 		
 		<extension point="cerberusweb.rest.controller">

@@ -1,100 +1,130 @@
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmWebApiCredentials" name="frmWebApiCredentials" onsubmit="return false;">
-<input type="hidden" name="c" value="preferences">
-<input type="hidden" name="a" value="handleTabAction">
-<input type="hidden" name="tab" value="rest.preferences.tab.api">
-<input type="hidden" name="action" value="savePeekPopup">
-<input type="hidden" name="id" value="{$model->id|default:'0'}">
-<input type="hidden" name="do_delete" value="0">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+{$div_id = "peek{uniqid()}"}
+{$peek_context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL}
+{$is_writeable = Context_WebApiCredentials::isWriteableByActor($dict, $active_worker)}
+
+<div id="{$div_id}">
+	
+	<div style="float:left;">
+		<h1>
+			{$dict->_label}
+		</h1>
+		
+		<div style="margin-top:5px;">
+			{if $dict->id}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+			
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
+			<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			{/if}
+			
+			{if !empty($dict->id)}
+				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
+			{/if}
+			
+			{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
+		</div>
+	</div>
+</div>
+
+<div style="clear:both;padding-top:10px;"></div>
 
 <fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
-	<table cellpadding="0" cellspacing="5" border="0" width="98%">
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.label'|devblocks_translate|capitalize}:</b></td>
-			<td width="100%">
-				<input type="text" name="label" style="width:98%;" value="{$model->label}">
-				<div>
-					<i>(e.g. "Server monitoring", "Call center integration")</i>
-				</div>
-			</td>
-		</tr>
-		
-		{if !empty($model)}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'dao.webapi_credentials.access_key'|devblocks_translate|capitalize}:</b></td>
-			<td width="100%">
-				<span class="tag tag-gray">{$model->access_key}</span>
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'dao.webapi_credentials.secret_key'|devblocks_translate|capitalize}:</b></td>
-			<td width="100%">
-				<span class="tag tag-gray">{$model->secret_key}</span>
-				<div>
-					<label><input type="checkbox" name="regenerate_keys" value="1"> Generate new keys</label>
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>QR Code:</b></td>
-			<td width="100%">
-				<div class="qrcode"></div>
-			</td>
-		</tr>
-		{/if}
-		
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>Allowed paths:</b></td>
-			<td width="100%">
-				<textarea rows="8" cols="60" style="width:100%;" name="params[allowed_paths]">{if empty($model)}*{else}{$model->params.allowed_paths|implode:"\n"}{/if}</textarea>
-				<div>
-					<i>(one per line; use * for wildcards; e.g. tasks/*)</i>
-				</div>
-			</td>
-		</tr>
-		
-	</table>
-</fieldset>
-
-<fieldset class="delete" style="display:none;">
-	<legend>Are you sure you want to delete these credentials?</legend>
-	<p>
-		Any applications or services that are using these credentials will no longer be able to access the API.
-	</p>
-	<button type="button" class="red" onclick="$frm=$('#frmWebApiCredentials'); $frm.find('input[name=do_delete]').val('1'); $frm.find('button.submit').click();">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="$(this).closest('fieldset').nextAll('.toolbar').fadeIn();$(this).closest('fieldset').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
-
-{if 1}
-	<div class="toolbar">
-		<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmWebApiCredentials','{$view_id}',false,'webapi_save');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
-		{if !empty($model)}<button type="button" onclick="$toolbar=$(this).closest('div.toolbar').fadeOut();$toolbar.siblings('fieldset.delete').fadeIn();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	<div class="cerb-properties-grid" data-column-width="100">
+	
+		{$labels = $dict->_labels}
+		{$types = $dict->_types}
+		{foreach from=$properties item=k name=props}
+			{if $dict->$k}
+			<div>
+			{if $k == ''}
+			{else}
+				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+			{/if}
+			</div>
+			{/if}
+		{/foreach}
 	</div>
-{else}
-	<fieldset class="delete">
-		{'error.core.no_acl.edit'|devblocks_translate}
-	</fieldset>
-{/if}
-</form>
+	
+	<div style="clear:both;"></div>
+	
+	{*
+	<div style="margin-top:5px;">
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events|default:0}</div> {'common.events'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events_recurring|default:0}</div> {'common.events.recurring'|devblocks_translate|capitalize}</button>
+	</div>
+	*}
+	
+</fieldset>
+
+{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}
+
+{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$peek_context context_id=$dict->id view_id=$view_id}
+
+{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
 <script type="text/javascript">
-	$popup = genericAjaxPopupFetch('peek');
+$(function() {
+	var $div = $('#{$div_id}');
+	var $popup = genericAjaxPopupFind($div);
+	var $layer = $popup.attr('data-layer');
+	
+	var $timeline = {$timeline_json|default:'{}' nofilter};
+
 	$popup.one('popup_open',function(event,ui) {
-		$(this).dialog('option','title','{'webapi.common.api_credentials'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
-		$('#frmWebApiCredentials :input:text:first').focus().select();
+		$popup.dialog('option','title', "{'webapi.common.api_credentials'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
 		
-		{if !empty($model)}
-		// QR Code
-		var options = { width:150, height:150, text:"{$model->access_key}:{$model->secret_key}" };
-		var hasCanvasSupport = !!window.CanvasRenderingContext2D;
-
-		// If no <canvas> tag, use <table> instead
-		if(!hasCanvasSupport)
-			options.render = 'table';
-
-		$(this).find('div.qrcode').qrcode(options);
+		// Properties grid
+		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
+		
+		// Edit button
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
+		$popup.find('button.cerb-peek-edit')
+			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
+			.on('cerb-peek-saved', function(e) {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			.on('cerb-peek-deleted', function(e) {
+				genericAjaxPopupClose($layer);
+			})
+			;
 		{/if}
+		
+		// Comments
+		$popup.find('button.cerb-peek-comments-add')
+			.cerbPeekTrigger()
+			.on('cerb-peek-saved', function() {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+			})
+			;
+		
+		// Peeks
+		$popup.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			;
+		
+		// Searches
+		$popup.find('.cerb-search-trigger')
+			.cerbSearchTrigger()
+			;
+		
+		// Menus
+		$popup.find('ul.cerb-menu').menu();
+		
+		// View profile
+		$popup.find('.cerb-peek-profile').click(function(e) {
+			if(e.shiftKey || e.metaKey) {
+				window.open('{devblocks_url}c=profiles&type=webapi_credentials&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				
+			} else {
+				document.location='{devblocks_url}c=profiles&type=webapi_credentials&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
+			}
+		});
+		
+		// Timeline
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
 	});
+});
 </script>

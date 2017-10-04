@@ -2,9 +2,10 @@
 class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	const ACCESS_KEY = 'access_key';
 	const ID = 'id';
-	const LABEL = 'label';
+	const NAME = 'name';
 	const PARAMS_JSON = 'params_json';
 	const SECRET_KEY = 'secret_key';
+	const UPDATED_AT = 'updated_at';
 	const WORKER_ID = 'worker_id';
 	
 	const _CACHE_ALL = 'dao_webapi_credentials_all';
@@ -28,9 +29,10 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 			;
 		// varchar(255)
 		$validation
-			->addField(self::LABEL)
+			->addField(self::NAME)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
 			;
 		// text
 		$validation
@@ -43,6 +45,10 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 			->addField(self::SECRET_KEY) // [TODO] Encrypt
 			->string()
 			->setMaxLength(255)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
 			;
 		// int(10) unsigned
 		$validation
@@ -65,9 +71,51 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
-		parent::_update($ids, 'webapi_credentials', $fields);
+	static function update($ids, $fields, $check_deltas=true) {
+		if(!is_array($ids))
+			$ids = array($ids);
+			
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
 		
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+				
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL, $batch_ids);
+			}
+			
+			// Make changes
+			parent::_update($batch_ids, 'webapi_credentials', $fields);
+			
+			// Send events
+			if($check_deltas) {
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::services()->event();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.webapi_credentials.update',
+						array(
+							'fields' => $fields,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL, $batch_ids);
+			}
+		}
+		
+		self::clearCache();
+	}
+	
+	static function updateWhere($fields, $where) {
+		parent::_updateWhere('webapi_credentials', $fields, $where);
 		self::clearCache();
 	}
 	
@@ -84,7 +132,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, label, worker_id, access_key, secret_key, params_json ".
+		$sql = "SELECT id, name, worker_id, access_key, secret_key, params_json, updated_at ".
 			"FROM webapi_credentials ".
 			$where_sql.
 			$sort_sql.
@@ -99,7 +147,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		
 		return self::_getObjectsFromResult($rs);
 	}
-
+	
 	/**
 	 * @param integer $id
 	 * @return Model_WebApiCredentials
@@ -153,6 +201,42 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_WebApiCredentials[]
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+
+		if(empty($ids))
+			return [];
+
+		if(!method_exists(get_called_class(), 'getWhere'))
+			return [];
+
+		$db = DevblocksPlatform::services()->database();
+
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+
+		$models = [];
+
+		$results = static::getWhere(sprintf("id IN (%s)",
+			implode(',', $ids)
+		));
+
+		// Sort $models in the same order as $ids
+		foreach($ids as $id) {
+			if(isset($results[$id]))
+				$models[$id] = $results[$id];
+		}
+
+		unset($results);
+
+		return $models;
+	}	
+	
+	/**
 	 * @param resource $rs
 	 * @return Model_WebApiCredentials[]
 	 */
@@ -165,10 +249,11 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_WebApiCredentials();
 			$object->id = $row['id'];
-			$object->label = $row['label'];
+			$object->name = $row['name'];
 			$object->worker_id = $row['worker_id'];
 			$object->access_key = $row['access_key'];
 			$object->secret_key = $row['secret_key'];
+			$object->updated_at = intval($row['updated_at']);
 			
 			@$params = json_decode($row['params_json'], true);
 			$object->params = !empty($params) ? $params : array();
@@ -179,6 +264,10 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		mysqli_free_result($rs);
 		
 		return $objects;
+	}
+	
+	static function random() {
+		return self::_getRandom('webapi_credentials');
 	}
 	
 	static function delete($ids) {
@@ -204,11 +293,13 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		
 		$select_sql = sprintf("SELECT ".
 			"webapi_credentials.id as %s, ".
-			"webapi_credentials.label as %s, ".
+			"webapi_credentials.name as %s, ".
+			"webapi_credentials.updated_at as %s, ".
 			"webapi_credentials.worker_id as %s, ".
 			"webapi_credentials.access_key as %s ",
 				SearchFields_WebApiCredentials::ID,
-				SearchFields_WebApiCredentials::LABEL,
+				SearchFields_WebApiCredentials::NAME,
+				SearchFields_WebApiCredentials::UPDATED_AT,
 				SearchFields_WebApiCredentials::WORKER_ID,
 				SearchFields_WebApiCredentials::ACCESS_KEY
 			);
@@ -301,12 +392,13 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 };
 
 class SearchFields_WebApiCredentials extends DevblocksSearchFields {
-	const ID = 'w_id';
-	const LABEL = 'w_label';
-	const WORKER_ID = 'w_worker_id';
 	const ACCESS_KEY = 'w_access_key';
-	const SECRET_KEY = 'w_secret_key';
+	const ID = 'w_id';
+	const NAME = 'w_name';
 	const PARAMS_JSON = 'w_params_json';
+	const SECRET_KEY = 'w_secret_key';
+	const UPDATED_AT = 'w_updated_at';
+	const WORKER_ID = 'w_worker_id';
 	
 	const VIRTUAL_WORKER_SEARCH = '*_worker_search';
 	
@@ -318,7 +410,7 @@ class SearchFields_WebApiCredentials extends DevblocksSearchFields {
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('webapi_credentials.id', self::ID),
+			CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL => new DevblocksSearchFieldContextKeys('webapi_credentials.id', self::ID),
 			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('webapi_credentials.worker_id', self::WORKER_ID),
 		);
 	}
@@ -357,14 +449,21 @@ class SearchFields_WebApiCredentials extends DevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'webapi_credentials', 'id', $translate->_('common.id'), null, true),
-			self::LABEL => new DevblocksSearchField(self::LABEL, 'webapi_credentials', 'label', $translate->_('common.label'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'webapi_credentials', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'webapi_credentials', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'webapi_credentials', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_WORKER, true),
 			self::ACCESS_KEY => new DevblocksSearchField(self::ACCESS_KEY, 'webapi_credentials', 'access_key', $translate->_('dao.webapi_credentials.access_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::SECRET_KEY => new DevblocksSearchField(self::SECRET_KEY, 'webapi_credentials', 'secret_key', $translate->_('dao.webapi_credentials.secret_key'), null, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'webapi_credentials', 'params_json', $translate->_('dao.webapi_credentials.params_json'), null, false),
-				
+			
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
 		);
+		
+		// Custom Fields
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
+		
+		if(!empty($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -375,11 +474,12 @@ class SearchFields_WebApiCredentials extends DevblocksSearchFields {
 
 class Model_WebApiCredentials {
 	public $id;
-	public $label;
+	public $name;
 	public $worker_id;
 	public $access_key;
 	public $secret_key;
-	public $params = array();
+	public $params = [];
+	public $updated_at = 0;
 };
 
 class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_QuickSearch {
@@ -395,9 +495,10 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_WebApiCredentials::LABEL,
+			SearchFields_WebApiCredentials::NAME,
 			SearchFields_WebApiCredentials::ACCESS_KEY,
 			SearchFields_WebApiCredentials::WORKER_ID,
+			SearchFields_WebApiCredentials::UPDATED_AT,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -444,17 +545,22 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_WebApiCredentials::LABEL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_WebApiCredentials::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'accessKey' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WebApiCredentials::ACCESS_KEY, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'label' => 
+			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_WebApiCredentials::LABEL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_WebApiCredentials::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_WebApiCredentials::UPDATED_AT),
 				),
 			'worker' => 
 				array(
@@ -517,7 +623,7 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
-			case SearchFields_WebApiCredentials::LABEL:
+			case SearchFields_WebApiCredentials::NAME:
 			case SearchFields_WebApiCredentials::ACCESS_KEY:
 			case SearchFields_WebApiCredentials::SECRET_KEY:
 			case SearchFields_WebApiCredentials::PARAMS:
@@ -531,8 +637,8 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 			case 'placeholder_bool':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
-				
-			case 'placeholder_date':
+
+			case SearchFields_WebApiCredentials::UPDATED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
@@ -577,7 +683,7 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 
 		switch($field) {
 			case SearchFields_WebApiCredentials::ACCESS_KEY:
-			case SearchFields_WebApiCredentials::LABEL:
+			case SearchFields_WebApiCredentials::NAME:
 			case SearchFields_WebApiCredentials::PARAMS:
 			case SearchFields_WebApiCredentials::SECRET_KEY:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
@@ -587,7 +693,7 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_WebApiCredentials::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
@@ -604,6 +710,310 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 		if(!empty($criteria)) {
 			$this->addParam($criteria, $field);
 			$this->renderPage = 0;
+		}
+	}
+};
+
+class Context_WebApiCredentials extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
+	
+	static function isReadableByActor($models, $actor) {
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Everyone can modify
+		return CerberusContexts::allowEverything($models);
+	}
+
+	function getRandom() {
+		return DAO_WebApiCredentials::random();
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::services()->url();
+		$url = $url_writer->writeNoProxy('c=profiles&type=webapi_credentials&id='.$context_id, true);
+		return $url;
+	}
+	
+	function getMeta($context_id) {
+		$webapi_credentials = DAO_WebApiCredentials::get($context_id);
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		$url = $this->profileGetUrl($context_id);
+		$friendly = DevblocksPlatform::strToPermalink($webapi_credentials->name);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
+		
+		return array(
+			'id' => $webapi_credentials->id,
+			'name' => $webapi_credentials->name,
+			'permalink' => $url,
+			'updated' => $webapi_credentials->updated_at,
+		);
+	}
+	
+	function getDefaultProperties() {
+		return array(
+			'worker__label',
+			'access_key',
+			'updated_at',
+		);
+	}
+	
+	function getContext($webapi_credentials, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'WebApi Credentials:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL);
+
+		// Polymorph
+		if(is_numeric($webapi_credentials)) {
+			$webapi_credentials = DAO_WebApiCredentials::get($webapi_credentials);
+		} elseif($webapi_credentials instanceof Model_WebApiCredentials) {
+			// It's what we want already.
+		} elseif(is_array($webapi_credentials)) {
+			$webapi_credentials = Cerb_ORMHelper::recastArrayToModel($webapi_credentials, 'Model_WebApiCredentials');
+		} else {
+			$webapi_credentials = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'_label' => $prefix,
+			'access_key' => $prefix.$translate->_('dao.webapi_credentials.access_key'),
+			'id' => $prefix.$translate->_('common.id'),
+			'name' => $prefix.$translate->_('common.name'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'access_key' => Model_CustomField::TYPE_SINGLE_LINE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated_at' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
+		);
+		
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
+		// Custom field/fieldset token types
+		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_types))
+			$token_types = array_merge($token_types, $custom_field_types);
+		
+		// Token values
+		$token_values = [];
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
+		$token_values['_types'] = $token_types;
+		
+		if($webapi_credentials) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $webapi_credentials->name;
+			$token_values['access_key'] = $webapi_credentials->access_key;
+			$token_values['id'] = $webapi_credentials->id;
+			$token_values['name'] = $webapi_credentials->name;
+			$token_values['updated_at'] = $webapi_credentials->updated_at;
+			$token_values['worker_id'] = $webapi_credentials->worker_id;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($webapi_credentials, $token_values);
+			
+			// URL
+			$url_writer = DevblocksPlatform::services()->url();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=webapi_credentials&id=%d-%s",$webapi_credentials->id, DevblocksPlatform::strToPermalink($webapi_credentials->name)), true);
+		}
+		
+		// Owner
+		$merge_token_labels = array();
+		$merge_token_values = array();
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
+
+			CerberusContexts::merge(
+				'worker_',
+				$prefix.'Worker:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
+		
+		return true;
+	}
+	
+	// [TODO]
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_WebApiCredentials::ID,
+			'name' => DAO_WebApiCredentials::NAME,
+			'updated_at' => DAO_WebApiCredentials::UPDATED_AT,
+		];
+	}
+
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = [];
+		
+		if(!$is_loaded) {
+			$labels = [];
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
+		}
+		
+		switch($token) {
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $links);
+				break;
+		
+			default:
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}
+	
+	function getChooserView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+	
+		// View
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'WebApi Credentials';
+		/*
+		$view->addParams(array(
+			SearchFields_WebApiCredentials::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_WebApiCredentials::UPDATED_AT,'=',0),
+		), true);
+		*/
+		$view->renderSortBy = SearchFields_WebApiCredentials::UPDATED_AT;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
+		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
+		
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'WebApi Credentials';
+		
+		$params_req = [];
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_WebApiCredentials::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
+		
+		$context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
+		
+		if(!empty($context_id)) {
+			$model = DAO_WebApiCredentials::get($context_id);
+		}
+		
+		if(empty($context_id) || $edit) {
+			if(isset($model))
+				$tpl->assign('model', $model);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.restapi::peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = [];
+			$values = [];
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.restapi::peek.tpl');
 		}
 	}
 };
