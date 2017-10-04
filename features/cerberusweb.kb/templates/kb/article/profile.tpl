@@ -12,9 +12,12 @@
 		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>
 		
+		<!-- Card -->
+		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+		
 		<!-- Edit -->
 		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-		<button id="btnDisplayKbEdit" type="button" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		<button id="btnDisplayKbEdit" type="button" title="{'common.edit'|devblocks_translate|capitalize} (E)"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
 	
@@ -101,16 +104,26 @@ $(function() {
 	
 	document.title = "KB - {$article->title|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 	
-	// Edit button
+	$('#btnProfileCard').cerbPeekTrigger();
 	
-	$('#btnDisplayKbEdit').bind('click', function() {
-		var $popup = genericAjaxPopup('peek', 'c=kb.ajax&a=showArticleEditPanel&id={$page_context_id}&view_id={$view_id}',null,false,'700');
-		
-		$popup.one('article_save', function(event) {
-			event.stopPropagation();
-			document.location.href = '{devblocks_url}c=profiles&type=kb&id={$page_context_id}-{$article->title|devblocks_permalink}{/devblocks_url}';
-		});
-	});
+	// Edit
+	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
+	$('#btnDisplayKbArticleEdit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-opened', function(e) {
+		})
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
+			document.location.reload();
+		})
+		.on('cerb-peek-deleted', function(e) {
+			document.location.href = '{devblocks_url}{/devblocks_url}';
+			
+		})
+		.on('cerb-peek-closed', function(e) {
+		})
+	;
+	{/if}
 	
 	// Interactions
 	var $interaction_container = $('#spanInteractions');

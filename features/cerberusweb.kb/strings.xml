@@ -8,7 +8,13 @@
 		<!-- Common Strings -->
 
 		<tu tuid='kb.common.knowledgebase_article'>
-			<tuv xml:lang="en_US"><seg>Knowledgebase Article</seg></tuv>
+			<tuv xml:lang="en_US"><seg>knowledgebase article</seg></tuv>
+		</tu>
+		
+		<tu tuid='kb.common.knowledgebase_articles'>
+			<tuv xml:lang="en_US"><seg>knowledgebase articles</seg></tuv>
+		</tu>
+		
 		<tu tuid='kb.common.knowledgebase_category'>
 			<tuv xml:lang="en_US"><seg>knowledgebase category</seg></tuv>
 		</tu>

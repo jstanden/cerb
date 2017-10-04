@@ -1,26 +1,28 @@
-{$peek_context = CerberusContexts::CONTEXT_KB_ARTICLE}
+{$peek_context = 'cerberusweb.contexts.kb_article'}
 {$form_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
-<input type="hidden" name="c" value="kb.ajax">
-<input type="hidden" name="a" value="saveArticleEditPanel">
-<input type="hidden" name="id" value="{$article->id}">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="section" value="kb">
+<input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
+{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<div id="kbArticleTabs">
+<div id="kbArticleTabs{$form_id}">
 	<ul>
-		<li><a href="#kbArticleEditor">Editor</a></li>
-		<li><a href="#kbArticleProperties">{'common.properties'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#kbArticleAttachments">{'common.attachments'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#kbArticleEditor{$form_id}">{'common.editor'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#kbArticleProperties{$form_id}">{'common.properties'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#kbArticleAttachments{$form_id}">{'common.attachments'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	
-	<div id="kbArticleEditor">
-		<b>Title:</b><br>
-		<input type="text" name="title" value="{$article->title}" style="width:99%;border:solid 1px rgb(180,180,180);" autofocus="autofocus"><br>
+	<div id="kbArticleEditor{$form_id}">
+		<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
+		<input type="text" name="title" value="{$model->title}" style="width:99%;border:solid 1px rgb(180,180,180);" autofocus="autofocus"><br>
 		
 		<div>
-			<textarea id="content" name="content" style="width:99%;height:200px;border:solid 1px rgb(180,180,180);">{$article->content}</textarea>
+			<textarea id="content" name="content" style="width:99%;height:400px;border:solid 1px rgb(180,180,180);">{$model->content}</textarea>
 		</div>
 		
 		<div>
@@ -28,19 +30,19 @@
 				<button type="button" class="cerb-chooser-trigger" data-field-name="snippet_id" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-query="" data-query-required="type:[plaintext,article]" data-single="true">{'common.snippets'|devblocks_translate|capitalize}</button>
 				<ul class="bubbles chooser-container"></ul>
 			</div>
-			 &nbsp; 
-			<label><input type="radio" name="format" value="2" {if 2==$article->format || empty($article->format)}checked{/if}> <b>Markdown</b> (recommended)</label> [<a href="http://en.wikipedia.org/wiki/Markdown" target="_blank">?</a>] 
-			<label><input type="radio" name="format" value="1" {if 1==$article->format}checked{/if}> <b>HTML</b></label> 
+			&nbsp; 
+			<label><input type="radio" name="format" value="2" {if 2==$model->format || empty($model->format)}checked{/if}> <b>Markdown</b> (recommended)</label> [<a href="http://en.wikipedia.org/wiki/Markdown" target="_blank">?</a>] 
+			<label><input type="radio" name="format" value="1" {if 1==$model->format}checked{/if}> <b>HTML</b></label> 
 		</div>
 	</div>
 	
-	<div id="kbArticleProperties">
+	<div id="kbArticleProperties{$form_id}">
 		<b>Add to Categories:</b><br>
 		<div style="overflow:auto;height:150px;border:solid 1px rgb(180,180,180);background-color:rgb(255,255,255);">
 			{foreach from=$levels item=depth key=node_id}
 				<label>
-					<input type="checkbox" name="category_ids[]" value="{$node_id}" onchange="div=document.getElementById('kbTreeCat{$node_id}');div.style.color=(this.checked)?'green':'';div.style.background=(this.checked)?'rgb(230,230,230)':'';" {if (empty($article) && $root_id==$node_id) || isset($article_categories.$node_id)}checked{/if}>
-					<span style="padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<span class="glyphicons glyphicons-chevron-right" style="color:rgb(80,80,80);"></span>{else}<span class="glyphicons glyphicons-folder-closed" style="color:rgb(80,80,80);"></span>{/if} <span id="kbTreeCat{$node_id}" {if (empty($article) && $root_id==$node_id) || isset($article_categories.$node_id)}style="color:green;background-color:rgb(230,230,230);"{/if}>{$categories.$node_id->name}</span></span>
+					<input type="checkbox" name="category_ids[]" value="{$node_id}" onchange="div=document.getElementById('kbTreeCat{$node_id}');div.style.color=(this.checked)?'green':'';div.style.background=(this.checked)?'rgb(230,230,230)':'';" {if (empty($model) && $root_id==$node_id) || isset($article_categories.$node_id)}checked{/if}>
+					<span style="padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<span class="glyphicons glyphicons-chevron-right" style="color:rgb(80,80,80);"></span>{else}<span class="glyphicons glyphicons-folder-closed" style="color:rgb(80,80,80);"></span>{/if} <span id="kbTreeCat{$node_id}" {if (empty($model) && $root_id==$node_id) || isset($article_categories.$node_id)}style="color:green;background-color:rgb(230,230,230);"{/if}>{$categories.$node_id->name}</span></span>
 				</label>
 				<br>
 			{/foreach}
@@ -54,11 +56,11 @@
 		</fieldset>
 		{/if}
 		
-		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$article->id}
+		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 	</div>
 	
-	<div id="kbArticleAttachments">
-		{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $article->id)}
+	<div id="kbArticleAttachments{$form_id}">
+		{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $model->id)}
 	
 		<b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
 		<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
@@ -80,30 +82,53 @@
 	</div>
 </div> 
 
-<div style="margin-top:10px;">
-	{if (!$article->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($article->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" id="btnKbArticleEditSave"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if} 
-	{if !empty($article) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="if(confirm('Are you sure you want to permanently delete this article?')) { this.form.do_delete.value='1';$('#btnKbArticleEditSave').click(); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+{if !empty($model->id)}
+<fieldset style="display:none;margin-top:10px;" class="delete">
+	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
+	
+	<div>
+		Are you sure you want to permanently delete this knowledgebase article?
+	</div>
+	
+	<button type="button" class="delete red"></span> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"></span> {'common.no'|devblocks_translate|capitalize}</button>
+</fieldset>
+{/if}
+
+<div class="status"></div>
+
+<div class="buttons" style="margin-top:10px;">
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
+
 </form>
 
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
-	var $content = $popup.find("#content");
 	
-	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','{'kb.common.knowledgebase_article'|devblocks_translate|escape:'javascript' nofilter}');
+	$popup.one('popup_open', function(event,ui) {
+		$popup.dialog('option','title',"{'kb.common.knowledgebase_article'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
+
+		// Buttons
+		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
-		$("#kbArticleTabs").tabs();
+		// Tabs
+		$("#kbArticleTabs{$form_id}").tabs();
 		
-		$popup.find('.cerb-peek-trigger')
+				$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			;
 		
 		var $attachments_container = $popup.find('UL.cerb-attachments-container');
 		
 		// Snippets
+		
+		var $content = $popup.find('textarea[name=content]');
 		
 		$frm.find('.cerb-snippet-insert button.cerb-chooser-trigger')
 			.cerbChooserTrigger()
@@ -273,19 +298,9 @@ $(function() {
 			} 
 		} );
 		
-		$('#btnKbArticleEditSave').bind('click', function() {
-			genericAjaxPost($frm, '', '', function(json) {
-				genericAjaxPopupClose($popup, 'article_save');
-				{if !empty($view_id)}
-				genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
-				{/if}
-			} );
-		} );
-		
 		$frm.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
 	});
-	
 });
 </script>

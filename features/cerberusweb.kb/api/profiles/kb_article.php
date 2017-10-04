@@ -119,7 +119,186 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$tpl->assign('interactions_menu', $interactions_menu);
 		
 		// Template
-		$tpl->display('devblocks:cerberusweb.kb::kb/profile.tpl');
+		$tpl->display('devblocks:cerberusweb.kb::kb/article/profile.tpl');
+	}
+	
+	function savePeekJsonAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		try {
+			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", 'cerberusweb.contexts.kb_article')))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				DAO_KbArticle::delete($id);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
+				
+			} else {
+				@$title = DevblocksPlatform::importGPC($_REQUEST['title'], 'string', '');
+				@$category_ids = DevblocksPlatform::importGPC($_REQUEST['category_ids'],'array',array());
+				@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string');
+				@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'integer',0);
+				@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array', array());
+				
+				if(empty($id)) { // New
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", 'cerberusweb.contexts.kb_article')))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+				
+					$fields = array(
+						DAO_KbArticle::CONTENT => $content,
+						DAO_KbArticle::FORMAT => $format,
+						DAO_KbArticle::TITLE => $title,
+						DAO_KbArticle::UPDATED => time(),
+					);
+					
+					if(!DAO_KbArticle::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					$id = DAO_KbArticle::create($fields);
+					
+					if(!empty($view_id) && !empty($id))
+						C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.kb_article', $id);
+					
+				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", 'cerberusweb.contexts.kb_article')))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+						
+					$fields = array(
+						DAO_KbArticle::CONTENT => $content,
+						DAO_KbArticle::FORMAT => $format,
+						DAO_KbArticle::TITLE => $title,
+						DAO_KbArticle::UPDATED => time(),
+					);
+					
+					if(!DAO_KbArticle::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					DAO_KbArticle::update($id, $fields);
+					
+				}
+				
+				// Categories
+				DAO_KbArticle::setCategories($id, $category_ids, true);
+				
+				// Files
+				if(is_array($file_ids))
+					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_KB_ARTICLE, $id, $file_ids);
+				
+				// Custom fields
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
+				DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.kb_article', $id, $field_ids);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'label' => $title,
+					'view_id' => $view_id,
+				));
+				return;
+			}
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			return;
+			
+		}
+	}
+	
+	function viewExploreAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time());
+		
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
+
+		// Page start
+		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
+		if(empty($explore_from)) {
+			$orig_pos = 1+($view->renderPage * $view->renderLimit);
+		} else {
+			$orig_pos = 1;
+		}
+
+		$view->renderPage = 0;
+		$view->renderLimit = 250;
+		$pos = 0;
+		
+		do {
+			$models = [];
+			list($results, $total) = $view->getData();
+
+			// Summary row
+			if(0==$view->renderPage) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'title' => $view->name,
+					'created' => time(),
+//					'worker_id' => $active_worker->id,
+					'total' => $total,
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=kb', true),
+					'toolbar_extension_id' => 'cerberusweb.contexts.kb.article.explore.toolbar',
+				);
+				$models[] = $model;
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			if(is_array($results))
+			foreach($results as $opp_id => $row) {
+				if($opp_id==$explore_from)
+					$orig_pos = $pos;
+				
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d-%s", $row[SearchFields_KbArticle::ID], DevblocksPlatform::strToPermalink($row[SearchFields_KbArticle::NAME])), true);
+				
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'id' => $row[SearchFields_KbArticle::ID],
+					'url' => $url,
+				);
+				$models[] = $model;
+			}
+			
+			DAO_ExplorerSet::createFromModels($models);
+			
+			$view->renderPage++;
+			
+		} while(!empty($results));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
 	function showArticleTabAction() {
@@ -159,7 +338,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_KB_ARTICLE, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->display('devblocks:cerberusweb.kb::kb/bulk.tpl');
+		$tpl->display('devblocks:cerberusweb.kb::kb/article/bulk.tpl');
 	}
 	
 	function startBulkUpdateJsonAction() {
