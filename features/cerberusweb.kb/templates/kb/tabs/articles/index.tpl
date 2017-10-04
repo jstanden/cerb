@@ -1,20 +1,16 @@
 <div style="margin-top:5px;" id="divKbTab{$tab->id}">
 
-<form id="frmKbBrowseTab{$tab->id}" enctype="multipart/form-data" method="post" action="{devblocks_url}{/devblocks_url}">
-	<input type="hidden" name="c" value="kb.ajax">
-	<input type="hidden" name="a" value="">
-	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-
+<form id="frmKbBrowseTab{$tab->id}" action="#">
 	{$parent_id = 0}
 	{if $root_id}
 		{assign var=parent_id value=$categories.$root_id->parent_id}
 	{/if}
 		
-	{if !empty($root_id) && $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.update")}<button type="button" class="category_edit"><span class="glyphicons glyphicons-folder-closed"></span></a> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
-	{if $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.create")}<button type="button" class="category_add"><span class="glyphicons glyphicons-folder-plus"></span> Add {if empty($root_id)}Topic{else}Subcategory{/if}</button>{/if}
+	{if !empty($root_id) && $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.update")}<button type="button" class="category-edit" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-context-id="{$root_id}" data-edit="true"><span class="glyphicons glyphicons-folder-closed"></span></a> Edit {if $parent_id}Category{else}Topic{/if}</button>{/if}
+	{if $active_worker->hasPriv("contexts.cerberusweb.contexts.kb_category.create")}<button type="button" class="category-add" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-context-id="0" data-edit="parent.id:{$root_id}"><span class="glyphicons glyphicons-folder-plus"></span> Add {if empty($root_id)}Topic{else}Subcategory{/if}</button>{/if}
 		
 	{if $active_worker->hasPriv('contexts.cerberusweb.contexts.kb_article.create')}
-	<button type="button" onclick="genericAjaxPopup('peek','c=kb.ajax&a=showArticleEditPanel&id=0&root_id={$root_id}&view_id={$view->id}',null,false,'700');"><span class="glyphicons glyphicons-circle-plus"></span> Add Article</button>
+	<button type="button" class="article-add" data-context="{CerberusContexts::CONTEXT_KB_ARTICLE}" data-context-id="0" data-edit="category.id:{$root_id}"><span class="glyphicons glyphicons-circle-plus"></span> Add Article</button>
 	{/if}
 </form>
 
@@ -48,7 +44,7 @@
 			{if !empty($tree.$cat_id)}
 				&nbsp; &nbsp; 
 				{foreach from=$tree.$cat_id item=count key=child_id name=subcats}
-					 <a href="javascript:;" onclick="genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id={$child_id}');">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
+					<a href="javascript:;" onclick="genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id={$child_id}');">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
 				{/foreach}
 				<br>
 			{/if}
@@ -70,33 +66,34 @@
 </div>
 
 <script type="text/javascript">
-$frm = $('#frmKbBrowseTab{$tab->id}');
-
-$frm.find('button.category_add').click(function(e) {
-	$popup = genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&root_id={$root_id}',null,false,'50%');
+$(function() {
+	var $frm = $('#frmKbBrowseTab{$tab->id}');
 	
-	$popup.one('kb_category_save', function(e) {
-		category_id = 0;
-		
-		if(null != e.id) {
+	$frm.find('button.article-add')
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function(e) {
 			category_id = e.id;
-		}
-		
-		genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
-	});
-});
-
-$frm.find('button.category_edit').click(function(e) {
-	$popup = genericAjaxPopup('peek','c=kb.ajax&a=showKbCategoryEditPanel&id={$root_id}',null,false,'50%');
+			genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
+		})
+	;
 	
-	$popup.one('kb_category_save', function(e) {
-		category_id = 0;
-		
-		if(null != e.id) {
+	$frm.find('button.category-add')
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function(e) {
 			category_id = e.id;
-		}
-		
-		genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
-	});
+			genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
+		})
+	;
+	
+	$frm.find('button.category-edit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function(e) {
+			category_id = e.id;
+			genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id=' + category_id);
+		})
+		.on('cerb-peek-deleted', function(e) {
+			genericAjaxGet('divKbTab{$tab->id}','c=pages&a=handleTabAction&tab={$tab->extension_id}&tab_id={$tab->id}&action=changeCategory&category_id={$categories.$root_id->parent_id}');
+		})
+	;
 });
 </script>

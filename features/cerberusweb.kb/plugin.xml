@@ -25,16 +25,18 @@
 	<patches>
 		<patch version="5.0.0-beta" revision="6" file="patches/5.0.0_beta.php" />
 		<patch version="5.1.0-dev" revision="7" file="patches/5.1.0.php" />
+		<patch version="8.2.0" revision="11" file="patches/8.2.0.php" />
 	</patches>
 	
 	<!-- Exported Classes -->
 	
 	<class_loader>
-		<file path="api/App.php">
+		<file path="api/dao/kb_category.php">
 			<class name="Context_KbCategory" />
 			<class name="DAO_KbCategory" />
 			<class name="Model_KbCategory" />
 			<class name="SearchFields_KbCategory" />
+			<class name="View_KbCategory" />
 		</file>
 		<file path="api/dao/kb_article.php">
 			<class name="Context_KbArticle" />
@@ -158,20 +160,24 @@
 				<param key="dao_class" value="DAO_KbCategory" />
 				<param key="view_class" value="View_KbCategory" />
 				<param key="options">
-					<!--
 					<value>
+						<data key="cards" />
 						<data key="create" />
+						<data key="custom_fields" />
 						<data key="links" />
 						<data key="search" />
 						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
 						<data key="workspace" />
 					</value>
-					-->
 				</param>
 				<param key="acl">
 					<value>
+						<data key="comment" />
 						<data key="create" />
 						<data key="delete" />
+						<data key="export" />
 						<data key="update" />
 					</value>
 				</param>
@@ -248,10 +254,23 @@
 				<param key="uri" value="kb" />
 			</params>
 		</extension>
-	
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>kb.page.profiles.kb_category</id>
+			<name>Kb Category Section</name>
+			<class>
+				<file>api/profiles/kb_category.php</file>
+				<name>PageSection_ProfilesKbCategory</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="kb_category" />
+			</params>
+		</extension>
+		
 		<!-- Controllers -->
 		
- 		<extension point="devblocks.controller">
+		<extension point="devblocks.controller">
 			<id>cerberusweb.kb.controller.ajax</id>
 			<name>KB Ajax Controller</name>
 			<class>

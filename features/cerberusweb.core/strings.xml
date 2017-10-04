@@ -472,6 +472,11 @@
 				<seg>cards</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.categories">
+			<tuv xml:lang="en_US">
+				<seg>categories</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.category">
 			<tuv xml:lang="en_US">
 				<seg>category</seg>
@@ -1949,6 +1954,16 @@
 		<tu tuid="common.storage">
 			<tuv xml:lang="en_US">
 				<seg>storage</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.subcategory">
+			<tuv xml:lang="en_US">
+				<seg>subcategory</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.subcategories">
+			<tuv xml:lang="en_US">
+				<seg>subcategories</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.subtotals">

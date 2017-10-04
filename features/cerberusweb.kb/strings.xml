@@ -9,6 +9,12 @@
 
 		<tu tuid='kb.common.knowledgebase_article'>
 			<tuv xml:lang="en_US"><seg>Knowledgebase Article</seg></tuv>
+		<tu tuid='kb.common.knowledgebase_category'>
+			<tuv xml:lang="en_US"><seg>knowledgebase category</seg></tuv>
+		</tu>
+		
+		<tu tuid='kb.common.knowledgebase_categories'>
+			<tuv xml:lang="en_US"><seg>knowledgebase categories</seg></tuv>
 		</tu>
 		
 		<tu tuid='activity.kb'>
