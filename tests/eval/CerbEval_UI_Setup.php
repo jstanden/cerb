@@ -2,6 +2,7 @@
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\Exception\NoSuchElementException;
+use Facebook\WebDriver\WebDriverKeys;
 
 class CerbEval_UI_Setup extends CerbTestBase {
 	function testLoginKina() {
@@ -75,14 +76,14 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$cerb = CerbTestHelper::getInstance();
 		$driver = $cerb->driver();
 
-		$cerb->getPathAndWait('/config/mail_smtp');
+		$cerb->getPathAndWait('/search/mail_transport');
 		
 		$by = WebDriverBy::cssSelector('table.worklist tr:nth-child(1) td:nth-child(2) a:nth-child(1)');
 		
 		$link = $cerb->getElementByAndWait($by);
 		$link->click();
 		
-		$by = WebDriverBy::id('popuppeek');
+		$by = WebDriverBy::cssSelector('div.ui-dialog');
 		
 		$popup = $cerb->getElementByAndWait($by);
 		
@@ -96,62 +97,63 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('div.mail-transport-params'), 'Null Mailer')
 		);
 		
-		$popup->findElement(WebDriverBy::name('is_default'))
-			->click();
-		
 		$popup->findElement(WebDriverBy::cssSelector('button.submit'))
 			->click();
 		
 		$driver->wait(5,250)->until(
-			WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('#viewsetup_mail_transports .cerb-view-marquee'), 'New mail transport created'),
+			WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('#viewsearch_cerberusweb_contexts_mail_transport .cerb-view-marquee'), 'New email transport created'),
 			'Failed to close the mail transport popup when creating a transport.'
 		);
 		
 		$this->assertTrue(true);
 	}
 	
-	public function testSetupReplyTo() {
+	public function testAddOutgoingEmail() {
 		$cerb = CerbTestHelper::getInstance();
 		$driver = $cerb->driver();
 
-		$cerb->getPathAndWait('/config/mail_from');
+		$cerb->getPathAndWait('/search/address');
 		
-		$by = WebDriverBy::cssSelector('#frmSetupMailFrom button');
+		$by = WebDriverBy::cssSelector('table.worklist tr:nth-child(1) td:nth-child(2) a:nth-child(1)');
 		
-		$driver->wait(10)->until(
-			WebDriverExpectedCondition::presenceOfElementLocated($by)
-		);
+		$link = $cerb->getElementByAndWait($by);
+		$link->click();
 		
-		$driver->findElement($by)
-			->click();
+		$by = WebDriverBy::cssSelector('div.ui-dialog');
 		
-		$by = WebDriverBy::id('frmAddyOutgoingPeek');
-		$form = $cerb->getElementByAndWait($by);
+		$popup = $cerb->getElementByAndWait($by);
 		
-		$form->findElement(WebDriverBy::name('reply_from'))
+		$popup->findElement(WebDriverBy::name('email'))
 			->sendKeys('support@cerb.example');
 		
-		// Type in Ace editor
-		$driver->executeScript("$('#frmAddyOutgoingPeek input[name=reply_personal]').val('Example Support Team');");
-		$driver->executeScript("$('#frmAddyOutgoingPeek textarea[name=reply_signature]').val('-- \\n{{full_name}}, {{title}}\\nCerb Demo, Inc.\\n');");
-		
-		$form->findElement(WebDriverBy::name('is_default'))
+		$popup->findElement(WebDriverBy::name('outgoing_enabled'))
 			->click();
 		
-		$form->submit();
-
+		$transport_autocomplete = $popup->findElement(WebDriverBy::cssSelector("button[data-field-name=mail_transport_id] + input[type=search]"));
+		$transport_autocomplete->sendKeys("du");
+		
 		$driver->wait(10)->until(
-			function() use (&$driver) {
+			function() use (&$driver, &$popup) {
 				try {
-					$objects = $driver->findElements(WebDriverBy::cssSelector('#frmSetupMailFrom > fieldset'));
-					//return 1 == count($objects);
-					return count($objects) > 0;
+					$menu_items = $popup->findElements(WebDriverBy::cssSelector('ul.ui-autocomplete > li'));
+					return (count($menu_items) == 1);
 					
-				} catch (NoSuchElementException $nse) {
+				} catch(NoSuchElementException $nse) {
 					return null;
 				}
 			},
-			"Error waiting for the sender address to be created."
+			'Failed to select transport from autocomplete menu when creating an address.'
+		);
+		
+		$transport_autocomplete->sendKeys(WebDriverKeys::ARROW_DOWN);
+		$transport_autocomplete->sendKeys(WebDriverKeys::ENTER);
+		
+		$popup->findElement(WebDriverBy::cssSelector('button.submit'))
+			->click();
+		
+		$driver->wait(5,250)->until(
+			WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('#viewsearch_cerberusweb_contexts_address .cerb-view-marquee'), 'New email address created'),
+			'Failed to close the address popup when creating a sender address.'
 		);
 		
 		$this->assertTrue(true);
@@ -470,6 +472,31 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			
 			$this->assertNotNull($form_id, 'Group popup form ID was null when creating group.');
 			
+			$sender_autocomplete = $form->findElement(WebDriverBy::cssSelector("button[data-field-name=reply_address_id] + input[type=search]"));
+			$sender_autocomplete->sendKeys("su");
+			
+			$driver->wait(10)->until(
+				function() use (&$driver, &$popup) {
+					try {
+						$menu_items = $popup->findElements(WebDriverBy::cssSelector('ul.ui-autocomplete > li'));
+						return (count($menu_items) == 1);
+						
+					} catch(NoSuchElementException $nse) {
+						return null;
+					}
+				},
+				'Failed to select address from autocomplete menu when creating a group.'
+			);
+			
+			$sender_autocomplete->sendKeys(WebDriverKeys::ARROW_DOWN);
+			$sender_autocomplete->sendKeys(WebDriverKeys::ENTER);
+			
+			$tabs = $popup->findElement(WebDriverBy::cssSelector('div.ui-tabs'));
+			
+			// Click the 'Members' tab
+			$tabs->findElement(WebDriverBy::linkText('Members'))
+				->click();
+			
 			$selects = $popup->findElements(WebDriverBy::cssSelector('div.ui-tabs div:nth-child(3) select'));
 			
 			$this->assertEquals(6, count($selects), "There aren't six workers in the group edit popup.");
@@ -509,27 +536,34 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$cerb = CerbTestHelper::getInstance();
 		$driver = $cerb->driver();
 		
-		$cerb->getPathAndWait('/config/mail_routing');
+		$cerb->getPathAndWait('/config/mail_incoming/settings');
 		
-		$by = WebDriverBy::cssSelector('div.cerb-subpage > fieldset > form');
+		$by = WebDriverBy::cssSelector('#tabsSetupMailIncoming form');
 		$form = $cerb->getElementByAndWait($by);
 		
-		$form->findElement(WebDriverBy::name('default_group_id'))
-			->sendKeys('Su');
-		
-		$form->submit();
+		$group_autocomplete = $form->findElement(WebDriverBy::cssSelector('button[data-field-name=default_group_id] + input[type=search]'));
+		$group_autocomplete->sendKeys('Su');
 		
 		$driver->wait(10)->until(
 			function() use (&$driver) {
 				try {
-					$select = $driver->findElement(WebDriverBy::name('default_group_id'));
-					return 1 == $select->getAttribute('value');
-				} catch (NoSuchElementException $nse) {
+					$menu_items = $driver->findElements(WebDriverBy::cssSelector('BODY > ul.ui-autocomplete > li'));
+					return (count($menu_items) == 1);
+					
+				} catch(NoSuchElementException $nse) {
 					return null;
 				}
 			},
-			"Can't verify that the default group was set to Support"
+			'Failed to select default group from autocomplete menu when configuring mail routing.'
 		);
+		
+		$group_autocomplete->sendKeys(WebDriverKeys::ARROW_DOWN);
+		$group_autocomplete->sendKeys(WebDriverKeys::ENTER);
+		
+		$form->findElement(WebDriverBy::cssSelector('button.submit'))
+			->click();
+		
+		usleep(250000);
 		
 		$this->assertTrue(true);
 	}

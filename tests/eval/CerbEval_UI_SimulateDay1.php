@@ -48,7 +48,7 @@ class CerbEval_UI_SimulateDay1 extends CerbTestBase {
 		];
 		
 		foreach($message_files as $message_file) {
-			$cerb->getPathAndWait('/config/mail_import');
+			$cerb->getPathAndWait('/config/mail_incoming/import');
 			
 			$by = WebDriverBy::id('frmSetupMailImport');
 			
@@ -219,7 +219,7 @@ class CerbEval_UI_SimulateDay1 extends CerbTestBase {
 		];
 		
 		foreach($message_files as $message_file) {
-			$cerb->getPathAndWait('/config/mail_import');
+			$cerb->getPathAndWait('/config/mail_incoming/import');
 			
 			$by = WebDriverBy::id('frmSetupMailImport');
 			
