@@ -1828,11 +1828,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.decision_node.parent_id">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="dao.decision_node.trigger_id">
 			<tuv xml:lang="de_DE">
 				<seg/>

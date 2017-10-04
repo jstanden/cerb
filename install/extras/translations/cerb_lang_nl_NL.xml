@@ -1823,11 +1823,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.decision_node.parent_id">
-			<tuv xml:lang="nl_NL">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="dao.decision_node.trigger_id">
 			<tuv xml:lang="nl_NL">
 				<seg/>
@@ -3236,7 +3231,7 @@
 		<tu tuid="portal.sc.cfg.feeds_info">
 			<tuv xml:lang="nl_NL">
 				<seg>U kunt RSS-feeds content zien op uw Support Center homepagina, bijvoorbeeld laatst toegevoegde blog(s), populaire kennisbank artikelen etc. Op deze plek kunt u alle relevante informatie voor deze portal centreren en delen met anderen&#13;
-      </seg>
+			</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.sc.cfg.feed_display_title">

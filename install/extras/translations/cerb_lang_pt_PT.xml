@@ -1838,11 +1838,6 @@
 				<seg>Tipo de Nó</seg>
 			</tuv>
 		</tu>
-		<tu tuid="dao.decision_node.parent_id">
-			<tuv xml:lang="pt_PT">
-				<seg>Id do Pai</seg>
-			</tuv>
-		</tu>
 		<tu tuid="dao.decision_node.trigger_id">
 			<tuv xml:lang="pt_PT">
 				<seg>Id do Trigger</seg>

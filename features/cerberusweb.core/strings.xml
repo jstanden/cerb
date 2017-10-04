@@ -1465,6 +1465,16 @@
 				<seg>params</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.parent">
+			<tuv xml:lang="en_US">
+				<seg>parent</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.parents">
+			<tuv xml:lang="en_US">
+				<seg>parents</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.participant">
 			<tuv xml:lang="en_US">
 				<seg>participant</seg>
@@ -2324,11 +2334,6 @@
 		<tu tuid="dao.decision_node.node_type">
 			<tuv xml:lang="en_US">
 				<seg>Node Type</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.decision_node.parent_id">
-			<tuv xml:lang="en_US">
-				<seg>Parent Id</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dao.decision_node.trigger_id">

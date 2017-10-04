@@ -465,7 +465,7 @@ class SearchFields_DecisionNode extends DevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'decision_node', 'id', $translate->_('common.id'), null, true),
-			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'decision_node', 'parent_id', $translate->_('dao.decision_node.parent_id'), null, true),
+			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'decision_node', 'parent_id', $translate->_('common.parent'), null, true),
 			self::TRIGGER_ID => new DevblocksSearchField(self::TRIGGER_ID, 'decision_node', 'trigger_id', $translate->_('dao.decision_node.trigger_id'), null, true),
 			self::NODE_TYPE => new DevblocksSearchField(self::NODE_TYPE, 'decision_node', 'node_type', $translate->_('dao.decision_node.node_type'), null, true),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'decision_node', 'title', $translate->_('common.title'), null, true),

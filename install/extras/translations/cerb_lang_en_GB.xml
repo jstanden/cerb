@@ -2503,11 +2503,6 @@
 				<seg>Node Type</seg>
 			</tuv>
 		</tu>
-		<tu tuid="dao.decision_node.parent_id">
-			<tuv xml:lang="en_GB">
-				<seg>Parent Id</seg>
-			</tuv>
-		</tu>
 		<tu tuid="dao.decision_node.trigger_id">
 			<tuv xml:lang="en_GB">
 				<seg>Trigger Id</seg>
