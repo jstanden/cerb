@@ -209,7 +209,7 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 								continue;
 							
 							// If we have permission to delete fields
-							if($cfield->custom_fieldset_id == $custom_fieldset->id)
+							if($cfield->custom_fieldset_id == $id)
 								DAO_CustomField::delete($field_id);
 						}
 					}
