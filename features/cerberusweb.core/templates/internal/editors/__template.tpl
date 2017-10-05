@@ -4,7 +4,7 @@
 <input type="hidden" name="a" value="">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<textarea name="content" style="width:98%;height:350px;border:1px solid rgb(180,180,180);padding:2px;">{$template}</textarea>
+<textarea name="content" style="width:98%;height:350px;border:1px solid rgb(180,180,180);padding:2px;" class="placeholders">{$template}</textarea>
 
 <div class="toolbar" style="margin-bottom:10px;">
 	<div id="peekTemplateTest"></div>
