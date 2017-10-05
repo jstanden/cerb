@@ -223,6 +223,21 @@ if(isset($tables['address_outgoing'])) {
 }
 
 // ===========================================================================
+// From `mail_transport.is_default`
+
+if(!isset($tables['mail_transport'])) {
+	$logger->error("The 'mail_transport' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('mail_transport');
+
+if(!isset($columns['is_default'])) {
+	$sql = 'ALTER TABLE mail_transport DROP COLUMN is_default';
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
