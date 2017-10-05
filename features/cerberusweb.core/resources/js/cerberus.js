@@ -483,7 +483,6 @@ var cAjaxCalls = function() {
 		var $sel = $(sel);
 		
 		$sel.autocomplete(options);
-		$sel.autocomplete('widget').css('max-width', $sel.closest('form').width());
 	}
 
 	this.orgAutoComplete = function(sel, options) {
@@ -503,7 +502,6 @@ var cAjaxCalls = function() {
 		var $sel = $(sel);
 		
 		$sel.autocomplete(options);
-		$sel.autocomplete('widget').css('max-width', $sel.closest('form').width());
 	}
 	
 	this.countryAutoComplete = function(sel, options) {
@@ -523,7 +521,6 @@ var cAjaxCalls = function() {
 		var $sel = $(sel);
 		
 		$sel.autocomplete(options);
-		$sel.autocomplete('widget').css('max-width', $sel.closest('form').width());
 	}
 
 	this.chooser = function(button, context, field_name, options) {
@@ -602,8 +599,6 @@ var cAjaxCalls = function() {
 					return false;
 				}
 			});
-			
-			$autocomplete.autocomplete('widget').css('max-width', $autocomplete.closest('form').width());
 		}
 	}
 	
@@ -1536,8 +1531,6 @@ var ajax = new cAjaxCalls();
 					$li.appendTo(ul);
 					return $li;
 				};
-				
-				$autocomplete.autocomplete('widget').css('max-width', $autocomplete.closest('form').width());
 				
 				if(is_autocomplete_ifnull || is_single) {
 					if($ul.find('>li').length > 0) {
