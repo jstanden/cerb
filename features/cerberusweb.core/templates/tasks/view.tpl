@@ -81,9 +81,9 @@
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.t_id}" style="display:none;">
 				{if 1 == $result.t_status_id}
-					<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);" title="{$result.t_completed_date|devblocks_date}"></span>
+					<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);" title="{'status.closed'|devblocks_translate|lower} {$result.t_completed_date|devblocks_date}"></span>
 				{elseif 2 == $result.t_status_id}
-					<span class="glyphicons glyphicons-clock" style="font-size:16px;color:rgb(80,80,80);" title="{$result.t_reopen_at|devblocks_date}"></span>
+					<span class="glyphicons glyphicons-clock" style="font-size:16px;color:rgb(80,80,80);" title="{'status.waiting.abbr'|devblocks_translate|lower}{if $result.t_reopen_at} until {$result.t_reopen_at|devblocks_date}{/if}"></span>
 				{/if}
 				<a href="{devblocks_url}c=profiles&type=task&id={$result.t_id}-{$result.t_title|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.t_title)}{$result.t_title}{else}New Task{/if}</a> 
 				
