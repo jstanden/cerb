@@ -394,11 +394,13 @@ switch($step) {
 				
 				// Check user privileges
 				if($db_passed) {
+					$engine = sprintf(" ENGINE=%s", $db->qstr($db_engine));
+					
 					// RESET
 					mysqli_query($_db, "DROP TABLE IF EXISTS _installer_test_suite");
 					
 					// CREATE TABLE
-					if($db_passed && false === mysqli_query($_db, "CREATE TABLE _installer_test_suite (id int)")) {
+					if($db_passed && false === mysqli_query($_db, "CREATE TABLE _installer_test_suite (id int)" . $engine)) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the CREATE privilege.");
 					}
@@ -438,7 +440,7 @@ switch($step) {
 						$errors[] = sprintf("The database user lacks the DROP privilege.");
 					}
 					// CREATE TEMPORARY TABLES
-					if($db_passed && false === mysqli_query($_db, "CREATE TEMPORARY TABLE IF NOT EXISTS _installer_test_suite_tmp (id int)")) {
+					if($db_passed && false === mysqli_query($_db, "CREATE TEMPORARY TABLE IF NOT EXISTS _installer_test_suite_tmp (id int)" . $engine)) {
 						$db_passed = false;
 						$errors[] = sprintf("The database user lacks the CREATE TEMPORARY TABLES privilege.");
 					}
