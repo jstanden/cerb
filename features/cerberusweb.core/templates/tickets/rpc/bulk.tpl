@@ -228,6 +228,11 @@ $(function() {
 			});
 		});
 		
+		// Date helper
+		$popup.find('input[name="params[status][reopen_at]"]')
+			.cerbDateInputHelper()
+			;
+		
 		// Checkboxes
 		
 		$popup.find('input:checkbox[name="actions[]"]').change(function() {
