@@ -36,6 +36,21 @@
 </div>
 </div>
 
+{* Check for attachment variables *}
+{capture name="attachment_vars"}
+{foreach from=$trigger->variables item=var key=var_key}
+{if $var.type == "ctx_{CerberusContexts::CONTEXT_ATTACHMENT}"}
+<label><input type="checkbox" name="{$namePrefix}[attachment_vars][]" value="{$var_key}" {if is_array($params.attachment_vars) && in_array($var_key, $params.attachment_vars)}checked="checked"{/if}> {$var.label}</label>
+{/if}
+{/foreach}{/capture}
+
+{if $smarty.capture.attachment_vars}
+<b>Attach the files from these variables:</b><br>
+<div style="margin-left:10px;margin-bottom:10px;">
+	{$smarty.capture.attachment_vars nofilter}
+</div>
+{/if}
+
 <b>{'common.owner'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_var_worker_picker.tpl" param_name="owner_id" values_to_contexts=$values_to_contexts single=true}
@@ -47,8 +62,6 @@
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false field_wrapper="{$namePrefix}"}
 </fieldset>
 {/if}
-
-{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_add_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET field_wrapper="{$namePrefix}"}
 
 <b>{'common.watchers'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
@@ -62,6 +75,8 @@
 </div>
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/decisions/actions/_shared_add_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET field_wrapper="{$namePrefix}"}
+
 <b>Also create records in simulator mode:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	<label><input type="radio" name="{$namePrefix}[run_in_simulator]" value="1" {if $params.run_in_simulator}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
@@ -74,8 +89,7 @@
 {if $var.type == "ctx_{CerberusContexts::CONTEXT_TICKET}"}
 <option value="{$var_key}" {if $params.object_var==$var_key}selected="selected"{/if}>{$var.label}</option>
 {/if}
-{/foreach}
-{/capture}
+{/foreach}{/capture}
 
 {if $smarty.capture.object_vars}
 <b>Add object to list variable:</b><br>
