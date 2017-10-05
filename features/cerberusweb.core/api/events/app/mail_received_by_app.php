@@ -152,12 +152,12 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		
 		$ticket_labels = array();
 		$ticket_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket, $ticket_labels, $ticket_values, null, true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket, $ticket_labels, $ticket_values, '', true);
 
 		// Merge
 		CerberusContexts::merge(
 			'parent_ticket_',
-			'Parent ',
+			'Parent ticket ',
 			$ticket_labels,
 			$ticket_values,
 			$labels,
@@ -181,6 +181,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			'behavior_bot_id' => array(
 				'label' => 'Bot',
 				'context' => CerberusContexts::CONTEXT_BOT,
+			),
+			'parent_ticket_id' => array(
+				'label' => 'Parent ticket',
+				'context' => CerberusContexts::CONTEXT_TICKET,
 			),
 			'sender_id' => array(
 				'label' => 'Sender email',
