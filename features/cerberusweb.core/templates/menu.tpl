@@ -30,15 +30,12 @@
 
 	<li class="tour-navmenu-search{if $page->id=='core.page.search'} selected{/if}" style="float:right;">
 		<a href="javascript:;" class="submenu"><span class="glyphicons glyphicons-search"></span> <span class="glyphicons glyphicons-chevron-down" style="{if $page->id=='core.page.search'}color:white;{else}{/if}"></span></a>
-		<ul class="cerb-popupmenu cerb-float" style="margin-top:-2px;">
-			<li><a href="javascript:;" data-context="{CerberusContexts::CONTEXT_TICKET}">{'common.tickets'|devblocks_translate|capitalize}</a></li>
-			<li><hr></li>
+		<ul class="cerb-popupmenu cerb-float" style="min-width:50%;margin-top:-2px;-moz-column-count:3;-moz-column-gap:40px;-webkit-column-count:3;-webkit-column-gap:40px;column-count:3;column-gap:40px;">
 			{foreach from=$search_menu item=label key=context_id}
 				<li><a href="javascript:;" data-context="{$context_id}">{$label|capitalize}</a></li>
 			{/foreach}
 		</ul>
 	</li>
-
 </ul>
 <div style="clear:both;background-color:rgb(100,135,225);height:5px;"></div>
 
