@@ -1071,6 +1071,42 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 	public static function getAll($as_instances=false) {
 		$events = DevblocksPlatform::getExtensions('devblocks.event', $as_instances);
+		
+		$custom_records = DAO_CustomRecord::getAll();
+		
+		foreach($custom_records as $custom_record) {
+			$event_id = sprintf('event.macro.custom_record.%d', $custom_record->id);
+			$manifest = new DevblocksExtensionManifest();
+			$manifest->id = $event_id;
+			$manifest->plugin_id = 'cerberusweb.core';
+			$manifest->point = Extension_DevblocksEvent::POINT;
+			$manifest->name = 'Custom behavior on ' . $custom_record->name;
+			$manifest->file = 'api/events/macro/abstract_custom_record_macro.php';
+			$manifest->class = 'Event_AbstractCustomRecord_' . $custom_record->id;
+			$manifest->params = [
+				'macro_context' => 'Context_AbstractCustomRecord_' . $custom_record->id,
+				'contexts' => [
+					0 => [
+						'cerberusweb.contexts.app' => '',
+						'cerberusweb.contexts.group' => '',
+						'cerberusweb.contexts.role' => '',
+						'cerberusweb.contexts.worker' => '',
+					],
+				],
+				'options' => [
+					0 => [
+						'visibility' => '',
+					],
+				]
+			];
+			
+			if($as_instances) {
+				$events[$event_id] = $manifest->createInstance();
+			} else {
+				$events[$event_id] = $manifest;
+			}
+		}
+		
 		if($as_instances)
 			DevblocksPlatform::sortObjects($events, 'manifest->name');
 		else

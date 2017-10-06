@@ -1178,6 +1178,8 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		
 		$tpl->assign('custom_record', $custom_record);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$context = self::_getContextName();
 		$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
 		
@@ -1244,6 +1246,11 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Interactions
+			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+			$tpl->assign('interactions_menu', $interactions_menu);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/abstract_custom_record/peek.tpl');
 		}
