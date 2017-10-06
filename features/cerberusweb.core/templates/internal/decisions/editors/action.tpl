@@ -204,7 +204,7 @@ $(function() {
 				$toolbar.data('src', $parent);
 				
 			} else {
-				if(0 == $target.nextAll('#divDecisionOutcomeToolbar{$id}').length) {
+				if(0 == $target.nextAll('#divDecisionActionToolbar{$id}').length) {
 					$toolbar.find('div.tester').html('');
 					$toolbar.find('ul.menu').hide();
 					$toolbar.show().insertAfter($target);

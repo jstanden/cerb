@@ -26,7 +26,40 @@
 	
 	<b>For each object in this JSON array:</b>
 	<div style="margin:0px 0px 10px 10px;">
-		<textarea name="params[foreach_json]" data-editor-mode="ace/mode/twig" style="width:100%;height:200px;">{$model->params.foreach_json}</textarea>
+		<textarea name="params[foreach_json]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:100%;height:200px;">{$model->params.foreach_json}</textarea>
+	</div>
+	
+	<div id="divDecisionLoopToolbar{$id}" style="display:none;">
+		<div class="tester"></div>
+	
+		<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
+		<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
+		<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
+		
+		{$types = $values._types}
+		{function tree level=0}
+			{foreach from=$keys item=data key=idx}
+				{$type = $types.{$data->key}}
+				{if is_array($data->children) && !empty($data->children)}
+					<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
+						{if $data->key}
+							<div style="font-weight:bold;">{$data->l|capitalize}</div>
+						{else}
+							<div>{$idx|capitalize}</div>
+						{/if}
+						<ul>
+							{tree keys=$data->children level=$level+1}
+						</ul>
+					</li>
+				{elseif $data->key}
+					<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+				{/if}
+			{/foreach}
+		{/function}
+		
+		<ul class="menu" style="width:150px;">
+		{tree keys=$placeholders}
+		</ul>
 	</div>
 	
 	<b>Set this object placeholder:</b>
@@ -55,8 +88,127 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{if empty($id)}New {/if}Loop");
+		$popup.css('overflow', 'inherit');
 		
-		$popup.find('textarea').cerbCodeEditor();
+		// Close confirmation
+		
+		$popup.on('dialogbeforeclose', function(e, ui) {
+			if(e.keyCode == 27)
+				return confirm('{'warning.core.editor.close'|devblocks_translate}');
+		});
+		
+		// Placeholder toolbar
+		
+		var $toolbar = $('#divDecisionLoopToolbar{$id}');
+		
+		$popup.find('textarea.placeholders, :text.placeholders').cerbCodeEditor();
+		
+		$popup.delegate(':text.placeholders, textarea.placeholders, pre.placeholders', 'focus', function(e) {
+			e.stopPropagation();
+			
+			var $target = $(e.target);
+			var $parent = $target.closest('.ace_editor');
+			
+			if(0 != $parent.length) {
+				$toolbar.find('div.tester').html('');
+				$toolbar.find('ul.menu').hide();
+				$toolbar.show().insertAfter($parent);
+				$toolbar.data('src', $parent);
+				
+			} else {
+				if(0 == $target.nextAll('#divDecisionLoopToolbar{$id}').length) {
+					$toolbar.find('div.tester').html('');
+					$toolbar.find('ul.menu').hide();
+					$toolbar.show().insertAfter($target);
+					$toolbar.data('src', $target);
+					
+					// If a markItUp editor, move to parent
+					if($target.is('.markItUpEditor')) {
+						$target = $target.closest('.markItUp').parent();
+						$toolbar.find('button.tester').hide();
+						
+					} else {
+						$toolbar.find('button.tester').show();
+					}
+				}
+			}
+		});
+		
+		// Placeholder menu
+		
+		var $placeholder_menu_trigger = $toolbar.find('button.cerb-popupmenu-trigger');
+		var $placeholder_menu = $toolbar.find('ul.menu').hide();
+		
+		// Quick insert token menu
+		
+		$placeholder_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
+				
+				if(undefined == token || undefined == label)
+					return;
+				
+				var $field = null;
+				
+				if($toolbar.data('src')) {
+					$field = $toolbar.data('src');
+				
+				} else {
+					$field = $toolbar.prev(':text, textarea');
+				}
+				
+				if(null == $field)
+					return;
+				
+				if(null == $field)
+					return;
+				
+				if($field.is(':text, textarea')) {
+					$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+					
+				} else if($field.is('.ace_editor')) {
+					var evt = new jQuery.Event('cerb.insertAtCursor');
+					evt.content = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
+					$field.trigger(evt);
+				}
+			}
+		});
+		
+		$toolbar.find('button.tester').click(function(e) {
+			var divTester = $toolbar.find('div.tester').first();
+			
+			var $field = null;
+			
+			
+			if($toolbar.data('src')) {
+				$field = $toolbar.data('src');
+			} else {
+				$field = $toolbar.prev(':text, textarea');
+			}
+			
+			if(null == $field)
+				return;
+			
+			if($field.is('.ace_editor')) {
+				var $field = $field.prev('textarea, :text');
+			}
+			
+			genericAjaxPost($(this).closest('form').attr('id'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=params&field=foreach_json');
+		});
+		
+		$placeholder_menu_trigger
+			.click(
+				function(e) {
+					$placeholder_menu.toggle();
+				}
+			)
+			.bind('remove',
+				function(e) {
+					$placeholder_menu.remove();
+				}
+			)
+		;
 	});
 });
 </script>

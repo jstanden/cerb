@@ -3649,6 +3649,18 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'loop':
+				if(null != ($evt = $trigger->getEvent())) {
+					// Action labels
+					$labels = $evt->getLabels($trigger);
+					$tpl->assign('labels', $labels);
+					
+					$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+					$tpl->assign('placeholders', $placeholders);
+					
+					$values = $evt->getValues();
+					$tpl->assign('values', $values);
+				}
+				
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/loop.tpl');
 				break;
 				
@@ -3666,17 +3678,17 @@ class ChInternalController extends DevblocksControllerExtension {
 					
 					$conditions_menu = Extension_DevblocksContext::getPlaceholderTree($map);
 					$tpl->assign('conditions_menu', $conditions_menu);
-				}
-				
-				// Action labels
-				$labels = $evt->getLabels($trigger);
-				$tpl->assign('labels', $labels);
 					
-				$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
-				$tpl->assign('placeholders', $placeholders);
-				
-				$values = $evt->getValues();
-				$tpl->assign('values', $values);
+					// Action labels
+					$labels = $evt->getLabels($trigger);
+					$tpl->assign('labels', $labels);
+					
+					$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+					$tpl->assign('placeholders', $placeholders);
+					
+					$values = $evt->getValues();
+					$tpl->assign('values', $values);
+				}
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/outcome.tpl');
 				break;
@@ -3695,38 +3707,25 @@ class ChInternalController extends DevblocksControllerExtension {
 					
 					$actions_menu = Extension_DevblocksContext::getPlaceholderTree($map);
 					$tpl->assign('actions_menu', $actions_menu);
-				}
 					
+					// Action labels
+					$labels = $evt->getLabels($trigger);
+					$tpl->assign('labels', $labels);
+					
+					$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+					$tpl->assign('placeholders', $placeholders);
+					
+					$values = $evt->getValues();
+					$tpl->assign('values', $values);
+				}
+				
 				// Workers
 				$tpl->assign('workers', DAO_Worker::getAll());
 				
-				// Action labels
-				$labels = $evt->getLabels($trigger);
-				$tpl->assign('labels', $labels);
-				
-				$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
-				$tpl->assign('placeholders', $placeholders);
-				
-				$values = $evt->getValues();
-				$tpl->assign('values', $values);
-
 				// Template
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/action.tpl');
 				break;
 		}
-		
-		// Free
-		$tpl->clearAssign('actions');
-		$tpl->clearAssign('conditions');
-		$tpl->clearAssign('event');
-		$tpl->clearAssign('ext');
-		$tpl->clearAssign('id');
-		$tpl->clearAssign('model');
-		$tpl->clearAssign('parent_id');
-		
-		$tpl->clearAssign('trigger');
-		$tpl->clearAssign('trigger_id');
-		$tpl->clearAssign('type');
 	}
 
 	function showBehaviorSimulatorPopupAction() {
