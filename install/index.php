@@ -394,7 +394,7 @@ switch($step) {
 				
 				// Check user privileges
 				if($db_passed) {
-					$engine = sprintf(" ENGINE=%s", $db->qstr($db_engine));
+					$engine = sprintf(" ENGINE=%s", mysqli_real_escape_string($_db, $db_engine));
 					
 					// RESET
 					mysqli_query($_db, "DROP TABLE IF EXISTS _installer_test_suite");
