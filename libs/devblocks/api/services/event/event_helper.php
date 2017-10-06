@@ -4354,6 +4354,8 @@ class DevblocksEventHelper {
 			'ticket_id' => $ticket_id,
 			'subject' => $subject,
 			'content' => $content,
+			'group_id' => $group->id,
+			'bucket_id' => $group->getDefaultBucket()->id,
 			'worker_id' => 0,
 			'status_id' => $status_id,
 			'owner_id' => $owner_id,
