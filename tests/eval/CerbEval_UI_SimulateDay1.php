@@ -144,6 +144,26 @@ class CerbEval_UI_SimulateDay1 extends CerbTestBase {
 		$cerb->logInAs('milo@cerb.example', 'cerb');
 	}
 	
+	public function testMiloClosesTour() {
+		$cerb = CerbTestHelper::getInstance();
+		$driver = $cerb->driver();
+		
+		try {
+			$hide_this = $driver->findElement(WebDriverBy::linkText('hide this'));
+			
+			$hide_this->click();
+			
+			$driver->wait(10)->until(
+				WebDriverExpectedCondition::invisibilityOfElementLocated(WebDriverBy::id('tourForm'))
+			);
+			
+		} catch (NoSuchElementException $e) {
+			// This is ok
+		}
+		
+		$this->assertTrue(true);
+	}
+	
 	public function testMiloCommentsToKinaOnTicket1() {
 		$cerb = CerbTestHelper::getInstance();
 		$driver = $cerb->driver();

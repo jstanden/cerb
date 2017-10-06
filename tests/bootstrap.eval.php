@@ -154,6 +154,11 @@ class CerbTestHelper {
 		
 		$worker_menu = $driver->findElement($by);
 		$worker_menu->getLocationOnScreenOnceScrolledIntoView();
+		
+		$driver->wait()->until(
+			WebDriverExpectedCondition::visibilityOf($worker_menu)
+		);
+		
 		$worker_menu->click();
 		
 		$by = WebDriverBy::cssSelector('#menuSignedIn li:nth-child(7) a');
@@ -164,6 +169,11 @@ class CerbTestHelper {
 		
 		$link = $driver->findElement($by);
 		$link->getLocationOnScreenOnceScrolledIntoView();
+		
+		$driver->wait()->until(
+			WebDriverExpectedCondition::visibilityOf($link)
+		);
+		
 		$link->click();
 		
 		$this->waitForPaths(['/login']);
@@ -182,6 +192,11 @@ class CerbTestHelper {
 		
 		$reply_button = $driver->findElement($by);
 		$reply_button->getLocationOnScreenOnceScrolledIntoView();
+		
+		$driver->wait()->until(
+			WebDriverExpectedCondition::visibilityOf($reply_button)
+		);
+		
 		$reply_button->click();
 		
 		$by = WebDriverBy::cssSelector('textarea.reply[name=content]');
@@ -194,11 +209,21 @@ class CerbTestHelper {
 		
 		$textarea = $driver->findElement($by);
 		$textarea->getLocationOnScreenOnceScrolledIntoView();
+		
+		$driver->wait()->until(
+			WebDriverExpectedCondition::visibilityOf($textarea)
+		);
+		
 		$textarea->clear();
 		$textarea->sendKeys($reply_text);
 		
 		$send_button = $reply_form->findElement(WebDriverBy::cssSelector('button.send'));
 		$send_button->getLocationOnScreenOnceScrolledIntoView();
+		
+		$driver->wait()->until(
+			WebDriverExpectedCondition::visibilityOf($send_button)
+		);
+		
 		$send_button->click();
 		
 		return true;
@@ -237,6 +262,11 @@ class CerbTestHelper {
 		
 		$textarea = $popup->findElement(WebDriverBy::tagName('textarea'));
 		$textarea->getLocationOnScreenOnceScrolledIntoView();
+		
+		$driver->wait()->until(
+			WebDriverExpectedCondition::visibilityOf($textarea)
+		);
+		
 		$textarea->sendKeys($comment_text);
 		
 		$popup->findElement(WebDriverBy::cssSelector('button.submit'))
