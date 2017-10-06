@@ -10,7 +10,7 @@
 </div>
 </form>
 
-<div id="view{$view->id}" data-context="{$view->getContext()}" style="overflow-x: auto;">{$view->render()}</div>
+<div id="view{$view->id}" data-context="{$view->getContext()}">{$view->render()}</div>
 
 <script type="text/javascript">
 $(function() {
