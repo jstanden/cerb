@@ -50,6 +50,24 @@ foreach($dirs as $dir) {
 }
 
 // ===========================================================================
+// Add `custom_record`
+
+if(!isset($tables['custom_record'])) {
+	$sql = sprintf("
+	CREATE TABLE `custom_record` (
+		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		name VARCHAR(255) DEFAULT '',
+		params_json TEXT,
+		updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+		primary key (id)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['custom_record'] = 'custom_record';
+}
+
+// ===========================================================================
 // Create `email_signature` table
 
 if(!isset($tables['email_signature'])) {
