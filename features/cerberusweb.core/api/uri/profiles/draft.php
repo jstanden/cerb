@@ -108,6 +108,10 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			DAO_MailQueue::update($draft_id, $fields);
 		}
 		
+		// If there are attachments, link them to this draft record
+		if(isset($params['file_ids']) && is_array($params['file_ids']))
+			DAO_Attachment::setLinks(CerberusContexts::CONTEXT_DRAFT, $draft_id, $params['file_ids']);
+		
 		return $draft_id;
 	}
 	

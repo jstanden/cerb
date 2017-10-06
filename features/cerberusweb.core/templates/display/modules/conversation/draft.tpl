@@ -33,6 +33,12 @@
 		{/if}
 		<pre class="emailbody" style="padding-top:10px;">{$draft->body|trim|escape|devblocks_hyperlinks nofilter}</pre>
 		
+		{if isset($draft->params.file_ids) && is_array($draft->params.file_ids)}
+		<div style="margin-top:10px;">
+			{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_DRAFT}" context_id="{$draft->id}"}
+		</div>
+		{/if}
+		
 		{if !$draft->is_queued}
 			<div style="margin-top:10px;">
 			{if $draft->worker_id==$active_worker->id && isset($draft->params.in_reply_message_id)}

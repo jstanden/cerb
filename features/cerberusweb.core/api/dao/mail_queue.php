@@ -1042,7 +1042,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 class Context_Draft extends Extension_DevblocksContext {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
-		return CerberusContexts::allowEveryone($models);
+		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {

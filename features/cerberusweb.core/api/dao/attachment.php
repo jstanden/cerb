@@ -1440,6 +1440,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		$only_contexts = [
 			CerberusContexts::CONTEXT_COMMENT,
+			CerberusContexts::CONTEXT_DRAFT,
 			CerberusContexts::CONTEXT_FILE_BUNDLE,
 			CerberusContexts::CONTEXT_KB_ARTICLE,
 			CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE,
