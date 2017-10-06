@@ -811,9 +811,15 @@
 		
 		$frm.find(':input:text:first').focus().select();
 		
+		$popup.on('popup_saved', function() {
+			hideLoadingPanel();
+		});
+		
 		$frm.find('button.submit').click(function() {
 			var $status = $frm.find('div.status').html('').hide();
 			$status.text('').hide();
+			
+			showLoadingPanel();
 			
 			// Validate via Ajax before sending
 			genericAjaxPost($frm, '', 'c=tickets&a=validateComposeJson', function(json) {
@@ -826,6 +832,7 @@
 					genericAjaxPopupPostCloseReloadView(null,'frmComposePeek{$popup_uniqid}','{$view_id}',false,'compose_save');
 					
 				} else {
+					hideLoadingPanel();
 					$status.text(json.message).addClass('error').fadeIn();
 				}
 			});
