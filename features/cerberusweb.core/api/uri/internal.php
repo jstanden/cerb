@@ -1746,7 +1746,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		// Build template
 		if($snippet->context && $context_id) {
-			$output = $tpl_builder->build($snippet->content, $token_values);
+			@$output = $tpl_builder->build($snippet->content, $token_values);
 			
 		} else {
 			$output = $snippet->content;
@@ -1831,7 +1831,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$values[$placeholder_key] = $value;
 		}
 		
-		$text = $tpl_builder->build($text, $values);
+		@$text = $tpl_builder->build($text, $values);
 
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -1897,7 +1897,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 			} else {
 				// Try to build the template
-				if(false === ($out = $tpl_builder->build($content, $token_values))) {
+				if(false === (@$out = $tpl_builder->build($content, $token_values))) {
 					// If we failed, show the compile errors
 					$errors = $tpl_builder->getErrors();
 					$success= false;
@@ -2414,7 +2414,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				$template = "$broadcast_message";
 			}
 			
-			if(false === ($out = $tpl_builder->build($template, $dict))) {
+			if(false === (@$out = $tpl_builder->build($template, $dict))) {
 				// If we failed, show the compile errors
 				$errors = $tpl_builder->getErrors();
 				$success= false;
@@ -2444,7 +2444,7 @@ class ChInternalController extends DevblocksControllerExtension {
 							$html_template = $replyto->getReplyHtmlTemplate();
 						
 						if($html_template)
-							$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+							@$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
 						
 						// HTML Purify
 						$output = DevblocksPlatform::purifyHTML($output, true);
@@ -4321,7 +4321,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		if(isset($values)) {
 			// Try to build the template
-			if(!is_string($content) || false === ($out = $tpl_builder->build($content, $values))) {
+			if(!is_string($content) || false === (@$out = $tpl_builder->build($content, $values))) {
 				// If we failed, show the compile errors
 				$errors = $tpl_builder->getErrors();
 				$success = false;
@@ -4380,7 +4380,7 @@ class ChInternalController extends DevblocksControllerExtension {
 								
 								if($html_template) {
 									$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-									$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+									@$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
 								}
 							}
 							break;
