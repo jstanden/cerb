@@ -21,9 +21,16 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 	
 	private function _getContext($trigger) {
 		if(is_null($this->_context)) {
-			$parts = explode('.', $trigger->event_point);
-			$custom_record_id = intval(end($parts));
-			$this->_context = sprintf("contexts.custom_record.%d", $custom_record_id);
+			if(is_null($trigger)) {
+				$parts = explode('_', get_called_class());
+				$custom_record_id = intval(end($parts));
+				$this->_context = sprintf("contexts.custom_record.%d", $custom_record_id);
+				
+			} else {
+				$parts = explode('.', $trigger->event_point);
+				$custom_record_id = intval(end($parts));
+				$this->_context = sprintf("contexts.custom_record.%d", $custom_record_id);
+			}
 		}
 		
 		return $this->_context;
@@ -58,7 +65,7 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 		return $event_model;
 	}
 
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger) {
+	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		$labels = [];
 		$values = [];
 		
@@ -115,7 +122,7 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 		$merge_labels = [];
 		$merge_values = [];
 		CerberusContexts::getContext($context, $model, $merge_labels, $merge_values, null, true);
-
+		
 			// Merge
 			CerberusContexts::merge(
 				'record_',
@@ -129,7 +136,7 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 		/**
 		 * Return
 		 */
-
+		
 		$this->setLabels($labels);
 		$this->setValues($values);
 	}
@@ -232,15 +239,18 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 	}
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
+		/*
+		$context_name = '';
 		$context = $this->_getContext($trigger);
 		$context_ext = Extension_DevblocksContext::get($context, false);
 		$context_name = DevblocksPlatform::strLower($context_ext->name);
+		*/
 		
 		$actions =
 			[
+				'create_comment' => array('label' =>'Create comment'),
 				/*
 				'add_watchers' => array('label' =>'Add watchers'),
-				'create_comment' => array('label' =>'Create comment'),
 				'create_notification' => array('label' =>'Create notification'),
 				'create_task' => array('label' =>'Create task'),
 				'create_ticket' => array('label' =>'Create ticket'),
@@ -249,7 +259,8 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 				'set_is_defunct' => array('label' => 'Set is defunct'),
 				*/
 				'set_links' => ['label' => 'Set links'],
-				'set_name' => ['label' => sprintf('Set %s name', $context_name)],
+				'set_name' => ['label' => 'Set name'],
+				//'set_name' => ['label' => sprintf('Set %s name', $context_name)],
 			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
@@ -268,6 +279,10 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 		$tpl->assign('token_labels', $labels);
 		
 		switch($token) {
+			case 'create_comment':
+				DevblocksEventHelper::renderActionCreateComment($trigger);
+				break;
+			
 			case 'set_name':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
 				break;
@@ -292,6 +307,10 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
+			case 'create_comment':
+				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'record_id');
+				break;
+			
 			case 'set_name':
 				return DevblocksEventHelper::simulateActionSetAbstractField('name', Model_CustomField::TYPE_SINGLE_LINE, 'record_name', $params, $dict);
 				break;
@@ -310,6 +329,10 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 		@$record_id = $dict->record_id;
 		
 		switch($token) {
+			case 'create_comment':
+				DevblocksEventHelper::runActionCreateComment($params, $dict, 'record_id');
+				break;
+			
 			case 'set_name':
 				$context = $this->_getContext($trigger);
 				$context_ext = Extension_DevblocksContext::get($context);

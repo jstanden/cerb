@@ -73,7 +73,6 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		if(empty($context))
 			return false;
 		
-		// Load the VA of the current macro
 		$macros = Extension_DevblocksEvent::getAll();
 		
 		$macros = array_filter($macros, function($event) use ($context) {
@@ -102,16 +101,16 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		return $delegate;
 	}
 	
-	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger) {
-		$labels = array();
-		$values = array();
+	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
+		$labels = [];
+		$values = [];
 		
 		/**
 		 * Behavior
 		 */
 		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -274,7 +273,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 		$contexts = Extension_DevblocksContext::getAll();
 		$events = Extension_DevblocksEvent::getAll();
 		
-		$macro_contexts = array();
+		$macro_contexts = [];
 		
 		foreach($events as $event) {
 			@$event_context = $event->params['macro_context'];
