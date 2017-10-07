@@ -5,6 +5,8 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 	const PARAMS_JSON = 'params_json';
 	const UPDATED_AT = 'updated_at';
 	
+	const _CACHE_ALL = 'custom_records_all';
+	
 	private function __construct() {}
 	
 	static function getFields() {
@@ -40,8 +42,6 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
-		// [TODO] Create a table for storing this record's rows
-		// [TODO] built-in fields?
 		$sql = sprintf("
 			CREATE TABLE `custom_record_%d` (
 				id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -78,7 +78,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CUSTOM_RECORD, $batch_ids);
 			}
 			
 			// Make changes
@@ -98,10 +98,11 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CUSTOM_RECORD, $batch_ids);
 			}
 		}
 		
+		self::clearCache();
 		$cache->remove(DevblocksPlatform::CACHE_CONTEXT_ALIASES);
 	}
 	
@@ -144,15 +145,15 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 	 * @return Model_CustomRecord[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::services()->cache();
-		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+		$cache = DevblocksPlatform::services()->cache();
+		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_CustomRecord::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
-			//if(!is_array($objects))
-			//	return false;
-				
-			//$cache->save($objects, self::_CACHE_ALL);
-		//}
+			if(!is_array($objects))
+				return false;
+			
+			$cache->save($objects, self::_CACHE_ALL);
+		}
 		
 		return $objects;
 	}
@@ -282,6 +283,8 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 				)
 			)
 		);
+		
+		self::clearCache();
 		
 		return true;
 	}
@@ -413,7 +416,11 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		
 		return array($results,$total);
 	}
-
+	
+	static function clearCache() {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache->remove(self::_CACHE_ALL);
+	}
 };
 
 class SearchFields_CustomRecord extends DevblocksSearchFields {
