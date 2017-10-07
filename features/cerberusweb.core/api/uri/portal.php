@@ -104,6 +104,7 @@ class ChPortalHelper {
 	 */
 	public static function getSession() {
 		$session_id = self::$_session_id;
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(empty(self::$_code))
 			return false;
@@ -114,7 +115,7 @@ class ChPortalHelper {
 			
 			if(empty($session_id)) {
 				$session_id = sha1(DevblocksPlatform::getClientIp() . self::getCode() . uniqid());
-				setcookie($cookie_name, $session_id, 0, '/', null, null, true);
+				setcookie($cookie_name, $session_id, 0, '/', null, $url_writer->isSSL(), true);
 			}
 			
 			if(empty($session_id))
