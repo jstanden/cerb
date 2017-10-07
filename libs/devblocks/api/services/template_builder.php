@@ -1096,8 +1096,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		
 		switch(DevblocksPlatform::strLower($as)) {
 			case 'json':
-				$array = array();
-				@parse_str($string, $array);
+				$array = DevblocksPlatform::strParseQueryString($string);
 				return json_encode($array);
 				break;
 			

@@ -499,8 +499,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 		switch(DevblocksPlatform::strUpper($verb)) {
 			case 'PATCH':
 			case 'PUT':
-				$_vars = array();
-				parse_str($this->_payload, $_vars);
+				$_vars = DevblocksPlatform::strParseQueryString($this->_payload);
 				foreach($_vars as $k => $v) {
 					$_POST[$k] = $v;
 					$_REQUEST[$k] = $v;

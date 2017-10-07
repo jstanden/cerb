@@ -71,7 +71,7 @@ class _DevblocksOAuthService {
 			return false;
 		}
 		
-		parse_str($out, $results);
+		$results = DevblocksPlatform::strParseQueryString($out);
 		
 		$this->_response_info = curl_getinfo($ch);
 		
@@ -107,7 +107,7 @@ class _DevblocksOAuthService {
 		$query = [];
 		
 		if(isset($url_parts['query']))
-			parse_str($url_parts['query'], $query);
+			$query = DevblocksPlatform::strParseQueryString($url_parts['query']);
 		
 		$query = array_map('rawurlencode', $query);
 		$postdata = array_map('rawurlencode', $postdata);
@@ -147,7 +147,7 @@ class _DevblocksOAuthService {
 			case 'application/x-www-form-urlencoded':
 			case 'text/html':
 			case 'text/plain':
-				parse_str($out, $results);
+				$results = DevblocksPlatform::strParseQueryString($out);
 				break;
 		}
 		
@@ -180,10 +180,10 @@ class _DevblocksOAuthService {
 			$url_parts['path']
 		);
 		
-		$query = array();
+		$query = [];
 		
 		if(isset($url_parts['query']))
-			parse_str($url_parts['query'], $query);
+			$query = DevblocksPlatform::strParseQueryString($url_parts['query']);
 		
 		$oauth_headers = array_map('rawurlencode', $oauth_headers);
 		$query = array_map('rawurlencode', $query);
@@ -250,7 +250,7 @@ class _DevblocksOAuthService {
 			case 'application/x-www-form-urlencoded':
 			case 'text/html':
 			case 'text/plain':
-				parse_str($out, $results);
+				$results = DevblocksPlatform::strParseQueryString($out);
 				break;
 		}
 		
@@ -305,7 +305,7 @@ class _DevblocksOAuthService {
 				break;
 				
 			case 'application/x-www-form-urlencoded':
-				parse_str($out, $results);
+				$results = DevblocksPlatform::strParseQueryString($out);
 				break;
 		}
 		
@@ -357,8 +357,7 @@ class _DevblocksOAuthService {
 			switch($this->_getContentTypeFromHeaders($headers)) {
 				// Decode pre-encoded form params for signing
 				case 'application/x-www-form-urlencoded':
-					$postdata = array();
-					parse_str($body, $postdata);
+					$postdata = DevblocksPlatform::strParseQueryString($body);
 					break;
 				
 				// Otherwise, keep the plaintext as a payload
@@ -389,10 +388,10 @@ class _DevblocksOAuthService {
 			$url_parts['path']
 		);
 		
-		$query = array();
+		$query = [];
 		
 		if(isset($url_parts['query']))
-			parse_str($url_parts['query'], $query);
+			$query = DevblocksPlatform::strParseQueryString($url_parts['query']);
 		
 		$oauth_headers = array_map('rawurlencode', $oauth_headers);
 		$query = array_map('rawurlencode', $query);
@@ -464,7 +463,7 @@ class _DevblocksOAuthService {
 		// [TODO] Merge payload
 		
 		if(isset($url_parts['query']))
-			parse_str($url_parts['query'], $query);
+			$query = DevblocksPlatform::strParseQueryString($url_parts['query']);
 		
 		$oauth_headers = array_map('rawurlencode', $oauth_headers);
 		$query = array_map('rawurlencode', $query);
