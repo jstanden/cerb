@@ -256,6 +256,26 @@ if(!isset($columns['is_default'])) {
 }
 
 // ===========================================================================
+// Increase `bucket.reply_personal` to varchar(255)
+
+if(!isset($tables['bucket'])) {
+	$logger->error("The 'bucket' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('bucket');
+
+if(!isset($columns['reply_personal'])) {
+	$logger->error("The 'bucket.reply_personal' column does not exist.");
+	return FALSE;
+}
+
+if(0 == strcasecmp('varchar(128)', $columns['reply_personal']['type'])) {
+	$sql = "ALTER TABLE bucket MODIFY COLUMN reply_personal varchar(255) not null default ''";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

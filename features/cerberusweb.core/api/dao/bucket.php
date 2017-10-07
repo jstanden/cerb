@@ -80,7 +80,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		$validation
 			->addField(self::REPLY_PERSONAL)
 			->string()
-			->setMaxLength(128)
+			->setMaxLength(255)
 			;
 		$validation
 			->addField(self::REPLY_SIGNATURE_ID)
