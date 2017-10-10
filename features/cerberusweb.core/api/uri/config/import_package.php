@@ -124,8 +124,8 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			$uids = [];
 			$records_created = [];
 			
-			$this->_packageValidate($json, $uids, $records_created);
-			$this->_packageGenerateIds($json, $uids, $records_created);
+			$this->_packageValidate($json, $uids, $records_created, $placeholders);
+			$this->_packageGenerateIds($json, $uids, $records_created, $placeholders);
 			$this->_packageImport($json, $uids, $records_created);
 			
 			$tpl = DevblocksPlatform::services()->template();
@@ -142,7 +142,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 		}
 	}
 	
-	private function _packageValidate(&$json, &$uids, &$records_created) {
+	private function _packageValidate(&$json, &$uids, &$records_created, &$placeholders) {
 		@$custom_fieldsets = $json['custom_fieldsets'];
 		
 		if(is_array($custom_fieldsets))
@@ -346,7 +346,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 		}
 	}
 	
-	private function _packageGenerateIds(&$json, &$uids, &$records_created) {
+	private function _packageGenerateIds(&$json, &$uids, &$records_created, &$placeholders) {
 		@$custom_fieldsets = $json['custom_fieldsets'];
 		
 		if(is_array($custom_fieldsets))
