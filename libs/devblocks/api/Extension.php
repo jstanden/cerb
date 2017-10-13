@@ -1660,7 +1660,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						case Model_CustomField::TYPE_DROPDOWN:
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
-							$desired_values = isset($params['values']) ? $params['values'] : array();
+							$desired_values = isset($params['values']) ? $params['values'] : [];
 
 							$logger->info(sprintf("`%s` %s%s `%s`",
 								$value,
@@ -1707,23 +1707,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							));
 
 							switch($oper) {
+								// Is all of
 								case 'is':
-									$pass = true;
-									foreach($params['values'] as $v) {
-										if(!isset($value[$v])) {
-											$pass = false;
-											break;
-										}
-									}
+									$hits = array_intersect($value, $params['values']);
+									$pass = (count($hits) == count($value));
 									break;
+								
+								// Is any of
 								case 'in':
-									$pass = false;
-									foreach($params['values'] as $v) {
-										if(isset($value[$v])) {
-											$pass = true;
-											break;
-										}
-									}
+									$hits = array_intersect($value, $params['values']);
+									$pass = !empty($hits);
 									break;
 							}
 							break;
