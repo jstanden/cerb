@@ -115,7 +115,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 		
 		// Group security
-		if(!$active_worker->isGroupMember($ticket->group_id))
+		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
 			return;
 			
 		// Anti-Spam
@@ -262,7 +262,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 			
 		// Group security
-		if(!$active_worker->isGroupMember($src_ticket->group_id))
+		if(!Context_Ticket::isWriteableByActor($src_ticket, $active_worker))
 			return;
 		
 		$refresh_id = !empty($src_ticket) ? $src_ticket->mask : $src_ticket_id;
