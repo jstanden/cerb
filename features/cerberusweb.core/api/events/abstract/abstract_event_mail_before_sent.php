@@ -29,6 +29,11 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 	function generateSampleEventModel(Model_TriggerEvent $trigger, $properties=null, $message_id=null, $ticket_id=null, $group_id=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		$message_id = 0;
+		$ticket_id = 0;
+		$group_id = 0;
+		$bucket_id = 0;
+		
 		if(empty($message_id)) {
 			// Pull the latest ticket
 			list($results) = DAO_Ticket::search(
@@ -50,9 +55,10 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			$message_id = $result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
 			$ticket_id = $result[SearchFields_Ticket::TICKET_ID];
 			$group_id = $result[SearchFields_Ticket::TICKET_GROUP_ID];
+			$bucket_id = $result[SearchFields_Ticket::TICKET_BUCKET_ID];
 		}
 		
-		$properties = array(
+		$properties = [
 			'to' => 'customer@example.com',
 			'cc' => 'boss@example.com',
 			'bcc' => 'secret@example.com',
@@ -62,9 +68,11 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'status_id' => Model_Ticket::STATUS_WAITING,
 			'content' => "This is the message body\r\nOn more than one line.\r\n",
 			'content_format' => 0,
-			'headers' => array(),
+			'headers' => [],
+			'group_id' => $group_id,
+			'bucket_id' => $bucket_id,
 			'worker_id' => $active_worker->id,
-		);
+		];
 		
 		$dict->_properties =& $properties;
 		$dict->content =& $properties['content'];
@@ -91,15 +99,15 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		
 		/**
 		 * Behavior
 		 */
 		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -128,7 +136,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$values['content_format'] = (@$properties['content_format'] == 'parsedown') ? 1 : 0;
 		
 		if(!isset($properties['headers']))
-			$properties['headers'] = array();
+			$properties['headers'] = [];
 			
 		$labels['headers'] = $prefix.'headers';
 		$values['headers'] =& $properties['headers'];
@@ -161,8 +169,8 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 
 		@$ticket_id = $event_model->params['ticket_id'];
 		
-		$ticket_labels = array();
-		$ticket_values = array();
+		$ticket_labels = [];
+		$ticket_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
 		
 			// Fill some custom values
@@ -171,10 +179,10 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			CerberusContexts::scrubTokensWithRegexp(
 				$ticket_labels,
 				$ticket_values,
-				array(
+				[
 					"#^group_#",
 					//"#^id$#",
-				)
+				]
 			);
 			
 			// Merge
@@ -190,9 +198,9 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		/**
 		 * Group
 		 */
-		@$group_id = $event_model->params['group_id'];
-		$group_labels = array();
-		$group_values = array();
+		@$group_id = $properties['group_id'];
+		$group_labels = [];
+		$group_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
 				
 			// Merge
@@ -209,17 +217,17 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		 * Worker
 		 */
 		@$worker_id = $properties['worker_id'];
-		$worker_labels = array();
-		$worker_values = array();
+		$worker_labels = [];
+		$worker_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, '', true);
 				
 			// Clear dupe content
 			CerberusContexts::scrubTokensWithRegexp(
 				$worker_labels,
 				$worker_values,
-				array(
+				[
 					"#^address_org_#",
-				)
+				]
 			);
 		
 			// Merge
@@ -262,6 +270,14 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'behavior_bot_id' => array(
 				'label' => 'Bot',
 				'context' => CerberusContexts::CONTEXT_BOT,
+			),
+			'group_id' => array(
+				'label' => 'Group',
+				'context' => CerberusContexts::CONTEXT_GROUP,
+			),
+			'ticket_bucket_id' => array(
+				'label' => 'Ticket bucket',
+				'context' => CerberusContexts::CONTEXT_BUCKET,
 			),
 			'ticket_id' => array(
 				'label' => 'Ticket',
