@@ -110,8 +110,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			if(isset($ticket_values['group_id']))
 				$group_id = $ticket_values['group_id'];
 			
-			// [TODO] ticket_group_id and group_id are redundant here
-			
 			$values['ticket_has_owner'] = !empty($ticket_values['owner_id']) ? 1 : 0;
 			
 			// Clear dupe content
@@ -119,9 +117,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$ticket_labels,
 				$ticket_values,
 				array(
-					//"#^initial_message_#",
-					//"#^latest_message_#",
-					"#^group_#",
 					"#^id$#",
 				)
 			);
