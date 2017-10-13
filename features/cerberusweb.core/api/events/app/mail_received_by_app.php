@@ -280,7 +280,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				foreach($attachments as $attachment_name => $attachment) {
 					if($found)
 						continue;
-						
+					
 					switch($as_token) {
 						case 'attachment_name':
 							$value = $attachment_name;
@@ -673,7 +673,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
 					
-					$value_label = array();
+					$value_label = [];
 					
 					switch($custom_field->type) {
 						case Model_CustomField::TYPE_LIST:
@@ -695,27 +695,36 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							$value = $tpl_builder->build($params['value'], $dict);
 							break;
 					}
-
+					
 					if(empty($value_label))
 						$value_label = (is_array($value) ? implode(', ', $value) : $value);
 					
-					$field_context_id = null;
+					// Update the dictionary
 					
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_TICKET:
-							break;
-							
-						default:
-							$field_id_key = $field_key . '_id';
-							$field_context_id = $dict->$field_id_key;
-							break;
-					}
+					$field_id_key = $field_key . 'id';
+					$field_custom_key = $field_key . 'custom';
+					$field_value_key = $field_key . 'custom_' . $field_id;
+					$dict->$field_value_key = is_array($value) ? implode(', ', $value) : $value;
+					
+					if(!isset($dict->$field_custom_key))
+						$dict->$field_custom_key = [];
+					
+					$custom =& $dict->$field_custom_key;
+					$custom[$field_id] = $value;
+					
+					// Update the model
+					
+					@$parser_model = $dict->_parser_model;
 					
 					if(!empty($parser_model))
-						$parser_model->getMessage()->custom_fields[] = array(
+						$parser_model->getMessage()->custom_fields[] = [
 							'field_id' => $field_id,
+							'context' => $custom_field->context,
+							'context_id' => $dict->$field_id_key,
 							'value' => $value,
-						);
+						];
+						
+					// Output
 					
 					$out = sprintf(">>> Setting custom field\n".
 						"Custom Field: %s\n".
@@ -890,8 +899,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
-					@$parser_model = $dict->_parser_model;
-					
 					$field_key = $matches[1];
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
@@ -917,24 +924,30 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 							break;
 					}
 					
-					$field_context_id = null;
+					// Update the dictionary
 					
-					switch($custom_field->context) {
-						case CerberusContexts::CONTEXT_TICKET:
-							break;
-							
-						default:
-							$field_id_key = $field_key . '_id';
-							$field_context_id = $dict->$field_id_key;
-							break;
-					}
+					$field_id_key = $field_key . 'id';
+					$field_custom_key = $field_key . 'custom';
+					$field_value_key = $field_key . 'custom_' . $field_id;
+					$dict->$field_value_key = is_array($value) ? implode(', ', $value) : $value;
 					
-					$parser_model->getMessage()->custom_fields[] = array(
-						'field_id' => $field_id,
-						'context' => $custom_field->context,
-						'context_id' => $field_context_id,
-						'value' => $value,
-					);
+					if(!isset($dict->$field_custom_key))
+						$dict->$field_custom_key = [];
+					
+					$custom =& $dict->$field_custom_key;
+					$custom[$field_id] = $value;
+					
+					// Update the model
+					
+					@$parser_model = $dict->_parser_model;
+					
+					if(!empty($parser_model))
+						$parser_model->getMessage()->custom_fields[] = [
+							'field_id' => $field_id,
+							'context' => $custom_field->context,
+							'context_id' => $dict->$field_id_key,
+							'value' => $value,
+						];
 				}
 				break;
 		}

@@ -42,13 +42,13 @@
 
 class CerberusParserMessage {
 	public $encoding = '';
-	public $headers = array();
+	public $headers = [];
 	public $raw_headers = '';
 	public $body = '';
 	public $body_encoding = '';
 	public $htmlbody = '';
-	public $files = array();
-	public $custom_fields = array();
+	public $files = [];
+	public $custom_fields = [];
 	public $was_encrypted = false;
 	public $was_signed = false;
 	
@@ -1518,13 +1518,13 @@ class CerberusParser {
 		
 		// Pre-load custom fields
 		
-		$cf_values = array();
+		$cf_values = [];
 		
 		if(isset($message->custom_fields) && !empty($message->custom_fields))
 		foreach($message->custom_fields as $cf_data) {
 			if(!is_array($cf_data))
 				continue;
-		
+			
 			@$cf_id = $cf_data['field_id'];
 			@$cf_context = $cf_data['context'];
 			@$cf_context_id = $cf_data['context_id'];
@@ -1536,12 +1536,20 @@ class CerberusParser {
 			
 			if((is_array($cf_val) && !empty($cf_val))
 				|| (!is_array($cf_val) && 0 != strlen($cf_val))) {
-					$cf_values[$cf_id] = $cf_val;
+					$cf_key = sprintf("%s:%d", $cf_context, $cf_context_id);
+					
+					if(!isset($cf_values[$cf_key]))
+						$cf_values[$cf_key] = [];
+					
+					$cf_values[$cf_key][$cf_id] = $cf_val;
 			}
 		}
 		
 		if(!empty($cf_values))
-			DAO_CustomFieldValue::formatAndSetFieldValues($cf_context, $cf_context_id, $cf_values);
+		foreach($cf_values as $ctx_pair => $cf_data) {
+			list($cf_context, $cf_context_id) = explode(':', $ctx_pair, 2);
+			DAO_CustomFieldValue::formatAndSetFieldValues($cf_context, $cf_context_id, $cf_data);
+		}
 
 		// If the sender was previously defunct, remove the flag
 		
