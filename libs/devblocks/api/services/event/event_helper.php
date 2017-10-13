@@ -57,7 +57,7 @@ class DevblocksEventHelper {
 		return $context_to_macros;
 	}
 	
-	private static function _getRelativeDateUsingCalendar($calendar_id, $rel_date) {
+	public static function getRelativeDateUsingCalendar($calendar_id, $rel_date) {
 		$today = strtotime('today', time());
 		$cache = DevblocksPlatform::services()->cache();
 		
@@ -507,7 +507,7 @@ class DevblocksEventHelper {
 						@$calendar_id = $params['calendar_id'];
 						@$rel_date = $params['calendar_reldate'];
 
-						$value = DevblocksEventHelper::_getRelativeDateUsingCalendar($calendar_id, $rel_date);
+						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
 						
 						if(false !== $value)
 							$dict->$token = $value;
@@ -714,7 +714,7 @@ class DevblocksEventHelper {
 						@$calendar_id = $params['calendar_id'];
 						@$rel_date = $params['calendar_reldate'];
 
-						$value = DevblocksEventHelper::_getRelativeDateUsingCalendar($calendar_id, $rel_date);
+						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
 						
 						break;
 						
@@ -1060,7 +1060,7 @@ class DevblocksEventHelper {
 				@$calendar_id = $params['calendar_id'];
 				@$rel_date = $params['calendar_reldate'];
 
-				$value = DevblocksEventHelper::_getRelativeDateUsingCalendar($calendar_id, $rel_date);
+				$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
 				
 				if(false !== $value)
 					$dict->$token = $value;
@@ -1278,7 +1278,7 @@ class DevblocksEventHelper {
 						@$calendar_id = $params['calendar_id'];
 						@$rel_date = $params['calendar_reldate'];
 						
-						$value = DevblocksEventHelper::_getRelativeDateUsingCalendar($calendar_id, $rel_date);
+						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
 						
 						if(false !== $value)
 							$dict->$token = $value;

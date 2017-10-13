@@ -680,16 +680,42 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 						case Model_CustomField::TYPE_MULTI_CHECKBOX:
 							$value = $params['values'];
 							break;
+						
 						case Model_CustomField::TYPE_WORKER:
 							$workers = DAO_Worker::getAll();
 							$value = $params['worker_id'];
 							@$value_label = $workers[$value]->getName();
 							break;
+						
 						case Model_CustomField::TYPE_DROPDOWN:
 						case Model_CustomField::TYPE_CHECKBOX:
-						case Model_CustomField::TYPE_DATE:
 							$value = $params['value'];
 							break;
+						
+						case Model_CustomField::TYPE_DATE:
+							@$mode = $params['mode'];
+							
+							switch($mode) {
+								case 'calendar':
+									@$calendar_id = $params['calendar_id'];
+									@$rel_date = $params['calendar_reldate'];
+			
+									$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
+									
+									break;
+									
+								default:
+									if(!isset($params['value']))
+										return;
+									
+									$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+									$value = $tpl_builder->build($params['value'], $dict);
+									break;
+							}
+			
+							$value = is_numeric($value) ? $value : @strtotime($value);
+							break;
+						
 						default:
 							$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 							$value = $tpl_builder->build($params['value'], $dict);
@@ -910,14 +936,39 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 						case Model_CustomField::TYPE_MULTI_CHECKBOX:
 							$value = $params['values'];
 							break;
+							
 						case Model_CustomField::TYPE_WORKER:
 							$value = $params['worker_id'];
 							break;
+							
 						case Model_CustomField::TYPE_DROPDOWN:
 						case Model_CustomField::TYPE_CHECKBOX:
-						case Model_CustomField::TYPE_DATE:
 							$value = $params['value'];
 							break;
+						
+						case Model_CustomField::TYPE_DATE:
+							@$mode = $params['mode'];
+							
+							switch($mode) {
+								case 'calendar':
+									@$calendar_id = $params['calendar_id'];
+									@$rel_date = $params['calendar_reldate'];
+			
+									$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
+									break;
+									
+								default:
+									if(!isset($params['value']))
+										return;
+									
+									$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+									$value = $tpl_builder->build($params['value'], $dict);
+									break;
+							}
+			
+							$value = is_numeric($value) ? $value : @strtotime($value);
+							break;
+						
 						default:
 							$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 							$value = $tpl_builder->build($params['value'], $dict);
