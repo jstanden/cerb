@@ -62,16 +62,16 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
-		$labels = array();
-		$values = array();
-		$blank = array();
+		$labels = [];
+		$values = [];
+		$blank = [];
 		
 		/**
 		 * Behavior
 		 */
 		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -90,8 +90,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		/**
 		 * Ticket
 		 */
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		// [TODO] This takes ~50ms
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $model, $merge_token_labels, $merge_token_values, null, true);
 		
@@ -123,8 +123,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		 * Group
 		 */
 		
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $merge_token_labels, $merge_token_values, 'Ticket:Group:', true);
 				
 			// Merge
@@ -144,8 +144,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		@$comment_id = $event_model->params['comment_id'];
 
 		if(get_class($this) == 'Event_CommentOnTicketInGroup') {
-			$merge_token_labels = array();
-			$merge_token_values = array();
+			$merge_token_labels = [];
+			$merge_token_values = [];
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_COMMENT, $comment_id, $merge_token_labels, $merge_token_values, 'Ticket:Comment:', true);
 				
 				// Merge

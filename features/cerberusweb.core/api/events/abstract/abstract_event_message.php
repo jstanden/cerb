@@ -84,8 +84,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		 * Message
 		 */
 		
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $model, $labels, $values, null, true);
 
 		// Fill in some custom values
@@ -98,8 +98,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		@$ticket_id = $values['ticket_id'];
 		$group_id = 0;
 		
-		$ticket_labels = array();
-		$ticket_values = array();
+		$ticket_labels = [];
+		$ticket_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, 'Message:Ticket:', true);
 
 			// Fill some custom values
@@ -134,8 +134,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		/**
 		 * Group
 		 */
-		$group_labels = array();
-		$group_values = array();
+		$group_labels = [];
+		$group_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, 'Message:Ticket:Group:', true);
 				
 			// Merge
@@ -152,8 +152,8 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		 * Sender Worker
 		 */
 		@$worker_id = $values['worker_id'];
-		$worker_labels = array();
-		$worker_values = array();
+		$worker_labels = [];
+		$worker_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, 'Message worker:', true);
 				
 			// Clear dupe content

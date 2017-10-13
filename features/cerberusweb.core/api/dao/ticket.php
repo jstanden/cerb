@@ -1340,7 +1340,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				unset($change_fields[DAO_Ticket::BUCKET_ID]);
 			
 			if(isset($change_fields[DAO_Ticket::GROUP_ID]) || isset($change_fields[DAO_Ticket::BUCKET_ID])) {
-				// VAs
+				// Bots
 
 				Event_MailMovedToGroup::trigger($model->id, $model->group_id);
 
@@ -1349,28 +1349,22 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				@$to_group = DAO_Group::get($model->group_id);
 				@$to_bucket = DAO_Bucket::get($model->bucket_id);
 				
-				if(empty($to_group))
-					$to_group = DAO_Group::get($model->group_id);
-				
-				if(empty($to_bucket)) {
-					$to_bucket = $to_group->getDefaultBucket();
-					$bucket_id = $to_bucket->id;
+				if($to_group && $to_bucket) {
+					$entry = [
+						//{{actor}} moved ticket {{target}} to {{group}} {{bucket}}
+						'message' => 'activities.ticket.moved',
+						'variables' => [
+							'target' => sprintf("[%s] %s", $model->mask, $model->subject),
+							'group' => $to_group->name,
+							'bucket' => $to_bucket->name,
+							],
+						'urls' => [
+							'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $model->id, $model->mask),
+							'group' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_GROUP, $to_group->id, $to_group->name),
+							]
+					];
+					CerberusContexts::logActivity('ticket.moved', CerberusContexts::CONTEXT_TICKET, $model->id, $entry);
 				}
-				
-				$entry = array(
-					//{{actor}} moved ticket {{target}} to {{group}} {{bucket}}
-					'message' => 'activities.ticket.moved',
-					'variables' => array(
-						'target' => sprintf("[%s] %s", $model->mask, $model->subject),
-						'group' => $to_group->name,
-						'bucket' => $to_bucket->name,
-						),
-					'urls' => array(
-						'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $model->id, $model->mask),
-						'group' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_GROUP, $to_group->id, $to_group->name),
-						)
-				);
-				CerberusContexts::logActivity('ticket.moved', CerberusContexts::CONTEXT_TICKET, $model->id, $entry);
 			}
 			
 			/*
