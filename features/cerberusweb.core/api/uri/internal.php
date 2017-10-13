@@ -194,7 +194,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$bot_name = $bot->name;
 		
 		$url_writer = DevblocksPlatform::services()->url();
-		$bot_image_url = $url_writer->write(sprintf("c=avatars&w=bot&id=%d", $bot->id) . '?v=' . $bot->updated_at);
+		$bot_image_url = $url_writer->write(sprintf("c=avatars&w=bot&id=%d", $bot->id)) . '?v=' . $bot->updated_at;
 		
 		$session_data = [
 			'actor' => ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id],
