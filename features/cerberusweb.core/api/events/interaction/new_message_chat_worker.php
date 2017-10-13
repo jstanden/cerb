@@ -275,6 +275,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 
 				'prompt_buttons' => array('label' => 'Prompt with buttons'),
 				'prompt_chooser' => array('label' => 'Prompt with chooser'),
+				'prompt_date' => array('label' => 'Prompt with date input'),
 				'prompt_images' => array('label' => 'Prompt with images'),
 				'prompt_file' => array('label' => 'Prompt with file upload'),
 				'prompt_text' => array('label' => 'Prompt with text input'),
@@ -326,6 +327,10 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$tpl->assign('contexts', $contexts);
 
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_chooser.tpl');
+				break;
+				
+			case 'prompt_date':
+				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_text.tpl');
 				break;
 
 			case 'prompt_file':
@@ -414,6 +419,15 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					$context,
 					$query,
 					$selection
+				);
+				break;
+				
+			case 'prompt_date':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+
+				$out = sprintf(">>> Prompting with date input\nPlaceholder: %s\n",
+					$placeholder
 				);
 				break;
 
@@ -545,6 +559,21 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					'query' => $query,
 					'selection' => $selection,
 					'autocomplete' => $autocomplete,
+				);
+
+				$dict->__exit = 'suspend';
+				break;
+				
+			case 'prompt_date':
+				$actions =& $dict->_actions;
+
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+
+				$actions[] = array(
+					'_action' => 'prompt.date',
+					'_trigger_id' => $trigger->id,
+					'placeholder' => $placeholder,
 				);
 
 				$dict->__exit = 'suspend';

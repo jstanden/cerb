@@ -1717,6 +1717,11 @@
 				<seg>Multiple</seg>
 			</tuv>
 		</tu>
+		<tu tuid='common.send'>
+			<tuv xml:lang="en_US">
+				<seg>send</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.sender">
 			<tuv xml:lang="en_US">
 				<seg>sender</seg>

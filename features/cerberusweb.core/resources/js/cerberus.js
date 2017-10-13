@@ -214,6 +214,7 @@ $.fn.cerbDateInputHelper = function(options) {
 						$input_date.val('');
 					} else {
 						$input_date.val(json.to_string);
+						$this.trigger('cerb-date-changed');
 					}
 					
 					if(e.keydown_event_caller && e.keydown_event_caller.shiftKey && e.keydown_event_caller.ctrlKey && e.keydown_event_caller.which == 13)

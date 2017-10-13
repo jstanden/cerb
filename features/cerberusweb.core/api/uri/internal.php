@@ -429,6 +429,17 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->display('devblocks:cerberusweb.core::console/prompt_chooser.tpl');
 					break;
 					
+				case 'prompt.date':
+					@$placeholder = $params['placeholder'];
+					
+					if(empty($placeholder))
+						$placeholder = 'e.g. tomorrow 5pm, 2 hours';
+					
+					$tpl->assign('delay_ms', 0);
+					$tpl->assign('placeholder', $placeholder);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_date.tpl');
+					break;
+					
 				case 'prompt.file':
 					$tpl->assign('delay_ms', 0);
 					$tpl->display('devblocks:cerberusweb.core::console/prompt_file.tpl');
