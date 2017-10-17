@@ -1653,6 +1653,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function strEscapeHtml($string) {
+		$string = strval($string);
+		
 		if(0 == strlen($string))
 			return '';
 		
@@ -1660,6 +1662,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 
 	static function strToInitials($string) {
+		$string = strval($string);
+		
 		$strings = explode(' ', $string);
 		
 		// Two parts max
@@ -1684,6 +1688,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function strToPermalink($string, $spaces_as='-') {
+		$string = strval($string);
+		
 		if(0 == strlen($string))
 			return '';
 		

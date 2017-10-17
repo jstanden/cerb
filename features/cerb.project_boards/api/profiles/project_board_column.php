@@ -144,7 +144,7 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 				if(!Context_ProjectBoard::isWriteableByActor($board_id, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this project board.", 'board_id');
 				
-				// [TODO] Behaviors
+				// Behaviors
 				
 				$behaviors = DAO_TriggerEvent::getIds($behavior_ids);
 				

@@ -59,7 +59,8 @@ if(!isset($tables['custom_record'])) {
 		name VARCHAR(255) DEFAULT '',
 		params_json TEXT,
 		updated_at INT UNSIGNED NOT NULL DEFAULT 0,
-		primary key (id)
+		primary key (id),
+		index (updated_at)
 	) ENGINE=%s;
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
@@ -78,7 +79,8 @@ if(!isset($tables['email_signature'])) {
 		signature text,
 		is_default tinyint(3) unsigned not null default 0,
 		updated_at int unsigned not null default 0,
-		primary key (id)
+		primary key (id),
+		index (updated_at)
 	) ENGINE=%s;
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());

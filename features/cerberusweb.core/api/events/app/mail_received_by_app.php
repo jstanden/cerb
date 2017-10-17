@@ -572,9 +572,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				}
 				
 				$out = sprintf(">>> Replacing content\n".
-					"Before:\n%s\n".
+					"Before:\n%s\n\n".
 					"After:\n%s\n",
-					$before,
+					trim($before,"\r\n"),
 					$dict->body
 				);
 				
@@ -799,7 +799,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'reject':
 				$dict->pre_actions['reject'] = true;
 				break;
-			
+				
 			case 'redirect_email':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				@$to = $tpl_builder->build($params['to'], $dict);

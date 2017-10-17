@@ -839,7 +839,7 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 				break;
 				
 			case SearchFields_Bot::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_CustomFieldset::OWNER_CONTEXT, DAO_CustomFieldset::OWNER_CONTEXT_ID, 'owner_context[]');
+				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_Bot::OWNER_CONTEXT, DAO_Bot::OWNER_CONTEXT_ID, 'owner_context[]');
 				break;
 				
 			case SearchFields_Bot::VIRTUAL_WATCHERS:

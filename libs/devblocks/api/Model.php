@@ -2104,9 +2104,9 @@ class DevblocksPatch {
 
 class Model_DevblocksEvent {
 	public $id = '';
-	public $params = array();
+	public $params = [];
 
-	function __construct($id='',$params=array()) {
+	function __construct($id='',$params=[]) {
 		$this->id = $id;
 		$this->params = $params;
 	}
@@ -2125,14 +2125,14 @@ class Model_DevblocksStorageProfile {
 	public $name;
 	public $extension_id;
 	public $params_json;
-	public $params = array();
+	public $params = [];
 	
 	function getUsageStats() {
 		// Schemas
 		$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', true);
 		
 		// Stats
-		$storage_schema_stats = array();
+		$storage_schema_stats = [];
 		foreach($storage_schemas as $schema) {
 			$stats = $schema->getStats();
 			$key = $this->extension_id . ':' . intval($this->id);

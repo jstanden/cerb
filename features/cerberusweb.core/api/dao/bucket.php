@@ -1080,7 +1080,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values
 		);
 		
-		// HTML Template
+		// Email Signature
 		$merge_token_labels = array();
 		$merge_token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, null, $merge_token_labels, $merge_token_values, '', true);
