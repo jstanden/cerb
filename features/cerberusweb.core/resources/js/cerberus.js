@@ -831,6 +831,7 @@ var ajax = new cAjaxCalls();
 					{ value: "batch(n,fill)", meta: "filter" },
 					{ value: "bytes_pretty()", snippet: "bytes_pretty(${1:2})", meta: "filter" },
 					{ value: "capitalize", meta: "filter" },
+					{ value: "context_name()", snippet: "context_name(\"${1:plural}\")", meta: "filter" },
 					{ value: "convert_encoding()", snippet: "convert_encoding(${1:to_charset},${2:from_charset})", meta: "filter" },
 					{ value: "date('F d, Y')", meta: "filter" },
 					{ value: "date_modify('+1 day')", meta: "filter" },

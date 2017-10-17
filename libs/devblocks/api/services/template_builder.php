@@ -72,6 +72,7 @@ class _DevblocksTemplateBuilder {
 				'base64_encode',
 				'base64_decode',
 				'bytes_pretty',
+				'context_name',
 				'date_pretty',
 				'hash_hmac',
 				'json_pretty',
@@ -896,6 +897,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFilter('base64_encode', [$this, 'filter_base64_encode']),
 			new Twig_SimpleFilter('base64_decode', [$this, 'filter_base64_decode']),
 			new Twig_SimpleFilter('bytes_pretty', [$this, 'filter_bytes_pretty']),
+			new Twig_SimpleFilter('context_name', [$this, 'filter_context_name']),
 			new Twig_SimpleFilter('date_pretty', [$this, 'filter_date_pretty']),
 			new Twig_SimpleFilter('hash_hmac', [$this, 'filter_hash_hmac']),
 			new Twig_SimpleFilter('json_pretty', [$this, 'filter_json_pretty']),
@@ -939,6 +941,22 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return '';
 		
 		return DevblocksPlatform::strPrettyBytes($string, $precision);
+	}
+	
+	function filter_context_name($string, $type='plural') {
+		if(!is_string($string))
+			return '';
+		
+		if(false == ($ctx_manifest = Extension_DevblocksContext::get($string, false)))
+			return '';
+		
+		if(false == ($aliases = Extension_DevblocksContext::getAliasesForContext($ctx_manifest)))
+			return '';
+		
+		if(isset($aliases[$type]))
+			return $aliases[$type];
+		
+		return '';
 	}
 	
 	function filter_date_pretty($string, $is_delta=false) {
