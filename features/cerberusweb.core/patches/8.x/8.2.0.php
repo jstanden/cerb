@@ -276,6 +276,41 @@ if(0 == strcasecmp('varchar(128)', $columns['reply_personal']['type'])) {
 }
 
 // ===========================================================================
+// Create `reminder`
+
+if(!isset($tables['reminder'])) {
+	$sql = sprintf("
+	CREATE TABLE `reminder` (
+		id int(10) unsigned NOT NULL AUTO_INCREMENT,
+		name varchar(255) NOT NULL DEFAULT '',
+		worker_id int(10) unsigned NOT NULL DEFAULT '0',
+		remind_at int(10) unsigned NOT NULL DEFAULT '0',
+		params_json text,
+		is_closed tinyint(1) unsigned NOT NULL DEFAULT '0',
+		updated_at int(10) unsigned NOT NULL DEFAULT '0',
+		primary key (id),
+		index closed_remind (is_closed, remind_at),
+		index worker_closed (worker_id, is_closed),
+		index (remind_at),
+		index (updated_at)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['reminder'] = 'reminder';
+}
+
+// ===========================================================================
+// Enable reminder scheduled task and give defaults
+
+if(null != ($cron = DevblocksPlatform::getExtension('cron.reminders', true, true))) {
+	$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+	$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '1');
+	$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+	$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday 23:59'));
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

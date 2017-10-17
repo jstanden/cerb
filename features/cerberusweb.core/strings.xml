@@ -1680,6 +1680,26 @@
 				<seg>refresh</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.remind">
+			<tuv xml:lang="en_US">
+				<seg>remind</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.remind_at">
+			<tuv xml:lang="en_US">
+				<seg>remind at</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.reminder">
+			<tuv xml:lang="en_US">
+				<seg>reminder</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.reminders">
+			<tuv xml:lang="en_US">
+				<seg>reminders</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.remove">
 			<tuv xml:lang="en_US">
 				<seg>remove</seg>
@@ -2199,6 +2219,11 @@
 		<tu tuid="common.week">
 			<tuv xml:lang="en_US">
 				<seg>week</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.when">
+			<tuv xml:lang="en_US">
+				<seg>when</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.worker">

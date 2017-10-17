@@ -83,15 +83,16 @@ class ChCronController extends DevblocksControllerExtension {
 			if($is_ignoring_internal) {
 				$cron_manifests = array_filter($cron_manifests, function($instance) {
 					switch($instance->id) {
-						case 'cron.mailbox':
-						case 'cron.parser':
-						case 'cron.maint':
+						case 'cron.bot.scheduled_behavior':
 						case 'cron.heartbeat':
 						case 'cron.import':
-						case 'cron.storage':
-						case 'cron.search':
 						case 'cron.mail_queue':
-						case 'cron.bot.scheduled_behavior':
+						case 'cron.mailbox':
+						case 'cron.maint':
+						case 'cron.parser':
+						case 'cron.reminders':
+						case 'cron.search':
+						case 'cron.storage':
 							return false;
 							break;
 					}
