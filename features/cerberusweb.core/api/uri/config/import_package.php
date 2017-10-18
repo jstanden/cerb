@@ -128,6 +128,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			$this->_packageGenerateIds($json, $uids, $records_created, $placeholders);
 			$this->_packageImport($json, $uids, $records_created);
 			
+			// Flush the entire cache
+			DevblocksPlatform::services()->cache()->clean();
+			
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('records_created', $records_created);
 			$results_html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/import_package/results.tpl');
