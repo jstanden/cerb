@@ -181,6 +181,7 @@ abstract class AbstractEvent_Reminder extends Extension_DevblocksEvent {
 				'create_task' => array('label' =>'Create task'),
 				'create_ticket' => array('label' =>'Create ticket'),
 				'send_email' => array('label' => 'Send email'),
+				'set_reminder_status' => ['label' => 'Set reminder status'],
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
@@ -217,6 +218,10 @@ abstract class AbstractEvent_Reminder extends Extension_DevblocksEvent {
 				
 			case 'send_email':
 				DevblocksEventHelper::renderActionSendEmail($trigger);
+				break;
+				
+			case 'set_reminder_status':
+				$tpl->display('devblocks:cerberusweb.core::events/model/reminder/action_set_status.tpl');
 				break;
 
 			default:
@@ -255,6 +260,20 @@ abstract class AbstractEvent_Reminder extends Extension_DevblocksEvent {
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
+			case 'set_reminder_status':
+				@$to_is_closed = DevblocksPlatform::intClamp(intval($params['is_closed']), 0, 1);
+				$dict->reminder_is_closed = $to_is_closed;
+				
+				$label_map = [
+					0 => 'open',
+					1 => 'closed',
+				];
+				
+				$out = sprintf(">>> Setting status to: %s\n",
+					@$label_map[$dict->reminder_is_closed]
+				);
+				return $out;
+				break;
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
 					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
@@ -289,11 +308,33 @@ abstract class AbstractEvent_Reminder extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 				
+			case 'set_reminder_status':
+				$this->simulateAction($token, $trigger, $params, $dict);
+				
+				$fields = [];
+					
+				switch($dict->reminder_is_closed) {
+					case 0:
+						$fields = array(
+							DAO_Reminder::IS_CLOSED => 0,
+						);
+						break;
+					case 1:
+						$fields = array(
+							DAO_Reminder::IS_CLOSED => 1,
+						);
+						break;
+				}
+				
+				if(!empty($fields)) {
+					DAO_Reminder::update($reminder_id, $fields);
+				}
+				break;
+				
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
 					return DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
 				break;
 		}
 	}
-	
 };
