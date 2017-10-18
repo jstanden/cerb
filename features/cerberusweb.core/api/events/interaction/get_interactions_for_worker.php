@@ -192,7 +192,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 			array(
 				'point' => 'example.point',
 				'point_params' => ["key1" => "val1", "key2" => "val2"],
-				'worker' => $worker,
+				'worker_id' => ($worker instanceof Model_Worker) ? $worker->id : 0,
 				'actions' => &$actions,
 			)
 		);
@@ -238,8 +238,8 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		
 		@$worker_id = $event_model->params['worker_id'];
 		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -271,7 +271,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 				'context' => CerberusContexts::CONTEXT_BOT,
 			),
 			'worker_id' => array(
-				'label' => 'Sender',
+				'label' => 'Worker',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
