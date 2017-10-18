@@ -1001,7 +1001,7 @@ class DevblocksEventHelper {
 	}
 	
 	static function runActionCreateRecordSetLinks($context, $context_id, $params, &$dict) {
-		@$link_to = DevblocksPlatform::importVar($params['link_to'],'array',array());
+		@$link_to = DevblocksPlatform::importVar($params['link_to'],'array',[]);
 		
 		if(!empty($link_to)) {
 			$trigger = $dict->__trigger;
