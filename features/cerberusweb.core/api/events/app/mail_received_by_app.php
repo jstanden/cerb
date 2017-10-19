@@ -897,6 +897,12 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				// Rebuild the model when a header changes
 				
 				switch($header) {
+					case 'in-reply-to':
+					case 'references':
+					case 'subject':
+						$parser_model->updateThreadHeaders();
+						break;
+					
 					case 'from':
 						$parser_model->updateSender();
 						break;
