@@ -887,9 +887,20 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					$headers[$header] = $value;
 				}
 				
-				// Are we changing any threading headers?
-				if(in_array(DevblocksPlatform::strLower($header), array('subject', 'in-reply-to', 'references')))
-					$dict->pre_actions['headers_dirty'] = true;
+				// Record which headers we've changed
+				
+				if(!isset($dict->pre_actions['headers_dirty']))
+					$dict->pre_actions['headers_dirty'] = [];
+				
+				$dict->pre_actions['headers_dirty'][$header] = true;
+				
+				// Rebuild the model when a header changes
+				
+				switch($header) {
+					case 'from':
+						$parser_model->updateSender();
+						break;
+				}
 				
 				break;
 				

@@ -226,6 +226,10 @@ class CerberusParserModel {
 		return $this->_parseHeadersIsNew();
 	}
 	
+	public function updateSender() {
+		$this->_parseHeadersFrom();
+	}
+	
 	/**
 	 * First we check the references and in-reply-to headers to find a
 	 * historical match in the database. If those don't match we check
@@ -633,7 +637,7 @@ class CerberusParser {
 			return false;
 		
 		if(!is_array($results))
-			$results = array();
+			$results = [];
 		
 		// Normalize charsets
 		switch(DevblocksPlatform::strLower($part->data['charset'])) {
@@ -868,7 +872,7 @@ class CerberusParser {
 					unset($mime_parts[$section_idx]);
 			}
 		}
-
+		
 		// Handle file attachments
 		
 		$settings = DevblocksPlatform::services()->pluginSettings();
@@ -997,6 +1001,12 @@ class CerberusParser {
 		// Parse headers into $model
 		$model = new CerberusParserModel($message); /* @var $model CerberusParserModel */
 		
+		// Pre-parse mail filters
+		// Changing the incoming message through a VA
+		Event_MailReceivedByApp::trigger($model);
+		
+		// Log headers after bots run
+		
 		$log_headers = array(
 			'from' => 'From',
 			'to' => 'To',
@@ -1022,13 +1032,6 @@ class CerberusParser {
 				$logger->info("[Parser] [Headers] " . $log_label . ': ' . $val);
 		}
 		
-		if(false == ($validated = $model->validate()))
-			return $validated; // false or null
-		
-		// Pre-parse mail filters
-		// Changing the incoming message through a VA
-		Event_MailReceivedByApp::trigger($model);
-		
 		$pre_actions = $model->getPreActions();
 		
 		// Reject?
@@ -1037,13 +1040,11 @@ class CerberusParser {
 			return NULL;
 		}
 		
-		// Rewrote threading headers?
 		if(isset($pre_actions['headers_dirty'])) {
-			$model->updateThreadHeaders();
+			// [TODO] Rewrite raw_headers
 		}
 		
 		// Filter attachments?
-		// [TODO] Encapsulate this somewhere
 		if(isset($pre_actions['attachment_filters']) && !empty($message->files)) {
 			foreach($message->files as $filename => $file) {
 				$matched = false;
@@ -1092,6 +1093,9 @@ class CerberusParser {
 				}
 			}
 		}
+		
+		if(false == ($validated = $model->validate()))
+			return $validated; // false or null
 		
 		// Overloadable
 		$enumSpamTraining = '';
