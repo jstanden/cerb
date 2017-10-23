@@ -280,6 +280,9 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	static function getBySha1Hash($sha1_hash, $file_name=null, $file_size=null) {
 		$db = DevblocksPlatform::services()->database();
 		
+		if(empty($sha1_hash) || $sha1_hash == 'da39a3ee5e6b4b0d3255bfef95601890afd80709')
+			return null;
+		
 		$sql = sprintf("SELECT id ".
 			"FROM attachment ".
 			"WHERE storage_sha1hash=%s ".
