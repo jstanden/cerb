@@ -599,7 +599,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 					$value = str_replace($replace, $with, $dict->content);
 				}
 				
-				$before = $dict->body;
+				$before = $dict->content;
 				
 				if(!empty($value)) {
 					$dict->content = trim($value,"\r\n");
@@ -609,7 +609,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 					"Before:\n%s\n".
 					"After:\n%s\n",
 					$before,
-					$dict->body
+					$dict->content
 				);
 				
 				return $out;
