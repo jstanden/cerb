@@ -283,20 +283,20 @@ $(function() {
 			
 			$select_moveto_bucket.find('> option').remove();
 			
-			$('<option/>').appendTo($select_moveto_bucket);
-			
 			if(0 == group_id.length) {
 				$select_moveto_bucket.val('').hide();
 				return;
 			}
 			
-			$select_moveto_bucket_options.find('option').each(function() {
+			$select_moveto_bucket_options.find('option').each(function(n) {
 				var $opt = $(this);
 				if($opt.attr('data-group-id') == group_id)
 					$opt.clone().appendTo($select_moveto_bucket);
 			});
 			
-			$select_moveto_bucket.val('').fadeIn();
+			var bucket_id = $select_moveto_bucket.find('> option:first').val();
+			
+			$select_moveto_bucket.val(bucket_id).fadeIn();
 		});
 		
 		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
