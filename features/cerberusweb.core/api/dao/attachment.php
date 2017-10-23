@@ -1581,6 +1581,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			'size' => $prefix.$translate->_('common.size'),
 			'storage_extension' => $prefix.$translate->_('attachment.storage_extension'),
 			'storage_key' => $prefix.$translate->_('attachment.storage_key'),
+			'storage_sha1hash' => $prefix.$translate->_('attachment.storage_sha1hash'),
 			'updated' => $prefix.$translate->_('common.updated'),
 		);
 		
@@ -1592,6 +1593,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			'size' => 'size_bytes',
 			'storage_extension' => Model_CustomField::TYPE_SINGLE_LINE,
 			'storage_key' => Model_CustomField::TYPE_SINGLE_LINE,
+			'storage_sha1hash' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated' => Model_CustomField::TYPE_DATE,
 		);
 		
@@ -1619,6 +1621,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			$token_values['size'] = $attachment->storage_size;
 			$token_values['storage_extension'] = $attachment->storage_extension;
 			$token_values['storage_key'] = $attachment->storage_key;
+			$token_values['storage_sha1hash'] = $attachment->storage_sha1hash;
 			$token_values['updated'] = $attachment->updated;
 			
 			// Custom fields
