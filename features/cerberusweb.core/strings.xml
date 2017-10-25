@@ -1550,6 +1550,11 @@
 				<seg>plugins</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.plural">
+			<tuv xml:lang="en_US">
+				<seg>plural</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.portal">
 			<tuv xml:lang="en_US">
 				<seg>portal</seg>
@@ -1934,6 +1939,11 @@
 		<tu tuid="common.simulator">
 			<tuv xml:lang="en_US">
 				<seg>simulator</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.singular">
+			<tuv xml:lang="en_US">
+				<seg>singular</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.size">

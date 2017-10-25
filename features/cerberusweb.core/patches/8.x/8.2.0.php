@@ -57,6 +57,7 @@ if(!isset($tables['custom_record'])) {
 	CREATE TABLE `custom_record` (
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		name VARCHAR(255) DEFAULT '',
+		name_plural VARCHAR(255) DEFAULT '',
 		params_json TEXT,
 		updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 		primary key (id),

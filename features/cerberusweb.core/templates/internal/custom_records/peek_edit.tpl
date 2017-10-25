@@ -11,13 +11,19 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+	<legend>{'common.name'|devblocks_translate}:</legend>
 	
 	<table cellspacing="0" cellpadding="2" border="0" width="98%">
 		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+			<td width="1%" nowrap="nowrap"><b>{'common.singular'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
+			</td>
+		</tr>
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.plural'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="name_plural" value="{$model->name_plural}" style="width:98%;">
 			</td>
 		</tr>
 	</table>

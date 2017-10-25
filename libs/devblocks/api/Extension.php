@@ -164,6 +164,21 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			&& is_array($custom_records)
 			) {
 			foreach($custom_records as $custom_record) {
+				$options = [
+					'cards' => '',
+					'create' => '',
+					'custom_fields' => '',
+					'links' => '',
+					'search' => '',
+					'snippets' => '',
+					'va_variable' => '',
+					'watchers' => '',
+					'workspace' => '',
+				];
+				
+				if(is_array(@$custom_record->params['options']) && in_array('hide_search', $custom_record->params['options']))
+					unset($options['search']);
+				
 				$context_id = sprintf('contexts.custom_record.%d', $custom_record->id);
 				$manifest = new DevblocksExtensionManifest();
 				$manifest->id = $context_id;
@@ -186,22 +201,12 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						],
 					],
 					'options' => [
-						0 => [
-							'cards' => '',
-							'create' => '',
-							'custom_fields' => '',
-							'links' => '',
-							'search' => '',
-							'snippets' => '',
-							'va_variable' => '',
-							'watchers' => '',
-							'workspace' => '',
-						],
+						0 => $options,
 					],
 					'names' => [
 						0 => [
 							DevblocksPlatform::strLower($custom_record->name) => 'singular',
-							DevblocksPlatform::strLower($custom_record->name) => 'plural',
+							DevblocksPlatform::strLower($custom_record->name_plural) => 'plural',
 						]
 					],
 				];

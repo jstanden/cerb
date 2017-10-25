@@ -129,6 +129,7 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+				@$name_plural = DevblocksPlatform::importGPC($_REQUEST['name_plural'], 'string', '');
 				
 				if(empty($id)) { // New
 					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CUSTOM_RECORD)))
@@ -137,6 +138,7 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 					$fields = array(
 						DAO_CustomRecord::UPDATED_AT => time(),
 						DAO_CustomRecord::NAME => $name,
+						DAO_CustomRecord::NAME_PLURAL => $name_plural,
 					);
 					
 					if(!DAO_CustomRecord::validate($fields, $error))
@@ -154,6 +156,7 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 					$fields = array(
 						DAO_CustomRecord::UPDATED_AT => time(),
 						DAO_CustomRecord::NAME => $name,
+						DAO_CustomRecord::NAME_PLURAL => $name_plural,
 					);
 					
 					if(!DAO_CustomRecord::validate($fields, $error, $id))

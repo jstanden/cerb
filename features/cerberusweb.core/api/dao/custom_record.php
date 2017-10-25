@@ -2,6 +2,7 @@
 class DAO_CustomRecord extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
+	const NAME_PLURAL = 'name_plural';
 	const PARAMS_JSON = 'params_json';
 	const UPDATED_AT = 'updated_at';
 	
@@ -19,6 +20,11 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::NAME_PLURAL)
 			->string()
 			->setRequired(true)
 			;
@@ -46,6 +52,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 			CREATE TABLE `custom_record_%d` (
 				id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 				name VARCHAR(255) DEFAULT '',
+				name_plural VARCHAR(255) DEFAULT '',
 				updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 				primary key (id),
 				index (updated_at)
@@ -123,7 +130,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, params_json, updated_at ".
+		$sql = "SELECT id, name, name_plural, owner_context, owner_context_id, params_json, updated_at ".
 			"FROM custom_record ".
 			$where_sql.
 			$sort_sql.
@@ -225,9 +232,9 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_CustomRecord();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->name = $row['name'];
-			$object->params_json = $row['params_json'];
+			$object->name_plural = $row['name_plural'];
 			$object->updated_at = $row['updated_at'];
 			$objects[$object->id] = $object;
 		}
@@ -297,10 +304,12 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"custom_record.id as %s, ".
 			"custom_record.name as %s, ".
+			"custom_record.name_plural as %s, ".
 			"custom_record.params_json as %s, ".
 			"custom_record.updated_at as %s ",
 				SearchFields_CustomRecord::ID,
 				SearchFields_CustomRecord::NAME,
+				SearchFields_CustomRecord::NAME_PLURAL,
 				SearchFields_CustomRecord::PARAMS_JSON,
 				SearchFields_CustomRecord::UPDATED_AT
 			);
@@ -426,9 +435,10 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 class SearchFields_CustomRecord extends DevblocksSearchFields {
 	const ID = 'c_id';
 	const NAME = 'c_name';
+	const NAME_PLURAL = 'c_name_plural';
 	const PARAMS_JSON = 'c_params_json';
 	const UPDATED_AT = 'c_updated_at';
-
+	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	
@@ -479,6 +489,7 @@ class SearchFields_CustomRecord extends DevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'custom_record', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'custom_record', 'name', $translate->_('common.name'), null, true),
+			self::NAME_PLURAL => new DevblocksSearchField(self::NAME_PLURAL, 'custom_record', 'name_plural', $translate->_('common.plural'), null, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'custom_record', 'params_json', null, null, false),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'custom_record', 'updated_at', $translate->_('common.updated'), null, true),
 
@@ -503,6 +514,7 @@ class Model_CustomRecord {
 	public $id;
 	public $name;
 	public $params_json;
+	public $name_plural;
 	public $updated_at;
 	
 	function getContext() {
@@ -542,6 +554,7 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 
 		$this->view_columns = array(
 			SearchFields_CustomRecord::NAME,
+			SearchFields_CustomRecord::NAME_PLURAL,
 			SearchFields_CustomRecord::UPDATED_AT,
 		);
 		$this->addColumnsHidden(array(
@@ -675,6 +688,11 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CustomRecord::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'name.plural' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CustomRecord::NAME_PLURAL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -735,6 +753,7 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 
 		switch($field) {
 			case SearchFields_CustomRecord::NAME:
+			case SearchFields_CustomRecord::NAME_PLURAL:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
@@ -807,6 +826,7 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 
 		switch($field) {
 			case SearchFields_CustomRecord::NAME:
+			case SearchFields_CustomRecord::NAME_PLURAL:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -894,6 +914,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 	
 	function getDefaultProperties() {
 		return array(
+			'name_plural',
 			'updated_at',
 		);
 	}
@@ -921,6 +942,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'name_plural' => $prefix.$translate->_('common.plural'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -930,6 +952,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'name_plural' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -953,6 +976,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 			$token_values['_label'] = $custom_record->name;
 			$token_values['id'] = $custom_record->id;
 			$token_values['name'] = $custom_record->name;
+			$token_values['name_plural'] = $custom_record->name_plural;
 			$token_values['updated_at'] = $custom_record->updated_at;
 			
 			// Custom fields
@@ -970,6 +994,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		return [
 			'id' => DAO_CustomRecord::ID,
 			'name' => DAO_CustomRecord::NAME,
+			'name_plural' => DAO_CustomRecord::NAME_PLURAL,
 			'updated_at' => DAO_CustomRecord::UPDATED_AT,
 		];
 	}
