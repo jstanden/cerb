@@ -210,7 +210,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			if(false == ($search_class = $ext->getSearchClass()))
 				return;
 			
-			$query_parts = $dao_class::getSearchQueryComponents(array(), $params);
+			$query_parts = $dao_class::getSearchQueryComponents([], $params);
 			
 			$query_parts['select'] = sprintf("SELECT %s ", $search_class::getPrimaryKey());
 			
@@ -532,6 +532,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		// Return a soft failure when a filtered custom field has been deleted (i.e. ignore)
 		if(false == ($field = DAO_CustomField::get($field_id)))
 			return '';
+		
 
 		$field_table = sprintf("cf_%d", $field_id);
 		$value_table = DAO_CustomFieldValue::getValueTableName($field_id);
@@ -732,34 +733,34 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::TYPE_BOOL:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getBooleanParamFromTokens($param_key, $tokens)))
 					return $param;
-				continue;
+				break;
 				
 			case DevblocksSearchCriteria::TYPE_DATE:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getDateParamFromTokens($param_key, $tokens)))
 					return $param;
-				continue;
+				break;
 				
 			case DevblocksSearchCriteria::TYPE_FULLTEXT:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getFulltextParamFromTokens($param_key, $tokens)))
 					return $param;
-				continue;
+				break;
 				
 			case DevblocksSearchCriteria::TYPE_NUMBER:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens)))
 					return $param;
-				continue;
+				break;
 				
 			case DevblocksSearchCriteria::TYPE_TEXT:
 				@$match_type = $search_field['options']['match'];
 				
 				if($param_key && false != ($param = DevblocksSearchCriteria::getTextParamFromTokens($param_key, $tokens, $match_type)))
 					return $param;
-				continue;
+				break;
 				
 			case DevblocksSearchCriteria::TYPE_WORKER:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getWorkerParamFromTokens($param_key, $tokens, $search_field)))
 					return $param;
-				continue;
+				break;
 		}
 		
 		return false;
@@ -1303,7 +1304,7 @@ class DevblocksSearchCriteria {
 			return '';
 		
 		$db_field_name = $fields[$this->field]->db_table . '.' . $fields[$this->field]->db_column;
-
+		
 		// This should be handled by SearchFields_*::getWhereSQL()
 		if('*_' == substr($this->field,0,2)) {
 			return '';

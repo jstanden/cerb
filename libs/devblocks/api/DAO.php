@@ -367,9 +367,9 @@ abstract class DevblocksORMHelper {
 		$pkey = $search_class::getPrimaryKey();
 		$fields = $search_class::getFields();
 		
-		$tables = array();
-		$selects = array();
-		$wheres = array();
+		$tables = [];
+		$selects = [];
+		$wheres = [];
 		
 		// Sort By
 		if(!empty($sortBy)) {
