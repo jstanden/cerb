@@ -43,12 +43,10 @@
 	
 	<div style="clear:both;"></div>
 	
-	{*
 	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events|default:0}</div> {'common.events'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events_recurring|default:0}</div> {'common.events.recurring'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELD}" data-query="context:&quot;contexts.custom_record.{$dict->id}&quot; fieldset.id:0"><div class="badge-count">{$activity_counts.fields|default:0}</div> {'common.fields'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="contexts.custom_record.{$dict->id}" data-query=""><div class="badge-count">{$activity_counts.records|default:0}</div> {'common.records'|devblocks_translate|capitalize}</button>
 	</div>
-	*}
 	
 </fieldset>
 

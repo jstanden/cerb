@@ -130,15 +130,17 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$name_plural = DevblocksPlatform::importGPC($_REQUEST['name_plural'], 'string', '');
+				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 				
 				if(empty($id)) { // New
 					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CUSTOM_RECORD)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
 					
 					$fields = array(
-						DAO_CustomRecord::UPDATED_AT => time(),
 						DAO_CustomRecord::NAME => $name,
 						DAO_CustomRecord::NAME_PLURAL => $name_plural,
+						DAO_CustomRecord::PARAMS_JSON => json_encode($params),
+						DAO_CustomRecord::UPDATED_AT => time(),
 					);
 					
 					if(!DAO_CustomRecord::validate($fields, $error))
@@ -154,9 +156,10 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 					
 					$fields = array(
-						DAO_CustomRecord::UPDATED_AT => time(),
 						DAO_CustomRecord::NAME => $name,
 						DAO_CustomRecord::NAME_PLURAL => $name_plural,
+						DAO_CustomRecord::PARAMS_JSON => json_encode($params),
+						DAO_CustomRecord::UPDATED_AT => time(),
 					);
 					
 					if(!DAO_CustomRecord::validate($fields, $error, $id))

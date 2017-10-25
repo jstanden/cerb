@@ -53,9 +53,12 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 				id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 				name VARCHAR(255) DEFAULT '',
 				name_plural VARCHAR(255) DEFAULT '',
+				owner_context VARCHAR(255) DEFAULT '',
+				owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
 				updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 				primary key (id),
-				index (updated_at)
+				index (updated_at),
+				index owner (owner_context, owner_context_id)
 			) ENGINE=%s;
 			",
 			$id,
@@ -130,7 +133,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, name_plural, owner_context, owner_context_id, params_json, updated_at ".
+		$sql = "SELECT id, name, name_plural, params_json, updated_at ".
 			"FROM custom_record ".
 			$where_sql.
 			$sort_sql.
@@ -236,6 +239,10 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->name_plural = $row['name_plural'];
 			$object->updated_at = $row['updated_at'];
+			
+			@$params = json_decode($row['params_json'], true) ?: [];
+			$object->params = $params;
+			
 			$objects[$object->id] = $object;
 		}
 		
@@ -513,8 +520,8 @@ class SearchFields_CustomRecord extends DevblocksSearchFields {
 class Model_CustomRecord {
 	public $id;
 	public $name;
-	public $params_json;
 	public $name_plural;
+	public $params = [];
 	public $updated_at;
 	
 	function getContext() {
@@ -539,6 +546,22 @@ class Model_CustomRecord {
 	
 	function getViewClass() {
 		return sprintf("View_AbstractCustomRecord_%d", $this->id);
+	}
+	
+	function getRecordOwnerContexts() {
+		$results = [];
+		@$owner_contexts = $this->params['owners']['contexts'] ?: [];
+		
+		if(in_array(CerberusContexts::CONTEXT_APPLICATION, $owner_contexts))
+			$results[] = 'app';
+		if(in_array(CerberusContexts::CONTEXT_GROUP, $owner_contexts))
+			$results[] = 'group';
+		if(in_array(CerberusContexts::CONTEXT_ROLE, $owner_contexts))
+			$results[] = 'role';
+		if(in_array(CerberusContexts::CONTEXT_WORKER, $owner_contexts))
+			$results[] = 'worker';
+		
+		return $results;
 	}
 };
 
@@ -1043,7 +1066,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Custom Record';
+		$view->name = DevblocksPlatform::translateCapitalized('common.custom_records');
 		/*
 		$view->addParams(array(
 			SearchFields_CustomRecord::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_CustomRecord::UPDATED_AT,'=',0),
@@ -1065,7 +1088,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		$defaults->id = $view_id;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Custom Record';
+		$view->name = DevblocksPlatform::translateCapitalized('common.custom_record');
 		
 		$params_req = array();
 		
@@ -1112,10 +1135,13 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 			$tpl->display('devblocks:cerberusweb.core::internal/custom_records/peek_edit.tpl');
 			
 		} else {
+			$dao_class = sprintf('DAO_AbstractCustomRecord_%d', $context_id);
+			
 			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
+			$activity_counts = [
+				'fields' => DAO_CustomField::countByContextAndFieldset(sprintf('contexts.custom_record.%d', $context_id), 0),
+				'records' => $dao_class::count(),
+			];
 			$tpl->assign('activity_counts', $activity_counts);
 			
 			// Links
