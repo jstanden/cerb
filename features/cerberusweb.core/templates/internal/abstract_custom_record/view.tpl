@@ -86,6 +86,23 @@
 				<a href="{devblocks_url}c=profiles&type=abstract_custom_record&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
+			{elseif $column=="*_owner"}
+				{$owner_context = $result.a_owner_context}
+				{$owner_context_id = $result.a_owner_context_id}
+				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
+				<td data-column="{$column}">
+					{if $owner_context_ext instanceof Extension_DevblocksContext}
+						{$meta = $owner_context_ext->getMeta($owner_context_id)}
+						{if !empty($meta)}
+							<img src="{devblocks_url}c=avatars&context={$owner_context_ext->id}&context_id={$owner_context_id}{/devblocks_url}?v={$result.a_updated_at}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
+							{if $owner_context_id} 
+							<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$owner_context}" data-context-id="{$owner_context_id}">{$meta.name}</a>
+							{else}
+							{$meta.name}
+							{/if}
+						{/if}
+					{/if}
+				</td>
 			{elseif in_array($column, ["a_updated_at"])}
 				<td>
 					{if !empty($result.$column)}

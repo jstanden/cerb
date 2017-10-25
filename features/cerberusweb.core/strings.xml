@@ -1365,6 +1365,11 @@
 				<seg>owner</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.owners">
+			<tuv xml:lang="en_US">
+				<seg>owners</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.label">
 			<tuv xml:lang="en_US">
 				<seg>Label</seg>

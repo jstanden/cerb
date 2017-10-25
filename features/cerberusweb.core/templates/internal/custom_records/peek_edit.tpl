@@ -21,7 +21,31 @@
 			</td>
 		</tr>
 	</table>
+</fieldset>
+
+<fieldset class="peek">
+	<legend>Ownable by:</legend>
 	
+	{$owner_contexts = $model->params.owners.contexts}
+	{if !is_array($owner_contexts)}{$owner_contexts = []}{/if}
+	
+	<div style="margin:5px 5px 5px 10px;">
+		<label><input type="checkbox" name="params[owners][contexts][]" value="cerberusweb.contexts.app" {if in_array('cerberusweb.contexts.app', $owner_contexts)}checked="checked"{/if}> Cerb</label>
+		<label><input type="checkbox" name="params[owners][contexts][]" value="cerberusweb.contexts.group" {if in_array('cerberusweb.contexts.group', $owner_contexts)}checked="checked"{/if}> {'common.groups'|devblocks_translate|capitalize}</label>
+		<label><input type="checkbox" name="params[owners][contexts][]" value="cerberusweb.contexts.role" {if in_array('cerberusweb.contexts.role', $owner_contexts)}checked="checked"{/if}> {'common.roles'|devblocks_translate|capitalize}</label>
+		<label><input type="checkbox" name="params[owners][contexts][]" value="cerberusweb.contexts.worker" {if in_array('cerberusweb.contexts.worker', $owner_contexts)}checked="checked"{/if}> {'common.workers'|devblocks_translate|capitalize}</label>
+	</div>
+</fieldset>
+
+<fieldset class="peek">
+	<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
+	
+	{$options = $model->params.options}
+	{if !is_array($options)}{$options = []}{/if}
+	
+	<div style="margin:5px 5px 5px 10px;">
+		<label><input type="checkbox" name="params[options][]" value="hide_search" {if in_array('hide_search', $options)}checked="checked"{/if}> Hide in search menu</label>
+	</div>
 </fieldset>
 
 {if !empty($custom_fields)}

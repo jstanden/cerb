@@ -143,7 +143,40 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'], 'string', '');
+				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
+				
+				// Owner
+			
+				$owner_ctx = '';
+				@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+				
+				// Make sure we're given a valid ctx
+				
+				switch($owner_ctx) {
+					case CerberusContexts::CONTEXT_APPLICATION:
+					case CerberusContexts::CONTEXT_ROLE:
+					case CerberusContexts::CONTEXT_GROUP:
+					case CerberusContexts::CONTEXT_WORKER:
+						break;
+						
+					default:
+						$owner_ctx = null;
+				}
+
+				$fields = [
+					$dao_class::UPDATED_AT => time(),
+					$dao_class::NAME => $name,
+				];
+				
+				if($owner_ctx) {
+					if(!CerberusContexts::isOwnableBy($owner_ctx, $owner_ctx_id, $active_worker))
+						throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
+					
+					$fields[$dao_class::OWNER_CONTEXT] = $owner_ctx;
+					$fields[$dao_class::OWNER_CONTEXT_ID] = $owner_ctx_id;
+				}
+				
+				// DAO
 				
 				if(empty($id)) { // New
 					if(
@@ -151,11 +184,6 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 						|| !$active_worker->hasPriv(sprintf("contexts.%s.create", $context))
 						)
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
-					$fields = array(
-						$dao_class::UPDATED_AT => time(),
-						$dao_class::NAME => $name,
-					);
 					
 					if(!$dao_class::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -172,11 +200,6 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 						)
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 					
-					$fields = array(
-						$dao_class::UPDATED_AT => time(),
-						$dao_class::NAME => $name,
-					);
-					
 					if(!$dao_class::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
@@ -184,7 +207,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				}
 				
 				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
 				DAO_CustomFieldValue::handleFormPost($context, $id, $field_ids);
 				
 				echo json_encode(array(

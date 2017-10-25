@@ -4,6 +4,8 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 	
 	const ID = 'id';
 	const NAME = 'name';
+	const OWNER_CONTEXT = 'owner_context';
+	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const UPDATED_AT = 'updated_at';
 	
 	static function getFields() {
@@ -19,6 +21,14 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(255)
 			->setRequired(true)
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT)
+			->context()
+			;
+		$validation
+			->addField(self::OWNER_CONTEXT_ID)
+			->id()
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -116,7 +126,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, updated_at ".
+		$sql = "SELECT id, name, owner_context, owner_context_id, updated_at ".
 			sprintf("FROM %s ", $db->escape($table_name)) .
 			$where_sql.
 			$sort_sql.
@@ -220,6 +230,8 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			$object = new Model_AbstractCustomRecord();
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
+			$object->owner_context = $row['owner_context'];
+			$object->owner_context_id = intval($row['owner_context_id']);
 			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
 		}
@@ -260,8 +272,8 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM %s WHERE id IN (%s)",
 			$db->escape($table_name),
-			$ids_list)
-		);
+			$ids_list
+		));
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::services()->event();
@@ -290,9 +302,13 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"id as %s, ".
 			"name as %s, ".
+			"owner_context as %s, ".
+			"owner_context_id as %s, ".
 			"updated_at as %s ",
 				SearchFields_AbstractCustomRecord::ID,
 				SearchFields_AbstractCustomRecord::NAME,
+				SearchFields_AbstractCustomRecord::OWNER_CONTEXT,
+				SearchFields_AbstractCustomRecord::OWNER_CONTEXT_ID,
 				SearchFields_AbstractCustomRecord::UPDATED_AT
 			);
 			
@@ -454,10 +470,13 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 	
 	const ID = 'a_id';
 	const NAME = 'a_name';
+	const OWNER_CONTEXT = 'a_owner_context';
+	const OWNER_CONTEXT_ID = 'a_owner_context_id';
 	const UPDATED_AT = 'a_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_OWNER = '*_owner';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private function _getContextName() {
@@ -486,11 +505,16 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		$table_name = self::_getTableName();
 		$context_name = self::_getContextName();
 		
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, $context_name, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_OWNER:
+				return self::_getWhereSQLFromContextAndID($param, sprintf('%s.owner_context', Cerb_ORMHelper::escape($table_name)), sprintf('%s.owner_context_id', Cerb_ORMHelper::escape($table_name)));
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -525,10 +549,13 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, $table_name, 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, $table_name, 'name', $translate->_('common.name'), null, true),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, $table_name, 'owner_context', $translate->_('common.owner_context'), null, true),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, $table_name, 'owner_context_id', $translate->_('common.owner_context_id'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, $table_name, 'updated_at', $translate->_('common.updated'), null, true),
-
+			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
 		
@@ -537,10 +564,10 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 		
 		if(!empty($custom_columns))
 			$columns = array_merge($columns, $custom_columns);
-
+		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
-
+		
 		return $columns;
 	}
 };
@@ -548,6 +575,8 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 class Model_AbstractCustomRecord {
 	public $id;
 	public $name;
+	public $owner_context;
+	public $owner_context_id;
 	public $updated_at;
 };
 
@@ -574,16 +603,21 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 
 		$this->view_columns = array(
 			SearchFields_AbstractCustomRecord::NAME,
+			SearchFields_AbstractCustomRecord::VIRTUAL_OWNER,
 			SearchFields_AbstractCustomRecord::UPDATED_AT,
 		);
 		
 		$this->addColumnsHidden(array(
+			SearchFields_AbstractCustomRecord::OWNER_CONTEXT,
+			SearchFields_AbstractCustomRecord::OWNER_CONTEXT_ID,
 			SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK,
 			SearchFields_AbstractCustomRecord::VIRTUAL_HAS_FIELDSET,
 			SearchFields_AbstractCustomRecord::VIRTUAL_WATCHERS,
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_AbstractCustomRecord::OWNER_CONTEXT,
+			SearchFields_AbstractCustomRecord::OWNER_CONTEXT_ID,
 		));
 		
 		$this->doResetCriteria();
@@ -626,13 +660,14 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_AbstractCustomRecord::EXAMPLE:
-//					$pass = true;
-//					break;
+				//case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
+				//	$pass = true;
+				//	break;
 					
 				// Virtuals
 				case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_AbstractCustomRecord::VIRTUAL_HAS_FIELDSET:
+				case SearchFields_AbstractCustomRecord::VIRTUAL_OWNER:
 				case SearchFields_AbstractCustomRecord::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -660,16 +695,16 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 			return array();
 		
 		switch($column) {
-//			case SearchFields_AbstractCustomRecord::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
-//				break;
-
 			case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
 			case SearchFields_AbstractCustomRecord::VIRTUAL_HAS_FIELDSET:
 				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
+				break;
+				
+			case SearchFields_AbstractCustomRecord::VIRTUAL_OWNER:
+				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_AbstractCustomRecord::OWNER_CONTEXT, DAO_AbstractCustomRecord::OWNER_CONTEXT_ID, 'owner_context[]');
 				break;
 				
 			case SearchFields_AbstractCustomRecord::VIRTUAL_WATCHERS:
@@ -712,6 +747,11 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => $search_class::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'owner' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => $search_class::VIRTUAL_OWNER),
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -745,6 +785,9 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
 			default:
+				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
+					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_AbstractCustomRecord::VIRTUAL_OWNER);
+				
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
@@ -803,6 +846,19 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 				$this->_renderCriteriaHasFieldset($tpl, 'cerberusweb.contexts.abstract.custom.record');
 				break;
 				
+			case SearchFields_AbstractCustomRecord::VIRTUAL_OWNER:
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
+				
+				$roles = DAO_WorkerRole::getAll();
+				$tpl->assign('roles', $roles);
+				
+				$workers = DAO_Worker::getAll();
+				$tpl->assign('workers', $workers);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_owner.tpl');
+				break;
+				
 			case SearchFields_AbstractCustomRecord::VIRTUAL_WATCHERS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
 				break;
@@ -841,6 +897,10 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 				
 			case SearchFields_AbstractCustomRecord::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
+				break;
+				
+			case SearchFields_AbstractCustomRecord::VIRTUAL_OWNER:
+				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner matches');
 				break;
 			
 			case SearchFields_AbstractCustomRecord::VIRTUAL_WATCHERS:
@@ -883,6 +943,11 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 			case SearchFields_AbstractCustomRecord::VIRTUAL_HAS_FIELDSET:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
+				break;
+				
+			case SearchFields_AbstractCustomRecord::VIRTUAL_OWNER:
+				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 				
 			case SearchFields_AbstractCustomRecord::VIRTUAL_WATCHERS:
@@ -970,6 +1035,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	
 	function getDefaultProperties() {
 		return array(
+			'owner__label',
 			'updated_at',
 		);
 	}
@@ -1026,6 +1092,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'owner__label' => $prefix.$translate->_('common.owner'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1035,6 +1102,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'owner__label' => 'context_url',
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1058,6 +1126,8 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			$token_values['_label'] = $abstract_custom_record->name;
 			$token_values['id'] = $abstract_custom_record->id;
 			$token_values['name'] = $abstract_custom_record->name;
+			$token_values['owner__context'] = $abstract_custom_record->owner_context;
+			$token_values['owner_id'] = $abstract_custom_record->owner_context_id;
 			$token_values['updated_at'] = $abstract_custom_record->updated_at;
 			
 			// Custom fields
@@ -1075,6 +1145,8 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		return [
 			'id' => DAO_AbstractCustomRecord::ID,
 			'name' => DAO_AbstractCustomRecord::NAME,
+			'owner__context' => DAO_AbstractCustomRecord::OWNER_CONTEXT,
+			'owner_id' => DAO_AbstractCustomRecord::OWNER_CONTEXT_ID,
 			'updated_at' => DAO_AbstractCustomRecord::UPDATED_AT,
 		];
 	}
@@ -1201,6 +1273,14 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
+			
+			// Owner
+			$owner_contexts = $custom_record->getRecordOwnerContexts();
+			
+			if($owner_contexts) {
+				$owners_menu = Extension_DevblocksContext::getOwnerTree($owner_contexts);
+				$tpl->assign('owners_menu', $owners_menu);
+			}
 			
 			// View
 			$tpl->assign('id', $context_id);
