@@ -39,7 +39,9 @@
 			{if $link_ctx}
 				{$link_ctx_meta = $link_ctx->getMeta($result.$column)}
 				{if $link_ctx_meta}
-					{if $link_ctx_meta.permalink}
+					{if $link_ctx->hasOption('cards')}
+						<a href="javascript:;" class="cerb-peek-trigger" data-context="{$col->params.context}" data-context-id="{$result.$column}" data-permalink="{$link_ctx_meta.permalink}">{$link_ctx_meta.name}</a>
+					{elseif $link_ctx_meta.permalink}
 						<a href="{$link_ctx_meta.permalink}">{$link_ctx_meta.name}</a>
 					{else}
 						{$link_ctx_meta.name}
