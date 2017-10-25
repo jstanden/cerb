@@ -32,6 +32,14 @@
 			{if $dict->$k}
 			<div>
 			{if $k == ''}
+			{elseif $k == 'context'}
+				<label>{'common.record'|devblocks_translate|capitalize}</label>
+				{$context_mft = Extension_DevblocksContext::get($dict->$k, false)}
+				{if $context_mft}
+					{$context_mft->name}
+				{else}
+					{$dict->$k}
+				{/if}
 			{else}
 				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
 			{/if}
@@ -42,12 +50,9 @@
 	
 	<div style="clear:both;"></div>
 	
-	{*
 	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events|default:0}</div> {'common.events'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events_recurring|default:0}</div> {'common.events.recurring'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELD}" data-query="fieldset.id:{$dict->id}"><div class="badge-count">{$activity_counts.custom_fields|default:0}</div> {'common.fields'|devblocks_translate|capitalize}</button>
 	</div>
-	*}
 	
 </fieldset>
 

@@ -1013,6 +1013,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 	
 	function getDefaultProperties() {
 		return array(
+			'context',
 			'owner__label',
 		);
 	}
@@ -1027,7 +1028,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		if(is_numeric($cfieldset)) {
 			$cfieldset = DAO_CustomFieldset::get($cfieldset);
 		} elseif($cfieldset instanceof Model_CustomFieldset) {
-			// It's what we want already.
+		// It's what we want already.
 		} elseif(is_array($cfieldset)) {
 			$cfieldset = Cerb_ORMHelper::recastArrayToModel($cfieldset, 'Model_CustomFieldset');
 		} else {
@@ -1047,7 +1048,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		$token_types = array(
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
-			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'context' => Model_CustomField::TYPE_MULTI_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'owner__label' => 'context_url',
 		);
@@ -1245,7 +1246,6 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			$tpl->assign('link_contexts', $link_contexts);
 			
 			// Owner
-			
 			$owners_menu = Extension_DevblocksContext::getOwnerTree();
 			$tpl->assign('owners_menu', $owners_menu);
 			
@@ -1257,7 +1257,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		} else {
 			// Counts
 			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
+				'custom_fields' => DAO_CustomField::countByFieldsetId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
