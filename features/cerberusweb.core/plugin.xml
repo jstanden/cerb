@@ -325,8 +325,10 @@
 			<class name="DAO_CustomField" />
 			<class name="DAO_CustomFieldValue" />
 			<class name="Model_CustomField" />
+			<class name="SearchFields_CustomField" />
+			<class name="View_CustomField" />
 		</file>
-
+		
 		<file path="api/dao/custom_fieldset.php">
 			<class name="Context_CustomFieldset" />
 			<class name="DAO_CustomFieldset" />
@@ -1469,16 +1471,18 @@
 				</param>
 				<param key="alias" value="custom_field" />
 				<param key="dao_class" value="DAO_CustomField" />
-				<param key="view_class" value="" />
+				<param key="view_class" value="View_CustomField" />
 				<param key="options">
-					<!--
 					<value>
+						<data key="cards" />
 						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
 					</value>
-					-->
 				</param>
 				<param key="acl">
 					<value>
+						<data key="export" />
 					</value>
 				</param>
 			</params>
@@ -4959,6 +4963,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="custom_fieldset" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.custom_field</id>
+				<name>Custom Field Section</name>
+				<class>
+					<file>api/uri/profiles/custom_field.php</file>
+					<name>PageSection_ProfilesCustomField</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="custom_field" />
 				</params>
 			</extension>
 			

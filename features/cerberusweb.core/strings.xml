@@ -902,6 +902,11 @@
 				<seg>field</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.fields">
+			<tuv xml:lang="en_US">
+				<seg>fields</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.fieldset">
 			<tuv xml:lang="en_US">
 				<seg>Fieldset</seg>

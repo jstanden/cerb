@@ -313,6 +313,23 @@ if(null != ($cron = DevblocksPlatform::getExtension('cron.reminders', true, true
 }
 
 // ===========================================================================
+// Add `updated_at` field to the `custom_field` table
+
+if(!isset($tables['custom_field'])) {
+	$logger->error("The 'custom_field' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('custom_field');
+
+if(!isset($columns['updated_at'])) {
+	$sql = 'ALTER TABLE custom_field ADD COLUMN updated_at int(10) unsigned NOT NULL DEFAULT 0';
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster(sprintf("UPDATE custom_field SET updated_at = %d", time()));
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

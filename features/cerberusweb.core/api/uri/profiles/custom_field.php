@@ -15,7 +15,7 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
-class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
+class PageSection_ProfilesCustomField extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
@@ -25,19 +25,19 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
-		@array_shift($stack); // custom_fieldset 
+		@array_shift($stack); // custom_field 
 		$id = array_shift($stack); // 123
 		
 		@$id = intval($id);
 		
-		if(null == ($custom_fieldset = DAO_CustomFieldset::get($id))) {
+		if(null == ($custom_field = DAO_CustomField::get($id))) {
 			return;
 		}
-		$tpl->assign('custom_fieldset', $custom_fieldset);
+		$tpl->assign('custom_field', $custom_field);
 		
 		// Tab persistence
 		
-		$point = 'profiles.custom_fieldset.tab';
+		$point = 'profiles.custom_field.tab';
 		$tpl->assign('point', $point);
 		
 		if(null == (@$tab_selected = $stack[0])) {
@@ -49,38 +49,26 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 		
 		$properties = [];
 		
-		$properties['owner'] = array(
-			'label' => mb_ucfirst($translate->_('common.owner')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $custom_fieldset->owner_context_id,
-			'params' => [
-				'context' => $custom_fieldset->owner_context,
-			]
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $custom_field->name,
 		);
 		
-		// Custom Fields
-		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $custom_fieldset->id)) or array();
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $custom_fieldset->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $custom_field->updated_at,
+		);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_CUSTOM_FIELDSET => array(
-				$custom_fieldset->id => 
+			CerberusContexts::CONTEXT_CUSTOM_FIELD => array(
+				$custom_field->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_CUSTOM_FIELDSET,
-						$custom_fieldset->id,
+						CerberusContexts::CONTEXT_CUSTOM_FIELD,
+						$custom_field->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
@@ -93,21 +81,18 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_CUSTOM_FIELDSET);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_CUSTOM_FIELD);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/custom_fieldset.tpl');
+		$tpl->display('devblocks:cerberusweb.core::profiles/custom_field.tpl');
 	}
 	
 	function savePeekJsonAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'],'string','');
-		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -115,10 +100,10 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CUSTOM_FIELDSET)))
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CUSTOM_FIELD)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				DAO_CustomFieldset::delete($id);
+				DAO_CustomField::delete($id);
 				
 				echo json_encode(array(
 					'status' => true,
@@ -128,62 +113,73 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 				return;
 				
 			} else {
-				// Owner
+				@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
+				@$custom_fieldset_id = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_id'], 'integer', 0);
+				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+				@$pos = DevblocksPlatform::importGPC($_REQUEST['pos'], 'integer', 0);
+				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+				@$type = DevblocksPlatform::importGPC($_REQUEST['type'], 'string', '');
 				
-				@list($owner_context, $owner_context_id) = explode(':', $owner);
-			
-				switch($owner_context) {
-					case CerberusContexts::CONTEXT_APPLICATION:
-					case CerberusContexts::CONTEXT_ROLE:
-					case CerberusContexts::CONTEXT_GROUP:
-					case CerberusContexts::CONTEXT_BOT:
-					case CerberusContexts::CONTEXT_WORKER:
-						break;
-						
-					default:
-						$owner_context = null;
-						$owner_context_id = null;
-						break;
+				// Only admins can create global custom fields
+				if(!$custom_fieldset_id) {
+					if(!$active_worker->is_superuser)
+						throw new Exception_DevblocksAjaxValidationError("You don't have permission to create global custom fields.");
+					
+				// Check fieldset privs
+				} else {
+					if(false == ($custom_fieldset = DAO_CustomFieldset::get($custom_fieldset_id)))
+						throw new Exception_DevblocksAjaxValidationError("Invalid custom fieldset.");
+					
+					if(!Context_CustomFieldset::isWriteableByActor($custom_fieldset, $active_worker)) {
+						throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this fieldset.");
+					}
 				}
 				
-				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
+				// [TODO] Validate param keys by type
+				if(isset($params['options']))
+					$params['options'] = DevblocksPlatform::parseCrlfString($params['options']);
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CUSTOM_FIELDSET)))
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CUSTOM_FIELD)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
+					
 					$fields = array(
-						DAO_CustomFieldset::NAME => $name,
-						DAO_CustomFieldset::CONTEXT => $context,
-						DAO_CustomFieldset::OWNER_CONTEXT => $owner_context,
-						DAO_CustomFieldset::OWNER_CONTEXT_ID => $owner_context_id,
+						DAO_CustomField::CONTEXT => $context,
+						DAO_CustomField::CUSTOM_FIELDSET_ID => $custom_fieldset_id,
+						DAO_CustomField::NAME => $name,
+						DAO_CustomField::PARAMS_JSON => json_encode($params),
+						DAO_CustomField::POS => $pos,
+						DAO_CustomField::TYPE => $type,
+						DAO_CustomField::UPDATED_AT => time(),
 					);
 					
-					if(!DAO_CustomFieldset::validate($fields, $error))
+					if(!DAO_CustomField::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					$id = DAO_CustomFieldset::create($fields);
+					$id = DAO_CustomField::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $id);
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CUSTOM_FIELD, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CUSTOM_FIELDSET)))
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CUSTOM_FIELD)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
+						
 					$fields = array(
-						DAO_CustomFieldset::NAME => $name,
-						DAO_CustomFieldset::OWNER_CONTEXT => $owner_context,
-						DAO_CustomFieldset::OWNER_CONTEXT_ID => $owner_context_id,
+						DAO_CustomField::CUSTOM_FIELDSET_ID => $custom_fieldset_id,
+						DAO_CustomField::NAME => $name,
+						DAO_CustomField::PARAMS_JSON => json_encode($params),
+						DAO_CustomField::POS => $pos,
+						DAO_CustomField::UPDATED_AT => time(),
 					);
 					
-					if(!DAO_CustomFieldset::validate($fields, $error, $id))
+					if(!DAO_CustomField::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					DAO_CustomFieldset::update($id, $fields);
+					DAO_CustomField::update($id, $fields);
+					
 				}
-				
+	
 				echo json_encode(array(
 					'status' => true,
 					'id' => $id,
@@ -209,7 +205,18 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 			return;
 			
 		}
+	}
 	
+	function getFieldParamsAction() {
+		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string',null);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$model = new Model_CustomField();
+		$model->type = $type;
+		$tpl->assign('model', $model);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/field_params.tpl');
 	}
 	
 	function viewExploreAction() {
@@ -238,7 +245,7 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 		$pos = 0;
 		
 		do {
-			$models = array();
+			$models = [];
 			list($results, $total) = $view->getData();
 
 			// Summary row
@@ -251,8 +258,8 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 					'created' => time(),
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=custom_fieldset', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.custom.fieldset.explore.toolbar',
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=custom_field', true),
+					'toolbar_extension_id' => 'cerberusweb.contexts.custom.field.explore.toolbar',
 				);
 				$models[] = $model;
 				
@@ -264,13 +271,13 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=custom_fieldset&id=%d-%s", $row[SearchFields_CustomFieldset::ID], DevblocksPlatform::strToPermalink($row[SearchFields_CustomFieldset::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=custom_field&id=%d-%s", $row[SearchFields_CustomField::ID], DevblocksPlatform::strToPermalink($row[SearchFields_CustomField::NAME])), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
 				$model->pos = $pos++;
 				$model->params = array(
-					'id' => $row[SearchFields_CustomFieldset::ID],
+					'id' => $row[SearchFields_CustomField::ID],
 					'url' => $url,
 				);
 				$models[] = $model;

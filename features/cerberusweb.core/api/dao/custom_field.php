@@ -23,6 +23,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	const PARAMS_JSON = 'params_json';
 	const POS = 'pos';
 	const TYPE = 'type';
+	const UPDATED_AT = 'updated_at';
 	
 	const CACHE_ALL = 'ch_customfields';
 	
@@ -39,6 +40,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CUSTOM_FIELDSET_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, true))
 			;
 		$validation
 			->addField(self::ID)
@@ -59,11 +61,18 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$validation
 			->addField(self::POS)
 			->uint(2)
+			->setMin(0)
+			->setMax(100)
 			;
 		$validation
 			->addField(self::TYPE)
 			->string()
 			->setMaxLength(1)
+			->setRequired(true)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
 			;
 			
 		return $validation->getFields();
@@ -72,22 +81,90 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$sql = sprintf("INSERT INTO custom_field () ".
-			"VALUES ()"
-		);
-		if(false == ($rs = $db->ExecuteMaster($sql)))
-			return false;
+		$sql = "INSERT INTO custom_field () VALUES ()";
+		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
-
+		
 		self::update($id, $fields);
 		
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
-		parent::_update($ids, 'custom_field', $fields);
+	static function update($ids, $fields, $check_deltas=true) {
+		if(!is_array($ids))
+			$ids = array($ids);
+			
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+		
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+				
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CUSTOM_FIELD, $batch_ids);
+			}
+			
+			// Make changes
+			parent::_update($batch_ids, 'custom_field', $fields);
+			
+			// Send events
+			if($check_deltas) {
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::services()->event();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.custom_field.update',
+						array(
+							'fields' => $fields,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CUSTOM_FIELD, $batch_ids);
+			}
+		}
 		
 		self::clearCache();
+	}
+	
+	static function updateWhere($fields, $where) {
+		parent::_updateWhere('custom_field', $fields, $where);
+		self::clearCache();
+	}
+	
+	/**
+	 * @param string $where
+	 * @param mixed $sortBy
+	 * @param mixed $sortAsc
+	 * @param integer $limit
+	 * @return Model_CustomField[]
+	 */
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
+		$db = DevblocksPlatform::services()->database();
+
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		// SQL
+		$sql = "SELECT context, custom_fieldset_id, id, name, params_json, pos, type, updated_at ".
+			"FROM custom_field ".
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
+		
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
+		
+		return self::_getObjectsFromResult($rs);
 	}
 	
 	/**
@@ -106,6 +183,43 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			
 		return null;
 	}
+	
+	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_CustomField[]
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+
+		if(empty($ids))
+			return [];
+
+		if(!method_exists(get_called_class(), 'getWhere'))
+			return [];
+
+		$db = DevblocksPlatform::services()->database();
+
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+
+		$models = [];
+
+		$results = static::getWhere(sprintf("id IN (%s)",
+			implode(',', $ids)
+		));
+
+		// Sort $models in the same order as $ids
+		foreach($ids as $id) {
+			if(isset($results[$id]))
+				$models[$id] = $results[$id];
+		}
+
+		unset($results);
+
+		return $models;
+	}
+	
 	
 	/**
 	* Returns all of the fields for the specified context available to $group_id, including global fields
@@ -151,28 +265,19 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::services()->cache();
 		
 		if(null === ($objects = $cache->load(self::CACHE_ALL))) {
-			$db = DevblocksPlatform::services()->database();
-			$sql = "SELECT id, name, type, context, custom_fieldset_id, pos, params_json ".
-				"FROM custom_field ".
-				"ORDER BY custom_fieldset_id ASC, pos ASC "
-			;
-			
-			if(false === ($rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE)))
-				return false;
-			
-			$objects = self::_createObjectsFromResultSet($rs);
-			
+			$objects = self::getWhere(null, [DAO_CustomField::CUSTOM_FIELDSET_ID, DAO_CustomField::POS, DAO_CustomField::NAME], [true, true, true]);
 			$cache->save($objects, self::CACHE_ALL);
 		}
 		
 		return $objects;
 	}
 	
-	private static function _createObjectsFromResultSet($rs) {
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		$objects = array();
+	/**
+	 * @param resource $rs
+	 * @return Model_CustomField[]
+	 */
+	static private function _getObjectsFromResult($rs) {
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -185,7 +290,8 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			$object->context = $row['context'];
 			$object->custom_fieldset_id = intval($row['custom_fieldset_id']);
 			$object->pos = intval($row['pos']);
-			$object->params = array();
+			$object->params = [];
+			$object->updated_at = intval($row['updated_at']);
 			
 			// JSON params
 			if(!empty($row['params_json'])) {
@@ -204,6 +310,25 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	
 	static function random() {
 		return self::_getRandom('custom_field');
+	}
+	
+	static function countByContextAndFieldset($context, $fieldset_id=0) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(id) FROM custom_field WHERE context = %s AND custom_fieldset_id=%d",
+			$db->qstr($context),
+			$fieldset_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
+	static function countByFieldsetId($fieldset_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(id) FROM custom_field WHERE custom_fieldset_id = %d",
+			$fieldset_id
+		);
+		return intval($db->GetOneSlave($sql));
 	}
 	
 	public static function delete($ids) {
@@ -247,6 +372,139 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster("DELETE FROM custom_field WHERE custom_fieldset_id != 0 AND custom_fieldset_id NOT IN (SELECT id FROM custom_fieldset)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' custom_field records.');
+	}
+	
+	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
+		$fields = SearchFields_CustomField::getFields();
+		
+		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CustomField', $sortBy);
+		
+		$select_sql = sprintf("SELECT ".
+			"custom_field.context as %s, ".
+			"custom_field.custom_fieldset_id as %s, ".
+			"custom_field.id as %s, ".
+			"custom_field.name as %s, ".
+			"custom_field.params_json as %s, ".
+			"custom_field.pos as %s, ".
+			"custom_field.type as %s, ".
+			"custom_field.updated_at as %s ",
+				SearchFields_CustomField::CONTEXT,
+				SearchFields_CustomField::CUSTOM_FIELDSET_ID,
+				SearchFields_CustomField::ID,
+				SearchFields_CustomField::NAME,
+				SearchFields_CustomField::PARAMS_JSON,
+				SearchFields_CustomField::POS,
+				SearchFields_CustomField::TYPE,
+				SearchFields_CustomField::UPDATED_AT
+			);
+			
+		$join_sql = "FROM custom_field ";
+		
+		$where_sql = "".
+			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
+			
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_CustomField');
+	
+		// Virtuals
+		
+		$args = array(
+			'join_sql' => &$join_sql,
+			'where_sql' => &$where_sql,
+			'tables' => &$tables,
+		);
+	
+		array_walk_recursive(
+			$params,
+			array('DAO_CustomField', '_translateVirtualParameters'),
+			$args
+		);
+		
+		return array(
+			'primary_table' => 'custom_field',
+			'select' => $select_sql,
+			'join' => $join_sql,
+			'where' => $where_sql,
+			'sort' => $sort_sql,
+		);
+	}
+	
+	private static function _translateVirtualParameters($param, $key, &$args) {
+		if(!is_a($param, 'DevblocksSearchCriteria'))
+			return;
+			
+		$from_context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+		$from_index = 'custom_field.id';
+		
+		$param_key = $param->field;
+		settype($param_key, 'string');
+		
+		switch($param_key) {
+		}
+	}
+	
+	/**
+	 *
+	 * @param array $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param integer $limit
+	 * @param integer $page
+	 * @param string $sortBy
+	 * @param boolean $sortAsc
+	 * @param boolean $withCounts
+	 * @return array
+	 */
+	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
+		$db = DevblocksPlatform::services()->database();
+		
+		// Build search queries
+		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
+
+		$select_sql = $query_parts['select'];
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		$sort_sql = $query_parts['sort'];
+		
+		$sql =
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			$sort_sql;
+			
+		if($limit > 0) {
+			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
+				return false;
+		} else {
+			if(false == ($rs = $db->ExecuteSlave($sql)))
+				return false;
+			$total = mysqli_num_rows($rs);
+		}
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
+		$results = [];
+		
+		while($row = mysqli_fetch_assoc($rs)) {
+			$object_id = intval($row[SearchFields_CustomField::ID]);
+			$results[$object_id] = $row;
+		}
+
+		$total = count($results);
+		
+		if($withCounts) {
+			// We can skip counting if we have a less-than-full single page
+			if(!(0 == $page && $total < $limit)) {
+				$count_sql =
+					"SELECT COUNT(custom_field.id) ".
+					$join_sql.
+					$where_sql;
+				$total = $db->GetOneSlave($count_sql);
+			}
+		}
+		
+		mysqli_free_result($rs);
+		
+		return array($results,$total);
 	}
 	
 	public static function clearCache() {
@@ -1063,13 +1321,14 @@ class Model_CustomField {
 	const TYPE_URL = 'U';
 	const TYPE_WORKER = 'W';
 	
+	public $context = '';
+	public $custom_fieldset_id = 0;
 	public $id = 0;
 	public $name = '';
-	public $type = '';
-	public $custom_fieldset_id = 0;
-	public $context = '';
+	public $params = [];
 	public $pos = 0;
-	public $params = array();
+	public $type = '';
+	public $updated_at = 0;
 	
 	static function getTypes() {
 		// [TODO] Extension provided custom field types
@@ -1099,9 +1358,507 @@ class Model_CustomField {
 		$multiple_types = [Model_CustomField::TYPE_MULTI_CHECKBOX, Model_CustomField::TYPE_FILES, Model_CustomField::TYPE_LIST];
 		return in_array($type, $multiple_types);
 	}
+	
+	function getFieldset() {
+		if(empty($this->custom_fieldset_id))
+			return null;
+		
+		return DAO_CustomFieldset::get($this->custom_fieldset_id);
+	}
 };
 
-class Context_CustomField extends Extension_DevblocksContext {
+class SearchFields_CustomField extends DevblocksSearchFields {
+	const CONTEXT = 'c_context';
+	const CUSTOM_FIELDSET_ID = 'c_custom_fieldset_id';
+	const ID = 'c_id';
+	const NAME = 'c_name';
+	const PARAMS_JSON = 'c_params_json';
+	const POS = 'c_pos';
+	const TYPE = 'c_type';
+	const UPDATED_AT = 'c_updated_at';
+
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_FIELDSET_SEARCH = '*_fieldset_search';
+	
+	static private $_fields = null;
+	
+	static function getPrimaryKey() {
+		return 'custom_field.id';
+	}
+	
+	static function getCustomFieldContextKeys() {
+		return array(
+			CerberusContexts::CONTEXT_CUSTOM_FIELD => new DevblocksSearchFieldContextKeys('custom_field.id', self::ID),
+			CerberusContexts::CONTEXT_CUSTOM_FIELDSET => new DevblocksSearchFieldContextKeys('custom_field.custom_fieldset_id', self::CUSTOM_FIELDSET_ID),
+		);
+	}
+	
+	static function getWhereSQL(DevblocksSearchCriteria $param) {
+		switch($param->field) {
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CUSTOM_FIELD, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_FIELDSET_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'custom_field.custom_fieldset_id');
+				break;
+				
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
+		}
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function getFields() {
+		if(is_null(self::$_fields))
+			self::$_fields = self::_getFields();
+		
+		return self::$_fields;
+	}
+	
+	/**
+	 * @return DevblocksSearchField[]
+	 */
+	static function _getFields() {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$columns = array(
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'custom_field', 'context', $translate->_('common.context'), null, true),
+			self::CUSTOM_FIELDSET_ID => new DevblocksSearchField(self::CUSTOM_FIELDSET_ID, 'custom_field', 'custom_fieldset_id', $translate->_('common.custom_fieldset'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'custom_field', 'id', $translate->_('common.id'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'custom_field', 'name', $translate->_('common.name'), null, true),
+			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'custom_field', 'params_json', $translate->_('common.params'), null, true),
+			self::POS => new DevblocksSearchField(self::POS, 'custom_field', 'pos', $translate->_('common.order'), null, true),
+			self::TYPE => new DevblocksSearchField(self::TYPE, 'custom_field', 'type', $translate->_('common.type'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'custom_field', 'updated_at', $translate->_('common.updated'), null, true),
+
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_FIELDSET_SEARCH => new DevblocksSearchField(self::VIRTUAL_FIELDSET_SEARCH, '*', 'fieldset_search', null, null, false),
+		);
+		
+		// Custom Fields
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
+		
+		if(!empty($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
+
+		// Sort by label (translation-conscious)
+		DevblocksPlatform::sortObjects($columns, 'db_label');
+
+		return $columns;
+	}
+};
+
+class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
+	const DEFAULT_ID = 'custom_fields';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = DevblocksPlatform::translateCapitalized('common.custom_fields');
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_CustomField::NAME;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_CustomField::NAME,
+			SearchFields_CustomField::CONTEXT,
+			SearchFields_CustomField::CUSTOM_FIELDSET_ID,
+			SearchFields_CustomField::TYPE,
+			SearchFields_CustomField::UPDATED_AT,
+			SearchFields_CustomField::POS,
+		);
+		$this->addColumnsHidden(array(
+			SearchFields_CustomField::PARAMS_JSON,
+			SearchFields_CustomField::VIRTUAL_CONTEXT_LINK,
+			SearchFields_CustomField::VIRTUAL_FIELDSET_SEARCH,
+		));
+		
+		$this->addParamsHidden(array(
+			SearchFields_CustomField::PARAMS_JSON,
+			SearchFields_CustomField::VIRTUAL_FIELDSET_SEARCH,
+		));
+		
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		$objects = DAO_CustomField::search(
+			$this->view_columns,
+			$this->getParams(),
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc,
+			$this->renderTotal
+		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_CustomField');
+		
+		return $objects;
+	}
+	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_CustomField', $ids);
+	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_CustomField', $size);
+	}
+
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable(true);
+		
+		$fields = [];
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Fields
+				case SearchFields_CustomField::CONTEXT:
+				case SearchFields_CustomField::CUSTOM_FIELDSET_ID:
+				case SearchFields_CustomField::TYPE:
+					$pass = true;
+					break;
+					
+				// Virtuals
+				case SearchFields_CustomField::VIRTUAL_CONTEXT_LINK:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if('cf_' == substr($field_key,0,3))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = [];
+		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+
+		if(!isset($fields[$column]))
+			return [];
+		
+		switch($column) {
+			case SearchFields_CustomField::CONTEXT:
+				$context_mfts = Extension_DevblocksContext::getAll(false);
+				$label_map = array_column($context_mfts, 'name', 'id');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+				
+			case SearchFields_CustomField::CUSTOM_FIELDSET_ID:
+				$fieldsets = DAO_CustomFieldset::getAll();
+				$label_map = array_column($fieldsets, 'name', 'id');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+				
+			case SearchFields_CustomField::TYPE:
+				$label_map = Model_CustomField::getTypes();
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+				
+			case SearchFields_CustomField::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
+				break;
+				
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}
+	
+	function getQuickSearchFields() {
+		$search_fields = SearchFields_CustomField::getFields();
+		
+		$context_exts = Extension_DevblocksContext::getAll(false);
+		$contexts = array_column($context_exts, 'name', 'id');
+		
+		$field_types = Model_CustomField::getTypes();
+		
+		$fields = array(
+			'text' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CustomField::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'context' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CustomField::CONTEXT),
+					'examples' => [
+						['type' => 'list', 'values' => $contexts]
+					],
+				),
+			'fieldset.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_CustomField::CUSTOM_FIELDSET_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'q' => ''],
+					]
+				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_CustomField::VIRTUAL_FIELDSET_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'q' => ''],
+					]
+				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_CustomField::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELD, 'q' => ''],
+					]
+				),
+			'name' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CustomField::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'pos' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_CustomField::POS),
+				),
+			'type' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CustomField::TYPE),
+					'examples' => [
+						['type' => 'list', 'values' => $field_types]
+					],
+				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_CustomField::UPDATED_AT),
+				),
+		);
+		
+		// Add quick search links
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		
+		// Add searchable custom fields
+		
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_CUSTOM_FIELD, $fields, null);
+		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+		
+		// Sort by keys
+		ksort($fields);
+		
+		return $fields;
+	}	
+	
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_CustomField::VIRTUAL_FIELDSET_SEARCH);
+				break;
+			
+			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
+		}
+		
+		return false;
+	}
+	
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+		
+		// Contexts
+		$context_mfts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('context_mfts', $context_mfts);
+		
+		// Custom fieldsets
+		$custom_fieldsets = DAO_CustomFieldset::getAll();
+		$tpl->assign('custom_fieldsets', $custom_fieldsets);
+		
+		// Custom field types
+		$types = Model_CustomField::getTypes();
+		$tpl->assign('custom_field_types', $types);
+
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/custom_fields/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_CustomField::CONTEXT:
+			case SearchFields_CustomField::NAME:
+			case SearchFields_CustomField::TYPE:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
+				break;
+				
+			case SearchFields_CustomField::CUSTOM_FIELDSET_ID:
+			case SearchFields_CustomField::ID:
+			case SearchFields_CustomField::POS:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+				break;
+				
+			case 'placeholder_bool':
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
+				break;
+				
+			case SearchFields_CustomField::UPDATED_AT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
+				break;
+				
+			case SearchFields_CustomField::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+				
+			default:
+				// Custom Fields
+				if('cf_' == substr($field,0,3)) {
+					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+				} else {
+					echo ' ';
+				}
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+			case SearchFields_CustomField::CONTEXT:
+				$context_mfts = Extension_DevblocksContext::getAll(false);
+				$label_map = array_column($context_mfts, 'name', 'id');
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
+			case SearchFields_CustomField::CUSTOM_FIELDSET_ID:
+				$fieldsets = DAO_CustomFieldset::getAll();
+				$label_map = array_column($fieldsets, 'name', 'id');
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
+			case SearchFields_CustomField::TYPE:
+				$label_map = Model_CustomField::getTypes();
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($key) {
+			case SearchFields_CustomField::VIRTUAL_FIELDSET_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.custom_fieldset')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+			
+			case SearchFields_CustomField::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+		}
+	}
+
+	function getFields() {
+		return SearchFields_CustomField::getFields();
+	}
+
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_CustomField::CONTEXT:
+			case SearchFields_CustomField::NAME:
+			case SearchFields_CustomField::TYPE:
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
+				break;
+				
+			case SearchFields_CustomField::CUSTOM_FIELDSET_ID:
+			case SearchFields_CustomField::ID:
+			case SearchFields_CustomField::POS:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case SearchFields_CustomField::UPDATED_AT:
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
+				break;
+				
+			case 'placeholder_bool':
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_CustomField::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				}
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->addParam($criteria, $field);
+			$this->renderPage = 0;
+		}
+	}
+};
+
+class Context_CustomField extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1141,16 +1898,40 @@ class Context_CustomField extends Extension_DevblocksContext {
 		return DAO_CustomField::random();
 	}
 	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::services()->url();
+		$url = $url_writer->writeNoProxy('c=profiles&type=custom_field&id='.$context_id, true);
+		return $url;
+	}
+	
 	function getMeta($context_id) {
+		$custom_field = DAO_CustomField::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		$field = DAO_CustomField::get($context_id);
+		$url = $this->profileGetUrl($context_id);
+		$friendly = DevblocksPlatform::strToPermalink($custom_field->name);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
 		
 		return array(
-			'id' => $field->id,
-			'name' => $field->name,
-			'permalink' => null, //$url_writer->writeNoProxy('', true),
-			'updated' => 0,
+			'id' => $custom_field->id,
+			'name' => $custom_field->name,
+			'permalink' => $url,
+			'updated' => $custom_field->updated_at,
+		);
+	}
+	
+	function getDefaultProperties() {
+		return array(
+			'custom_fieldset__label',
+			'context',
+			'type',
+			'pos',
+			'updated_at',
 		);
 	}
 	
@@ -1159,30 +1940,39 @@ class Context_CustomField extends Extension_DevblocksContext {
 			$prefix = 'Custom Field:';
 			
 		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CUSTOM_FIELD);
 		
 		// Polymorph
 		if(is_numeric($cfield)) {
 			$cfield = DAO_CustomField::get($cfield);
- 		} elseif($cfield instanceof Model_CustomField) {
-			// It's what we want already.
+		} elseif($cfield instanceof Model_CustomField) {
+		// It's what we want already.
 		} elseif(is_array($cfield)) {
 			$cfield = Cerb_ORMHelper::recastArrayToModel($cfield, 'Model_CustomField');
 		} else {
 			$cfield = null;
 		}
-			
+		
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'context' => $prefix.$translate->_('common.context'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'pos' => $prefix.$translate->_('common.order'),
+			'type' => $prefix.$translate->_('common.type'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'context' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'pos' => Model_CustomField::TYPE_NUMBER,
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
 		// Token values
@@ -1201,9 +1991,14 @@ class Context_CustomField extends Extension_DevblocksContext {
 			$token_values['name'] = $cfield->name;
 			$token_values['type'] = $cfield->type;
 			$token_values['pos'] = $cfield->pos;
+			$token_values['updated_at'] = $cfield->updated_at;
 			
 			if(!empty($cfield->params))
 				$token_values['params'] = $cfield->params;
+			
+			// URL
+			$url_writer = DevblocksPlatform::services()->url();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=custom_field&id=%d-%s",$cfield->id, DevblocksPlatform::strToPermalink($cfield->name)), true);
 		}
 		
 		// Custom fieldset
@@ -1224,8 +2019,14 @@ class Context_CustomField extends Extension_DevblocksContext {
 	}
 	
 	function getKeyToDaoFieldMap() {
-		// [TODO] No searchfields_ for custom fields
 		return [
+			'context' => DAO_CustomField::CONTEXT,
+			'custom_fieldset_id' => DAO_CustomField::CUSTOM_FIELDSET_ID,
+			'id' => DAO_CustomField::ID,
+			'name' => DAO_CustomField::NAME,
+			'pos' => DAO_CustomField::POS,
+			'type' => DAO_CustomField::TYPE,
+			'updated_at' => DAO_CustomField::UPDATED_AT,
 		];
 	}
 
@@ -1262,10 +2063,138 @@ class Context_CustomField extends Extension_DevblocksContext {
 	}
 	
 	function getChooserView($view_id=null) {
-		return null;
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+	
+		// View
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = DevblocksPlatform::translateCapitalized('common.custom_fields');
+		$view->renderSortBy = SearchFields_CustomField::UPDATED_AT;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
-		return null;
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
+		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
+		
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = DevblocksPlatform::translateCapitalized('common.custom_fields');
+		
+		$params_req = [];
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_CustomField::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
+		
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+		
+		if(!empty($context_id)) {
+			$model = DAO_CustomField::get($context_id);
+		} else {
+			$model = new Model_CustomField();
+			$model->pos = 50;
+		}
+		
+		if(empty($context_id) || $edit) {
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			$context_mfts = Extension_DevblocksContext::getAll(false);
+			$tpl->assign('context_mfts', $context_mfts);
+			
+			// Check view for defaults by filter
+			if(!$context_id && false != ($view = C4_AbstractViewLoader::getView($view_id))) {
+				$filters = $view->findParam(SearchFields_CustomField::CUSTOM_FIELDSET_ID, $view->getParams());
+				
+				if(false != ($filter = array_shift($filters))) {
+					$custom_fieldset_id = is_array($filter->value) ? array_shift($filter->value) : $filter->value;
+					
+					if(false != ($custom_fieldset = DAO_CustomFieldset::get($custom_fieldset_id))) {
+						$model->custom_fieldset_id = $custom_fieldset_id;
+						$model->context = $custom_fieldset->context;
+					}
+				}
+				
+				$filters = $view->findParam(SearchFields_CustomField::CONTEXT, $view->getParams());
+				
+				if(false != ($filter = array_shift($filters))) {
+					$context = is_array($filter->value) ? array_shift($filter->value) : $filter->value;
+					$model->context = $context;
+				}
+			}
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->assign('model', $model);
+			$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = [];
+			$values = [];
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/peek.tpl');
+		}
 	}
 };
