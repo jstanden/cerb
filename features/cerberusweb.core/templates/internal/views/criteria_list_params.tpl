@@ -58,6 +58,9 @@
 						{elseif $p->operator=='fulltext'}
 							search 
 							<b>{$view->renderCriteriaParam($p)}</b>
+						{elseif $p->operator=='custom'}
+							matches  
+							<b>{$view->renderCriteriaParam($p)}</b>
 						{else} 
 							{$p->operator} 
 							<b>{$view->renderCriteriaParam($p)}</b>
@@ -111,6 +114,9 @@
 			<b>{$view->renderCriteriaParam($param)}</b>
 		{elseif $param->operator=='fulltext'}
 			search 
+			<b>{$view->renderCriteriaParam($param)}</b>
+		{elseif $param->operator=='custom'}
+			matches 
 			<b>{$view->renderCriteriaParam($param)}</b>
 		{else} 
 			{$param->operator} 

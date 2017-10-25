@@ -580,6 +580,28 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				}
 				break;
 				
+			case Model_CustomField::TYPE_LINK:
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_CUSTOM:
+						@$link_context = $field->params['context'];
+						
+						$subquery_sql = sprintf("SELECT context_id FROM %s WHERE field_id = %d AND field_value IN (%%s)",
+							$value_table,
+							$field_id
+						);
+						
+						$where_sql = self::_getWhereSQLFromVirtualSearchSqlField(
+							$param,
+							$link_context,
+							$subquery_sql,
+							$cfield_key
+						);
+						
+						return $where_sql;
+						break;
+				}
+				break;
+				
 			default:
 				switch($param->operator) {
 					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
@@ -756,7 +778,22 @@ class DevblocksSearchCriteria {
 				if($param_key && false != ($param = DevblocksSearchCriteria::getTextParamFromTokens($param_key, $tokens, $match_type)))
 					return $param;
 				break;
+			
+			case DevblocksSearchCriteria::TYPE_VIRTUAL:
+				@$cf_id = $search_fields[$field]['options']['cf_id'];
 				
+				if(!$cf_id || false == ($custom_field = DAO_CustomField::get($cf_id)))
+					break;
+				
+				switch($custom_field->type) {
+					// If a custom record link, add a deep search filter
+					case Model_CustomField::TYPE_LINK:
+						if($param_key && false != $param = DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, $param_key))
+							return $param;
+						break;
+				}
+				break;
+			
 			case DevblocksSearchCriteria::TYPE_WORKER:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getWorkerParamFromTokens($param_key, $tokens, $search_field)))
 					return $param;
@@ -1631,6 +1668,9 @@ class DevblocksSearchCriteria {
 				break;
 			
 			case DevblocksSearchCriteria::OPER_CUSTOM:
+				if(!isset($this->value['where']))
+					return 0;
+				
 				$where = sprintf("%s %s",
 					$db_field_name,
 					$this->value['where']

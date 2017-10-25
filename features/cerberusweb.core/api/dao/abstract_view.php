@@ -1320,6 +1320,20 @@ abstract class C4_AbstractView {
 				),
 			);
 			
+			@$custom_fieldset = $custom_fieldsets[$cfield->custom_fieldset_id];
+			
+			// Prefix the custom fieldset namespace
+			$field_key = sprintf("%s%s%s",
+				!empty($prefix) ? ($prefix . '.') : '',
+				$custom_fieldset ? (DevblocksPlatform::strAlphaNum(lcfirst(mb_convert_case($custom_fieldset->name, MB_CASE_TITLE))) . '.') : '',
+				DevblocksPlatform::strAlphaNum(lcfirst(mb_convert_case($cfield->name, MB_CASE_TITLE)))
+			);
+			
+			// Make sure the field key is unique by appending the cf_id when it already exists
+			if(isset($fields[$field_key])) {
+				$field_key .= $cf_id;
+			}
+			
 			switch($cfield->type) {
 				case Model_CustomField::TYPE_CHECKBOX:
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_BOOL;
@@ -1331,7 +1345,7 @@ abstract class C4_AbstractView {
 					
 				case Model_CustomField::TYPE_DROPDOWN:
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
-					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PARTIAL;
+					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PREFIX;
 					if(isset($cfield->params['options']))
 						$search_field_meta['examples'] = array_slice(
 								array_map(function($e) { 
@@ -1342,6 +1356,42 @@ abstract class C4_AbstractView {
 							0,
 							20
 						);
+					break;
+					
+				case Model_CustomField::TYPE_LINK:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_VIRTUAL;
+					
+					@$link_context_id = $cfield->params['context'];
+					
+					// Deep search links
+					
+					$search_field_meta['examples'][] = [
+						'type' => 'search',
+						'context' => $link_context_id,
+						'q' => '',
+					];
+
+					// Add a field.id quick search key for choosers
+					
+					$id_field_meta = [
+						'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+						'is_sortable' => true,
+						'options' => [
+							'param_key' => sprintf("cf_%d", $cf_id),
+							'cf_ctx' => $cfield->context,
+							'cf_id' => $cf_id,
+						],
+						'examples' => [
+							[
+								'type' => 'chooser',
+								'context' => $link_context_id,
+								'q' => '',
+								'single' => false,
+							],
+						]
+					];
+					
+					$fields[$field_key . '.id'] = $id_field_meta;
 					break;
 					
 				case Model_CustomField::TYPE_LIST:
@@ -1391,20 +1441,6 @@ abstract class C4_AbstractView {
 			// Skip custom field types we can't quick search easily
 			if(empty($search_field_meta['type']))
 				continue;
-			
-			@$custom_fieldset = $custom_fieldsets[$cfield->custom_fieldset_id];
-			
-			// Prefix the custom fieldset namespace
-			$field_key = sprintf("%s%s%s",
-				!empty($prefix) ? ($prefix . '.') : '',
-				$custom_fieldset ? (DevblocksPlatform::strAlphaNum(lcfirst(mb_convert_case($custom_fieldset->name, MB_CASE_TITLE))) . '.') : '',
-				DevblocksPlatform::strAlphaNum(lcfirst(mb_convert_case($cfield->name, MB_CASE_TITLE)))
-			);
-			
-			// Make sure the field key is unique by appending the cf_id when it already exists
-			if(isset($fields[$field_key])) {
-				$field_key .= $cf_id;
-			}
 			
 			$fields[$field_key] = $search_field_meta;
 		}
@@ -1533,18 +1569,26 @@ abstract class C4_AbstractView {
 					break;
 					
 				case Model_CustomField::TYPE_LINK:
-					@$context = $custom_fields[$field_id]->params['context'];
+					if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+						echo DevblocksPlatform::strEscapeHtml($param->value);
+						return;
+						
+					} else {
+						@$context = $custom_fields[$field_id]->params['context'];
+						
+						if(empty($context) || empty($vals))
+							break;
+						
+						if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+							break;
+						
+						$dao_class = $context_ext->getDaoClass();
+						
+						$models = $dao_class::getIds($vals);
+						
+						$vals = array_column(DevblocksPlatform::objectsToArrays($models), 'name');
+					}
 					
-					if(empty($context) || empty($vals))
-						break;
-					
-					if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-						break;
-					
-					if(false == ($meta = $context_ext->getMeta($vals[0])))
-						break;
-					
-					$vals[0] = $meta['name'];
 					break;
 					
 				case Model_CustomField::TYPE_WORKER:
