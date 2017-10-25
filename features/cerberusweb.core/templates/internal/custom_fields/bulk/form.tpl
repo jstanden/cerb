@@ -1,6 +1,10 @@
 {if !empty($custom_fields)}
 {$uniqid = uniqid()}
+{if $tbody}
+<tbody id="cfields{$uniqid}">
+{else}
 <table cellspacing="0" cellpadding="2" width="100%" id="cfields{$uniqid}">
+{/if}
 	<!-- Custom Fields -->
 	{foreach from=$custom_fields item=f key=f_id}
 		{if !empty($field_wrapper)}
@@ -112,7 +116,11 @@
 			</td>
 		</tr>
 	{/foreach}
+{if $tbody}
+</tbody>
+{else}
 </table>
+{/if}
 
 <script type="text/javascript">
 $(function() {
