@@ -3,6 +3,8 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverKeys;
+use Facebook\WebDriver\WebDriverAction;
+use Facebook\WebDriver\WebDriver;
 
 class CerbEval_UI_Setup extends CerbTestBase {
 	function testLoginKina() {
@@ -784,20 +786,28 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		// Enable the bot scheduled behavior job
 		
-		$driver->findElement(WebDriverBy::linkText('Bot Scheduled Behavior'))
+		$scheduler_bot = $driver->findElement(WebDriverBy::linkText('Bot Scheduled Behavior'))
 			->click();
 		
 		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('frmJobcron_bot_scheduled_behavior'))
 		);
 		
+		// Scroll into view
+		$driver->executeScript("arguments[0].scrollIntoView(true);", [$scheduler_bot]);
+		usleep(250000);
+		
 		$form = $driver->findElement(WebDriverBy::id('frmJobcron_bot_scheduled_behavior'));
 		
 		$form->findElement(WebDriverBy::name('enabled'))
 			->click();
 		
-		$form->findElement(WebDriverBy::cssSelector('button.submit'))
-			->click();
+		$driver->executeScript("arguments[0].scrollIntoView(true);", [$submit]);
+		usleep(250000);
+		
+		$driver->action()->moveToElement($submit)->perform();
+		
+		$submit->click();
 		
 		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('#job_cron_bot_scheduled_behavior > span.glyphicons-circle-ok'))
@@ -809,7 +819,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			function() use (&$driver) {
 				try {
 					$icons = $driver->findElements(WebDriverBy::cssSelector('div.cerb-subpage > div > div > span.glyphicons-circle-ok'));
-					return(8 == count($icons));
+					return(9 == count($icons));
 					
 				} catch (NoSuchElementException $nse) {
 					return null;
