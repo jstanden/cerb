@@ -43,7 +43,7 @@ class CerberusMail {
 	private function __construct() {}
 	
 	static function parseRfcAddresses($string, $exclude_controlled_addresses=false) {
-		$results = array();
+		$results = [];
 		$string = rtrim(str_replace(';',',',$string),' ,');
 		@$parsed = imap_rfc822_parse_adrlist($string, 'localhost');
 		
@@ -102,9 +102,9 @@ class CerberusMail {
 	
 	static private function _parseCustomHeaders(array $headers) {
 		if(!is_array($headers))
-			return array();
+			return [];
 		
-		$results = array();
+		$results = [];
 		
 		foreach($headers as $header) {
 			@list($name, $value) = explode(':', $header);
@@ -118,7 +118,7 @@ class CerberusMail {
 		return $results;
 	}
 	
-	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=array(), $format=null, $html_template_id=null, $file_ids=array(), $cc=null, $bcc=null) {
+	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=[], $format=null, $html_template_id=null, $file_ids=[], $cc=null, $bcc=null) {
 		try {
 			$mail_service = DevblocksPlatform::services()->mail();
 			$mail = $mail_service->createMessage();
@@ -623,7 +623,7 @@ class CerberusMail {
 		CerberusBayes::markTicketAsNotSpam($ticket_id);
 		
 		// Custom fields
-		@$custom_fields = isset($properties['custom_fields']) ? $properties['custom_fields'] : array();
+		@$custom_fields = isset($properties['custom_fields']) ? $properties['custom_fields'] : [];
 		if(is_array($custom_fields) && !empty($custom_fields)) {
 			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, $custom_fields);
 			
@@ -649,7 +649,7 @@ class CerberusMail {
 		return intval($ticket_id);
 	}
 	
-	static function sendTicketMessage($properties=array()) {
+	static function sendTicketMessage($properties=[]) {
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		
 		/*
@@ -1037,7 +1037,7 @@ class CerberusMail {
 			return false;
 		}
 		
-		$change_fields = array();
+		$change_fields = [];
 		
 		$fromAddressInst = CerberusApplication::hashLookupAddress($from_replyto->email, true);
 		$fromAddressId = $fromAddressInst->id;
@@ -1228,7 +1228,7 @@ class CerberusMail {
 		}
 
 		// Custom fields
-		@$custom_fields = isset($properties['custom_fields']) ? $properties['custom_fields'] : array();
+		@$custom_fields = isset($properties['custom_fields']) ? $properties['custom_fields'] : [];
 		if(is_array($custom_fields) && !empty($custom_fields)) {
 			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, $custom_fields, true, true, false);
 		}
@@ -1314,7 +1314,7 @@ class CerberusMail {
 		
 		$attachments = ($include_attachments)
 			? DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id)
-			: array()
+			: []
 			;
 		
 		if(empty($content)) {

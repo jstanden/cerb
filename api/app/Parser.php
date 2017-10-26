@@ -93,7 +93,7 @@ class CerberusParserMessage {
 class CerberusParserModel {
 	private $_message = null;
 	
-	private $_pre_actions = array();
+	private $_pre_actions = [];
 	
 	private $_is_new = true;
 	private $_sender_address_model = null;
@@ -145,7 +145,7 @@ class CerberusParserModel {
 			@$sReplyTo = $this->_message->headers['reply-to'];
 			@$sFrom = $this->_message->headers['from'];
 			
-			$from = array();
+			$from = [];
 			
 			if(empty($from) && !empty($sReplyTo))
 				$from = CerberusParser::parseRfcAddress($sReplyTo);
@@ -245,7 +245,7 @@ class CerberusParserModel {
 
 		@$senderWorker = $this->getSenderWorkerModel();
 		
-		$aReferences = array();
+		$aReferences = [];
 		
 		// Add all References
 		if(!empty($sReferences)) {
@@ -333,7 +333,7 @@ class CerberusParserModel {
 	
 	public function getRecipients() {
 		$headers =& $this->_message->headers;
-		$sources = array();
+		$sources = [];
 		
 		if(isset($headers['to']))
 			$sources = array_merge($sources, is_array($headers['to']) ? $headers['to'] : array($headers['to']));
@@ -350,13 +350,13 @@ class CerberusParserModel {
 		if(isset($headers['delivered-to']))
 			$sources = array_merge($sources, is_array($headers['delivered-to']) ? $headers['delivered-to'] : array($headers['delivered-to']));
 		
-		$destinations = array();
+		$destinations = [];
 		foreach($sources as $source) {
 			@$parsed = imap_rfc822_parse_adrlist($source,'localhost');
 			$destinations = array_merge($destinations, is_array($parsed) ? $parsed : array($parsed));
 		}
 		
-		$addresses = array();
+		$addresses = [];
 		foreach($destinations as $destination) {
 			if(empty($destination->mailbox) || empty($destination->host))
 				continue;
@@ -419,7 +419,7 @@ class CerberusParserModel {
 		return $this->_pre_actions;
 	}
 	
-	public function addPreAction($action, $params=array()) {
+	public function addPreAction($action, $params=[]) {
 		$this->_pre_actions[$action] = $params;
 	}
 	
@@ -604,7 +604,7 @@ class CerberusParser {
 				@unlink($file);
 			
 			if(is_numeric($ticket_id)) {
-				$values = array();
+				$values = [];
 				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $null, $values);
 				$dict = new DevblocksDictionaryDelegate($values);
 				return $dict;
@@ -987,7 +987,7 @@ class CerberusParser {
 	 * @param CerberusParserMessage $message
 	 * @return integer
 	 */
-	static public function parseMessage(CerberusParserMessage $message, $options=array()) {
+	static public function parseMessage(CerberusParserMessage $message, $options=[]) {
 		/*
 		 * options:
 		 * 'no_autoreply'
@@ -1136,7 +1136,7 @@ class CerberusParser {
 					CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_WORKER, $proxy_worker->id);
 					
 					$parser_message = $model->getMessage();
-					$attachment_file_ids = array();
+					$attachment_file_ids = [];
 					
 					foreach($parser_message->files as $filename => $file) {
 						if(0 == strcasecmp($filename, 'original_message.html'))
@@ -1181,7 +1181,7 @@ class CerberusParser {
 					$lines = DevblocksPlatform::parseCrlfString($message->body, true);
 					
 					$state = '';
-					$comments = array();
+					$comments = [];
 					$comment_ptr = null;
 					
 					if(is_array($lines))
@@ -1421,7 +1421,7 @@ class CerberusParser {
 					if($status_code >= 500 && $status_code < 600) {
 						$logger->info(sprintf("[Parser] This is a permanent failure delivery-status (%d)", $status_code));
 						
-						$matches = array();
+						$matches = [];
 						
 						if(preg_match('#Original-Recipient:\s*(.*)#i', $message_content, $matches)) {
 							// Use the original address if provided

@@ -182,7 +182,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 						file_put_contents(APP_STORAGE_PATH . '/version.php', sprintf("<?php define('APP_BUILD_CACHED', %d); ?>", APP_BUILD));
 						
 						// Redirect
-						DevblocksPlatform::redirect(new DevblocksHttpResponse(array()));
+						DevblocksPlatform::redirect(new DevblocksHttpResponse([]));
 	
 					} else {
 						echo $translate->_('update.locked_another');
