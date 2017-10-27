@@ -1341,9 +1341,9 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_Bucket::IS_DEFAULT,
 			SearchFields_Bucket::GROUP_ID,
 			SearchFields_Bucket::NAME,
+			SearchFields_Bucket::IS_DEFAULT,
 			SearchFields_Bucket::REPLY_ADDRESS_ID,
 			SearchFields_Bucket::REPLY_PERSONAL,
 			SearchFields_Bucket::REPLY_SIGNATURE_ID,
