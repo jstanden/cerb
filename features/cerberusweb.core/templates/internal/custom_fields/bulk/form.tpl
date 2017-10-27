@@ -88,7 +88,11 @@
 					<ul class="bubbles chooser-container">
 						{if $custom_field_values.$f_id}
 							{CerberusContexts::getContext($f->params.context, $custom_field_values.$f_id, $cf_link_labels, $cf_link_values, null, true)}
-							<li><input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">{$cf_link_values._label} <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+							<li>
+								<a href="javascript:;" class="peek-cfield-link no-underline" data-context="{$cf_link_values._context}" data-context-id="{$cf_link_values.id}">{$cf_link_values._label}</a>
+								<input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">
+								<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+							</li>
 						{/if}
 					</ul>
 				{elseif $f->type==Model_CustomField::TYPE_FILE}
@@ -143,6 +147,7 @@ $(function() {
 	
 	// Links
 	$cfields.find('button.chooser-cfield-link').cerbChooserTrigger();
+	$cfields.find('a.peek-cfield-link').cerbPeekTrigger();
 	
 	$cfields.find('button.chooser-cfield-file').each(function() {
 		var options = {
