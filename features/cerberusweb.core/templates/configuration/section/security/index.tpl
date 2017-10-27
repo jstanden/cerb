@@ -22,7 +22,18 @@
 	
 	<b>Expire session cookies:</b>
 	<br>
-	{$opts = [["When the browser is closed",0],["After 6 hours of inactivity",21600],["After 12 hours of inactivity",43200],["After 1 day of inactivity",86400],["After 1 week of inactivity",604800],["After 2 weeks of inactivity",1209600],["After 1 month of inactivity",2592000]]}
+	{$opts = [
+		["When the browser is closed",0],
+		["After 15 minutes of inactivity",900],
+		["After 1 hour of inactivity",3600],
+		["After 2 hours of inactivity",7200],
+		["After 6 hours of inactivity",21600],
+		["After 12 hours of inactivity",43200],
+		["After 1 day of inactivity",86400],
+		["After 1 week of inactivity",604800],
+		["After 2 weeks of inactivity",1209600],
+		["After 1 month of inactivity",2592000]
+	]}
 	<select name="session_lifespan">
 		{foreach from=$opts item=opt}
 		<option value="{$opt[1]}" {if $opt[1]==$settings->get('cerberusweb.core','session_lifespan',CerberusSettingsDefaults::SESSION_LIFESPAN)}selected="selected"{/if}>{$opt[0]}</option>
