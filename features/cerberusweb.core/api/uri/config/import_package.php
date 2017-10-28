@@ -729,6 +729,11 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				$dao_class::onAbstractUpdate($record_id, $fields);
 			
 			DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $record_id, $custom_fields);
+			
+			$records_created[$context_ext->id][] = [
+				'id' => $record_id,
+				'label' => @$record['_label'] ?: @$record['name'] ?: @$record['title'] ?: $record['uid'],
+			];
 		}
 		
 		@$custom_fieldsets = $json['custom_fieldsets'];
@@ -817,6 +822,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					DAO_TriggerEvent::VARIABLES_JSON => isset($behavior['variables']) ? json_encode($behavior['variables']) : '',
 				]);
 				
+				
 				// Create records for all child nodes and link them to the proper parents
 				
 				if(isset($behavior['nodes']) && !empty($behavior['nodes']))
@@ -828,6 +834,11 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				DAO_TriggerEvent::update($id, array(
 					DAO_TriggerEvent::IS_DISABLED => @$behavior['is_disabled'] ? 1 : 0,
 				));
+				
+				$records_created[CerberusContexts::CONTEXT_BEHAVIOR][] = [
+					'id' => $id,
+					'label' => $behavior['title'],
+				];
 			}
 		}
 		
