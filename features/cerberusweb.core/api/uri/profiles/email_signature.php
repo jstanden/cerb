@@ -135,17 +135,42 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
 				@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'], 'string', '');
+				
+				// Owner
+				
+				$owner_ctx = '';
+				@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+				
+				// Make sure we're given a valid ctx
+				
+				switch($owner_ctx) {
+					case CerberusContexts::CONTEXT_APPLICATION:
+					case CerberusContexts::CONTEXT_ROLE:
+					case CerberusContexts::CONTEXT_GROUP:
+						break;
+						
+					default:
+						$owner_ctx = null;
+				}
+				
+				$fields = array(
+					DAO_EmailSignature::NAME => $name,
+					DAO_EmailSignature::SIGNATURE => $signature,
+					DAO_EmailSignature::UPDATED_AT => time(),
+				);
+				
+				if(!CerberusContexts::isOwnableBy($owner_ctx, $owner_ctx_id, $active_worker))
+					throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
+				
+				$fields[DAO_EmailSignature::OWNER_CONTEXT] = $owner_ctx;
+				$fields[DAO_EmailSignature::OWNER_CONTEXT_ID] = $owner_ctx_id;
 				
 				if(empty($id)) { // New
 					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_EMAIL_SIGNATURE)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
 				
-					$fields = array(
-						DAO_EmailSignature::NAME => $name,
-						DAO_EmailSignature::SIGNATURE => $signature,
-						DAO_EmailSignature::UPDATED_AT => time(),
-					);
 					
 					if(!DAO_EmailSignature::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -159,12 +184,6 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_EMAIL_SIGNATURE)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 						
-					$fields = array(
-						DAO_EmailSignature::NAME => $name,
-						DAO_EmailSignature::SIGNATURE => $signature,
-						DAO_EmailSignature::UPDATED_AT => time(),
-					);
-					
 					if(!DAO_EmailSignature::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					

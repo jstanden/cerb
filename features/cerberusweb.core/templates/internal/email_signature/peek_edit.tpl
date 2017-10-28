@@ -23,6 +23,27 @@
 			<textarea name="signature" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" style="height:100px;width:98%;">{$model->signature}</textarea>
 		</td>
 	</tr>
+	{if $owners_menu}
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">
+			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+		</td>
+		<td width="99%">
+			{if 1 == count($owners_menu)}
+			{$owner = array_shift($owners_menu)}
+			{$owner_parts = explode(':', $owner->key)}
+			<ul class="chooser-container bubbles">
+				<li>
+					<img class="cerb-avatar" src="{devblocks_url}c=avatars&ctx=cerberusweb.contexts.app&id=0{/devblocks_url}?v="><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$owner_parts.0}" data-context-id="{$owner_parts.1}">{$owner->label}</a>
+					<input type="hidden" name="owner" value="{$owner->key}">
+				</li>
+			</ul>
+			{else}
+			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+			{/if}
+		</td>
+	</tr>
+	{/if}
 </table>
 
 {if !empty($custom_fields)}
@@ -73,6 +94,61 @@ $(function() {
 		$popup.find('textarea.cerb-template-trigger')
 			.cerbTemplateTrigger()
 			;
+		
+		// Owners
+		{if $owners_menu}
+		var $owners_menu = $popup.find('ul.owners-menu');
+		var $ul = $owners_menu.siblings('ul.chooser-container');
+		
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+		
+		$ul.on('bubble-remove', function(e, ui) {
+			e.stopPropagation();
+			$(e.target).closest('li').remove();
+			$ul.hide();
+			$owners_menu.show();
+			
+			$events.each(function() {
+				$(this).hide();
+			});
+		});
+		
+		$owners_menu.menu({
+			select: function(event, ui) {
+				var token = ui.item.attr('data-token');
+				var label = ui.item.attr('data-label');
+				
+				if(undefined == token || undefined == label)
+					return;
+				
+				$owners_menu.hide();
+				
+				// Build bubble
+				
+				var context_data = token.split(':');
+				var $li = $('<li/>');
+				var $label = $('<a href="javascript:;" class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
+				$label.cerbPeekTrigger().appendTo($li);
+				var $hidden = $('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
+				ui.item.find('img.cerb-avatar').clone().prependTo($li);
+				var $a = $('<a href="javascript:;" onclick="$(this).trigger(\'bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+				
+				$ul.find('> *').remove();
+				$ul.append($li);
+				$ul.show();
+				
+				// Contextual events
+				$events.each(function() {
+					var contexts = $(this).attr('contexts').split(' ');
+					
+					if($.inArray(context_data[0], contexts) != -1)
+						$(this).show();
+					else
+						$(this).hide();
+				});
+			}
+		});
+		{/if}
 	});
 });
 </script>

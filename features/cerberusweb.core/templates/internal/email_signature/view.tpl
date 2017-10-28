@@ -83,6 +83,23 @@
 						<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 					{/if}
 				</td>
+			{elseif $column=="*_owner"}
+				{$owner_context = $result.e_owner_context}
+				{$owner_context_id = $result.e_owner_context_id}
+				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
+				<td data-column="{$column}">
+					{if $owner_context_ext instanceof Extension_DevblocksContext}
+						{$meta = $owner_context_ext->getMeta($owner_context_id)}
+						{if !empty($meta)}
+							<img src="{devblocks_url}c=avatars&context={$owner_context_ext->id}&context_id={$owner_context_id}{/devblocks_url}?v={$result.a_updated_at}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
+							{if $owner_context_id} 
+							<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$owner_context}" data-context-id="{$owner_context_id}">{$meta.name}</a>
+							{else}
+							{$meta.name}
+							{/if}
+						{/if}
+					{/if}
+				</td>
 			{elseif in_array($column, ["e_is_default"])}
 				<td data-column="{$column}">{if $result.$column}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(75,75,75);"></span>{else}{/if}</td>
 			{else}

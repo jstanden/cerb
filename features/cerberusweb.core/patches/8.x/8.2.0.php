@@ -77,6 +77,8 @@ if(!isset($tables['email_signature'])) {
 	CREATE TABLE `email_signature` (
 		id int unsigned auto_increment,
 		name varchar(255) default '',
+		owner_context varchar(255) not null default '',
+		owner_context_id int unsigned not null default 0,
 		signature text,
 		is_default tinyint(3) unsigned not null default 0,
 		updated_at int unsigned not null default 0,
@@ -87,6 +89,16 @@ if(!isset($tables['email_signature'])) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 
 	$tables['email_signature'] = 'email_signature';
+	
+} else {
+	list($columns, $indexes) = $db->metaTable('email_signature');
+	
+	if(!isset($columns['owner_context'])) {
+		$sql = "ALTER TABLE email_signature ADD COLUMN owner_context varchar(255) not null default '', ADD COLUMN owner_context_id int unsigned not null default 0";
+		$db->ExecuteMaster($sql);
+		
+		$db->ExecuteMaster("UPDATE email_signature SET owner_context = 'cerberusweb.contexts.app'");
+	}
 }
 
 // ===========================================================================
@@ -110,9 +122,11 @@ if(isset($columns['reply_signature'])) {
 	
 	if(is_array($results))
 	foreach($results as $result) {
-		$sql = sprintf("INSERT INTO email_signature (name, signature, updated_at) VALUES (%s, %s, %d)",
+		$sql = sprintf("INSERT INTO email_signature (name, signature, owner_context, owner_context_id, updated_at) VALUES (%s, %s, %s, %d, %d)",
 			$db->qstr(sprintf('%s: %s', $result['group_name'], $result['bucket_name'])),
 			$db->qstr($result['reply_signature']),
+			$db->qstr('cerberusweb.contexts.group'),
+			$result['group_id'],
 			time()
 		);
 		$db->ExecuteMaster($sql);
@@ -145,10 +159,12 @@ if(isset($tables['address_outgoing'])) {
 		
 		if(is_array($results))
 		foreach($results as $result) {
-			$sql = sprintf("INSERT INTO email_signature (name, signature, is_default, updated_at) VALUES (%s, %s, %d, %d)",
+			$sql = sprintf("INSERT INTO email_signature (name, signature, is_default, owner_context, owner_context_id, updated_at) VALUES (%s, %s, %d, %s, %d, %d)",
 				$db->qstr($result['email']),
 				$db->qstr($result['reply_signature']),
 				$result['is_default'] ? 1 : 0,
+				$db->qstr('cerberusweb.contexts.app'),
+				0,
 				time()
 			);
 			$db->ExecuteMaster($sql);
