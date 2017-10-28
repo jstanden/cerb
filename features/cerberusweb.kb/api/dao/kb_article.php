@@ -522,6 +522,15 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		}
 	}
 	
+	static function countByCategoryId($category_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(kb_article_id) FROM kb_article_to_category WHERE kb_category_id = %d",
+			$category_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -650,7 +659,7 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 			self::FORMAT => new DevblocksSearchField(self::FORMAT, 'kb', 'format', $translate->_('kb_article.format'), null, true),
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'kb', 'content', $translate->_('kb_article.content'), null, true),
 			
-			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id', null, null, true),
+			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id', DevblocksPlatform::translateCapitalized('kb.common.knowledgebase_category'), Model_CustomField::TYPE_NUMBER, true),
 			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic'), null, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -1216,7 +1225,6 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		} else {
 			// Counts
 			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
@@ -1403,7 +1411,6 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 	}
 	
 	// [TODO] Fulltext: Comments
-	// [TODO] Virtual: Topic/Categories
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_KbArticle::getFields();
@@ -1413,6 +1420,14 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT),
+				),
+			'category.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_KbArticle::CATEGORY_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_KB_CATEGORY, 'q' => ''],
+					]
 				),
 			'content' => 
 				array(
@@ -1603,9 +1618,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
-
+		
 		switch($field) {
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
+				// [TODO] Does this use cache?
 				$topics = DAO_KbCategory::getWhere(sprintf("%s = %d",
 					DAO_KbCategory::PARENT_ID,
 					0
@@ -1617,8 +1633,25 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 						$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
 					} else {
 						if(!isset($topics[$val]))
-						continue;
+							continue;
 						$strings[] = DevblocksPlatform::strEscapeHtml($topics[$val]->name);
+					}
+				}
+				echo implode(" or ", $strings);
+				break;
+				
+			case SearchFields_KbArticle::CATEGORY_ID:
+				$categories = DAO_KbCategory::getAll();
+				
+				$strings = [];
+
+				foreach($values as $val) {
+					if(0==$val) {
+						$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
+					} else {
+						if(!isset($categories[$val]))
+							continue;
+						$strings[] = DevblocksPlatform::strEscapeHtml($categories[$val]->name);
 					}
 				}
 				echo implode(" or ", $strings);
