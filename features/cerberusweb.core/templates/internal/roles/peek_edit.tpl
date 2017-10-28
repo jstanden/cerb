@@ -113,6 +113,7 @@
 	{$priv_labels['update.bulk'] = 'common.update.bulk'|devblocks_translate|capitalize}
 	{$priv_labels['watchers'] = 'common.watchers'|devblocks_translate|capitalize}
 	
+	<div style="column-count:2;column-width:50%;">
 	{foreach from=$contexts item=context key=context_id}
 		{$priv_prefix = "contexts.{$context_id}"}
 		{$available_privs = $context->params.acl[0]}
@@ -135,6 +136,7 @@
 		</fieldset>
 		{/if}
 	{/foreach}
+	</div>
 	</div>
 	
 	<div id="roleEditorPrivsPlugins">
