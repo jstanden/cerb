@@ -403,6 +403,32 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		return $result;
 	}
 	
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$ids = array();
+		
+		$results = $db->GetArraySlave(sprintf("SELECT id ".
+			"FROM kb_category ".
+			"WHERE name LIKE %s ",
+			$db->qstr($term.'%')
+		));
+		
+		if(is_array($results))
+		foreach($results as $row) {
+			$ids[] = $row['id'];
+		}
+		
+		switch($as) {
+			case 'ids':
+				return $ids;
+				break;
+				
+			default:
+				return DAO_KbCategory::getIds($ids);
+				break;
+		}
+	}
+	
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -525,7 +551,7 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 	}
 };
 
-class Context_KbCategory extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_KbCategory extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -565,6 +591,22 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		return array(
 			'updated_at',
 		);
+	}
+	
+	function autocomplete($term, $query=null) {
+		$list = [];
+		
+		$results = DAO_KbCategory::autocomplete($term);
+
+		if(is_array($results))
+		foreach($results as $id => $record) {
+			$entry = new stdClass();
+			$entry->label = sprintf("%s", $record->name);
+			$entry->value = sprintf("%d", $id);
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getContext($category, &$token_labels, &$token_values, $prefix=null) {
