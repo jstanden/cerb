@@ -348,17 +348,21 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = [$ids];
+		
 		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
 		
-		$ids_list = implode(',', $ids);
-		
-		$db->ExecuteMaster(sprintf("DELETE FROM kb_category WHERE id IN (%s)", $ids_list));
-		
-		$db->ExecuteMaster(sprintf("DELETE FROM kb_article_to_category WHERE kb_category_id IN (%s)", $ids_list));
+		foreach($ids as $id) {
+			$descendents = DAO_KbCategory::getDescendents($id);
+			$ids_list = implode(',', DevblocksPlatform::sanitizeArray($descendents, 'int'));
+			
+			$db->ExecuteMaster(sprintf("DELETE FROM kb_category WHERE id IN (%s)", $ids_list));
+			$db->ExecuteMaster(sprintf("DELETE FROM kb_article_to_category WHERE kb_category_id IN (%s)", $ids_list));
+		}
 		
 		self::clearCache();
 		
@@ -427,6 +431,15 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 				return DAO_KbCategory::getIds($ids);
 				break;
 		}
+	}
+	
+	static function countByParentId($parent_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(id) FROM kb_category WHERE parent_id = %d",
+			$parent_id
+		);
+		return intval($db->GetOneSlave($sql));
 	}
 	
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
@@ -823,7 +836,8 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		} else {
 			// Counts
 			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
+				'articles' => DAO_KbArticle::countByCategoryId($context_id),
+				'subcategories' => DAO_KbCategory::countByParentId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
@@ -1025,6 +1039,14 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_KbCategory::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'parent.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_KbCategory::PARENT_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_KB_CATEGORY, 'q' => ''],
+					]
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -1136,6 +1158,23 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_KbCategory::PARENT_ID:
+				$categories = DAO_KbCategory::getAll();
+				
+				$strings = [];
+
+				foreach($values as $val) {
+					if(0==$val) {
+						$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
+					} else {
+						if(!isset($categories[$val]))
+							continue;
+						$strings[] = DevblocksPlatform::strEscapeHtml($categories[$val]->name);
+					}
+				}
+				echo implode(" or ", $strings);
+				break;
+			
 			default:
 				parent::renderCriteriaParam($param);
 				break;
