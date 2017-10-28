@@ -718,13 +718,11 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 	const ID = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
 	
 	static function isReadableByActor($models, $actor) {
-		// Everyone can read
-		return CerberusContexts::allowEverything($models);
+		return CerberusContexts::isReadableByDelegateOwner($actor, self::ID, $models, 'worker_');
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Everyone can modify
-		return CerberusContexts::allowEverything($models);
+		return CerberusContexts::isWriteableByDelegateOwner($actor, self::ID, $models, 'worker_');
 	}
 
 	function getRandom() {
@@ -948,6 +946,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($context_id)) {
 			$model = DAO_WebApiCredentials::get($context_id);
@@ -956,6 +955,9 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		if(empty($context_id) || $edit) {
 			if(isset($model))
 				$tpl->assign('model', $model);
+			
+			if(!Context_WebApiCredentials::isWriteableByActor($model, $active_worker))
+				return;
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
