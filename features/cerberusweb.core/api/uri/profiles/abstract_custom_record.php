@@ -162,13 +162,18 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 					default:
 						$owner_ctx = null;
 				}
-
+				
 				$fields = [
 					$dao_class::UPDATED_AT => time(),
 					$dao_class::NAME => $name,
 				];
 				
-				if($owner_ctx) {
+				@$possible_owners = $custom_record->params['owners']['contexts'];
+				
+				if(!empty($possible_owners) && empty($owner_ctx))
+					throw new Exception_DevblocksAjaxValidationError("A valid 'Owner' is required.");
+				
+				if($possible_owners && $owner_ctx) {
 					if(!CerberusContexts::isOwnableBy($owner_ctx, $owner_ctx_id, $active_worker))
 						throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
 					
@@ -179,10 +184,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				// DAO
 				
 				if(empty($id)) { // New
-					if(
-						!CerberusContexts::isWriteableByActor($context, $id, $active_worker)
-						|| !$active_worker->hasPriv(sprintf("contexts.%s.create", $context))
-						)
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", $context)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
 					
 					if(!$dao_class::validate($fields, $error))

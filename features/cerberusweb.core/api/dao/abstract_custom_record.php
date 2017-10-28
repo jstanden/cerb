@@ -256,6 +256,41 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		return $db->getOneSlave($sql);
 	}
 	
+	static function clearOtherOwners($owners) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$contexts = [
+			CerberusContexts::CONTEXT_APPLICATION,
+			CerberusContexts::CONTEXT_ROLE,
+			CerberusContexts::CONTEXT_GROUP,
+			CerberusContexts::CONTEXT_WORKER,
+		];
+		
+		$remove_contexts = array_diff($contexts, $owners);
+		
+		if(empty($remove_contexts))
+			return;
+		
+		if(1 == count($owners) && in_array(CerberusContexts::CONTEXT_APPLICATION, $owners)) {
+			$remove_contexts[] = '';
+			$default_owner = CerberusContexts::CONTEXT_APPLICATION;
+			$default_owner_id = 0;
+		
+		} else {
+			$default_owner = '';
+			$default_owner_id = 0;
+		}
+		
+		$sql = sprintf("UPDATE custom_record_%d SET owner_context = %s, owner_context_id = %d WHERE owner_context IN (%s)",
+			static::_ID,
+			$db->qstr($default_owner),
+			$default_owner_id,
+			implode(',', $db->qstrArray($remove_contexts))
+		);
+		
+		return $db->Execute($sql);
+	}
+	
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -983,17 +1018,13 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	}
 	
 	static function isReadableByActor($models, $actor) {
-		// [TODO] Check privs
-		// Everyone can read
-		return CerberusContexts::allowEverything($models);
+		return CerberusContexts::isReadableByDelegateOwner($actor, self::_getContextName(), $models, 'owner_', false, true);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// [TODO] Check privs
-		// Everyone can modify
-		return CerberusContexts::allowEverything($models);
+		return CerberusContexts::isWriteableByDelegateOwner($actor, self::_getContextName(), $models, 'owner_', false, true);
 	}
-
+	
 	function getRandom() {
 		$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
 		return $dao_class::random();
@@ -1279,6 +1310,13 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			
 			if($owner_contexts) {
 				$owners_menu = Extension_DevblocksContext::getOwnerTree($owner_contexts);
+				
+				if(empty($owners_menu)) {
+					$tpl->assign('error_message', sprintf("You don't have permission to create %s records.", DevblocksPlatform::strLower($custom_record->name)));
+					$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+					return;
+				}
+				
 				$tpl->assign('owners_menu', $owners_menu);
 			}
 			

@@ -169,6 +169,11 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_CustomRecord::update($id, $fields);
+					
+					@$owners = $params['owners']['contexts'] ?: [];
+					
+					$dao_class = 'DAO_AbstractCustomRecord_' . $id;
+					$dao_class::clearOtherOwners($owners);
 				}
 				
 				// Custom fields

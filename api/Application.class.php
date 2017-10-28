@@ -1503,7 +1503,7 @@ class CerberusContexts {
 		return $context_ext::isWriteableByActor($models, $actor);
 	}
 
-	public static function isReadableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_', $ignore_admins=false) {
+	public static function isReadableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_', $ignore_admins=false, $allow_unassigned=false) {
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 
@@ -1525,6 +1525,10 @@ class CerberusContexts {
 			$is_readable = false;
 
 			switch($dict->$owner_key_context) {
+				case '':
+					$is_readable = $allow_unassigned;
+					break;
+				
 				// Everyone can read app-owned records
 				case CerberusContexts::CONTEXT_APPLICATION:
 					$is_readable = true;
@@ -1586,14 +1590,14 @@ class CerberusContexts {
 		}
 	}
 
-	public static function isWriteableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_', $ignore_admins=false) {
+	public static function isWriteableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_', $ignore_admins=false, $allow_unassigned=false) {
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			CerberusContexts::denyEverything($models);
 
 		// Admins can do whatever they want
 		if(!$ignore_admins && CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
-
+		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
 			return CerberusContexts::denyEverything($models);
 
@@ -1608,6 +1612,10 @@ class CerberusContexts {
 			$is_writeable = false;
 
 			switch($dict->$owner_key_context) {
+				case '':
+					$is_writeable = $allow_unassigned;
+					break;
+				
 				// Members can modify group-owned records
 				case CerberusContexts::CONTEXT_GROUP:
 					// Is the actor the same group?
