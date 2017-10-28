@@ -113,6 +113,9 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
+		if(!$active_worker->is_superuser)
+			throw new Exception_DevblocksAjaxValidationError("Only administrators can modify custom records.");
+		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CUSTOM_RECORD)))

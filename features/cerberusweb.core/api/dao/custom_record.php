@@ -895,13 +895,21 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 	const ID = CerberusContexts::CONTEXT_CUSTOM_RECORD;
 	
 	static function isReadableByActor($models, $actor) {
-		// Everyone can read
-		return CerberusContexts::allowEverything($models);
+		// Only admins can read
+		return self::isWriteableByActor($models, $actor);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Everyone can modify
-		return CerberusContexts::allowEverything($models);
+		// Only admins can modify
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEverything($models);
+		
+		// Admins can do whatever they want
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+		
+		return CerberusContexts::denyEverything($models);
 	}
 
 	function getRandom() {
