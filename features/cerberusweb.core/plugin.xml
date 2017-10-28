@@ -1226,6 +1226,7 @@
 				<param key="options">
 					<value>
 						<data key="autocomplete" />
+						<data key="avatars" />
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
@@ -1560,6 +1561,7 @@
 				<param key="options">
 					<value>
 						<data key="autocomplete" />
+						<data key="avatars" />
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
@@ -1647,6 +1649,7 @@
 				<param key="view_class" value="View_Calendar" />
 				<param key="options">
 					<value>
+						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
@@ -1734,6 +1737,7 @@
 				<param key="view_class" value="View_CalendarRecurringProfile" />
 				<param key="options">
 					<value>
+						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
@@ -2106,6 +2110,7 @@
 				<param key="view_class" value="View_Group" />
 				<param key="options">
 					<value>
+						<data key="avatars" />
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
@@ -2238,6 +2243,7 @@
 				<param key="view_class" value="View_Notification" />
 				<param key="options">
 					<value>
+						<data key="cards" />
 						<data key="links" />
 						<data key="search" />
 						<data key="va_variable" />
@@ -2636,6 +2642,7 @@
 				<param key="options">
 					<value>
 						<data key="autocomplete" />
+						<data key="avatars" />
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
@@ -2685,6 +2692,7 @@
 				<param key="options">
 					<value>
 						<data key="autocomplete" />
+						<data key="avatars" />
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />

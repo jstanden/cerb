@@ -133,6 +133,11 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('records_created', $records_created);
+			
+			$context_mfts = Extension_DevblocksContext::getAll(false);
+			DevblocksPlatform::sortObjects($context_mfts, 'name', true);
+			$tpl->assign('context_mfts', $context_mfts);
+			
 			$results_html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/import_package/results.tpl');
 			
 			echo json_encode(array('status' => true, 'results_html' => $results_html));
@@ -732,8 +737,32 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			
 			$records_created[$context_ext->id][] = [
 				'id' => $record_id,
-				'label' => @$record['_label'] ?: @$record['name'] ?: @$record['title'] ?: $record['uid'],
+				'label' => @$record['_label'] ?: @$record['name'] ?: $record['uid'],
 			];
+		}
+		
+		// Fill in labels for abstractly created records
+		foreach($records_created as $context_ext_id => $records) {
+			if(false == ($context_ext = Extension_DevblocksContext::get($context_ext_id, true)))
+				continue;
+			
+			if(false == ($dao_class = $context_ext->getDaoClass()))
+				continue;
+			
+			if(false == ($models = $dao_class::getIds(array_column($records, 'id'))))
+				continue;
+				
+			if(false == ($dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext_id)))
+				continue;
+			
+			$dicts = array_map(function($dict) {
+				return [
+					'id' => $dict->id,
+					'label' => $dict->_label,
+				];
+			}, $dicts);
+			
+			$records_created[$context_ext_id] = $dicts;
 		}
 		
 		@$custom_fieldsets = $json['custom_fieldsets'];
