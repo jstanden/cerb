@@ -125,6 +125,11 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
+		// Only admins can edit mail transports
+		if(!$active_worker->is_superuser) {
+			throw new Exception_DevblocksAjaxValidationError("Only administrators can modify email transport records.");
+		}
+		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_MAIL_TRANSPORT)))
