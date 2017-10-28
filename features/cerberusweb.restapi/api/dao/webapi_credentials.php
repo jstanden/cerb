@@ -953,11 +953,12 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(isset($model))
+			if(isset($model)) {
+				if(!Context_WebApiCredentials::isWriteableByActor($model, $active_worker))
+					return;
+				
 				$tpl->assign('model', $model);
-			
-			if(!Context_WebApiCredentials::isWriteableByActor($model, $active_worker))
-				return;
+			}
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
