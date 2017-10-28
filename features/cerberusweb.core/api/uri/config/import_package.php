@@ -725,8 +725,8 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			
 			$dao_class::update($record_id, $fields);
 			
-			if(method_exists($dao_class, 'onUpdateAbstract'))
-				$dao_class::onUpdateAbstract($record_id, $fields);
+			if($dao_class instanceof IDevblocksDaoAbstractEvents)
+				$dao_class::onAbstractUpdate($record_id, $fields);
 			
 			DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $record_id, $custom_fields);
 		}

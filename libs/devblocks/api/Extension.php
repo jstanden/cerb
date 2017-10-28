@@ -104,6 +104,10 @@ interface IDevblocksContextAutocomplete {
 	function autocomplete($term, $query=null);
 }
 
+interface IDevblocksDaoAbstractEvents {
+	static function onAbstractUpdate($id, $fields);
+}
+
 class DevblocksMenuItemPlaceholder {
 	var $label = null;
 	var $key = null;

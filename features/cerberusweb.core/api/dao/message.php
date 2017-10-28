@@ -15,7 +15,7 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
-class DAO_Message extends Cerb_ORMHelper {
+class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents {
 	const ADDRESS_ID = 'address_id';
 	const CREATED_DATE = 'created_date';
 	const HASH_HEADER_MESSAGE_ID = 'hash_header_message_id';
@@ -182,7 +182,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		parent::_update($ids, 'message', $fields);
 	}
 	
-	static function onUpdateAbstract($id, $fields) {
+	static function onAbstractUpdate($id, $fields) {
 		if(isset($fields[self::TICKET_ID])) {
 			DAO_Ticket::rebuild($fields[self::TICKET_ID]);
 		}
