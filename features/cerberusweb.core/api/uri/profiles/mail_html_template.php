@@ -108,8 +108,13 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
+		// Only admins can edit mail templates
+		if(!$active_worker->is_superuser) {
+			throw new Exception_DevblocksAjaxValidationError("Only administrators can modify email template records.");
+		}
+		
 		try {
-			if(!$active_worker->is_superuser || !$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE)))
+			if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE)))
 				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 			
 			if(!empty($id) && !empty($do_delete)) { // Delete
