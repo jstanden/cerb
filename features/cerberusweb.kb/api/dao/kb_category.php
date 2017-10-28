@@ -390,6 +390,14 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			);
 			
 		$join_sql = "FROM kb_category kbc ";
+		
+		// [JAS]: Dynamic table joins
+		if(isset($tables['katc'])) {
+			$select_sql .= sprintf(", katc.kb_article_id AS %s ",
+				SearchFields_KbArticle::TOP_CATEGORY_ID
+			);
+			$join_sql .= "LEFT JOIN kb_article_to_category katc ON (kbc.id=katc.kb_category_id) ";
+		}
 
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
@@ -431,6 +439,15 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 				return DAO_KbCategory::getIds($ids);
 				break;
 		}
+	}
+	
+	static function countByArticleId($article_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(kb_category_id) FROM kb_article_to_category WHERE kb_article_id = %d",
+			$article_id
+		);
+		return intval($db->GetOneSlave($sql));
 	}
 	
 	static function countByParentId($parent_id) {
@@ -503,6 +520,8 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 	const NAME = 'kbc_name';
 	const UPDATED_AT = 'kbc_updated_at';
 	
+	const ARTICLE_ID = 'katc_article_id';
+	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
@@ -516,6 +535,7 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 	static function getCustomFieldContextKeys() {
 		return array(
 			CerberusContexts::CONTEXT_KB_CATEGORY => new DevblocksSearchFieldContextKeys('kbc.id', self::ID),
+			CerberusContexts::CONTEXT_KB_ARTICLE => new DevblocksSearchFieldContextKeys('katc.kb_article_id', self::ARTICLE_ID),
 		);
 	}
 	
@@ -548,6 +568,8 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 			self::PARENT_ID => new DevblocksSearchField(self::PARENT_ID, 'kbc', 'parent_id', $translate->_('common.parent'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'kbc', 'name', $translate->_('common.name'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'kbc', 'updated_at', $translate->_('common.updated'), null, true),
+			
+			self::ARTICLE_ID => new DevblocksSearchField(self::ARTICLE_ID, 'katc', 'kb_article_id', DevblocksPlatform::translateCapitalized('kb.common.knowledgebase_article'), Model_CustomField::TYPE_NUMBER, true),
 		);
 		
 		// Custom fields with fieldsets
@@ -1026,6 +1048,14 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_KbCategory::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'article.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_KbCategory::ARTICLE_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_KB_ARTICLE, 'q' => ''],
+					]
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -1158,6 +1188,23 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_KbCategory::ARTICLE_ID:
+				$articles = DAO_KbArticle::getIds($values);
+				
+				$strings = [];
+
+				foreach($values as $val) {
+					if(0==$val) {
+						$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
+					} else {
+						if(!isset($articles[$val]))
+							continue;
+						$strings[] = DevblocksPlatform::strEscapeHtml($articles[$val]->title);
+					}
+				}
+				echo implode(" or ", $strings);
+				break;
+			
 			case SearchFields_KbCategory::PARENT_ID:
 				$categories = DAO_KbCategory::getAll();
 				

@@ -1225,6 +1225,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		} else {
 			// Counts
 			$activity_counts = array(
+				'categories' => DAO_KbCategory::countByArticleId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
