@@ -982,6 +982,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			'name' => $prefix.$translate->_('common.name'),
 			'owner__label' => $prefix.$translate->_('common.owner'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			'signature' => $prefix.$translate->_('common.signature'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
@@ -993,6 +994,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'owner__label' => 'context_url',
 			'record_url' => Model_CustomField::TYPE_URL,
+			'signature' => Model_CustomField::TYPE_MULTI_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
@@ -1018,6 +1020,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			$token_values['name'] = $email_signature->name;
 			$token_values['owner__context'] = $email_signature->owner_context;
 			$token_values['owner_id'] = $email_signature->owner_context_id;
+			$token_values['signature'] = $email_signature->signature;
 			$token_values['updated_at'] = $email_signature->updated_at;
 			
 			// Custom fields

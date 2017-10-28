@@ -57,6 +57,11 @@
 
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$peek_context context_id=$dict->id view_id=$view_id}
 
+<fieldset class="peek">
+	<legend>{'common.signature'|devblocks_translate|capitalize}</legend>
+	<pre class="emailbody">{$dict->signature}</pre>
+</fieldset>
+
 {include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
 <script type="text/javascript">
