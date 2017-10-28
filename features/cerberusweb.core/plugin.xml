@@ -1482,7 +1482,11 @@
 				</param>
 				<param key="acl">
 					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
 						<data key="export" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
