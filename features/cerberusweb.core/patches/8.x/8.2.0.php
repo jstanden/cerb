@@ -248,7 +248,7 @@ if(!empty($changes))
 // Move the email<->transport link to address records
 if(!isset($columns['mail_transport_id'])) {
 	$db->ExecuteMaster("UPDATE address a INNER JOIN address_outgoing ao ON (ao.address_id=a.id) SET a.mail_transport_id=ao.reply_mail_transport_id");
-	$db->ExecuteMaster("UPDATE address SET mail_transport_id = (SELECT reply_mail_transport_id FROM address_outgoing WHERE is_default = 1) WHERE id IN (SELECT address_id FROM address_outgoing WHERE reply_mail_transport_id = 0)");
+	$db->ExecuteMaster("UPDATE address SET mail_transport_id = (SELECT id FROM mail_transport WHERE is_default = 1) WHERE id IN (SELECT address_id FROM address_outgoing WHERE reply_mail_transport_id = 0)");
 	$db->ExecuteMaster("REPLACE INTO devblocks_setting (plugin_id, setting, value) VALUES ('cerberusweb.core','mail_default_from_id', (SELECT address_id FROM address_outgoing WHERE is_default = 1 LIMIT 1))");
 }
 
@@ -269,7 +269,7 @@ if(!isset($tables['mail_transport'])) {
 
 list($columns, $indexes) = $db->metaTable('mail_transport');
 
-if(!isset($columns['is_default'])) {
+if(isset($columns['is_default'])) {
 	$sql = 'ALTER TABLE mail_transport DROP COLUMN is_default';
 	$db->ExecuteMaster($sql);
 }
