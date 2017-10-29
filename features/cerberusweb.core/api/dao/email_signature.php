@@ -521,7 +521,6 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 		$this->view_columns = array(
 			SearchFields_EmailSignature::NAME,
 			SearchFields_EmailSignature::IS_DEFAULT,
-			SearchFields_EmailSignature::SIGNATURE,
 			SearchFields_EmailSignature::VIRTUAL_OWNER,
 			SearchFields_EmailSignature::UPDATED_AT,
 		);
