@@ -102,9 +102,39 @@ abstract class Extension_PageSection extends DevblocksExtension {
 	static function getExtensionByPageUri($page_id, $uri, $as_instance=true) {
 		$manifests = self::getExtensions(false, $page_id);
 		
+		// Check plugins
 		foreach($manifests as $mft) { /* @var $mft DevblocksExtensionManifest */
 			if(0==strcasecmp($uri, $mft->params['uri']))
 				return $as_instance ? $mft->createInstance() : $mft;
+		}
+		
+		// Check custom records
+		switch($page_id) {
+			case 'core.page.profiles':
+				if(false == ($custom_record = DAO_CustomRecord::getByUri($uri)))
+					break;
+					
+				// Return a synthetic subpage extension
+				
+				$ext_id = sprintf('profile.custom_record.%d', $custom_record->id);
+				$manifest = new DevblocksExtensionManifest();
+				$manifest->id = $ext_id;
+				$manifest->plugin_id = 'cerberusweb.core';
+				$manifest->point = Extension_PageSection::POINT;
+				$manifest->name = $custom_record->name;
+				$manifest->file = 'api/uri/profiles/abstract_custom_record.php';
+				$manifest->class = 'Profile_AbstractCustomRecord_' . $custom_record->id;
+				$manifest->params = [
+					'page_id' => 'core.page.profiles',
+					'uri' => $custom_record->uri,
+				];
+				
+				if($as_instance) {
+					return $manifest->createInstance();
+				} else {
+					return $manifest;
+				}
+				break;
 		}
 		
 		return null;

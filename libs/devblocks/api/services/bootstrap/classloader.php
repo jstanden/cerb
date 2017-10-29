@@ -65,10 +65,11 @@ class _DevblocksClassLoadManager {
 		if(
 			DevblocksPlatform::strStartsWith($class_name, 'Context_AbstractCustomRecord_')
 			|| DevblocksPlatform::strStartsWith($class_name, 'DAO_AbstractCustomRecord_')
+			|| DevblocksPlatform::strStartsWith($class_name, 'Event_AbstractCustomRecord_')
 			|| DevblocksPlatform::strStartsWith($class_name, 'Model_AbstractCustomRecord_')
+			|| DevblocksPlatform::strStartsWith($class_name, 'Profile_AbstractCustomRecord_')
 			|| DevblocksPlatform::strStartsWith($class_name, 'SearchFields_AbstractCustomRecord_')
 			|| DevblocksPlatform::strStartsWith($class_name, 'View_AbstractCustomRecord_')
-			|| DevblocksPlatform::strStartsWith($class_name, 'Event_AbstractCustomRecord_')
 			) {
 			
 			$class_id = intval(substr($class_name, strrpos($class_name, '_')+1));
@@ -90,10 +91,11 @@ class _DevblocksClassLoadManager {
 				'<?php'. PHP_EOL .  
 				'class Context_AbstractCustomRecord_%1$d extends Context_AbstractCustomRecord { const ID = "contexts.custom_record.%1$s"; const _ID = %1$d; }'. PHP_EOL .
 				'class DAO_AbstractCustomRecord_%1$d extends DAO_AbstractCustomRecord { const _ID = %1$d; }'. PHP_EOL .
+				'class Event_AbstractCustomRecord_%1$d extends Event_AbstractCustomRecordMacro { const ID = "event.macro.custom_record.%1$d"; const _ID = %1$d; }' . PHP_EOL .
 				'class Model_AbstractCustomRecord_%1$d extends Model_AbstractCustomRecord { const _ID = %1$d; }'. PHP_EOL .
+				'class Profile_AbstractCustomRecord_%1$d extends PageSection_ProfilesAbstractCustomRecord { const ID = "profile.custom_record.%1$d"; const _ID = %1$d; }' . PHP_EOL .
 				'class SearchFields_AbstractCustomRecord_%1$d extends SearchFields_AbstractCustomRecord { const _ID = %1$d; }'. PHP_EOL .
 				'class View_AbstractCustomRecord_%1$d extends View_AbstractCustomRecord { const _ID = %1$d; }'. PHP_EOL .
-				'class Event_AbstractCustomRecord_%1$d extends Event_AbstractCustomRecordMacro { const ID = "event.macro.custom_record.%1$d"; const _ID = %1$d; }' . PHP_EOL .
 				'',
 				$class_id
 			);

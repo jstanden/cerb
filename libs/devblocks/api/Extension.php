@@ -192,7 +192,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				$manifest->file = 'api/dao/abstract_custom_record.php';
 				$manifest->class = 'Context_AbstractCustomRecord_' . $custom_record->id;
 				$manifest->params = [
-					'alias' => 'custom_record_' . $custom_record->id, // [TODO]
+					//'alias' => 'custom_record_' . $custom_record->id,
+					'alias' => $custom_record->uri,
 					'dao_class' => 'DAO_AbstractCustomRecord_' . $custom_record->id,
 					'view_class' => 'View_AbstractCustomRecord_' . $custom_record->id,
 					'acl' => [

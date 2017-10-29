@@ -63,7 +63,7 @@
 		
 		<patch version="8.0.0" revision="1206" file="patches/8.x/8.0.0.php" />
 		<patch version="8.1.0" revision="1227" file="patches/8.x/8.1.0.php" />
-		<patch version="8.2.0" revision="1247" file="patches/8.x/8.2.0.php" />
+		<patch version="8.2.0" revision="1248" file="patches/8.x/8.2.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -829,6 +829,10 @@
 		
 		<file path="api/uri/profiles.php">
 			<class name="Page_Profiles" />
+		</file>
+		
+		<file path="api/uri/profiles/abstract_custom_record.php">
+			<class name="PageSection_ProfilesAbstractCustomRecord" />
 		</file>
 		
 	</class_loader>

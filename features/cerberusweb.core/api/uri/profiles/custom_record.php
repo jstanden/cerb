@@ -133,6 +133,7 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$name_plural = DevblocksPlatform::importGPC($_REQUEST['name_plural'], 'string', '');
+				@$uri = DevblocksPlatform::importGPC($_REQUEST['uri'], 'string', '');
 				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 				
 				if(empty($id)) { // New
@@ -144,6 +145,7 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 						DAO_CustomRecord::NAME_PLURAL => $name_plural,
 						DAO_CustomRecord::PARAMS_JSON => json_encode($params),
 						DAO_CustomRecord::UPDATED_AT => time(),
+						DAO_CustomRecord::URI => $uri,
 					);
 					
 					if(!DAO_CustomRecord::validate($fields, $error))
@@ -163,6 +165,7 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 						DAO_CustomRecord::NAME_PLURAL => $name_plural,
 						DAO_CustomRecord::PARAMS_JSON => json_encode($params),
 						DAO_CustomRecord::UPDATED_AT => time(),
+						DAO_CustomRecord::URI => $uri,
 					);
 					
 					if(!DAO_CustomRecord::validate($fields, $error, $id))

@@ -2166,6 +2166,11 @@
 				<seg>upload files</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.uri">
+			<tuv xml:lang="en_US">
+				<seg>URI</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.url">
 			<tuv xml:lang="en_US">
 				<seg>URL</seg>

@@ -1,4 +1,3 @@
-{$page_context = 'cerberusweb.contexts.abstract.custom.record'}
 {$page_context_id = $abstract_custom_record->id}
 {$is_writeable = Context_AbstractCustomRecord::isWriteableByActor($abstract_custom_record, $active_worker)}
 
@@ -36,7 +35,7 @@
 </div>
 
 <fieldset class="properties">
-	<legend>{'Abstract Custom Record'|devblocks_translate|capitalize}</legend>
+	<legend>{$custom_record->name|capitalize}</legend>
 
 	<div style="margin-left:15px;">
 	{foreach from=$properties item=v key=k name=props}

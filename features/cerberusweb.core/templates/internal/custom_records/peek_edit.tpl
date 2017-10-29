@@ -26,6 +26,12 @@
 				<input type="text" name="name_plural" value="{$model->name_plural}" style="width:98%;">
 			</td>
 		</tr>
+		<tr>
+			<td width="1%" nowrap="nowrap"><b><abbr title="The alias for this record used in profile URLs, etc. Must be lowercase and only contain letters, numbers, and underscores.">{'common.uri'|devblocks_translate}:</abbr></b></td>
+			<td width="99%">
+				<input type="text" name="uri" value="{$model->uri}" placeholder="a-z, 0-9, underscore, dash" style="width:98%;">
+			</td>
+		</tr>
 	</table>
 </fieldset>
 
