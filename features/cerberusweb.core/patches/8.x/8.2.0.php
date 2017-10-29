@@ -347,6 +347,12 @@ if(!isset($columns['updated_at'])) {
 }
 
 // ===========================================================================
+// Reset cached models
+
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_bucket'");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id = 'search_cerberusweb_contexts_group'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
