@@ -608,7 +608,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 					
 				// Valid custom fields
 				default:
-					if('cf_' == substr($field_key,0,3))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
 						$pass = $this->_canSubtotalCustomField($field_key);
 					break;
 			}

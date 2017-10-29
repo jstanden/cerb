@@ -709,7 +709,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 					
 				// Valid custom fields
 				default:
-					if('cf_' == substr($field_key,0,3))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
 						$pass = $this->_canSubtotalCustomField($field_key);
 					break;
 			}
@@ -748,7 +748,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 			
 			default:
 				// Custom fields
-				if('cf_' == substr($column,0,3)) {
+				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
