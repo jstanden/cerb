@@ -1913,6 +1913,7 @@ abstract class C4_AbstractView {
 			case Model_CustomField::TYPE_CHECKBOX:
 			case Model_CustomField::TYPE_DROPDOWN:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_LIST:
 			case Model_CustomField::TYPE_NUMBER:
 			case Model_CustomField::TYPE_SINGLE_LINE:
@@ -2837,6 +2838,7 @@ abstract class C4_AbstractView {
 				break;
 				
 			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_LIST:
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 			case Model_CustomField::TYPE_NUMBER:
@@ -2912,6 +2914,33 @@ abstract class C4_AbstractView {
 								'values' => $values,
 							),
 					);
+				}
+				
+				// Special handling of count results
+				switch($cfield->type) {
+					// For custom record links, we need to change the labels and filters
+					case Model_CustomField::TYPE_LINK:
+						if(false == ($context = $cfield->params['context']))
+							break;
+							
+						if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+							break;
+						
+						$dao_class = $context_ext->getDaoClass();
+						$ids = array_column($counts, 'label');
+						$models = $dao_class::getIds($ids);
+						$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context);
+						
+						// Rewrite the results
+						$counts = array_map(function($v) use ($dicts) {
+							$dict = $dicts[$v['label']];
+							$v['label'] = $dict->_label;
+							$v['filter']['oper'] = DevblocksSearchCriteria::OPER_EQ;
+							$v['filter']['values'] = ['context_id' => $dict->id];
+							return $v;
+						}, $counts);
+						
+						break;
 				}
 				break;
 				
