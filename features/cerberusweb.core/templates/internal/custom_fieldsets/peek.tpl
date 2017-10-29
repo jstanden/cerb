@@ -51,7 +51,7 @@
 	<div style="clear:both;"></div>
 	
 	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELD}" data-query="fieldset.id:{$dict->id} sort:order,name"><div class="badge-count">{$activity_counts.custom_fields|default:0}</div> {'common.fields'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELD}" data-query="fieldset.id:{$dict->id} sort:pos,name"><div class="badge-count">{$activity_counts.custom_fields|default:0}</div> {'common.fields'|devblocks_translate|capitalize}</button>
 	</div>
 	
 </fieldset>
