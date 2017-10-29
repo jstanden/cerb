@@ -18,7 +18,7 @@
 				&#x25be;
 			</legend>
 			
-			<ul class="menu cerb-float" style="width:200px;margin-top:-5px;display:none;">
+			<ul class="menu cerb-float" style="width:600px;column-count:3;column-gap:10px;margin-top:-5px;display:none;">
 				{foreach from=$link_ctxs item=link_ctx}
 				{if $link_ctx->hasOption('links')}
 				<li data-context="{$link_ctx->id}"><b>{$link_ctx->name}</b></li>
