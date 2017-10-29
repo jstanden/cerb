@@ -841,11 +841,17 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
+		// Custom record
+		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID)))
+			return;
+		
+		$tpl->assign('custom_record', $custom_record);
+		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(self::_getContextName());
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->assign('view_context', self::_getContextName());
+		$tpl->assign('view_context', $custom_record->getContext());
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/abstract_custom_record/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}

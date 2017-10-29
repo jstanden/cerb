@@ -83,7 +83,7 @@
 			{elseif $column == "a_name"}
 			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.a_id}" style="display:none;">
-				<a href="{devblocks_url}c=profiles&type=abstract_custom_record&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
+				<a href="{devblocks_url}c=profiles&type={$custom_record->uri}&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif $column=="*_owner"}

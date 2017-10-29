@@ -21,6 +21,10 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 	}
 	
 	function render() {
+		// This shouldn't be called directly
+		if(get_called_class() == 'PageSection_ProfilesAbstractCustomRecord')
+			return;
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
