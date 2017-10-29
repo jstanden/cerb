@@ -252,12 +252,18 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		}
 	}
 	
-	// [TODO] Abstract
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		// Abstraction
+		
+		$context = self::_getContextName();
+		
+		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID)))
+			return;
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -279,22 +285,21 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		$pos = 0;
 		
 		do {
-			$models = array();
+			$models = [];
 			list($results, $total) = $view->getData();
-
+			
 			// Summary row
 			if(0==$view->renderPage) {
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
 				$model->pos = $pos++;
-				$model->params = array(
+				$model->params = [
 					'title' => $view->name,
 					'created' => time(),
-//					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=abstract_custom_record', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.abstract.custom.record.explore.toolbar',
-				);
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy(sprintf('c=search&type=%s', $custom_record->uri), true),
+					'toolbar_extension_id' => sprintf('%s.explore.toolbar', self::_getContextName()),
+				];
 				$models[] = $model;
 				
 				$view->renderTotal = false; // speed up subsequent pages
@@ -305,7 +310,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=abstract_custom_record&id=%d-%s", $row[SearchFields_AbstractCustomRecord::ID], DevblocksPlatform::strToPermalink($row[SearchFields_AbstractCustomRecord::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=%s&id=%d-%s", $custom_record->uri, $row[SearchFields_AbstractCustomRecord::ID], DevblocksPlatform::strToPermalink($row[SearchFields_AbstractCustomRecord::NAME])), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
@@ -323,6 +328,6 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 			
 		} while(!empty($results));
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(['explore', $hash, $orig_pos]));
 	}
 };
