@@ -1115,6 +1115,7 @@
 				<param key="view_class" value="" />
 				<param key="options">
 					<value>
+						<data key="avatars" />
 						<data key="owner" />
 						<!--
 						<data key="links" />
@@ -2291,6 +2292,7 @@
 				<param key="view_class" value="View_ContactOrg" />
 				<param key="options">
 					<value>
+						<data key="avatars" />
 						<data key="cards" />
 						<data key="create" />
 						<data key="custom_fields" />
