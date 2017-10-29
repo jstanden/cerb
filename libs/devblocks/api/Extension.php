@@ -1010,6 +1010,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						foreach($merge_values['_types'] as $type_key => $type) {
 							$types['custom_'.$cf_id.'_'.$type_key] = $type;
 						}
+						
+						$types['custom_'.$cf_id.'__label'] = 'context_url';
 					}
 					break;
 					
