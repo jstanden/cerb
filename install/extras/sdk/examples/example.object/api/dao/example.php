@@ -845,6 +845,8 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

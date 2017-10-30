@@ -1052,6 +1052,8 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -2101,6 +2101,8 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

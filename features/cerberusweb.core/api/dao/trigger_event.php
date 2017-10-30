@@ -1998,6 +1998,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

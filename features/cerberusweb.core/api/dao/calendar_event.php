@@ -1075,6 +1075,8 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

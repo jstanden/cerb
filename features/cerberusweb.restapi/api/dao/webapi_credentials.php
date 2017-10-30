@@ -873,6 +873,8 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

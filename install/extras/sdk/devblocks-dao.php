@@ -1119,6 +1119,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -1154,6 +1154,8 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

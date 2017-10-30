@@ -1347,6 +1347,8 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

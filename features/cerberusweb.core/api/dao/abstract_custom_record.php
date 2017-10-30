@@ -1202,6 +1202,8 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

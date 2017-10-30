@@ -1099,6 +1099,8 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

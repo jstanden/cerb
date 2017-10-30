@@ -1050,6 +1050,8 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

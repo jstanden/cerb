@@ -1107,6 +1107,8 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

@@ -1041,6 +1041,8 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
