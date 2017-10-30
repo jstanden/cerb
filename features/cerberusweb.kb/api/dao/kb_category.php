@@ -36,7 +36,12 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 
@@ -60,6 +65,9 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+		
+		$context = CerberusContexts::CONTEXT_KB_CATEGORY;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -716,10 +724,19 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_KbCategory::ID,
+			'links' => '_links',
 			'name' => DAO_KbCategory::NAME,
 			'parent_id' => DAO_KbCategory::PARENT_ID,
 			'updated_at' => DAO_KbCategory::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

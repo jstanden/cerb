@@ -27,7 +27,12 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 			->setMaxLength(255)
 			->setRequired(true)
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 
@@ -49,6 +54,9 @@ class DAO_ExampleObject extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		$context = Context_ExampleObject::ID;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -826,8 +834,17 @@ class Context_ExampleObject extends Extension_DevblocksContext {
 		return [
 			'created' => DAO_ExampleObject::CREATED,
 			'id' => DAO_ExampleObject::ID,
+			'links' => '_links',
 			'name' => DAO_ExampleObject::NAME,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

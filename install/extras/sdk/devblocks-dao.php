@@ -72,6 +72,11 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			->id()
 			->setEditable(false)
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 		
 		return $validation->getFields();
 	}
@@ -94,6 +99,9 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+			
+		$context = "<?php echo $ctx_ext_id; ?>";
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -104,7 +112,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids);
+				CerberusContexts::checkpointChanges($context, $batch_ids);
 			}
 			
 			// Make changes
@@ -124,7 +132,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
 	}
@@ -1099,9 +1107,18 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_<?php echo $class_name ?>::ID,
+			'links' => '_links',
 			'name' => DAO_<?php echo $class_name ?>::NAME,
 			'updated_at' => DAO_<?php echo $class_name ?>::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

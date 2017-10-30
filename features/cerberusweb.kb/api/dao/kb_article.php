@@ -69,7 +69,12 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			->addField(self::_CATEGORY_IDS)
 			->string() // [TODO] test CSV ID list
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -184,6 +189,9 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED]))
 			$fields[self::UPDATED] = time();
+		
+		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		if(isset($fields[self::_CATEGORY_IDS])) {
 			$category_ids = DevblocksPlatform::parseCsvString($fields[self::_CATEGORY_IDS]);
@@ -1055,6 +1063,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			'content' => DAO_KbArticle::CONTENT,
 			'format' => DAO_KbArticle::FORMAT,
 			'id' => DAO_KbArticle::ID,
+			'links' => '_links',
 			'title' => DAO_KbArticle::TITLE,
 			'updated' => DAO_KbArticle::UPDATED,
 			'views' => DAO_KbArticle::VIEWS,
@@ -1080,6 +1089,10 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 				}
 				
 				$out_fields[DAO_KbArticle::FORMAT] = $format_id;
+				break;
+				
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
 		

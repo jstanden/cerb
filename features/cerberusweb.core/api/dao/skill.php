@@ -40,7 +40,12 @@ class DAO_Skill extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -59,6 +64,9 @@ class DAO_Skill extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		$context = CerberusContexts::CONTEXT_SKILL;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1031,10 +1039,19 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_Skill::ID,
+			'links' => '_links',
 			'name' => DAO_Skill::NAME,
 			'skillset_id' => DAO_Skill::SKILLSET_ID,
 			'updated_at' => DAO_Skill::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

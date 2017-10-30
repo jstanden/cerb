@@ -61,7 +61,12 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 				return true;
 			})
 			;
-		
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 
@@ -101,6 +106,9 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		$context = CerberusContexts::CONTEXT_CUSTOM_RECORD;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1077,11 +1085,20 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_CustomRecord::ID,
+			'links' => '_links',
 			'name' => DAO_CustomRecord::NAME,
 			'name_plural' => DAO_CustomRecord::NAME_PLURAL,
 			'updated_at' => DAO_CustomRecord::UPDATED_AT,
 			'uri' => DAO_CustomRecord::URI,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -54,6 +54,11 @@ class DAO_Classifier extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 			
 		return $validation->getFields();
 	}
@@ -78,6 +83,9 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		$context = CerberusContexts::CONTEXT_CLASSIFIER;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1132,11 +1140,20 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		return [
 			'created_at' => DAO_Classifier::CREATED_AT,
 			'id' => DAO_Classifier::ID,
+			'links' => '_links',
 			'name' => DAO_Classifier::NAME,
 			'owner__context' => DAO_Classifier::OWNER_CONTEXT,
 			'owner_id' => DAO_Classifier::OWNER_CONTEXT_ID,
 			'updated_at' => DAO_Classifier::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

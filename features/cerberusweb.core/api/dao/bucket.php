@@ -91,7 +91,12 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-		
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -309,6 +314,8 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+		
+		self::_updateAbstract(Context_Bucket::ID, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1116,6 +1123,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'group_id' => DAO_Bucket::GROUP_ID,
 			'id' => DAO_Bucket::ID,
 			'is_default' => DAO_Bucket::IS_DEFAULT,
+			'links' => '_links',
 			'name' => DAO_Bucket::NAME,
 			'reply_address_id' => DAO_Bucket::REPLY_ADDRESS_ID,
 			'reply_html_template_id' => DAO_Bucket::REPLY_HTML_TEMPLATE_ID,
@@ -1124,6 +1132,14 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'replyto_id' => DAO_Bucket::REPLY_ADDRESS_ID,
 			'updated_at' => DAO_Bucket::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

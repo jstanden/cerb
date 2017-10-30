@@ -38,6 +38,11 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			->id()
 			->setRequired(true)
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 			
 		return $validation->getFields();
 	}
@@ -55,6 +60,9 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		self::_updateAbstract($context, $ids, $fields);
+		
 		parent::_update($ids, 'custom_fieldset', $fields);
 		
 		self::clearCache();
@@ -1078,10 +1086,19 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		return [
 			'context' => DAO_CustomFieldset::CONTEXT,
 			'id' => DAO_CustomFieldset::ID,
+			'links' => '_links',
 			'name' => DAO_CustomFieldset::NAME,
 			'owner__context' => DAO_CustomFieldset::OWNER_CONTEXT,
 			'owner_id' => DAO_CustomFieldset::OWNER_CONTEXT_ID,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

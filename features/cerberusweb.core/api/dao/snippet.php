@@ -86,7 +86,12 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -110,6 +115,9 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		
 		if(!isset($fields[DAO_Snippet::UPDATED_AT]))
 			$fields[DAO_Snippet::UPDATED_AT] = time();
+		
+		$context = CerberusContexts::CONTEXT_SNIPPET;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1540,6 +1548,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			'content' => DAO_Snippet::CONTENT,
 			'context' => DAO_Snippet::CONTEXT,
 			'id' => DAO_Snippet::ID,
+			'links' => '_links',
 			'owner__context' => DAO_Snippet::OWNER_CONTEXT,
 			'owner_id' => DAO_Snippet::OWNER_CONTEXT_ID,
 			'title' => DAO_Snippet::TITLE,
@@ -1551,6 +1560,10 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+			
 			case 'placeholders':
 				if(!is_array($value)) {
 					$error = 'must be an object.';

@@ -92,7 +92,12 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(65535)
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -112,6 +117,9 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
+		$context = CerberusContexts::CONTEXT_BEHAVIOR;
+		self::_updateAbstract($context, $ids, $fields);
+		
 		parent::_update($ids, 'trigger_event', $fields);
 		self::clearCache();
 	}
@@ -1977,10 +1985,19 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			'id' => DAO_TriggerEvent::ID,
 			'is_disabled' => DAO_TriggerEvent::IS_DISABLED,
 			'is_private' => DAO_TriggerEvent::IS_PRIVATE,
+			'links' => '_links',
 			'name' => DAO_TriggerEvent::TITLE,
 			'priority' => DAO_TriggerEvent::PRIORITY,
 			'updated_at' => DAO_TriggerEvent::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -100,7 +100,12 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			->addField(self::WORKER_ID)
 			->id()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -117,6 +122,9 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
+		$context = CerberusContexts::CONTEXT_DRAFT;
+		self::_updateAbstract($context, $ids, $fields);
+		
 		parent::_update($ids, 'mail_queue', $fields);
 	}
 	
@@ -1220,11 +1228,20 @@ class Context_Draft extends Extension_DevblocksContext {
 		return [
 			'content' => DAO_MailQueue::BODY,
 			'id' => DAO_MailQueue::ID,
+			'links' => '_links',
 			'subject' => DAO_MailQueue::SUBJECT,
 			'to' => DAO_MailQueue::HINT_TO,
 			'updated' => DAO_MailQueue::UPDATED,
 			'worker_id' => DAO_MailQueue::WORKER_ID,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -57,6 +57,11 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 			->setNotEmpty(true)
 			->setRequired(true)
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 		
 		return $validation->getFields();
 	}
@@ -99,6 +104,8 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		self::_updateAbstract(Context_CalendarEvent::ID, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1057,8 +1064,17 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			'date_start' => DAO_CalendarEvent::DATE_START,
 			'id' => DAO_CalendarEvent::ID,
 			'is_available' => DAO_CalendarEvent::IS_AVAILABLE,
+			'links' => '_links',
 			'name' => DAO_CalendarEvent::NAME,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

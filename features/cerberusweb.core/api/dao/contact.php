@@ -117,6 +117,11 @@ class DAO_Contact extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(64)
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 			
 		return $validation->getFields();
 	}
@@ -142,6 +147,9 @@ class DAO_Contact extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+		
+		$context = CerberusContexts::CONTEXT_CONTACT;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1942,6 +1950,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'language' => DAO_Contact::LANGUAGE,
 			'last_login_at' => DAO_Contact::LAST_LOGIN_AT,
 			'last_name' => DAO_Contact::LAST_NAME,
+			'links' => '_links',
 			'location' => DAO_Contact::LOCATION,
 			'mobile' => DAO_Contact::MOBILE,
 			'org_id' => DAO_Contact::ORG_ID,
@@ -1961,6 +1970,10 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				}
 				
 				$out_fields[DAO_Contact::PRIMARY_EMAIL_ID] = $address->id;
+				break;
+			
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
 		

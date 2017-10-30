@@ -2328,6 +2328,13 @@ class DAO_Application extends Cerb_ORMHelper {
 
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
+		
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+		
 		return $validation->getFields();
 	}
 
@@ -2438,7 +2445,17 @@ class Context_Application extends Extension_DevblocksContext {
 	}
 
 	function getKeyToDaoFieldMap() {
-		return [];
+		return [
+			'links' => '_links',
+		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

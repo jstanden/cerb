@@ -349,13 +349,45 @@ abstract class DevblocksORMHelper {
 				$value
 			);
 		}
-			
+		
 		$sql = sprintf("UPDATE %s SET %s WHERE %s",
 			$table,
 			implode(', ', $sets),
 			$where
 		);
 		$db->ExecuteMaster($sql);
+	}
+	
+	static protected function _updateAbstract($context, $ids, array &$fields) {
+		if(!is_array($ids))
+			$ids = [$ids];
+		
+		if(!isset($fields['_links']))
+			return;
+		
+		$links_json = $fields['_links'];
+		unset($fields['_links']);
+		
+		if(false == (@$links = json_decode($links_json)))
+			return;
+		
+		if(is_array($links))
+		foreach($links as $link) {
+			$link_context = $link_id = null;
+			
+			if(!is_string($link))
+				continue;
+			
+			@list($link_context, $link_id) = explode(':', $link, 2);
+			
+			if(false == ($link_context_ext = Extension_DevblocksContext::getByAlias($link_context, false)))
+				continue;
+			
+			if(is_array($ids)) {
+				foreach($ids as $id)
+					DAO_ContextLink::setLink($link_context_ext->id, $link_id, $context, $id);
+			}
+		}
 	}
 	
 	static protected function _parseSearchParams($params, $columns=array(), $search_class, $sortBy='') {

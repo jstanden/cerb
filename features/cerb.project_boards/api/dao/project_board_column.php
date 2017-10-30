@@ -78,25 +78,7 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
 		
-		// [TODO] Abstract
-		if(isset($fields['_links'])) {
-			if(false != (@$links = json_decode($fields['_links'])))
-			foreach($links as $link) {
-				$link_context = $link_id = null;
-				
-				if(!is_string($link))
-					continue;
-				
-				@list($link_context, $link_id) = explode(':', $link, 2);
-				
-				if($link_context && is_array($ids)) {
-					foreach($ids as $id)
-						DAO_ContextLink::setLink($link_context, $link_id, Context_ProjectBoardColumn::ID, $id);
-				}
-			}
-			
-			unset($fields['_links']);
-		}
+		self::_updateAbstract(Context_ProjectBoardColumn::ID, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1125,9 +1107,9 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		return [
 			'board_id' => DAO_ProjectBoardColumn::BOARD_ID,
 			'id' => DAO_ProjectBoardColumn::ID,
+			'links' => '_links',
 			'name' => DAO_ProjectBoardColumn::NAME,
 			'updated_at' => DAO_ProjectBoardColumn::UPDATED_AT,
-			'links' => '_links',
 		];
 	}
 	
@@ -1169,39 +1151,8 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 				$out_fields['_links'] = json_encode($links);
 				break;
 				
-			// [TODO] Abstract
 			case 'links':
-				if(!is_array($value)) {
-					$error = 'must be an array of context:id pairs.';
-					return false;
-				}
-				
-				$links = [];
-				
-				foreach($value as &$tuple) {
-					@list($context, $id) = explode(':', $tuple, 2);
-					
-					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, false))) {
-						$error = sprintf("has a card with an invalid context (%s)", $tuple);
-						return false;
-					}
-					
-					$context = $context_ext->id;
-					
-					$tuple = sprintf("%s:%d",
-						$context,
-						$id
-					);
-					
-					$links[] = $tuple;
-				}
-				
-				if(false == ($json = json_encode($links))) {
-					$error = 'could not be JSON encoded.';
-					return false;
-				}
-				
-				$out_fields['_links'] = $json;
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 			
 			case 'params':

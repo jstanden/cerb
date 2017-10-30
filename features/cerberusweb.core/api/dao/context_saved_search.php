@@ -69,7 +69,12 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-		
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -91,6 +96,9 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+		
+		$context = CerberusContexts::CONTEXT_SAVED_SEARCH;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1017,6 +1025,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		return [
 			'context' => DAO_ContextSavedSearch::CONTEXT,
 			'id' => DAO_ContextSavedSearch::ID,
+			'links' => '_links',
 			'name' => DAO_ContextSavedSearch::NAME,
 			'owner__context' => DAO_ContextSavedSearch::OWNER_CONTEXT,
 			'owner_id' => DAO_ContextSavedSearch::OWNER_CONTEXT_ID,
@@ -1024,6 +1033,14 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 			'tag' => DAO_ContextSavedSearch::TAG,
 			'updated_at' => DAO_ContextSavedSearch::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

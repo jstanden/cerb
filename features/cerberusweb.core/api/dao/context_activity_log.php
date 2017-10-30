@@ -68,6 +68,11 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 			->addField(self::TARGET_CONTEXT_ID)
 			->id()
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 			
 		return $validation->getFields();
 	}
@@ -93,6 +98,9 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		$context = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1074,6 +1082,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 			'actor_id' => DAO_ContextActivityLog::ACTOR_CONTEXT_ID,
 			'created' => DAO_ContextActivityLog::CREATED,
 			'id' => DAO_ContextActivityLog::ID,
+			'links' => '_links',
 			'target__context' => DAO_ContextActivityLog::TARGET_CONTEXT,
 			'target_id' => DAO_ContextActivityLog::TARGET_CONTEXT_ID,
 		];
@@ -1082,6 +1091,10 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+			
 			case 'params':
 				if(!is_array($value)) {
 					$error = 'must be an object.';

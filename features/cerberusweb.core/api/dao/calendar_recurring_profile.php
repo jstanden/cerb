@@ -81,7 +81,12 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(128)
 			;
-		
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 
@@ -126,6 +131,9 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
+		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
+		self::_updateAbstract($context, $ids, $fields);
+		
 		// Make a diff for the requested objects in batches
 		
 		$chunks = array_chunk($ids, 100, true);
@@ -135,7 +143,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $batch_ids);
+				CerberusContexts::checkpointChanges($context, $batch_ids);
 			}
 			
 			// Make changes
@@ -155,7 +163,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $batch_ids);
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
 	}
@@ -1315,12 +1323,21 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			'event_start' => DAO_CalendarRecurringProfile::EVENT_START,
 			'id' => DAO_CalendarRecurringProfile::ID,
 			'is_available' => DAO_CalendarRecurringProfile::IS_AVAILABLE,
+			'links' => '_links',
 			'name' => DAO_CalendarRecurringProfile::EVENT_NAME,
 			'patterns' => DAO_CalendarRecurringProfile::PATTERNS,
 			'recur_end' => DAO_CalendarRecurringProfile::RECUR_END,
 			'recur_start' => DAO_CalendarRecurringProfile::RECUR_START,
 			'tz' => DAO_CalendarRecurringProfile::TZ,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

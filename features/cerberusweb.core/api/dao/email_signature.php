@@ -48,7 +48,12 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-		
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 
@@ -70,6 +75,9 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 			
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+		
+		$context = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1037,6 +1045,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		return [
 			'id' => DAO_EmailSignature::ID,
 			'is_default' => DAO_EmailSignature::IS_DEFAULT,
+			'links' => '_links',
 			'name' => DAO_EmailSignature::NAME,
 			'owner__context' => DAO_EmailSignature::OWNER_CONTEXT,
 			'owner_id' => DAO_EmailSignature::OWNER_CONTEXT_ID,
@@ -1044,7 +1053,15 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			'updated_at' => DAO_EmailSignature::UPDATED_AT,
 		];
 	}
-
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;

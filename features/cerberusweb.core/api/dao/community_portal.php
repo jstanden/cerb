@@ -51,6 +51,11 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			->setMaxLength(128)
 			->setRequired(true)
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 			
 		return $validation->getFields();
 	}
@@ -92,8 +97,11 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		return $code;
 	}
 	
-	public static function update($id, $fields) {
-		self::_update($id, 'community_tool', $fields);
+	public static function update($ids, $fields) {
+		$context = CerberusContexts::CONTEXT_PORTAL;
+		self::_updateAbstract($context, $ids, $fields);
+		
+		self::_update($ids, 'community_tool', $fields);
 		self::clearCache();
 	}
 	

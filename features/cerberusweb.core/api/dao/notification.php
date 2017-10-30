@@ -75,7 +75,12 @@ class DAO_Notification extends Cerb_ORMHelper {
 			->addField(self::WORKER_ID)
 			->id()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -96,6 +101,9 @@ class DAO_Notification extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		$context = CerberusContexts::CONTEXT_NOTIFICATION;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1314,6 +1322,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			'event_json' => DAO_Notification::ENTRY_JSON,
 			'id' => DAO_Notification::ID,
 			'is_read' => DAO_Notification::IS_READ,
+			'links' => '_links',
 			'target__context' => DAO_Notification::CONTEXT,
 			'target_id' => DAO_Notification::CONTEXT_ID
 		];
@@ -1322,6 +1331,10 @@ class Context_Notification extends Extension_DevblocksContext {
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+				
 			case 'params':
 				if(!is_array($value)) {
 					$error = 'must be an object.';

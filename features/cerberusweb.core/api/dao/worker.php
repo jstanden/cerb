@@ -159,13 +159,17 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::UPDATED)
 			->timestamp()
 			;
-		
 		// base64 blob png
 		$validation
 			->addField(self::_IMAGE)
 			->image('image/png', 50, 50, 500, 500, 100000)
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -616,6 +620,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED]) && !($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS))
 			$fields[self::UPDATED] = time();
+		
+		$context = CerberusContexts::CONTEXT_WORKER;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Handle avatar images
 		if(isset($fields[self::_IMAGE])) {
@@ -2958,6 +2965,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'is_superuser' => DAO_Worker::IS_SUPERUSER,
 			'language' => DAO_Worker::LANGUAGE,
 			'last_name' => DAO_Worker::LAST_NAME,
+			'links' => '_links',
 			'location' => DAO_Worker::LOCATION,
 			'mobile' => DAO_Worker::MOBILE,
 			'phone' => DAO_Worker::PHONE,
@@ -2982,6 +2990,10 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 				
 			case 'image':
 				$out_fields[DAO_Worker::_IMAGE] = $value;
+				break;
+				
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
 		

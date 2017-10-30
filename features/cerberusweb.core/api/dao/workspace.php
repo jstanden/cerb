@@ -57,7 +57,12 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			->addField(self::OWNER_CONTEXT_ID)
 			->id()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -74,6 +79,9 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	}
 
 	static function update($ids, $fields) {
+		$context = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
+		self::_updateAbstract($context, $ids, $fields);
+		
 		parent::_update($ids, 'workspace_page', $fields);
 		self::clearCache();
 	}
@@ -443,7 +451,12 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			->addField(self::WORKSPACE_PAGE_ID)
 			->id()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -460,6 +473,9 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
+		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
+		self::_updateAbstract($context, $ids, $fields);
+		
 		parent::_update($ids, 'workspace_tab', $fields);
 		self::clearCache();
 	}
@@ -995,7 +1011,12 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 			->addField(self::WORKSPACE_TAB_ID)
 			->id()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -1085,6 +1106,9 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
+		$context = CerberusContexts::CONTEXT_WORKSPACE_WORKLIST;
+		self::_updateAbstract($context, $ids, $fields);
+		
 		parent::_update($ids, 'workspace_list', $fields);
 	}
 	
@@ -1464,10 +1488,19 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 		return [
 			'extension_id' => DAO_WorkspacePage::EXTENSION_ID,
 			'id' => DAO_WorkspacePage::ID,
+			'links' => '_links',
 			'name' => DAO_WorkspacePage::NAME,
 			'owner__context' => DAO_WorkspacePage::OWNER_CONTEXT,
 			'owner_id' => DAO_WorkspacePage::OWNER_CONTEXT_ID,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
@@ -1732,6 +1765,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		return [
 			'extension_id' => DAO_WorkspaceTab::EXTENSION_ID,
 			'id' => DAO_WorkspaceTab::ID,
+			'links' => '_links',
 			'name' => DAO_WorkspaceTab::NAME,
 			'page_id' => DAO_WorkspaceTab::WORKSPACE_PAGE_ID,
 			'pos' => DAO_WorkspaceTab::POS,
@@ -1741,6 +1775,10 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+			
 			case 'params':
 				if(!is_array($value)) {
 					$error = 'must be an object.';
@@ -2024,6 +2062,7 @@ class Context_WorkspaceWorklist extends Extension_DevblocksContext {
 		return [
 			'context' => DAO_WorkspaceList::CONTEXT,
 			'id' => DAO_WorkspaceList::ID,
+			'links' => '_links',
 			'pos' => DAO_WorkspaceList::LIST_POS,
 			'tab_id' => DAO_WorkspaceList::WORKSPACE_TAB_ID,
 		];
@@ -2032,6 +2071,10 @@ class Context_WorkspaceWorklist extends Extension_DevblocksContext {
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+			
 			case 'view':
 				if(!is_array($value)) {
 					$error = 'must be an object.';

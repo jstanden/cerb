@@ -85,7 +85,12 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			->addField(self::WEBSITE)
 			->string()
 			;
-		
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -123,6 +128,9 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED]))
 			$fields[self::UPDATED] = time();
+		
+		$context = CerberusContexts::CONTEXT_ORG;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -247,7 +255,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			$db->qstr(CerberusContexts::CONTEXT_ORG),
 			implode(',', $from_ids)
 		));
-		 
+		
 		// Merge email addresses
 		$db->ExecuteMaster(sprintf("UPDATE address SET contact_org_id = %d WHERE contact_org_id IN (%s)",
 			$to_id,
@@ -1726,6 +1734,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			'created' => DAO_ContactOrg::CREATED,
 			'email_id' => DAO_ContactOrg::EMAIL_ID,
 			'id' => DAO_ContactOrg::ID,
+			'links' => '_links',
 			'name' => DAO_ContactOrg::NAME,
 			'phone' => DAO_ContactOrg::PHONE,
 			'postal' => DAO_ContactOrg::POSTAL,
@@ -1734,6 +1743,14 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			'updated' => DAO_ContactOrg::UPDATED,
 			'website' => DAO_ContactOrg::WEBSITE,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

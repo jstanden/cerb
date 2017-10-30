@@ -89,6 +89,11 @@ class DAO_Address extends Cerb_ORMHelper {
 			->addField(self::UPDATED)
 			->timestamp()
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 		
 		return $validation->getFields();
 	}
@@ -154,6 +159,8 @@ class DAO_Address extends Cerb_ORMHelper {
 		
 		if(!isset($fields[DAO_Address::UPDATED]))
 			$fields[DAO_Address::UPDATED] = time();
+		
+		self::_updateAbstract(Context_Address::ID, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -2079,12 +2086,21 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => DAO_Address::ID,
 			'is_banned' => DAO_Address::IS_BANNED,
 			'is_defunct' => DAO_Address::IS_DEFUNCT,
+			'links' => '_links',
 			'mail_transport_id' => DAO_Address::MAIL_TRANSPORT_ID,
 			'num_nonspam' => DAO_Address::NUM_NONSPAM,
 			'num_spam' => DAO_Address::NUM_SPAM,
 			'org_id' => DAO_Address::CONTACT_ORG_ID,
 			'updated' => DAO_Address::UPDATED,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

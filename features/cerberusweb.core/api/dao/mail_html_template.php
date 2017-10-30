@@ -71,7 +71,12 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -93,6 +98,9 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+		
+		$context = CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1081,12 +1089,21 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		return [
 			'content' => DAO_MailHtmlTemplate::CONTENT,
 			'id' => DAO_MailHtmlTemplate::ID,
+			'links' => '_links',
 			'name' => DAO_MailHtmlTemplate::NAME,
 			'owner__context' => DAO_MailHtmlTemplate::OWNER_CONTEXT,
 			'owner_id' => DAO_MailHtmlTemplate::OWNER_CONTEXT_ID,
 			'signature' => DAO_MailHtmlTemplate::SIGNATURE,
 			'updated_at' => DAO_MailHtmlTemplate::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

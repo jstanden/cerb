@@ -142,7 +142,12 @@ class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents 
 			->string()
 			->setMaxLength(16777215)
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -166,6 +171,9 @@ class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents 
 	static function update($ids, $fields) {
 		if(!is_array($ids))
 			$ids = [$ids];
+		
+		$context = CerberusContexts::CONTEXT_MESSAGE;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		if(isset($fields[self::_CONTENT])) {
 			foreach($ids as $id)
@@ -2414,6 +2422,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'is_broadcast' => DAO_Message::IS_BROADCAST,
 			'is_not_sent' => DAO_Message::IS_NOT_SENT,
 			'is_outgoing' => DAO_Message::IS_OUTGOING,
+			'links' => '_links',
 			'response_time' => DAO_Message::RESPONSE_TIME,
 			'sender_id' => DAO_Message::ADDRESS_ID,
 			'storage_size' => DAO_Message::STORAGE_SIZE,
@@ -2427,6 +2436,18 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'content':
+				$out_fields[DAO_Message::_CONTENT] = $value;
+				break;
+				
+			case 'headers':
+				$out_fields[DAO_Message::_HEADERS] = $value;
+				break;
+				
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+				
 			case 'sender':
 				if(false == ($address = DAO_Address::lookupAddress($value, true))) {
 					$error = sprintf("Failed to lookup address: %s", $value);
@@ -2434,14 +2455,6 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				}
 				
 				$out_fields[DAO_Message::ADDRESS_ID] = $address->id;
-				break;
-				
-			case 'content':
-				$out_fields[DAO_Message::_CONTENT] = $value;
-				break;
-				
-			case 'headers':
-				$out_fields[DAO_Message::_HEADERS] = $value;
 				break;
 		}
 		

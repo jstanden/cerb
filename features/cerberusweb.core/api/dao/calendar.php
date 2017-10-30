@@ -44,7 +44,12 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-		
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -67,6 +72,9 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+		
+		$context = CerberusContexts::CONTEXT_CALENDAR;
+		self::_updateAbstract($context, $ids, $fields);
 			
 		// Make a diff for the requested objects in batches
 		
@@ -77,7 +85,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CALENDAR, $batch_ids);
+				CerberusContexts::checkpointChanges($context, $batch_ids);
 			}
 			
 			// Make changes
@@ -97,7 +105,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CALENDAR, $batch_ids);
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
 		
@@ -1424,6 +1432,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_Calendar::ID,
+			'links' => '_links',
 			'name' => DAO_Calendar::NAME,
 			'owner__context' => DAO_Calendar::OWNER_CONTEXT,
 			'owner_id' => DAO_Calendar::OWNER_CONTEXT_ID,
@@ -1434,6 +1443,10 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+			
 			case 'params':
 				if(!is_array($value)) {
 					$error = 'must be an object.';

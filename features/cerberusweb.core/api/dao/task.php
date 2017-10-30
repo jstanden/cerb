@@ -90,7 +90,12 @@ class DAO_Task extends Cerb_ORMHelper {
 			->addField(self::UPDATED_DATE)
 			->timestamp()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -156,6 +161,9 @@ class DAO_Task extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED_DATE]))
 			$fields[self::UPDATED_DATE] = time();
+		
+		$context = CerberusContexts::CONTEXT_TASK;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1468,6 +1476,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'due' => DAO_Task::DUE_DATE,
 			'id' => DAO_Task::ID,
 			'importance' => DAO_Task::IMPORTANCE,
+			'links' => '_links',
 			'owner_id' => DAO_Task::OWNER_ID,
 			'reopen' => DAO_Task::REOPEN_AT,
 			'status_id' => DAO_Task::STATUS_ID,
@@ -1478,6 +1487,10 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+			
 			case 'owner':
 				break;
 				

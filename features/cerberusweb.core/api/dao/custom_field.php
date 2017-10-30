@@ -74,7 +74,12 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-			
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+
 		return $validation->getFields();
 	}
 	
@@ -96,6 +101,9 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+		
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -2023,11 +2031,20 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			'context' => DAO_CustomField::CONTEXT,
 			'custom_fieldset_id' => DAO_CustomField::CUSTOM_FIELDSET_ID,
 			'id' => DAO_CustomField::ID,
+			'links' => '_links',
 			'name' => DAO_CustomField::NAME,
 			'pos' => DAO_CustomField::POS,
 			'type' => DAO_CustomField::TYPE,
 			'updated_at' => DAO_CustomField::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

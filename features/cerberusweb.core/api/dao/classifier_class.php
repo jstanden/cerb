@@ -50,6 +50,11 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 			
 		return $validation->getFields();
 	}
@@ -75,6 +80,9 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
+		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
+		self::_updateAbstract($context, $ids, $fields);
+		
 		// Make a diff for the requested objects in batches
 		
 		$chunks = array_chunk($ids, 100, true);
@@ -84,7 +92,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $batch_ids);
+				CerberusContexts::checkpointChanges($context, $batch_ids);
 			}
 			
 			// Make changes
@@ -104,7 +112,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $batch_ids);
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
 		
@@ -1037,9 +1045,18 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		return [
 			'classifier_id' => DAO_ClassifierClass::CLASSIFIER_ID,
 			'id' => DAO_ClassifierClass::ID,
+			'links' => '_links',
 			'name' => DAO_ClassifierClass::NAME,
 			'updated_at' => DAO_ClassifierClass::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

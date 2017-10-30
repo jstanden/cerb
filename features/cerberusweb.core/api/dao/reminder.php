@@ -75,24 +75,7 @@ class DAO_Reminder extends Cerb_ORMHelper {
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
 		
-		if(isset($fields['_links'])) {
-			if(false != (@$links = json_decode($fields['_links'])))
-			foreach($links as $link) {
-				$link_context = $link_id = null;
-				
-				if(!is_string($link))
-					continue;
-				
-				@list($link_context, $link_id) = explode(':', $link, 2);
-				
-				if($link_context && is_array($ids)) {
-					foreach($ids as $id)
-						DAO_ContextLink::setLink($link_context, $link_id, Context_Reminder::ID, $id);
-				}
-			}
-			
-			unset($fields['_links']);
-		}
+		self::_updateAbstract(CerberusContexts::CONTEXT_REMINDER, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1111,6 +1094,7 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		return [
 			'id' => DAO_Reminder::ID,
 			'is_closed' => DAO_Reminder::IS_CLOSED,
+			'links' => '_links',
 			'name' => DAO_Reminder::NAME,
 			'remind_at' => DAO_Reminder::REMIND_AT,
 			'updated_at' => DAO_Reminder::UPDATED_AT,
@@ -1123,37 +1107,7 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
 			case 'links':
-				if(!is_array($value)) {
-					$error = 'must be an array of context:id pairs.';
-					return false;
-				}
-				
-				$links = [];
-				
-				foreach($value as &$tuple) {
-					@list($context, $id) = explode(':', $tuple, 2);
-					
-					if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, false))) {
-						$error = sprintf("has a link with an invalid context (%s)", $tuple);
-						return false;
-					}
-					
-					$context = $context_ext->id;
-					
-					$tuple = sprintf("%s:%d",
-						$context,
-						$id
-					);
-					
-					$links[] = $tuple;
-				}
-				
-				if(false == ($json = json_encode($links))) {
-					$error = 'could not be JSON encoded.';
-					return false;
-				}
-				
-				$out_fields['_links'] = $json;
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 			
 			case 'params':

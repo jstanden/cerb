@@ -92,7 +92,12 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 			->addField(self::WORKER_ID)
 			->id()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -113,6 +118,9 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		$context = CerberusContexts::CONTEXT_FEEDBACK;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -307,7 +315,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 				SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
 				SearchFields_FeedbackEntry::SOURCE_URL,
 				SearchFields_FeedbackEntry::ADDRESS_EMAIL
-			 );
+			);
 		
 		// [TODO] Get rid of this left join
 		$join_sql =
@@ -1440,11 +1448,20 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 			'author_id' => DAO_FeedbackEntry::QUOTE_ADDRESS_ID,
 			'created' => DAO_FeedbackEntry::LOG_DATE,
 			'id' => DAO_FeedbackEntry::ID,
+			'links' => '_links',
 			'quote_mood_id' => DAO_FeedbackEntry::QUOTE_MOOD,
 			'quote_text' => DAO_FeedbackEntry::QUOTE_TEXT,
 			'url' => DAO_FeedbackEntry::SOURCE_URL,
 			'worker_id' => DAO_FeedbackEntry::WORKER_ID,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

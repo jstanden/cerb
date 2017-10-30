@@ -95,11 +95,15 @@ class DAO_Group extends Cerb_ORMHelper {
 			->addField(self::UPDATED)
 			->timestamp()
 			;
-		
 		// base64 blob png
 		$validation
 			->addField(self::_IMAGE)
 			->image('image/png', 50, 50, 500, 500, 100000)
+			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
 			;
 			
 		return $validation->getFields();
@@ -368,6 +372,9 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED]))
 			$fields[self::UPDATED] = time();
+		
+		$context = CerberusContexts::CONTEXT_GROUP;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Handle avatar images
 		if(isset($fields[self::_IMAGE])) {
@@ -1843,6 +1850,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'id' => DAO_Group::ID,
 			'is_default' => DAO_Group::IS_DEFAULT,
 			'is_private' => DAO_Group::IS_PRIVATE,
+			'links' => '_links',
 			'name' => DAO_Group::NAME,
 			'reply_address_id' => DAO_Group::REPLY_ADDRESS_ID,
 			'replyto_id' => DAO_Group::REPLY_ADDRESS_ID,
@@ -1858,6 +1866,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		switch($dict_key) {
 			case 'image':
 				$out_fields[DAO_Group::_IMAGE] = $value;
+				break;
+			
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
 		

@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 /*
  * IMPORTANT LICENSING NOTE from your friends at Cerb
@@ -68,7 +68,12 @@ class DAO_TimeTrackingActivity extends Cerb_ORMHelper {
 			->addField(self::RATE)
 			->float()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 
@@ -214,7 +219,12 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 			->setRequired(true)
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER))
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -235,6 +245,9 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		$context = CerberusContexts::CONTEXT_TIMETRACKING;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1520,10 +1533,19 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			'activity_id' => DAO_TimeTrackingEntry::ACTIVITY_ID,
 			'id' => DAO_TimeTrackingEntry::ID,
 			'is_closed' => DAO_TimeTrackingEntry::IS_CLOSED,
+			'links' => '_links',
 			'log_date' => DAO_TimeTrackingEntry::LOG_DATE,
 			'mins' => DAO_TimeTrackingEntry::TIME_ACTUAL_MINS,
 			'worker_id' => DAO_TimeTrackingEntry::WORKER_ID,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

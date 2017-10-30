@@ -1,6 +1,6 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
+| Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
 | All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
 |   unless specifically noted otherwise.
@@ -60,6 +60,11 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 			
 		return $validation->getFields();
 	}
@@ -79,6 +84,9 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		$context = CerberusContexts::CONTEXT_FILE_BUNDLE;
+		self::_updateAbstract($context, $ids, $fields);
 
 		// Make a diff for the requested objects in batches
 
@@ -1150,10 +1158,19 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_FileBundle::ID,
+			'links' => '_links',
 			'name' => DAO_FileBundle::NAME,
 			'tag' => DAO_FileBundle::TAG,
 			'updated_at' => DAO_FileBundle::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

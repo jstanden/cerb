@@ -47,6 +47,11 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 			
 		return $validation->getFields();
 	}
@@ -70,6 +75,8 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+		
+		self::_updateAbstract(Context_WebhookListener::ID, $ids, $fields);
 			
 		// Make a diff for the requested objects in batches
 		
@@ -1027,6 +1034,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			'extension_id' => DAO_WebhookListener::EXTENSION_ID,
 			'guid' => DAO_WebhookListener::GUID,
 			'id' => DAO_WebhookListener::ID,
+			'links' => '_links',
 			'name' => DAO_WebhookListener::NAME,
 			'updated_at' => DAO_WebhookListener::UPDATED_AT,
 		];
@@ -1047,6 +1055,10 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 				}
 				
 				$out_fields[DAO_WebhookListener::EXTENSION_PARAMS_JSON] = $json;
+				break;
+				
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 		}
 		

@@ -77,7 +77,12 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			->addField(self::UPDATED)
 			->timestamp()
 			;
-		
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -94,11 +99,13 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	public static function update($id, $fields) {
+	public static function update($ids, $fields) {
 		if(!isset($fields[self::UPDATED]))
 			$fields[self::UPDATED] = time();
 		
-		self::_update($id, 'attachment', $fields);
+		self::_updateAbstract(Context_Attachment::ID, $ids, $fields);
+		
+		self::_update($ids, 'attachment', $fields);
 	}
 	
 	/**
@@ -1637,6 +1644,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_Attachment::ID,
+			'links' => '_links',
 			'mime_type' => DAO_Attachment::MIME_TYPE,
 			'name' => DAO_Attachment::NAME,
 			'size' => DAO_Attachment::STORAGE_SIZE,
@@ -1644,6 +1652,14 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			'storage_key' => DAO_Attachment::STORAGE_KEY,
 			'updated' => DAO_Attachment::UPDATED,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

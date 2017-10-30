@@ -74,7 +74,12 @@ class DAO_Bot extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-		
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 
@@ -96,6 +101,8 @@ class DAO_Bot extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		self::_updateAbstract(Context_Bot::ID, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1325,12 +1332,21 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			'created_at' => DAO_Bot::CREATED_AT,
 			'id' => DAO_Bot::ID,
 			'is_disabled' => DAO_Bot::IS_DISABLED,
+			'links' => '_links',
 			'mention_name' => DAO_Bot::AT_MENTION_NAME,
 			'name' => DAO_Bot::NAME,
 			'owner__context' => DAO_Bot::OWNER_CONTEXT,
 			'owner_id' => DAO_Bot::OWNER_CONTEXT_ID,
 			'updated_at' => DAO_Bot::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

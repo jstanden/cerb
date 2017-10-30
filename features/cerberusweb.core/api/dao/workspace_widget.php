@@ -75,7 +75,12 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			->addField(self::WORKSPACE_TAB_ID)
 			->id()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -94,6 +99,9 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	static function update($ids, $fields, $option_bits = 0) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		$context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -550,6 +558,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 			'id' => DAO_WorkspaceWidget::ID,
 			'extension_id' => DAO_WorkspaceWidget::EXTENSION_ID,
 			'label' => DAO_WorkspaceWidget::LABEL,
+			'links' => '_links',
 			'pos' => DAO_WorkspaceWidget::POS,
 			'tab_id' => DAO_WorkspaceWidget::WORKSPACE_TAB_ID,
 			'updated_at' => DAO_WorkspaceWidget::UPDATED_AT,
@@ -559,6 +568,10 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext {
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+			
 			case 'params':
 				if(!is_array($value)) {
 					$error = 'must be an object.';

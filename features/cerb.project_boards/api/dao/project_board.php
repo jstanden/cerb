@@ -53,6 +53,11 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 
 		return $validation->getFields();
 	}
@@ -75,6 +80,8 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
+		
+		self::_updateAbstract(Context_ProjectBoard::ID, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1025,8 +1032,10 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'columns' => $prefix.$translate->_('dashboard.columns'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'params' => $prefix.$translate->_('common.params'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1034,8 +1043,10 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'columns' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'params' => null,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1057,8 +1068,10 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		if($project_board) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $project_board->name;
+			$token_values['columns'] = $project_board->columns;
 			$token_values['id'] = $project_board->id;
 			$token_values['name'] = $project_board->name;
+			$token_values['params'] = $project_board->params;
 			$token_values['updated_at'] = $project_board->updated_at;
 			
 			// Custom fields
@@ -1075,6 +1088,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_ProjectBoard::ID,
+			'links' => '_links',
 			'name' => DAO_ProjectBoard::NAME,
 			'owner__context' => DAO_ProjectBoard::OWNER_CONTEXT,
 			'owner_id' => DAO_ProjectBoard::OWNER_CONTEXT_ID,
@@ -1101,6 +1115,10 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 				}
 				
 				$out_fields[DAO_ProjectBoard::COLUMNS_JSON] = $json;
+				break;
+				
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 				
 			case 'params':

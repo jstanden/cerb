@@ -64,6 +64,11 @@ class DAO_Comment extends Cerb_ORMHelper {
 			->id()
 			->setRequired(true)
 			;
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
 			
 		return $validation->getFields();
 	}
@@ -152,6 +157,9 @@ class DAO_Comment extends Cerb_ORMHelper {
 	}
 	
 	static function update($ids, $fields) {
+		$context = CerberusContexts::CONTEXT_COMMENT;
+		self::_updateAbstract($context, $ids, $fields);
+		
 		parent::_update($ids, 'comment', $fields);
 	}
 	
@@ -1356,9 +1364,18 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			'comment' => DAO_Comment::COMMENT,
 			'created' => DAO_Comment::CREATED,
 			'id' => DAO_Comment::ID,
+			'links' => '_links',
 			'target__context' => DAO_Comment::CONTEXT,
 			'target_id' => DAO_Comment::CONTEXT_ID,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 class DAO_CrmOpportunity extends Cerb_ORMHelper {
@@ -81,7 +81,12 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			->addField(self::UPDATED_DATE)
 			->timestamp()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -120,6 +125,9 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		
 		if(!isset($fields[DAO_CrmOpportunity::UPDATED_DATE]))
 			$fields[DAO_CrmOpportunity::UPDATED_DATE] = time();
+		
+		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -1401,9 +1409,18 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			'id' => DAO_CrmOpportunity::ID,
 			'is_closed' => DAO_CrmOpportunity::IS_CLOSED,
 			'is_won' => DAO_CrmOpportunity::IS_WON,
+			'links' => '_links',
 			'title' => DAO_CrmOpportunity::NAME,
 			'updated' => DAO_CrmOpportunity::UPDATED_DATE,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

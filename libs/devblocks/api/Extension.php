@@ -837,6 +837,40 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return true;
 	}
 	
+	protected function _getDaoFieldsLinks($value, &$out_fields, &$error) {
+		if(!is_array($value)) {
+			$error = 'must be an array of context:id pairs.';
+			return false;
+		}
+		
+		$links = [];
+		
+		foreach($value as &$tuple) {
+			@list($context, $id) = explode(':', $tuple, 2);
+			
+			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, false))) {
+				$error = sprintf("has a link with an invalid context (%s)", $tuple);
+				return false;
+			}
+			
+			$context = $context_ext->id;
+			
+			$tuple = sprintf("%s:%d",
+				$context,
+				$id
+			);
+			
+			$links[] = $tuple;
+		}
+		
+		if(false == ($json = json_encode($links))) {
+			$error = 'could not be JSON encoded.';
+			return false;
+		}
+		
+		$out_fields['_links'] = $json;
+	}
+	
 	protected function _importModelCustomFieldsAsValues($model, $token_values) {
 		@$custom_fields = $model->custom_fields;
 

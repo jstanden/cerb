@@ -181,7 +181,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			// [TODO] Formatter -> RFC emails
 			->addValidator($validation->validators()->emails())
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -1051,7 +1056,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = [$ids];
 		
-		// Make a diff for the requested objects in batches
+		$context = CerberusContexts::CONTEXT_TICKET;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		if(isset($fields[self::_PARTICIPANTS])) {
 			$participant_emails = CerberusMail::parseRfcAddresses($fields[self::_PARTICIPANTS]);
@@ -1063,6 +1069,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				DAO_Ticket::addParticipantIds($id, array_keys($participant_models));
 			}
 		}
+		
+		// Make a diff for the requested objects in batches
 		
 		$chunks = array_chunk($ids, 100, true);
 		while($batch_ids = array_shift($chunks)) {
@@ -4682,6 +4690,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'group_id' => DAO_Ticket::GROUP_ID,
 			'id' => DAO_Ticket::ID,
 			'importance' => DAO_Ticket::IMPORTANCE,
+			'links' => '_links',
 			'mask' => DAO_Ticket::MASK,
 			'org_id' => DAO_Ticket::ORG_ID,
 			'owner_id' => DAO_Ticket::OWNER_ID,
@@ -4697,6 +4706,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+			
 			case 'participants':
 				$out_fields[DAO_Ticket::_PARTICIPANTS] = $value;
 				break;
