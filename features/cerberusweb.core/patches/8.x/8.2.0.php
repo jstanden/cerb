@@ -58,7 +58,7 @@ if(!isset($tables['custom_record'])) {
 		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 		name VARCHAR(255) DEFAULT '',
 		name_plural VARCHAR(255) DEFAULT '',
-		uri_profile VARCHAR(255) DEFAULT '',
+		uri VARCHAR(255) DEFAULT '',
 		params_json TEXT,
 		updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 		primary key (id),
@@ -72,7 +72,11 @@ if(!isset($tables['custom_record'])) {
 } else {
 	list($columns, $indexes) = $db->metaTable('custom_record');
 	
-	if(!isset($columns['uri'])) {
+	if(isset($columns['uri_profile'])) {
+		$sql = "ALTER TABLE custom_record CHANGE COLUMN uri_profile uri varchar(255) not null default ''";
+		$db->ExecuteMaster($sql);
+		
+	} else if(!isset($columns['uri'])) {
 		$sql = "ALTER TABLE custom_record ADD COLUMN uri varchar(255) not null default '' after name_plural";
 		$db->ExecuteMaster($sql);
 	}
