@@ -69,6 +69,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(1)
 			->setRequired(true)
+			->setPossibleValues(array_keys(Model_CustomField::getTypes()))
 			;
 		$validation
 			->addField(self::UPDATED_AT)
