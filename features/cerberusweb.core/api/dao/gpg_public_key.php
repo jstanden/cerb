@@ -262,7 +262,8 @@ class DAO_GpgPublicKey extends Cerb_ORMHelper {
 		// Delete from keyring
 		if(is_array($results))
 		foreach($results as $result) {
-			$gpg->deleteKey($result['fingerprint']);
+			if(isset($result['fingerprint']) && $result['fingerprint'])
+				$gpg->deleteKey($result['fingerprint']);
 		}
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM gpg_public_key WHERE id IN (%s)", $ids_list));
@@ -1170,17 +1171,9 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
 			
-			if(false != ($gpg = DevblocksPlatform::services()->gpg())) {
+			if($model->fingerprint && false != ($gpg = DevblocksPlatform::services()->gpg())) {
 				$keyinfo = $gpg->keyinfo($model->fingerprint);
 				$tpl->assign('keyinfo', $keyinfo);
-				
-				//var_dump($gpg->keyinfo($model->fingerprint));
-				//echo $gpg->exportKey($model->fingerprint);
-				//echo "<PRE>";
-				//echo $gpg->sign($gpg->encrypt("Hey there! It worked!", [$model->fingerprint]), '1E53CB66C7A18B6E639B1005C8170442EEEAF893');
-				//echo $gpg->encrypt("Hey there! It worked!", [$model->fingerprint]);
-				//echo $gpg->encryptAndSign("This was encrypted and signed from inside Cerb", [$model->fingerprint], '12B27B56112143ADA4336B42D399DA5BA62A0472');
-				//echo "</PRE>";
 			}
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/gpg_public_key/peek.tpl');
