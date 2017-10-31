@@ -171,9 +171,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			foreach($custom_records as $custom_record) {
 				$options = [
 					'cards' => '',
-					'create' => '',
 					'custom_fields' => '',
 					'links' => '',
+					'records' => '',
 					'search' => '',
 					'snippets' => '',
 					'va_variable' => '',

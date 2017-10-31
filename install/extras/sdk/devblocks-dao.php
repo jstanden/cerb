@@ -956,9 +956,9 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />

@@ -7,7 +7,7 @@
 	<version>0.0.0</version>
 	<link>https://cerb.ai</link>
 	<!--<image>plugin.png</image>-->
- 
+
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
@@ -33,7 +33,7 @@
 	</class_loader>
 
 	<!-- Extensions -->
- 
+
 	<extensions>
 
 		<!-- Contexts -->
@@ -59,9 +59,9 @@
 				<param key="view_class" value="View_ExampleObject" />
 				<param key="options">
 					<value>
-						<!--<data key="create" />-->
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="watchers" />
@@ -89,7 +89,7 @@
 
 		<!-- Page -->
 		
- 		<extension point="cerberusweb.page">
+		<extension point="cerberusweb.page">
 			<id>example.object.page</id>
 			<name>Example Page</name>
 			<class>
@@ -104,5 +104,5 @@
 			</params>
 		</extension>
 		
-    </extensions> 
+		</extensions> 
 </plugin>

@@ -1149,9 +1149,9 @@
 				<param key="view_class" value="View_Attachment" />
 				<param key="options">
 					<value>
-						<data key="create" />
 						<data key="cards" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="workspace" />
 						<data key="va_variable" />
@@ -1191,8 +1191,8 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
+						<data key="records" />
 						<data key="links" />
 						<data key="search" />
 						<data key="workspace" />
@@ -1233,9 +1233,9 @@
 						<data key="autocomplete" />
 						<data key="avatars" />
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -1279,9 +1279,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1318,9 +1318,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<!-- <data key="search" /> -->
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1360,8 +1360,8 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1400,8 +1400,8 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="links" />
+						<data key="records" />
 						<!-- <data key="search" /> -->
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1439,7 +1439,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1485,7 +1485,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1523,9 +1523,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -1573,8 +1573,8 @@
 						<data key="autocomplete" />
 						<data key="avatars" />
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
+						<data key="records" />
 						<data key="links" />
 						<data key="search" />
 						<data key="snippets" />
@@ -1620,9 +1620,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -1661,9 +1661,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -1705,9 +1705,9 @@
 				<param key="view_class" value="View_CalendarEvent" />
 				<param key="options">
 					<value>
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="watchers" />
@@ -1749,9 +1749,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="watchers" />
@@ -1793,9 +1793,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1834,8 +1834,8 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1878,8 +1878,7 @@
 				<param key="view_class" value="View_ContextActivityLog" />
 				<param key="options">
 					<value>
-						<data key="create" />
-						<!-- <data key="links" /> -->
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1913,7 +1912,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1953,9 +1952,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1995,9 +1994,9 @@
 				<param key="options">
 					<value>
 						<data key="autocomplete" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2041,9 +2040,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -2083,9 +2082,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2128,10 +2127,10 @@
 					<value>
 						<data key="avatars" />
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2172,9 +2171,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2218,9 +2217,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2262,8 +2261,8 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -2308,9 +2307,9 @@
 					<value>
 						<data key="avatars" />
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2356,9 +2355,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2397,15 +2396,8 @@
 				<param key="view_class" value="View_Skill" />
 				<param key="options">
 					<value>
-						<data key="create" />
 						<data key="custom_fields" />
-						<!--
-						<data key="links" />
-						<data key="search" />
-						<data key="snippets" />
-						<data key="va_variable" />
-						<data key="workspace" />
-						-->
+						<data key="records" />
 					</value>
 				</param>
 				<param key="acl">
@@ -2440,15 +2432,8 @@
 				<param key="view_class" value="View_Skillset" />
 				<param key="options">
 					<value>
-						<data key="create" />
 						<data key="custom_fields" />
-						<!--
-						<data key="links" />
-						<data key="search" />
-						<data key="snippets" />
-						<data key="va_variable" />
-						<data key="workspace" />
-						-->
+						<data key="records" />
 					</value>
 				</param>
 				<param key="acl">
@@ -2482,9 +2467,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -2524,9 +2509,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2574,9 +2559,9 @@
 					<value>
 						<data key="autocomplete" />
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2620,8 +2605,8 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
+						<data key="records" />
 						<data key="search" />
 						<data key="workspace" />
 						<data key="va_variable" />
@@ -2666,10 +2651,10 @@
 						<data key="autocomplete" />
 						<data key="avatars" />
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="watchers" />
@@ -2716,10 +2701,10 @@
 						<data key="autocomplete" />
 						<data key="avatars" />
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2756,9 +2741,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -2798,10 +2783,10 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -2839,7 +2824,7 @@
 				<param key="view_class" value="View_WorkspacePage" />
 				<param key="options">
 					<value>
-						<data key="create" />
+						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -2878,7 +2863,7 @@
 				<param key="view_class" value="View_WorkspaceTab" />
 				<param key="options">
 					<value>
-						<data key="create" />
+						<data key="records" />
 					</value>
 				</param>
 				<param key="acl">
@@ -2914,7 +2899,7 @@
 				<param key="view_class" value="View_WorkspaceWidget" />
 				<param key="options">
 					<value>
-						<data key="create" />
+						<data key="records" />
 					</value>
 				</param>
 				<param key="acl">
@@ -2950,7 +2935,7 @@
 				<param key="view_class" value="View_WorkspaceList" />
 				<param key="options">
 					<value>
-						<data key="create" />
+						<data key="records" />
 					</value>
 				</param>
 				<param key="acl">

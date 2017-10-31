@@ -95,9 +95,9 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
-						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
 						<data key="snippets" />
 						<data key="va_variable" />
@@ -240,7 +240,7 @@
 	
 		<!-- Pages -->
 		
- 		<extension point="cerberusweb.page">
+		<extension point="cerberusweb.page">
 			<id>timetracking.page</id>
 			<name>Time Tracking Page</name>
 			<class>
@@ -252,7 +252,7 @@
 				<param key="menutitle" value="" />
 			</params>
 		</extension>
-		 
+		
 		<!-- Profile Page Sections -->
 		
 		<extension point="cerberusweb.ui.page.section">
@@ -267,7 +267,7 @@
 				<param key="uri" value="time_tracking" />
 			</params>
 		</extension>
-		 
+		
 		<!-- REST Controllers -->
 		
 		<extension point="cerberusweb.rest.controller">
@@ -281,7 +281,7 @@
 				<param key="uri" value="timetracking" />
 			</params>
 		</extension>
-		 
+		
 		<!-- Report Groups -->
 		
 		<extension point="cerberusweb.report.group">
