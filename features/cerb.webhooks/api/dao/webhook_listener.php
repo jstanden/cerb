@@ -982,6 +982,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		$token_labels = array(
 			'_label' => $prefix,
 			'extension_id' => $prefix.$translate->_('common.extension'),
+			'extension_params' => $prefix.$translate->_('common.params'),
 			'guid' => $prefix.$translate->_('common.guid'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
@@ -993,6 +994,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		$token_types = array(
 			'_label' => 'context_url',
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
+			'extension_params' => null,
 			'guid' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1018,6 +1020,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $webhook_listener->name;
 			$token_values['extension_id'] = $webhook_listener->extension_id;
+			$token_values['extension_params'] = $webhook_listener->extension_params;
 			$token_values['guid'] = $webhook_listener->guid;
 			$token_values['id'] = $webhook_listener->id;
 			$token_values['name'] = $webhook_listener->name;
