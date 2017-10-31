@@ -2683,6 +2683,11 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 };
 
 class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Only admins can create workers
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

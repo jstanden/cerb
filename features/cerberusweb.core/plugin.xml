@@ -1279,6 +1279,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="search" />
@@ -1317,6 +1318,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<!-- <data key="search" /> -->
@@ -1358,6 +1360,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="links" />
 						<data key="search" />
 						<data key="va_variable" />
@@ -1397,6 +1400,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="links" />
 						<!-- <data key="search" /> -->
 						<data key="va_variable" />
@@ -1481,6 +1485,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1615,6 +1620,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="search" />
@@ -1797,6 +1803,7 @@
 				</param>
 				<param key="acl">
 					<value>
+						<data key="create" />
 						<data key="delete" />
 						<data key="export" />
 						<data key="update" />
@@ -1826,8 +1833,8 @@
 				<param key="view_class" value="View_CustomFieldset" />
 				<param key="options">
 					<value>
-						<!--<data key="cards" />-->
-						<!--<data key="create" />-->
+						<data key="cards" />
+						<data key="create" />
 						<data key="links" />
 						<data key="search" />
 						<data key="va_variable" />
@@ -1871,6 +1878,7 @@
 				<param key="view_class" value="View_ContextActivityLog" />
 				<param key="options">
 					<value>
+						<data key="create" />
 						<!-- <data key="links" /> -->
 						<data key="search" />
 						<data key="va_variable" />
@@ -1904,6 +1912,8 @@
 				<param key="view_class" value="View_MailQueue" />
 				<param key="options">
 					<value>
+						<data key="cards" />
+						<data key="create" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -1911,6 +1921,7 @@
 				</param>
 				<param key="acl">
 					<value>
+						<data key="create" />
 						<data key="delete" />
 						<data key="export" />
 						<data key="update" />
@@ -2117,6 +2128,7 @@
 					<value>
 						<data key="avatars" />
 						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
@@ -2206,6 +2218,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="search" />
@@ -2218,7 +2231,7 @@
 				<param key="acl">
 					<value>
 						<data key="comment" />
-						<!--<data key="create" />-->
+						<data key="create" />
 						<!--<data key="delete" />-->
 						<data key="export" />
 						<data key="update" />
@@ -2249,6 +2262,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="links" />
 						<data key="search" />
 						<data key="va_variable" />
@@ -2257,10 +2271,10 @@
 				</param>
 				<param key="acl">
 					<value>
-						<!--<data key="create" />-->
-						<!--<data key="delete" />-->
+						<data key="create" />
+						<data key="delete" />
 						<data key="export" />
-						<!--<data key="update" />-->
+						<data key="update" />
 						<data key="update.bulk" />-->
 					</value>
 				</param>
@@ -2383,9 +2397,9 @@
 				<param key="view_class" value="View_Skill" />
 				<param key="options">
 					<value>
+						<data key="create" />
 						<data key="custom_fields" />
 						<!--
-						<data key="create" />
 						<data key="links" />
 						<data key="search" />
 						<data key="snippets" />
@@ -2426,9 +2440,9 @@
 				<param key="view_class" value="View_Skillset" />
 				<param key="options">
 					<value>
+						<data key="create" />
 						<data key="custom_fields" />
 						<!--
-						<data key="create" />
 						<data key="links" />
 						<data key="search" />
 						<data key="snippets" />
@@ -2468,6 +2482,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="search" />
@@ -2605,6 +2620,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
 						<data key="search" />
 						<data key="workspace" />
@@ -2700,6 +2716,7 @@
 						<data key="autocomplete" />
 						<data key="avatars" />
 						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
@@ -2781,6 +2798,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="create" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
@@ -2812,6 +2830,8 @@
 						<data key="workspace pages" value="plural" />
 						<data key="page" value="singular short" />
 						<data key="pages" value="plural short" />
+						<data key="workspace_page" value="singular" />
+						<data key="workspace_pages" value="plural" />
 					</value>
 				</param>
 				<param key="alias" value="workspace_page" />
@@ -2819,6 +2839,7 @@
 				<param key="view_class" value="View_WorkspacePage" />
 				<param key="options">
 					<value>
+						<data key="create" />
 						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
@@ -2857,7 +2878,7 @@
 				<param key="view_class" value="View_WorkspaceTab" />
 				<param key="options">
 					<value>
-						<!-- <data key="va_variable" /> -->
+						<data key="create" />
 					</value>
 				</param>
 				<param key="acl">
@@ -2893,7 +2914,7 @@
 				<param key="view_class" value="View_WorkspaceWidget" />
 				<param key="options">
 					<value>
-						<!--<data key="va_variable" />-->
+						<data key="create" />
 					</value>
 				</param>
 				<param key="acl">
@@ -2929,7 +2950,7 @@
 				<param key="view_class" value="View_WorkspaceList" />
 				<param key="options">
 					<value>
-						<!--<data key="va_variable" />-->
+						<data key="create" />
 					</value>
 				</param>
 				<param key="acl">

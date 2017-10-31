@@ -20,6 +20,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 			->addField(self::ACCESS_KEY)
 			->string()
 			->setMaxLength(255)
+			->setEditable(false)
 			;
 		// int(10) unsigned
 		$validation
@@ -45,6 +46,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 			->addField(self::SECRET_KEY) // [TODO] Encrypt
 			->string()
 			->setMaxLength(255)
+			->setEditable(false)
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -54,6 +56,8 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		$validation
 			->addField(self::WORKER_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER))
+			->setRequired(true)
 			;
 		$validation
 			->addField('_links')
@@ -66,6 +70,12 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
+		
+		if(!isset($fields[self::ACCESS_KEY]))
+			$fields[self::ACCESS_KEY] = DevblocksPlatform::strLower(CerberusApplication::generatePassword(12));
+		
+		if(!isset($fields[self::SECRET_KEY]))
+			$fields[self::SECRET_KEY] = DevblocksPlatform::strLower(CerberusApplication::generatePassword(32));
 		
 		$sql = "INSERT INTO webapi_credentials () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -725,6 +735,11 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 class Context_WebApiCredentials extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Only admins can create api credentials
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, self::ID, $models, 'worker_');
 	}
@@ -864,6 +879,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 			'links' => '_links',
 			'name' => DAO_WebApiCredentials::NAME,
 			'updated_at' => DAO_WebApiCredentials::UPDATED_AT,
+			'worker_id' => DAO_WebApiCredentials::WORKER_ID,
 		];
 	}
 	

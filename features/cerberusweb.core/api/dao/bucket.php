@@ -856,6 +856,16 @@ class Model_Bucket {
 class Context_Bucket extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_BUCKET;
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		@$group_id = $fields[DAO_Bucket::GROUP_ID];
+		
+		if(!$group_id)
+			return false;
+		
+		// To create a bucket, the actor needs write access to the given group_id
+		return Context_Group::isWriteableByActor($group_id, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

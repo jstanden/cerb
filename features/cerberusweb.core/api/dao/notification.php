@@ -42,6 +42,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CONTEXT)
 			->context()
+			->setRequired(true)
 			;
 		// int(10) unsigned
 		$validation
@@ -58,6 +59,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 			->addField(self::ENTRY_JSON)
 			->string()
 			->setMaxLength(65535)
+			->setRequired(true)
 			;
 		// int(10) unsigned
 		$validation
@@ -74,6 +76,8 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$validation
 			->addField(self::WORKER_ID)
 			->id()
+			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER))
 			;
 		$validation
 			->addField('_links')
@@ -86,6 +90,9 @@ class DAO_Notification extends Cerb_ORMHelper {
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
+		
+		if(!isset($fields[DAO_Notification::CREATED_DATE]))
+			$fields[DAO_Notification::CREATED_DATE] = time();
 		
 		$sql = sprintf("INSERT INTO notification () ".
 			"VALUES ()"
@@ -1119,6 +1126,17 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_Notification extends Extension_DevblocksContext {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Is the worker able to create notifications for this owner?
+		
+		@$worker_id = $fields[DAO_Notification::WORKER_ID];
+		
+		if(CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor))
+			return true;
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1324,7 +1342,8 @@ class Context_Notification extends Extension_DevblocksContext {
 			'is_read' => DAO_Notification::IS_READ,
 			'links' => '_links',
 			'target__context' => DAO_Notification::CONTEXT,
-			'target_id' => DAO_Notification::CONTEXT_ID
+			'target_id' => DAO_Notification::CONTEXT_ID,
+			'worker_id' => DAO_Notification::WORKER_ID,
 		];
 	}
 	

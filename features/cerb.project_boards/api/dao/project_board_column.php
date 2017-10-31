@@ -984,6 +984,17 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 class Context_ProjectBoardColumn extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = 'cerberusweb.contexts.project.board.column';
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Must have access to modify the project board.
+		
+		@$board_id = $fields[DAO_ProjectBoardColumn::BOARD_ID];
+		
+		if(empty($board_id))
+			return false;
+		
+		return Context_ProjectBoard::isWriteableByActor($board_id, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

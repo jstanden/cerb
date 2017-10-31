@@ -1489,6 +1489,11 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 class Context_Org extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.org';
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

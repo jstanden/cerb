@@ -1013,6 +1013,18 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 };
 
 class Context_ConnectedAccount extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor use this owner?
+		
+		@$owner_context = $fields[DAO_ConnectedAccount::OWNER_CONTEXT];
+		@$owner_context_id = $fields[DAO_ConnectedAccount::OWNER_CONTEXT_ID];
+		
+		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
+			return true;
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $models);
 	}
@@ -1170,6 +1182,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	
 	function getKeyToDaoFieldMap() {
 		return [
+			'extension_id' => DAO_ConnectedAccount::EXTENSION_ID,
 			'id' => DAO_ConnectedAccount::ID,
 			'links' => '_links',
 			'name' => DAO_ConnectedAccount::NAME,

@@ -877,6 +877,11 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 class Context_MailTransport extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Only admins can create mail transports
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read
 		return self::isWriteableByActor($models, $actor);

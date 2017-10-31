@@ -31,6 +31,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CALENDAR_ID)
 			->id()
+			->setRequired(true)
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CALENDAR))
 			;
 		$validation
@@ -897,6 +898,17 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 };
 
 class Context_CalendarEvent extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Must have access to modify the calendar
+		
+		@$calendar_id = $fields[DAO_CalendarEvent::CALENDAR_ID];
+		
+		if(empty($calendar_id))
+			return false;
+		
+		return Context_Calendar::isWriteableByActor($calendar_id, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR_EVENT, $models, 'calendar_owner_');
 	}

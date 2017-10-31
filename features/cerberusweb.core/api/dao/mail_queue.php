@@ -89,6 +89,8 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			->addField(self::TYPE)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
+			->setPossibleValues(['mail.compose', 'ticket.reply'])
 			;
 		// int(10) unsigned
 		$validation
@@ -99,6 +101,8 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		$validation
 			->addField(self::WORKER_ID)
 			->id()
+			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER))
 			;
 		$validation
 			->addField('_links')
@@ -1048,6 +1052,17 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 };
 
 class Context_Draft extends Extension_DevblocksContext {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor use this owner?
+		
+		@$worker_id = $fields[DAO_MailQueue::WORKER_ID];
+		
+		if(CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor))
+			return true;
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1231,6 +1246,7 @@ class Context_Draft extends Extension_DevblocksContext {
 			'links' => '_links',
 			'subject' => DAO_MailQueue::SUBJECT,
 			'to' => DAO_MailQueue::HINT_TO,
+			'type' => DAO_MailQueue::TYPE,
 			'updated' => DAO_MailQueue::UPDATED,
 			'worker_id' => DAO_MailQueue::WORKER_ID,
 		];

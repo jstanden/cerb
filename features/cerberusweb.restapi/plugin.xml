@@ -86,8 +86,10 @@
 			<params>
 				<param key="names">
 					<value>
-						<data key="api credential" value="singular" />
-						<data key="api credentials" value="plural" />
+						<data key="api key" value="singular" />
+						<data key="api keys" value="plural" />
+						<data key="api_key" value="singular" />
+						<data key="api_keys" value="plural" />
 					</value>
 				</param>
 				<param key="alias" value="webapi_credentials" />

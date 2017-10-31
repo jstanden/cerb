@@ -891,6 +891,18 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 class Context_ContextSavedSearch extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.context.saved.search';
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor use this owner?
+		
+		@$owner_context = $fields[DAO_ContextSavedSearch::OWNER_CONTEXT];
+		@$owner_context_id = $fields[DAO_ContextSavedSearch::OWNER_CONTEXT_ID];
+		
+		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
+			return true;
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, self::ID, $models, 'owner_', $ignore_admins);
 	}

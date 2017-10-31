@@ -54,6 +54,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 			->addField(self::ENTRY_JSON)
 			->string()
 			->setMaxLength(16777215)
+			->setRequired(true)
 			;
 		$validation
 			->addField(self::ID)
@@ -63,10 +64,12 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		$validation
 			->addField(self::TARGET_CONTEXT)
 			->context()
+			->setRequired(true)
 			;
 		$validation
 			->addField(self::TARGET_CONTEXT_ID)
 			->id()
+			->setRequired(true)
 			;
 		$validation
 			->addField('_links')
@@ -88,6 +91,9 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		
 		if(is_null($target_context_id))
 			$fields[DAO_ContextActivityLog::TARGET_CONTEXT_ID] = 0;
+		
+		if(!isset($fields[self::CREATED]))
+			$fields[self::CREATED] = time();
 		
 		// [TODO] This should be an example for insertion of other immutable records
 		$id = parent::_insert('context_activity_log', $fields);
@@ -946,6 +952,11 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 };
 
 class Context_ContextActivityLog extends Extension_DevblocksContext {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Only admins can create activity log entries
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

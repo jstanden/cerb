@@ -52,6 +52,15 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			->addField(self::EVENT_POINT)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
+			->addValidator(function($value, &$error=null) {
+				if(false == (Extension_DevblocksEvent::get($value, false))) {
+					$error = sprintf("'%s' is an invalid event point.", $value);
+					return false;
+				}
+				
+				return true;
+			})
 			;
 		// int(10) unsigned
 		$validation
@@ -1800,6 +1809,14 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor modify the behavior's bot?
+		
+		@$bot_id = $fields[DAO_TriggerEvent::BOT_ID];
+		
+		return Context_Bot::isWriteableByActor($bot_id, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_', $ignore_admins);
 	}

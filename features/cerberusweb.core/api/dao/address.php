@@ -1780,6 +1780,10 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1788,6 +1792,11 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	static function isWriteableByActor($models, $actor) {
 		// Everyone can modify
 		return CerberusContexts::allowEverything($models);
+	}
+	
+	// Email addresses can't be deleted through normal means
+	static function isDeleteableByActor($models, $actor) {
+		return false;
 	}
 	
 	static function searchInboundLinks($from_context, $from_context_id) {

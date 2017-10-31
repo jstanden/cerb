@@ -911,6 +911,11 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 };
 
 class Context_WorkerRole extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Only admins can create roles
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

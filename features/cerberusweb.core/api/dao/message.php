@@ -45,6 +45,8 @@ class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents 
 		$validation
 			->addField(self::ADDRESS_ID)
 			->id()
+			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
 			;
 		// int(10) unsigned
 		$validation
@@ -61,6 +63,7 @@ class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents 
 		$validation
 			->addField(self::HTML_ATTACHMENT_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ATTACHMENT, true))
 			;
 		// int(10) unsigned
 		$validation
@@ -114,6 +117,8 @@ class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents 
 		$validation
 			->addField(self::TICKET_ID)
 			->id()
+			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_TICKET))
 			;
 		// tinyint(1)
 		$validation
@@ -129,18 +134,21 @@ class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents 
 		$validation
 			->addField(self::WORKER_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER, true))
 			;
 		// text
 		$validation
 			->addField(self::_CONTENT)
 			->string()
 			->setMaxLength(16777215)
+			->setRequired(true)
 			;
 		// text
 		$validation
 			->addField(self::_HEADERS)
 			->string()
 			->setMaxLength(16777215)
+			->setRequired(true)
 			;
 		$validation
 			->addField('_links')
@@ -153,6 +161,9 @@ class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents 
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
+		
+		if(!isset($fields[self::CREATED_DATE]))
+			$fields[self::CREATED_DATE] = time();
 		
 		$sql = "INSERT INTO message () VALUES ()";
 		if(false == ($db->ExecuteMaster($sql)))
@@ -191,8 +202,10 @@ class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents 
 	}
 	
 	static function onAbstractUpdate($id, $fields) {
-		if(isset($fields[self::TICKET_ID])) {
-			DAO_Ticket::rebuild($fields[self::TICKET_ID]);
+		@$ticket_id = $fields[self::TICKET_ID];
+		
+		if($ticket_id) {
+			DAO_Ticket::rebuild($ticket_id);
 		}
 	}
 
@@ -2140,6 +2153,14 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Message extends Extension_DevblocksContext implements IDevblocksContextPeek {
+	static function isCreateableByActor(array $fields, $actor) {
+		//@$ticket_id = $fields[DAO_Message::TICKET_ID];
+		//@$worker_id = $fields[DAO_Message::WORKER_ID];
+		
+		// Only admins can create messages directly
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Only admins and group members can see, unless public
 		

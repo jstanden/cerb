@@ -116,6 +116,7 @@ class DevblocksMenuItemPlaceholder {
 }
 
 interface IDevblocksContextExtension {
+	//static function isCreateableByActor(array $fields, $actor);
 	static function isReadableByActor($actor, $models);
 	static function isWriteableByActor($actor, $models);
 }
@@ -790,12 +791,12 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				str_replace('.','_',DevblocksPlatform::strToPermalink($this->id,'_'))
 			);
 		}
-
+		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
 			if(null == ($view = $this->getChooserView($view_id))) /* @var $view C4_AbstractViewModel */
 				return;
 		}
-
+		
 		$view->name = 'Search Results';
 		$view->renderFilters = false;
 		$view->is_ephemeral = false;

@@ -728,6 +728,10 @@ class View_ExampleObject extends C4_AbstractView implements IAbstractView_Subtot
 class Context_ExampleObject extends Extension_DevblocksContext {
 	const ID = 'cerberusweb.contexts.example_object';
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
 		return CerberusContexts::allowEverything($models);

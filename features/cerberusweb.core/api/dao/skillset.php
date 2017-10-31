@@ -28,6 +28,7 @@ class DAO_Skillset extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
 			;
 		// int(10) unsigned
 		$validation
@@ -46,6 +47,9 @@ class DAO_Skillset extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
+		if(!isset($fields[self::CREATED_AT]))
+			$fields[self::CREATED_AT] = time();
+		
 		$sql = "INSERT INTO skillset () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
@@ -58,6 +62,9 @@ class DAO_Skillset extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
+		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
 		
 		$context = CerberusContexts::CONTEXT_SKILLSET;
 		self::_updateAbstract($context, $ids, $fields);
@@ -837,6 +844,11 @@ class View_Skillset extends C4_AbstractView implements IAbstractView_Subtotals, 
 };
 
 class Context_Skillset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	static function isCreateableByActor(array $fields, $actor) {
+		// Only admins can create skillsets
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

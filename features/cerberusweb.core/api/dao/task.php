@@ -1271,6 +1271,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
 	const ID = 'cerberusweb.contexts.task';
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

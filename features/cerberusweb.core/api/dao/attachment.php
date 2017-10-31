@@ -1390,6 +1390,26 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 class Context_Attachment extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	const ID = CerberusContexts::CONTEXT_ATTACHMENT;
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
+	static function isReadableByActor($models, $actor) {
+		// Everyone can view attachment meta
+		return CerberusContexts::allowEverything($models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Only admins can edit attachment meta
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return CerberusContexts::denyEverything($models);
+		
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+			
+		return CerberusContexts::denyEverything($models);
+	}
+	
 	static function isDownloadableByActor($models, $actor) {
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
@@ -1489,22 +1509,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		} else {
 			return array_shift($results);
 		}
-	}
-	
-	static function isReadableByActor($models, $actor) {
-		// Everyone can view attachment meta
-		return CerberusContexts::allowEverything($models);
-	}
-	
-	static function isWriteableByActor($models, $actor) {
-		// Only admins can edit attachment meta
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-		
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return CerberusContexts::allowEverything($models);
-			
-		return CerberusContexts::denyEverything($models);
 	}
 	
 	function profileGetUrl($context_id) {

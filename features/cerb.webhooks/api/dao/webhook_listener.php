@@ -900,6 +900,11 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 class Context_WebhookListener extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Only admins can create webhook listeners
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Only admin workers can read
 		return self::isWriteableByActor($models, $actor);

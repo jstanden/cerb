@@ -1065,6 +1065,11 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	static function isCreateableByActor(array $fields, $actor) {
+		// Only admins can create mailboxes
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read
 		return self::isWriteableByActor($models, $actor);

@@ -1564,6 +1564,11 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 class Context_Group extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.group';
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Only admins can create groups
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

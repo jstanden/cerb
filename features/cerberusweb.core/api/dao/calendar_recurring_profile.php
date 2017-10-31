@@ -1143,6 +1143,17 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 };
 
 class Context_CalendarRecurringProfile extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	static function isCreateableByActor(array $fields, $actor) {
+		// Must have access to modify the calendar
+		
+		@$calendar_id = $fields[DAO_CalendarRecurringProfile::CALENDAR_ID];
+		
+		if(empty($calendar_id))
+			return false;
+		
+		return Context_Calendar::isWriteableByActor($calendar_id, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $models, 'calendar_owner_');
 	}

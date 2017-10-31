@@ -1030,6 +1030,34 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		return 'custom_record_' . static::_ID;
 	}
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Check owner contexts on custom record
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return false;
+		
+		// Admins can do anything
+		
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return true;
+		
+		// Check the custom record
+		
+		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID)))
+			return false;
+		
+		$owner_contexts = $custom_record->getRecordOwnerContexts();
+		
+		// If free-for-all
+		if(empty($owner_contexts))
+			return true;
+		
+		if(in_array('worker', $owner_contexts))
+			return true;
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, self::_getContextName(), $models, 'owner_', false, true);
 	}

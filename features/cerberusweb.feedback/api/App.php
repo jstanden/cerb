@@ -69,17 +69,22 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 		$validation
 			->addField(self::QUOTE_ADDRESS_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS, true))
 			;
 		// tinyint(1) unsigned
 		$validation
 			->addField(self::QUOTE_MOOD)
 			->uint(1)
+			->setMin(0)
+			->setMax(2)
+			->setRequired(true)
 			;
 		// text
 		$validation
 			->addField(self::QUOTE_TEXT)
 			->string()
 			->setMaxLength(65535)
+			->setRequired(true)
 			;
 		// varchar(255)
 		$validation
@@ -1247,8 +1252,11 @@ if (class_exists('Extension_MessageToolbarItem',true)):
 	};
 endif;
 
-// [TODO] Move to a DAO class
 class Context_Feedback extends Extension_DevblocksContext implements IDevblocksContextPeek {
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
 		return CerberusContexts::allowEverything($models);

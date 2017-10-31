@@ -445,6 +445,14 @@ class Model_WorkspaceWidget {
 };
 
 class Context_WorkspaceWidget extends Extension_DevblocksContext {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Is the workspace tab writeable by this actor?
+		
+		@$tab_id = $fields[DAO_WorkspaceWidget::WORKSPACE_TAB_ID];
+		
+		return Context_WorkspaceTab::isWriteableByActor($tab_id, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $models, 'tab_page_owner_');
 	}

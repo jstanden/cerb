@@ -891,6 +891,18 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 class Context_EmailSignature extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor use this owner?
+		
+		@$owner_context = $fields[DAO_EmailSignature::OWNER_CONTEXT];
+		@$owner_context_id = $fields[DAO_EmailSignature::OWNER_CONTEXT_ID];
+		
+		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
+			return true;
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, self::ID, $models);
 	}

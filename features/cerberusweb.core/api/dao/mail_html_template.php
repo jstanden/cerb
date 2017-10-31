@@ -940,6 +940,18 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 };
 
 class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor use this owner?
+		
+		@$owner_context = $fields[DAO_MailHtmlTemplate::OWNER_CONTEXT];
+		@$owner_context_id = $fields[DAO_MailHtmlTemplate::OWNER_CONTEXT_ID];
+		
+		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
+			return true;
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $models);
 	}
@@ -981,6 +993,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 	
 	function getDefaultProperties() {
 		return array(
+			'owner__label',
 			'updated_at',
 		);
 	}

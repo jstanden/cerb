@@ -1218,6 +1218,18 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Comment extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor use this author?
+		
+		@$owner_context = $fields[DAO_Comment::OWNER_CONTEXT];
+		@$owner_context_id = $fields[DAO_Comment::OWNER_CONTEXT_ID];
+		
+		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
+			return true;
+		
+		return false;
+	}
+	
 	// Anyone can read a comment
 	public static function isReadableByActor($models, $actor) {
 		return CerberusContexts::allowEverything($models);

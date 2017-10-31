@@ -964,6 +964,10 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		return $list;
 	}
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

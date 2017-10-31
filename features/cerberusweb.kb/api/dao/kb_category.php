@@ -113,14 +113,14 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	static function getTreeMap($prune_empty=false) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$categories = self::getWhere();
-		$tree = array();
+		$categories = self::getAll();
+		$tree = [];
 
 		// Fake recursion
 		foreach($categories as $cat_id => $cat) {
 			$pid = $cat->parent_id;
 			if(!isset($tree[$pid])) {
-				$tree[$pid] = array();
+				$tree[$pid] = [];
 			}
 				
 			$tree[$pid][$cat_id] = 0;
@@ -136,6 +136,9 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$count_cat = intval($row['kb_category_id']);
 			$count_hits = intval($row['hits']);
+			
+			if(!isset($categories[$count_cat]))
+				continue;
 			
 			$pid = $count_cat;
 			while($pid) {
@@ -595,6 +598,10 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 };
 
 class Context_KbCategory extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

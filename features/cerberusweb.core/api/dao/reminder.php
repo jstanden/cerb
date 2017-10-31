@@ -46,6 +46,7 @@ class DAO_Reminder extends Cerb_ORMHelper {
 			->addField(self::WORKER_ID)
 			->id()
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER, false))
+			->setRequired(true)
 			;
 		$validation
 			->addField('_links')
@@ -951,6 +952,17 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 
 class Context_Reminder extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_REMINDER;
+	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor use this owner?
+		
+		@$worker_id = $fields[DAO_Reminder::WORKER_ID];
+		
+		if(CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor))
+			return true;
+		
+		return false;
+	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read

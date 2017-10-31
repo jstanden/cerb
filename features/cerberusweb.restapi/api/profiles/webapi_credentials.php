@@ -149,11 +149,6 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 					DAO_WebApiCredentials::UPDATED_AT => time(),
 				];
 				
-				if(empty($id) || $generate_new_keys) {
-					$fields[DAO_WebApiCredentials::ACCESS_KEY] = DevblocksPlatform::strLower(CerberusApplication::generatePassword(12));
-					$fields[DAO_WebApiCredentials::SECRET_KEY] = DevblocksPlatform::strLower(CerberusApplication::generatePassword(32));
-				}
-				
 				if(empty($id)) { // New
 					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
@@ -174,6 +169,11 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 						
 					if(!DAO_WebApiCredentials::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if($generate_new_keys) {
+						$fields[DAO_WebApiCredentials::ACCESS_KEY] = DevblocksPlatform::strLower(CerberusApplication::generatePassword(12));
+						$fields[DAO_WebApiCredentials::SECRET_KEY] = DevblocksPlatform::strLower(CerberusApplication::generatePassword(32));
+					}
 					
 					DAO_WebApiCredentials::update($id, $fields);
 				}

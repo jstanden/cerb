@@ -231,6 +231,9 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
+		if(!isset($fields[self::LOG_DATE]))
+			$fields[self::LOG_DATE] = time();
+		
 		$sql = sprintf("INSERT INTO timetracking_entry () ".
 			"VALUES ()"
 		);
@@ -1335,6 +1338,17 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_TimeTracking extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor use this owner?
+		
+		@$worker_id = $fields[DAO_TimeTrackingEntry::WORKER_ID];
+		
+		if(CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor))
+			return true;
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
 		return CerberusContexts::allowEverything($models);

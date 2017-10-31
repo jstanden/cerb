@@ -80,6 +80,9 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+		
 		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
 		self::_updateAbstract($context, $ids, $fields);
 		
@@ -879,6 +882,17 @@ class View_ClassifierClass extends C4_AbstractView implements IAbstractView_Subt
 };
 
 class Context_ClassifierClass extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
+	static function isCreateableByActor(array $fields, $actor) {
+		// Must have access to modify the classifer
+		
+		@$classifier_id = $fields[DAO_ClassifierClass::CLASSIFIER_ID];
+		
+		if(empty($classifier_id))
+			return false;
+		
+		return Context_Classifier::isWriteableByActor($classifier_id, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $models, 'classifier_owner_');
 	}

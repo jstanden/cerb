@@ -415,6 +415,10 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 				
 				// Add
 				if($is_add) {
+					// Valid?
+					if(!isset($categories[$category_id]))
+						continue;
+					
 					$pid = $category_id;
 					while($pid) {
 						$top_category_id = $pid;
@@ -910,6 +914,10 @@ class Model_KbArticle {
 };
 
 class Context_KbArticle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read kb articles
 		return CerberusContexts::allowEverything($models);

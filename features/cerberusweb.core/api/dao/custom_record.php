@@ -107,6 +107,9 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+		
 		$context = CerberusContexts::CONTEXT_CUSTOM_RECORD;
 		self::_updateAbstract($context, $ids, $fields);
 		
@@ -119,7 +122,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CUSTOM_RECORD, $batch_ids);
+				CerberusContexts::checkpointChanges($context, $batch_ids);
 			}
 			
 			// Make changes
@@ -139,7 +142,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CUSTOM_RECORD, $batch_ids);
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
 		
@@ -950,6 +953,11 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 
 class Context_CustomRecord extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_CUSTOM_RECORD;
+	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Only admins can create records
+		return Context_Application::isWriteableByActor(0, $actor);
+	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read

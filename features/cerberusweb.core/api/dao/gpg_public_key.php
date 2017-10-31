@@ -863,6 +863,10 @@ class View_GpgPublicKey extends C4_AbstractView implements IAbstractView_Subtota
 class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_GPG_PUBLIC_KEY;
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

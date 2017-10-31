@@ -1867,6 +1867,21 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 };
 
 class Context_CustomField extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
+	static function isCreateableByActor(array $fields, $actor) {
+		@$custom_fieldset_id = $fields[DAO_CustomField::CUSTOM_FIELDSET_ID];
+		
+		// On a fieldset
+		if(!empty($custom_fieldset_id)) {
+			return Context_CustomFieldset::isWriteableByActor($custom_fieldset_id, $actor);
+			
+		// Global custom field
+		} else {
+			return Context_Application::isWriteableByActor(0, $actor);
+		}
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

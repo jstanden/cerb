@@ -1,5 +1,5 @@
 <?php
-class DAO_ClassifierExample extends Cerb_ORMHelper {
+class DAO_ClassifierExample extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents {
 	const CLASS_ID = 'class_id';
 	const CLASSIFIER_ID = 'classifier_id';
 	const EXPRESSION = 'expression';
@@ -62,6 +62,9 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+		
 		$context = CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE;
 		self::_updateAbstract($context, $ids, $fields);
 		
@@ -101,6 +104,17 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('classifier_example', $fields, $where);
+	}
+	
+	static function onAbstractUpdate($id, $fields) {
+		@$classifier_id = $fields[self::CLASSIFIER_ID];
+		@$class_id = $fields[self::CLASS_ID];
+		@$expression = $fields[self::EXPRESSION];
+		
+		if($classifier_id && $class_id && $expression) {
+			$bayes = DevblocksPlatform::services()->bayesClassifier();
+			$bayes::train($expression, $classifier_id, $class_id);
+		}
 	}
 	
 	/**
@@ -871,6 +885,17 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 };
 
 class Context_ClassifierExample extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	static function isCreateableByActor(array $fields, $actor) {
+		// Must have access to modify the classifer
+		
+		@$classifier_id = $fields[DAO_ClassifierExample::CLASSIFIER_ID];
+		
+		if(empty($classifier_id))
+			return false;
+		
+		return Context_Classifier::isWriteableByActor($classifier_id, $actor);
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE, $models, 'classifier_owner_');
 	}

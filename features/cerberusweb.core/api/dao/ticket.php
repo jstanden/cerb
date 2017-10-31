@@ -50,6 +50,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			->addField(self::BUCKET_ID)
 			->id()
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_BUCKET))
+			->setRequired(true)
 			;
 		$validation
 			->addField(self::CLOSED_AT)
@@ -91,6 +92,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			->addField(self::GROUP_ID)
 			->id()
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_GROUP))
+			->setRequired(true)
 			;
 		$validation
 			->addField(self::ID)
@@ -641,6 +643,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 */
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
+		
+		if(!isset($fields[self::MASK]))
+			$fields[self::MASK] = CerberusApplication::generateTicketMask();
 		
 		$sql = sprintf("INSERT INTO ticket (created_date, updated_date) ".
 			"VALUES (%d,%d)",
@@ -4215,6 +4220,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextImport, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.ticket';
+	
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor write to this group
+		
+		@$group_id = $fields[DAO_Ticket::GROUP_ID];
+		
+		return Context_Group::isReadableByActor($group_id, $actor);
+	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins and group members can see, unless public

@@ -566,30 +566,6 @@ class Model_Calendar {
 	public $params;
 	public $updated_at;
 	
-	function getCreateContexts() {
-		$context_extensions = Extension_DevblocksContext::getAll(false, array('create'));
-		$contexts = array();
-			
-		if(!isset($this->params['manual_disabled']) || empty($this->params['manual_disabled'])) {
-			$contexts[CerberusContexts::CONTEXT_CALENDAR_EVENT] = $context_extensions[CerberusContexts::CONTEXT_CALENDAR_EVENT];
-			$contexts[CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING] = $context_extensions[CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING];
-		}
-		
-		if(isset($this->params['series']))
-		foreach($this->params['series'] as $series) {
-			if(isset($series['datasource']))
-			switch($series['datasource']) {
-				case 'calendar.datasource.worklist':
-					if(null != (@$worklist_context = $series['worklist_model']['context']))
-						if(isset($context_extensions[$worklist_context]))
-							$contexts[$worklist_context] = $context_extensions[$worklist_context];
-					break;
-			}
-		}
-		
-		return $contexts;
-	}
-	
 	function getEvents($date_from, $date_to) {
 		if(isset($this->params['manual_disabled']) && !empty($this->params['manual_disabled'])) {
 			$calendar_events = array();
@@ -1288,6 +1264,18 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 };
 
 class Context_Calendar extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor use this owner?
+		
+		@$owner_context = $fields[DAO_Calendar::OWNER_CONTEXT];
+		@$owner_context_id = $fields[DAO_Calendar::OWNER_CONTEXT_ID];
+		
+		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
+			return true;
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR, $models);
 	}

@@ -988,6 +988,10 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 class Context_<?php echo $class_name;?> extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = '<?php echo $ctx_ext_id; ?>';
 	
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

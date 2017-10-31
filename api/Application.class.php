@@ -1489,6 +1489,17 @@ class CerberusContexts {
 		return null;
 	}
 
+	public static function isCreateableByActor($context, array $fields, $actor) {
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return self::denyEverything($models);
+
+		if(method_exists(get_class($context_ext), 'isCreateableByActor')) {
+			return $context_ext::isCreateableByActor($fields, $actor);
+		}
+		
+		return false;
+	}
+	
 	public static function isReadableByActor($context, $models, $actor) {
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return self::denyEverything($models);
@@ -1501,6 +1512,18 @@ class CerberusContexts {
 			return self::denyEverything($models);
 
 		return $context_ext::isWriteableByActor($models, $actor);
+	}
+	
+	public static function isDeleteableByActor($context, $models, $actor) {
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return self::denyEverything($models);
+		
+		if(method_exists(get_class($context_ext), 'isDeleteableByActor')) {
+			return $context_ext::isDeleteableByActor($models, $fields, $actor);
+		} else {
+			// Default to deletable by write access
+			return $context_ext::isWriteableByActor($models, $fields, $actor);
+		}
 	}
 
 	public static function isReadableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_', $ignore_admins=false, $allow_unassigned=false) {
@@ -2351,6 +2374,10 @@ class Model_Application {
 }
 
 class Context_Application extends Extension_DevblocksContext {
+	static function isCreateableByActor(array $fields, $actor) {
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

@@ -87,6 +87,9 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 		
 		$context = CerberusContexts::CONTEXT_FILE_BUNDLE;
 		self::_updateAbstract($context, $ids, $fields);
+		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
 
 		// Make a diff for the requested objects in batches
 
@@ -97,7 +100,7 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_FILE_BUNDLE, $batch_ids);
+				CerberusContexts::checkpointChanges($context, $batch_ids);
 			}
 				
 			// Make changes
@@ -117,7 +120,7 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 				);
 
 				// Log the context update
-				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_FILE_BUNDLE, $batch_ids);
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
 		
@@ -1017,6 +1020,18 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 };
 
 class Context_FileBundle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+	static function isCreateableByActor(array $fields, $actor) {
+		// Can this actor use this owner?
+		
+		@$owner_context = $fields[DAO_FileBundle::OWNER_CONTEXT];
+		@$owner_context_id = $fields[DAO_FileBundle::OWNER_CONTEXT_ID];
+		
+		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
+			return true;
+		
+		return false;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_FILE_BUNDLE, $models);
 	}
@@ -1160,6 +1175,8 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 			'id' => DAO_FileBundle::ID,
 			'links' => '_links',
 			'name' => DAO_FileBundle::NAME,
+			'owner__context' => DAO_FileBundle::OWNER_CONTEXT,
+			'owner_id' => DAO_FileBundle::OWNER_CONTEXT_ID,
 			'tag' => DAO_FileBundle::TAG,
 			'updated_at' => DAO_FileBundle::UPDATED_AT,
 		];
