@@ -716,14 +716,13 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 			$token_values['_label'] = $category->name;
 			$token_values['id'] = $category->id;
 			$token_values['name'] = $category->name;
+			$token_values['parent__context'] = CerberusContexts::CONTEXT_KB_CATEGORY;
 			$token_values['parent_id'] = $category->parent_id;
 			$token_values['updated_at'] = $category->updated_at;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($category, $token_values);
 		}
-		
-		// [TODO] Parent merge
 		
 		return true;
 	}
