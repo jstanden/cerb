@@ -78,6 +78,11 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			->timestamp()
 			;
 		$validation
+			->addField('_content')
+			->string()
+			->setMaxLength('32 bits')
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)
@@ -100,12 +105,37 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	}
 	
 	public static function update($ids, $fields) {
+		if(!is_array($ids))
+			$ids = [$ids];
+		
 		if(!isset($fields[self::UPDATED]))
 			$fields[self::UPDATED] = time();
 		
 		self::_updateAbstract(Context_Attachment::ID, $ids, $fields);
+		self::_updateContent($ids, $fields);
 		
 		self::_update($ids, 'attachment', $fields);
+	}
+	
+	private static function _updateContent($ids, &$fields) {
+		if(!isset($fields['_content']))
+			return;
+			
+		@$content = $fields['_content'];
+		unset($fields['_content']);
+		
+		// If base64 encoded
+		if(DevblocksPlatform::strStartsWith($content, 'data:')) {
+			if(false !== ($idx = strpos($content, ';base64,'))) {
+				$content = base64_decode(substr($content, $idx + strlen(';base64,')));
+			}
+		}
+		
+		$fields[self::STORAGE_SHA1HASH] = sha1($content);
+		
+		foreach($ids as $id) {
+			Storage_Attachments::put($id, $content);
+		}
 	}
 	
 	/**
@@ -1647,6 +1677,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 
 	function getKeyToDaoFieldMap() {
 		return [
+			'content' => '_content',
 			'id' => DAO_Attachment::ID,
 			'links' => '_links',
 			'mime_type' => DAO_Attachment::MIME_TYPE,
@@ -1660,6 +1691,10 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'content':
+				$out_fields['_content'] = $value;
+				break;
+				
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
