@@ -820,13 +820,14 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		if(is_array($data))
 		foreach($data as $key => $value) {
-			if(DevblocksPlatform::strStartsWith($key, 'custom_')) {
+			if(DevblocksPlatform::strStartsWith($key, 'custom_') 
+				&& false !== ($custom_field_id = mb_substr($key,strrpos($key,'_')+1))
+				&& is_numeric($custom_field_id)
+				) {
 				if(is_null($custom_fields))
 					$custom_fields = DAO_CustomField::getByContext($context);
 				
-				$custom_field_id = substr($key,strrpos($key,'_')+1);
-				
-				if(!$custom_field_id || !isset($custom_fields[$custom_field_id])) {
+				if(!isset($custom_fields[$custom_field_id])) {
 					$error = sprintf("'%s' is not a valid custom field", $key);
 					return false;
 				}
