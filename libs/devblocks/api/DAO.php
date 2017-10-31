@@ -92,7 +92,13 @@ abstract class DevblocksORMHelper {
 					// [TODO]
 					break;
 				case Model_CustomField::TYPE_LINK:
-					// [TODO]
+					@$link_context = $custom_field->params['context'];
+					
+					$validation
+						->addField($field_id)
+						->id()
+						->addFormatter($validation->validators()->contextId($link_context, true))
+					;
 					break;
 				case Model_CustomField::TYPE_LIST:
 					// [TODO]
