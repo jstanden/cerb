@@ -1810,11 +1810,13 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 
 class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
 	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor modify the behavior's bot?
+		if(false == ($bot_id = @$fields[DAO_TriggerEvent::BOT_ID]))
+			return false;
 		
-		@$bot_id = $fields[DAO_TriggerEvent::BOT_ID];
+		if(false == ($bot = DAO_Bot::get($bot_id)))
+			return false;
 		
-		return Context_Bot::isWriteableByActor($bot_id, $actor);
+		return CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $actor);
 	}
 	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {

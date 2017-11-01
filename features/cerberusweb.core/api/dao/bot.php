@@ -102,6 +102,9 @@ class DAO_Bot extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+		
 		self::_updateAbstract(Context_Bot::ID, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
@@ -1142,7 +1145,16 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 	}
 	
 	static function isWriteableByActor($models, $actor, $ignore_admins=false) {
-		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BOT, $models, 'owner_', $ignore_admins);
+		// Only admins can modify
+
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEverything($models);
+
+		// Admins can do whatever they want
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+
+		return CerberusContexts::denyEverything($models);
 	}
 	
 	function getRandom() {

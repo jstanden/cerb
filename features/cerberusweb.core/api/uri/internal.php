@@ -4052,13 +4052,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			return;
 
-		if(false == ($va = $trigger->getBot()))
-			return;
-		
 		if(null == ($event = Extension_DevblocksEvent::get($trigger->event_point, false)))
 			return; /* @var $event Extension_DevblocksEvent */
 			
-		$is_writeable = Context_Bot::isWriteableByActor($va, $active_worker);
+		$is_writeable = Context_TriggerEvent::isWriteableByActor($trigger, $active_worker);
 		$tpl->assign('is_writeable', $is_writeable);
 		
 		$tpl->assign('trigger', $trigger);
@@ -4111,10 +4108,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 					return false;
 				
-				if(false == ($va = $trigger->getBot()))
-					return false;
-				
-				if(!Context_Bot::isWriteableByActor($va, $active_worker))
+				if(!Context_TriggerEvent::isWriteableByActor($trigger, $active_worker))
 					return false;
 				
 				DAO_DecisionNode::update($id, array(
@@ -4134,10 +4128,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 					return false;
 				
-				if(false == ($va = $trigger->getBot()))
-					return false;
-				
-				if(!Context_Bot::isWriteableByActor($va, $active_worker))
+				if(!Context_TriggerEvent::isWriteableByActor($trigger, $active_worker))
 					return false;
 			}
 			

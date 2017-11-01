@@ -1,5 +1,5 @@
 {$tab_uniqid = "{uniqid()}"}
-{$is_writeable = Context_Bot::isWriteableByActor($va, $active_worker)}
+{$is_writeable = Context_TriggerEvent::isWriteableByActor($behavior, $active_worker)}
 
 <form id="decisionTree{$behavior->id}" action="javascript:;" style="margin-top:10px;" onsubmit="return false;">
 	<input type="hidden" name="trigger_id[]" value="{$behavior->id}">
