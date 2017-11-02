@@ -268,6 +268,21 @@ class _DevblocksValidators {
 			return true;
 		};
 	}
+	
+	function language() {
+		return function($value, &$error) {
+			$languages = DAO_Translation::getDefinedLangCodes();
+			
+			if(!$value || !isset($languages[$value])) {
+				$error = sprintf("(%s) is not a valid language. Format like: en_US",
+					$value
+				);
+				return false;
+			}
+			
+			return true;
+		};
+	}
 }
 
 class _DevblocksValidationType {
