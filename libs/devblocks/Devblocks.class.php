@@ -730,7 +730,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		return implode('.', $parts);
 	}
 	
-	static function strParseQueryString($string) {
+	static function strParseQueryString($string, $decode=true) {
 		if(empty($string))
 			return [];
 		
@@ -743,8 +743,8 @@ class DevblocksPlatform extends DevblocksEngine {
 			if(empty($key))
 				continue;
 			
-			$key = urldecode($key);
-			$value = urldecode($value);
+			$key = $decode ? urldecode($key) : $key;
+			$value = $decode ? urldecode($value) : $value;
 			$vars[$key] = $value;
 		}
 		
