@@ -247,13 +247,21 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 
 	private function _sortQueryString($query) {
 		// Strip the leading ?
-		if(substr($query,0,1)=='?') $query = substr($query,1);
-		$args = array();
+		$query = ltrim($query, '?');
+		
+		$args = [];
 		$parts = explode('&', $query);
 		foreach($parts as $part) {
 			$pair = explode('=', $part, 2);
-			if(is_array($pair) && 2==count($pair))
+			
+			if(!is_array($pair))
+				continue;
+			
+			if(2==count($pair)) {
 				$args[$pair[0]] = $part;
+			} elseif(1==count($pair)) {
+				$args[$pair[0]] = null;
+			}
 		}
 		ksort($args);
 		return implode("&", $args);
