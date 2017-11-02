@@ -1619,8 +1619,9 @@ class CerberusContexts {
 	}
 
 	public static function isWriteableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_', $ignore_admins=false, $allow_unassigned=false) {
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEverything($models);
+		if(!($actor instanceof DevblocksDictionaryDelegate))
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+				CerberusContexts::denyEverything($models);
 
 		// Admins can do whatever they want
 		if(!$ignore_admins && CerberusContexts::isActorAnAdmin($actor))
