@@ -192,7 +192,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			}
 		}
 	}
-
+	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('mailbox', $fields, $where);
 	}

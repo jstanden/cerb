@@ -1346,7 +1346,7 @@ abstract class C4_AbstractView {
 				case Model_CustomField::TYPE_DROPDOWN:
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
 					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PREFIX;
-					if(isset($cfield->params['options']))
+					if(isset($cfield->params['options']) && is_array($cfield->params['options']))
 						$search_field_meta['examples'] = array_slice(
 								array_map(function($e) { 
 									return sprintf('"%s"', $e);

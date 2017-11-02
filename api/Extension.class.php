@@ -621,6 +621,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 };
 
 abstract class Extension_LoginAuthenticator extends DevblocksExtension {
+	const POINT = 'cerberusweb.login';
 
 	static function getAll($as_instances=false) {
 		$extensions = DevblocksPlatform::getExtensions('cerberusweb.login', $as_instances);

@@ -129,7 +129,6 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 				
 			} else {
 				// Owner
-				
 				@list($owner_context, $owner_context_id) = explode(':', $owner);
 			
 				switch($owner_context) {

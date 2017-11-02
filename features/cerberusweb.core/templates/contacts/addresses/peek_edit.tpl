@@ -78,7 +78,7 @@
 </fieldset>
 
 <fieldset class="peek">
-	<legend><label><input type="checkbox" name="outgoing_enabled" value="1" {if $address->mail_transport_id}checked="checked"{/if} onclick="$(this).parent().parent().next('div').toggle();"> Enable as a sender address for outgoing mail</label></legend>
+	<legend><label>{if $active_worker->is_superuser}<input type="checkbox" name="outgoing_enabled" value="1" {if $address->mail_transport_id}checked="checked"{/if} onclick="$(this).parent().parent().next('div').toggle();">{/if} Enable as a sender address for outgoing mail</label></legend>
 	
 	{if $active_worker->is_superuser}
 	<div style="{if !$address->mail_transport_id}display:none;{/if}">

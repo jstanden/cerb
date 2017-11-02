@@ -255,7 +255,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				}
 				
 				// Custom params
-					
+				
 				$params = $account->decryptParams($active_worker) ?: [];
 				
 				if(true !== ($result = $extension->saveConfigForm($account, $params)))

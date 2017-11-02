@@ -171,12 +171,12 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 			
 			// Common fields
-			$fields = array(
+			$fields = [
 				DAO_Address::CONTACT_ORG_ID => $org_id,
 				DAO_Address::CONTACT_ID => $contact_id,
 				DAO_Address::IS_BANNED => $is_banned,
 				DAO_Address::IS_DEFUNCT => $is_defunct,
-			);
+			];
 			
 			if($active_worker->is_superuser) {
 				@$mail_transport_id = DevblocksPlatform::importGPC($_REQUEST['mail_transport_id'],'integer',0);

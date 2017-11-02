@@ -273,7 +273,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						DAO_Contact::CREATED_AT => time(),
 						DAO_Contact::UPDATED_AT => time(),
 					);
-
+					
 					if(!empty($password)) {
 						$salt = CerberusApplication::generatePassword(8);
 						$fields[DAO_Contact::AUTH_SALT] = $salt;
