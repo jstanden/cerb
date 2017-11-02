@@ -56,8 +56,8 @@
 		<p>This will remove this category and all its subcategories. Your article content will not be deleted, but articles will be removed from these categories.</p>
 	</div>
 	
-	<button type="button" class="delete red"></span> {'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"></span> {'common.no'|devblocks_translate|capitalize}</button>
+	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 

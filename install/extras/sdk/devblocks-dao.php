@@ -1476,8 +1476,8 @@ $(function() {
 		Are you sure you want to permanently delete this <?php echo mb_strtolower($object_name); ?>?
 	</div>
 	
-	<button type="button" class="delete red"></span> {'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();"></span> {'common.no'|devblocks_translate|capitalize}</button>
+	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
