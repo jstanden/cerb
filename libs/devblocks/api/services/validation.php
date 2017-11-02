@@ -283,6 +283,22 @@ class _DevblocksValidators {
 			return true;
 		};
 	}
+	
+	function timezone() {
+		return function($value, &$error) {
+			$date = DevblocksPlatform::services()->date();
+			$timezones = $date->getTimezones();
+			
+			if(!in_array($value, $timezones)) {
+				$error = sprintf("(%s) is not a valid timezone. Format like: America/Los_Angeles",
+					$value
+				);
+				return false;
+			}
+			
+			return true;
+		};
+	}
 }
 
 class _DevblocksValidationType {
