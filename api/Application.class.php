@@ -1319,7 +1319,12 @@ class CerberusContexts {
 		}
 	}
 
-	public static function isActorAnAdmin(DevblocksDictionaryDelegate $actor) {
+	public static function isActorAnAdmin($actor) {
+		// Polymorph
+		if(!($actor instanceof DevblocksDictionaryDelegate))
+			if(false == ($actor = self::polymorphActorToDictionary($actor)))
+				return false;
+		
 		if(
 			// If it's Cerb
 			$actor->_context == CerberusContexts::CONTEXT_APPLICATION
