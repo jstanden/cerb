@@ -202,6 +202,20 @@ class _DevblocksValidators {
 		};
 	}
 	
+	function extension($extension_class) {
+		return function($value, &$error=null) use ($extension_class) {
+			if(false == ($ext = $extension_class::get($value))) {
+				$error = sprintf("(%s) is not a valid extension ID on (%s).",
+					$value,
+					$extension_class::POINT
+				);
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
 	function image($type='image/png', $min_width=1, $min_height=1, $max_width=1000, $max_height=1000, $max_size=512000) {
 		return function($value, &$error=null) use ($type, $min_width, $max_width, $min_height, $max_height, $max_size) {
 			if(!is_string($value)) {
