@@ -1524,10 +1524,10 @@ class CerberusContexts {
 			return self::denyEverything($models);
 		
 		if(method_exists(get_class($context_ext), 'isDeleteableByActor')) {
-			return $context_ext::isDeleteableByActor($models, $fields, $actor);
+			return $context_ext::isDeleteableByActor($models, $actor);
 		} else {
 			// Default to deletable by write access
-			return $context_ext::isWriteableByActor($models, $fields, $actor);
+			return $context_ext::isWriteableByActor($models, $actor);
 		}
 	}
 
