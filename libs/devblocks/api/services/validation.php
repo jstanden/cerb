@@ -117,8 +117,11 @@ class _DevblocksValidationField {
 }
 
 class _DevblocksFormatters {
-	function context() {
-		return function(&$value, &$error=null) {
+	function context($allow_empty=false) {
+		return function(&$value, &$error=null) use ($allow_empty) {
+			if(empty($value) && $allow_empty)
+				return true;
+			
 			// If this is a valid fully qualified extension ID, accept
 			if(false != (Extension_DevblocksContext::get($value, false)))
 				return true;
@@ -136,6 +139,20 @@ class _DevblocksFormatters {
 }
 
 class _DevblocksValidators {
+	function context($allow_empty=false) {
+		return function($value, &$error=null) use ($allow_empty) {
+			if(empty($value) & $allow_empty)
+				return true;
+			
+			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($value, false))) {
+				$error = sprintf("is not a valid context (%s)", $value);
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
 	function contextId($context, $allow_empty=false) {
 		return function($value, &$error=null) use ($context, $allow_empty) {
 			if(!is_numeric($value)) {
