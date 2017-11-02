@@ -1184,8 +1184,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			$tpl->assign('types', $types);
 			
 			// Owner
-			$owner_contexts = ['app','group'];
-			$owners_menu = Extension_DevblocksContext::getOwnerTree($owner_contexts);
+			$owners_menu = Extension_DevblocksContext::getOwnerTree([CerberusContexts::CONTEXT_APPLICATION, CerberusContexts::CONTEXT_GROUP]);
 			$tpl->assign('owners_menu', $owners_menu);
 			
 			// View

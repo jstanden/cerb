@@ -1367,7 +1367,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			$tpl->assign('types', $types);
 			
 			// Owner
-			$owners_menu = Extension_DevblocksContext::getOwnerTree(['app','group','role','worker']);
+			$owners_menu = Extension_DevblocksContext::getOwnerTree([CerberusContexts::CONTEXT_APPLICATION, CerberusContexts::CONTEXT_ROLE, CerberusContexts::CONTEXT_GROUP, CerberusContexts::CONTEXT_WORKER]);
 			$tpl->assign('owners_menu', $owners_menu);
 			
 			// View

@@ -29,18 +29,7 @@
 			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">
-			{if 1 == count($owners_menu)}
-			{$owner = array_shift($owners_menu)}
-			{$owner_parts = explode(':', $owner->key)}
-			<ul class="chooser-container bubbles">
-				<li>
-					<img class="cerb-avatar" src="{devblocks_url}c=avatars&ctx=cerberusweb.contexts.app&id=0{/devblocks_url}?v="><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$owner_parts.0}" data-context-id="{$owner_parts.1}">{$owner->label}</a>
-					<input type="hidden" name="owner" value="{$owner->key}">
-				</li>
-			</ul>
-			{else}
 			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-			{/if}
 		</td>
 	</tr>
 	{/if}

@@ -1515,7 +1515,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			$tpl->assign('types', $types);
 			
 			// Owner
-			$owners_menu = Extension_DevblocksContext::getOwnerTree(['app','group','role','worker']);
+			$owners_menu = Extension_DevblocksContext::getOwnerTree([CerberusContexts::CONTEXT_APPLICATION, CerberusContexts::CONTEXT_GROUP, CerberusContexts::CONTEXT_ROLE, CerberusContexts::CONTEXT_WORKER]);
 			$tpl->assign('owners_menu', $owners_menu);
 			
 			// VA Events

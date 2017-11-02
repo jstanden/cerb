@@ -601,19 +601,8 @@ class Model_CustomRecord {
 	}
 	
 	function getRecordOwnerContexts() {
-		$results = [];
 		@$owner_contexts = $this->params['owners']['contexts'] ?: [];
-		
-		if(in_array(CerberusContexts::CONTEXT_APPLICATION, $owner_contexts))
-			$results[] = 'app';
-		if(in_array(CerberusContexts::CONTEXT_GROUP, $owner_contexts))
-			$results[] = 'group';
-		if(in_array(CerberusContexts::CONTEXT_ROLE, $owner_contexts))
-			$results[] = 'role';
-		if(in_array(CerberusContexts::CONTEXT_WORKER, $owner_contexts))
-			$results[] = 'worker';
-		
-		return $results;
+		return $owner_contexts;
 	}
 };
 
