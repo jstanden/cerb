@@ -243,13 +243,26 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_WORKER context_id=$worker->id}
 
+{if $worker->id}
+<fieldset style="display:none;" class="delete">
+	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
+	
+	<div>
+		Are you sure you want to permanently delete this worker?
+	</div>
+	
+	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
+</fieldset>
+{/if}
+
 <div class="status"></div>
 
 {if $active_worker->is_superuser}
+<div class="buttons">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
-	{if !$disabled}
-		{if !empty($worker->id)}{if $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="if(confirm('Are you sure you want to delete this worker and their history?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'{$form_id}', '{$view_id}'); } "><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}{/if}
-	{/if}
+	{if !empty($worker->id) && $active_worker->is_superuser && $active_worker->id != $worker->id}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+</div>
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
 {/if}
@@ -270,8 +283,7 @@ $(function() {
 		// Buttons
 		
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
-		
-		//$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
 		// Abstract choosers
 		
