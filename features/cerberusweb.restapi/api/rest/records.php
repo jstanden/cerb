@@ -24,6 +24,22 @@ class ChRest_Records extends Extension_RestController {
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
+	function patchAction($stack) {
+		@$alias = array_shift($stack);
+		@$action = array_shift($stack);
+		
+		switch($action) {
+			case 'upsert':
+				if(false == ($context = $this->_getContextByAliasOrId($alias)))
+					$this->error(self::ERRNO_NOT_FOUND);
+				
+				$this->_upsertContextRecord($context, $stack);
+				break;
+		}
+		
+		$this->error(self::ERRNO_NOT_IMPLEMENTED);
+	}
+	
 	function putAction($stack) {
 		@$alias = array_shift($stack);
 		@$action = array_shift($stack);
@@ -107,6 +123,36 @@ class ChRest_Records extends Extension_RestController {
 			'context_id' => intval($context_id),
 			'meta' => $meta,
 		);
+	}
+	
+	private function _upsertContextRecord(DevblocksExtensionManifest $context) {
+		@$query = DevblocksPlatform::importGPC($_REQUEST['query'], 'string', '');
+		@$fields = DevblocksPlatform::importGPC($_REQUEST['fields'], 'array', []);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($query))
+			$this->error(self::ERRNO_PARAM_REQUIRED, "The 'query' parameter is required.");
+		
+		if(false == ($context_ext = $context->createInstance())) /* @var $context_ext Extension_DevblocksContext */
+			$this->error(self::ERRNO_NOT_IMPLEMENTED);
+		
+		if(false == ($view = $context_ext->getChooserView()))
+			$this->error(self::ERRNO_NOT_IMPLEMENTED);
+		
+		$view->setAutoPersist(false);
+		$view->addParamsWithQuickSearch($query, true);
+		list($results, $total) = $view->getData();
+		
+		if(0 == $total) {
+			$this->_createContextRecord($context);
+			
+		} elseif (1 == $total) {
+			$this->_updateContextRecord($context, [key($results)]);
+			
+		} else {
+			$this->error(self::ERRNO_NOT_FOUND, "An upsert query must match exactly one or zero records.");
+		}
 	}
 	
 	private function _createContextRecord(DevblocksExtensionManifest $context) {
