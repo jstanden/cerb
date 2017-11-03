@@ -104,10 +104,6 @@ interface IDevblocksContextAutocomplete {
 	function autocomplete($term, $query=null);
 }
 
-interface IDevblocksDaoAbstractEvents {
-	static function onAbstractUpdate($id, $fields);
-}
-
 class DevblocksMenuItemPlaceholder {
 	var $label = null;
 	var $key = null;
@@ -116,7 +112,6 @@ class DevblocksMenuItemPlaceholder {
 }
 
 interface IDevblocksContextExtension {
-	//static function isCreateableByActor(array $fields, $actor);
 	static function isReadableByActor($actor, $models);
 	static function isWriteableByActor($actor, $models);
 }

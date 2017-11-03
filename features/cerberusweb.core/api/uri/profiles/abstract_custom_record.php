@@ -180,46 +180,34 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				$fields = [
 					$dao_class::UPDATED_AT => time(),
 					$dao_class::NAME => $name,
+					$dao_class::OWNER_CONTEXT => $owner_ctx,
+					$dao_class::OWNER_CONTEXT_ID => intval($owner_ctx_id),
 				];
-				
-				@$possible_owners = $custom_record->params['owners']['contexts'];
-				
-				if(!empty($possible_owners) && empty($owner_ctx))
-					throw new Exception_DevblocksAjaxValidationError("A valid 'Owner' is required.");
-				
-				if($possible_owners && $owner_ctx) {
-					if(!CerberusContexts::isOwnableBy($owner_ctx, $owner_ctx_id, $active_worker))
-						throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
-					
-					$fields[$dao_class::OWNER_CONTEXT] = $owner_ctx;
-					$fields[$dao_class::OWNER_CONTEXT_ID] = $owner_ctx_id;
-				}
 				
 				// DAO
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", $context)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					if(!$dao_class::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!$dao_class::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = $dao_class::create($fields);
+					$dao_class::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, $context, $id);
 					
 				} else { // Edit
-					if(
-						!CerberusContexts::isWriteableByActor($context, $id, $active_worker)
-						|| !$active_worker->hasPriv(sprintf("contexts.%s.update", $context))
-						)
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(!$dao_class::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!$dao_class::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$dao_class::update($id, $fields);
+					$dao_class::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Custom fields

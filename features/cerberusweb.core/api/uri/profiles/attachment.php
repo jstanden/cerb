@@ -156,9 +156,6 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 				@$mime_type = DevblocksPlatform::importGPC($_REQUEST['mime_type'], 'string', 'application/octet-stream');
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_ATTACHMENT)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_Attachment::NAME => $name,
 						DAO_Attachment::MIME_TYPE => $mime_type,
@@ -168,15 +165,16 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 					if(!DAO_Attachment::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Attachment::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Attachment::create($fields);
+					DAO_Attachment::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ATTACHMENT, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_ATTACHMENT)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					$fields = array(
 						DAO_Attachment::NAME => $name,
 						DAO_Attachment::MIME_TYPE => $mime_type,
@@ -186,7 +184,11 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 					if(!DAO_Attachment::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Attachment::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Attachment::update($id, $fields);
+					DAO_Attachment::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Custom fields

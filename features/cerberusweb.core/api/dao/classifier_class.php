@@ -126,6 +126,35 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 		parent::_updateWhere('classifier_class', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::CLASSIFIER_ID])) {
+			$error = "A 'classifier_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::CLASSIFIER_ID])) {
+			@$classifier_id = $fields[self::CLASSIFIER_ID];
+			
+			if(!$classifier_id) {
+				$error = "Invalid 'classifier_id' value.";
+				return false;
+			}
+			
+			if(!Context_Classifier::isWriteableByActor($classifier_id, $actor)) {
+				$error = "You do not have permission to create classifications on this classifier.";
+				return false;
+			}
+		}
+		
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -882,17 +911,6 @@ class View_ClassifierClass extends C4_AbstractView implements IAbstractView_Subt
 };
 
 class Context_ClassifierClass extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
-	static function isCreateableByActor(array $fields, $actor) {
-		// Must have access to modify the classifer
-		
-		@$classifier_id = $fields[DAO_ClassifierClass::CLASSIFIER_ID];
-		
-		if(empty($classifier_id))
-			return false;
-		
-		return Context_Classifier::isWriteableByActor($classifier_id, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $models, 'classifier_owner_');
 	}

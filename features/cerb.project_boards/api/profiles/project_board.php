@@ -140,9 +140,6 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 				});
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", Context_ProjectBoard::ID)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_ProjectBoard::UPDATED_AT => time(),
 						DAO_ProjectBoard::NAME => $name,
@@ -152,15 +149,16 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 					if(!DAO_ProjectBoard::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ProjectBoard::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_ProjectBoard::create($fields);
+					DAO_ProjectBoard::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, Context_ProjectBoard::ID, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", Context_ProjectBoard::ID)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					$fields = array(
 						DAO_ProjectBoard::UPDATED_AT => time(),
 						DAO_ProjectBoard::NAME => $name,
@@ -170,7 +168,11 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 					if(!DAO_ProjectBoard::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ProjectBoard::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_ProjectBoard::update($id, $fields);
+					DAO_ProjectBoard::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Custom fields

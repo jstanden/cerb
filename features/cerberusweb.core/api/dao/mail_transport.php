@@ -24,6 +24,8 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 			->addField(self::EXTENSION_ID)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
+			->addValidator($validation->validators()->extension('Extension_MailTransport'))
 			;
 		// int(10) unsigned
 		$validation
@@ -117,6 +119,20 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		}
 		
 		self::clearCache();
+	}
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
+		return true;
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -876,11 +892,6 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 
 class Context_MailTransport extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		// Only admins can create mail transports
-		return Context_Application::isWriteableByActor(0, $actor);
-	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read

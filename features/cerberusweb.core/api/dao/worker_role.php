@@ -126,6 +126,20 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
+		$context = CerberusContexts::CONTEXT_ROLE;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		return true;
+	}
+	
 	static function getRolesByWorker($worker_id, $nocache=false) {
 		$cache = DevblocksPlatform::services()->cache();
 		
@@ -911,11 +925,6 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 };
 
 class Context_WorkerRole extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Only admins can create roles
-		return Context_Application::isWriteableByActor(0, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

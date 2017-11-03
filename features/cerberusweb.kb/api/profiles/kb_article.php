@@ -154,9 +154,6 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 				@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array', array());
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", 'cerberusweb.contexts.kb_article')))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 					$fields = array(
 						DAO_KbArticle::CONTENT => $content,
 						DAO_KbArticle::FORMAT => $format,
@@ -167,15 +164,16 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 					if(!DAO_KbArticle::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_KbArticle::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_KbArticle::create($fields);
+					DAO_KbArticle::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.kb_article', $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", 'cerberusweb.contexts.kb_article')))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-						
 					$fields = array(
 						DAO_KbArticle::CONTENT => $content,
 						DAO_KbArticle::FORMAT => $format,
@@ -186,8 +184,11 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 					if(!DAO_KbArticle::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					DAO_KbArticle::update($id, $fields);
+					if(!DAO_KbArticle::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					DAO_KbArticle::update($id, $fields);
+					DAO_KbArticle::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Categories

@@ -138,6 +138,34 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_BEHAVIOR;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::BOT_ID])) {
+			$error = "A 'bot_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::BOT_ID])) {
+			@$bot_id = $fields[self::BOT_ID];
+			
+			if(!$bot_id || false == ($bot = DAO_Bot::get($bot_id))) {
+				$error = "Invalid 'bot_id' value.";
+				return false;
+			}
+			
+			if(!CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $actor)) {
+				$error = "You do not have permission to create behaviors on this bot.";
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	static function recursiveImportDecisionNodes($nodes, $behavior_id, $parent_id) {
 		if(!is_array($nodes) || empty($nodes))
 			return;
@@ -1809,16 +1837,6 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
-	static function isCreateableByActor(array $fields, $actor) {
-		if(false == ($bot_id = @$fields[DAO_TriggerEvent::BOT_ID]))
-			return false;
-		
-		if(false == ($bot = DAO_Bot::get($bot_id)))
-			return false;
-		
-		return CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_', $ignore_admins);
 	}

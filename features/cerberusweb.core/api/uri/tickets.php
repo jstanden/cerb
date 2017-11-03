@@ -344,8 +344,12 @@ class ChTicketsPage extends CerberusPageExtension {
 			if(!DAO_Ticket::validate($fields, $error, $id))
 				throw new Exception_DevblocksAjaxValidationError($error);
 			
+			if(!DAO_Ticket::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+				throw new Exception_DevblocksAjaxValidationError($error);
+		
 			// Do it
 			DAO_Ticket::update($id, $fields);
+			DAO_Ticket::onUpdateByActor($active_worker, $fields, $id);
 			
 			// Custom field saves
 			// [TODO] Log these to the context_changeset table

@@ -152,13 +152,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 				if(empty($owner_context) || false == Extension_DevblocksContext::get($owner_context))
 					throw new Exception_DevblocksAjaxValidationError("The 'Owner' field is required.");
 				
-				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
-				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CLASSIFIER)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_Classifier::CREATED_AT => time(),
 						DAO_Classifier::UPDATED_AT => time(),
@@ -171,16 +165,18 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 					if(!DAO_Classifier::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Classifier::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(false == ($id = DAO_Classifier::create($fields)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to create the record.");
+					
+					DAO_Classifier::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CLASSIFIER, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CLASSIFIER)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					$fields = array(
 						DAO_Classifier::UPDATED_AT => time(),
 						DAO_Classifier::NAME => $name,
@@ -191,7 +187,11 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 					if(!DAO_Classifier::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Classifier::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Classifier::update($id, $fields);
+					DAO_Classifier::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Custom fields

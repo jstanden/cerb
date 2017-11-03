@@ -223,26 +223,30 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				
 				// Save
 				if(!empty($id)) {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_TASK)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(!DAO_Task::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Task::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Task::update($id, $fields);
+					DAO_Task::onUpdateByActor($active_worker, $fields, $id);
+					
 					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
 					
 				} else {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_TASK)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					if(!DAO_Task::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					$custom_fields = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TASK, $field_ids);
+					if(!DAO_Task::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					if(false == ($id = DAO_Task::create($fields, $custom_fields)))
 						return false;
+					
+					DAO_Task::onUpdateByActor($active_worker, $fields, $id);
+					
+					$custom_fields = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TASK, $field_ids);
 					
 					// Watchers
 					@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST ['add_watcher_ids'], 'array', []), 'integer', ['unique','nonzero']);

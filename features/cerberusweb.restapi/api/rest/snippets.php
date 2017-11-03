@@ -300,18 +300,16 @@ class ChRest_Snippets extends Extension_RestController implements IExtensionRest
 			$fields[$field] = $value;
 		}
 		
-		// Permissions: Ownership
-		if(isset($fields[DAO_Snippet::OWNER_CONTEXT]) && !CerberusContexts::isOwnableBy($fields[DAO_Snippet::OWNER_CONTEXT], $fields[DAO_Snippet::OWNER_CONTEXT_ID], $worker)) {
-			$this->error(self::ERRNO_ACL, sprintf("You don't have permission to use this owner (%s).", $fields[DAO_Snippet::OWNER_CONTEXT]));
-		}
-		
 		// Validate fields from DAO
-		if(!DAO_Snippet::validate($fields, $error, $id)) {
+		if(!DAO_Snippet::validate($fields, $error, $id))
 			$this->error(self::ERRNO_PARAM_INVALID, $error);
-		}
+		
+		if(!DAO_Snippet::onBeforeUpdateByActor($worker, $fields, $id, $error))
+			$this->error(self::ERRNO_PARAM_INVALID, $error);
 		
 		// Update
 		DAO_Snippet::update($id, $fields);
+		DAO_Snippet::onUpdateByActor($worker, $fields, $id);
 		
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
@@ -361,22 +359,22 @@ class ChRest_Snippets extends Extension_RestController implements IExtensionRest
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
-		// Permissions: Ownership
-		if(!CerberusContexts::isOwnableBy($fields[DAO_Snippet::OWNER_CONTEXT], $fields[DAO_Snippet::OWNER_CONTEXT_ID], $worker)) {
-			$this->error(self::ERRNO_ACL, sprintf("You don't have permission to use this owner (%s).", $fields[DAO_Snippet::OWNER_CONTEXT]));
-		}
-		
 		// If blank it's plaintext (we don't want to validate it)
 		if(empty($fields[DAO_Snippet::CONTEXT]))
 			unset($fields[DAO_Snippet::CONTEXT]);
 		
 		// Validate fields from DAO
-		if(!DAO_Snippet::validate($fields, $error)) {
+		// [TODO] Why aren't we validating everything in API?
+		if(!DAO_Snippet::validate($fields, $error))
 			$this->error(self::ERRNO_PARAM_INVALID, $error);
-		}
+		
+		if(!DAO_Snippet::onBeforeUpdateByActor($worker, $fields, null, $error))
+			$this->error(self::ERRNO_PARAM_INVALID, $error);
 		
 		// Create
 		if(false != ($id = DAO_Snippet::create($fields))) {
+			DAO_Snippet::onUpdateByActor($worker, $fields, $id);
+			
 			// Handle custom fields
 			$customfields = $this->_handleCustomFields($_POST);
 			if(is_array($customfields))

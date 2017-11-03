@@ -194,7 +194,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		try {
 			if(!$active_worker || !$active_worker->is_superuser)
-				throw new Exception_DevblocksAjaxValidationError("You don't have permission to edit this record.");
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
 	
 			if(empty($first_name)) $first_name = "Anonymous";
 			
@@ -252,49 +252,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				// ============================================
 				// Validation
 				
-				if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
-					throw new Exception_DevblocksAjaxValidationError("The specified date of birth is invalid.", 'dob');
-				
-				// Verify that the given email address exists
-				if(false == ($worker_address = DAO_Address::get($email_id)))
-					throw new Exception_DevblocksAjaxValidationError("The given email address is invalid.", 'email_id');
-				
-				// Check if the email address is used by another worker
-				if(false != ($worker_check = DAO_Worker::getByEmail($worker_address->email)) && (empty($id) || $worker_check->id != $id))
-					throw new Exception_DevblocksAjaxValidationError("The given email address is already associated with another worker.", 'email_id');
-				
-				if(DAO_Address::isLocalAddress($worker_address->email))
-					throw new Exception_DevblocksAjaxValidationError("You can not assign an email address to a worker that is already assigned to a group/bucket.", 'email_id');
-				
 				// Verify passwords if not blank
 				if($password_new && ($password_new != $password_verify))
 					throw new Exception_DevblocksAjaxValidationError("The given passwords do not match.", 'password_new');
-				
-				// Verify auth extension
-				if(false == ($auth_extension = Extension_LoginAuthenticator::get($auth_extension_id)))
-					throw new Exception_DevblocksAjaxValidationError("The login method is invalid.", 'auth_extension_id');
-				
-				// Verify @mention name
-				if(!empty($at_mention_name)) {
-					$at_mentions = DAO_Worker::getByAtMentions(array($at_mention_name));
-					
-					// Remove the current worker id
-					unset($at_mentions[$id]);
-					
-					if(!empty($at_mentions))
-						throw new Exception_DevblocksAjaxValidationError(sprintf("The @mention name (%s) is already in use by another worker.", $at_mention_name), 'at_mention_name');
-				}
-				
-				// Verify timezone is legit
-				$date = DevblocksPlatform::services()->date();
-				$timezones = $date->getTimezones();
-				if(false === array_search($timezone, $timezones))
-					throw new Exception_DevblocksAjaxValidationError("The given timezone is invalid.", 'timezone');
-				
-				// Verify language
-				$languages = DAO_Translation::getDefinedLangCodes();
-				if($language && !isset($languages[$language]))
-					throw new Exception_DevblocksAjaxValidationError("The given language is invalid.", 'language');
 				
 				if(empty($id)) {
 					$fields = array(
@@ -303,7 +263,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::TITLE => $title,
 						DAO_Worker::IS_SUPERUSER => $is_superuser,
 						DAO_Worker::IS_DISABLED => $disabled,
-						DAO_Worker::EMAIL_ID => $worker_address->id,
+						DAO_Worker::EMAIL_ID => $email_id,
 						DAO_Worker::AUTH_EXTENSION_ID => $auth_extension_id,
 						DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 						DAO_Worker::LANGUAGE => $language,
@@ -319,8 +279,13 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					if(!DAO_Worker::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Worker::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(false == ($id = DAO_Worker::create($fields)))
 						return false;
+					
+					DAO_Worker::onUpdateByActor($active_worker, $fields, $id);
 					
 					// Creating new worker.  If no password, email them an invite
 					if(empty($password_new)) {
@@ -381,7 +346,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_Worker::FIRST_NAME => $first_name,
 					DAO_Worker::LAST_NAME => $last_name,
 					DAO_Worker::TITLE => $title,
-					DAO_Worker::EMAIL_ID => $worker_address->id,
+					DAO_Worker::EMAIL_ID => $email_id,
 					DAO_Worker::IS_SUPERUSER => $is_superuser,
 					DAO_Worker::IS_DISABLED => $disabled,
 					DAO_Worker::AUTH_EXTENSION_ID => $auth_extension_id,
@@ -400,8 +365,12 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				if(!DAO_Worker::validate($fields, $error, $id))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
+				if(!DAO_Worker::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
 				// Update worker
 				DAO_Worker::update($id, $fields);
+				DAO_Worker::onUpdateByActor($active_worker, $fields, $id);
 				
 				// Auth
 				if(!empty($password_new) && $password_new == $password_verify) {

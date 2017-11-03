@@ -169,9 +169,6 @@ class PageSection_ProfilesReminder extends Extension_PageSection {
 				}
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_REMINDER)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 					$fields = array(
 						DAO_Reminder::IS_CLOSED => $is_closed,
 						DAO_Reminder::NAME => $name,
@@ -184,15 +181,16 @@ class PageSection_ProfilesReminder extends Extension_PageSection {
 					if(!DAO_Reminder::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Reminder::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Reminder::create($fields);
+					DAO_Reminder::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_REMINDER, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_REMINDER)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(false == ($reminder = DAO_Reminder::get($id)))
 						throw new Exception_DevblocksAjaxValidationError("Invalid record.");
 					
@@ -211,8 +209,11 @@ class PageSection_ProfilesReminder extends Extension_PageSection {
 					if(!DAO_Reminder::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					DAO_Reminder::update($id, $fields);
+					if(!DAO_Reminder::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					DAO_Reminder::update($id, $fields);
+					DAO_Reminder::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Custom fields

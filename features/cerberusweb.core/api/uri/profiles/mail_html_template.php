@@ -108,16 +108,11 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
-		// Only admins can edit mail templates
-		if(!$active_worker->is_superuser) {
-			throw new Exception_DevblocksAjaxValidationError("Only administrators can modify email template records.");
-		}
-		
 		try {
-			if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE)))
-				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-			
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_MailHtmlTemplate::delete($id);
 				
 				echo json_encode(array(
@@ -145,27 +140,29 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 				);
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					if(!DAO_MailHtmlTemplate::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if(!DAO_MailHtmlTemplate::onBeforeUpdateByActor($active_worker, $fields, null, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					if(false == ($id = DAO_MailHtmlTemplate::create($fields)))
 						return false;
 					
+					DAO_MailHtmlTemplate::onUpdateByActor($active_worker, $fields, $id);
+					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(!DAO_MailHtmlTemplate::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					DAO_MailHtmlTemplate::update($id, $fields);
+					if(!DAO_MailHtmlTemplate::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					DAO_MailHtmlTemplate::update($id, $fields);
+					DAO_MailHtmlTemplate::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				if($id) {

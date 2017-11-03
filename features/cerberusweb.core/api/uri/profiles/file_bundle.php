@@ -163,11 +163,6 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 						break;
 				}
 				
-				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker)) {
-					$owner_context = null;
-					$owner_context_id = null;
-				}
-				
 				if(empty($owner_context)) {
 					$owner_context = CerberusContexts::CONTEXT_WORKER;
 					$owner_context_id = $active_worker->id;
@@ -179,26 +174,29 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 				$fields[DAO_FileBundle::OWNER_CONTEXT_ID] = $owner_context_id;
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_FILE_BUNDLE)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					if(!DAO_FileBundle::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if(!DAO_FileBundle::onBeforeUpdateByActor($active_worker, $fields, null, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 						
 					if(false == ($id = DAO_FileBundle::create($fields)))
 						throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred while creating the record.");
 					
+					DAO_FileBundle::onUpdateByActor($active_worker, $fields, $id);
+					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_FILE_BUNDLE, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_FILE_BUNDLE)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(!DAO_FileBundle::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if(!DAO_FileBundle::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 	
 					DAO_FileBundle::update($id, $fields);
+					DAO_FileBundle::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Attachments

@@ -172,29 +172,27 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 				);
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					if(!DAO_ClassifierExample::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					$id = DAO_ClassifierExample::create($fields);
+					if(!DAO_ClassifierExample::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					// Train the model (online learning)
-					if($class_id)
-						$bayes::train($expression, $classifier_id, $class_id);
+					$id = DAO_ClassifierExample::create($fields);
+					DAO_ClassifierExample::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(!DAO_ClassifierExample::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ClassifierExample::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_ClassifierExample::update($id, $fields);
+					DAO_ClassifierExample::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Custom fields

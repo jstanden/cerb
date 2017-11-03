@@ -147,6 +147,50 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		@$custom_fieldset_id = $fields[self::CUSTOM_FIELDSET_ID];
+		
+		if(!$id || $custom_fieldset_id) {
+			// On a fieldset
+			if(!empty($custom_fieldset_id)) {
+				if(false == ($fieldset = DAO_CustomFieldset::get($custom_fieldset_id))) {
+					$error = "'custom_fieldset_id' is an invalid record.";
+					return false;
+				}
+				
+				if(!Context_CustomFieldset::isWriteableByActor($fieldset, $actor)) {
+					$error = "You do not have permission to add fields to this custom fieldset.";
+					return false;
+				}
+				
+				// Verify that the field context matches the fieldset
+				if(isset($fields[self::CONTEXT])) {
+					if($fields[self::CONTEXT] != $fieldset->context) {
+						$error = sprintf("The field type (%s) and fieldset type (%s) do not match.",
+							$fields[self::CONTEXT],
+							$fieldset->context
+						);
+						return false;
+					}
+				}
+				
+			// Global custom field
+			} else {
+				if(!CerberusContexts::isActorAnAdmin($actor)) {
+					$error = "You do not have permission to add global custom fields.";
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -1868,21 +1912,6 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 };
 
 class Context_CustomField extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
-	static function isCreateableByActor(array $fields, $actor) {
-		@$custom_fieldset_id = $fields[DAO_CustomField::CUSTOM_FIELDSET_ID];
-		
-		// On a fieldset
-		if(!empty($custom_fieldset_id)) {
-			return Context_CustomFieldset::isWriteableByActor($custom_fieldset_id, $actor);
-			
-		// Global custom field
-		} else {
-			return Context_Application::isWriteableByActor(0, $actor);
-		}
-		
-		return false;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -2059,6 +2088,20 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+				
+			case 'params':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_CustomField::PARAMS_JSON] = $json;
 				break;
 		}
 		

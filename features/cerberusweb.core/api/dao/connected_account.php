@@ -22,6 +22,17 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 			->addField(self::EXTENSION_ID)
 			->string()
 			->setRequired(true)
+			->addValidator(function($value, &$error) {
+				if(false == ($extension = Extension_ServiceProvider::get($value))) {
+					$error = sprintf("(%s) is not a valid service provider (%s) extension ID.",
+						$value,
+						Extension_ServiceProvider::POINT
+					);
+					return false;
+				}
+				
+				return true;
+			})
 			;
 		$validation
 			->addField(self::ID)
@@ -122,6 +133,26 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('connected_account', $fields, $where);
+	}
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		@$owner_context = $fields[self::OWNER_CONTEXT];
+		@$owner_context_id = intval($fields[self::OWNER_CONTEXT_ID]);
+		
+		// Verify that the actor can use this new owner
+		if($owner_context) {
+			if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor)) {
+				$error = DevblocksPlatform::translate('error.core.no_acl.owner');
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	static function getByExtension($extension_id) {
@@ -1013,18 +1044,6 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 };
 
 class Context_ConnectedAccount extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor use this owner?
-		
-		@$owner_context = $fields[DAO_ConnectedAccount::OWNER_CONTEXT];
-		@$owner_context_id = $fields[DAO_ConnectedAccount::OWNER_CONTEXT_ID];
-		
-		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
-			return true;
-		
-		return false;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $models);
 	}

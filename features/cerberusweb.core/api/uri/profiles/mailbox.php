@@ -225,9 +225,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				}
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", 'cerberusweb.contexts.mailbox')))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 					$fields = array(
 						DAO_Mailbox::AUTH_DISABLE_PLAIN => $auth_disable_plain,
 						DAO_Mailbox::DELAY_UNTIL => 0,
@@ -248,15 +245,16 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 					if(!DAO_Mailbox::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Mailbox::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Mailbox::create($fields);
+					DAO_Mailbox::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.mailbox', $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", 'cerberusweb.contexts.mailbox')))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-						
 					$fields = array(
 						DAO_Mailbox::AUTH_DISABLE_PLAIN => $auth_disable_plain,
 						DAO_Mailbox::DELAY_UNTIL => 0,
@@ -277,8 +275,11 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 					if(!DAO_Mailbox::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					DAO_Mailbox::update($id, $fields);
+					if(!DAO_Mailbox::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					DAO_Mailbox::update($id, $fields);
+					DAO_Mailbox::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Custom fields

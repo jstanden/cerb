@@ -173,12 +173,6 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 						break;
 				}
 
-				if(empty($owner_context))
-					throw new Exception_DevblocksAjaxValidationError("The 'Owner' field is required.", 'owner');
-				
-				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
-				
 				// Clean params
 				// [TODO] Move this
 				
@@ -194,9 +188,6 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 				// Model
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CALENDAR)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_Calendar::UPDATED_AT => time(),
 						DAO_Calendar::NAME => $name,
@@ -208,16 +199,18 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 					if(!DAO_Calendar::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Calendar::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(false == ($id = DAO_Calendar::create($fields)))
 						return new Exception_DevblocksAjaxValidationError("An unexpected error occurred while saving the record.");
+					
+					DAO_Calendar::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CALENDAR)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(false == ($calendar = DAO_Calendar::get($id)))
 						return;
 					
@@ -234,7 +227,11 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 					if(!DAO_Calendar::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Calendar::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Calendar::update($id, $change_fields);
+					DAO_Calendar::onUpdateByActor($active_worker, $change_fields, $id);
 				}
 	
 				// Custom fields

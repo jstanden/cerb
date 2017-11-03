@@ -275,9 +275,6 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 						break;
 				}
 
-				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
-				
 				$fields = array(
 					DAO_Snippet::TITLE => $title,
 					DAO_Snippet::CONTEXT => $context,
@@ -321,38 +318,36 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 				// Create / Update
 				
 				if(empty($id)) {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_SNIPPET)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					// Validate fields from DAO
 					if(!DAO_Snippet::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					if($active_worker->hasPriv('contexts.cerberusweb.contexts.snippet.create')) {
-						if(false == ($id = DAO_Snippet::create($fields)))
-							throw new Exception_DevblocksAjaxValidationError('Failed to create the record.');
-						
-						// View marquee
-						if(!empty($id) && !empty($view_id)) {
-							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_SNIPPET, $id);
-						}
+					if(!DAO_Snippet::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if(false == ($id = DAO_Snippet::create($fields)))
+						throw new Exception_DevblocksAjaxValidationError('Failed to create the record.');
+					
+					DAO_Snippet::onUpdateByActor($active_worker, $fields, $id);
+					
+					// View marquee
+					if(!empty($id) && !empty($view_id)) {
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_SNIPPET, $id);
 					}
 					
 				} else {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_SNIPPET)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					// Validate fields from DAO
 					if(!DAO_Snippet::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if(!DAO_Snippet::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					if(null == ($snippet = DAO_Snippet::get($id)))
 						throw new Exception_DevblocksAjaxValidationError('This record no longer exists.');
 					
-					if(!Context_Snippet::isWriteableByActor($snippet, $active_worker))
-						throw new Exception_DevblocksAjaxValidationError('You do not have permission to modify this record.');
-					
 					DAO_Snippet::update($id, $fields);
+					DAO_Snippet::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Custom field saves

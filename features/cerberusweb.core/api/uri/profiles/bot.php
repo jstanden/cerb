@@ -242,15 +242,20 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					if(!DAO_Bot::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Bot::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(false == ($id = DAO_Bot::create($fields)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
+					
+					DAO_Bot::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BOT, $id);
 					
 				} else { // Edit
- 					if(!$active_worker->is_superuser)
- 						throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this record.");
+					if(!$active_worker->is_superuser)
+						throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this record.");
 					
 					$fields = array(
 						DAO_Bot::UPDATED_AT => time(),
@@ -265,7 +270,11 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					if(!DAO_Bot::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Bot::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Bot::update($id, $fields);
+					DAO_Bot::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				if($id) {

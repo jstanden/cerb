@@ -121,6 +121,15 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 		parent::_updateWhere('project_board', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = Context_ProjectBoard::ID;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -962,10 +971,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		}
 		
 		return $list;
-	}
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		return true;
 	}
 	
 	static function isReadableByActor($models, $actor) {

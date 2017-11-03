@@ -154,6 +154,20 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		parent::_updateWhere('custom_record', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_CUSTOM_RECORD;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -942,11 +956,6 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 
 class Context_CustomRecord extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_CUSTOM_RECORD;
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		// Only admins can create records
-		return Context_Application::isWriteableByActor(0, $actor);
-	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read

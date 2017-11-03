@@ -254,12 +254,15 @@ class ChRest_SavedSearches extends Extension_RestController implements IExtensio
 		}
 		
 		// Validate fields from DAO
-		if(!DAO_ContextSavedSearch::validate($fields, $error, $id)) {
+		if(!DAO_ContextSavedSearch::validate($fields, $error, $id))
 			$this->error(self::ERRNO_PARAM_INVALID, $error);
-		}
+		
+		if(!DAO_ContextSavedSearch::onBeforeUpdateByActor($worker, $fields, $id, $error))
+			$this->error(self::ERRNO_PARAM_INVALID, $error);
 		
 		// Update
 		DAO_ContextSavedSearch::update($id, $fields);
+		DAO_ContextSavedSearch::onUpdateByActor($worker, $fields, $id);
 		
 		// Handle custom fields
 		$customfields = $this->_handleCustomFields($_POST);
@@ -310,17 +313,17 @@ class ChRest_SavedSearches extends Extension_RestController implements IExtensio
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
-		// Permissions: Can create records as this owner
-		if(!CerberusContexts::isOwnableBy($fields[DAO_ContextSavedSearch::OWNER_CONTEXT], $fields[DAO_ContextSavedSearch::OWNER_CONTEXT_ID], $worker))
-			$this->error(self::ERRNO_ACL, sprintf("You don't have permission to use this owner (%s).", $fields[DAO_ContextSavedSearch::OWNER_CONTEXT]));
-		
 		// Validate fields from DAO
-		if(!DAO_ContextSavedSearch::validate($fields, $error)) {
+		if(!DAO_ContextSavedSearch::validate($fields, $error))
 			$this->error(self::ERRNO_PARAM_INVALID, $error);
-		}
+		
+		if(!DAO_ContextSavedSearch::onBeforeUpdateByActor($worker, $fields, null, $error))
+			$this->error(self::ERRNO_PARAM_INVALID, $error);
 		
 		// Create
 		if(false != ($id = DAO_ContextSavedSearch::create($fields))) {
+			DAO_ContextSavedSearch::onUpdateByActor($worker, $fields, $id);
+			
 			// Handle custom fields
 			$customfields = $this->_handleCustomFields($_POST);
 			if(is_array($customfields))

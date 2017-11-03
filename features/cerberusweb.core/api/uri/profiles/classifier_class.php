@@ -160,9 +160,6 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 				// [TODO] Attribs
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CLASSIFIER_CLASS)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
 						DAO_ClassifierClass::NAME => $name,
@@ -173,15 +170,16 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 					if(!DAO_ClassifierClass::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ClassifierClass::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_ClassifierClass::create($fields);
+					DAO_ClassifierClass::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CLASSIFIER_CLASS)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					$fields = array(
 						DAO_ClassifierClass::NAME => $name,
 						DAO_ClassifierClass::SLOTS_JSON => json_encode([]),
@@ -191,7 +189,11 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 					if(!DAO_ClassifierClass::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ClassifierClass::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_ClassifierClass::update($id, $fields);
+					DAO_ClassifierClass::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Custom fields

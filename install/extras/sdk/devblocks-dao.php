@@ -141,6 +141,15 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		parent::_updateWhere('<?php echo $table_name; ?>', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = '<?php echo $ctx_ext_id; ?>';
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -987,10 +996,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 <textarea style="width:98%;height:200px;">
 class Context_<?php echo $class_name;?> extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = '<?php echo $ctx_ext_id; ?>';
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		return true;
-	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1859,9 +1864,6 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", '<?php echo $ctx_ext_id; ?>')))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 					$fields = array(
 						DAO_<?php echo $class_name; ?>::UPDATED_AT => time(),
 						DAO_<?php echo $class_name; ?>::NAME => $name,
@@ -1869,16 +1871,17 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 					
 					if(!DAO_<?php echo $class_name; ?>::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
+						
+					if(!DAO_<?php echo $class_name; ?>::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_<?php echo $class_name; ?>::create($fields);
+					DAO_<?php echo $class_name; ?>::onUpdateByActor($active_worker, $id, $fields);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, '<?php echo $ctx_ext_id; ?>', $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", '<?php echo $ctx_ext_id; ?>')))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-						
 					$fields = array(
 						DAO_<?php echo $class_name; ?>::UPDATED_AT => time(),
 						DAO_<?php echo $class_name; ?>::NAME => $name,
@@ -1886,8 +1889,12 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 					
 					if(!DAO_<?php echo $class_name; ?>::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
+						
+					if(!DAO_<?php echo $class_name; ?>::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_<?php echo $class_name; ?>::update($id, $fields);
+					DAO_<?php echo $class_name; ?>::onUpdateByActor($active_worker, $id, $fields);
 					
 				}
 	

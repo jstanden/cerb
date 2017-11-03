@@ -1112,6 +1112,34 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		}
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_TICKET;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::GROUP_ID])) {
+			$error = "A 'group_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::GROUP_ID])) {
+			@$group_id = $fields[self::GROUP_ID];
+			
+			if(!$group_id) {
+				$error = "Invalid 'group_id' value.";
+				return false;
+			}
+			
+			if(!Context_Group::isWriteableByActor($group_id, $actor)) {
+				$error = "You do not have permission to create tickets in this group.";
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param Model_ContextBulkUpdate $update
 	 * @return boolean
@@ -4220,14 +4248,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextImport, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.ticket';
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor write to this group
-		
-		@$group_id = $fields[DAO_Ticket::GROUP_ID];
-		
-		return Context_Group::isReadableByActor($group_id, $actor);
-	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins and group members can see, unless public

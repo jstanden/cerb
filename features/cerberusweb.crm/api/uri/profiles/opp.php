@@ -233,15 +233,16 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				
 				// Create
 				if(empty($id)) {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_OPPORTUNITY)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields[DAO_CrmOpportunity::CREATED_DATE] = time();
 					
 					if(!DAO_CrmOpportunity::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_CrmOpportunity::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_CrmOpportunity::create($fields);
+					DAO_CrmOpportunity::onUpdateByActor($active_worker, $fields, $id);
 					
 					// View marquee
 					if(!empty($id) && !empty($view_id)) {
@@ -250,13 +251,14 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 					
 				// Update
 				} else {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_OPPORTUNITY)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(!DAO_CrmOpportunity::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_CrmOpportunity::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_CrmOpportunity::update($id, $fields);
+					DAO_CrmOpportunity::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				if($id) {

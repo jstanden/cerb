@@ -239,6 +239,15 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		parent::_updateWhere('kb_article', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		return true;
+	}
+	
 	/**
 	 * @param Model_ContextBulkUpdate $update
 	 * @return boolean
@@ -914,10 +923,6 @@ class Model_KbArticle {
 };
 
 class Context_KbArticle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
-	static function isCreateableByActor(array $fields, $actor) {
-		return true;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read kb articles
 		return CerberusContexts::allowEverything($models);

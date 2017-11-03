@@ -126,9 +126,6 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 				@$query = DevblocksPlatform::importGPC($_REQUEST['query'], 'string', '');
 				@$tag = DevblocksPlatform::importGPC($_REQUEST['tag'], 'string', '');
 				
-				if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-					throw new Exception_DevblocksAjaxValidationError("The 'Type' field is invalid.", 'context');
-				
 				@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
 				
 				switch($owner_context) {
@@ -144,9 +141,6 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 						$owner_context_id = null;
 						break;
 				}
-				
-				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
 				
 				$tag = DevblocksPlatform::strAlphaNum($tag, '-');
 					
@@ -165,7 +159,11 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 					if(!DAO_ContextSavedSearch::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ContextSavedSearch::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_ContextSavedSearch::create($fields);
+					DAO_ContextSavedSearch::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.context.saved.search', $id);
@@ -185,7 +183,11 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 					if(!DAO_ContextSavedSearch::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ContextSavedSearch::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_ContextSavedSearch::update($id, $fields);
+					DAO_ContextSavedSearch::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				echo json_encode(array(

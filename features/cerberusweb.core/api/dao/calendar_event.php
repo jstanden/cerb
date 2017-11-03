@@ -146,6 +146,35 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		parent::_updateWhere('calendar_event', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::CALENDAR_ID])) {
+			$error = "A 'calendar_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::CALENDAR_ID])) {
+			@$calendar_id = $fields[self::CALENDAR_ID];
+			
+			if(!$calendar_id) {
+				$error = "Invalid 'calendar_id' value.";
+				return false;
+			}
+			
+			if(!Context_Calendar::isWriteableByActor($calendar_id, $actor)) {
+				$error = "You do not have permission to create events on this calendar.";
+				return false;
+			}
+		}
+		
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -898,17 +927,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 };
 
 class Context_CalendarEvent extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Must have access to modify the calendar
-		
-		@$calendar_id = $fields[DAO_CalendarEvent::CALENDAR_ID];
-		
-		if(empty($calendar_id))
-			return false;
-		
-		return Context_Calendar::isWriteableByActor($calendar_id, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR_EVENT, $models, 'calendar_owner_');
 	}

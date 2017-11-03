@@ -201,7 +201,11 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 					if(!DAO_Bucket::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Bucket::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Bucket::create($fields);
+					DAO_Bucket::onUpdateByActor($active_worker, $fields, $id);
 					
 					// Default bucket responsibilities
 					DAO_Group::setBucketDefaultResponsibilities($id);
@@ -216,7 +220,11 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 					if(!DAO_Bucket::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Bucket::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Bucket::update($id, $fields);
+					DAO_Bucket::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Custom fields

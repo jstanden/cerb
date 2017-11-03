@@ -56,6 +56,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::AUTH_EXTENSION_ID)
 			->string()
 			->setMaxLength(255)
+			->addValidator($validation->validators()->extension('Extension_LoginAuthenticator'))
+			->setRequired(true)
 			;
 		// int(10) unsigned
 		$validation
@@ -67,6 +69,16 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$validation
 			->addField(self::DOB)
 			->string()
+			->addValidator(function($value, &$error) {
+				if($value && false == ($ts = strtotime($value . ' 00:00 GMT'))) {
+					$error = sprintf("(%s) is not formatted properly (YYYY-MM-DD).",
+						$value
+					);
+					return false;
+				}
+				
+				return true;
+			})
 			;
 		// int(10) unsigned
 		$validation
@@ -75,6 +87,14 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->setRequired(true)
 			->setUnique(get_class())
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
+			->addValidator(function($value, &$error=null) {
+				if(DAO_Address::isLocalAddressId($value)) {
+					$error = "You can not assign an email address to a worker that is already assigned to a group or bucket.";
+					return false;
+				}
+				
+				return true;
+			})
 			;
 		// varchar(128)
 		$validation
@@ -111,6 +131,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::LANGUAGE)
 			->string()
 			->setMaxLength(16)
+			->setRequired(true)
+			->addValidator($validation->validators()->language())
 			;
 		// varchar(128)
 		$validation
@@ -141,6 +163,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::TIMEZONE)
 			->string()
 			->setMaxLength(255)
+			->setRequired(true)
+			->addValidator($validation->validators()->timezone())
 			;
 		// varchar(64)
 		$validation
@@ -672,6 +696,20 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(0 == ($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_FLUSH_CACHE)) {
 			self::clearCache();
 		}
+	}
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_WORKER;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -2683,11 +2721,6 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 };
 
 class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Only admins can create workers
-		return Context_Application::isWriteableByActor(0, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -2960,6 +2993,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		return [
 			'address_id' => DAO_Worker::EMAIL_ID,
 			'at_mention_name' => DAO_Worker::AT_MENTION_NAME,
+			'auth_extension_id' => DAO_Worker::AUTH_EXTENSION_ID,
 			'calendar_id' => DAO_Worker::CALENDAR_ID,
 			'dob' => DAO_Worker::DOB,
 			'first_name' => DAO_Worker::FIRST_NAME,

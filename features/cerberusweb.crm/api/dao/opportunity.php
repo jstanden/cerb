@@ -166,6 +166,15 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		}
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		return true;
+	}
+	
 	/**
 	 * @param Model_ContextBulkUpdate $update
 	 * @return boolean
@@ -1207,11 +1216,6 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 };
 
 class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Anyone can create opps
-		return true;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1422,6 +1426,15 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'email':
+				if(false == ($address = DAO_Address::lookupAddress($value, true))) {
+					$error = sprintf("Failed to lookup address: %s", $value);
+					return false;
+				}
+				
+				$out_fields[DAO_CrmOpportunity::PRIMARY_EMAIL_ID] = $address->id;
+				break;
+			
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;

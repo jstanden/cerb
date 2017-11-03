@@ -147,9 +147,6 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_WEBHOOK_LISTENER)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 					$fields = array(
 						DAO_WebhookListener::UPDATED_AT => time(),
 						DAO_WebhookListener::NAME => $name,
@@ -161,15 +158,16 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 					if(!DAO_WebhookListener::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_WebhookListener::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_WebhookListener::create($fields);
+					DAO_WebhookListener::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_WEBHOOK_LISTENER)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-						
 					$fields = array(
 						DAO_WebhookListener::UPDATED_AT => time(),
 						DAO_WebhookListener::NAME => $name,
@@ -180,7 +178,11 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 					if(!DAO_WebhookListener::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_WebhookListener::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_WebhookListener::update($id, $fields);
+					DAO_WebhookListener::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Custom fields

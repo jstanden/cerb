@@ -1,5 +1,5 @@
 <?php
-class DAO_ClassifierExample extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents {
+class DAO_ClassifierExample extends Cerb_ORMHelper {
 	const CLASS_ID = 'class_id';
 	const CLASSIFIER_ID = 'classifier_id';
 	const EXPRESSION = 'expression';
@@ -106,7 +106,35 @@ class DAO_ClassifierExample extends Cerb_ORMHelper implements IDevblocksDaoAbstr
 		parent::_updateWhere('classifier_example', $fields, $where);
 	}
 	
-	static function onAbstractUpdate($id, $fields) {
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::CLASSIFIER_ID])) {
+			$error = "A 'classifier_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::CLASSIFIER_ID])) {
+			@$classifier_id = $fields[self::CLASSIFIER_ID];
+			
+			if(!$classifier_id) {
+				$error = "Invalid 'classifier_id' value.";
+				return false;
+			}
+			
+			if(!Context_Classifier::isWriteableByActor($classifier_id, $actor)) {
+				$error = "You do not have permission to create training data on this classifier.";
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	static function onUpdateByActor($actor, $fields, $id) {
 		@$classifier_id = $fields[self::CLASSIFIER_ID];
 		@$class_id = $fields[self::CLASS_ID];
 		@$expression = $fields[self::EXPRESSION];
@@ -885,17 +913,6 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 };
 
 class Context_ClassifierExample extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
-	static function isCreateableByActor(array $fields, $actor) {
-		// Must have access to modify the classifer
-		
-		@$classifier_id = $fields[DAO_ClassifierExample::CLASSIFIER_ID];
-		
-		if(empty($classifier_id))
-			return false;
-		
-		return Context_Classifier::isWriteableByActor($classifier_id, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE, $models, 'classifier_owner_');
 	}

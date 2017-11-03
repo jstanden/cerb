@@ -240,22 +240,11 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				
 				// Defaults
 				
-				if(!in_array($gender, array('M','F','')))
-					$gender = '';
-				
 				$dob_ts = null;
-				
-				// Validation
-				
-				if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
-					throw new Exception_DevblocksAjaxValidationError("The specified date of birth is invalid.", 'dob');
 				
 				// Insert/Update
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CONTACT)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_Contact::FIRST_NAME => $first_name,
 						DAO_Contact::LAST_NAME => $last_name,
@@ -283,15 +272,16 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 					if(!DAO_Contact::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Contact::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Contact::create($fields);
+					DAO_Contact::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CONTACT, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CONTACT)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					$fields = array(
 						DAO_Contact::FIRST_NAME => $first_name,
 						DAO_Contact::LAST_NAME => $last_name,
@@ -312,6 +302,9 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 					if(!DAO_Contact::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Contact::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(!empty($password)) {
 						$salt = CerberusApplication::generatePassword(8);
 						$fields[DAO_Contact::AUTH_SALT] = $salt;
@@ -319,6 +312,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 					}
 					
 					DAO_Contact::update($id, $fields);
+					DAO_Contact::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				if($id) {

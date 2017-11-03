@@ -54,11 +54,13 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 		$validation
 			->addField(self::OWNER_CONTEXT)
 			->context()
+			->setRequired(true)
 			;
 		// int(11)
 		$validation
 			->addField(self::OWNER_CONTEXT_ID)
 			->id()
+			->setRequired(true)
 			;
 		// mediumtext
 		$validation
@@ -141,6 +143,31 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('mail_html_template', $fields, $where);
 		self::clearCache();
+	}
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
+		$context = CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		@$owner_context = $fields[self::OWNER_CONTEXT];
+		@$owner_context_id = intval($fields[self::OWNER_CONTEXT_ID]);
+		
+		// Verify that the actor can use this new owner
+		if($owner_context) {
+			if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor)) {
+				$error = DevblocksPlatform::translate('error.core.no_acl.owner');
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -940,18 +967,6 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 };
 
 class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor use this owner?
-		
-		@$owner_context = $fields[DAO_MailHtmlTemplate::OWNER_CONTEXT];
-		@$owner_context_id = $fields[DAO_MailHtmlTemplate::OWNER_CONTEXT_ID];
-		
-		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
-			return true;
-		
-		return false;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $models);
 	}

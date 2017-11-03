@@ -181,13 +181,14 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				);
 				
 				if(empty($group_id)) { // new
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_GROUP)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					if(!DAO_Group::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Group::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$group_id = DAO_Group::create($fields);
+					DAO_Group::onUpdateByActor($active_worker, $fields, $group_id);
 					
 					// View marquee
 					if(!empty($group_id) && !empty($view_id)) {
@@ -195,13 +196,14 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					}
 					
 				} else { // update
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_GROUP)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(!DAO_Group::validate($fields, $error, $group_id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Group::onBeforeUpdateByActor($active_worker, $fields, $group_id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Group::update($group_id, $fields);
+					DAO_Group::onUpdateByActor($active_worker, $fields, $group_id);
 				}
 				
 				// Members

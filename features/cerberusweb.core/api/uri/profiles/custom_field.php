@@ -120,29 +120,11 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 				@$type = DevblocksPlatform::importGPC($_REQUEST['type'], 'string', '');
 				
-				// Only admins can create global custom fields
-				if(!$custom_fieldset_id) {
-					if(!$active_worker->is_superuser)
-						throw new Exception_DevblocksAjaxValidationError("You don't have permission to create global custom fields.");
-					
-				// Check fieldset privs
-				} else {
-					if(false == ($custom_fieldset = DAO_CustomFieldset::get($custom_fieldset_id)))
-						throw new Exception_DevblocksAjaxValidationError("Invalid custom fieldset.");
-					
-					if(!Context_CustomFieldset::isWriteableByActor($custom_fieldset, $active_worker)) {
-						throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this fieldset.");
-					}
-				}
-				
 				// [TODO] Validate param keys by type
 				if(isset($params['options']))
 					$params['options'] = DevblocksPlatform::parseCrlfString($params['options']);
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CUSTOM_FIELD)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_CustomField::CONTEXT => $context,
 						DAO_CustomField::CUSTOM_FIELDSET_ID => $custom_fieldset_id,
@@ -156,15 +138,16 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 					if(!DAO_CustomField::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_CustomField::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_CustomField::create($fields);
+					DAO_CustomField::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CUSTOM_FIELD, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CUSTOM_FIELD)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-						
 					$fields = array(
 						DAO_CustomField::CUSTOM_FIELDSET_ID => $custom_fieldset_id,
 						DAO_CustomField::NAME => $name,
@@ -176,8 +159,11 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 					if(!DAO_CustomField::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					DAO_CustomField::update($id, $fields);
+					if(!DAO_CustomField::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					DAO_CustomField::update($id, $fields);
+					DAO_CustomField::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				echo json_encode(array(

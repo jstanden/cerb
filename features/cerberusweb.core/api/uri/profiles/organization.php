@@ -221,14 +221,16 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				);
 		
 				if($id==0) {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_ORG)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					if(!DAO_ContactOrg::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if(!DAO_ContactOrg::onBeforeUpdateByActor($active_worker, $fields, null, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					if(false == ($id = DAO_ContactOrg::create($fields)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
+					
+					DAO_ContactOrg::onUpdateByActor($active_worker, $fields, $id);
 					
 					// View marquee
 					if(!empty($id) && !empty($view_id)) {
@@ -237,13 +239,14 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 					
 				}
 				else {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_ORG)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(!DAO_ContactOrg::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ContactOrg::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_ContactOrg::update($id, $fields);
+					DAO_ContactOrg::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				if($id) {

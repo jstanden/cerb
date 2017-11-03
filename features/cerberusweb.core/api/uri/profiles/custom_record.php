@@ -137,9 +137,6 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CUSTOM_RECORD)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_CustomRecord::NAME => $name,
 						DAO_CustomRecord::NAME_PLURAL => $name_plural,
@@ -151,15 +148,16 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 					if(!DAO_CustomRecord::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_CustomRecord::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_CustomRecord::create($fields);
+					DAO_CustomRecord::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CUSTOM_RECORD, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CUSTOM_RECORD)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					$fields = array(
 						DAO_CustomRecord::NAME => $name,
 						DAO_CustomRecord::NAME_PLURAL => $name_plural,
@@ -171,7 +169,11 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 					if(!DAO_CustomRecord::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_CustomRecord::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_CustomRecord::update($id, $fields);
+					DAO_CustomRecord::onUpdateByActor($active_worker, $fields, $id);
 					
 					@$owners = $params['owners']['contexts'] ?: [];
 					

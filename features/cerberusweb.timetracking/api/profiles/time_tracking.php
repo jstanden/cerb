@@ -174,15 +174,16 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			);
 	
 			if(empty($id)) { // create
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_TIMETRACKING)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 				$fields[DAO_TimeTrackingEntry::WORKER_ID] = intval($active_worker->id);
 				
 				if(!DAO_TimeTrackingEntry::validate($fields, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
+				if(!DAO_TimeTrackingEntry::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
 				$id = DAO_TimeTrackingEntry::create($fields);
+				DAO_TimeTrackingEntry::onUpdateByActor($active_worker, $fields, $id);
 				
 				$translate = DevblocksPlatform::getTranslationService();
 				$url_writer = DevblocksPlatform::services()->url();
@@ -291,13 +292,14 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 				}
 				
 			} else { // modify
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_TIMETRACKING)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-				
 				if(!DAO_TimeTrackingEntry::validate($fields, $error, $id))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
+				if(!DAO_TimeTrackingEntry::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
 				DAO_TimeTrackingEntry::update($id, $fields);
+				DAO_TimeTrackingEntry::onUpdateByActor($active_worker, $fields, $id);
 			}
 			
 			// Custom field saves

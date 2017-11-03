@@ -145,13 +145,7 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 						break;
 				}
 				
-				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
-				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CUSTOM_FIELDSET)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 					$fields = array(
 						DAO_CustomFieldset::NAME => $name,
 						DAO_CustomFieldset::CONTEXT => $context,
@@ -162,15 +156,16 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 					if(!DAO_CustomFieldset::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_CustomFieldset::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_CustomFieldset::create($fields);
+					DAO_CustomFieldset::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CUSTOM_FIELDSET)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					$fields = array(
 						DAO_CustomFieldset::NAME => $name,
 						DAO_CustomFieldset::OWNER_CONTEXT => $owner_context,
@@ -180,7 +175,11 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 					if(!DAO_CustomFieldset::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_CustomFieldset::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_CustomFieldset::update($id, $fields);
+					DAO_CustomFieldset::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				echo json_encode(array(

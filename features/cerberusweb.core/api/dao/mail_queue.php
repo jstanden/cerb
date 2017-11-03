@@ -136,6 +136,34 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		parent::_updateWhere('mail_queue', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_DRAFT;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::WORKER_ID])) {
+			$error = "A 'worker_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::WORKER_ID])) {
+			@$worker_id = $fields[self::WORKER_ID];
+			
+			if(!$worker_id) {
+				$error = "Invalid 'worker_id' value.";
+				return false;
+			}
+			
+			if(!CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor)) {
+				$error = "You do not have permission to create drafts for this worker.";
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param Model_ContextBulkUpdate $update
 	 * @return boolean
@@ -1052,17 +1080,6 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 };
 
 class Context_Draft extends Extension_DevblocksContext {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor use this owner?
-		
-		@$worker_id = $fields[DAO_MailQueue::WORKER_ID];
-		
-		if(CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor))
-			return true;
-		
-		return false;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

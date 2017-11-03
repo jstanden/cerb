@@ -195,13 +195,14 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 			);
 			
 			if(empty($event_id)) {
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CALENDAR_EVENT)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 				if(!DAO_CalendarEvent::validate($fields, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
+				if(!DAO_CalendarEvent::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
 				$event_id = DAO_CalendarEvent::create($fields);
+				DAO_CalendarEvent::onUpdateByActor($active_worker, $fields, $event_id);
 				
 				// View marquee
 				if(!empty($event_id) && !empty($view_id)) {
@@ -209,9 +210,6 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 				}
 				
 			} else {
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CALENDAR_EVENT)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-				
 				if(false == ($calendar_event = DAO_CalendarEvent::get($event_id)))
 					return;
 				
@@ -220,8 +218,13 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 				if(!DAO_CalendarEvent::validate($changed_fields, $error, $event_id))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
-				if(!empty($changed_fields))
+				if(!DAO_CalendarEvent::onBeforeUpdateByActor($active_worker, $fields, $event_id, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				if(!empty($changed_fields)) {
 					DAO_CalendarEvent::update($event_id, $changed_fields);
+					DAO_CalendarEvent::onUpdateByActor($active_worker, $fields, $event_id);
+				}
 			}
 			
 			// Custom fields

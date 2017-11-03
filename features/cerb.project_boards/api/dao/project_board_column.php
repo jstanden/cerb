@@ -118,6 +118,25 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 		parent::_updateWhere('project_board_column', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = Context_ProjectBoardColumn::ID;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		// Actor must have access to modify the project board
+		if(isset($fields[self::BOARD_ID])) {
+			$board_id = $fields[self::BOARD_ID];
+			
+			if(!$board_id || !Context_ProjectBoard::isWriteableByActor($board_id, $actor)) {
+				$error = "You do not have permission to add columns to this project board.";
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -983,17 +1002,6 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 
 class Context_ProjectBoardColumn extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = 'cerberusweb.contexts.project.board.column';
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		// Must have access to modify the project board.
-		
-		@$board_id = $fields[DAO_ProjectBoardColumn::BOARD_ID];
-		
-		if(empty($board_id))
-			return false;
-		
-		return Context_ProjectBoard::isWriteableByActor($board_id, $actor);
-	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read

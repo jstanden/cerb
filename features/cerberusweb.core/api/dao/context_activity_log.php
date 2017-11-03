@@ -143,6 +143,20 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		}
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -952,11 +966,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 };
 
 class Context_ContextActivityLog extends Extension_DevblocksContext {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Only admins can create activity log entries
-		return Context_Application::isWriteableByActor(0, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

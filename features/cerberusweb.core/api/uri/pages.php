@@ -858,13 +858,17 @@ class Page_Custom extends CerberusPageExtension {
 			}
 				
 			if(empty($workspace_page_id)) {
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_WORKSPACE_PAGE)))
-					return;
-				
 				// Extension
 				$fields[DAO_WorkspacePage::EXTENSION_ID] = $extension_id;
+				
+				if(!DAO_WorkspacePage::validate($fields, $error, null))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				if(!DAO_WorkspacePage::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 	
 				$workspace_page_id = DAO_WorkspacePage::create($fields);
+				DAO_WorkspacePage::onUpdateByActor($active_worker, $fields, $workspace_page_id);
 	
 				// View marquee
 				if(!empty($workspace_page_id) && !empty($view_id)) {
@@ -879,11 +883,14 @@ class Page_Custom extends CerberusPageExtension {
 				}
 				
 			} else {
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_WORKSPACE_PAGE)))
-					return;
+				if(!DAO_WorkspacePage::validate($fields, $error, $workspace_page_id))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				if(!DAO_WorkspacePage::onBeforeUpdateByActor($active_worker, $fields, $workspace_page_id, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				DAO_WorkspacePage::update($workspace_page_id, $fields);
-	
+				DAO_WorkspacePage::onUpdateByActor($active_worker, $fields, $workspace_page_id);
 			}
 		}
 	}

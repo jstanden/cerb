@@ -7,6 +7,75 @@ abstract class DevblocksORMHelper {
 	const OPT_UPDATE_NO_EVENTS = 2;
 	const OPT_UPDATE_NO_READ_AFTER_WRITE = 4;
 	
+	/**
+	 * @abstract
+	 * @param mixed $actor
+	 * @param array $fields
+	 * @param integer $id
+	 * @param string $error
+	 * @return boolean
+	 */
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		return true;
+	}
+	
+	static protected function _onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, &$error) {
+		if(!($actor instanceof DevblocksDictionaryDelegate))
+			if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor, true))) // false=undelegate
+				return false;
+		
+		switch($actor->_context) {
+			case CerberusContexts::CONTEXT_APPLICATION:
+				return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_BOT:
+				return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_ROLE:
+				return true;
+				break;
+				
+			case CerberusContexts::CONTEXT_GROUP:
+				return false;
+				break;
+				
+			case CerberusContexts::CONTEXT_WORKER:
+				if(false == ($worker = DAO_Worker::get($actor->id)))
+					return false;
+				
+				// Create
+				if($id) {
+					if(!$worker->hasPriv(sprintf("contexts.%s.update", $context))) {
+						$error = DevblocksPlatform::translate('error.core.no_acl.edit');
+						return false;
+					}
+					
+				// Update
+				} else {
+					if(!$worker->hasPriv(sprintf("contexts.%s.create", $context))) {
+						$error = DevblocksPlatform::translate('error.core.no_acl.create');
+						return false;
+					}
+				}
+				
+				return true;
+				break;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @abstract
+	 * @param array $fields
+	 * @param integer $id
+	 */
+	static public function onUpdateByActor($actor, $fields, $id) {
+		return;
+	}
+	
 	static public function validate(array &$fields, &$error=null, $id=null, array $excludes=[]) {
 		if(!method_exists(get_called_class(), 'getFields'))
 			return false;
@@ -73,11 +142,12 @@ abstract class DevblocksORMHelper {
 						;
 					break;
 				case Model_CustomField::TYPE_DROPDOWN:
+					$options = $custom_field->params['options'];
 					$validation
 						->addField($field_id)
 						->string()
 						->setMaxLength(255)
-						->setPossibleValues($custom_field->params['options'] ?: [])
+						->setPossibleValues(is_array($options) ? $options : [])
 						;
 					break;
 				case Model_CustomField::TYPE_FILE:

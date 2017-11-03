@@ -355,6 +355,35 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_BUCKET;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[DAO_Bucket::GROUP_ID])) {
+			$error = "The 'group_id' field is required.";
+			return false;
+		}
+		
+		if(isset($fields[DAO_Bucket::GROUP_ID])) {
+			@$group_id = $fields[DAO_Bucket::GROUP_ID];
+			
+			if(!$group_id) {
+				$error = "Invalid 'group_id' value.";
+				return false;
+			}
+			
+			// To create a bucket, the actor needs write access to the given group_id
+			if(!Context_Group::isWriteableByActor($group_id, $actor)) {
+				$error = "You do not have permission to create buckets in this group.";
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	static function random() {
 		return self::_getRandom('bucket');
 	}
@@ -855,16 +884,6 @@ class Model_Bucket {
 
 class Context_Bucket extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_BUCKET;
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		@$group_id = $fields[DAO_Bucket::GROUP_ID];
-		
-		if(!$group_id)
-			return false;
-		
-		// To create a bucket, the actor needs write access to the given group_id
-		return Context_Group::isWriteableByActor($group_id, $actor);
-	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read

@@ -255,10 +255,12 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							throw new Exception_DevblocksAjaxValidationError($error);
 						
 						// Check permissions
-						if(!Context_TriggerEvent::isCreateableByActor($fields, $active_worker))
-							throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
+						if(!DAO_TriggerEvent::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
 						
 						$behavior_id = DAO_TriggerEvent::create($fields);
+						
+						DAO_TriggerEvent::onUpdateByActor($active_worker, $fields, $behavior_id);
 						
 						// Create records for all child nodes and link them to the proper parents
 			
@@ -324,9 +326,6 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						
 						// Create behavior
 						if(empty($id)) {
-							if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_BEHAVIOR)))
-								throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-							
 							@$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'], 'integer', 0);
 							@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
 							
@@ -362,19 +361,17 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							// Check permissions
-							if(!Context_TriggerEvent::isCreateableByActor($fields, $active_worker))
-								throw new Exception_DevblocksAjaxValidationError("You don't have permission to modify this record.");
+							if(!DAO_TriggerEvent::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							$id = DAO_TriggerEvent::create($fields);
+							DAO_TriggerEvent::onUpdateByActor($active_worker, $fields, $id);
 							
 							if(!empty($view_id) && !empty($id))
 								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BEHAVIOR, $id);
 							
 						// Update trigger
 						} else {
-							if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_BEHAVIOR)))
-								throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-							
 							if(false == ($behavior = DAO_TriggerEvent::get($id)))
 								throw new Exception_DevblocksAjaxValidationError("Invalid behavior.");
 								
@@ -409,7 +406,11 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							if(!DAO_TriggerEvent::validate($fields, $error, $behavior->id))
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
+							if(!DAO_TriggerEvent::onBeforeUpdateByActor($active_worker, $fields, $behavior->id, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
 							DAO_TriggerEvent::update($behavior->id, $fields);
+							DAO_TriggerEvent::onUpdateByActor($active_worker, $fields, $behavior->id);
 						}
 						
 						if($id) {

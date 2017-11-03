@@ -41,7 +41,17 @@ class DAO_Contact extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::DOB)
-			->string() // [TODO] ->date()
+			->string()
+			->addValidator(function($value, &$error) {
+				if($value && false == ($ts = strtotime($value . ' 00:00 GMT'))) {
+					$error = sprintf("(%s) is not formatted properly (YYYY-MM-DD).",
+						$value
+					);
+					return false;
+				}
+				
+				return true;
+			});
 			;
 		$validation
 			->addField(self::FIRST_NAME)
@@ -64,6 +74,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 			->addField(self::LANGUAGE)
 			->string()
 			->setMaxLength(16)
+			->addValidator($validation->validators()->language())
 			;
 		$validation
 			->addField(self::LAST_LOGIN_AT)
@@ -102,6 +113,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 			->addField(self::TIMEZONE)
 			->string()
 			->setMaxLength(128)
+			->addValidator($validation->validators()->timezone())
 			;
 		$validation
 			->addField(self::TITLE)
@@ -187,6 +199,15 @@ class DAO_Contact extends Cerb_ORMHelper {
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('contact', $fields, $where);
+	}
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_CONTACT;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		return true;
 	}
 	
 	/**
@@ -1709,10 +1730,6 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Contact extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
-	static function isCreateableByActor(array $fields, $actor) {
-		return true;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1828,9 +1845,10 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'id' => $prefix.$translate->_('common.id'),
+			'dob' => $prefix.$translate->_('common.dob'),
 			'first_name' => $prefix.$translate->_('common.name.first'),
 			'gender' => $prefix.$translate->_('common.gender'),
+			'id' => $prefix.$translate->_('common.id'),
 			'language' => $prefix.$translate->_('common.language'),
 			'last_login_at' => $prefix.$translate->_('common.last_login'),
 			'last_name' => $prefix.$translate->_('common.name.last'),
@@ -1848,9 +1866,10 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'id' => Model_CustomField::TYPE_NUMBER,
+			'dob' => Model_CustomField::TYPE_SINGLE_LINE,
 			'first_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'gender' => Model_CustomField::TYPE_SINGLE_LINE,
+			'id' => Model_CustomField::TYPE_NUMBER,
 			'language' => Model_CustomField::TYPE_SINGLE_LINE,
 			'last_login_at' => Model_CustomField::TYPE_DATE,
 			'last_name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1883,6 +1902,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $contact->getName();
 			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'contact', $contact->id), true) . '?v=' . $contact->updated_at;
+			$token_values['dob'] = $contact->dob;
 			$token_values['id'] = $contact->id;
 			$token_values['first_name'] = $contact->first_name;
 			$token_values['gender'] = $contact->gender;
@@ -1947,6 +1967,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function getKeyToDaoFieldMap() {
 		return [
+			'dob' => DAO_Contact::DOB,
 			'email_id' => DAO_Contact::PRIMARY_EMAIL_ID,
 			'first_name' => DAO_Contact::FIRST_NAME,
 			'gender' => DAO_Contact::GENDER,

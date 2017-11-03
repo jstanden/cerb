@@ -116,6 +116,34 @@ class DAO_Reminder extends Cerb_ORMHelper {
 		parent::_updateWhere('reminder', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_REMINDER;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::WORKER_ID])) {
+			$error = "A 'worker_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::WORKER_ID])) {
+			@$worker_id = $fields[self::WORKER_ID];
+			
+			if(!$worker_id) {
+				$error = "Invalid 'worker_id' value.";
+				return false;
+			}
+			
+			if(!CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor)) {
+				$error = "You do not have permission to create reminders for this worker.";
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -952,17 +980,6 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 
 class Context_Reminder extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_REMINDER;
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor use this owner?
-		
-		@$worker_id = $fields[DAO_Reminder::WORKER_ID];
-		
-		if(CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor))
-			return true;
-		
-		return false;
-	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read

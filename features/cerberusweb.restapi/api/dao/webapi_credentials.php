@@ -137,6 +137,20 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
+		$context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -735,17 +749,12 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 class Context_WebApiCredentials extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
 	
-	static function isCreateableByActor(array $fields, $actor) {
-		// Only admins can create api credentials
-		return Context_Application::isWriteableByActor(0, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, self::ID, $models, 'worker_');
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		return CerberusContexts::isWriteableByDelegateOwner($actor, self::ID, $models, 'worker_');
+		return CerberusContexts::isActorAnAdmin($actor);
 	}
 
 	function getRandom() {

@@ -102,6 +102,26 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		parent::_updateWhere('workspace_page', $fields, $where);
 		self::clearCache();
 	}
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		@$owner_context = $fields[self::OWNER_CONTEXT];
+		@$owner_context_id = intval($fields[self::OWNER_CONTEXT_ID]);
+		
+		// Verify that the actor can use this new owner
+		if($owner_context) {
+			if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor)) {
+				$error = DevblocksPlatform::translate('error.core.no_acl.owner');
+				return false;
+			}
+		}
+		
+		return true;
+	}
 
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::services()->cache();
@@ -507,6 +527,34 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('workspace_tab', $fields, $where);
 		self::clearCache();
+	}
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::WORKSPACE_PAGE_ID])) {
+			$error = "A 'page_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::WORKSPACE_PAGE_ID])) {
+			@$page_id = $fields[self::WORKSPACE_PAGE_ID];
+			
+			if(!$page_id) {
+				$error = "Invalid 'page_id' value.";
+				return false;
+			}
+			
+			if(!Context_WorkspacePage::isWriteableByActor($page_id, $actor)) {
+				$error = "You do not have permission to create tabs on this workspace page.";
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	static function getAll($nocache=false) {
@@ -1140,6 +1188,34 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 		parent::_updateWhere('workspace_list', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_WORKSPACE_WORKLIST;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::WORKSPACE_TAB_ID])) {
+			$error = "A 'workspace_tab_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::WORKSPACE_TAB_ID])) {
+			@$tab_id = $fields[self::WORKSPACE_TAB_ID];
+			
+			if(!$tab_id) {
+				$error = "Invalid 'workspace_tab_id' value.";
+				return false;
+			}
+			
+			if(!Context_WorkspaceTab::isWriteableByActor($tab_id, $actor)) {
+				$error = "You do not have permission to create worklists on this workspace tab.";
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	static function random() {
 		return self::_getRandom('workspace_list');
 	}
@@ -1398,18 +1474,6 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 };
 
 class Context_WorkspacePage extends Extension_DevblocksContext {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor use this owner?
-		
-		@$owner_context = $fields[DAO_WorkspacePage::OWNER_CONTEXT];
-		@$owner_context_id = $fields[DAO_WorkspacePage::OWNER_CONTEXT_ID];
-		
-		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
-			return true;
-		
-		return false;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $models);
 	}
@@ -1695,14 +1759,6 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 };
 
 class Context_WorkspaceTab extends Extension_DevblocksContext {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor write to this workspace page?
-		
-		@$page_id = $fields[DAO_WorkspaceTab::WORKSPACE_PAGE_ID];
-		
-		return Context_WorkspacePage::isWriteableByActor($page_id, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_TAB, $models, 'page_owner_');
 	}
@@ -2003,14 +2059,6 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 };
 
 class Context_WorkspaceWorklist extends Extension_DevblocksContext {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor write to this workspace tab?
-		
-		@$tab_id = $fields[DAO_WorkspaceList::WORKSPACE_TAB_ID];
-		
-		return Context_WorkspaceTab::isWriteableByActor($tab_id, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_WORKLIST, $models, 'tab_page_owner_');
 	}

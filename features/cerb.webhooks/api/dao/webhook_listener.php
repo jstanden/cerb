@@ -115,6 +115,20 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('webhook_listener', $fields, $where);
 	}
+
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
+		return true;
+	}
 	
 	/**
 	 * @param string $where
@@ -899,11 +913,6 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 
 class Context_WebhookListener extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		// Only admins can create webhook listeners
-		return Context_Application::isWriteableByActor(0, $actor);
-	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admin workers can read

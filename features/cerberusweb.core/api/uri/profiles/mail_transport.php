@@ -151,9 +151,6 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 				@$params = DevblocksPlatform::importGPC($_REQUEST['params'][$extension_id],'array',[]);
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_MAIL_TRANSPORT)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 					$fields = array(
 						DAO_MailTransport::EXTENSION_ID => $extension_id,
 						DAO_MailTransport::NAME => $name,
@@ -164,18 +161,19 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 					if(!DAO_MailTransport::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_MailTransport::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(!$this->_testTransportParamsAction($extension_id, $params, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_MailTransport::create($fields);
+					DAO_MailTransport::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_MAIL_TRANSPORT, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_MAIL_TRANSPORT)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-						
 					$fields = array(
 						DAO_MailTransport::EXTENSION_ID => $extension_id,
 						DAO_MailTransport::NAME => $name,
@@ -186,10 +184,14 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 					if(!DAO_MailTransport::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_MailTransport::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(!$this->_testTransportParamsAction($extension_id, $params, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_MailTransport::update($id, $fields);
+					DAO_MailTransport::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Custom fields

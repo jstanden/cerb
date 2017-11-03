@@ -196,6 +196,20 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('mailbox', $fields, $where);
 	}
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_MAILBOX;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
+		return true;
+	}
 
 	/**
 	 * @param string $where
@@ -1065,11 +1079,6 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
-	static function isCreateableByActor(array $fields, $actor) {
-		// Only admins can create mailboxes
-		return Context_Application::isWriteableByActor(0, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read
 		return self::isWriteableByActor($models, $actor);
@@ -1248,6 +1257,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			'max_msg_size_kb' => DAO_Mailbox::MAX_MSG_SIZE_KB,
 			'name' => DAO_Mailbox::NAME,
 			'num_fails' => DAO_Mailbox::NUM_FAILS,
+			'password' => DAO_Mailbox::PASSWORD,
 			'port' => DAO_Mailbox::PORT,
 			'protocol' => DAO_Mailbox::PROTOCOL,
 			'ssl_ignore_validation' => DAO_Mailbox::SSL_IGNORE_VALIDATION,

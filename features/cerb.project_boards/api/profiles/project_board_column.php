@@ -140,10 +140,6 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 					'behaviors' => [],
 				];
 				
-				// Verify board permissions
-				if(!Context_ProjectBoard::isWriteableByActor($board_id, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this project board.", 'board_id');
-				
 				// Behaviors
 				
 				$behaviors = DAO_TriggerEvent::getIds($behavior_ids);
@@ -157,9 +153,6 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 				// DAO
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", Context_ProjectBoardColumn::ID)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_ProjectBoardColumn::UPDATED_AT => time(),
 						DAO_ProjectBoardColumn::BOARD_ID => $board_id,
@@ -170,15 +163,16 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 					if(!DAO_ProjectBoardColumn::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ProjectBoardColumn::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_ProjectBoardColumn::create($fields);
+					DAO_ProjectBoardColumn::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, Context_ProjectBoardColumn::ID, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", Context_ProjectBoardColumn::ID)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					$fields = array(
 						DAO_ProjectBoardColumn::UPDATED_AT => time(),
 						DAO_ProjectBoardColumn::BOARD_ID => $board_id,
@@ -189,7 +183,11 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 					if(!DAO_ProjectBoardColumn::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ProjectBoardColumn::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_ProjectBoardColumn::update($id, $fields);
+					DAO_ProjectBoardColumn::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Custom fields

@@ -181,9 +181,6 @@ class PageSection_ProfilesClassifierEntity extends Extension_PageSection {
 				}
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CLASSIFIER_ENTITY)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_ClassifierEntity::DESCRIPTION => $description,
 						DAO_ClassifierEntity::NAME => $name,
@@ -195,15 +192,16 @@ class PageSection_ProfilesClassifierEntity extends Extension_PageSection {
 					if(!DAO_ClassifierEntity::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ClassifierEntity::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_ClassifierEntity::create($fields);
+					DAO_ClassifierEntity::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CLASSIFIER_ENTITY, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CLASSIFIER_ENTITY)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					$fields = array(
 						DAO_ClassifierEntity::DESCRIPTION => $description,
 						DAO_ClassifierEntity::NAME => $name,
@@ -215,8 +213,11 @@ class PageSection_ProfilesClassifierEntity extends Extension_PageSection {
 					if(!DAO_ClassifierEntity::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					DAO_ClassifierEntity::update($id, $fields);
+					if(!DAO_ClassifierEntity::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					DAO_ClassifierEntity::update($id, $fields);
+					DAO_ClassifierEntity::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Custom fields

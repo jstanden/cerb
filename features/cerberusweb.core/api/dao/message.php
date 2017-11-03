@@ -15,7 +15,7 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
-class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents {
+class DAO_Message extends Cerb_ORMHelper {
 	const ADDRESS_ID = 'address_id';
 	const CREATED_DATE = 'created_date';
 	const HASH_HEADER_MESSAGE_ID = 'hash_header_message_id';
@@ -201,7 +201,35 @@ class DAO_Message extends Cerb_ORMHelper implements IDevblocksDaoAbstractEvents 
 		parent::_update($ids, 'message', $fields);
 	}
 	
-	static function onAbstractUpdate($id, $fields) {
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_MESSAGE;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::TICKET_ID])) {
+			$error = "A 'ticket_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::TICKET_ID])) {
+			@$ticket_id = $fields[self::TICKET_ID];
+			
+			if(!$ticket_id) {
+				$error = "Invalid 'ticket_id' value.";
+				return false;
+			}
+			
+			if(!Context_Ticket::isWriteableByActor($ticket_id, $actor)) {
+				$error = "You do not have permission to create messages on this ticket.";
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	static function onUpdateByActor($actor, $fields, $id) {
 		@$ticket_id = $fields[self::TICKET_ID];
 		
 		if($ticket_id) {
@@ -2153,14 +2181,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Message extends Extension_DevblocksContext implements IDevblocksContextPeek {
-	static function isCreateableByActor(array $fields, $actor) {
-		//@$ticket_id = $fields[DAO_Message::TICKET_ID];
-		//@$worker_id = $fields[DAO_Message::WORKER_ID];
-		
-		// Only admins can create messages directly
-		return Context_Application::isWriteableByActor(0, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Only admins and group members can see, unless public
 		

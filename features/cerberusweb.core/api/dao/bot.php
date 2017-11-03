@@ -148,6 +148,20 @@ class DAO_Bot extends Cerb_ORMHelper {
 		parent::_updateWhere('bot', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_BOT;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!CerberusContexts::isActorAnAdmin($actor)) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
+			return false;
+		}
+		
+		return true;
+	}
+	
 	static function autocomplete($term, $as='models') {
 		$params = array(
 			SearchFields_Bot::NAME => new DevblocksSearchCriteria(SearchFields_Bot::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'*'),
@@ -1136,10 +1150,6 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 };
 
 class Context_Bot extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
-	static function isCreateableByActor(array $fields, $actor) {
-		return Context_Application::isWriteableByActor(0, $actor);
-	}
-	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BOT, $models, 'owner_', $ignore_admins);
 	}

@@ -174,9 +174,6 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				
 				// Edit
 				if($id) {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_CONNECTED_ACCOUNT)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					if(false == ($account = DAO_ConnectedAccount::get($id))
 						|| !Context_ConnectedAccount::isWriteableByActor($account, $active_worker)
 						)
@@ -217,9 +214,6 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				
 				// Create
 				} else {
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_CONNECTED_ACCOUNT)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					if(false == ($extension = Extension_ServiceProvider::get($extension_id)))
 						throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
 					
@@ -265,7 +259,11 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 					if(!DAO_ConnectedAccount::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ConnectedAccount::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_ConnectedAccount::create($fields);
+					DAO_ConnectedAccount::onUpdateByActor($active_worker, $fields, $id);
 					
 					if($view_id && $id) {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $id);
@@ -275,7 +273,11 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 					if(!DAO_ConnectedAccount::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_ConnectedAccount::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_ConnectedAccount::update($id, $fields);
+					DAO_ConnectedAccount::onUpdateByActor($active_worker, $fields, $id);
 				}
 
 				if($id) {

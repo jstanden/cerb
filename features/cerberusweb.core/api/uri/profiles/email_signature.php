@@ -161,34 +161,31 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 					DAO_EmailSignature::UPDATED_AT => time(),
 				);
 				
-				if(!CerberusContexts::isOwnableBy($owner_ctx, $owner_ctx_id, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError("You don't have permission to use this owner.", 'owner');
-				
 				$fields[DAO_EmailSignature::OWNER_CONTEXT] = $owner_ctx;
 				$fields[DAO_EmailSignature::OWNER_CONTEXT_ID] = $owner_ctx_id;
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_EMAIL_SIGNATURE)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
-					
 					if(!DAO_EmailSignature::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_EmailSignature::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_EmailSignature::create($fields);
+					DAO_EmailSignature::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_EMAIL_SIGNATURE, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_EMAIL_SIGNATURE)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-						
 					if(!DAO_EmailSignature::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					DAO_EmailSignature::update($id, $fields);
+					if(!DAO_EmailSignature::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					DAO_EmailSignature::update($id, $fields);
+					DAO_EmailSignature::onUpdateByActor($active_worker, $fields, $id);
 				}
 	
 				// Custom fields

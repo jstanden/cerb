@@ -138,6 +138,26 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		parent::_updateWhere('context_saved_search', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_SAVED_SEARCH;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		@$owner_context = $fields[self::OWNER_CONTEXT];
+		@$owner_context_id = intval($fields[self::OWNER_CONTEXT_ID]);
+		
+		// Verify that the actor can use this new owner
+		if($owner_context) {
+			if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor)) {
+				$error = DevblocksPlatform::translate('error.core.no_acl.owner');
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -890,18 +910,6 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 
 class Context_ContextSavedSearch extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.context.saved.search';
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor use this owner?
-		
-		@$owner_context = $fields[DAO_ContextSavedSearch::OWNER_CONTEXT];
-		@$owner_context_id = $fields[DAO_ContextSavedSearch::OWNER_CONTEXT_ID];
-		
-		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
-			return true;
-		
-		return false;
-	}
 	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, self::ID, $models, 'owner_', $ignore_admins);

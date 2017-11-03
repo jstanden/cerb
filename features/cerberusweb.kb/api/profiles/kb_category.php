@@ -151,9 +151,6 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 				}
 				
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_KB_CATEGORY)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 					$fields = array(
 						DAO_KbCategory::UPDATED_AT => time(),
 						DAO_KbCategory::NAME => $name,
@@ -163,15 +160,16 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 					if(!DAO_KbCategory::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_KbCategory::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_KbCategory::create($fields);
+					DAO_KbCategory::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_KB_CATEGORY, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_KB_CATEGORY)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-						
 					$fields = array(
 						DAO_KbCategory::UPDATED_AT => time(),
 						DAO_KbCategory::NAME => $name,
@@ -181,7 +179,11 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 					if(!DAO_KbCategory::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_KbCategory::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_KbCategory::update($id, $fields);
+					DAO_KbCategory::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Custom fields

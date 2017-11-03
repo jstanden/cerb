@@ -399,7 +399,6 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					if(false == ($dao_class = $context_ext->getDaoClass()))
 						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $uid_card, "Can't load DAO class."));
 					
-					// [TODO] Throw a subclass of Exception
 					if(!$dao_class::validate($fields, $error))
 						throw new Exception_DevblocksValidationError($error);
 				}
@@ -728,10 +727,14 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			if(!$dao_class::validate($fields, $error, $record_id))
 				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $uid_record, $error));
 			
+			$actor = new Model_Application();
+				
+			if(!$dao_class::onBeforeUpdateByActor($actor, $fields, $record_id, $error))
+				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $uid_record, $error));
+				
 			$dao_class::update($record_id, $fields);
 			
-			if($dao_class instanceof IDevblocksDaoAbstractEvents)
-				$dao_class::onAbstractUpdate($record_id, $fields);
+			$dao_class::onUpdateByActor($actor, $fields, $record_id);
 			
 			DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $record_id, $custom_fields);
 			

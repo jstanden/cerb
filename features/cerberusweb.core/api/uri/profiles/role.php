@@ -187,9 +187,6 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError("The 'Privileges' field is required.", 'what');
 					
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_ROLE)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = array(
 						DAO_WorkerRole::NAME => $name,
 						DAO_WorkerRole::PARAMS_JSON => json_encode($params),
@@ -200,15 +197,16 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 					if(!DAO_WorkerRole::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_WorkerRole::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_WorkerRole::create($fields);
+					DAO_WorkerRole::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ROLE, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_ROLE)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					$fields = array(
 						DAO_WorkerRole::NAME => $name,
 						DAO_WorkerRole::PARAMS_JSON => json_encode($params),
@@ -219,7 +217,11 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 					if(!DAO_WorkerRole::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_WorkerRole::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_WorkerRole::update($id, $fields);
+					DAO_WorkerRole::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Custom fields

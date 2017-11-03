@@ -2508,6 +2508,11 @@
 
 		<!-- Errors -->
 		
+		<tu tuid="error.core.no_acl.admin">
+			<tuv xml:lang="en_US">
+				<seg>You must be an administrator to perform this action.</seg>
+			</tuv>
+		</tu>
 		<tu tuid="error.core.no_acl.create">
 			<tuv xml:lang="en_US">
 				<seg>You do not have permission to create this record.</seg>
@@ -2521,6 +2526,11 @@
 		<tu tuid="error.core.no_acl.edit">
 			<tuv xml:lang="en_US">
 				<seg>You do not have permission to modify this record.</seg>
+			</tuv>
+		</tu>
+		<tu tuid="error.core.no_acl.owner">
+			<tuv xml:lang="en_US">
+				<seg>You do not have permission to set this record owner.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="error.core.no_acl.view">

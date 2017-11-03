@@ -117,6 +117,26 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_CALENDAR;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		@$owner_context = $fields[self::OWNER_CONTEXT];
+		@$owner_context_id = intval($fields[self::OWNER_CONTEXT_ID]);
+		
+		// Verify that the actor can use this new owner
+		if($owner_context) {
+			if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor)) {
+				$error = DevblocksPlatform::translate('error.core.no_acl.owner');
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	static function getByContext($context, $context_ids) {
 		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
@@ -1264,18 +1284,6 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 };
 
 class Context_Calendar extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor use this owner?
-		
-		@$owner_context = $fields[DAO_Calendar::OWNER_CONTEXT];
-		@$owner_context_id = $fields[DAO_Calendar::OWNER_CONTEXT_ID];
-		
-		if(CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor))
-			return true;
-		
-		return false;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR, $models);
 	}

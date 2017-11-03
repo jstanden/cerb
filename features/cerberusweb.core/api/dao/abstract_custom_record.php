@@ -24,7 +24,9 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::OWNER_CONTEXT)
-			->context()
+			->string()
+			->addFormatter($validation->formatters()->context(true))
+			->addValidator($validation->validators()->context(true))
 			;
 		$validation
 			->addField(self::OWNER_CONTEXT_ID)
@@ -117,6 +119,59 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 	static function updateWhere($fields, $where) {
 		$table_name = self::_getTableName();
 		parent::_updateWhere($table_name, $fields, $where);
+	}
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = self::_getContextName();
+		
+		// Check context privs
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		// Check the custom record possible owners
+		
+		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID))) {
+			$error = "Invalid record type.";
+			return false;
+		}
+		
+		@$owner_contexts = $custom_record->params['owners']['contexts'] ?: [];
+		
+		@$owner_context = $fields[self::OWNER_CONTEXT];
+		@$owner_context_id = $fields[self::OWNER_CONTEXT_ID];
+		
+		// If this custom record doesn't have ownership
+		if(empty($owner_contexts)) {
+			// But we provided an owner
+			if($owner_context || $owner_context_id) {
+				$error = "This record type doesn't have ownership.";
+				return false;
+			}
+			
+		} else {
+			// If creating, we must provide an owner
+			if((!$id && !$owner_context) || ($owner_contexts && !$owner_context)) {
+				$error = sprintf("'owner__context' is required and must be one of: %s", implode(', ', $owner_contexts));
+				return false;
+			}
+			
+			// If we're providing an owner
+			if($owner_context) {
+				// The owner must be of the right type
+				if(!in_array($owner_context, $owner_contexts)) {
+					$error = sprintf("'owner__context' must be one of: %s", implode(', ', $owner_contexts));
+					return false;
+				}
+				
+				// The owner must be something this actor can use
+				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor)) {
+					$error = DevblocksPlatform::translate('error.core.no_acl.owner');
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -1028,34 +1083,6 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	
 	static private function _getTableName() {
 		return 'custom_record_' . static::_ID;
-	}
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		// Check owner contexts on custom record
-		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return false;
-		
-		// Admins can do anything
-		
-		if(CerberusContexts::isActorAnAdmin($actor))
-			return true;
-		
-		// Check the custom record
-		
-		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID)))
-			return false;
-		
-		$owner_contexts = $custom_record->getRecordOwnerContexts();
-		
-		// If free-for-all
-		if(empty($owner_contexts))
-			return true;
-		
-		if(in_array('worker', $owner_contexts))
-			return true;
-		
-		return false;
 	}
 	
 	static function isReadableByActor($models, $actor) {

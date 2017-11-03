@@ -289,6 +289,34 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		}
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_TIMETRACKING;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		if(!$id && !isset($fields[self::WORKER_ID])) {
+			$error = "A 'worker_id' is required.";
+			return false;
+		}
+		
+		if(isset($fields[self::WORKER_ID])) {
+			@$worker_id = $fields[self::WORKER_ID];
+			
+			if(!$worker_id) {
+				$error = "Invalid 'worker_id' value.";
+				return false;
+			}
+			
+			if(!CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor)) {
+				$error = "You do not have permission to create time entries for this worker.";
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	/**
 	 * @param Model_ContextBulkUpdate $update
 	 * @return boolean
@@ -1338,17 +1366,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_TimeTracking extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
-	static function isCreateableByActor(array $fields, $actor) {
-		// Can this actor use this owner?
-		
-		@$worker_id = $fields[DAO_TimeTrackingEntry::WORKER_ID];
-		
-		if(CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor))
-			return true;
-		
-		return false;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
 		return CerberusContexts::allowEverything($models);

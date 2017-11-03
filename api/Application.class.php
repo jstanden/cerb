@@ -1494,17 +1494,6 @@ class CerberusContexts {
 		return null;
 	}
 
-	public static function isCreateableByActor($context, array $fields, $actor) {
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-			return self::denyEverything($models);
-
-		if(method_exists(get_class($context_ext), 'isCreateableByActor')) {
-			return $context_ext::isCreateableByActor($fields, $actor);
-		}
-		
-		return false;
-	}
-	
 	public static function isReadableByActor($context, $models, $actor) {
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return self::denyEverything($models);
@@ -2380,10 +2369,6 @@ class Model_Application {
 }
 
 class Context_Application extends Extension_DevblocksContext {
-	static function isCreateableByActor(array $fields, $actor) {
-		return false;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

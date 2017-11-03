@@ -124,30 +124,40 @@ class PageSection_ProfilesSkill extends Extension_PageSection {
 			@$skillset_id = DevblocksPlatform::importGPC($_REQUEST['skillset_id'], 'integer', 0);
 			
 			if(empty($id)) { // New
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_SKILL)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-				
 				$fields = array(
 					DAO_Skill::CREATED_AT => time(),
 					DAO_Skill::UPDATED_AT => time(),
 					DAO_Skill::NAME => $name,
 					DAO_Skill::SKILLSET_ID => $skillset_id,
 				);
+				
+				if(!DAO_Skill::validate($fields, $error, null))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				if(!DAO_Skill::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
 				$id = DAO_Skill::create($fields);
+				DAO_Skill::onUpdateByActor($active_worker, $fields, $id);
 				
 				if(!empty($view_id) && !empty($id))
 					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_SKILL, $id);
 				
 			} else { // Edit
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_SKILL)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-				
 				$fields = array(
 					DAO_Skill::UPDATED_AT => time(),
 					DAO_Skill::NAME => $name,
 					DAO_Skill::SKILLSET_ID => $skillset_id,
 				);
+				
+				if(!DAO_Skill::validate($fields, $error, $id))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				if(!DAO_Skill::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
 				DAO_Skill::update($id, $fields);
+				DAO_Skill::onUpdateByActor($active_worker, $fields, $id);
 				
 			}
 

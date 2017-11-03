@@ -138,6 +138,15 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		}
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_ATTACHMENT;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		return true;
+	}
+	
 	/**
 	 *
 	 * @param integer $id
@@ -1419,10 +1428,6 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 
 class Context_Attachment extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	const ID = CerberusContexts::CONTEXT_ATTACHMENT;
-	
-	static function isCreateableByActor(array $fields, $actor) {
-		return true;
-	}
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view attachment meta

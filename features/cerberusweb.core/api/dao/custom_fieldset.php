@@ -72,6 +72,26 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		parent::_updateWhere('custom_fieldset', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		@$owner_context = $fields[self::OWNER_CONTEXT];
+		@$owner_context_id = intval($fields[self::OWNER_CONTEXT_ID]);
+		
+		// Verify that the actor can use this new owner
+		if($owner_context) {
+			if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor)) {
+				$error = DevblocksPlatform::translate('error.core.no_acl.owner');
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	public static function linkToContextByFieldIds($context, $context_id, $field_ids) {
 		$all_fields = DAO_CustomField::getAll();
 		$all_fieldsets = DAO_CustomFieldset::getAll();
