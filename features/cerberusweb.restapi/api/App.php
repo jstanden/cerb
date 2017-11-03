@@ -90,34 +90,6 @@ class Plugin_RestAPI {
 	}
 };
 
-if (class_exists('Extension_PreferenceTab')):
-class Ch_RestPreferencesTab extends Extension_PreferenceTab {
-	const ID = 'rest.preferences.tab.api';
-
-	function showTab() {
-		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		$defaults = C4_AbstractViewModel::loadFromClass('View_WebApiCredentials');
-		$defaults->id = 'webapi_credentials';
-
-		if(null == ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults)))
-			return;
-
-		// Force filter the view to the current worker's API keys
-		$params = array(
-			new DevblocksSearchCriteria(SearchFields_WebApiCredentials::WORKER_ID,'=',$active_worker->id),
-		);
-
-		$view->addParamsRequired($params, true);
-
-		$tpl->assign('view', $view);
-
-		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
-	}
-}
-endif;
-
 class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 	protected $_payload = '';
 

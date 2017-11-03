@@ -1760,6 +1760,11 @@
 				<seg>retry</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.reveal">
+			<tuv xml:lang="en_US">
+				<seg>reveal</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.roles">
 			<tuv xml:lang="en_US">
 				<seg>roles</seg>
@@ -1828,6 +1833,11 @@
 		<tu tuid="common.search_go">
 			<tuv xml:lang="en_US">
 				<seg>go!</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.secret">
+			<tuv xml:lang="en_US">
+				<seg>secret</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.security">

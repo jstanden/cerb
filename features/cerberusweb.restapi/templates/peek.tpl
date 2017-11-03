@@ -31,13 +31,22 @@
 		{$labels = $dict->_labels}
 		{$types = $dict->_types}
 		{foreach from=$properties item=k name=props}
-			{if $dict->$k}
-			<div>
-			{if $k == ''}
+			{if $k == 'secret_key'}
+				<div style="width:200px;">
+					<b>{'common.secret'|devblocks_translate|capitalize}</b>
+					<div>
+						<a href="javascript:;" class="cerb-secret-reveal" data-id="{$dict->id}">({'common.reveal'|devblocks_translate|lower})</a>
+					</div>
+				</div>
 			{else}
-				{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
-			{/if}
-			</div>
+				{if $dict->$k}
+				<div>
+				{if $k == ''}
+				{else}
+					{include file="devblocks:cerberusweb.core::internal/peek/peek_property_grid_cell.tpl" dict=$dict k=$k labels=$labels types=$types}
+				{/if}
+				</div>
+				{/if}
 			{/if}
 		{/foreach}
 	</div>
@@ -120,6 +129,17 @@ $(function() {
 		
 		// Timeline
 		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
+		
+		// Secret
+		var $secret = $popup.find('a.cerb-secret-reveal')
+			.on('click', function(e) {
+				var $this = $(this);
+				var $parent = $this.closest('div');
+				var id = $this.attr('data-id');
+				
+				genericAjaxGet($parent, 'c=profiles&a=handleSectionAction&section=webapi_credentials&action=revealSecretKey&id=' + id);
+			})
+		;
 	});
 });
 </script>

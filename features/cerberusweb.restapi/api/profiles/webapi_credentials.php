@@ -150,7 +150,8 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 				];
 				
 				if(empty($id)) { // New
-					$fields[DAO_WebApiCredentials::WORKER_ID] = $active_worker->id;
+					@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+					$fields[DAO_WebApiCredentials::WORKER_ID] = $worker_id;
 				
 					if(!DAO_WebApiCredentials::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -209,7 +210,20 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 			return;
 			
 		}
+	}
 	
+	function revealSecretKeyAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$id || false == ($api_key = DAO_WebApiCredentials::get($id)))
+			return false;
+		
+		if($api_key->worker_id != $active_worker->id)
+			return false;
+		
+		echo DevblocksPlatform::strEscapeHtml($api_key->secret_key);
 	}
 	
 	function viewExploreAction() {

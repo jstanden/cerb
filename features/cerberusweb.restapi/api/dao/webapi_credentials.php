@@ -512,6 +512,10 @@ class Model_WebApiCredentials {
 	public $secret_key;
 	public $params = [];
 	public $updated_at = 0;
+	
+	function getWorker() {
+		return DAO_Worker::get($this->worker_id);
+	}
 };
 
 class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_QuickSearch {
@@ -1057,6 +1061,16 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 			$tpl->assign('dict', $dict);
 			
 			$properties = $context_ext->getCardProperties();
+			
+			// If this key is owned by the current worker, show the secret hint
+			if($dict->worker_id == $active_worker->id) {
+				if(false !== ($idx = array_search('access_key', $properties))) {
+					array_splice($properties, $idx+1, 0, ['secret_key']);
+				} else {
+					$properties[] = 'secret_key';
+				}
+			}
+			
 			$tpl->assign('properties', $properties);
 			
 			$tpl->display('devblocks:cerberusweb.restapi::peek.tpl');

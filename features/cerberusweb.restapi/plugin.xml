@@ -61,19 +61,6 @@
 			</params>
 		</extension>
 		
-		<extension point="cerberusweb.preferences.tab">
-			<id>rest.preferences.tab.api</id>
-			<name>API Preferences Tab</name>
-			<class>
-				<file>api/App.php</file>
-				<name>Ch_RestPreferencesTab</name>
-			</class>
-			<params>
-				<param key="uri" value="api" />
-				<param key="title" value="Cerb API" />
-			</params>
-		</extension>
-		
 		<!-- Context -->
 		
 		<extension point="devblocks.context">
@@ -109,10 +96,7 @@
 				<param key="acl">
 					<value>
 						<data key="comment" />
-						<data key="create" />
-						<data key="delete" />
 						<data key="export" />
-						<data key="update" />
 					</value>
 				</param>
 			</params>
