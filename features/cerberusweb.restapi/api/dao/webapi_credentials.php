@@ -824,6 +824,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 			'access_key' => $prefix.$translate->_('dao.webapi_credentials.access_key'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'params' => $prefix.$translate->_('common.params'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -834,6 +835,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 			'access_key' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'params' => null,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -858,6 +860,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 			$token_values['access_key'] = $webapi_credentials->access_key;
 			$token_values['id'] = $webapi_credentials->id;
 			$token_values['name'] = $webapi_credentials->name;
+			$token_values['params'] = $webapi_credentials->params;
 			$token_values['updated_at'] = $webapi_credentials->updated_at;
 			$token_values['worker_id'] = $webapi_credentials->worker_id;
 			
