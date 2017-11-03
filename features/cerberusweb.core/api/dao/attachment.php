@@ -78,6 +78,11 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			->timestamp()
 			;
 		$validation
+			->addField('_attach')
+			->string()
+			->setMaxLength('32 bits')
+			;
+		$validation
 			->addField('_content')
 			->string()
 			->setMaxLength('32 bits')
@@ -112,9 +117,40 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			$fields[self::UPDATED] = time();
 		
 		self::_updateAbstract(Context_Attachment::ID, $ids, $fields);
+		self::_updateAttach($ids, $fields);
 		self::_updateContent($ids, $fields);
 		
 		self::_update($ids, 'attachment', $fields);
+	}
+	
+	private static function _updateAttach($ids, &$fields) {
+		if(!is_array($ids))
+			$ids = [$ids];
+		
+		if(!isset($fields['_attach']))
+			return;
+		
+		$links_json = $fields['_attach'];
+		unset($fields['_attach']);
+		
+		if(false == (@$links = json_decode($links_json)))
+			return;
+		
+		if(is_array($links))
+		foreach($links as $link) {
+			$link_context = $link_id = null;
+			
+			if(!is_string($link))
+				continue;
+			
+			@list($link_context, $link_id) = explode(':', $link, 2);
+			
+			if(false == ($link_context_ext = Extension_DevblocksContext::getByAlias($link_context, false)))
+				continue;
+			
+			foreach($ids as $id)
+				DAO_Attachment::addLinks($link_context_ext->id, $link_id, $ids);
+		}
 	}
 	
 	private static function _updateContent($ids, &$fields) {
@@ -1682,6 +1718,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 
 	function getKeyToDaoFieldMap() {
 		return [
+			'attach' => '_attach',
 			'content' => '_content',
 			'id' => DAO_Attachment::ID,
 			'links' => '_links',
@@ -1696,6 +1733,10 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'attach':
+				$this->_getDaoFieldsAttach($value, $out_fields, $error);
+				break;
+			
 			case 'content':
 				$out_fields['_content'] = $value;
 				break;
@@ -1706,6 +1747,40 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		return true;
+	}
+	
+	protected function _getDaoFieldsAttach($value, &$out_fields, &$error) {
+		if(!is_array($value)) {
+			$error = 'must be an array of context:id pairs.';
+			return false;
+		}
+		
+		$links = [];
+		
+		foreach($value as &$tuple) {
+			@list($context, $id) = explode(':', $tuple, 2);
+			
+			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, false))) {
+				$error = sprintf("has a link with an invalid context (%s)", $tuple);
+				return false;
+			}
+			
+			$context = $context_ext->id;
+			
+			$tuple = sprintf("%s:%d",
+				$context,
+				$id
+			);
+			
+			$links[] = $tuple;
+		}
+		
+		if(false == ($json = json_encode($links))) {
+			$error = 'could not be JSON encoded.';
+			return false;
+		}
+		
+		$out_fields['_attach'] = $json;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {
