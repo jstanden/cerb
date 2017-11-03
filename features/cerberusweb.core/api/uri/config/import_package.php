@@ -124,6 +124,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			$uids = [];
 			$records_created = [];
 			
+			$this->_packageCreateCustomRecords($json, $uids, $records_created, $placeholders);
 			$this->_packageValidate($json, $uids, $records_created, $placeholders);
 			$this->_packageGenerateIds($json, $uids, $records_created, $placeholders);
 			$this->_packageImport($json, $uids, $records_created);
@@ -152,6 +153,28 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 		}
 	}
 	
+	private function _packageCreateCustomRecords(&$json, &$uids, &$records_created, &$placeholders) {
+		@$records = $json['records'];
+		
+		// Only keep custom records
+		$custom_records = array_filter($records, function($record) {
+			if(!isset($record['_context']))
+				return false;
+			
+			return in_array($record['_context'], ['custom_record', CerberusContexts::CONTEXT_CUSTOM_RECORD]);
+		});
+		
+		if(empty($custom_records))
+			return;
+		
+		$custom_records_json = [
+			'records' => $custom_records,
+		];
+		
+		$this->_packageValidate($custom_records_json, $uids, $records_created, $placeholders);
+		$this->_packageGenerateIds($custom_records_json, $uids, $records_created, $placeholders);
+	}
+	
 	private function _packageValidate(&$json, &$uids, &$records_created, &$placeholders) {
 		@$records = $json['records'];
 		
@@ -162,6 +185,12 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			$diff = array_diff_key(array_flip($keys_to_require), $record);
 			if(count($diff))
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: record (%s) is missing properties (%s)", $record['uid'], implode(', ', array_keys($diff))));
+			
+			$uid_record = $record['uid'];
+			
+			// If we already processed this, ignore it here
+			if(isset($uids[$uid_record]))
+				continue;
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
 				throw new Exception_DevblocksValidationError(sprintf("Unknown context '%s' on record (%s).", $record['_context'], $record['uid']));
@@ -413,12 +442,21 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 		foreach($records as $record) {
 			$uid_record = $record['uid'];
 			
+			// If we already processed this, ignore it here
+			if(isset($uids[$uid_record]))
+				continue;
+			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
 				throw new Exception_DevblocksValidationError(sprintf("Unknown context on record (%s)", $record['_context']));
 
 			$dict = [];
 			$fields = $custom_fields = [];
 			$error = null;
+			
+			// If we're creating a custom record, also include its uri so we can use the context later in the package
+			if(in_array($record['_context'], ['custom_record', CerberusContexts::CONTEXT_CUSTOM_RECORD])) {
+				$dict['uri'] = $record['uri'];
+			}
 			
 			if(false == ($dao_class = $context_ext->getDaoClass()))
 				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $uid_record, "Can't load DAO class."));
