@@ -150,7 +150,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			
 		} else {
 			// If creating, we must provide an owner
-			if((!$id && !$owner_context) || ($owner_contexts && !$owner_context)) {
+			if((!$id && $owner_contexts && !$owner_context)) {
 				$error = sprintf("'owner__context' is required and must be one of: %s", implode(', ', $owner_contexts));
 				return false;
 			}
