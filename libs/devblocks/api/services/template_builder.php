@@ -310,11 +310,16 @@ class DevblocksDictionaryDelegate {
 		
 		$this->_dictionary = $dictionary;
 	}
-
+	
 	public static function instance($values) {
 		return new DevblocksDictionaryDelegate($values);
 	}
 	
+	function __toString() {
+		$dictionary = $this->getDictionary(null, false);
+		return DevblocksPlatform::strFormatJson(json_encode($dictionary));
+	}
+
 	public function __set($name, $value) {
 		$this->_dictionary[$name] = $value;
 	}
