@@ -1126,13 +1126,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(isset($fields[self::GROUP_ID])) {
 			@$group_id = $fields[self::GROUP_ID];
 			
-			if(!$group_id) {
+			if(!$group_id || false == DAO_Group::get($group_id)) {
 				$error = "Invalid 'group_id' value.";
-				return false;
-			}
-			
-			if(!Context_Group::isWriteableByActor($group_id, $actor)) {
-				$error = "You do not have permission to create tickets in this group.";
 				return false;
 			}
 		}
