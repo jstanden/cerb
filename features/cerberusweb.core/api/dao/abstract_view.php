@@ -378,26 +378,43 @@ abstract class C4_AbstractView {
 		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
 		
 		// Quick search multi-sorting
-		// [TODO] Stacked sorts
 		
 		foreach($fields as $k => $p) {
-			if($p instanceof DevblocksSearchCriteria && $p->key == 'sort') {
-				$oper = null;
-				$value = null;
-				
-				if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
-					continue;
-				
-				if(false == ($sort_results = $this->_getSortFromQuickSearchQuery($value)))
-					continue;
-				
-				if(isset($sort_results['sort_by']) && !empty($sort_results['sort_by']))
-					$this->renderSortBy = $sort_results['sort_by'];
-				
-				if(isset($sort_results['sort_asc']) && !empty($sort_results['sort_asc']))
-					$this->renderSortAsc = $sort_results['sort_asc'];
-				
-				unset($fields[$k]);
+			if($p instanceof DevblocksSearchCriteria) {
+				switch($p->key) {
+					case 'page':
+						$oper = null;
+						$value = null;
+						
+						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+							break;
+						
+						// Convert from 1-based to 0-based
+						$page = DevblocksPlatform::intClamp($value - 1, 0, 2000);
+						$this->renderPage = $page;
+						
+						unset($fields[$k]);
+						break;
+						
+					case 'sort':
+						$oper = null;
+						$value = null;
+						
+						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+							break;
+						
+						if(false == ($sort_results = $this->_getSortFromQuickSearchQuery($value)))
+							break;
+						
+						if(isset($sort_results['sort_by']) && !empty($sort_results['sort_by']))
+							$this->renderSortBy = $sort_results['sort_by'];
+						
+						if(isset($sort_results['sort_asc']) && !empty($sort_results['sort_asc']))
+							$this->renderSortAsc = $sort_results['sort_asc'];
+						
+						unset($fields[$k]);
+						break;
+				}
 			}
 		}
 		
