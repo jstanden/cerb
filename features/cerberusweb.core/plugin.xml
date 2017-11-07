@@ -3932,6 +3932,23 @@
 			</params>
 		</extension>
 		
+		<extension point="devblocks.event.action">
+			<id>core.bot.action.record.create</id>
+			<name>Record Create</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>BotAction_RecordCreate</name>
+			</class>
+			<params>
+				<param key="label" value="Record create" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">

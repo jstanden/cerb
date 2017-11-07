@@ -482,6 +482,16 @@
 				<seg>category</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.changeset">
+			<tuv xml:lang="en_US">
+				<seg>changeset</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.changesets">
+			<tuv xml:lang="en_US">
+				<seg>changesets</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.choose">
 			<tuv xml:lang="en_US">
 				<seg>choose</seg>
