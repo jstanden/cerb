@@ -4017,6 +4017,23 @@
 			</params>
 		</extension>
 		
+		<extension point="devblocks.event.action">
+			<id>core.bot.action.record.search</id>
+			<name>Record Search</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>BotAction_RecordSearch</name>
+			</class>
+			<params>
+				<param key="label" value="Record search" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">

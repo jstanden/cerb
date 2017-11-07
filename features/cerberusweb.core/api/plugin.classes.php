@@ -1782,6 +1782,154 @@ class BotAction_RecordRetrieve extends Extension_DevblocksEventAction {
 	}
 };
 
+class BotAction_RecordSearch extends Extension_DevblocksEventAction {
+	const ID = 'core.bot.action.record.search';
+	
+	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('params', $params);
+		
+		if(!is_null($seq))
+			$tpl->assign('namePrefix', 'action'.$seq);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_record_search.tpl');
+	}
+	
+	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$actor = $trigger->getBot();
+
+		$out = null;
+		
+		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		@$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'],'string',''), $dict);
+		@$object_placeholder = $params['object_placeholder'];
+		
+		if(!$context || false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
+			return "Invalid record type.";
+		
+		// Make sure we can create records of this type
+		if(!$context->hasOption('records'))
+			return "This record type is not supported.";
+		
+		$context_ext = $context->createInstance(); /* @var $context_ext Extension_DevblocksContext */
+		
+		$dao_class = $context_ext->getDaoClass();
+
+		// Fail if there's no DAO::getIds() method
+		if(!method_exists($dao_class, 'getIds'))
+			return "This record type is not supported";
+		
+		// Load a view
+		if(false == ($view = $context_ext->getChooserView()))
+			return "Failed to load a worklist of this record type.";
+		
+		// Set query filter
+		$view->addParamsWithQuickSearch($query, true);
+		$view->view_columns = [];
+		
+		$out = sprintf(">>> Searching %s\nQuery: %s\n", $context_ext->manifest->name, $query);
+		
+		list($results, $total) = $view->getData();
+		
+		$ids = array_keys($results);
+		
+		if(empty($ids))
+			return "No results.";
+		
+		if(false == ($models = $dao_class::getIds($ids)))
+			return sprintf("Unable to load %s records.", $context_ext->manifest->name);
+		
+		// Always run in simulator mode
+		$this->run($token, $trigger, $params, $dict);
+		
+		if($object_placeholder && is_array($dict->$object_placeholder)) {
+			$first = current($dict->$object_placeholder);
+			
+			$out .= sprintf("\n%s:\n%s", $object_placeholder,  $first);
+			
+			if($total > 1)
+				$out .= sprintf("\n\n... and %d more", ($total-1));
+			
+			$page_placeholder = $object_placeholder . '__page';
+			$total_placeholder = $object_placeholder . '__total';
+			
+			$out .= sprintf("\n\n%s: %d\n%s: %d",
+				$page_placeholder,
+				$dict->$page_placeholder,
+				$total_placeholder,
+				$dict->$total_placeholder
+			);
+		}
+		
+		return $out;
+	}
+	
+	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$actor = $trigger->getBot();
+		
+		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		@$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'],'string',''), $dict);
+		@$expands = DevblocksPlatform::parseCrlfString($tpl_builder->build(DevblocksPlatform::importVar($params['expand'],'string',''), $dict));
+		@$object_placeholder = $params['object_placeholder'];
+		
+		if(!$context || false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
+			return false;
+		
+		// Make sure we can create records of this type
+		if(!$context->hasOption('records'))
+			return false;
+		
+		$context_ext = $context->createInstance(); /* @var $context_ext Extension_DevblocksContext */
+		
+		$dao_class = $context_ext->getDaoClass();
+		
+		// Fail if there's no DAO::getIds() method
+		if(!method_exists($dao_class, 'getIds'))
+			return "This record type is not supported";
+		
+		// Load a view
+		if(false == ($view = $context_ext->getChooserView()))
+			return "Failed to load a worklist of this record type.";
+		
+		// Set query filter
+		$view->addParamsWithQuickSearch($query, true);
+		$view->view_columns = [];
+		
+		$out = sprintf(">>> Searching %s\nQuery: %s\n\n", $context_ext->manifest->name, $query);
+		
+		list($results, $total) = $view->getData();
+		
+		$ids = array_keys($results);
+		
+		if(empty($ids))
+			return "No results.";
+		
+		if(false == ($models = $dao_class::getIds($ids)))
+			return sprintf("Unable to load %s records.", $context_ext->manifest->name);
+		
+		if($object_placeholder) {
+			$total_placeholder = $object_placeholder . '__total';
+			$dict->$total_placeholder = $total;
+			
+			$page_placeholder = $object_placeholder . '__page';
+			$dict->$page_placeholder = $view->renderPage + 1;
+			
+			// Load dictionaries
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext->id);
+			
+			// Expand tokens
+			if(is_array($expands))
+			foreach($expands as $expand)
+				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $expand);
+			
+			// Set the preferred placeholder
+			$dict->$object_placeholder = $dicts;
+		}
+	}
+};
+
 class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	const ID = 'core.va.action.classifier_prediction';
 	
