@@ -1329,6 +1329,150 @@ class BotAction_RecordCreate extends Extension_DevblocksEventAction {
 	}
 };
 
+class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
+	const ID = 'core.bot.action.record.update';
+	
+	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('params', $params);
+		
+		if(!is_null($seq))
+			$tpl->assign('namePrefix', 'action'.$seq);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_record_update.tpl');
+	}
+	
+	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$actor = $trigger->getBot();
+
+		$out = null;
+		
+		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
+		@$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'],'string',''), $dict);
+		@$object_placeholder = $params['object_placeholder'];
+		
+		if(false == (@$changeset = json_decode($changeset_json, true)))
+			return "Invalid changeset JSON.";
+		
+		if(!$id)
+			return "ID is empty.";
+		
+		if(!$context || false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
+			return "Invalid record type.";
+		
+		// Make sure we can create records of this type
+		if(!$context->hasOption('records'))
+			return "This record type is not supported.";
+		
+		$context_ext = $context->createInstance(); /* @var $context_ext Extension_DevblocksContext */
+		
+		$dao_class = $context_ext->getDaoClass();
+		$dao_fields = $custom_fields = [];
+		
+		// Fail if there's no DAO::update() method
+		if(!method_exists($dao_class, 'update'))
+			return "This record type is not supported";
+		
+		if(!CerberusContexts::isWriteableByActor($context->id, $id, $actor))
+			return DevblocksPlatform::translate('error.core.no_acl.edit') . sprintf(" %s:%d", $context->id, $id);
+		
+		if(!$context_ext->getDaoFieldsFromKeysAndValues($changeset, $dao_fields, $custom_fields, $error))
+			return $error;
+		
+		if(is_array($dao_fields))
+		if(!$dao_class::validate($dao_fields, $error, $id))
+			return $error;
+		
+		if($custom_fields)
+		if(!DAO_CustomField::validateCustomFields($custom_fields, $context_ext->id, $error))
+			return $error;
+
+		// Check implementation permissions
+		if(!$dao_class::onBeforeUpdateByActor($actor, $dao_fields, $id, $error))
+			return $error;
+		
+		$out = sprintf(">>> Updating %s (#%d)\r\n%s\n", $context_ext->manifest->name, $id, $changeset_json);
+		
+		// Run in simulator
+		@$run_in_simulator = !empty($params['run_in_simulator']);
+		if($run_in_simulator) {
+			$this->run($token, $trigger, $params, $dict);
+		}
+		
+		return $out;
+	}
+	
+	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$actor = $trigger->getBot();
+		
+		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
+		@$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'],'string',''), $dict);
+		@$object_placeholder = $params['object_placeholder'];
+		
+		if(false == (@$changeset = json_decode($changeset_json, true)))
+			return false;
+		
+		if(!$id)
+			return false;
+		
+		if(false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
+			return false;
+		
+		// Make sure we can create records of this type
+		if(!$context->hasOption('records'))
+			return false;
+		
+		$context_ext = $context->createInstance(); /* @var $context_ext Extension_DevblocksContext */
+		
+		$dao_class = $context_ext->getDaoClass();
+		$dao_fields = $custom_fields = [];
+		
+		// Fail if there's no DAO::update() method
+		if(!method_exists($dao_class, 'update'))
+			return false;
+		
+		if(!CerberusContexts::isWriteableByActor($context->id, $id, $actor))
+			return false;
+		
+		if(!$context_ext->getDaoFieldsFromKeysAndValues($changeset, $dao_fields, $custom_fields, $error))
+			return false;
+		
+		if(is_array($dao_fields))
+		if(!$dao_class::validate($dao_fields, $error, $id))
+			return false;
+		
+		if($custom_fields)
+		if(!DAO_CustomField::validateCustomFields($custom_fields, $context_ext->id, $error))
+			return false;
+
+		// Check implementation permissions
+		if(!$dao_class::onBeforeUpdateByActor($actor, $dao_fields, $id, $error))
+			return false;
+		
+		$dao_class::update($id, $dao_fields);
+		
+		if($custom_fields)
+		foreach($custom_fields as $field_id => $value)
+			DAO_CustomFieldValue::setFieldValue($context_ext->id, $id, $field_id, $value);
+		
+		$dao_class::onUpdateByActor($actor, $dao_fields, $id);
+		
+		// Set placeholder with object meta
+		
+		if(!empty($object_placeholder)) {
+			$labels = $values = [];
+			CerberusContexts::getContext($context_ext->id, $id, $labels, $values, null, true, true);
+			$obj_dict = DevblocksDictionaryDelegate::instance($values);
+			$obj_dict->custom_;
+			$dict->$object_placeholder = $obj_dict;
+		}
+	}
+};
+
 class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	const ID = 'core.va.action.classifier_prediction';
 	

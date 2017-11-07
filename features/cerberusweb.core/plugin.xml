@@ -3949,6 +3949,23 @@
 			</params>
 		</extension>
 		
+		<extension point="devblocks.event.action">
+			<id>core.bot.action.record.update</id>
+			<name>Record Update</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>BotAction_RecordUpdate</name>
+			</class>
+			<params>
+				<param key="label" value="Record update" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">
