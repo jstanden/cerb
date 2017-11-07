@@ -1473,6 +1473,98 @@ class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 	}
 };
 
+class BotAction_RecordDelete extends Extension_DevblocksEventAction {
+	const ID = 'core.bot.action.record.delete';
+	
+	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('params', $params);
+		
+		if(!is_null($seq))
+			$tpl->assign('namePrefix', 'action'.$seq);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_record_delete.tpl');
+	}
+	
+	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$actor = $trigger->getBot();
+
+		$out = null;
+		
+		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
+		
+		if(!$id)
+			return "ID is empty.";
+		
+		if(!$context || false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
+			return "Invalid record type.";
+		
+		// Make sure we can create records of this type
+		if(!$context->hasOption('records'))
+			return "This record type is not supported.";
+		
+		$context_ext = $context->createInstance(); /* @var $context_ext Extension_DevblocksContext */
+		
+		$dao_class = $context_ext->getDaoClass();
+		
+		if(false == ($model = $dao_class::get($id)))
+			return sprintf("%s #%d was not found.", $context_ext->manifest->name, $id);
+		
+		// Fail if there's no DAO::delete() method
+		if(!method_exists($dao_class, 'delete'))
+			return "This record type is not supported";
+		
+		if(!CerberusContexts::isDeleteableByActor($context->id, $id, $actor))
+			return DevblocksPlatform::translate('error.core.no_acl.delete') . sprintf(" (%s:%d)", $context->id, $id);
+		
+		$out = sprintf(">>> Deleting %s (#%d)\n", $context_ext->manifest->name, $id);
+		
+		// Run in simulator
+		@$run_in_simulator = !empty($params['run_in_simulator']);
+		if($run_in_simulator) {
+			$this->run($token, $trigger, $params, $dict);
+		}
+		
+		return $out;
+	}
+	
+	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$actor = $trigger->getBot();
+		
+		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
+		
+		if(!$id)
+			return false;
+		
+		if(false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
+			return false;
+		
+		// Make sure we can create records of this type
+		if(!$context->hasOption('records'))
+			return false;
+		
+		$context_ext = $context->createInstance(); /* @var $context_ext Extension_DevblocksContext */
+		
+		$dao_class = $context_ext->getDaoClass();
+		
+		if(false == ($model = $dao_class::get($id)))
+			return false;
+		
+		// Fail if there's no DAO::delete() method
+		if(!method_exists($dao_class, 'delete'))
+			return false;
+		
+		if(!CerberusContexts::isDeleteableByActor($context->id, $id, $actor))
+			return false;
+		
+		$dao_class::delete($id);
+	}
+};
+
 class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	const ID = 'core.va.action.classifier_prediction';
 	
