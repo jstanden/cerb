@@ -382,6 +382,19 @@ abstract class C4_AbstractView {
 		foreach($fields as $k => $p) {
 			if($p instanceof DevblocksSearchCriteria) {
 				switch($p->key) {
+					case 'limit':
+						$oper = null;
+						$value = null;
+						
+						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+							break;
+						
+						$limit = DevblocksPlatform::intClamp($value, 1, 250);
+						$this->renderLimit = $limit;
+						
+						unset($fields[$k]);
+						break;
+						
 					case 'page':
 						$oper = null;
 						$value = null;
