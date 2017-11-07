@@ -4000,6 +4000,23 @@
 			</params>
 		</extension>
 		
+		<extension point="devblocks.event.action">
+			<id>core.bot.action.record.retrieve</id>
+			<name>Record Retrieve</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>BotAction_RecordRetrieve</name>
+			</class>
+			<params>
+				<param key="label" value="Record retrieve" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">

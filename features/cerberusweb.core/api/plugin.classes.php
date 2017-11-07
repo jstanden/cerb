@@ -1683,6 +1683,105 @@ class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 	}
 };
 
+class BotAction_RecordRetrieve extends Extension_DevblocksEventAction {
+	const ID = 'core.bot.action.record.retrieve';
+	
+	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('params', $params);
+		
+		if(!is_null($seq))
+			$tpl->assign('namePrefix', 'action'.$seq);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_record_retrieve.tpl');
+	}
+	
+	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$actor = $trigger->getBot();
+
+		$out = null;
+		
+		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
+		@$object_placeholder = $params['object_placeholder'];
+		
+		if(!$id)
+			return "ID is empty.";
+		
+		if(!$context || false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
+			return "Invalid record type.";
+		
+		// Make sure we can create records of this type
+		if(!$context->hasOption('records'))
+			return "This record type is not supported.";
+		
+		$context_ext = $context->createInstance(); /* @var $context_ext Extension_DevblocksContext */
+		
+		$dao_class = $context_ext->getDaoClass();
+		
+		if(false == ($model = $dao_class::get($id)))
+			return sprintf("%s #%d was not found.", $context_ext->manifest->name, $id);
+		
+		// Fail if there's no DAO::get() method
+		if(!method_exists($dao_class, 'get'))
+			return "This record type is not supported";
+		
+		if(!CerberusContexts::isReadableByActor($context->id, $id, $actor))
+			return DevblocksPlatform::translate('error.core.no_acl.view') . sprintf(" (%s:%d)", $context->id, $id);
+		
+		$out = sprintf(">>> Retrieving %s (#%d)\n", $context_ext->manifest->name, $id);
+		
+		// Always run in simulator mode
+		$this->run($token, $trigger, $params, $dict);
+		
+		$out .= $dict->$object_placeholder;
+		
+		return $out;
+	}
+	
+	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$actor = $trigger->getBot();
+		
+		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
+		@$object_placeholder = $params['object_placeholder'];
+		
+		if(!$id)
+			return false;
+		
+		if(false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
+			return false;
+		
+		// Make sure we can create records of this type
+		if(!$context->hasOption('records'))
+			return false;
+		
+		$context_ext = $context->createInstance(); /* @var $context_ext Extension_DevblocksContext */
+		
+		$dao_class = $context_ext->getDaoClass();
+		
+		// Fail if there's no DAO::get() method
+		if(!method_exists($dao_class, 'get'))
+			return false;
+		
+		if(false == ($model = $dao_class::get($id)))
+			return false;
+		
+		if(!CerberusContexts::isReadableByActor($context->id, $id, $actor))
+			return false;
+		
+		if(!empty($object_placeholder)) {
+			$labels = $values = [];
+			CerberusContexts::getContext($context_ext->id, $model, $labels, $values, null, true, true);
+			$obj_dict = DevblocksDictionaryDelegate::instance($values);
+			$obj_dict->custom_;
+			$dict->$object_placeholder = $obj_dict;
+		}
+	}
+};
+
 class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	const ID = 'core.va.action.classifier_prediction';
 	
