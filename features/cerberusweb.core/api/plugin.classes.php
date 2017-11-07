@@ -1473,6 +1473,124 @@ class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 	}
 };
 
+class BotAction_RecordUpsert extends Extension_DevblocksEventAction {
+	const ID = 'core.bot.action.record.upsert';
+	
+	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('params', $params);
+		
+		if(!is_null($seq))
+			$tpl->assign('namePrefix', 'action'.$seq);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_record_upsert.tpl');
+	}
+	
+	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+
+		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		@$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'],'string',''), $dict);
+		
+		if(!$query)
+			return "Query is empty.";
+		
+		if(!$context || false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
+			return "Invalid record type.";
+		
+		// Make sure we can create records of this type
+		if(!$context->hasOption('records'))
+			return "This record type is not supported.";
+		
+		$context_ext = $context->createInstance(); /* @var $context_ext Extension_DevblocksContext */
+		
+		if(false == ($view = $context_ext->getChooserView()))
+			return sprintf("Can't create a worklist of type: %s", $context_ext->name);
+		
+		$view->addParamsWithQuickSearch($query, true);
+		$view->renderTotal = true;
+		
+		list($results, $total) = $view->getData();
+		
+		if(0 == $total) {
+			$action = new BotAction_RecordCreate();
+			$action_params = [
+				'context' => $context_ext->id,
+				'changeset_json' => $params['changeset_json'],
+				'object_placeholder' => $params['object_placeholder'],
+				'run_in_simulator' => $params['run_in_simulator']
+			];
+			return $action->simulate($token, $trigger, $action_params, $dict);
+			
+		} elseif (1 == $total) {
+			$action = new BotAction_RecordUpdate();
+			$action_params = [
+				'context' => $context_ext->id,
+				'id' => key($results),
+				'changeset_json' => $params['changeset_json'],
+				'object_placeholder' => $params['object_placeholder'],
+				'run_in_simulator' => $params['run_in_simulator'],
+			];
+			return $action->simulate($token, $trigger, $action_params, $dict);
+			
+		} else {
+			return "The upsert query must match exactly 0 or 1 records.";
+		}
+	}
+	
+	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		@$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'],'string',''), $dict);
+		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
+		
+		if(!$query)
+			return false;
+		
+		if(false == ($context = Extension_DevblocksContext::getByAlias($context, false)))
+			return false;
+		
+		// Make sure we can create records of this type
+		if(!$context->hasOption('records'))
+			return false;
+		
+		$context_ext = $context->createInstance(); /* @var $context_ext Extension_DevblocksContext */
+		
+		if(false == ($view = $context_ext->getChooserView()))
+			return false;
+		
+		$view->addParamsWithQuickSearch($query, true);
+		$view->renderTotal = true;
+		
+		list($results, $total) = $view->getData();
+		
+		if(0 == $total) {
+			$action = new BotAction_RecordCreate();
+			$action_params = [
+				'context' => $context_ext->id,
+				'changeset_json' => $params['changeset_json'],
+				'object_placeholder' => $params['object_placeholder'],
+				'run_in_simulator' => $params['run_in_simulator']
+			];
+			return $action->run($token, $trigger, $action_params, $dict);
+			
+		} elseif (1 == $total) {
+			$action = new BotAction_RecordUpdate();
+			$action_params = [
+				'context' => $context_ext->id,
+				'id' => key($results),
+				'changeset_json' => $params['changeset_json'],
+				'object_placeholder' => $params['object_placeholder'],
+				'run_in_simulator' => $params['run_in_simulator'],
+			];
+			return $action->run($token, $trigger, $action_params, $dict);
+			
+		} else {
+			return false;
+		}
+	}
+};
+
 class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.record.delete';
 	
