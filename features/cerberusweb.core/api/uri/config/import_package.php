@@ -157,6 +157,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 		@$records = $json['records'];
 		
 		// Only keep custom records
+		if(is_array($records))
 		$custom_records = array_filter($records, function($record) {
 			if(!isset($record['_context']))
 				return false;
