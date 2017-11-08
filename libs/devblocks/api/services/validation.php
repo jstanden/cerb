@@ -303,8 +303,11 @@ class _DevblocksValidators {
 	function language() {
 		return function($value, &$error) {
 			$languages = DAO_Translation::getDefinedLangCodes();
+			if(empty($value))
+				return true;
 			
-			if(!$value || !isset($languages[$value])) {
+			
+			if(!$value || !isset($locales[$value])) {
 				$error = sprintf("(%s) is not a valid language. Format like: en_US",
 					$value
 				);
@@ -317,6 +320,9 @@ class _DevblocksValidators {
 	
 	function timezone() {
 		return function($value, &$error) {
+			if(empty($value))
+				return true;
+			
 			$date = DevblocksPlatform::services()->date();
 			$timezones = $date->getTimezones();
 			

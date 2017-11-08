@@ -245,7 +245,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				// Insert/Update
 				
 				if(empty($id)) { // New
-					$fields = array(
+					$fields = [
 						DAO_Contact::FIRST_NAME => $first_name,
 						DAO_Contact::LAST_NAME => $last_name,
 						DAO_Contact::TITLE => $title,
@@ -261,7 +261,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						DAO_Contact::MOBILE => $mobile,
 						DAO_Contact::CREATED_AT => time(),
 						DAO_Contact::UPDATED_AT => time(),
-					);
+					];
 					
 					if(!empty($password)) {
 						$salt = CerberusApplication::generatePassword(8);
@@ -282,7 +282,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CONTACT, $id);
 					
 				} else { // Edit
-					$fields = array(
+					$fields = [
 						DAO_Contact::FIRST_NAME => $first_name,
 						DAO_Contact::LAST_NAME => $last_name,
 						DAO_Contact::TITLE => $title,
@@ -297,7 +297,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						DAO_Contact::PHONE => $phone,
 						DAO_Contact::MOBILE => $mobile,
 						DAO_Contact::UPDATED_AT => time(),
-					);
+					];
 					
 					if(!DAO_Contact::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
