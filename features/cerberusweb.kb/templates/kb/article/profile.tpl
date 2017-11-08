@@ -17,7 +17,7 @@
 		
 		<!-- Edit -->
 		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-		<button id="btnDisplayKbEdit" type="button" title="{'common.edit'|devblocks_translate|capitalize} (E)"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		<button id="btnDisplayKbEdit" type="button" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize} (E)"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 	</form>
 	
@@ -108,7 +108,7 @@ $(function() {
 	
 	// Edit
 	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-	$('#btnDisplayKbArticleEdit')
+	$('#btnDisplayKbEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {
 		})
