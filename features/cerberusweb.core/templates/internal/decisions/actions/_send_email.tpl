@@ -58,27 +58,39 @@
 	<textarea name="{$namePrefix}[subject]" size="45" style="width:100%;" class="placeholders">{$params.subject}</textarea>
 </div>
 
-<div style="{if $params.format=='parsedown'}{else}display:none;{/if}" class="div-showhide">
+<b>{'message.headers.custom'|devblocks_translate|capitalize}:</b> (one per line, e.g. "X-Precedence: Bulk")
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<textarea name="{$namePrefix}[headers]" rows="3" cols="45" style="width:100%;" class="placeholders">{$params.headers}</textarea>
+</div>
+
+<b>{'common.format'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<label><input type="radio" name="{$namePrefix}[format]" value="" {if !$params.format}checked="checked"{/if}> Plaintext</label>
+	<label><input type="radio" name="{$namePrefix}[format]" value="parsedown" {if 'parsedown' == $params.format}checked="checked"{/if}> Markdown</label>
+</div>
+
+<div style="{if $params.format=='parsedown'}{else}display:none;{/if}" class="options-parsedown">
 	<b>HTML Template:</b><br>
 	<div style="margin-left:10px;margin-bottom:0.5em;">
-		<select name="{$namePrefix}[html_template_id]">
-			<option value=""> - {'common.default'|devblocks_translate|lower} -</option>
-			{foreach from=$html_templates item=html_template}
-			<option value="{$html_template->id}" {if $params.html_template_id==$html_template->id}selected="selected"{/if}>{$html_template->name}</option>
-			{/foreach}
-		</select>
+		<button type="button" class="chooser-abstract" data-field-name="{$namePrefix}[html_template_id]" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-autocomplete="" data-autocomplete-placeholders="{$smarty.capture.addy_placeholders}"><span class="glyphicons glyphicons-search"></span></button>
+		<ul class="bubbles chooser-container">
+			{if $params.html_template_id}
+				{$html_template = $html_templates.{$params.html_template_id}}
+				{if $html_template}
+				<li><input type="hidden" name="{$namePrefix}[html_template_id]" value="{$html_template->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
+				{/if}
+			{/if}
+		</ul>
 	</div>
 </div>
 
 <b>{'common.content'|devblocks_translate|capitalize}:</b><br>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="hidden" name="{$namePrefix}[format]" value="{$params.format}">
+	<div style="padding:5px 0px;" class="options-parsedown">
+		<button type="button" class="editor-upload-image" title="Upload image"><span class="glyphicons glyphicons-picture"></span></button>
+		<button type="button" class="editor-preview" title="Preview"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+	</div>
 	<textarea name="{$namePrefix}[content]" rows="3" cols="45" style="width:100%;height:150px;" class="placeholders editor">{$params.content}</textarea>
-</div>
-
-<b>{'message.headers.custom'|devblocks_translate|capitalize}:</b> (one per line, e.g. "X-Precedence: Bulk")
-<div style="margin-left:10px;margin-bottom:0.5em;">
-	<textarea name="{$namePrefix}[headers]" rows="3" cols="45" style="width:100%;" class="placeholders">{$params.headers}</textarea>
 </div>
 
 {* Check for attachment list variables *}
@@ -120,10 +132,10 @@
 <script type="text/javascript">
 $(function() {
 	var $action = $('fieldset#{$namePrefix}');
-	
 	var $content = $action.find('textarea.editor');
-	var $format = $action.find('input:hidden[name="{$namePrefix}[format]"]');
-	var $html_template = $action.find('select[name="{$namePrefix}[html_template_id]"]');
+	
+	$action.find('.cerb-peek-trigger').cerbPeekTrigger();
+	$action.find('.chooser-abstract').cerbChooserTrigger();
 	
 	// Attachments
 	
@@ -131,96 +143,59 @@ $(function() {
 		ajax.chooser(this,'{CerberusContexts::CONTEXT_FILE_BUNDLE}','{$namePrefix}[bundle_ids]', { autocomplete:false });
 	});
 	
-	// Text editor
+	// Format toggle
+	$format = $action.find('input:radio[name="{$namePrefix}[format]"]');
 	
-	var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);
-	var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
-
-	markitupPlaintextSettings.markupSet.unshift(
-		{ name:'Switch to Markdown', openWith: 
-			function(markItUp) { 
-				var $editor = $(markItUp.textarea);
-				$editor.markItUpRemove().markItUp(markitupParsedownSettings);
-				$editor.closest('form').find('input:hidden[name=format]').val('parsedown');
-				$format.val('parsedown');
-				$html_template.closest('.div-showhide').fadeIn();
-			},
-			key: 'H',
-			className:'parsedown'
-		},
-		{ separator:' ' },
-		{ name:'Preview', key: 'P', call:'preview', className:"preview" }
-	);
-	
-	var previewParser = function(content) {
-		var $frm = $content.closest('form');
-		
-		genericAjaxPost(
-			$frm,
-			'',
-			'c=internal&a=testDecisionEventSnippets&prefix={$namePrefix}&field=content&is_editor=format&_replyto_field=from_address_id',
-			function(o) {
-				content = o;
-			},
-			{
-				async: false
-			}
-		);
-		
-		return content;
-	};
-	
-	markitupPlaintextSettings.previewParser = previewParser;
-	markitupPlaintextSettings.previewAutoRefresh = false;
-	
-	markitupParsedownSettings.previewParser = previewParser;
-	markitupParsedownSettings.previewAutoRefresh = false;
-	delete markitupParsedownSettings.previewInWindow;
-	
-	markitupParsedownSettings.markupSet.unshift(
-		{ name:'Switch to Plaintext', openWith: 
-			function(markItUp) { 
-				var $editor = $(markItUp.textarea);
-				$editor.markItUpRemove().markItUp(markitupPlaintextSettings);
-				$editor.closest('form').find('input:hidden[name=format]').val('');
-				$format.val('');
-				$html_template.closest('.div-showhide').hide();
-			},
-			key: 'H',
-			className:'plaintext'
-		},
-		{ separator:' ' }
-	);
-	
-	markitupParsedownSettings.markupSet.splice(
-		6,
-		0,
-		{ name:'Upload an Image', openWith: 
-			function(markItUp) {
-				$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
-				
-				$chooser.one('chooser_save', function(event) {
-					if(!event.response || 0 == event.response)
-						return;
-					
-					$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
-				});
-			},
-			key: 'U',
-			className:'image-inline'
+	$format.on('change', function(e) {
+		var $this = $(this);
+		if($this.val() == 'parsedown') {
+			$action.find('.options-parsedown').hide().fadeIn();
+		} else {
+			$action.find('.options-parsedown').hide();
 		}
-	);
+	});
 	
-	try {
-		{if $params.format == 'parsedown'}
-		$content.markItUp(markitupParsedownSettings);
-		{else}
-		$content.markItUp(markitupPlaintextSettings);
-		{/if}
-		
-	} catch(e) {
-		if(window.console)
-			console.log(e);
-	}
+	// Text editor
+	var $button_upload = $action.find('button.editor-upload-image')
+		.on('click', function(e) {
+			var $chooser = genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'75%');
+			
+			$chooser.one('chooser_save', function(event) {
+				var $editor = $content.nextAll('pre.ace_editor');
+				
+				if(!event.response || 0 == event.response)
+					return;
+				
+				var evt = new jQuery.Event('cerb.insertAtCursor');
+				{literal}evt.content = "![inline-image]({{cerb_file_url(" + event.response[0].id + ",'" + event.response[0].name + "')}})";{/literal}
+				$editor.trigger(evt);
+			});
+		})
+	;
+	
+	var $button_preview = $action.find('button.editor-preview')
+		.on('click', function(e) {
+			var $frm = $action.closest('form');
+			
+			genericAjaxPost(
+				$frm,
+				'',
+				'c=internal&a=testDecisionEventSnippets&prefix={$namePrefix}&field=content&is_editor=format&_replyto_field=from_address_id',
+				function(html) {
+					genericAjaxPopup(
+						'preview',
+						'',
+						null,
+						false,
+						'90%',
+						function() {
+							$('#popuppreview').dialog('option','title','Preview');
+							$('#popuppreview').html(html);
+						}
+					);
+				}
+			);
+		})
+	;
 });
 </script>
