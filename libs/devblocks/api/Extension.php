@@ -1057,7 +1057,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	protected function _getImportCustomFields($fields, &$keys) {
 		if(is_array($fields))
 		foreach($fields as $token => $cfield) {
-			if('cf_' != substr($token, 0, 3))
+			if(!DevblocksPlatform::strStartsWith($token, 'cf_'))
 				continue;
 
 			$cfield_id = intval(substr($token, 3));

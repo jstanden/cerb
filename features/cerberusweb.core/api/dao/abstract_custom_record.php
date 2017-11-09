@@ -1073,7 +1073,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 	}
 };
 
-class Context_AbstractCustomRecord extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+class Context_AbstractCustomRecord extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete, IDevblocksContextImport {
 	const _ID = 0; // overridden by subclass
 	const ID = 'cerberusweb.contexts.abstract.custom.record';
 	
@@ -1450,6 +1450,63 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			$tpl->assign('interactions_menu', $interactions_menu);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/abstract_custom_record/peek.tpl');
+		}
+	}
+	
+	function importGetKeys() {
+		$search_class = sprintf("SearchFields_AbstractCustomRecord_%d", static::_ID);
+		
+		$keys = [
+			'name' => [
+				'label' => 'Name',
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'param' => SearchFields_AbstractCustomRecord::NAME,
+			],
+			'updated_at' => [
+				'label' => 'Updated',
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_AbstractCustomRecord::UPDATED_AT,
+			],
+		];
+		
+		$fields = $search_class::getFields();
+		self::_getImportCustomFields($fields, $keys);
+	
+		DevblocksPlatform::sortObjects($keys, '[label]', true);
+	
+		return $keys;
+	}
+	
+	function importKeyValue($key, $value) {
+		switch($key) {
+		}
+	
+		return $value;
+	}
+	
+	function importSaveObject(array $fields, array $custom_fields, array $meta) {
+		$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
+		$context = self::_getContextName();
+		
+		// If new...
+		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
+			if(!$dao_class::validate($fields, $error, null))
+				return false;
+	
+			// Create
+			$meta['object_id'] = $dao_class::create($fields);
+	
+		} else {
+			if(!$dao_class::validate($fields, $error, $meta['object_id']))
+				return false;
+			
+			// Update
+			$dao_class::update($meta['object_id'], $fields);
+		}
+	
+		// Custom fields
+		if(!empty($custom_fields) && !empty($meta['object_id'])) {
+			DAO_CustomFieldValue::formatAndSetFieldValues($context, $meta['object_id'], $custom_fields, false, true, true);
 		}
 	}
 };
