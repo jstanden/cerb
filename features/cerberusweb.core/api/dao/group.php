@@ -1394,6 +1394,11 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Group::IS_PRIVATE),
 				),
+			'send.as' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Group::REPLY_PERSONAL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 			'signature.id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
