@@ -1367,6 +1367,14 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Group::IS_PRIVATE),
 				),
+			'signature.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Group::REPLY_SIGNATURE_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_EMAIL_SIGNATURE, 'q' => ''],
+					]
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -1514,6 +1522,12 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			case SearchFields_Group::IS_DEFAULT:
 			case SearchFields_Group::IS_PRIVATE:
 				parent::_renderCriteriaParamBoolean($param);
+				break;
+				
+			case SearchFields_Group::REPLY_SIGNATURE_ID:
+				$signatures = DAO_EmailSignature::getAll();
+				$label_map = array_column($signatures, 'name', 'id');
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			default:
