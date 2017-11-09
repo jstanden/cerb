@@ -1,4 +1,4 @@
-<b>{'message.header.from'|devblocks_translate|capitalize}:</b>
+<b>{'common.send.from'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<select name="{$namePrefix}[from_address_id]">
 		<option value="0">(default)</option>
@@ -15,6 +15,18 @@
 		</optgroup>
 		{/if}
 	</select>
+</div>
+
+{*
+<b><abbr title="A valid sender email address; e.g. support@cerb.example. Uses default if blank.">{'common.send.from'|devblocks_translate|capitalize}</abbr>:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<textarea name="{$namePrefix}[send_from]" size="45" style="width:100%;" class="placeholders">{$params.send_from}</textarea>
+</div>
+*}
+
+<b><abbr title="A sender personal name; e.g. Support Team">{'common.send.as'|devblocks_translate|capitalize}</abbr>:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<textarea name="{$namePrefix}[send_as]" size="45" style="width:100%;" class="placeholders">{$params.send_as}</textarea>
 </div>
 
 <b>{'message.header.to'|devblocks_translate|capitalize}:</b>

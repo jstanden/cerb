@@ -4510,6 +4510,10 @@ class DevblocksEventHelper {
 			return "[ERROR] The 'from' address is invalid.";
 		}
 		
+		if(false === ($send_as = $tpl_builder->build($params['send_as'], $dict))) {
+			return "[ERROR] The 'send_as' field has invalid placeholders.";
+		}
+		
 		if(empty($to)) {
 			return "[ERROR] The 'to' field has no recipients.";
 		}
@@ -4532,18 +4536,19 @@ class DevblocksEventHelper {
 		}
 		
 		$out = sprintf(">>> Sending email\n".
-			"To: %s\n".
+			"From: %s<%s>\n".
+			"To: <%s>\n".
 			"%s".
 			"%s".
-			"From: %s\n".
 			"Subject: %s\n".
 			"%s".
 			"\n".
 			"%s\n",
+			(!empty($send_as) ? ($send_as . ' ') : ''),
+			$replyto_addresses[$from_address_id]->email,
 			implode(",\n  ", $to),
 			(!empty($cc) ? ('Cc: ' . implode(",\n  ", $cc) . "\n") : ''),
 			(!empty($bcc) ? ('Bcc: ' . implode(",\n  ", $bcc) . "\n") : ''),
-			$replyto_addresses[$from_address_id]->email,
 			$subject,
 			(!empty($headers) ? (implode("\n", $headers) . "\n") : ''),
 			$content
@@ -4631,6 +4636,7 @@ class DevblocksEventHelper {
 		
 		// Properties
 		
+		@$send_as = $tpl_builder->build($params['send_as'], $dict);
 		@$subject = $tpl_builder->build($params['subject'], $dict);
 		@$content = $tpl_builder->build($params['content'], $dict);
 		@$format = $params['format'];
@@ -4676,7 +4682,7 @@ class DevblocksEventHelper {
 			$subject,
 			$content,
 			$replyto_addresses[$from_address_id]->email,
-			'',
+			$send_as,
 			$headers,
 			$format,
 			$html_template_id,

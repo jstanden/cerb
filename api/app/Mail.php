@@ -154,7 +154,7 @@ class CerberusMail {
 			}
 			
 			if(!empty($from_personal)) {
-				$mail->setFrom($from_addy, $from_personal);
+				$mail->setFrom($from_addy, trim($from_personal));
 			} else {
 				$mail->setFrom($from_addy);
 			}
