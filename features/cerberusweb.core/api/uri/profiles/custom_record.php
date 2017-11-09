@@ -137,6 +137,8 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 				
 				if(empty($id)) { // New
+					@$role_privs = DevblocksPlatform::importGPC($_REQUEST['role_privs'], 'array', []);
+					
 					$fields = array(
 						DAO_CustomRecord::NAME => $name,
 						DAO_CustomRecord::NAME_PLURAL => $name_plural,
@@ -156,6 +158,29 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CUSTOM_RECORD, $id);
+					
+					// Are we updating any role privileges?
+					if(!empty($role_privs) && is_array($role_privs)) {
+						$priv_prefix = sprintf('contexts.contexts.custom_record.%d.', $id);
+						
+						foreach($role_privs as $role_id => $privs) {
+							if(false == ($role = DAO_WorkerRole::get($role_id)))
+								continue;
+							
+							if(!isset($role->params['what']) || 'itemized' != $role->params['what'])
+								continue;
+							
+							foreach($privs as $priv)
+								$role->privs[] = $priv_prefix . $priv;
+							
+							$role->privs = array_unique($role->privs);
+							sort($role->privs);
+							
+							DAO_WorkerRole::update($role_id, [
+								DAO_WorkerRole::PRIVS_JSON => json_encode($role->privs),
+							]);
+						}
+					}
 					
 				} else { // Edit
 					$fields = array(

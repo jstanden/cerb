@@ -198,6 +198,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 							'create' => '',
 							'delete' => '',
 							'export' => '',
+							'import' => '',
 							'update' => '',
 						],
 					],

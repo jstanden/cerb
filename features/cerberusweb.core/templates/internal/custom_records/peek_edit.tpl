@@ -60,6 +60,36 @@
 	</div>
 </fieldset>
 
+{if !$model->id && $roles}
+<fieldset class="peek">
+	<legend>{'common.privileges'|devblocks_translate|capitalize}:</legend>
+	
+	{$priv_labels = []}
+	{$priv_labels['comment'] = 'common.comment'|devblocks_translate|capitalize}
+	{$priv_labels['create'] = 'common.create'|devblocks_translate|capitalize}
+	{$priv_labels['delete'] = 'common.delete'|devblocks_translate|capitalize}
+	{$priv_labels['export'] = 'common.export'|devblocks_translate|capitalize}
+	{$priv_labels['import'] = 'common.import'|devblocks_translate|capitalize}
+	{$priv_labels['update'] = 'common.update'|devblocks_translate|capitalize}
+	
+	{foreach from=$roles item=role key=role_id}
+		<fieldset class="peek black">
+			<legend>
+				<label onclick="checkAll('role{$role_id}');">
+				{$role->name}
+				</label>
+			</legend>
+			
+			<div id="role{$role_id}" style="padding-left:10px;column-count:2;column-width:50%;">
+				{foreach from=$priv_labels item=priv_label key=priv}
+				<label><input type="checkbox" name="role_privs[{$role->id}][]" value="{$priv}"> {$priv_label}</label><br>
+				{/foreach}
+			</div>
+		</fieldset>
+	{/foreach}
+</fieldset>
+{/if}
+
 {if !empty($custom_fields)}
 <fieldset class="peek">
 	<legend>{'common.custom_fields'|devblocks_translate}</legend>
