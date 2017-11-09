@@ -327,12 +327,9 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		if(empty($ids))
 			return;
 		
-		$ids_list = implode(',', $ids);
-		
-		$db->ExecuteMaster(sprintf("DELETE FROM custom_record WHERE id IN (%s)", $ids_list));
-		
 		if(is_array($ids))
 		foreach($ids as $id) {
+			$context = sprintf('contexts.custom_record.%d', $id);
 			// Drop the table
 			$sql = sprintf("DROP TABLE custom_record_%d", $id);
 			$db->ExecuteMaster($sql);
@@ -355,6 +352,20 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 				array(
 					'context' => CerberusContexts::CONTEXT_CUSTOM_RECORD,
 					'context_ids' => $ids
+			// Delete custom record custom fields
+			
+			$custom_fields = DAO_CustomField::getByContext($context, true, false);
+			$custom_fieldset_ids = array_diff(array_column($custom_fields, 'custom_fieldset_id'), [0]);
+			$custom_field_ids = array_keys($custom_fields);
+			
+			if($custom_field_ids)
+				DAO_CustomField::delete($custom_field_ids);
+			
+			if($custom_fieldset_ids)
+				DAO_CustomFieldset::delete($custom_fieldset_ids);
+			
+			$db->ExecuteMaster(sprintf("DELETE FROM custom_record WHERE id = %d", $id));
+			
 				)
 			)
 		);
