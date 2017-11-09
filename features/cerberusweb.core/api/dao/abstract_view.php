@@ -3317,7 +3317,22 @@ class CerbQuickSearchLexer {
 		
 		// Tokenize symbols
 		
-		$query = str_replace(array(' OR ',' AND ','!(','(',')','[',']','"'), array(' <$OR> ',' <$AND> ',' <$PON> ',' <$PO> ',' <$PC> ',' <$BO> ',' <$BC> '), $query);
+		$tokenize_symbol_map = [
+			' OR ' => ' <$OR> ',
+			' AND ' => ' <$AND> ',
+			'!(' => ' <$PON> ',
+			':!' => ': <$NOT> ',
+			'(' => ' <$PO> ',
+			')' => ' <$PC> ',
+			'[' => ' <$BO> ',
+			']' => ' <$BC> ',
+		];
+		
+		$query = str_replace(
+			array_keys($tokenize_symbol_map),
+			$tokenize_symbol_map,
+			$query
+		);
 		
 		// Cap at two continuous whitespace chars
 		
@@ -3403,6 +3418,10 @@ class CerbQuickSearchLexer {
 							case '<$OR>':
 								$token_type = 'T_BOOL';
 								$token_value = 'OR';
+								break;
+							case '<$NOT>':
+								$token_type = 'T_NOT';
+								$token_value = null;
 								break;
 						}
 					}
@@ -3513,6 +3532,12 @@ class CerbQuickSearchLexer {
 						break;
 						
 					case 'T_NOT':
+						if(!is_null($append_to)) {
+							$token->children[$append_to]->children[] = $child;
+							unset($token->children[$k]);
+						}
+						break;
+						
 					case 'T_TEXT':
 					case 'T_QUOTED_TEXT':
 						if(!is_null($append_to)) {
