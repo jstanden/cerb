@@ -415,6 +415,15 @@ class DAO_Address extends Cerb_ORMHelper {
 		return intval($db->GetOneSlave($sql));
 	}
 	
+	static function countByTransportId($transport_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(id) FROM address WHERE mail_transport_id = %d",
+			$transport_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	static function countByContactId($org_id) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1713,6 +1722,12 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				echo implode(' or ', $org_names);
 				break;
 			
+			case SearchFields_Address::MAIL_TRANSPORT_ID:
+				$transports = DAO_MailTransport::getAll();
+				$label_map = array_column($transports, 'name', 'id');
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;

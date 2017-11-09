@@ -1195,6 +1195,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		} else {
 			// Counts
 			$activity_counts = array(
+				'addresses' => DAO_Address::countByTransportId($context_id),
 				//'comments' => DAO_Comment::count($context, $context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
