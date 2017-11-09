@@ -1534,6 +1534,14 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Bucket::REPLY_PERSONAL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'send.from.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Bucket::REPLY_ADDRESS_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => 'mailTransport.id:>0'],
+					]
+				),
 			'signature.id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
