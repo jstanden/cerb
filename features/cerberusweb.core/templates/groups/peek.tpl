@@ -80,6 +80,7 @@ $(function() {
 
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', "{'common.group'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.css('overflow', 'inherit');
 		
 		// Properties grid
 		$popup.find('div.cerb-properties-grid').cerbPropertyGrid();
