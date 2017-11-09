@@ -1553,7 +1553,7 @@ var ajax = new cAjaxCalls();
 				var $account = $('#lnkSignedIn');
 				
 				var $button = $('<button type="button"/>')
-					.addClass('.chooser-shortcut')
+					.addClass('chooser-shortcut')
 					.text('me')
 					.click(function() {
 						var evt = jQuery.Event('bubble-create');
