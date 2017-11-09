@@ -397,6 +397,15 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		return intval($db->GetOneSlave($sql));
 	}
 	
+	static function countByEmailTemplateId($template_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(id) FROM bucket WHERE reply_html_template_id = %d",
+			$template_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	static function countByGroupId($group_id) {
 		$db = DevblocksPlatform::services()->database();
 		

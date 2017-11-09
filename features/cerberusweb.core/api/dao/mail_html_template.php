@@ -1256,6 +1256,8 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			// Counts
 			$activity_counts = array(
 				//'comments' => DAO_Comment::count($context, $context_id),
+				'buckets' => DAO_Bucket::countByEmailTemplateId($context_id),
+				'groups' => DAO_Group::countByEmailTemplateId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			

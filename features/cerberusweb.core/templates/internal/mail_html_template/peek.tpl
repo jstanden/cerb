@@ -44,12 +44,10 @@
 	
 	<div style="clear:both;"></div>
 	
-	{*
 	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events|default:0}</div> {'common.events'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-query="calendar.id:{$dict->id}"><div class="badge-count">{$activity_counts.events_recurring|default:0}</div> {'common.events.recurring'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-query="template.id:{$dict->id}"><div class="badge-count">{$activity_counts.groups|default:0}</div> {'common.groups'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-query="template.id:{$dict->id}"><div class="badge-count">{$activity_counts.buckets|default:0}</div> {'common.buckets'|devblocks_translate|capitalize}</button>
 	</div>
-	*}
 	
 </fieldset>
 

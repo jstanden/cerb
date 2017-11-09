@@ -447,6 +447,15 @@ class DAO_Group extends Cerb_ORMHelper {
 		return intval($db->GetOneSlave($sql));
 	}
 	
+	static function countByEmailTemplateId($template_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(id) FROM worker_group WHERE reply_html_template_id = %d",
+			$template_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	static function countByMemberId($worker_id) {
 		$db = DevblocksPlatform::services()->database();
 		
