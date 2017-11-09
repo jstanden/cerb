@@ -388,6 +388,15 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		return self::_getRandom('bucket');
 	}
 	
+	static function countByEmailFromId($email_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(id) FROM bucket WHERE reply_address_id = %d",
+			$email_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	static function countByEmailSignatureId($sig_id) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1692,6 +1701,19 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$strings[] = DevblocksPlatform::strEscapeHtml($groups[$val]->name);
 				}
 				echo implode(", ", $strings);
+				break;
+				
+			case SearchFields_Bucket::REPLY_ADDRESS_ID:
+				$label_map = function($values) {
+					if(!is_array($values))
+						return [];
+					
+					if(false == ($addresses = DAO_Address::getIds($values)))
+						return [];
+					
+					return array_column($addresses, 'email', 'id');
+				};
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_Bucket::REPLY_SIGNATURE_ID:

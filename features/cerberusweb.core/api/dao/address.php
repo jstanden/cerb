@@ -2295,17 +2295,23 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			
 		} else {
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			CerberusContexts::getContext($context, $address, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
 			// Counts
-			$activity_counts = array(
+			$activity_counts = [
 				'comments' => DAO_Comment::count($context, $context_id),
 				'tickets' => DAO_Ticket::countsByAddressId($context_id),
-			);
+			];
+			
+			if(isset($values['mail_transport_id']) && $values['mail_transport_id']) {
+				$activity_counts['groups'] = DAO_Group::countByEmailFromId($context_id);
+				$activity_counts['buckets'] = DAO_Bucket::countByEmailFromId($context_id);
+			}
+			
 			$tpl->assign('activity_counts', $activity_counts);
 			
 			// Links

@@ -51,6 +51,15 @@
 			{/if}
 		{/foreach}
 	</div>
+	
+	<div style="clear:both;"></div>
+	
+	{if $dict->mail_transport_id}
+	<div style="margin-top:5px;">
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-query="send.from.id:{$dict->id}"><div class="badge-count">{$activity_counts.groups|default:0}</div> {'common.groups'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-query="send.from.id:{$dict->id}"><div class="badge-count">{$activity_counts.buckets|default:0}</div> {'common.buckets'|devblocks_translate|capitalize}</button>
+	</div>
+	{/if}
 </fieldset>
 
 <fieldset class="peek">

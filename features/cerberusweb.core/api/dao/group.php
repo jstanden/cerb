@@ -438,6 +438,15 @@ class DAO_Group extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function countByEmailFromId($email_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(id) FROM worker_group WHERE reply_address_id = %d",
+			$email_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	static function countByEmailSignatureId($sig_id) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1548,6 +1557,19 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			case SearchFields_Group::IS_DEFAULT:
 			case SearchFields_Group::IS_PRIVATE:
 				parent::_renderCriteriaParamBoolean($param);
+				break;
+				
+			case SearchFields_Group::REPLY_ADDRESS_ID:
+				$label_map = function($values) {
+					if(!is_array($values))
+						return [];
+					
+					if(false == ($addresses = DAO_Address::getIds($values)))
+						return [];
+					
+					return array_column($addresses, 'email', 'id');
+				};
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_Group::REPLY_SIGNATURE_ID:
