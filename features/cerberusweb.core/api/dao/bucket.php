@@ -1510,6 +1510,14 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_EMAIL_SIGNATURE, 'q' => ''],
 					]
 				),
+			'template.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, 'q' => ''],
+					]
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -1674,6 +1682,11 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
+			case SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID:
+				$templates = DAO_MailHtmlTemplate::getAll();
+				$label_map = array_column($templates, 'name', 'id');
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
 			
 			default:
 				parent::renderCriteriaParam($param);
