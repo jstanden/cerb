@@ -388,6 +388,15 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		return self::_getRandom('bucket');
 	}
 	
+	static function countByEmailSignatureId($sig_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(id) FROM bucket WHERE reply_signature_id = %d",
+			$sig_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
 	static function countByGroupId($group_id) {
 		$db = DevblocksPlatform::services()->database();
 		

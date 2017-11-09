@@ -1210,6 +1210,8 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			// Counts
 			$activity_counts = array(
 				//'comments' => DAO_Comment::count($context, $context_id),
+				'buckets' => DAO_Bucket::countByEmailSignatureId($context_id),
+				'groups' => DAO_Group::countByEmailSignatureId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
