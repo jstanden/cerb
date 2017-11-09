@@ -218,9 +218,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				// Comment
 				@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 	
-				// Custom Fields
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-				
 				// Save
 				if(!empty($id)) {
 					if(!DAO_Task::validate($fields, $error, $id))
@@ -232,7 +229,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 					DAO_Task::update($id, $fields);
 					DAO_Task::onUpdateByActor($active_worker, $fields, $id);
 					
-					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
 					
 				} else {
 					if(!DAO_Task::validate($fields, $error))
@@ -241,12 +237,10 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 					if(!DAO_Task::onBeforeUpdateByActor($active_worker, $fields, null, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					if(false == ($id = DAO_Task::create($fields, $custom_fields)))
+					if(false == ($id = DAO_Task::create($fields)))
 						return false;
 					
 					DAO_Task::onUpdateByActor($active_worker, $fields, $id);
-					
-					$custom_fields = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TASK, $field_ids);
 					
 					// Watchers
 					@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST ['add_watcher_ids'], 'array', []), 'integer', ['unique','nonzero']);
@@ -273,6 +267,10 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 					);
 					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 				}
+				
+				// Custom Fields
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
 				
 				echo json_encode(array(
 					'status' => true,
