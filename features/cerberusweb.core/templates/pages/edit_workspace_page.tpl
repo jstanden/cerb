@@ -166,6 +166,8 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{if !empty($workspace_page)}Edit Page{else}Add Page{/if}");
+		$popup.css('overflow', 'inherit');
+		
 		$('#frmEditWorkspacePage').sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
 		
 		$frm.find('input:text:first').focus().select();
