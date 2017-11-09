@@ -72,19 +72,38 @@
 	{else}
 		{$tableRowClass = "odd"}
 	{/if}
+	
+	{* This is used in two places depending on if the row is one or two lines *}
+	{capture name="record_label"}
+	<input type="checkbox" name="row_id[]" value="{$result.a_id}" style="display:none;">
+	<a href="{devblocks_url}c=profiles&type={$custom_record->uri}&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
+	<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+	{/capture}
+	
 	<tbody style="cursor:pointer;">
+		{if !$view->options.disable_watchers || !in_array('a_name', $view->view_columns)}
 		<tr class="{$tableRowClass}">
-			<td data-column="*_watchers" align="center" nowrap="nowrap" style="padding:5px;">
+			{if !$view->options.disable_watchers}
+			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.a_id}
 			</td>
+			{/if}
+			
+			{if !in_array('a_name', $view->view_columns)}
+			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
+				{$smarty.capture.record_label nofilter}
+			</td>
+			{/if}
+		</tr>
+		{/if}
+	
+		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == "a_name"}
 			<td>
-				<input type="checkbox" name="row_id[]" value="{$result.a_id}" style="display:none;">
-				<a href="{devblocks_url}c=profiles&type={$custom_record->uri}&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
-				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+				{$smarty.capture.record_label nofilter}
 			</td>
 			{elseif $column=="*_owner"}
 				{$owner_context = $result.a_owner_context}
