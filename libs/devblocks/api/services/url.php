@@ -2,7 +2,7 @@
 class _DevblocksUrlManager {
 	private static $instance = null;
 		
-   	private function __construct() {}
+		private function __construct() {}
 	
 	/**
 	 * @return _DevblocksUrlManager
@@ -172,7 +172,17 @@ class _DevblocksUrlManager {
 	 *
 	 * @return boolean
 	 */
-	public function isSSL() {
+	public function isSSL($check_proxy=true) {
+		// Allow proxy override
+		if($check_proxy) {
+			@$proxyssl = $_SERVER['HTTP_DEVBLOCKSPROXYSSL'];
+			@$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
+			@$proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'];
+			
+			if($proxyhost)
+				return $proxyssl;
+		}
+		
 		if(@$_SERVER["HTTPS"] == "on"){
 			return true;
 		} elseif (@$_SERVER["HTTPS"] == 1){
