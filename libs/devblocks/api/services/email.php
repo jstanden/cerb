@@ -45,6 +45,9 @@ class _DevblocksEmailManager {
 		if(false == ($replyto = DAO_Address::getByEmail($sender)))
 			return false;
 		
+		if(!DAO_Address::isLocalAddressId($replyto->id))
+			$replyto = DAO_Address::getDefaultLocalAddress();
+		
 		if(false == ($model = $replyto->getMailTransport()))
 			return false;
 		
