@@ -512,6 +512,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		@$node_id = DevblocksPlatform::importGPC($_REQUEST['node_id'],'integer', 0);
 		@$behavior_json = DevblocksPlatform::importGPC($_REQUEST['behavior_json'],'string', null);
 		@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', array());
+		$parent = null;
 		
 		header('Content-Type: application/json');
 		
@@ -570,7 +571,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			'switch' => ['outcome'],
 		];
 		
-		if($parent instanceof Model_DecisionNode) {
+		if($parent && $parent instanceof Model_DecisionNode) {
 			$parent_type = $parent->node_type;
 			$parent_id = $parent->id;
 		} else {
