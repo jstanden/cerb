@@ -350,6 +350,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			switch(@$params['_action']) {
 				case 'behavior.switch':
 					@$behavior_return = $params['behavior_return'];
+					@$variables = $params['behavior_variables'];
 					
 					if(!isset($interaction->session_data['callers']))
 						$interaction->session_data['callers'] = [];
@@ -379,8 +380,15 @@ class ChInternalController extends DevblocksControllerExtension {
 					$bot = $new_behavior->getBot();
 					$tpl->assign('bot', $bot);
 					
+					$new_dict = [];
+					
+					if(is_array($variables))
+					foreach($variables as $k => $v) {
+						$new_dict[$k] = $v;
+					}
+					
 					$interaction->session_data['behavior_id'] = $new_behavior->id;
-					$interaction->session_data['behaviors'][$new_behavior->id]['dict'] = [];
+					$interaction->session_data['behaviors'][$new_behavior->id]['dict'] = $new_dict;
 					$interaction->session_data['behaviors'][$new_behavior->id]['path'] = [];
 					
 					if($behavior_return)
@@ -836,7 +844,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 			// Snippets dictionary
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-			$dict = new DevblocksDictionaryDelegate(array());
+			$dict = new DevblocksDictionaryDelegate([]);
 				
 			foreach($parts as $idx => $part) {
 				$col = 'column_' . ($idx + 1); // 0-based to 1-based

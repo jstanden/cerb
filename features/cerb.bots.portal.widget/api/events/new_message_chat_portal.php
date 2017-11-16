@@ -640,7 +640,7 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				
 				// Variables as parameters
 				
-				$vars = array();
+				$vars = [];
 				
 				if(is_array($params))
 				foreach($params as $k => $v) {

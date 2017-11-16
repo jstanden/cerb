@@ -320,6 +320,8 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						foreach($actions as $params) {
 							switch(@$params['_action']) {
 								case 'behavior.switch':
+									@$variables = $params['behavior_variables'];
+									
 									if(!isset($interaction->session_data['callers']))
 										$interaction->session_data['callers'] = [];
 									
@@ -343,8 +345,15 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 									$bot = $new_behavior->getBot();
 									$tpl->assign('bot', $bot);
 									
+									$new_dict = [];
+									
+									if(is_array($variables))
+									foreach($variables as $k => $v) {
+										$new_dict[$k] = $v;
+									}
+									
 									$interaction->session_data['behavior_id'] = $new_behavior->id;
-									$interaction->session_data['behaviors'][$new_behavior->id]['dict'] = [];
+									$interaction->session_data['behaviors'][$new_behavior->id]['dict'] = $new_dict;
 									$interaction->session_data['behaviors'][$new_behavior->id]['path'] = [];
 									
 									// [TODO] Can this be implied better?
