@@ -258,6 +258,11 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
+				'create_comment' => array('label' =>'Create comment'),
+				'create_notification' => array('label' =>'Create notification'),
+				'create_task' => array('label' =>'Create task'),
+				'create_ticket' => array('label' =>'Create ticket'),
+				
 				'prompt_buttons' => array('label' => 'Prompt with buttons'),
 				'prompt_images' => array('label' => 'Prompt with images'),
 				'prompt_rating_number' => array('label' => 'Prompt with numeric rating scale'),
@@ -283,6 +288,22 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'create_comment':
+				DevblocksEventHelper::renderActionCreateComment($trigger);
+				break;
+
+			case 'create_notification':
+				DevblocksEventHelper::renderActionCreateNotification($trigger);
+				break;
+
+			case 'create_task':
+				DevblocksEventHelper::renderActionCreateTask($trigger);
+				break;
+
+			case 'create_ticket':
+				DevblocksEventHelper::renderActionCreateTicket($trigger);
+				break;
+			
 			case 'prompt_buttons':
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_buttons.tpl');
 				break;
@@ -323,6 +344,22 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
+			case 'create_comment':
+				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'worker_id');
+				break;
+
+			case 'create_notification':
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'worker_id');
+				break;
+
+			case 'create_task':
+				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'worker_id');
+				break;
+
+			case 'create_ticket':
+				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'worker_id');
+				break;
+			
 			case 'prompt_buttons':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$options = $tpl_builder->build($params['options'], $dict);
@@ -410,6 +447,22 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 	
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
+			case 'create_comment':
+				DevblocksEventHelper::runActionCreateComment($params, $dict, 'worker_id');
+				break;
+				
+			case 'create_notification':
+				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'worker_id');
+				break;
+				
+			case 'create_task':
+				DevblocksEventHelper::runActionCreateTask($params, $dict, 'worker_id');
+				break;
+
+			case 'create_ticket':
+				DevblocksEventHelper::runActionCreateTicket($params, $dict);
+				break;
+			
 			case 'prompt_buttons':
 				$actions =& $dict->_actions;
 				
