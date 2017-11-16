@@ -1052,6 +1052,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		$token_labels = array(
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
+			'activity_point' => sprintf("%s %s", $prefix.$translate->_('common.event'), $prefix.$translate->_('common.id')),
 			'event' => $prefix.$translate->_('common.event'),
 			'created' => $prefix.$translate->_('common.created'),
 			'actor__label' => $prefix.$translate->_('common.actor'),
@@ -1062,6 +1063,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 		$token_types = array(
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'activity_point' => Model_CustomField::TYPE_SINGLE_LINE,
 			'created' => Model_CustomField::TYPE_DATE,
 			'event' => Model_CustomField::TYPE_SINGLE_LINE,
 			'actor__label' => 'context_url',
@@ -1079,11 +1081,13 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = CerberusContexts::formatActivityLogEntry(json_decode($entry->entry_json,true),'text');
 			$token_values['id'] = $entry->id;
+			$token_values['activity_point'] = $entry->activity_point;
 			$token_values['created'] = $entry->created;
 			
 			$activities = DevblocksPlatform::getActivityPointRegistry();
-			if(isset($activities[$entry->activity_point]))
+			if(isset($activities[$entry->activity_point])) {
 				$token_values['event'] = $activities[$entry->activity_point]['params']['label_key'];
+			}
 			
 			$token_values['actor__context'] = $entry->actor_context;
 			$token_values['actor_id'] = $entry->actor_context_id;
