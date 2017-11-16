@@ -271,6 +271,8 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				'send_message' => array('label' => 'Respond with message'),
 				'send_script' => array('label' => 'Respond with script'),
 				'switch_behavior' => array('label' => 'Switch conversational behavior'),
+				
+				'send_email' => array('label' => 'Send email'),
 			)
 			;
 		
@@ -322,6 +324,10 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				
 			case 'prompt_wait':
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_wait.tpl');
+				break;
+				
+			case 'send_email':
+				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
 			
 			case 'send_message':
@@ -408,6 +414,10 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				//$placeholder = $tpl_builder->build($params['placeholder'], $dict);
 				
 				$out = sprintf(">>> Prompting with wait\n");
+				break;
+				
+			case 'send_email':
+				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 			
 			case 'send_message':
@@ -567,6 +577,10 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				// [TODO] Delays should be configurable
 				// [TODO] This should be configurable
 				$dict->__exit = 'suspend';
+				break;
+				
+			case 'send_email':
+				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 			
 			case 'send_message':
