@@ -285,6 +285,8 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				'switch_behavior' => array('label' => 'Switch behavior'),
 				'window_close' => array('label' => 'Close chat window'),
 				'worklist_open' => array('label' => 'Open a worklist popup'),
+				
+				'send_email' => array('label' => 'Send email'),
 			)
 			;
 
@@ -347,6 +349,10 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 
 			case 'prompt_wait':
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_wait.tpl');
+				break;
+				
+			case 'send_email':
+				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
 
 			case 'send_message':
@@ -457,6 +463,10 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 				$out = sprintf(">>> Prompting with wait\n");
+				break;
+				
+			case 'send_email':
+				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 
 			case 'send_message':
@@ -632,6 +642,10 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				);
 
 				$dict->__exit = 'suspend';
+				break;
+				
+			case 'send_email':
+				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 
 			case 'send_message':
