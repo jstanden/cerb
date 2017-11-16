@@ -365,9 +365,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 			return false;
 
 		@$expand = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['expand'],'string',null));
-
-		@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'string','');
-		$show_meta = (0 == strlen($show_meta) || !empty($show_meta)) ? true : false;
+		@$show_meta = DevblocksPlatform::importGPC($_REQUEST['show_meta'],'bit',0);
 
 		// [TODO] Bulk load expands (e.g. ticket->org, ticket->sender->org)
 
