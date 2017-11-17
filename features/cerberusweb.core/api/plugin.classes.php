@@ -1274,6 +1274,10 @@ class BotAction_RecordCreate extends Extension_DevblocksEventAction {
 		@$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'],'string',''), $dict);
 		@$object_placeholder = $params['object_placeholder'];
 		
+		if(!empty($object_placeholder)) {
+			$dict->$object_placeholder = null;
+		}
+		
 		if(false == (@$changeset = json_decode($changeset_json, true)))
 			return false;
 		
