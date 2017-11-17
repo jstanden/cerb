@@ -42,6 +42,7 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				'portal_code' => null,
 				'interaction' => null,
 				'interaction_params' => [],
+				'interaction_behavior_has_parent' => false,
 				'interaction_behavior_id' => 0,
 				'interaction_bot_image' => null,
 				'interaction_bot_name' => 'Cerb',
@@ -99,6 +100,11 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 		@$behavior_id = $event_model->params['behavior_id'];
 		$labels['interaction_behavior_id'] = 'Behavior ID';
 		$values['interaction_behavior_id'] = $behavior_id;
+		
+		// Behavior has parent
+		@$behavior_has_parent = $event_model->params['behavior_has_parent'];
+		$labels['interaction_behavior_has_parent'] = 'Behavior has parent';
+		$values['interaction_behavior_has_parent'] = $behavior_has_parent;
 		
 		// Cookie
 		@$cookie = $event_model->params['cookie'];
@@ -192,6 +198,10 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 		// Interaction
 		$labels['interaction'] = 'Interaction';
 		$types['interaction'] = Model_CustomField::TYPE_SINGLE_LINE;
+		
+		// Behavior has parent
+		$labels['interaction_behavior_has_parent'] = 'Behavior has parent';
+		$types['interaction_behavior_has_parent'] = Model_CustomField::TYPE_CHECKBOX;
 		
 		// Interaction Parameters
 		$labels['interaction_params'] = 'Interaction Params';
