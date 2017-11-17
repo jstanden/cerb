@@ -1748,6 +1748,10 @@ class BotAction_RecordRetrieve extends Extension_DevblocksEventAction {
 		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
 		@$object_placeholder = $params['object_placeholder'];
 		
+		if(!empty($object_placeholder)) {
+			$dict->$object_placeholder = null;
+		}
+		
 		if(!$id)
 			return false;
 		
