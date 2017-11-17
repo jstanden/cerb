@@ -291,13 +291,13 @@ class _DevblocksTemplateBuilder {
 	}
 };
 
-class DevblocksDictionaryDelegate {
+class DevblocksDictionaryDelegate implements JsonSerializable {
 	private $_dictionary = null;
 	private $_cached_contexts = null;
 	private $_null = null;
 	
 	function __construct($dictionary) {
-		// Rebuild any nested dictionaries
+		if(is_array($dictionary))
 		foreach($dictionary as $k => $v) {
 			if(DevblocksPlatform::strStartsWith($k, 'var_') && is_array($v)) {
 				foreach($v as $id => $values) {
@@ -318,6 +318,10 @@ class DevblocksDictionaryDelegate {
 	function __toString() {
 		$dictionary = $this->getDictionary(null, false);
 		return DevblocksPlatform::strFormatJson(json_encode($dictionary));
+	}
+	
+	function jsonSerialize() {
+		return $this->_dictionary;
 	}
 
 	public function __set($name, $value) {
