@@ -135,7 +135,10 @@
 	
 	embedder.dispatchEvent(event)
 	
-	if(window.location.hash) {
+	var handleHashChange = function(e) {
+		if(!window.location.hash)
+			return;
+		
 		var hash = window.location.hash;
 		
 		if(hash.substring(0, 5) == '#bot/') {
@@ -159,5 +162,11 @@
 			evt.interaction_params = interaction_params;
 			$embedder.trigger(evt);
 		}
-	}
+	};
+	
+	window.onhashchange = handleHashChange;
+	
+	// If our initial URL has a #bot anchor
+	if(window.location.hash)
+		handleHashChange();
 });
