@@ -67,7 +67,7 @@ $(function() {
 				
 				$menu
 					.menu({
-						position: { my: "right middle", at: "left middle" },
+						position: { my: "right middle", at: "left middle", collision: "fit" },
 						select: function(event, ui) {
 							event.stopPropagation();
 							$(ui.item).click();

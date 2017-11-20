@@ -8,7 +8,7 @@
 					{/if}
 					{$data->label}
 				</div>
-				<ul style="width:300px;">
+				<ul>
 					{menu keys=$data->children level=$level+1}
 				</ul>
 			</li>

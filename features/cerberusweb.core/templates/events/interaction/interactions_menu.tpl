@@ -11,7 +11,7 @@
 						{/if}
 						{$data->label}
 					</div>
-					<ul style="width:300px;">
+					<ul style="width:200px;">
 						{menu keys=$data->children level=$level+1}
 					</ul>
 				</li>
@@ -25,7 +25,7 @@
 		{/foreach}
 	{/function}
 	
-	<ul class="cerb-bot-interactions-menu cerb-float" style="display:none; width:250px;">
+	<ul class="cerb-bot-interactions-menu cerb-float" style="display:none;width:200px;max-width:50%;">
 	{menu keys=$interactions_menu}
 	</ul>
 {/if}
