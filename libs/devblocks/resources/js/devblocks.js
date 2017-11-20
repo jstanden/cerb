@@ -6,6 +6,9 @@ function DevblocksClass() {
 			if(null == this.audio)
 				this.audio = new Audio();
 			
+			if(undefined == url || null == url || 0 == url.length)
+				return;
+			
 			this.audio.src = url;
 			this.audio.play();
 			
