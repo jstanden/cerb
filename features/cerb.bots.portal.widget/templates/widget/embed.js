@@ -24,7 +24,7 @@
 	
 	// [TODO] CSS from embed!
 	var $css = $('<link rel="stylesheet" type="text/css"/>')
-		.attr('href', base_url + 'resource/cerb.bots.portal.widget/css/style.css?v=69')
+		.attr('href', base_url + 'resource/cerb.bots.portal.widget/css/style.css?v=70')
 		.attr('async', 'true')
 		;
 	
