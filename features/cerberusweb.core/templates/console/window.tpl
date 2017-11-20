@@ -35,17 +35,29 @@ $(function() {
 		{/if}
 		
 		var $window = $popup.closest('div.ui-dialog');
-		$window
-			.css('position', 'fixed')
-			.css('left', '100%')
-			.css('top', '100%')
-			.css('margin-left', '-550px')
-			.css('margin-top', '-650px')
-			;
-		
 		var $chat_window_convo = $popup.find('div.bot-chat-window-convo');
 		var $chat_window_input_form = $('#{$layer} form.bot-chat-window-input-form');
 		var $chat_message = $chat_window_input_form.find('input:hidden[name=message]');
+		
+		// Responsive scaling
+		
+		$window
+			.css('position', 'fixed')
+			;
+		
+		if($(window).height() <= 500) {
+			$chat_window_convo.css('height', ($(window).height() - 100) + 'px');
+		}
+		
+		if($(window).width() <= 600) {
+			$window.css('width', ($(window).width()) + 'px');
+			$window.position({ my: "middle bottom", at: "middle bottom", of: $(window) });
+			
+		} else {
+			$window.position({ my: "right bottom", at: "right bottom", of: $('#bot-chat-button') });
+		}
+		
+		// Chat window actions
 		
 		$chat_window_convo.on('update', function(e) {
 			$(this).scrollTop(this.scrollHeight);
