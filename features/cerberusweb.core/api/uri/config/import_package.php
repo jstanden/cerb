@@ -735,7 +735,6 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 		// Build
 		
 		$new_json_string = $tpl_builder->build($new_json_string, $placeholders, $lexer);
-		
 		$json = json_decode($new_json_string, true);
 	}
 
@@ -856,6 +855,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				DAO_Bot::PARAMS_JSON => json_encode($bot['params']),
 			]);
 			
+			if(!isset($records_created[CerberusContexts::CONTEXT_BOT]))
+				$records_created[CerberusContexts::CONTEXT_BOT] = [];
+			
 			$records_created[CerberusContexts::CONTEXT_BOT][] = [
 				'id' => $id,
 				'label' => $bot['name'],
@@ -906,6 +908,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 					DAO_TriggerEvent::IS_DISABLED => @$behavior['is_disabled'] ? 1 : 0,
 				));
 				
+				if(!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR]))
+					$records_created[CerberusContexts::CONTEXT_BEHAVIOR] = [];
+				
 				$records_created[CerberusContexts::CONTEXT_BEHAVIOR][] = [
 					'id' => $id,
 					'label' => $behavior['title'],
@@ -924,6 +929,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				DAO_WorkspacePage::NAME => $workspace['name'],
 				DAO_WorkspacePage::EXTENSION_ID => $workspace['extension_id'],
 			]);
+			
+			if(!isset($records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE]))
+				$records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE] = [];
 			
 			$records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE][] = [
 				'id' => $id,
@@ -968,6 +976,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			
 			$portal_model = DAO_CommunityTool::get($id);
 			
+			if(!isset($records_created[CerberusContexts::CONTEXT_PORTAL]))
+				$records_created[CerberusContexts::CONTEXT_PORTAL] = [];
+			
 			$records_created[CerberusContexts::CONTEXT_PORTAL][] = [
 				'id' => $id,
 				'label' => $portal['name'],
@@ -1001,6 +1012,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				DAO_ContextSavedSearch::OWNER_CONTEXT_ID => 0,
 			]);
 			
+			if(!isset($records_created[CerberusContexts::CONTEXT_SAVED_SEARCH]))
+				$records_created[CerberusContexts::CONTEXT_SAVED_SEARCH] = [];
+			
 			$records_created[CerberusContexts::CONTEXT_SAVED_SEARCH][] = [
 				'id' => $id,
 				'label' => $saved_search['name'],
@@ -1021,6 +1035,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
 				DAO_Calendar::OWNER_CONTEXT_ID => 0,
 			]);
+			
+			if(!isset($records_created[CerberusContexts::CONTEXT_CALENDAR]))
+				$records_created[CerberusContexts::CONTEXT_CALENDAR] = [];
 			
 			$records_created[CerberusContexts::CONTEXT_CALENDAR][] = [
 				'id' => $id,
@@ -1065,6 +1082,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				DAO_Classifier::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
 				DAO_Classifier::OWNER_CONTEXT_ID => 0,
 			]);
+			
+			if(!isset($records_created[CerberusContexts::CONTEXT_CLASSIFIER]))
+				$records_created[CerberusContexts::CONTEXT_CLASSIFIER] = [];
 			
 			$records_created[CerberusContexts::CONTEXT_CLASSIFIER][] = [
 				'id' => $id,
@@ -1169,6 +1189,9 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				DAO_ProjectBoard::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
 				DAO_ProjectBoard::OWNER_CONTEXT_ID => 0,
 			]);
+			
+			if(!isset($records_created['cerberusweb.contexts.project.board']))
+				$records_created['cerberusweb.contexts.project.board'] = [];
 			
 			$records_created['cerberusweb.contexts.project.board'][] = [
 				'id' => $project_board_id,

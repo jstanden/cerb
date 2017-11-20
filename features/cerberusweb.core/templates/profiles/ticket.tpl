@@ -150,7 +150,7 @@
 	{/foreach}
 	<br clear="all">
 	
-	<div style="line-height:1.5em;">
+	<div>
 		<b>{'common.participants'|devblocks_translate|capitalize}</b>:
 		<span id="displayTicketRequesterBubbles">
 			{include file="devblocks:cerberusweb.core::display/rpc/requester_list.tpl" ticket_id=$dict->id}
