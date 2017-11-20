@@ -54,7 +54,8 @@ $(function() {
 		// Close confirmation
 		
 		$popup.on('dialogbeforeclose', function(e, ui) {
-			if(e.keyCode == 27)
+			var keycode = e.keyCode || e.which;
+			if(keycode == 27)
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
 	});

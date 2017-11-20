@@ -123,8 +123,9 @@ $(function() {
 			
 		$input.on('keyup', function(e) {
 			e.stopPropagation();
+			var keycode = e.keyCode || e.which;
 			
-			if(13 == e.keyCode) {
+			if(13 == keycode) {
 				e.preventDefault();
 				
 				genericAjaxGet($output, 'c=profiles&a=handleSectionAction&section=classifier&action=predict&classifier_id={$dict->id}&text=' + encodeURIComponent($input.val()), function(json) {

@@ -56,7 +56,7 @@ $menu_trigger
 
 $menu.find('> li.filter > input.input_search').keypress(
 	function(e) {
-		code = (e.keyCode ? e.keyCode : e.which);
+		var code = e.keyCode || e.which;
 		if(code == 13) {
 			e.preventDefault();
 			e.stopPropagation();

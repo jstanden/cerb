@@ -13,7 +13,8 @@
 			.blur()
 			.focus()
 			.on('keyup', function(e) {
-				if(13 != e.keyCode)
+				var keycode = e.keyCode || e.which;
+				if(13 != keycode)
 					return;
 				
 				$chat_input.val($txt.val());
