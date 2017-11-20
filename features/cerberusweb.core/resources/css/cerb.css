@@ -1788,6 +1788,7 @@ DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtm
 }
 .bot-chat-window INPUT.bot-chat-input {
   width: 95%;
+  font-size: 16px;
   padding: 5px;
   margin-top: 10px;
   border-radius: 5px;
