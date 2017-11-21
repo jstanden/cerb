@@ -626,7 +626,7 @@ switch($step) {
 	case STEP_CONTACT:
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		
-		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string','do-not-reply@localhost');
+		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string','noreply@cerb.example');
 		@$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'],'string','');
 		@$helpdesk_title = DevblocksPlatform::importGPC($_POST['helpdesk_title'],'string',$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE,CerberusSettingsDefaults::HELPDESK_TITLE));
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
@@ -898,42 +898,6 @@ switch($step) {
 					DAO_Worker::update($worker_id, array(
 						DAO_Worker::CALENDAR_ID => $calendar_id,
 					));
-				}
-				
-				// Send a first ticket which allows people to reply for support
-				$replyto_default = DAO_Address::getDefaultLocalAddress();
-				
-				if(null != $replyto_default) {
-					$message = new CerberusParserMessage();
-						$message->headers['from'] = '"Webgroup Media, LLC." <support@webgroupmedia.com>';
-						$message->headers['to'] = $replyto_default->email;
-						$message->headers['subject'] = "Welcome to Cerb!";
-						$message->headers['date'] = date('r');
-						$message->headers['message-id'] = CerberusApplication::generateMessageId();
-						$message->body = <<< EOF
-Welcome to Cerb!
-
-We automatically set up a few things for you during the installation process.
-
-All your mail will be delivered to the Dispatch group by default.
-
-If these default groups don't meet your needs, feel free to change them by clicking 'Search' in the top-right and selecting the 'Groups' from the menu.
-
-Simply reply to this message if you have any questions.  Our response will show up on this page as a new message.
-
-For project news, training resources, sneak peeks of development progress, tips & tricks, and more:
- * https://cerb.ai/docs/home/
- * http://www.facebook.com/cerbapp
- * http://twitter.com/cerb_ai
- * https://vimeo.com/channels/cerb
-
-Enjoy!
--- 
-the Cerb team
-Webgroup Media, LLC.
-https://cerb.ai/
-EOF;
-					CerberusParser::parseMessage($message);
 				}
 				
 				$tpl->assign('step', STEP_REGISTER);
