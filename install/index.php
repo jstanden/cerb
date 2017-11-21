@@ -936,6 +936,10 @@ switch($step) {
 		break;
 		
 	case STEP_FINISHED:
+		// Update the cached version to prevent /update
+		$path = APP_STORAGE_PATH . '/version.php';
+		$contents = sprintf('<?php define(\'APP_BUILD_CACHED\', %s);', APP_BUILD);
+		file_put_contents($path, $contents);
 		
 		// Set up the default cron jobs
 		$crons = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
