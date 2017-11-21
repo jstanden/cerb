@@ -469,7 +469,11 @@ class CerberusApplication extends DevblocksApplication {
 
 		return $errors;
 	}
-
+	
+	static function packages() {
+		return new _CerbApplication_Packages();
+	}
+	
 	static function update() {
 		// Update the platform
 		if(!DevblocksPlatform::update())
@@ -3106,5 +3110,15 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 				$where_sql .= 'AND (' . implode(' OR ', $where_contexts) . ') ';
 				break;
 		}
+	}
+};
+
+class _CerbApplication_Packages {
+	function prompts($json) {
+		return Cerb_Packages::getPromptsFromjson($json);
+	}
+	
+	function import($json, array $prompts=[], &$records_created=null) {
+		return Cerb_Packages::importFromJson($json, $prompts, $records_created);
 	}
 };

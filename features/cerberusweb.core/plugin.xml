@@ -69,6 +69,10 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
+		<file path="api/packages.php">
+			<class name="Cerb_Packages" />
+		</file>
+		
 		<file path="api/listeners.classes.php">
 			<class name="EventListener_Triggers" />
 		</file>

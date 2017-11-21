@@ -276,6 +276,18 @@
 		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.packages</id>
+			<name>Packages</name>
+			<class>
+				<file>api/rest/packages.php</file>
+				<name>ChRest_Packages</name>
+			</class>
+			<params>
+				<param key="uri" value="packages" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.parser</id>
 			<name>Parser</name>
 			<class>
