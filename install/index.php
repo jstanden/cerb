@@ -547,8 +547,6 @@ switch($step) {
 		
 		$tables = $db->metaTables();
 		
-		// [TODO] Add current user to patcher/upgrade authorized IPs
-		
 		if(empty($tables)) { // install
 			try {
 				DevblocksPlatform::update();
@@ -572,6 +570,7 @@ switch($step) {
 					case 'cerberusweb.feedback':
 					case 'cerberusweb.kb':
 					case 'cerberusweb.reports':
+					case 'cerberusweb.restapi':
 					case 'cerberusweb.support_center':
 					case 'cerberusweb.simulator':
 					case 'cerberusweb.timetracking':
