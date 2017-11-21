@@ -51,7 +51,7 @@ seconds
 <br>
 
 <b>Maximum Deliveries Per SMTP Connection:</b><br>
-<input type="text" name="params[{$extension->id}][max_sends]" value="{$model->max_sends|default:20}" size="5">
+<input type="text" name="params[{$extension->id}][max_sends]" value="{$model->params.max_sends|default:20}" size="5">
 <i>(tuning this depends on your mail server; default is 20)</i>
 <br>
 </fieldset>
