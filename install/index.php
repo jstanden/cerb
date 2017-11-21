@@ -787,14 +787,14 @@ switch($step) {
 			
 			// Sanity/Error checking
 			if(!empty($worker_email) && !empty($worker_pass) && $worker_pass == $worker_pass2) {
-				// If we have no groups, make a Dispatch group
+				// If we have no groups, make a General group
 				$groups = DAO_Group::getAll(true);
 				$mail_from_address = DAO_Address::getDefaultLocalAddress();
 				
 				if(empty($groups)) {
-					// Dispatch Group
-					$dispatch_gid = DAO_Group::create(array(
-						DAO_Group::NAME => 'Dispatch',
+					// General Group
+					$first_group_id = DAO_Group::create(array(
+						DAO_Group::NAME => 'General',
 						DAO_Group::REPLY_ADDRESS_ID => intval($mail_from_address->id),
 						DAO_Group::REPLY_PERSONAL => '',
 						DAO_Group::REPLY_HTML_TEMPLATE_ID => 0,
@@ -802,23 +802,13 @@ switch($step) {
 						DAO_Group::IS_DEFAULT => 1,
 					));
 					
-					// Support Group
-					$support_gid = DAO_Group::create(array(
-						DAO_Group::NAME => 'Support',
-						DAO_Group::REPLY_ADDRESS_ID => intval($mail_from_address->id),
-						DAO_Group::REPLY_PERSONAL => '',
-						DAO_Group::REPLY_HTML_TEMPLATE_ID => 0,
-						DAO_Group::REPLY_SIGNATURE_ID => 1,
-					));
-
-					// Sales Group
-					$sales_gid = DAO_Group::create(array(
-						DAO_Group::NAME => 'Sales',
-						DAO_Group::REPLY_ADDRESS_ID => intval($mail_from_address->id),
-						DAO_Group::REPLY_PERSONAL => '',
-						DAO_Group::REPLY_HTML_TEMPLATE_ID => 0,
-						DAO_Group::REPLY_SIGNATURE_ID => 1,
-					));
+					$bucket_fields = array(
+						DAO_Bucket::NAME => 'Inbox',
+						DAO_Bucket::GROUP_ID => $first_group_id,
+						DAO_Bucket::IS_DEFAULT => 1,
+						DAO_Bucket::UPDATED_AT => time(),
+					);
+					DAO_Bucket::create($bucket_fields);
 				}
 
 				// Default role
@@ -874,12 +864,8 @@ switch($step) {
 					
 					// Default group memberships
 					
-					if(!empty($dispatch_gid))
-						DAO_Group::setGroupMember($dispatch_gid,$worker_id,true);
-					if(!empty($support_gid))
-						DAO_Group::setGroupMember($support_gid,$worker_id,true);
-					if(!empty($sales_gid))
-						DAO_Group::setGroupMember($sales_gid,$worker_id,true);
+					if(!empty($first_group_id))
+						DAO_Group::setGroupMember($first_group_id,$worker_id,true);
 					
 					// Create a default calendar
 					
@@ -929,10 +915,7 @@ Welcome to Cerb!
 
 We automatically set up a few things for you during the installation process.
 
-You'll notice that you have three groups:
-* Dispatch: All your mail will be delivered to this group by default.
-* Support: This is a group for holding tickets related to customer service.
-* Sales: This is a group for holding tickets relates to sales.
+All your mail will be delivered to the Dispatch group by default.
 
 If these default groups don't meet your needs, feel free to change them by clicking 'Search' in the top-right and selecting the 'Groups' from the menu.
 

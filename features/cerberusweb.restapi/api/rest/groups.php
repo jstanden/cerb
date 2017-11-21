@@ -358,6 +358,14 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 		
 		// Create
 		if(false != ($id = DAO_Group::create($fields))) {
+			$bucket_fields = array(
+				DAO_Bucket::NAME => 'Inbox',
+				DAO_Bucket::GROUP_ID => $id,
+				DAO_Bucket::IS_DEFAULT => 1,
+				DAO_Bucket::UPDATED_AT => time(),
+			);
+			$bucket_id = DAO_Bucket::create($bucket_fields);
+			
 			// Handle custom fields
 			$customfields = $this->_handleCustomFields($_POST);
 			if(is_array($customfields))

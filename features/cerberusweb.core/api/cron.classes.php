@@ -604,6 +604,14 @@ class ImportCron extends CerberusCronPageExtension {
 				DAO_Group::NAME => $sGroup,
 			));
 			
+			$bucket_fields = array(
+				DAO_Bucket::NAME => 'Inbox',
+				DAO_Bucket::GROUP_ID => $iDestGroupId,
+				DAO_Bucket::IS_DEFAULT => 1,
+				DAO_Bucket::UPDATED_AT => time(),
+			);
+			$bucket_id = DAO_Bucket::create($bucket_fields);
+			
 			// Give all superusers manager access to this new group
 			if(is_array($workers))
 			foreach($workers as $worker) {

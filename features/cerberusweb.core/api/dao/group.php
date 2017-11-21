@@ -344,21 +344,6 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		self::update($id, $fields);
 		
-		// Create the default inbox bucket for the new group
-		
-		$bucket_fields = array(
-			DAO_Bucket::NAME => 'Inbox',
-			DAO_Bucket::GROUP_ID => $id,
-			DAO_Bucket::IS_DEFAULT => 1,
-			DAO_Bucket::UPDATED_AT => time(),
-		);
-		$bucket_id = DAO_Bucket::create($bucket_fields);
-
-		// Kill the group and bucket cache
-		
-		self::clearCache();
-		DAO_Bucket::clearCache();
-		
 		return $id;
 	}
 

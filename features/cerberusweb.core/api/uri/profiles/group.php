@@ -190,6 +190,14 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					$group_id = DAO_Group::create($fields);
 					DAO_Group::onUpdateByActor($active_worker, $fields, $group_id);
 					
+					$bucket_fields = array(
+						DAO_Bucket::NAME => 'Inbox',
+						DAO_Bucket::GROUP_ID => $group_id,
+						DAO_Bucket::IS_DEFAULT => 1,
+						DAO_Bucket::UPDATED_AT => time(),
+					);
+					$bucket_id = DAO_Bucket::create($bucket_fields);
+					
 					// View marquee
 					if(!empty($group_id) && !empty($view_id)) {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_GROUP, $group_id);
