@@ -2263,7 +2263,6 @@
 				<param key="view_class" value="View_Notification" />
 				<param key="options">
 					<value>
-						<data key="cards" />
 						<data key="links" />
 						<data key="records" />
 						<data key="search" />
