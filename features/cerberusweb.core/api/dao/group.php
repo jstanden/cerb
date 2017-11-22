@@ -2163,8 +2163,14 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		if(!empty($context_id) && null != ($group = DAO_Group::get($context_id))) {
-			$tpl->assign('group', $group);
+		if($context_id) {
+			if(null != ($group = DAO_Group::get($context_id))) {
+				$tpl->assign('group', $group);
+			} else {
+				$tpl->assign('error_message', DevblocksPlatform::translate('error.core.record.not_found'));
+				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+				return;
+			}
 		}
 		
 		// Members
