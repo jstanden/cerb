@@ -5720,16 +5720,6 @@
 		</extension>
 		
 		<extension point="cerberusweb.cron">
-			<id>cron.import</id>
-			<name>Background Importing and Synchronization</name>
-			<class>
-				<file>api/cron.classes.php</file>
-				<name>ImportCron</name>
-			</class>
-			<params />
-		</extension>
-		
-		<extension point="cerberusweb.cron">
 			<id>cron.storage</id>
 			<name>Storage Manager</name>
 			<class>

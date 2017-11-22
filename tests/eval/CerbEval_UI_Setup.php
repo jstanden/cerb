@@ -3,8 +3,6 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverKeys;
-use Facebook\WebDriver\WebDriverAction;
-use Facebook\WebDriver\WebDriver;
 
 class CerbEval_UI_Setup extends CerbTestBase {
 	function testLoginKina() {
@@ -819,7 +817,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			function() use (&$driver) {
 				try {
 					$icons = $driver->findElements(WebDriverBy::cssSelector('div.cerb-subpage > div > div > span.glyphicons-circle-ok'));
-					return(9 == count($icons));
+					return(8 == count($icons));
 					
 				} catch (NoSuchElementException $nse) {
 					return null;

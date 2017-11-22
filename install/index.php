@@ -106,14 +106,6 @@ if(!is_writeable(APP_STORAGE_PATH)) {
 	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . " is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }
 
-if(!is_writeable(APP_STORAGE_PATH . "/import/fail/")) {
-	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . "/import/fail/ is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
-}
-
-if(!is_writeable(APP_STORAGE_PATH . "/import/new/")) {
-	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . "/import/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
-}
-
 if(!is_writeable(APP_STORAGE_PATH . "/mail/new/")) {
 	DevblocksPlatform::dieWithHttpError(APP_STORAGE_PATH . "/mail/new/ is not writeable by the webserver.  Please adjust permissions and reload this page.", 500);
 }

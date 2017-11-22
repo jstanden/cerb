@@ -324,14 +324,6 @@ class CerberusApplication extends DevblocksApplication {
 			$errors[] = APP_STORAGE_PATH ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}
 
-		if(!is_writeable(APP_STORAGE_PATH . "/import/fail")) {
-			$errors[] = APP_STORAGE_PATH . "/import/fail/" ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
-		}
-
-		if(!is_writeable(APP_STORAGE_PATH . "/import/new")) {
-			$errors[] = APP_STORAGE_PATH . "/import/new/" ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
-		}
-
 		if(!is_writeable(APP_STORAGE_PATH . "/mail/new/")) {
 			$errors[] = APP_STORAGE_PATH . "/mail/new/" ." is not writeable by the webserver.  Please adjust permissions and reload this page.";
 		}

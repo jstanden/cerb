@@ -85,7 +85,6 @@ class ChCronController extends DevblocksControllerExtension {
 					switch($instance->id) {
 						case 'cron.bot.scheduled_behavior':
 						case 'cron.heartbeat':
-						case 'cron.import':
 						case 'cron.mail_queue':
 						case 'cron.mailbox':
 						case 'cron.maint':
