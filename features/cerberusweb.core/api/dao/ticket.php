@@ -4738,6 +4738,15 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
 			
+			case 'org':
+				if(false == ($org_id = DAO_ContactOrg::lookup($value, true))) {
+					$error = sprintf("Failed to lookup org: %s", $value);
+					return false;
+				}
+				
+				$out_fields[DAO_Ticket::ORG_ID] = $org_id;
+				break;
+			
 			case 'participants':
 				$out_fields[DAO_Ticket::_PARTICIPANTS] = $value;
 				break;
