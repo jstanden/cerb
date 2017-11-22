@@ -64,6 +64,27 @@
 			"org_id": "{{{uid.org_admin}}}"
 		},
 		{
+			"uid": "calendar_admin",
+			"_context": "calendar",
+			"name": "{{{admin_name_first}}}'s Calendar",
+			"owner__context": "worker",
+			"owner_id": "{{{uid.worker_admin}}}",
+			"params": {
+				"manual_disabled": "0",
+				"sync_enabled": "1",
+				"start_on_mon": "1",
+				"hide_start_time": "1",
+				"color_available": "#A0D95B",
+				"color_busy": "#C8C8C8",
+				"series": [
+					{
+						"datasource": "calendar.datasource.calendar",
+						"sync_calendar_id": "{{{uid.calendar_usholidays}}}"
+					}
+				]
+			}
+		},
+		{
 			"uid": "worker_admin",
 			"_context": "worker",
 			"first_name": "{{{admin_name_first}}}",
@@ -76,7 +97,7 @@
 			"time_format": "D, d M Y h:i a",
 			"auth_extension_id": "login.password",
 			"language": "en_US",
-			"calendar_id": "0"
+			"calendar_id": "{{{uid.calendar_admin}}}"
 		},
 		{
 			"uid": "role_everyone",
@@ -176,6 +197,133 @@
 			"spam_score": 0.0001,
 			"spam_training": "N",
 			"participants": "support@webgroupmedia.com"
+		},
+		{
+			"uid": "calendar_usholidays",
+			"_context": "calendar",
+			"name": "Office Holidays",
+			"owner__context": "app",
+			"owner_id": 0,
+			"params": {
+				"manual_disabled": "0",
+				"sync_enabled": "0",
+				"start_on_mon": "1",
+				"hide_start_time": "1",
+				"color_available": "#C5DCFA",
+				"color_busy": "#C5DCFA"
+			}
+		},
+		{
+			"uid": "calendar_event_newyears",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "New Year's Day",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "Jan 1"
+		},
+		{
+			"uid": "calendar_event_independence",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "Independence Day",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "July 4"
+		},
+		{
+			"uid": "calendar_event_labor",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "Labor Day",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "first Monday of September"
+		},
+		{
+			"uid": "calendar_event_christmas",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "Christmas",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "Dec 25"
+		},
+		{
+			"uid": "calendar_event_thanksgiving",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "Thanksgiving",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "fourth Thursday of November"
+		},
+		{
+			"uid": "calendar_event_newyears_eve",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "New Year's Eve",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "Dec 31"
+		},
+		{
+			"uid": "calendar_office_hours",
+			"_context": "calendar",
+			"name": "Office Hours",
+			"owner__context": "app",
+			"owner_id": 0,
+			"params": {
+				"manual_disabled": "0",
+				"sync_enabled": "1",
+				"start_on_mon": "1",
+				"hide_start_time": "1",
+				"color_available": "#A0D95B",
+				"color_busy": "#C8C8C8",
+				"series": [
+					{
+						"datasource": "calendar.datasource.calendar",
+						"sync_calendar_id": "{{{uid.calendar_usholidays}}}"
+					}
+				]
+			}
+		},
+		{
+			"uid": "calendar_event_work",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_office_hours}}}",
+			"name": "Work (8a-6p)",
+			"is_available": 1,
+			"tz": "America/Los_Angeles",
+			"event_start": "08:00:00",
+			"event_end": "17:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "weekdays"
 		},
 		{
 			"uid": "message_001_001",
