@@ -81,7 +81,7 @@
 				<td data-column="{$column}">
 					{$group = $groups.{$result.$column}}
 					{if $group}
-						<img src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;margin-right:3px;">
+						<img src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}" style="height:24px;width:24px;border-radius:24px;vertical-align:middle;margin-right:3px;">
 						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}" data-profile-url="{devblocks_url}c=profiles&what=group&id={$group->id}{/devblocks_url}-{$group->name|devblocks_permalink}">{$group->name}</a>
 					{/if}
 				</td>
