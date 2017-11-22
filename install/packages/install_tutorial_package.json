@@ -1,0 +1,2687 @@
+{
+	"package": {
+		"name": "Tutorial Package",
+		"revision": 1,
+		"requires": {
+			"cerb_version": "8.2.4",
+			"plugins": [
+				"cerb.project_boards"
+			]
+		},
+		"configure": {
+			"prompts": [
+				{
+					"type": "text",
+					"label": "Admin first name:",
+					"key": "admin_name_first",
+					"params": {
+					}
+				},
+				{
+					"type": "text",
+					"label": "Admin last name:",
+					"key": "admin_name_last",
+					"params": {
+					}
+				},
+				{
+					"type": "text",
+					"label": "Admin email:",
+					"key": "admin_email",
+					"params": {
+					}
+				},
+				{
+					"type": "text",
+					"label": "Admin timezone:",
+					"key": "admin_timezone",
+					"params": {
+					}
+				},
+				{
+					"type": "text",
+					"label": "Org name:",
+					"key": "org_name",
+					"params": {
+					}
+				}
+			],
+			"placeholders": [
+
+			]
+		}
+	},
+	"worker_preferences": {
+		"{{{uid.worker_admin}}}": {
+			"menu_json": "[{{{uid.workspace_tutorial}}}]"
+		}
+	},
+	"records": [
+		{
+			"uid": "org_admin",
+			"_context": "org",
+			"name": "{{{org_name}}}"
+		},
+		{
+			"uid": "address_admin_email",
+			"_context": "address",
+			"email": "{{{admin_email}}}",
+			"org_id": "{{{uid.org_admin}}}"
+		},
+		{
+			"uid": "worker_admin",
+			"_context": "worker",
+			"first_name": "{{{admin_name_first}}}",
+			"last_name": "{{{admin_name_last}}}",
+			"email_id": "{{{uid.address_admin_email}}}",
+			"title": "Administrator",
+			"is_superuser": 1,
+			"is_disabled": 0,
+			"timezone": "{{{admin_timezone}}}",
+			"time_format": "D, d M Y h:i a",
+			"auth_extension_id": "login.password",
+			"language": "en_US",
+			"calendar_id": "0"
+		},
+		{
+			"uid": "role_everyone",
+			"_context": "role",
+			"name": "Everyone",
+			"params": {
+				"who": "all",
+				"what": "all"
+			}
+		},
+		{
+			"uid": "role_everyone",
+			"_context": "role",
+			"name": "Everyone",
+			"params": {
+				"who": "all",
+				"what": "all"
+			}
+		},
+		{
+			"uid": "transport_null",
+			"_context": "transport",
+			"name": "Tutorial Null Mailer",
+			"extension_id": "core.mail.transport.null"
+		},
+		{
+			"uid": "address_support_cerb_example",
+			"_context": "address",
+			"email": "support@cerb.example",
+			"mail_transport_id": "{{{uid.transport_null}}}"
+		},
+		{
+			"uid": "address_sales_cerb_example",
+			"_context": "address",
+			"email": "sales@cerb.example",
+			"mail_transport_id": "{{{uid.transport_null}}}"
+		},
+		{
+			"uid": "address_dev_cerb_example",
+			"_context": "address",
+			"email": "dev@cerb.example",
+			"mail_transport_id": "{{{uid.transport_null}}}"
+		},
+		{
+			"uid": "address_billing_cerb_example",
+			"_context": "address",
+			"email": "billing@cerb.example",
+			"mail_transport_id": "{{{uid.transport_null}}}"
+		},
+		{
+			"uid": "html_template_default",
+			"_context": "html_template",
+			"name": "Default HTML Layout",
+			"owner__context": "app",
+			"owner_id": "0",
+			"content": "<div id=\"body\">\n{{message_body}}\n</div>\n\n<style type=\"text/css\">\n#body {\n  font-family: Arial, Verdana, sans-serif;\n  font-size: 10pt;\n}\n\na { \n  color: black;\n}\n\nblockquote {\n  color: rgb(0, 128, 255);\n  font-style: italic;\n  margin-left: 0px;\n  border-left: 1px solid rgb(0, 128, 255);\n  padding-left: 5px;\n}\n\nblockquote a {\n  color: rgb(0, 128, 255);\n}\n</style>",
+			"signature": ""
+		},
+		{
+			"uid": "signature_default",
+			"_context": "email_signature",
+			"name": "Default Signature",
+			"owner__context": "app",
+			"owner_id": 0,
+			"signature": "-- \n{{first_name}}{% if title is not empty %}, {{title}}{% endif %}\n\nExample, Inc.\nhttps://cerb.example/",
+			"is_default": "1"
+		},
+		{
+			"uid": "org_wgm",
+			"_context": "org",
+			"name": "Webgroup Media, LLC.",
+			"street": "PO BOX 1206",
+			"city": "Brea",
+			"postal": "92822",
+			"country": "United States",
+			"phone": "+1-714-671-9090",
+			"website": "https://cerb.ai"
+		},
+		{
+			"uid": "org_baston",
+			"_context": "org",
+			"name": "Baston Defence",
+			"country": "France",
+			"website": "http://baston.example"
+		},
+		{
+			"uid": "org_franchir",
+			"_context": "org",
+			"name": "Franchir Pharmaceuticals",
+			"country": "Canada",
+			"website": "http://franchir.example"
+		},
+		{
+			"uid": "org_ghoux",
+			"_context": "org",
+			"name": "Ghoux Games",
+			"country": "South Africa",
+			"website": "http://ghoux.example"
+		},
+		{
+			"uid": "org_helderster",
+			"_context": "org",
+			"name": "Helderster Aerospace B.V.",
+			"country": "Netherlands",
+			"website": "http://helderster.example"
+		},
+		{
+			"uid": "org_nechist",
+			"_context": "org",
+			"name": "Nechist Financial",
+			"country": "Russia",
+			"website": "http://nechist.example"
+		},
+		{
+			"uid": "org_twinton",
+			"_context": "org",
+			"name": "Twinton University",
+			"country": "United Kingdom",
+			"website": "http://twinton.example"
+		},
+		{
+			"uid": "org_zhang",
+			"_context": "org",
+			"name": "Zhang Logistics",
+			"country": "China",
+			"website": "http://zhang.example"
+		},
+		{
+			"uid": "address_support_wgm",
+			"_context": "address",
+			"email": "support@webgroupmedia.com",
+			"org_id": "{{{uid.org_wgm}}}"
+		},
+		{
+			"uid": "address_claire_bertin",
+			"_context": "address",
+			"email": "c.bertin@baston.example",
+			"org_id": "{{{uid.org_baston}}}",
+			"contact_id": "{{{uid.contact_claire_bertin}}}"
+		},
+		{
+			"uid": "contact_claire_bertin",
+			"_context": "contact",
+			"first_name": "Claire",
+			"last_name": "Bertin",
+			"title": "CEO",
+			"gender": "F",
+			"email_id": "{{{uid.address_claire_bertin}}}",
+			"org_id": "{{{uid.org_baston}}}"
+		},
+		{
+			"uid": "address_marie_reynaud",
+			"_context": "address",
+			"email": "m.reynaud@baston.example",
+			"org_id": "{{{uid.org_baston}}}",
+			"contact_id": "{{{uid.contact_marie_reynaud}}}"
+		},
+		{
+			"uid": "contact_marie_reynaud",
+			"_context": "contact",
+			"first_name": "Marie",
+			"last_name": "Reynaud",
+			"title": "IT Engineer",
+			"gender": "F",
+			"email_id": "{{{uid.address_marie_reynaud}}}",
+			"org_id": "{{{uid.org_baston}}}"
+		},
+		{
+			"uid": "address_felix_levy",
+			"_context": "address",
+			"email": "f.levy@baston.example",
+			"org_id": "{{{uid.org_baston}}}",
+			"contact_id": "{{{uid.contact_felix_levy}}}"
+		},
+		{
+			"uid": "contact_felix_levy",
+			"_context": "contact",
+			"first_name": "Félix",
+			"last_name": "Levy",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_baston}}}",
+			"email_id": "{{{uid.address_felix_levy}}}"
+		},
+		{
+			"uid": "address_ines_lacroix",
+			"_context": "address",
+			"email": "i.lacroix@baston.example",
+			"org_id": "{{{uid.org_baston}}}",
+			"contact_id": "{{{uid.contact_ines_lacroix}}}"
+		},
+		{
+			"uid": "contact_ines_lacroix",
+			"_context": "contact",
+			"first_name": "Inès",
+			"last_name": "Lacroix",
+			"title": "Support Integration Officer",
+			"gender": "F",
+			"org_id": "{{{uid.org_baston}}}",
+			"email_id": "{{{uid.address_ines_lacroix}}}"
+		},
+		{
+			"uid": "address_francois_moreno",
+			"_context": "address",
+			"email": "f.moreno@baston.example",
+			"org_id": "{{{uid.org_baston}}}",
+			"contact_id": "{{{uid.contact_francois_moreno}}}"
+		},
+		{
+			"uid": "contact_francois_moreno",
+			"_context": "contact",
+			"first_name": "François",
+			"last_name": "Moreno",
+			"title": "Software Analyst",
+			"gender": "M",
+			"org_id": "{{{uid.org_baston}}}",
+			"email_id": "{{{uid.address_francois_moreno}}}"
+		},
+		{
+			"uid": "address_sarah_adams",
+			"_context": "address",
+			"email": "s.adams@dobbus.example",
+			"org_id": "{{{uid.org_dobbus}}}",
+			"contact_id": "{{{uid.contact_sarah_adams}}}"
+		},
+		{
+			"uid": "contact_sarah_adams",
+			"_context": "contact",
+			"first_name": "Sarah",
+			"last_name": "Adams",
+			"title": "IT Specialist",
+			"gender": "F",
+			"org_id": "{{{uid.org_dobbus}}}",
+			"email_id": "{{{uid.address_sarah_adams}}}"
+		},
+		{
+			"uid": "address_patricia_thomas",
+			"_context": "address",
+			"email": "p.thomas@dobbus.example",
+			"org_id": "{{{uid.org_dobbus}}}",
+			"contact_id": "{{{uid.contact_patricia_thomas}}}"
+		},
+		{
+			"uid": "contact_patricia_thomas",
+			"_context": "contact",
+			"first_name": "Patricia",
+			"last_name": "Thomas",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_dobbus}}}",
+			"email_id": "{{{uid.address_patricia_thomas}}}"
+		},
+		{
+			"uid": "address_jennifer_moore",
+			"_context": "address",
+			"email": "j.moore@dobbus.example",
+			"org_id": "{{{uid.org_dobbus}}}",
+			"contact_id": "{{{uid.contact_jennifer_moore}}}"
+		},
+		{
+			"uid": "contact_jennifer_moore",
+			"_context": "contact",
+			"first_name": "Jennifer",
+			"last_name": "Moore",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_dobbus}}}",
+			"email_id": "{{{uid.address_jennifer_moore}}}"
+		},
+		{
+			"uid": "address_william_moore",
+			"_context": "address",
+			"email": "w.moore@dobbus.example",
+			"org_id": "{{{uid.org_dobbus}}}",
+			"contact_id": "{{{uid.contact_william_moore}}}"
+		},
+		{
+			"uid": "contact_william_moore",
+			"_context": "contact",
+			"first_name": "William",
+			"last_name": "Moore",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_dobbus}}}",
+			"email_id": "{{{uid.address_william_moore}}}"
+		},
+		{
+			"uid": "address_james_nelson",
+			"_context": "address",
+			"email": "j.nelson@dobbus.example",
+			"org_id": "{{{uid.org_dobbus}}}",
+			"contact_id": "{{{uid.contact_james_nelson}}}"
+		},
+		{
+			"uid": "contact_james_nelson",
+			"_context": "contact",
+			"first_name": "James",
+			"last_name": "Nelson",
+			"title": "CTO",
+			"gender": "M",
+			"org_id": "{{{uid.org_dobbus}}}",
+			"email_id": "{{{uid.address_james_nelson}}}"
+		},
+		{
+			"uid": "address_zoe_de_vos",
+			"_context": "address",
+			"email": "z.de.vos@donter.example",
+			"org_id": "{{{uid.org_donter}}}",
+			"contact_id": "{{{uid.contact_zoe_de_vos}}}"
+		},
+		{
+			"uid": "contact_zoe_de_vos",
+			"_context": "contact",
+			"first_name": "Zoë",
+			"last_name": "De Vos",
+			"title": "Technology Advisor",
+			"gender": "F",
+			"org_id": "{{{uid.org_donter}}}",
+			"email_id": "{{{uid.address_zoe_de_vos}}}"
+		},
+		{
+			"uid": "address_eva_jacobs",
+			"_context": "address",
+			"email": "e.jacobs@donter.example",
+			"org_id": "{{{uid.org_donter}}}",
+			"contact_id": "{{{uid.contact_eva_jacobs}}}"
+		},
+		{
+			"uid": "contact_eva_jacobs",
+			"_context": "contact",
+			"first_name": "Eva",
+			"last_name": "Jacobs",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_donter}}}",
+			"email_id": "{{{uid.address_eva_jacobs}}}"
+		},
+		{
+			"uid": "address_lisa_dubois",
+			"_context": "address",
+			"email": "l.dubois@donter.example",
+			"org_id": "{{{uid.org_donter}}}",
+			"contact_id": "{{{uid.contact_lisa_dubois}}}"
+		},
+		{
+			"uid": "contact_lisa_dubois",
+			"_context": "contact",
+			"first_name": "Lisa",
+			"last_name": "Dubois",
+			"title": "Intake Coordinator",
+			"gender": "F",
+			"org_id": "{{{uid.org_donter}}}",
+			"email_id": "{{{uid.address_lisa_dubois}}}"
+		},
+		{
+			"uid": "address_adrien_stevens",
+			"_context": "address",
+			"email": "a.stevens@donter.example",
+			"org_id": "{{{uid.org_donter}}}",
+			"contact_id": "{{{uid.contact_adrien_stevens}}}"
+		},
+		{
+			"uid": "contact_adrien_stevens",
+			"_context": "contact",
+			"first_name": "Adrien",
+			"last_name": "Stevens",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_donter}}}",
+			"email_id": "{{{uid.address_adrien_stevens}}}"
+		},
+		{
+			"uid": "address_mathias_dumont",
+			"_context": "address",
+			"email": "m.dumont@donter.example",
+			"org_id": "{{{uid.org_donter}}}",
+			"contact_id": "{{{uid.contact_mathias_dumont}}}"
+		},
+		{
+			"uid": "contact_mathias_dumont",
+			"_context": "contact",
+			"first_name": "Mathias",
+			"last_name": "Dumont",
+			"title": "Senior Fellow",
+			"gender": "M",
+			"org_id": "{{{uid.org_donter}}}",
+			"email_id": "{{{uid.address_mathias_dumont}}}"
+		},
+		{
+			"uid": "address_christian_bruno",
+			"_context": "address",
+			"email": "c.bruno@fiaflux.example",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"contact_id": "{{{uid.contact_christian_bruno}}}"
+		},
+		{
+			"uid": "contact_christian_bruno",
+			"_context": "contact",
+			"first_name": "Christian",
+			"last_name": "Bruno",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"email_id": "{{{uid.address_christian_bruno}}}"
+		},
+		{
+			"uid": "address_alessio_costa",
+			"_context": "address",
+			"email": "a.costa@fiaflux.example",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"contact_id": "{{{uid.contact_alessio_costa}}}"
+		},
+		{
+			"uid": "contact_alessio_costa",
+			"_context": "contact",
+			"first_name": "Alessio",
+			"last_name": "Costa",
+			"title": "Software Developer",
+			"gender": "M",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"email_id": "{{{uid.address_alessio_costa}}}"
+		},
+		{
+			"uid": "address_davide_moretti",
+			"_context": "address",
+			"email": "d.moretti@fiaflux.example",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"contact_id": "{{{uid.contact_davide_moretti}}}"
+		},
+		{
+			"uid": "contact_davide_moretti",
+			"_context": "contact",
+			"first_name": "Davide",
+			"last_name": "Moretti",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"email_id": "{{{uid.address_davide_moretti}}}"
+		},
+		{
+			"uid": "address_sofia_gallo",
+			"_context": "address",
+			"email": "s.gallo@fiaflux.example",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"contact_id": "{{{uid.contact_sofia_gallo}}}"
+		},
+		{
+			"uid": "contact_sofia_gallo",
+			"_context": "contact",
+			"first_name": "Sofia",
+			"last_name": "Gallo",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"email_id": "{{{uid.address_sofia_gallo}}}"
+		},
+		{
+			"uid": "address_giada_rossi",
+			"_context": "address",
+			"email": "g.rossi@fiaflux.example",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"contact_id": "{{{uid.contact_giada_rossi}}}"
+		},
+		{
+			"uid": "contact_giada_rossi",
+			"_context": "contact",
+			"first_name": "Giada",
+			"last_name": "Rossi",
+			"title": "Developer Liaison",
+			"gender": "F",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"email_id": "{{{uid.address_giada_rossi}}}"
+		},
+		{
+			"uid": "address_ethan_anderson",
+			"_context": "address",
+			"email": "e.anderson@franchir.example",
+			"org_id": "{{{uid.org_franchir}}}",
+			"contact_id": "{{{uid.contact_ethan_anderson}}}"
+		},
+		{
+			"uid": "contact_ethan_anderson",
+			"_context": "contact",
+			"first_name": "Ethan",
+			"last_name": "Anderson",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_franchir}}}",
+			"email_id": "{{{uid.address_ethan_anderson}}}"
+		},
+		{
+			"uid": "address_hunter_wilson",
+			"_context": "address",
+			"email": "h.wilson@franchir.example",
+			"org_id": "{{{uid.org_franchir}}}",
+			"contact_id": "{{{uid.contact_hunter_wilson}}}"
+		},
+		{
+			"uid": "contact_hunter_wilson",
+			"_context": "contact",
+			"first_name": "Hunter",
+			"last_name": "Wilson",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_franchir}}}",
+			"email_id": "{{{uid.address_hunter_wilson}}}"
+		},
+		{
+			"uid": "address_isabella_taylor",
+			"_context": "address",
+			"email": "i.taylor@franchir.example",
+			"org_id": "{{{uid.org_franchir}}}",
+			"contact_id": "{{{uid.contact_isabella_taylor}}}"
+		},
+		{
+			"uid": "contact_isabella_taylor",
+			"_context": "contact",
+			"first_name": "Isabella",
+			"last_name": "Taylor",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_franchir}}}",
+			"email_id": "{{{uid.address_isabella_taylor}}}"
+		},
+		{
+			"uid": "address_grace_chen",
+			"_context": "address",
+			"email": "g.chen@franchir.example",
+			"org_id": "{{{uid.org_franchir}}}",
+			"contact_id": "{{{uid.contact_grace_chen}}}"
+		},
+		{
+			"uid": "contact_grace_chen",
+			"_context": "contact",
+			"first_name": "Grace",
+			"last_name": "Chen",
+			"title": "Technology Coordinator",
+			"gender": "F",
+			"org_id": "{{{uid.org_franchir}}}",
+			"email_id": "{{{uid.address_grace_chen}}}"
+		},
+		{
+			"uid": "address_ryder_brown",
+			"_context": "address",
+			"email": "r.brown@franchir.example",
+			"org_id": "{{{uid.org_franchir}}}",
+			"contact_id": "{{{uid.contact_ryder_brown}}}"
+		},
+		{
+			"uid": "contact_ryder_brown",
+			"_context": "contact",
+			"first_name": "Ryder",
+			"last_name": "Brown",
+			"title": "IT Engineer",
+			"gender": "M",
+			"org_id": "{{{uid.org_franchir}}}",
+			"email_id": "{{{uid.address_ryder_brown}}}"
+		},
+		{
+			"uid": "address_jeandre_theron",
+			"_context": "address",
+			"email": "j.theron@ghoux.example",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"contact_id": "{{{uid.contact_jeandre_theron}}}"
+		},
+		{
+			"uid": "contact_jeandre_theron",
+			"_context": "contact",
+			"first_name": "Jeandré",
+			"last_name": "Theron",
+			"title": "Director of Engineering",
+			"gender": "M",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"email_id": "{{{uid.address_jeandre_theron}}}"
+		},
+		{
+			"uid": "address_kayla_engelbrecht",
+			"_context": "address",
+			"email": "k.engelbrecht@ghoux.example",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"contact_id": "{{{uid.contact_kayla_engelbrecht}}}"
+		},
+		{
+			"uid": "contact_kayla_engelbrecht",
+			"_context": "contact",
+			"first_name": "Kayla",
+			"last_name": "Engelbrecht",
+			"title": "iOS Developer",
+			"gender": "F",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"email_id": "{{{uid.address_kayla_engelbrecht}}}"
+		},
+		{
+			"uid": "address_emershan_khan",
+			"_context": "address",
+			"email": "e.khan@ghoux.example",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"contact_id": "{{{uid.contact_emershan_khan}}}"
+		},
+		{
+			"uid": "contact_emershan_khan",
+			"_context": "contact",
+			"first_name": "Emershan",
+			"last_name": "Khan",
+			"title": "CTO",
+			"gender": "M",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"email_id": "{{{uid.address_emershan_khan}}}"
+		},
+		{
+			"uid": "address_yaseen_joubert",
+			"_context": "address",
+			"email": "y.joubert@ghoux.example",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"contact_id": "{{{uid.contact_yaseen_joubert}}}"
+		},
+		{
+			"uid": "contact_yaseen_joubert",
+			"_context": "contact",
+			"first_name": "Yaseen",
+			"last_name": "Joubert",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"email_id": "{{{uid.address_yaseen_joubert}}}"
+		},
+		{
+			"uid": "address_jana_kruger",
+			"_context": "address",
+			"email": "j.kruger@ghoux.example",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"contact_id": "{{{uid.contact_jana_kruger}}}"
+		},
+		{
+			"uid": "contact_jana_kruger",
+			"_context": "contact",
+			"first_name": "Jana",
+			"last_name": "Kruger",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"email_id": "{{{uid.address_jana_kruger}}}"
+		},
+		{
+			"uid": "address_teun_vos",
+			"_context": "address",
+			"email": "t.vos@helderster.example",
+			"org_id": "{{{uid.org_helderster}}}",
+			"contact_id": "{{{uid.contact_teun_vos}}}"
+		},
+		{
+			"uid": "contact_teun_vos",
+			"_context": "contact",
+			"first_name": "Teun",
+			"last_name": "Vos",
+			"title": "IT Manager",
+			"gender": "M",
+			"org_id": "{{{uid.org_helderster}}}",
+			"email_id": "{{{uid.address_teun_vos}}}"
+		},
+		{
+			"uid": "address_mila_janssen",
+			"_context": "address",
+			"email": "m.janssen@helderster.example",
+			"org_id": "{{{uid.org_helderster}}}",
+			"contact_id": "{{{uid.contact_mila_janssen}}}"
+		},
+		{
+			"uid": "contact_mila_janssen",
+			"_context": "contact",
+			"first_name": "Mila",
+			"last_name": "Janssen",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_helderster}}}",
+			"email_id": "{{{uid.address_mila_janssen}}}"
+		},
+		{
+			"uid": "address_kyan_mulder",
+			"_context": "address",
+			"email": "k.mulder@helderster.example",
+			"org_id": "{{{uid.org_helderster}}}",
+			"contact_id": "{{{uid.contact_kyan_mulder}}}"
+		},
+		{
+			"uid": "contact_kyan_mulder",
+			"_context": "contact",
+			"first_name": "Kyan",
+			"last_name": "Mulder",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_helderster}}}",
+			"email_id": "{{{uid.address_kyan_mulder}}}"
+		},
+		{
+			"uid": "address_esmee_de_graaf",
+			"_context": "address",
+			"email": "e.de.graaf@helderster.example",
+			"org_id": "{{{uid.org_helderster}}}",
+			"contact_id": "{{{uid.contact_esmee_de_graaf}}}"
+		},
+		{
+			"uid": "contact_esmee_de_graaf",
+			"_context": "contact",
+			"first_name": "Esmee",
+			"last_name": "de Graaf",
+			"title": "Support Manager",
+			"gender": "F",
+			"org_id": "{{{uid.org_helderster}}}",
+			"email_id": "{{{uid.address_esmee_de_graaf}}}"
+		},
+		{
+			"uid": "address_luuk_brouwer",
+			"_context": "address",
+			"email": "l.brouwer@helderster.example",
+			"org_id": "{{{uid.org_helderster}}}",
+			"contact_id": "{{{uid.contact_luuk_brouwer}}}"
+		},
+		{
+			"uid": "contact_luuk_brouwer",
+			"_context": "contact",
+			"first_name": "Luuk",
+			"last_name": "Brouwer",
+			"title": "DevOps",
+			"gender": "M",
+			"org_id": "{{{uid.org_helderster}}}",
+			"email_id": "{{{uid.address_luuk_brouwer}}}"
+		},
+		{
+			"uid": "address_dmitry_volkov",
+			"_context": "address",
+			"email": "d.volkov@nechist.example",
+			"org_id": "{{{uid.org_nechist}}}",
+			"contact_id": "{{{uid.contact_dmitry_volkov}}}"
+		},
+		{
+			"uid": "contact_dmitry_volkov",
+			"_context": "contact",
+			"first_name": "Dmitry",
+			"last_name": "Volkov",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_nechist}}}",
+			"email_id": "{{{uid.address_dmitry_volkov}}}"
+		},
+		{
+			"uid": "address_sergey_polzin",
+			"_context": "address",
+			"email": "s.polzin@nechist.example",
+			"org_id": "{{{uid.org_nechist}}}",
+			"contact_id": "{{{uid.contact_sergey_polzin}}}"
+		},
+		{
+			"uid": "contact_sergey_polzin",
+			"_context": "contact",
+			"first_name": "Sergey",
+			"last_name": "Polzin",
+			"title": "CTO",
+			"gender": "M",
+			"org_id": "{{{uid.org_nechist}}}",
+			"email_id": "{{{uid.address_sergey_polzin}}}"
+		},
+		{
+			"uid": "address_tatiana_vetrov",
+			"_context": "address",
+			"email": "t.vetrov@nechist.example",
+			"org_id": "{{{uid.org_nechist}}}",
+			"contact_id": "{{{uid.contact_tatiana_vetrov}}}"
+		},
+		{
+			"uid": "contact_tatiana_vetrov",
+			"_context": "contact",
+			"first_name": "Tatiana",
+			"last_name": "Vetrov",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_nechist}}}",
+			"email_id": "{{{uid.address_tatiana_vetrov}}}"
+		},
+		{
+			"uid": "address_karina_yamikov",
+			"_context": "address",
+			"email": "k.yamikov@nechist.example",
+			"org_id": "{{{uid.org_nechist}}}",
+			"contact_id": "{{{uid.contact_karina_yamikov}}}"
+		},
+		{
+			"uid": "contact_karina_yamikov",
+			"_context": "contact",
+			"first_name": "Karina",
+			"last_name": "Yamikov",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_nechist}}}",
+			"email_id": "{{{uid.address_karina_yamikov}}}"
+		},
+		{
+			"uid": "address_sveta_krupin",
+			"_context": "address",
+			"email": "s.krupin@nechist.example",
+			"org_id": "{{{uid.org_nechist}}}",
+			"contact_id": "{{{uid.contact_sveta_krupin}}}"
+		},
+		{
+			"uid": "contact_sveta_krupin",
+			"_context": "contact",
+			"first_name": "Sveta",
+			"last_name": "Krupin",
+			"title": "Accounts Payable",
+			"gender": "F",
+			"org_id": "{{{uid.org_nechist}}}",
+			"email_id": "{{{uid.address_sveta_krupin}}}"
+		},
+		{
+			"uid": "address_callum_cooper",
+			"_context": "address",
+			"email": "c.cooper@twinton.example",
+			"org_id": "{{{uid.org_twinton}}}",
+			"contact_id": "{{{uid.contact_callum_cooper}}}"
+		},
+		{
+			"uid": "contact_callum_cooper",
+			"_context": "contact",
+			"first_name": "Callum",
+			"last_name": "Cooper",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_twinton}}}",
+			"email_id": "{{{uid.address_callum_cooper}}}"
+		},
+		{
+			"uid": "address_jack_allen",
+			"_context": "address",
+			"email": "j.allen@twinton.example",
+			"org_id": "{{{uid.org_twinton}}}",
+			"contact_id": "{{{uid.contact_jack_allen}}}"
+		},
+		{
+			"uid": "contact_jack_allen",
+			"_context": "contact",
+			"first_name": "Jack",
+			"last_name": "Allen",
+			"title": "Helpdesk Administrator",
+			"gender": "M",
+			"org_id": "{{{uid.org_twinton}}}",
+			"email_id": "{{{uid.address_jack_allen}}}"
+		},
+		{
+			"uid": "address_bradley_gibson",
+			"_context": "address",
+			"email": "b.gibson@twinton.example",
+			"org_id": "{{{uid.org_twinton}}}",
+			"contact_id": "{{{uid.contact_bradley_gibson}}}"
+		},
+		{
+			"uid": "contact_bradley_gibson",
+			"_context": "contact",
+			"first_name": "Bradley",
+			"last_name": "Gibson",
+			"title": "",
+			"gender": "M",
+			"org_id": "{{{uid.org_twinton}}}",
+			"email_id": "{{{uid.address_bradley_gibson}}}"
+		},
+		{
+			"uid": "address_charlotte_bailey",
+			"_context": "address",
+			"email": "c.bailey@twinton.example",
+			"org_id": "{{{uid.org_twinton}}}",
+			"contact_id": "{{{uid.contact_charlotte_bailey}}}"
+		},
+		{
+			"uid": "contact_charlotte_bailey",
+			"_context": "contact",
+			"first_name": "Charlotte",
+			"last_name": "Bailey",
+			"title": "Director, Department of Computer Science",
+			"gender": "F",
+			"org_id": "{{{uid.org_twinton}}}",
+			"email_id": "{{{uid.address_charlotte_bailey}}}"
+		},
+		{
+			"uid": "address_bethany_gray",
+			"_context": "address",
+			"email": "b.gray@twinton.example",
+			"org_id": "{{{uid.org_twinton}}}",
+			"contact_id": "{{{uid.contact_bethany_gray}}}"
+		},
+		{
+			"uid": "contact_bethany_gray",
+			"_context": "contact",
+			"first_name": "Bethany",
+			"last_name": "Gray",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_twinton}}}",
+			"email_id": "{{{uid.address_bethany_gray}}}"
+		},
+		{
+			"uid": "address_wei_zhang",
+			"_context": "address",
+			"email": "w.zhang@zhang.example",
+			"org_id": "{{{uid.org_zhang}}}",
+			"contact_id": "{{{uid.contact_wei_zhang}}}"
+		},
+		{
+			"uid": "contact_wei_zhang",
+			"_context": "contact",
+			"first_name": "Wei",
+			"last_name": "Zhang",
+			"title": "Founder/CEO",
+			"gender": "",
+			"org_id": "{{{uid.org_zhang}}}",
+			"email_id": "{{{uid.address_wei_zhang}}}"
+		},
+		{
+			"uid": "address_jun_li",
+			"_context": "address",
+			"email": "j.li@zhang.example",
+			"org_id": "{{{uid.org_zhang}}}",
+			"contact_id": "{{{uid.contact_jun_li}}}"
+		},
+		{
+			"uid": "contact_jun_li",
+			"_context": "contact",
+			"first_name": "Jun",
+			"last_name": "Li",
+			"title": "",
+			"gender": "F",
+			"org_id": "{{{uid.org_zhang}}}",
+			"email_id": "{{{uid.address_jun_li}}}"
+		},
+		{
+			"uid": "address_hui_zhong",
+			"_context": "address",
+			"email": "h.zhong@zhang.example",
+			"org_id": "{{{uid.org_zhang}}}",
+			"contact_id": "{{{uid.contact_hui_zhong}}}"
+		},
+		{
+			"uid": "contact_hui_zhong",
+			"_context": "contact",
+			"first_name": "Hui",
+			"last_name": "Zhong",
+			"title": "IT Manager",
+			"gender": "",
+			"org_id": "{{{uid.org_zhang}}}",
+			"email_id": "{{{uid.address_hui_zhong}}}"
+		},
+		{
+			"uid": "address_xui_li",
+			"_context": "address",
+			"email": "x.li@zhang.example",
+			"org_id": "{{{uid.org_zhang}}}",
+			"contact_id": "{{{uid.contact_xui_li}}}"
+		},
+		{
+			"uid": "contact_xui_li",
+			"_context": "contact",
+			"first_name": "Xui",
+			"last_name": "Li",
+			"title": "",
+			"gender": "",
+			"org_id": "{{{uid.org_zhang}}}",
+			"email_id": "{{{uid.address_xui_li}}}"
+		},
+		{
+			"uid": "address_xu_guan",
+			"_context": "address",
+			"email": "x.guan@zhang.example",
+			"org_id": "{{{uid.org_zhang}}}",
+			"contact_id": "{{{uid.contact_xu_guan}}}"
+		},
+		{
+			"uid": "contact_xu_guan",
+			"_context": "contact",
+			"first_name": "Xu",
+			"last_name": "Guan",
+			"title": "Supply Chain Manager",
+			"gender": "M",
+			"org_id": "{{{uid.org_zhang}}}",
+			"email_id": "{{{uid.address_xu_guan}}}"
+		},
+		{
+			"uid": "address_taevac_rotpme",
+			"_context": "address",
+			"email": "taevac.rotpme@spam.example",
+			"org_id": "0",
+			"contact_id": "0"
+		},
+		{
+			"uid": "org_dobbus",
+			"_context": "org",
+			"name": "Dobbus Airways",
+			"country": "Australia",
+			"website": "http://dobbus.example"
+		},
+		{
+			"uid": "org_donter",
+			"_context": "org",
+			"name": "Donter Institute",
+			"country": "Belgium",
+			"website": "http://donter.example"
+		},
+		{
+			"uid": "org_fiaflux",
+			"_context": "org",
+			"name": "Fiaflux Software",
+			"country": "Italy",
+			"website": "http://fiaflux.example"
+		},
+		{
+			"uid": "calendar_usholidays",
+			"_context": "calendar",
+			"name": "Office Holidays",
+			"owner__context": "app",
+			"owner_id": 0,
+			"params": {
+				"manual_disabled": "0",
+				"sync_enabled": "0",
+				"start_on_mon": "1",
+				"hide_start_time": "1",
+				"color_available": "#C5DCFA",
+				"color_busy": "#C5DCFA"
+			}
+		},
+		{
+			"uid": "calendar_event_newyears",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "New Year's Day",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "Jan 1"
+		},
+		{
+			"uid": "calendar_event_independence",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "Independence Day",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "July 4"
+		},
+		{
+			"uid": "calendar_event_labor",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "Labor Day",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "first Monday of September"
+		},
+		{
+			"uid": "calendar_event_christmas",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "Christmas",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "Dec 25"
+		},
+		{
+			"uid": "calendar_event_thanksgiving",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "Thanksgiving",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "fourth Thursday of November"
+		},
+		{
+			"uid": "calendar_event_newyears_eve",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_usholidays}}}",
+			"name": "New Year's Eve",
+			"is_available": 0,
+			"tz": "America/Los_Angeles",
+			"event_start": "00:00:00",
+			"event_end": "23:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "Dec 31"
+		},
+		{
+			"uid": "calendar_office_hours",
+			"_context": "calendar",
+			"name": "Office Hours",
+			"owner__context": "app",
+			"owner_id": 0,
+			"params": {
+				"manual_disabled": "0",
+				"sync_enabled": "1",
+				"start_on_mon": "1",
+				"hide_start_time": "1",
+				"color_available": "#A0D95B",
+				"color_busy": "#C8C8C8",
+				"series": [
+					{
+						"datasource": "calendar.datasource.calendar",
+						"sync_calendar_id": "{{{uid.calendar_usholidays}}}"
+					}
+				]
+			}
+		},
+		{
+			"uid": "calendar_event_work",
+			"_context": "calendar_recurring_event",
+			"calendar_id": "{{{uid.calendar_office_hours}}}",
+			"name": "Work (8a-6p)",
+			"is_available": 1,
+			"tz": "America/Los_Angeles",
+			"event_start": "08:00:00",
+			"event_end": "17:59:59",
+			"recur_start": 0,
+			"recur_end": 0,
+			"patterns": "weekdays"
+		},
+		{
+			"uid": "worker_kina",
+			"_context": "worker",
+			"first_name": "Kina",
+			"last_name": "Halpue",
+			"email": "kina@cerb.example",
+			"title": "Customer Support",
+			"is_superuser": 0,
+			"is_disabled": 0,
+			"at_mention_name": "Kina",
+			"timezone": "America/Los_Angeles",
+			"time_format": "D, d M Y h:i a",
+			"auth_extension_id": "login.password",
+			"language": "en_US",
+			"gender": "F",
+			"location": "Los Angeles, CA USA",
+			"calendar_id": "{{{uid.calendar_office_hours}}}",
+			"image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAMAAABHPGVmAAAA21BMVEW9vcC9vsCioqTAwcS9vsC9vsAuKi2TlZiLjZC7vL5dXl6/wMIwLTCSlJctKSwyLzLBwsQBAABfYGArJyopJCiWmJs3Mza3uLqNj5JZWlocExheX19QUFE0MTSXmZzDxMYnIiYeFxwYDhQKAARiYmOJi40iHCCQkZRwcHJTUlNVVVY/PT87ODp8fX8kHyIVCRCHiIt3d3lsbG5lZWeAgYOEhYd6enxzc3VNTE1GRUZDQUMhGh60tbdXV1itrrCqqqybm50PAQqoqKqfn6FpaWpKSUuwsLKlpaeNjY8JTJS8AAAABXRSTlPt7v7s3OZ7TxEAAAhJSURBVGje3dnpdqIwFADgmc4QC4SEAKIgtLjvWrXu2mrVtu//RJMINKM40szyZ9JzWhfo583NvUT9Iv3zoX75b5CvgogcD7FIxAB6ispuhncEIhEAdF3K5dgfnVopjGgkH8BztlswpmNt97zKqXqKI4bIkkqBl0xX6fRJuUzINuh4lcebyPkzhBtP9Yljb0m5ZkKMIUBWrVQmqFJ/kjgjhCQN/eZAKIAghhACAOlgVkDIfLBj4cjCSNLYtQnGIYAQiH4BSE2X1JTqs8wVQYQbm07ZhuDSoPGYhNiTHFeEljDPRxZv7fC1X3Z8lzzSA38/EllVNbNkI3Bt2GZto8uyKMIN6b3mphgA+NvDk/6bCGse76ViqoEAJkOefDFElvUb17VNkDYQROWqztMihKhSl7A40hVc9G94WoQQ/dXrY/Cpgcn6VZUFljCvkOwWwE8ZCCPyQCdMOBKayinxwScHJHv5dxD9aeHizyJ421ypogir9TqBnzWQ79pvujii5kYEfxrBQVETRViRvODepyI5dmcISFeVZNHVpT4QCD9jmFa4iEc5VRCR1ZVTxp8gQDEAPUSTsp296rLIdLHZ2gUWTG8oZrE5GVcCBPwi3t0LRBK3FAhTDau3r2fv6s0iwEHpXTQS9XVWwulx1IaZrKbdTSwLAzKg5wkgrKWUTIjSDHfPDC17u6hBnxgs8+nTxRG5QSBMMUC/omW1TEbLaI4L7O38WRdC1JyyxamGUqcGQ7J7F/lLc3MvMF0MMco4zXDy1AiRQc/0rf67/lcRBGF/nb9jBlOyYxxgVH7kNf9HCDdaH0bmmHkM6fL6iwgCsOTdxsYx8y0XYtKQxZFrxqzKDZaUkQt8Usmpfy8S7M4fuBFmfmnaxFn9PQQX2+M7jSMsKY8gsIn3qv8lBOEe7EYGR6rtmt1fvPwxwpviNJsJDY7Um65d6rzd/xHCDeCOMmcGu2uU7CXYCCKFCEkurBZrJudIdljyg6V2BRHYRcDigi3eJDItYotfUf6oC8MefmRGEun2ACC8r6Qh/MKILlylzpLO1zAyMZkIIZJaJSCBAOBWwqQnkQc78MO+InBl1LYogUDXy/OknxdKz2Z9RQCR9V3NgudGrTOOE5JEFjWbKCtVZLr0N9iDZ4ZlTe4yv0aWvK+kRcK39MXzNVzaX0wI7yvbxfO9CKKuvNIpgnkVXk58z+533sSQXIXgs9bL2/ulOrEse4k2Yog8/BlBODhLSLLikd+rZYQQSZocS57v4xpZbiSRzKgEwr4iEsnxnQOKDVAaaZcTwls9hLyvpCC8Gsv8rS/sO4mkJ2oRQki6gsiuaMYILh3Cvcm1vNOj2X5FFUBkXo0IHyv9OjJ0AUQ+GeUEkLAaQyTZepNI3aMHI5sUVkKIumr2cRhIf80Scg25e4TWEfGedAGEVyM0aYVcNzKZgkuPNO3ynPYVkTemcuOIoGSpJwPpItaykV9qv92LRCJJ3QhZtseXEb7dPtCMMIT3FcH38dAyr04XfariUoEhNXMjFomeiaoR9vlG64Kh3Q0sC6IwEiCK7JYmDJOyuJIU7W7cqUUF5Rf9nVDiZf3Fj6+NV5qjls17LuQfFe1EImEfDs7dqFBc1lWuJASiELH7Aqsr3g4TDFJCoQkJgtDgdSKCyAOKRKHMq1ntovHQLmIExBG+v+PXxmXjopHRlBIE4A8QfdNHMO71zQctybDVG05WlJPyQah3seX13CnieJ/deczfaslSn5UwAhwhMzGEZX5P/HgmzEH+9raunSHTsAw54r0KIrSx8KTUGhQ5YbR6Pm+ElxyOtIQR/e4jKdAdMoQxMUFvV1vuGaKsxBB2BQa9BHKb1zRGsFtVz8XoBGHbesEvBF7sJT5BIiYf/X34K0inmED4SETyq43E1xQkjgQULyLNC0h6JPJpH7ZrcYPtTS8gZ4kHPtmnI7kcUzhyg4JoV2ShCUf4UE6Qz2zuZPXlRWUKX8JbECGB3b2A5EdFcIpMJCkFuX9+z+k/Ieo7ifNenI8vIPVhYEJuJPfCycTLem56EzVRmQ5dHRD/o0FWLyED+HN/xFb//Z6deS0SSR0MJFVmgsS+an9ab+NISqMLGanWH9tL/BMSuPX78Dv6JMLnq+7TyydNhq7mnu/Ge2BGBu2PWsJg1Tg7WcOgpuR3Tznq8HCSyEttKN3r0uotPxm1vE4AIiToDMe3FzO/PP0oDMycfVd7yel6FA7PCd9kG2STu6lOC02vVVDaZny2OVMqjccEk883kAURZ0zoKS2vWZlkX1WdKcmcyPr9I5k1Ks3mumAYxsH6CKTtFBzHCBkuPHQbRocdxEfQUSqGsvZaw/dXGkwcCSdUfbUbmqXeoVCpGAWjheOMWP7aUArKkeHIeLBXHMUD5oliHgqKYhhKq7nf0MKMI+FEZuqs2wj77UPLcZq2FWcdeIZCB2MKjWq0sqYVx3HoYwvrFIHHgx2j0Gy9yxL9YUg8U/Km0Wo69PVbpmVi24Z8Zc2OBmMKznoaztWECexFO50zBXuGMZsphYrjbVhpRgjTnrprShiK4UETItOyIgNY6ED/WTwMxenmqTGuOJHMXhY8jWW+wE2DPdOg7fIYSRjR28hjBDvJAxZkIzwj8D1usGCcCm0w1aFT+HA9eBaLWeuwpwvK+kblkehPIxrjx0l+cFyVLB5/vo4e58q+mh847CZX2Al8WJZnHCe3OY4Sr6qSLj3MKj9NSattWnQgvz1zCrHBhzN9NJzCz0qz8zG/iGbUn9EomLIernRV1b9+oePbczjDfOK9+WJx8NaKUVAujcrZfcPx5m37iMDO3HOiCaa1dfPty5ev338AlzGgFHNVKmMAAAAASUVORK5CYII="
+		},
+		{
+			"uid": "worker_milo",
+			"_context": "worker",
+			"first_name": "Milo",
+			"last_name": "Dade",
+			"email": "milo@cerb.example",
+			"title": "Software Developer",
+			"is_superuser": 0,
+			"is_disabled": 0,
+			"at_mention_name": "Milo",
+			"timezone": "America/New_York",
+			"time_format": "D, d M Y h:i a",
+			"auth_extension_id": "login.password",
+			"language": "en_US",
+			"gender": "M",
+			"location": "New York, CA USA",
+			"calendar_id": "{{{uid.calendar_office_hours}}}",
+			"image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAMAAABHPGVmAAAAnFBMVEWTlZjDxcY6Ojy9vsAuKi3Gx8rBw8VLRUiKjI5bVlm/wcKusLKeoKN1c3REPkDExsiJiIs+ODszLjKmqKuWmJuCg4V7e323uLm0trmUkpRtamxjZGZhXV9LTE41MTRPSkyPkJN3eHtyc3ZtbW9nZGVTU1VHR0m7vL65u7yenp+Ymp2AfX9dXmBVT1I5MzerqqxoaWugoqVbXF6pq66SxRC7AAADAUlEQVRo3u3Y2XKqQBCAYZhpZRGQXaKI+xbNet7/3c6Anown0dD0BK7y31Fl+aVpmEqp/dZFbm5qreSal++fBQAQtKAkVggiL4B/zX58CANkLSkWiFpW1gDtKallSuNmhuW6qpuAMBdUCN8XeoYCYgLAcy6M2nIFBbCFJh0J0YpFRzz8KMmPIIVhBCDzrPHYANkTGfn4FuP4ootGx4tjicvyelzApUB1J96D/tG4HEpev3wMS119ClXWSL/qCMXh+tq6IGulI8urDJkrDanQj5jzAg56TefNPZNfeNFYr2t03n5CQsZQNtJr8xWWMqu2XgPIG2aQkGcQ+RjkAUQh+QEudFQBdfN5dVrgkPKzHvlMcXGITz29oEwcINilWPQHGI+MCchTheh4xKWspClCft8LJPICEJLfRUNHRnyCNasJEqxNEmI2QTRio3X7iNPrB60ju14vKlpGop7In7WLZL2yQ7vIoEKG7SJvXSBOI6Sv0WqE7IlIvwtk1wQZEZGsCTLQFJ5hHVlERGK7ARJrZAWPaOSOaQeICyu7AwQGrSM5wBxn2HTEQv+XuldCHPy7SP+pgOOQNzrigcH72IOejuTcxiCZAhLAkXMM4iggTzDgmFH2mkJJwUX1WzloKrklYqOeX3oRRyi2ppZYSe0NGzqKyJ7XKsNM0XjkvE4Z2o+KiMOlMryzkIHiHAN+lX1rmD7nSoPEkrh3y/o250qDOLvPhpxGEnynMIgvx/jiVAmhKiIC5uK09TmuXUwRktcNE2VIJCKNwM45SMRpJqRiBNkKifxpMMLyxD41xyEZlnidshulOAW7eHa7yQCDLBdzFYRNfQTis+3EJCCySVSLOExkLQiILM0QiGi7MukI20QoRHRKEAhtM871R5dzAiIfMwRyvmtzIsKmyXdP1/9tlzREtInvIcuvf9KChogmzm1kwxiKYbje51ndIJJJiYho5Uf8uvid3ctKqIhoukriSsridMO+64RA1Eu6QCZdIMzsApl0gTCzC2TSBcJMAkIf5S/MYUZ5TY7rzwAAAABJRU5ErkJggg=="
+		},
+		{
+			"uid": "group_support",
+			"_context": "group",
+			"name": "Support",
+			"is_default": 1,
+			"is_private": 0,
+			"reply_address_id": "{{{uid.address_support_cerb_example}}}",
+			"reply_personal": "{{first_name}} at Example",
+			"reply_signature_id": "{{{uid.signature_default}}}",
+			"reply_html_template_id": "{{{uid.html_template_default}}}",
+			"members": {
+				"manager": "1,{{{uid.worker_kina}}}",
+				"member": "{{{uid.worker_milo}}}"
+			}
+		},
+		{
+			"uid": "group_sales",
+			"_context": "group",
+			"name": "Sales",
+			"is_private": 0,
+			"reply_address_id": "{{{uid.address_sales_cerb_example}}}",
+			"reply_personal": "{{first_name}} at Example",
+			"reply_signature_id": "{{{uid.signature_default}}}",
+			"reply_html_template_id": "{{{uid.html_template_default}}}",
+			"members": {
+				"manager": "{{{uid.worker_admin}}}",
+				"member": "{{{uid.worker_kina}}},{{{uid.worker_milo}}}"
+			}
+		},
+		{
+			"uid": "group_development",
+			"_context": "group",
+			"name": "Development",
+			"is_private": 0,
+			"reply_address_id": "{{{uid.address_dev_cerb_example}}}",
+			"reply_personal": "{{first_name}} at Example",
+			"reply_signature_id": "{{{uid.signature_default}}}",
+			"reply_html_template_id": "{{{uid.html_template_default}}}",
+			"members": {
+				"manager": "{{{uid.worker_admin}}},{{{uid.worker_milo}}}",
+				"member": "{{{uid.worker_kina}}}"
+			}
+		},
+		{
+			"uid": "group_billing",
+			"_context": "group",
+			"name": "Billing",
+			"is_private": 0,
+			"reply_address_id": "{{{uid.address_billing_cerb_example}}}",
+			"reply_personal": "{{first_name}} at Example",
+			"reply_signature_id": "{{{uid.signature_default}}}",
+			"reply_html_template_id": "{{{uid.html_template_default}}}",
+			"members": {
+				"manager": "{{{uid.worker_admin}}}",
+				"member": "{{{uid.worker_kina}}},{{{uid.worker_milo}}}"
+			}
+		},
+		{
+			"uid": "bucket_support_inbox",
+			"_context": "bucket",
+			"name": "Inbox",
+			"is_default": "1",
+			"group_id": "{{{uid.group_support}}}"
+		},
+		{
+			"uid": "bucket_sales_inbox",
+			"_context": "bucket",
+			"name": "Inbox",
+			"is_default": "1",
+			"group_id": "{{{uid.group_sales}}}"
+		},
+		{
+			"uid": "bucket_development_inbox",
+			"_context": "bucket",
+			"name": "Inbox",
+			"is_default": "1",
+			"group_id": "{{{uid.group_development}}}"
+		},
+		{
+			"uid": "bucket_billing_inbox",
+			"_context": "bucket",
+			"name": "Inbox",
+			"is_default": "1",
+			"group_id": "{{{uid.group_billing}}}"
+		},
+		{
+			"uid": "bucket_billing_invoices",
+			"_context": "bucket",
+			"name": "Invoices",
+			"group_id": "{{{uid.group_billing}}}"
+		},
+		{
+			"uid": "ticket_001",
+			"_context": "ticket",
+			"group_id": "{{{uid.group_development}}}",
+			"bucket_id": "{{{uid.bucket_development_inbox}}}",
+			"mask": "EVAL-001",
+			"subject": "Always use HTML mode on replies",
+			"importance": 10,
+			"status": "closed",
+			"closed": "{{{date('-7 days 00:21:00')|date('U')}}}",
+			"org_id": "{{{uid.org_fiaflux}}}",
+			"spam_score": 0.0001,
+			"spam_training": "N",
+			"created": "{{{date('-7 days 00:00')|date('U')}}}",
+			"updated": "{{{date('-7 days 00:10')|date('U')}}}",
+			"participants": "a.costa@fiaflux.example"
+		},
+		{
+			"uid": "message_001_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_001}}}",
+			"created": "{{{date('-7 days 00:00')|date('U')}}}",
+			"sender_id": "{{{uid.address_alessio_costa}}}",
+			"response_time": 0,
+			"is_outgoing": 0,
+			"hash_header_message_id": "{{{'<convo1.msg1@cerb.example>'|sha1}}}",
+			"headers": "To: {{{default.replyto_email}}}\nFrom: Alessio Costa <a.costa@fiaflux.example>\nSubject: Always use HTML mode on replies\nX-Mailer: Gmail\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo1.msg1@cerb.example>\n",
+			"content": "I'd like to require our workers to always use HTML mode for replies in Cerb. Right now we have to select 'Switch to Markdown' on every reply. Is there an option to make this the default for everyone?\n\n-- \nAlessio Costa, Developer\nFiaflux Software"
+		},
+		{
+			"uid": "message_001_002",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_001}}}",
+			"created": "{{{date('-7 days 00:05:00')|date('U')}}}",
+			"sender_id": "{{{default.replyto_id}}}",
+			"worker_id": "{{{uid.worker_kina}}}",
+			"response_time": 300,
+			"is_outgoing": 1,
+			"hash_header_message_id": "{{{'<convo1.msg2@cerb.example>'|sha1}}}",
+			"headers": "To: Alessio Costa <a.costa@fiaflux.example>\nFrom: {{{default.replyto_email}}}\nSubject: Re: Always use HTML mode on replies\nX-Mailer: Cerb\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo1.msg2@cerb.example>\n",
+			"content": "> I'd like to require our workers to always use HTML mode for replies in\n> Cerb. Right now we have to select 'Switch to Markdown' on every reply. Is\n> there an option to make this the default for everyone?\n\nHi Alessio,\n\nEach worker can configure that preference with these instructions:\n\n1. Click your name in the top right\n2. Select 'settings'\n3. Under 'While replying:' check the box for 'Always switch to HTML mode'\n4. Save changes\n\nWe don't have a global preference for this yet where admins can set the default for everyone. I'll check with the developers to see if that's something we can do in the next update.\n\n-- \nKina Halpue, Support\n"
+		},
+		{
+			"uid": "comment_001_001",
+			"_context": "comment",
+			"created": "{{{date('-7 days 00:05:01')|date('U')}}}",
+			"target__context": "ticket",
+			"target_id": "{{{uid.ticket_001}}}",
+			"author__context": "worker",
+			"author_id": "{{{uid.worker_kina}}}",
+			"comment": "@Milo How difficult would it be to create a global preference for HTML mode on replies? Fiaflux wants workers to reply in HTML by default without each worker having to configure the preference."
+		},
+		{
+			"uid": "message_001_003",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_001}}}",
+			"created": "{{{date('-7 days 00:15')|date('U')}}}",
+			"sender_id": "{{{uid.address_alessio_costa}}}",
+			"response_time": 0,
+			"is_outgoing": 0,
+			"hash_header_message_id": "{{{'<convo1.msg3@cerb.example>'|sha1}}}",
+			"headers": "To: {{{default.replyto_email}}}\nFrom: Alessio Costa <a.costa@fiaflux.example>\nSubject: Re: Always use HTML mode on replies\nX-Mailer: Gmail\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo1.msg3@cerb.example>\nIn-Reply-To: <convo1.msg2@cerb.example>\n",
+			"content": "Kina wrote:\n> Each worker can configure that preference with these instructions:\n\nThanks... That will be better than switching to HTML on every reply.\n\n> We don't have a global preference for this yet where admins can set \n> the default for everyone. I'll check with the developers to see \n> if that's something we can do in the next update.\n\nThat would be ideal. We have 22 workers and it will be tedious to have everyone change their own settings.\n\n-- \nAlessio Costa, Developer\nFiaflux Software"
+		},
+		{
+			"uid": "comment_001_002",
+			"_context": "comment",
+			"created": "{{{date('-7 days 00:18')|date('U')}}}",
+			"target__context": "ticket",
+			"target_id": "{{{uid.ticket_001}}}",
+			"author__context": "worker",
+			"author_id": "{{{uid.worker_milo}}}",
+			"comment": "@Kina We could add global mail preferences to Setup->Mail->Settings without much difficulty. I went ahead and filed it as feature request #1234 on GitHub."
+		},
+		{
+			"uid": "message_001_004",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_001}}}",
+			"created": "{{{date('-7 days 00:21:00')|date('U')}}}",
+			"sender_id": "{{{default.replyto_id}}}",
+			"worker_id": "{{{uid.worker_kina}}}",
+			"response_time": 360,
+			"is_outgoing": 1,
+			"hash_header_message_id": "{{{'<convo1.msg4@cerb.example>'|sha1}}}",
+			"headers": "To: Alessio Costa <a.costa@fiaflux.example>\nFrom: {{{default.replyto_email}}}\nSubject: Re: Always use HTML mode on replies\nX-Mailer: Cerb\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo1.msg4@cerb.example>\n",
+			"content": "> That would be ideal. We have 22 workers and it will be tedious to have\n> everyone change their own settings.\n\nHi Alessio,\n\nWe filed your feature request here:\nhttps://github.com/jstanden/cerb/issues\n\nYou'll receive a notification by email with any progress.\n\n-- \nKina Halpue, Support\n"
+		},
+		{
+			"uid": "ticket_002",
+			"_context": "ticket",
+			"group_id": "{{{uid.group_support}}}",
+			"bucket_id": "{{{uid.bucket_support_inbox}}}",
+			"mask": "EVAL-002",
+			"subject": "Server requirements for Cerb",
+			"importance": 0,
+			"status": "waiting",
+			"org_id": "{{{uid.org_nechist}}}",
+			"spam_score": 0.0001,
+			"spam_training": "N",
+			"created": "{{{date('-7 days 02:00')|date('U')}}}",
+			"updated": "{{{date('-7 days 02:00')|date('U')}}}",
+			"participants": "s.polzin@nechist.example"
+		},
+		{
+			"uid": "message_002_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_002}}}",
+			"created": "{{{date('-7 days 02:00')|date('U')}}}",
+			"sender_id": "{{{uid.address_sergey_polzin}}}",
+			"response_time": 0,
+			"is_outgoing": 0,
+			"hash_header_message_id": "{{{'<convo2.msg1@cerb.example>'|sha1}}}",
+			"headers": "To: {{{default.replyto_email}}}\nFrom: Sergey Polzin <s.polzin@nechist.example>\nSubject: Server requirements for Cerb\nX-Mailer: Yahoo Mail\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo2.msg1@cerb.example>\n",
+			"content": "Hello,\n\nI have seen the server software requirements:\nhttps://cerb.ai/docs/installation/#server-requirements\n\nHowever, I would like to know about the hardware requirements for Cerb. Should this be a dedicated machine? \nShould the database and web server be separate?\n\n-- \nSergey Polzin, CTO\nNechist Financial"
+		},
+		{
+			"uid": "message_002_002",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_002}}}",
+			"created": "{{{date('-7 days 02:20')|date('U')}}}",
+			"sender_id": "{{{default.replyto_id}}}",
+			"worker_id": "{{{uid.worker_milo}}}",
+			"response_time": 1200,
+			"is_outgoing": 1,
+			"hash_header_message_id": "{{{'<convo2.msg2@cerb.example>'|sha1}}}",
+			"headers": "From: {{{default.replyto_email}}}\nTo: Sergey Polzin <s.polzin@nechist.example>\nSubject: Re: Server requirements for Cerb\nX-Mailer: Cerb\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo2.msg2@cerb.example>\n",
+			"content": "> However, I would like to know about the hardware requirements for Cerb.\n> Should this be a dedicated machine?\n> Should the database and web server be separate?\n\nHi Sergey,\n\nThere isn't a \"one size fits all\" recommendation for server specs. It really depends on how many simultaneous workers will be using your system; but in most cases the server can be a virtual machine and/or also serving other sites and apps.\n\nAs you scale, the main bottleneck will usually be write traffic to the database. The main consideration there is just giving enough RAM to MySQL so it can cache the indexes in memory. You can use a tool like mysqltuner to monitor that.\n\nI'd also recommend using SSD drives for the database I/O if at all possible.\n\nHow many simultaneous workers do you expect to use the system at peak times?\n\n-- \nMilo Dade, Developer\n"
+		},
+		{
+			"uid": "ticket_003",
+			"_context": "ticket",
+			"group_id": "{{{uid.group_support}}}",
+			"bucket_id": "{{{uid.bucket_support_inbox}}}",
+			"mask": "EVAL-003",
+			"subject": "No mail received after installation",
+			"importance": 50,
+			"status": "open",
+			"org_id": "{{{uid.org_donter}}}",
+			"spam_score": 0.0001,
+			"spam_training": "N",
+			"created": "{{{date('-6 days 04:00')|date('U')}}}",
+			"updated": "{{{date('-6 days 04:00')|date('U')}}}",
+			"participants": "z.de.vos@donter.example"
+		},
+		{
+			"uid": "message_003_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_003}}}",
+			"created": "{{{date('-6 days 04:00')|date('U')}}}",
+			"sender_id": "{{{uid.address_zoe_de_vos}}}",
+			"response_time": 0,
+			"is_outgoing": 0,
+			"hash_header_message_id": "{{{'<convo3.msg1@cerb.example>'|sha1}}}",
+			"headers": "To: {{{default.replyto_email}}}\nFrom: Zöe De Vos <z.de.vos@donter.example>\nSubject: No mail received after installation...\nX-Mailer: Gmail\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo3.msg1@cerb.example>\n",
+			"content": "I installed Cerb an hour ago and haven't received new email in the system.\n\nI sent a test message, so something should definitely be there.\n\nPlease advise on what I may have missed.\n\nZöe De Vos - Technology Advisor\nDonter Institute"
+		},
+		{
+			"uid": "ticket_004",
+			"_context": "ticket",
+			"group_id": "{{{uid.group_sales}}}",
+			"bucket_id": "{{{uid.bucket_sales_inbox}}}",
+			"mask": "EVAL-004",
+			"subject": "I need a quote for a 12 seat license",
+			"importance": 75,
+			"status": "open",
+			"org_id": "{{{uid.org_twinton}}}",
+			"spam_score": 0.0001,
+			"spam_training": "",
+			"created": "{{{date('-10 mins')|date('U')}}}",
+			"updated": "{{{date('-10 mins')|date('U')}}}",
+			"participants": "c.bailey@twinton.example"
+		},
+		{
+			"uid": "message_004_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_004}}}",
+			"created": "{{{date('-10 mins')|date('U')}}}",
+			"sender_id": "{{{uid.address_charlotte_bailey}}}",
+			"response_time": 0,
+			"is_outgoing": 0,
+			"hash_header_message_id": "{{{'<convo4.msg1@cerb.example>'|sha1}}}",
+			"headers": "To: {{{default.replyto_email}}}\nFrom: Charlotte Bailey <c.bailey@twinton.example>\nSubject: I need a quote for a 12 seat license\nX-Mailer: Gmail\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo4.msg1@cerb.example>\n",
+			"content": "Hi there,\n\nI would like a quote for a 12 seat license so I can create a purchase order.\n\nDo you offer academic pricing?\n\n-- \nCharlotte Bailey\nDirector, Department of Computer Science\nTwinton University\n"
+		},
+		{
+			"uid": "comment_004_001",
+			"_context": "comment",
+			"target__context": "message",
+			"target_id": "{{{uid.message_004_001}}}",
+			"author__context": "bot",
+			"author_id": "{{{uid.bot_tutorial}}}",
+			"comment": "Reply with the 'Sales: Calculate license cost' snippet."
+		},
+		{
+			"uid": "ticket_005",
+			"_context": "ticket",
+			"group_id": "{{{uid.group_sales}}}",
+			"bucket_id": "{{{uid.bucket_sales_inbox}}}",
+			"mask": "EVAL-005",
+			"subject": "Mailing address for payment",
+			"importance": 50,
+			"status": "open",
+			"org_id": "{{{uid.org_helderster}}}",
+			"spam_score": 0.0001,
+			"spam_training": "",
+			"created": "{{{date('-5 mins')|date('U')}}}",
+			"updated": "{{{date('-5 mins')|date('U')}}}",
+			"participants": "m.janssen@helderster.example"
+		},
+		{
+			"uid": "message_005_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_005}}}",
+			"created": "{{{date('-5 mins')|date('U')}}}",
+			"sender_id": "{{{uid.address_mila_janssen}}}",
+			"response_time": 0,
+			"is_outgoing": 0,
+			"hash_header_message_id": "{{{'<convo5.msg1@cerb.example>'|sha1}}}",
+			"headers": "To: {{{default.replyto_email}}}\nFrom: Mila Janssen <m.janssen@helderster.example>\nSubject: Mailing address for payment\nX-Mailer: Outlook\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo5.msg1@cerb.example>\n",
+			"content": "We're ready to remit payment for PO#54321. Where should we send the cheque?\n\n-- \nMila Janssen\nPurchasing\nHelderster Aerospace B.V.\n"
+		},
+		{
+			"uid": "comment_005_001",
+			"_context": "comment",
+			"target__context": "message",
+			"target_id": "{{{uid.message_005_001}}}",
+			"author__context": "bot",
+			"author_id": "{{{uid.bot_tutorial}}}",
+			"comment": "Reply with the 'General: Mailing address' snippet."
+		},
+		{
+			"uid": "ticket_006",
+			"_context": "ticket",
+			"group_id": "{{{uid.group_support}}}",
+			"bucket_id": "{{{uid.bucket_support_inbox}}}",
+			"mask": "EVAL-006",
+			"subject": "Spam: Pill for faster thinking, no sleep needing, all the time winning. No RX",
+			"importance": 50,
+			"status": "open",
+			"org_id": "0",
+			"spam_score": 0.985,
+			"spam_training": "",
+			"created": "{{{date('-2 mins')|date('U')}}}",
+			"updated": "{{{date('-2 mins')|date('U')}}}",
+			"participants": "taevac.rotpme@spam.example"
+		},
+		{
+			"uid": "message_006_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_006}}}",
+			"created": "{{{date('-2 mins')|date('U')}}}",
+			"sender_id": "{{{uid.address_taevac_rotpme}}}",
+			"response_time": 0,
+			"is_outgoing": 0,
+			"hash_header_message_id": "{{{'<convo6.msg1@cerb.example>'|sha1}}}",
+			"headers": "To: {{{default.replyto_email}}}\nFrom: Taevac Rotpme <taevac.rotpme@spam.example>\nSubject: Pill for faster thinking, no sleep needing, all the time winning. No RX\nX-Mailer: Hotmail\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo6.msg1@cerb.example>\n",
+			"content": "You be needing to think faster than competition? Make lots of money piles and sail this world with your honey mate?\n\nThe answer is here in finally time with no waiting!\n\n500 pills bottle. Eat an pill, be thinking like a computer robot. Consume two, no having to terminate early job day for snoozing time. No brain decision.\n\nSend 0.01 BTC at wallet aLLy0uRm0N3Y4R3b3L0nG2US. You are to soon be best you - based on actually science paper."
+		},
+		{
+			"uid": "comment_006_001",
+			"_context": "comment",
+			"target__context": "message",
+			"target_id": "{{{uid.message_006_001}}}",
+			"author__context": "bot",
+			"author_id": "{{{uid.bot_tutorial}}}",
+			"comment": "Mark this ticket as spam."
+		},
+		{
+			"uid": "ticket_007",
+			"_context": "ticket",
+			"mask": "EVAL-007",
+			"group_id": "{{{uid.group_support}}}",
+			"bucket_id": "{{{uid.bucket_support_inbox}}}",
+			"org_id": "{{{uid.org_helderster}}}",
+			"subject": "This should be merged",
+			"participants": "k.mulder@helderster.example"
+		},
+		{
+			"uid": "message_007_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_007}}}",
+			"sender_id": "{{{uid.address_kyan_mulder}}}",
+			"headers": "To: support@cerb.example\r\nFrom: k.mulder@helderster.example\r\nSubject: This should be merged\r\nX-Mailer: Cerb",
+			"content": "This should be merged."
+		},
+		{
+			"uid": "ticket_008",
+			"_context": "ticket",
+			"mask": "EVAL-008",
+			"group_id": "{{{uid.group_support}}}",
+			"bucket_id": "{{{uid.bucket_support_inbox}}}",
+			"org_id": "{{{uid.org_helderster}}}",
+			"subject": "Re: This should be merged",
+			"participants": "k.mulder@helderster.example"
+		},
+		{
+			"uid": "message_008_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_008}}}",
+			"sender_id": "{{{uid.address_kyan_mulder}}}",
+			"headers": "To: support@cerb.example\r\nFrom: k.mulder@helderster.example\r\nSubject: Re: This should be merged\r\nX-Mailer: Cerb",
+			"content": "This should be merged."
+		},
+		{
+			"uid": "ticket_009",
+			"_context": "ticket",
+			"mask": "EVAL-009",
+			"group_id": "{{{uid.group_support}}}",
+			"bucket_id": "{{{uid.bucket_support_inbox}}}",
+			"org_id": "{{{uid.org_ghoux}}}",
+			"subject": "This is question one",
+			"participants": "y.joubert@ghoux.example"
+		},
+		{
+			"uid": "message_009_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_009}}}",
+			"sender_id": "{{{uid.address_yaseen_joubert}}}",
+			"headers": "To: support@cerb.example\r\nFrom: y.joubert@ghoux.example\r\nSubject: This is question one\r\nX-Mailer: Cerb",
+			"content": "This is question one."
+		},
+		{
+			"uid": "message_009_002",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_009}}}",
+			"sender_id": "{{{uid.address_yaseen_joubert}}}",
+			"headers": "To: support@cerb.example\r\nFrom: y.joubert@ghoux.example\r\nSubject: This is question two\r\nX-Mailer: Cerb",
+			"content": "This is question two (split me)."
+		},
+		{
+			"uid": "ticket_010",
+			"_context": "ticket",
+			"mask": "EVAL-010",
+			"group_id": "{{{uid.group_support}}}",
+			"bucket_id": "{{{uid.bucket_support_inbox}}}",
+			"org_id": "{{{uid.org_wgm}}}",
+			"subject": "Here's our PGP key",
+			"participants": "support@webgroupmedia.com"
+		},
+		{
+			"uid": "message_010_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_010}}}",
+			"sender_id": "{{{uid.address_support_wgm}}}",
+			"headers": "To: support@cerb.example\r\nFrom: support@webgroupmedia.com\r\nSubject: Here's our PGP key\r\nX-Mailer: Cerb",
+			"content": "Here's our PGP key:\r\n\r\n-----BEGIN PGP PUBLIC KEY BLOCK-----\r\nVersion: Keybase OpenPGP v2.0.61\r\nComment: https://keybase.io/crypto\r\n\r\nxsFNBFhS+UsBEAC0/q1PnpyL89B5UljIQwdNpqUHRaCDG8NgApUJBmfoBsnL034c\r\ntvW9GUljtgzDJZ4bOQQeywdyH1Jg3DkIMrHMx0bX+w9Eu/d+dBa15f1a/Z+3/rY1\r\nl9ysj1qPeu+2Jg3zOW6hKg29xBjJNc/boCtzIMqeJDDS9HfChqh65kZxPWv1RgZi\r\nb5j9OG78dsTIdyLg5o94JbRw+bjCwWFuT9IOqQCsnYgcozHlE5VekEDTFKbRtCnE\r\nRPuIcnb6gixsYbgbkUAnukPv2bGYK8e1b61BFM9Py9mZbDvYsSOuu2Nk+IE7l4xB\r\nFkxQjA9dxfOH8ZW12ByrA3BjJhl2tO2mUEBKQ2XXylZtfLs024/l6Zn4n9SzI5Ep\r\naEKVUBeSl7svBelywTFbU/X/A/MTbgIqjcm/AYAsg0p2rpfQ8lM3Un+BKOXtFLse\r\njRpw5hRIFVirsTxfjbciPVhnGHstUMRtfwM44+od3of3H9ojGCBZf/NfHAhBt9e3\r\nGMCpMgCqF+TTVk+CpfD/7nGRmxDk7niiGDvETF6jCvXixFmkVOnb5R1sxQ8JT1Ur\r\na27MXM8ljC3JJHeFKj4ngEWHzRpNXLU1SWnLHAmeSHGcwH9zox4X96wEK6sBtTyc\r\nHRh9FR6AX9hODXqF9OJJBuCTueeQ27ebU7xif/znh2tMZSktqKKhEMCooQARAQAB\r\nzS5XZWJncm91cCBNZWRpYSBMTEMgPHN1cHBvcnRAd2ViZ3JvdXBtZWRpYS5jb20+\r\nwsF0BBMBCgAeBQJYUvlLAhsDAwsJBwMVCggCHgECF4ADFgIBAhkBAAoJEOtTz1tn\r\nEucPN4sQAIrPnMbTnSi0fKK53aV2YiBMwL7UjZz0tPRAk4arBdR/GV/DrYn8emK/\r\n+d6xipoDHgHzoxaItbzqRMycV8fpEtfylSVsE1Mgawi74Kq8CegeAuIipUYlPikY\r\n38Cv5QPkN1qs3IY0Yj2EH3znbbhIvAQjwlXv220sDKfM3ha4UaKAMjlsdYHqIGCt\r\n077V7PM65ZGRipZaIl/m3ntp9UUCXlDZsZSCa0pWoZMK+2UKXxRFPrWaiB2f1/mH\r\n+/3mf1aumK8+NCP0Z07kIzOXen4jEfTUPxMzCTs+VqHu0T38BN54416VDYFV+H7U\r\n9XFnRVKBA6NR4N0MrzOJDgoBWnlRYowNHZPKZ1lRnyEx0f15Sg19S4ZqDVD8q0uW\r\netTdNNkjMvPDTjXw9KLJbrYDkLD0ABRxHF3O9GyTvfz04AtXFhCnicRPLJm3J2tK\r\nzSxS+ds6JQimhYES/kEtMSJ5vRnOaht8ZkdPieDhWCWKiCMv5v+FUC+O9uz3bZmz\r\nugJHxrupfPljODwx5tTcWq73mFkPLSGQR1K8GZC38WNhV+4MAseRGZo/Ab2Y/OyX\r\nFLur6SyUL34ISmDLc5y/Y316z4UZry99IR+utcONErwkxmFCenQGMbsuJwdw6dH9\r\nXhxo7x/xlzSXpFx6Ld64pXVN2juFo3q6FeVb3I+q7mayDJ6dROIJzsBNBFhS+UsB\r\nCADxm9eAbg/P5mgTuDsIR0HoYzdTC6znU0anpYkUlo4TLllsCeRPoyARWuaqI+Zi\r\nCp6e4M4mn8Be4JtqA2aCX9p6IY0vPfhzQ3AbBEmYMGHOrjiSP29paQrZYaOqkipI\r\nfo87yPyc4Nxk0GSXKdFQhGVfLdsQyzLGWoAzHtCibX4FX8WsphlK9M/ZQtoOmWS9\r\nkBTXf4i6an1V+ohFLnUy2TWWzQBGRKhkVKM41U2S902mRby/IxeXjugPhCXVkqjQ\r\n9uEWfpwlbeUCFTynW7G6yJzoD/zQ6OmVXTCxSjfebjMrbgOdcwRPC4uWBnNY9aTV\r\nz7s1TiHsYXsU+0FwvsVQUlS1ABEBAAHCwoQEGAEKAA8FAlhS+UsFCQ8JnAACGwwB\r\nKQkQ61PPW2cS5w/AXSAEGQEKAAYFAlhS+UsACgkQi6sfmn2bvMwTmwgAh0S/swNZ\r\nj/uioZUneiDi9upqlrIvAbXwkHgOTWp8oKbqhXD7kf8GHBooDTVAiEkOD/b5V6A8\r\nw8QFfyhsP8Ra5hnZdNfgDDujTNK+pwiq1WY2VtIDMcenSLN2Tx0YqAYhrjGE0eGA\r\np4Vgc4X8TTzq8kXff3BsK6K65+x+VbvByWO+b/4c7oKSVGFnNtQwtkg7LskbFG3y\r\nTUjkSZ2R+0fD7uy9dDoMTtbhQCNucLfCh9kiaVhVGNumSrxyv/6JaklzWpfkwMKW\r\nv8P5Pueqem8bKX6ozqwK8Smrh2b4wth5uiaPVUD71xy7zvAp0R0rgEJIcstdsu30\r\nbTra4HCcScKFM/HyD/9OIyVN45WDbkXOQBOm6yn6FbbvsRK41BIQdElv9CiS/iCT\r\noPJm/McL+PH+U8Fm9f1/Ra85djnHHzfoP7T+H3GnZY7/+EFWA4NvTdpfQF6igA40\r\n9/QPxyXmpqTjhAwzmrzwxMPWbZyrfiY/p1VUF8Lz92YVQmtvodmLyHtapGsKM8Lk\r\naR4muDNRqCMtFmUdaubwURmtqld71W6ZoSlEhzZIm8lxF5TZ9toLSQgQ9qJ/zzqY\r\nWzYJeElzTUPqB9dWyOUZibFbdsWW8YoIqJqslk1loFTJJgNEqrBpvtaxORRv2i+M\r\nOVCHYG68IrzbiCeUQMFntqaaLaYtScC7JfcjrdD1lIl3ZoQ68A3eCbZx0bjoFWl6\r\nLmsA3lXTcBvNpL/Ay81lQT3websUAR5x5MdtEgEUBpPhmpy9MDUb4SSTbjSp0asL\r\nhZHt65MsgJJ/aUQA/1QHhTcqYEyDawp91v1aQM97PwaFcYx3eRFF9hwe/2PLteFt\r\nS1SeYJMF9yronxPMeCA3LjLirHtlBUk77jd8t74d7yFjIFqTi6akK8koMXEHeGjc\r\n/FLI/VijB6nRvAtNSjpe/D4kDlWP9TccBt3kd1t173RwIPquyOYFB7juhQ0GA26e\r\nkEsYAbdp9RkWrBVJwvA8+srFZJ2R/CsDWnHtOx/wnhS/D9sx6uzVcEcpHgErv87A\r\nTQRYUvlLAQgA0umNdtYPSOYwo6CzF7ELfOCiS6675jdOC3fdwzJjnCkf6ngpq6wQ\r\n43DbdauUTp5mtk1Qpg0bKo6w5bDtXBIcAwvfMJFGEXijLE2qv+m6yz6xKMjpj8Tr\r\nG+oAJGE/jXCDMZcnkPQn+kt/NhCJ6XtXUvJZ2YdXeqRkYtTxojMUcm6db/YKAMr6\r\nu7iJQGzwDrHLAPHvXxnQPntNltpz8W2rkhFoGbJFXSwwIecgSvrhs/pVYmgZJIyV\r\nMOtocre2BHYpdiBZ0yo+15M2/0fcPi4bN0Xmq+Khdild6nneunB5BkLJEQoxlR5i\r\nkMfHNWERyCBQ0BObgbz8rTQNwE57CgoC/wARAQABwsKEBBgBCgAPBQJYUvlLBQkP\r\nCZwAAhsiASkJEOtTz1tnEucPwF0gBBkBCgAGBQJYUvlLAAoJEHUzLr6+OHq/NyYH\r\n/05wRsUumF42eX4dlcYvuaDOU1ibh3i2Uv7SCvNhjzLBJvGCQjit7MoJfflo2URJ\r\n7A/yQBZ74MCu7Gvzgxf+1j0W5OU6RnT4aDKCNGxlHPEgdWQhs2AKj6LoOdRD1/h/\r\nozYRVciAfqJ8LJbK6Rm/btvFdaiiTldRYfYgerhLl+HjoZ9g0tO9RRB44SFTW6ru\r\nlM8ip4Z9nea6c+qYxiAMYi5P9226FEXkz62jV+ypy1obk9E+JQnPxihHOR0XmXuX\r\n43pdsQlMQfZclsQ3Q8cWtlwOTFHj+0aujBtSfciPxM8qSedaoemSsskOogjNZYP0\r\ngIy8eiRcsZc85MOQHaF9vntrRA/9GNXBWbDMKLvLeiTmeRB6wEqEdSva7b6em3LW\r\nFQmvFFQM/tXWqJDzbVUA0plrUekFCG/sLGZcj5V2yseFuWc8D4gSfdyF9VeLSH2A\r\nWgLQWTyDQBI8bBMrr0fjcKwLszrP6NlN2ohrPHenWSHhTlNxTiJFPm5JXZXdT2hP\r\nyz1x5n5DdD3Qq5X1JwHzxIk6HXUepQA4auFDsUrJwZ83XMNgaNHNW5dhg5zBJfQ1\r\nzZegVp8TaU0nRKdzRveldEX33mooylem8KSHFQoj2HefDNaoVA8F+qlqZFvJjHRc\r\nMwT9A5Gxun2x/NtLBpeG3vqFytz/NaVLJdcY0XF3PiFzhoLaUQQpgmvkk4OFPBkA\r\n2IZWqQ3ZuU22Tq5XeYDKcP1iG5AXeVhbKB+3Wh4VXtgZFX//oWqnSVcsYi5+ePJZ\r\n/ZWa6ceRRm3pT2aSnY2yzwIDWHn2zhy2YdJUOFqoGn4AyiBI8x153a7W0qU9Baon\r\nfBYNZ7DCdisHgK9V3dVo583+DykG9TXniHTv8OF1iso/DSzSZw4iM6lG0zme1LOx\r\nghbuSOjcrb8Z4B823+x1Y+0gndfOuklzwTgwfKtJ17KmNJZNTYsVLg2GLlboDRVY\r\nfIsuSas99Fwl3MbChVHzBljuIoUynscOzRvfyGwoRdP8ImeaydfM9YTO/R4VA9QP\r\nCjt59T4=\r\n=BJ/A\r\n-----END PGP PUBLIC KEY BLOCK-----\r\n"
+		},
+		{
+			"uid": "comment_010_001",
+			"_context": "comment",
+			"target__context": "message",
+			"target_id": "{{{uid.message_010_001}}}",
+			"author__context": "bot",
+			"author_id": "{{{uid.bot_tutorial}}}",
+			"comment": "If the GPG extension is enabled, you can copy this PGP key and import it into Search->Public Keys."
+		},
+		{
+			"uid": "snippet_plaintext_mailing_address",
+			"_context": "snippet",
+			"title": "General: Mailing address",
+			"context": "",
+			"owner__context": "app",
+			"owner_id": "0",
+			"content": "Our mailing address is:\n\nExample, Inc.\n1024 Main Loop\nSegfault, CA 00000 USA"
+		},
+		{
+			"uid": "snippet_plaintext_seat_calculator",
+			"_context": "snippet",
+			"title": "Sales: Calculate license cost",
+			"context": "",
+			"owner__context": "app",
+			"owner_id": "0",
+			"content": "{% set seat_rate = 30.00 \n  * (1 == prompt_discount_academic ? 0.75 : 1.0) \n  * (1 == prompt_discount_renewal ? 0.80 : 1.0) \n%}\nSoftware licenses are $30.00 USD per seat-month.\n\n{% if seat_rate != 30.00 %}\nYou qualify for the following discounts:\n{% if 1 == prompt_discount_renewal %}\n * Timely renewal (20% off)\n{% endif %}\n{% if 1 == prompt_discount_academic %}\n * Academic (25% off)\n{% endif %}\n\nYour discounted price is ${{seat_rate|number_format(2)}} USD per seat-month.\n\n{% endif %}\nFor one year of priority support and software updates:\n{{prompt_seats}} seats * ${{seat_rate|number_format(2)}}/seat-month * 12 months = ${{(prompt_seats * seat_rate * 12)|number_format(2)}} USD\n\nWould you like me to send over an invoice?",
+			"placeholders": {
+				"prompt_seats": {
+					"type": "S",
+					"key": "prompt_seats",
+					"label": "How many seats?",
+					"default": "5"
+				},
+				"prompt_discount_academic": {
+					"type": "C",
+					"key": "prompt_discount_academic",
+					"label": "Academic discount?",
+					"default": "0"
+				},
+				"prompt_discount_renewal": {
+					"type": "C",
+					"key": "prompt_discount_renewal",
+					"label": "Timely renewal discount?",
+					"default": "0"
+				}
+			}
+		},
+		{
+			"uid": "card_task_001",
+			"_context": "task",
+			"title": "Evaluate Cerb",
+			"importance": "100",
+			"status": "open"
+		},
+		{
+			"uid": "card_task_002",
+			"_context": "task",
+			"title": "Drag this task to completed",
+			"importance": "50",
+			"owner_id": "{{{uid.worker_admin}}}",
+			"status": "open"
+		},
+		{
+			"uid": "project_board_checklist",
+			"_context": "cerberusweb.contexts.project.board",
+			"name": "Tutorial Checklist",
+			"owner__context": "app",
+			"owner_id": "0",
+			"columns": [
+				"{{{uid.project_board_checklist_todo}}}",
+				"{{{uid.project_board_checklist_in_progress}}}",
+				"{{{uid.project_board_checklist_completed}}}"
+			],
+			"params": {
+				"card_queries": {
+					"cerberusweb.contexts.task": "status:[o,w]"
+				},
+				"card_templates": {
+					"cerberusweb.contexts.task": "{% spaceless %}\r\n{% if is_completed %}\r\n\r\n<div style=\"font-size:120%;\">\r\n\t<span class=\"glyphicons glyphicons-circle-ok\" style=\"color:rgb(0,150,0);\"></span> Completed!\r\n</div>\r\n\r\n{% else %}\r\n\r\n{% if custom_64 is not empty and custom_65 is not empty %}\r\n\r\n{% if column__label == 'In Progress' %}\r\n\r\n<button type=\"button\" class=\"cerb-bot-trigger\" data-behavior-id=\"{{custom_64}}\" data-interaction=\"{{custom_65}}\">{{cerb_avatar_image('app', 0, 0)}} Start Lesson</button>\r\n\r\n{% elseif column__label == 'TODO' %}\r\n\r\n<div>\r\n\tDrag this to <b>In Progress</b> to start <span class=\"glyphicons glyphicons-right-arrow\"></span>\r\n</div>\r\n\r\n{% endif %}\r\n{% endif %}\r\n{% endif %}\r\n{% endspaceless %}"
+				},
+				"contexts": [
+					"cerberusweb.contexts.task"
+				]
+			}
+		},
+		{
+			"uid": "project_board_checklist_todo",
+			"_context": "cerberusweb.contexts.project.board.column",
+			"name": "TODO",
+			"board_id": "{{{uid.project_board_checklist}}}",
+			"params": {
+			},
+			"cards": [
+
+			]
+		},
+		{
+			"uid": "project_board_checklist_in_progress",
+			"_context": "cerberusweb.contexts.project.board.column",
+			"name": "In Progress",
+			"board_id": "{{{uid.project_board_checklist}}}",
+			"params": {
+			},
+			"cards": [
+				"task:{{{uid.card_task_002}}}",
+				"task:{{{uid.card_task_001}}}"
+			]
+		},
+		{
+			"uid": "project_board_checklist_completed",
+			"_context": "cerberusweb.contexts.project.board.column",
+			"name": "Completed!",
+			"board_id": "{{{uid.project_board_checklist}}}",
+			"params": {
+				"behaviors": {
+					"{{{uid.behavior_mark_task_completed}}}": [
+
+					]
+				}
+			},
+			"cards": [
+
+			]
+		},
+		{
+			"uid": "kb_cat_cerb",
+			"_context": "kb_category",
+			"name": "Cerb"
+		},
+		{
+			"uid": "kb_cat_installation",
+			"_context": "kb_category",
+			"name": "Installation",
+			"parent_id": "{{{uid.kb_cat_cerb}}}"
+		},
+		{
+			"uid": "kb_article_requirements",
+			"_context": "kb_article",
+			"title": "Cerb server requirements",
+			"format": "markdown",
+			"content": "**This** is article content\r\nWith two lines\r\n",
+			"categories": "{{{uid.kb_cat_installation}}}"
+		},
+		{
+			"uid": "notification_new_workspace",
+			"_context": "notification",
+			"created": "{{{'now'|date('U')}}}",
+			"activity_point": "custom.other",
+			"params": {
+				"message": "Check out the {{workspace}} workspace we automatically created for you.",
+				"variables": {
+					"workspace": "Tutorial"
+				},
+				"urls": {
+					"workspace": "{{{default.base_url}}}preferences/redirectRead/{{{uid.notification_new_workspace}}}"
+				}
+			},
+			"is_read": 0,
+			"target__context": "workspace_page",
+			"target_id": "{{{uid.workspace_tutorial}}}",
+			"assignee_id": "{{{uid.worker_admin}}}"
+		},
+		{
+			"uid": "workspace_tutorial",
+			"_context": "workspace_page",
+			"name": "Tutorial",
+			"owner__context": "app",
+			"owner_id": "0",
+			"extension_id": "core.workspace.page.workspace"
+		},
+		{
+			"uid": "workspace_tab_eval_mail",
+			"_context": "workspace_tab",
+			"name": "Mail",
+			"page_id": "{{{uid.workspace_tutorial}}}",
+			"pos": 0,
+			"extension_id": "core.workspace.tab.worklists",
+			"params": [
+
+			]
+		},
+		{
+			"uid": "workspace_tab_eval_checklist",
+			"_context": "workspace_tab",
+			"name": "Checklist",
+			"page_id": "{{{uid.workspace_tutorial}}}",
+			"pos": 1,
+			"extension_id": "core.workspace.tab.board",
+			"params": {
+				"board_id": "{{{uid.project_board_checklist}}}"
+			}
+		},
+		{
+			"uid": "workspace_list_eval_mail",
+			"_context": "workspace_list",
+			"context": "ticket",
+			"tab_id": "{{{uid.workspace_tab_eval_mail}}}",
+			"pos": 0,
+			"view": {
+				"title": "Tutorial Tickets",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"t_last_wrote_address_id",
+						"t_updated_date",
+						"t_group_id",
+						"t_bucket_id",
+						"t_owner_id"
+					],
+					"params": [
+
+					],
+					"params_required": {
+						"a12b3c4d": {
+							"field": "*_status",
+							"operator": "in",
+							"value": [
+								"open",
+								"waiting",
+								"closed"
+							]
+						}
+					},
+					"limit": 25,
+					"sort_by": "t_updated_date",
+					"sort_asc": false,
+					"subtotals": "t_group_id",
+					"context": "cerberusweb.contexts.ticket"
+				}
+			}
+		},
+		{
+			"uid": "workspace_tab_eval_dashboard",
+			"_context": "workspace_tab",
+			"name": "Dashboard",
+			"page_id": "{{{uid.workspace_tutorial}}}",
+			"pos": 2,
+			"extension_id": "core.workspace.tab",
+			"params": {
+				"num_columns": "3"
+			}
+		},
+		{
+			"uid": "workspace_tab_eval_calendar_officehours",
+			"_context": "workspace_tab",
+			"name": "Office Hours",
+			"page_id": "{{{uid.workspace_tutorial}}}",
+			"pos": 3,
+			"extension_id": "core.workspace.tab.calendar",
+			"params": {
+				"calendar_id": "{{{uid.calendar_office_hours}}}"
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_subtotals_ticket_status",
+			"_context": "workspace_widget",
+			"label": "Subtotals: Tickets by Status",
+			"cache_ttl": "300",
+			"extension_id": "core.workspace.widget.subtotals",
+			"pos": "0000",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"style": "list",
+				"limit_to": "20",
+				"worklist_model": {
+					"options": [
+
+					],
+					"columns": [
+						"t_last_wrote_address_id",
+						"t_updated_date",
+						"t_group_id",
+						"t_bucket_id",
+						"t_owner_id"
+					],
+					"params": [
+
+					],
+					"limit": 10,
+					"sort_by": "t_updated_date",
+					"sort_asc": false,
+					"subtotals": "*_status",
+					"context": "cerberusweb.contexts.ticket"
+				}
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_gauge_avg_response",
+			"_context": "workspace_widget",
+			"label": "Gauge: Avg. Response Time (30d)",
+			"cache_ttl": "300",
+			"extension_id": "core.workspace.widget.gauge",
+			"pos": "0001",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"metric_min": "0",
+				"threshold_labels": [
+					"Excellent (<1hr)",
+					"Satisfactory (<4hr)",
+					"Poor (>6h)"
+				],
+				"threshold_values": [
+					"3600",
+					"14400",
+					"21600"
+				],
+				"threshold_colors": [
+					"#57970A",
+					"#FEAF03",
+					"#CF2C1D"
+				],
+				"datasource": "core.workspace.widget.datasource.worklist",
+				"context": "cerberusweb.contexts.message",
+				"search_mode": "quick_search",
+				"quick_search": "responseTime:>0 isOutgoing:y created:\"-1 month 00:00:00 to now\"",
+				"metric_func": "avg",
+				"metric_field": "m_response_time",
+				"metric_type": "seconds",
+				"metric_prefix": "",
+				"metric_suffix": "",
+				"worklist_model": {
+					"options": [
+
+					],
+					"columns": [
+						"a_email",
+						"t_group_id",
+						"m_worker_id",
+						"m_created_date",
+						"m_response_time"
+					],
+					"params": {
+						"59bc1e64d19c3": {
+							"field": "m_response_time",
+							"operator": ">",
+							"value": 0
+						},
+						"59bc1e64d19ee": {
+							"field": "m_is_outgoing",
+							"operator": "=",
+							"value": true
+						},
+						"59bc1e64d19f4": {
+							"field": "m_created_date",
+							"operator": "between",
+							"value": [
+								"-2 month",
+								"now"
+							]
+						}
+					},
+					"limit": 10,
+					"sort_by": "m_created_date",
+					"sort_asc": false,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.message"
+				}
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_counter_tickets_open",
+			"_context": "workspace_widget",
+			"label": "Counter: # Open Tickets",
+			"cache_ttl": "0",
+			"extension_id": "core.workspace.widget.counter",
+			"pos": "0002",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"datasource": "core.workspace.widget.datasource.worklist",
+				"context": "cerberusweb.contexts.ticket",
+				"search_mode": "quick_search",
+				"quick_search": "status:o",
+				"metric_func": "count",
+				"metric_field": "t_num_messages",
+				"metric_type": "number",
+				"metric_prefix": "",
+				"metric_suffix": "",
+				"color": "#34434e",
+				"worklist_model": {
+					"options": [
+
+					],
+					"columns": [
+						"t_last_wrote_address_id",
+						"t_updated_date",
+						"t_group_id",
+						"t_bucket_id",
+						"t_owner_id"
+					],
+					"params": [
+
+					],
+					"limit": 10,
+					"sort_by": "t_updated_date",
+					"sort_asc": false,
+					"subtotals": null,
+					"context": "cerberusweb.contexts.ticket"
+				}
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_chart",
+			"_context": "workspace_widget",
+			"label": "Chart: New tickets by week",
+			"cache_ttl": "300",
+			"extension_id": "core.workspace.widget.chart",
+			"pos": "0003",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"chart_type": "line",
+				"chart_display": "",
+				"series": [
+					{
+						"datasource": "core.workspace.widget.datasource.worklist",
+						"label": "New tickets",
+						"context": "cerberusweb.contexts.ticket",
+						"search_mode": "quick_search",
+						"quick_search": "created:\"-1 month\"",
+						"xaxis_field": "t_created_date",
+						"xaxis_tick": "week",
+						"xaxis_format": "",
+						"yaxis_func": "count",
+						"yaxis_field": "t_num_messages",
+						"yaxis_format": "number",
+						"line_color": "#57970a",
+						"worklist_model": {
+							"options": [
+
+							],
+							"columns": [
+								"t_importance",
+								"t_owner_id",
+								"t_updated_date"
+							],
+							"params": [
+
+							],
+							"limit": 10,
+							"sort_by": "t_updated_date",
+							"sort_asc": false,
+							"subtotals": "",
+							"context": "cerberusweb.contexts.ticket"
+						},
+						"fill_color": "rgba(87,151,10,0.15)"
+					},
+					{
+						"datasource": "",
+						"label": "",
+						"line_color": "#058dc7",
+						"fill_color": "rgba(5,141,199,0.15)"
+					},
+					{
+						"datasource": "",
+						"label": "",
+						"line_color": "#058dc7",
+						"fill_color": "rgba(5,141,199,0.15)"
+					},
+					{
+						"datasource": "",
+						"label": "",
+						"line_color": "#058dc7",
+						"fill_color": "rgba(5,141,199,0.15)"
+					},
+					{
+						"datasource": "",
+						"label": "",
+						"line_color": "#058dc7",
+						"fill_color": "rgba(5,141,199,0.15)"
+					}
+				]
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_scatterplot_resolve_vs_nummessages",
+			"_context": "workspace_widget",
+			"label": "Scatterplot: Time to Close vs Convo Length",
+			"cache_ttl": "300",
+			"extension_id": "core.workspace.widget.scatterplot",
+			"pos": "0004",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"axes_independent": "0",
+				"series": [
+					{
+						"datasource": "core.workspace.widget.datasource.worklist",
+						"label": "First Resolution vs # Messages",
+						"context": "cerberusweb.contexts.ticket",
+						"search_mode": "quick_search",
+						"quick_search": "resolution.first:\">-1 year\" status:c",
+						"xaxis_field": "t_elapsed_resolution_first",
+						"xaxis_tick": "hour",
+						"xaxis_format": "seconds",
+						"yaxis_func": "value",
+						"yaxis_field": "t_num_messages",
+						"yaxis_format": "number",
+						"line_color": "#058dc7",
+						"worklist_model": {
+							"options": [
+
+							],
+							"columns": [
+								"t_last_wrote_address_id",
+								"t_updated_date",
+								"t_group_id",
+								"t_bucket_id",
+								"t_owner_id"
+							],
+							"params": {
+								"59bc2291191b7": {
+									"field": "t_elapsed_resolution_first",
+									"operator": ">",
+									"value": -31536000
+								},
+								"59bc2291191e3": {
+									"field": "*_status",
+									"operator": "in",
+									"value": [
+										"closed"
+									]
+								}
+							},
+							"limit": 10,
+							"sort_by": "t_updated_date",
+							"sort_asc": false,
+							"subtotals": "",
+							"context": "cerberusweb.contexts.ticket"
+						}
+					},
+					{
+						"datasource": "",
+						"label": "",
+						"line_color": "#058dc7"
+					},
+					{
+						"datasource": "",
+						"label": "",
+						"line_color": "#058dc7"
+					},
+					{
+						"datasource": "",
+						"label": "",
+						"line_color": "#058dc7"
+					},
+					{
+						"datasource": "",
+						"label": "",
+						"line_color": "#058dc7"
+					}
+				]
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_calendar",
+			"_context": "workspace_widget",
+			"label": "Calendar: Office Holidays",
+			"cache_ttl": "300",
+			"extension_id": "core.workspace.widget.calendar",
+			"pos": "1000",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"calendar_id": "{{{uid.calendar_usholidays}}}"
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_subtotals_country",
+			"_context": "workspace_widget",
+			"label": "Subtotals: Orgs by Country",
+			"cache_ttl": "300",
+			"extension_id": "core.workspace.widget.subtotals",
+			"pos": "1001",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"style": "pie",
+				"limit_to": "20",
+				"worklist_model": {
+					"options": [
+
+					],
+					"columns": [
+						"c_phone",
+						"c_country",
+						"c_website"
+					],
+					"params": [
+
+					],
+					"limit": 10,
+					"sort_by": "c_name",
+					"sort_asc": true,
+					"subtotals": "c_country",
+					"context": "cerberusweb.contexts.org"
+				}
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_html_map",
+			"_context": "workspace_widget",
+			"label": "HTML: Google Maps",
+			"cache_ttl": "300",
+			"extension_id": "core.workspace.widget.custom_html",
+			"pos": "1002",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"content": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1252.1542032017605!2d-122.01098193075943!3d37.32628748557081!2m3!1f0!2f39.09567279676287!3f0!3m2!1i1024!2i768!4f35!3m3!1m2!1s0x0%3A0xa6fc33ba56a4e147!2sApple+Park!5e1!3m2!1sen!2sus!4v1505500527082\" width=\"100%\" height=\"300\" frameborder=\"0\" style=\"border:0\" allowfullscreen></iframe>"
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_bot_behavior_shortcuts",
+			"_context": "workspace_widget",
+			"label": "Bot Behavior: Interaction Shortcuts",
+			"cache_ttl": "0",
+			"extension_id": "core.workspace.widget.bot",
+			"pos": "2000",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"behavior_id": "{{{uid.behavior_eval_render_dashboard_widget}}}"
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_clock_la",
+			"_context": "workspace_widget",
+			"label": "Clock: Los Angeles",
+			"cache_ttl": "0",
+			"extension_id": "core.workspace.widget.clock",
+			"pos": "2001",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"timezone": "America/Los_Angeles",
+				"format": "0",
+				"color": "#34434e"
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_clock_london",
+			"_context": "workspace_widget",
+			"label": "Clock: London",
+			"cache_ttl": "0",
+			"extension_id": "core.workspace.widget.clock",
+			"pos": "2002",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"timezone": "Europe/London",
+				"format": "0",
+				"color": "#34434e"
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_clock_tokyo",
+			"_context": "workspace_widget",
+			"label": "Clock: Tokyo",
+			"cache_ttl": "0",
+			"extension_id": "core.workspace.widget.clock",
+			"pos": "2003",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"timezone": "Asia/Tokyo",
+				"format": "0",
+				"color": "#34434e"
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_countdown_2038",
+			"_context": "workspace_widget",
+			"label": "Countdown: Year 2038 Problem",
+			"cache_ttl": "0",
+			"extension_id": "core.workspace.widget.countdown",
+			"pos": "2004",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"target_timestamp": 2147483647,
+				"color": "#cf2c1d"
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_counter_tickets_open",
+			"_context": "workspace_widget",
+			"label": "Worklist: Open Tasks",
+			"cache_ttl": "0",
+			"extension_id": "core.workspace.widget.worklist",
+			"pos": "2005",
+			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
+			"params": {
+				"search_mode": "quick_search",
+				"quick_search": "status:o",
+				"worklist_model": {
+					"options": [
+
+					],
+					"columns": [
+						"t_due_date",
+						"t_importance",
+						"t_owner_id"
+					],
+					"params": {
+						"59bc2674de30d": {
+							"field": "t_status_id",
+							"operator": "in",
+							"value": [
+								0
+							]
+						}
+					},
+					"limit": 10,
+					"sort_by": "t_due_date",
+					"sort_asc": true,
+					"subtotals": "__*_has_fieldset",
+					"context": "cerberusweb.contexts.task"
+				}
+			}
+		},
+		{
+			"uid": "saved_search_tickets_open",
+			"_context": "saved_search",
+			"name": "Open Tickets",
+			"context": "ticket",
+			"owner__context": "app",
+			"owner_id": 0,
+			"query": "status:o",
+			"tag": "open-tickets"
+		},
+		{
+			"uid": "saved_search_tickets_unassigned",
+			"_context": "saved_search",
+			"name": "Unassigned Tickets",
+			"context": "ticket",
+			"owner__context": "app",
+			"owner_id": 0,
+			"query": "owner.id:0 status:o",
+			"tag": "unassigned-tickets"
+		},
+		{
+			"uid": "saved_search_tasks_open",
+			"_context": "saved_search",
+			"name": "Open Tasks",
+			"context": "task",
+			"owner__context": "app",
+			"owner_id": 0,
+			"query": "status:o",
+			"tag": "open-tasks"
+		},
+		{
+			"uid": "saved_search_tasks_unassigned",
+			"_context": "saved_search",
+			"name": "Unassigned Tasks",
+			"context": "task",
+			"owner__context": "app",
+			"owner_id": 0,
+			"query": "owner.id:0 status:o",
+			"tag": "unassigned-tasks"
+		}
+	],
+	"bots": [
+		{
+			"uid": "bot_tutorial",
+			"name": "Tutorial Bot",
+			"owner": {
+				"context": "cerberusweb.contexts.app",
+				"id": 0
+			},
+			"is_disabled": false,
+			"params": {
+				"config": null,
+				"events": {
+					"mode": "all",
+					"items": [
+
+					]
+				},
+				"actions": {
+					"mode": "all",
+					"items": [
+
+					]
+				}
+			},
+			"image": "data:image/png;base64,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",
+			"behaviors": [
+				{
+					"uid": "behavior_mark_task_completed",
+					"title": "Mark task completed",
+					"is_disabled": false,
+					"is_private": false,
+					"priority": 50,
+					"event": {
+						"key": "event.macro.task",
+						"label": "Custom behavior on task"
+					},
+					"nodes": [
+						{
+							"type": "action",
+							"title": "Mark completed",
+							"status": "live",
+							"params": {
+								"actions": [
+									{
+										"action": "set_status",
+										"status_id": "1"
+									}
+								]
+							}
+						}
+					]
+				},
+				{
+					"uid": "behavior_eval_get_interactions",
+					"title": "Get interactions for worker",
+					"is_disabled": false,
+					"is_private": false,
+					"priority": 50,
+					"event": {
+						"key": "event.interactions.get.worker",
+						"label": "Conversation get interactions for worker",
+						"params": {
+							"listen_points": ""
+						}
+					},
+					"nodes": [
+
+					]
+				},
+				{
+					"uid": "behavior_eval_handle_interaction",
+					"title": "Handle interaction with worker",
+					"is_disabled": false,
+					"is_private": false,
+					"priority": 50,
+					"event": {
+						"key": "event.interaction.chat.worker",
+						"label": "Conversation handle interaction with worker"
+					},
+					"nodes": [
+						{
+							"type": "switch",
+							"title": "Interaction:",
+							"status": "live",
+							"nodes": [
+								{
+									"type": "outcome",
+									"title": "dashboard.widget.example",
+									"status": "live",
+									"params": {
+										"groups": [
+											{
+												"any": 0,
+												"conditions": [
+													{
+														"condition": "interaction",
+														"oper": "is",
+														"value": "dashboard.widget.example"
+													}
+												]
+											}
+										]
+									},
+									"nodes": [
+										{
+											"type": "action",
+											"title": "Start behavior",
+											"status": "live",
+											"params": {
+												"actions": [
+													{
+														"action": "switch_behavior",
+														"return": "0",
+														"behavior_id": "{{{uid.behavior_eval_convo_dashboard_shortcut}}}",
+														"var_option": "{{interaction_params.option}}",
+														"var": "_behavior"
+													}
+												]
+											}
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"uid": "behavior_eval_convo_dashboard_shortcut",
+					"title": "Dashboard widget conversation",
+					"is_disabled": false,
+					"is_private": true,
+					"priority": 50,
+					"event": {
+						"key": "event.message.chat.worker",
+						"label": "Conversation with worker"
+					},
+					"variables": {
+						"var_option": {
+							"key": "var_option",
+							"label": "Option",
+							"type": "S",
+							"is_private": "0",
+							"params": {
+								"widget": "single"
+							}
+						}
+					},
+					"nodes": [
+						{
+							"type": "action",
+							"title": "Hi!",
+							"status": "live",
+							"params": {
+								"actions": [
+									{
+										"action": "send_message",
+										"message": "Hi there!",
+										"format": "",
+										"delay_ms": "1000"
+									},
+									{
+										"action": "send_message",
+										"message": "This is a shortcut to a bot interaction right on your dashboard.",
+										"format": "",
+										"delay_ms": "1000"
+									},
+									{
+										"action": "send_message",
+										"message": "You picked the option: {{var_option}}",
+										"format": "",
+										"delay_ms": "1000"
+									}
+								]
+							}
+						},
+						{
+							"type": "action",
+							"title": "Prompt",
+							"status": "live",
+							"params": {
+								"actions": [
+									{
+										"action": "prompt_buttons",
+										"options": "Bye!",
+										"color_from": "#4795f7",
+										"color_mid": "#4795f7",
+										"color_to": "#4795f7",
+										"style": ""
+									}
+								]
+							}
+						},
+						{
+							"type": "action",
+							"title": "Close chat window",
+							"status": "live",
+							"params": {
+								"actions": [
+									{
+										"action": "window_close"
+									}
+								]
+							}
+						}
+					]
+				},
+				{
+					"uid": "behavior_eval_render_dashboard_widget",
+					"title": "Render interaction shortcuts dashboard widget",
+					"is_disabled": false,
+					"is_private": false,
+					"priority": 50,
+					"event": {
+						"key": "event.dashboard.widget.render",
+						"label": "Dashboard render widget"
+					},
+					"nodes": [
+						{
+							"type": "action",
+							"title": "Render",
+							"status": "live",
+							"params": {
+								"actions": [
+									{
+										"action": "render_html",
+										"html": "<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-param-option=\"default\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><img src=\"{{cerb_avatar_url('app',0,0)}}\" width=\"35\" height=\"35\">\r\n</button>\r\n\r\n<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-param-option=\"reminder\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><span class=\"glyphicons glyphicons-alarm\" style=\"font-size:35px;\"></span>\r\n</button>\r\n\r\n<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-param-option=\"contacts\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><span class=\"glyphicons glyphicons-address-book\" style=\"font-size:35px;\"></span>\r\n</button>\r\n\r\n<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-param-option=\"mail\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><span class=\"glyphicons glyphicons-envelope\" style=\"font-size:35px;\"></span>\r\n</button>\r\n\r\n<script type=\"text/javascript\">\r\n$(function() {\r\n\tvar $widget = $('#widget{{widget_id}}');\r\n\t$widget.find('.cerb-bot-trigger').cerbBotTrigger();\r\n});\r\n</script>"
+									}
+								]
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

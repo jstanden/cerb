@@ -57,6 +57,7 @@ define('STEP_SAVE_CONFIG_FILE', 4);
 define('STEP_INIT_DB', 5);
 define('STEP_OUTGOING_MAIL', 6);
 define('STEP_DEFAULTS', 7);
+define('STEP_PACKAGES', 8);
 define('STEP_REGISTER', 9);
 define('STEP_UPGRADE', 10);
 define('STEP_FINISHED', 11);
@@ -727,6 +728,7 @@ switch($step) {
 	// Set up the default objects
 	case STEP_DEFAULTS:
 		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+		@$org_name = DevblocksPlatform::importGPC($_POST['org_name'],'string');
 		@$worker_email = DevblocksPlatform::importGPC($_POST['worker_email'],'string');
 		@$worker_firstname = DevblocksPlatform::importGPC($_POST['worker_firstname'],'string');
 		@$worker_lastname = DevblocksPlatform::importGPC($_POST['worker_lastname'],'string');
@@ -741,6 +743,7 @@ switch($step) {
 		
 		if(!empty($form_submit)) {
 			// Persist form scope
+			$tpl->assign('org_name', $org_name);
 			$tpl->assign('worker_firstname', $worker_firstname);
 			$tpl->assign('worker_lastname', $worker_lastname);
 			$tpl->assign('worker_email', $worker_email);
@@ -750,120 +753,19 @@ switch($step) {
 			
 			// Sanity/Error checking
 			if(!empty($worker_email) && !empty($worker_pass) && $worker_pass == $worker_pass2) {
-				// If we have no groups, make a General group
-				$groups = DAO_Group::getAll(true);
-				$mail_from_address = DAO_Address::getDefaultLocalAddress();
+				$encrypt = DevblocksPlatform::services()->encryption();
 				
-				if(empty($groups)) {
-					// General Group
-					$first_group_id = DAO_Group::create(array(
-						DAO_Group::NAME => 'General',
-						DAO_Group::REPLY_ADDRESS_ID => intval($mail_from_address->id),
-						DAO_Group::REPLY_PERSONAL => '',
-						DAO_Group::REPLY_HTML_TEMPLATE_ID => 0,
-						DAO_Group::REPLY_SIGNATURE_ID => 1,
-						DAO_Group::IS_DEFAULT => 1,
-					));
-					
-					$bucket_fields = array(
-						DAO_Bucket::NAME => 'Inbox',
-						DAO_Bucket::GROUP_ID => $first_group_id,
-						DAO_Bucket::IS_DEFAULT => 1,
-						DAO_Bucket::UPDATED_AT => time(),
-					);
-					DAO_Bucket::create($bucket_fields);
-				}
-
-				// Default role
-				$roles = DAO_WorkerRole::getAll();
+				// Set the configuration details in the session
+				file_put_contents(APP_TEMP_PATH . '/setup.json', $encrypt->encrypt(json_encode([
+					'admin_name_first' => $worker_firstname ?: 'Admin',
+					'admin_name_last' => $worker_lastname ?: '',
+					'admin_email' => $worker_email,
+					'admin_pass' => $worker_pass,
+					'admin_timezone' => $timezone ?: 'America/Los_Angeles',
+					'org_name' => $org_name ?: 'Example, Inc.',
+				])));
 				
-				if(empty($roles)) {
-					$fields = array(
-						DAO_WorkerRole::NAME => 'Default',
-						DAO_WorkerRole::PARAMS_JSON => json_encode(array(
-							'who' => 'all',
-							'what' => 'all',
-						)),
-					);
-					DAO_WorkerRole::create($fields);
-				}
-				
-				// If this worker doesn't exist, create them
-				if(null == ($lookup = DAO_Worker::getByEmail($worker_email))) {
-					$email_id = 0;
-					
-					// Add the worker e-mail to the addresses table
-					if(!empty($worker_email))
-						if(false != ($address = DAO_Address::lookupAddress($worker_email, true)))
-							$email_id = $address->id;
-					
-					// [TODO] If the email address creation fails, report an error
-					
-					$fields = array(
-						DAO_Worker::EMAIL_ID => $email_id,
-						DAO_Worker::FIRST_NAME => 'Super',
-						DAO_Worker::LAST_NAME => 'User',
-						DAO_Worker::TITLE => 'Administrator',
-						DAO_Worker::IS_SUPERUSER => 1,
-						DAO_Worker::AUTH_EXTENSION_ID => 'login.password',
-						DAO_Worker::TIME_FORMAT => 'D, d M Y h:i a',
-						DAO_Worker::LANGUAGE => 'en_US',
-					);
-					
-					if(!empty($worker_firstname)) {
-						$fields[DAO_Worker::FIRST_NAME] = $worker_firstname;
-						$fields[DAO_Worker::AT_MENTION_NAME] = $worker_firstname;
-					}
-					
-					if(!empty($worker_lastname))
-						$fields[DAO_Worker::LAST_NAME] = $worker_lastname;
-					
-					if(!empty($timezone))
-						$fields[DAO_Worker::TIMEZONE] = $timezone;
-					
-					$worker_id = DAO_Worker::create($fields);
-					
-					DAO_Worker::setAuth($worker_id, $worker_pass);
-					
-					// Default group memberships
-					
-					if(!empty($first_group_id))
-						DAO_Group::setGroupMember($first_group_id,$worker_id,true);
-					
-					// Create a default calendar
-					
-					if(!empty($worker_firstname))
-						$label = sprintf("%s%s's Calendar", $worker_firstname, $worker_lastname ? (' ' . $worker_lastname) : '');
-					else
-						$label = 'My Calendar';
-					
-					$fields = array(
-						DAO_Calendar::NAME => $label,
-						DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-						DAO_Calendar::OWNER_CONTEXT_ID => $worker_id,
-						DAO_Calendar::PARAMS_JSON => json_encode(array(
-							"manual_disabled" => "0",
-							"sync_enabled" => "0",
-							"start_on_mon" => "1",
-							"hide_start_time" => "0",
-							"color_available" => "#A0D95B",
-							"color_busy" => "#C8C8C8",
-							"series" => array(
-								array("datasource"=>""),
-								array("datasource"=>""),
-								array("datasource"=>""),
-							)
-						)),
-						DAO_Calendar::UPDATED_AT => time(),
-					);
-					$calendar_id = DAO_Calendar::create($fields);
-					
-					DAO_Worker::update($worker_id, array(
-						DAO_Worker::CALENDAR_ID => $calendar_id,
-					));
-				}
-				
-				$tpl->assign('step', STEP_REGISTER);
+				$tpl->assign('step', STEP_PACKAGES);
 				$tpl->display('steps/redirect.tpl');
 				exit;
 				
@@ -871,14 +773,83 @@ switch($step) {
 				$tpl->assign('failed', true);
 				
 			}
-			
-		} else {
-			// Defaults
-			
 		}
 		
 		$tpl->assign('template', 'steps/step_defaults.tpl');
 		
+		break;
+		
+	case STEP_PACKAGES:
+		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
+		
+		if(!empty($form_submit)) {
+			@$package = DevblocksPlatform::importGPC($_POST['package'],'string', '');
+			@$optional_packages = DevblocksPlatform::importGPC($_POST['optional_packages'],'array', []);
+			
+			$encrypt = DevblocksPlatform::services()->encryption();
+			@$setup_defaults = json_decode($encrypt->decrypt(file_get_contents(APP_TEMP_PATH . '/setup.json')), true) ?: [];
+			
+			$records_created = [];
+			
+			switch($package) {
+				case 'tutorial':
+					$json = file_get_contents(APP_PATH . '/install/packages/install_tutorial_package.json');
+					$prompts = $setup_defaults;
+					CerberusApplication::packages()->import($json, $prompts, $records_created);
+					break;
+					
+				case 'standard':
+					$json = file_get_contents(APP_PATH . '/install/packages/install_standard_package.json');
+					$prompts = $setup_defaults;
+					CerberusApplication::packages()->import($json, $prompts, $records_created);
+					break;
+			}
+			
+			if($optional_packages && is_array($optional_packages)) {
+				foreach($optional_packages as $package) {
+					switch($package) {
+						case 'autoreply_bot':
+							$prompts = [
+								'org_name' => $setup_defaults['org_name'],
+							];
+							$json = file_get_contents(APP_PATH . '/install/packages/autoreply_bot_package.json');
+							$results = [];
+							CerberusApplication::packages()->import($json, $prompts, $results);
+							break;
+							
+						case 'chat_bot':
+							$prompts = [];
+							$json = file_get_contents(APP_PATH . '/install/packages/chat_bot_package.json');
+							$results = [];
+							CerberusApplication::packages()->import($json, $prompts, $results);
+							break;
+							
+						case 'customer_satisfaction':
+							$prompts = [
+								'product_name' => $setup_defaults['org_name'],
+								'portal_url' => 'https://portal.example/',
+							];
+							$json = file_get_contents(APP_PATH . '/install/packages/customer_satisfaction_package.json');
+							$results = [];
+							CerberusApplication::packages()->import($json, $prompts, $results);
+							break;
+							
+						case 'reminder_bot':
+							$prompts = [];
+							$json = file_get_contents(APP_PATH . '/install/packages/reminder_bot_package.json');
+							$results = [];
+							CerberusApplication::packages()->import($json, $prompts, $results);
+							break;
+					}
+				}
+			}
+			
+			$tpl->assign('step', STEP_REGISTER);
+			$tpl->display('steps/redirect.tpl');
+			exit;
+		}
+		
+		$tpl->assign('template', 'steps/step_packages.tpl');
 		break;
 		
 	case STEP_REGISTER:
@@ -899,6 +870,7 @@ switch($step) {
 		break;
 		
 	case STEP_FINISHED:
+		@unlink(APP_TEMP_PATH . '/setup.json');
 		
 		// Set up the default cron jobs
 		$crons = DevblocksPlatform::getExtensions('cerberusweb.cron', true);

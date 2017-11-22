@@ -1,0 +1,187 @@
+{
+	"package": {
+		"name": "Installer Package",
+		"revision": 1,
+		"requires": {
+			"cerb_version": "8.2.4",
+			"plugins": [
+			]
+		},
+		"configure": {
+			"prompts": [
+				{
+					"type": "text",
+					"label": "Admin first name:",
+					"key": "admin_name_first",
+					"params": {
+					}
+				},
+				{
+					"type": "text",
+					"label": "Admin last name:",
+					"key": "admin_name_last",
+					"params": {
+					}
+				},
+				{
+					"type": "text",
+					"label": "Admin email:",
+					"key": "admin_email",
+					"params": {
+					}
+				},
+				{
+					"type": "text",
+					"label": "Admin timezone:",
+					"key": "admin_timezone",
+					"params": {
+					}
+				},
+				{
+					"type": "text",
+					"label": "Org name:",
+					"key": "org_name",
+					"params": {
+					}
+				}
+			],
+			"placeholders": [
+
+			]
+		}
+	},
+	"records": [
+		{
+			"uid": "org_admin",
+			"_context": "org",
+			"name": "{{{org_name}}}"
+		},
+		{
+			"uid": "address_admin_email",
+			"_context": "address",
+			"email": "{{{admin_email}}}",
+			"org_id": "{{{uid.org_admin}}}"
+		},
+		{
+			"uid": "worker_admin",
+			"_context": "worker",
+			"first_name": "{{{admin_name_first}}}",
+			"last_name": "{{{admin_name_last}}}",
+			"email_id": "{{{uid.address_admin_email}}}",
+			"title": "Administrator",
+			"is_superuser": 1,
+			"is_disabled": 0,
+			"timezone": "{{{admin_timezone}}}",
+			"time_format": "D, d M Y h:i a",
+			"auth_extension_id": "login.password",
+			"language": "en_US",
+			"calendar_id": "0"
+		},
+		{
+			"uid": "role_everyone",
+			"_context": "role",
+			"name": "Everyone",
+			"params": {
+				"who": "all",
+				"what": "all"
+			}
+		},
+		{
+			"uid": "group_support",
+			"_context": "group",
+			"name": "Support",
+			"is_default": 1,
+			"is_private": 0,
+			"members": {
+				"manager": "1"
+			}
+		},
+		{
+			"uid": "group_sales",
+			"_context": "group",
+			"name": "Sales",
+			"is_private": 0,
+			"members": {
+				"manager": "1"
+			}
+		},
+		{
+			"uid": "group_development",
+			"_context": "group",
+			"name": "Development",
+			"is_private": 0,
+			"members": {
+				"manager": "1"
+			}
+		},
+		{
+			"uid": "group_billing",
+			"_context": "group",
+			"name": "Billing",
+			"is_private": 0,
+			"members": {
+				"manager": "1"
+			}
+		},
+		{
+			"uid": "bucket_support_inbox",
+			"_context": "bucket",
+			"name": "Inbox",
+			"is_default": "1",
+			"group_id": "{{{uid.group_support}}}"
+		},
+		{
+			"uid": "bucket_sales_inbox",
+			"_context": "bucket",
+			"name": "Inbox",
+			"is_default": "1",
+			"group_id": "{{{uid.group_sales}}}"
+		},
+		{
+			"uid": "bucket_development_inbox",
+			"_context": "bucket",
+			"name": "Inbox",
+			"is_default": "1",
+			"group_id": "{{{uid.group_development}}}"
+		},
+		{
+			"uid": "bucket_billing_inbox",
+			"_context": "bucket",
+			"name": "Inbox",
+			"is_default": "1",
+			"group_id": "{{{uid.group_billing}}}"
+		},
+		{
+			"uid": "signature_default",
+			"_context": "email_signature",
+			"name": "Default Signature",
+			"owner__context": "app",
+			"owner_id": 0,
+			"signature": "-- \n{{first_name}}{% if title is not empty %}, {{title}}{% endif %}\n\nExample, Inc.\nhttps://cerb.ai/",
+			"is_default": "1"
+		},
+		{
+			"uid": "ticket_001",
+			"_context": "ticket",
+			"group_id": "{{{uid.group_support}}}",
+			"subject": "Welcome to Cerb!",
+			"importance": 100,
+			"status": "open",
+			"org": "Webgroup Media, LLC.",
+			"spam_score": 0.0001,
+			"spam_training": "N",
+			"participants": "support@webgroupmedia.com"
+		},
+		{
+			"uid": "message_001_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_001}}}",
+			"sender": "support@webgroupmedia.com",
+			"response_time": 0,
+			"is_outgoing": 0,
+			"hash_header_message_id": "{{{'<welcome@cerb.example>'|sha1}}}",
+			"headers": "To: {{{default.replyto_email}}}\nFrom: Webgroup Media <support@webgroupmedia.com>\nSubject: Welcome to Cerb!\nX-Mailer: Cerb\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <welcome@cerb.example>\n",
+			"content": "Welcome to Cerb!"
+		}
+	]
+}

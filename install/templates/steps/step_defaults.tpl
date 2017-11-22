@@ -21,6 +21,10 @@ Next, we'll create your administrator account.<br>
 <input type="text" name="worker_email" value="{$worker_email}" size="64" placeholder="me@company"><br>
 <br>
 
+<b>What is your organization's name?</b><br>
+<input type="text" name="org_name" value="{$org_name}" size="64" placeholder="Example, Inc."><br>
+<br>
+
 <b>Choose a password:</b><br>
 <input type="password" name="worker_pass" value="{$worker_pass}" size="16" autocomplete="off"><br>
 <br>
