@@ -146,7 +146,7 @@
 			"name": "Default Signature",
 			"owner__context": "app",
 			"owner_id": 0,
-			"signature": "-- \n{{first_name}}{% if title is not empty %}, {{title}}{% endif %}\n\nExample, Inc.\nhttps://cerb.example/",
+			"signature": "-- \n{{first_name}}{% if title is not empty %}, {{title}}{% endif %}\n\n{{org_name}}",
 			"is_default": "1"
 		},
 		{
@@ -1265,7 +1265,7 @@
 			"is_default": 1,
 			"is_private": 0,
 			"reply_address_id": "{{{uid.address_support_cerb_example}}}",
-			"reply_personal": "{{first_name}} at Example",
+			"reply_personal": "{{first_name}} at {{{org_name}}}",
 			"reply_signature_id": "{{{uid.signature_default}}}",
 			"reply_html_template_id": "{{{uid.html_template_default}}}",
 			"members": {
@@ -1279,7 +1279,7 @@
 			"name": "Sales",
 			"is_private": 0,
 			"reply_address_id": "{{{uid.address_sales_cerb_example}}}",
-			"reply_personal": "{{first_name}} at Example",
+			"reply_personal": "{{first_name}} at {{{org_name}}}",
 			"reply_signature_id": "{{{uid.signature_default}}}",
 			"reply_html_template_id": "{{{uid.html_template_default}}}",
 			"members": {
@@ -1293,7 +1293,7 @@
 			"name": "Development",
 			"is_private": 0,
 			"reply_address_id": "{{{uid.address_dev_cerb_example}}}",
-			"reply_personal": "{{first_name}} at Example",
+			"reply_personal": "{{first_name}} at {{{org_name}}}",
 			"reply_signature_id": "{{{uid.signature_default}}}",
 			"reply_html_template_id": "{{{uid.html_template_default}}}",
 			"members": {
@@ -1307,7 +1307,7 @@
 			"name": "Billing",
 			"is_private": 0,
 			"reply_address_id": "{{{uid.address_billing_cerb_example}}}",
-			"reply_personal": "{{first_name}} at Example",
+			"reply_personal": "{{first_name}} at {{{org_name}}}",
 			"reply_signature_id": "{{{uid.signature_default}}}",
 			"reply_html_template_id": "{{{uid.html_template_default}}}",
 			"members": {
