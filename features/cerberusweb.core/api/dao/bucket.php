@@ -1255,12 +1255,18 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		if($context_id && null != ($bucket = DAO_Bucket::get($context_id))) {
-			$tpl->assign('bucket', $bucket);
-		
-			if(false != ($group = $bucket->getGroup())) {
-				$tpl->assign('group', $group);
-				$tpl->assign('members', $group->getMembers());
+		if($context_id) {
+			if(null != ($bucket = DAO_Bucket::get($context_id))) {
+				$tpl->assign('bucket', $bucket);
+				
+				if(false != ($group = $bucket->getGroup())) {
+					$tpl->assign('group', $group);
+					$tpl->assign('members', $group->getMembers());
+				}
+			} else {
+				$tpl->assign('error_message', DevblocksPlatform::translate('error.core.record.not_found'));
+				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+				return;
 			}
 		}
 		

@@ -2559,6 +2559,12 @@
 			</tuv>
 		</tu>
 		
+		<tu tuid="error.core.record.not_found">
+			<tuv xml:lang="en_US">
+				<seg>Record not found.</seg>
+			</tuv>
+		</tu>
+		
 		<!-- Warnings -->
 		
 		<tu tuid="warning.core.editor.close">
