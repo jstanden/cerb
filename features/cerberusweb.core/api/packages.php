@@ -781,7 +781,7 @@ class Cerb_Packages {
 			
 			DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $record_id, $custom_fields);
 			
-			$records_created[$context_ext->id][] = [
+			$records_created[$context_ext->id][$uid_record] = [
 				'id' => $record_id,
 				'label' => @$record['_label'] ?: @$record['name'] ?: $record['uid'],
 			];
@@ -801,14 +801,19 @@ class Cerb_Packages {
 			if(false == ($dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext_id)))
 				continue;
 			
-			$dicts = array_map(function($dict) {
-				return [
+			foreach($records as $uid => &$record) {
+				if(false == (@$dict = $dicts[$record['id']])) {
+					unset($records[$uid]);
+					continue;
+				}
+				
+				$record = [
 					'id' => $dict->id,
 					'label' => $dict->_label,
 				];
-			}, $dicts);
+			}
 			
-			$records_created[$context_ext_id] = $dicts;
+			$records_created[$context_ext_id] = $records;
 		}
 		
 		@$plugin_settings = $json['settings'];
@@ -860,7 +865,7 @@ class Cerb_Packages {
 				DAO_CustomFieldset::CONTEXT => $custom_fieldset['context'],
 			]);
 			
-			$records_created[CerberusContexts::CONTEXT_CUSTOM_FIELDSET][] = [
+			$records_created[CerberusContexts::CONTEXT_CUSTOM_FIELDSET][$uid] = [
 				'id' => $id,
 				'label' => $custom_fieldset['name'],
 			];
@@ -900,7 +905,7 @@ class Cerb_Packages {
 			if(!isset($records_created[CerberusContexts::CONTEXT_BOT]))
 				$records_created[CerberusContexts::CONTEXT_BOT] = [];
 			
-			$records_created[CerberusContexts::CONTEXT_BOT][] = [
+			$records_created[CerberusContexts::CONTEXT_BOT][$uid] = [
 				'id' => $id,
 				'label' => $bot['name'],
 			];
@@ -953,7 +958,7 @@ class Cerb_Packages {
 				if(!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR]))
 					$records_created[CerberusContexts::CONTEXT_BEHAVIOR] = [];
 				
-				$records_created[CerberusContexts::CONTEXT_BEHAVIOR][] = [
+				$records_created[CerberusContexts::CONTEXT_BEHAVIOR][$uid] = [
 					'id' => $id,
 					'label' => $behavior['title'],
 				];
@@ -975,7 +980,7 @@ class Cerb_Packages {
 			if(!isset($records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE]))
 				$records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE] = [];
 			
-			$records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE][] = [
+			$records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE][$uid] = [
 				'id' => $id,
 				'label' => $workspace['name'],
 			];
@@ -1021,7 +1026,7 @@ class Cerb_Packages {
 			if(!isset($records_created[CerberusContexts::CONTEXT_PORTAL]))
 				$records_created[CerberusContexts::CONTEXT_PORTAL] = [];
 			
-			$records_created[CerberusContexts::CONTEXT_PORTAL][] = [
+			$records_created[CerberusContexts::CONTEXT_PORTAL][$uid] = [
 				'id' => $id,
 				'label' => $portal['name'],
 				'code' => $portal_model->code,
@@ -1057,7 +1062,7 @@ class Cerb_Packages {
 			if(!isset($records_created[CerberusContexts::CONTEXT_SAVED_SEARCH]))
 				$records_created[CerberusContexts::CONTEXT_SAVED_SEARCH] = [];
 			
-			$records_created[CerberusContexts::CONTEXT_SAVED_SEARCH][] = [
+			$records_created[CerberusContexts::CONTEXT_SAVED_SEARCH][$uid] = [
 				'id' => $id,
 				'label' => $saved_search['name'],
 			];
@@ -1081,7 +1086,7 @@ class Cerb_Packages {
 			if(!isset($records_created[CerberusContexts::CONTEXT_CALENDAR]))
 				$records_created[CerberusContexts::CONTEXT_CALENDAR] = [];
 			
-			$records_created[CerberusContexts::CONTEXT_CALENDAR][] = [
+			$records_created[CerberusContexts::CONTEXT_CALENDAR][$uid] = [
 				'id' => $id,
 				'label' => $calendar['name'],
 			];
@@ -1128,7 +1133,7 @@ class Cerb_Packages {
 			if(!isset($records_created[CerberusContexts::CONTEXT_CLASSIFIER]))
 				$records_created[CerberusContexts::CONTEXT_CLASSIFIER] = [];
 			
-			$records_created[CerberusContexts::CONTEXT_CLASSIFIER][] = [
+			$records_created[CerberusContexts::CONTEXT_CLASSIFIER][$uid] = [
 				'id' => $id,
 				'label' => $classifier['name'],
 			];
@@ -1235,7 +1240,7 @@ class Cerb_Packages {
 			if(!isset($records_created['cerberusweb.contexts.project.board']))
 				$records_created['cerberusweb.contexts.project.board'] = [];
 			
-			$records_created['cerberusweb.contexts.project.board'][] = [
+			$records_created['cerberusweb.contexts.project.board'][$project_board['uid']] = [
 				'id' => $project_board_id,
 				'label' => $project_board['name'],
 			];
