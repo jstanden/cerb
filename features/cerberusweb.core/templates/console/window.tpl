@@ -54,7 +54,7 @@ $(function() {
 			$window.position({ my: "middle bottom", at: "middle bottom", of: $(window) });
 			
 		} else {
-			$window.position({ my: "right bottom", at: "right bottom", of: $('#bot-chat-button') });
+			$window.position({ my: "right bottom", at: "right-25 bottom-25", of: $(window) });
 		}
 		
 		// Chat window actions
