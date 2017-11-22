@@ -796,12 +796,23 @@ switch($step) {
 					$json = file_get_contents(APP_PATH . '/install/packages/install_tutorial_package.json');
 					$prompts = $setup_defaults;
 					CerberusApplication::packages()->import($json, $prompts, $records_created);
+					
+					// Set password
+					@$worker = $records_created[CerberusContexts::CONTEXT_WORKER]['worker_admin'];
+					if(is_array($worker))
+						DAO_Worker::setAuth($worker['id'], $setup_defaults['admin_pass']);
+					
 					break;
 					
 				case 'standard':
 					$json = file_get_contents(APP_PATH . '/install/packages/install_standard_package.json');
 					$prompts = $setup_defaults;
 					CerberusApplication::packages()->import($json, $prompts, $records_created);
+					
+					// Set password
+					@$worker = $records_created[CerberusContexts::CONTEXT_WORKER]['worker_admin'];
+					if(is_array($worker))
+						DAO_Worker::setAuth($worker['id'], $setup_defaults['admin_pass']);
 					break;
 			}
 			
