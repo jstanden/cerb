@@ -227,6 +227,9 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $record['uid'], $error));
 		}
 		
+		@$settings = $json['settings'];
+		// We don't need to validate anything on settings
+		
 		@$worker_prefs = $json['worker_prefs'];
 		// We don't need to validate anything on prefs
 		
@@ -462,6 +465,9 @@ class Cerb_Packages {
 			
 			$uids[$uid_record] = $record_id;
 		}
+		
+		@$settings = $json['settings'];
+		// We don't need to pre-insert settings
 		
 		@$worker_prefs = $json['worker_preferences'];
 		// We don't need to pre-insert prefs
@@ -803,6 +809,25 @@ class Cerb_Packages {
 			}, $dicts);
 			
 			$records_created[$context_ext_id] = $dicts;
+		}
+		
+		@$plugin_settings = $json['settings'];
+		$plugins = DevblocksPlatform::getPluginRegistry();
+		
+		if(is_array($plugin_settings))
+		foreach($plugin_settings as $plugin_id => $settings) {
+			// Valid plugin?
+			if(!isset($plugins[$plugin_id]))
+				continue;
+			
+			// [TODO] Intersect approved $setting_key?
+			
+			foreach($settings as $setting_key => $setting_value) {
+				if(!is_string($setting_value) && !is_numeric($setting_value))
+					continue;
+				
+				DevblocksPlatform::setPluginSetting($plugin_id, $setting_key, $setting_value);
+			}
 		}
 		
 		@$worker_prefs = $json['worker_preferences'];
