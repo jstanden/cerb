@@ -44,7 +44,7 @@ if(isset($tables['crm_opportunity'])) {
 if(isset($tables['crm_opportunity'])) {
 	list($columns, $indexes) = $db->metaTable('crm_opportunity');
 	
-	$count = $db->ExecuteMaster("SELECT count(id) FROM crm_opportunity WHERE source != ''");
+	$count = $db->GetOneMaster("SELECT count(id) FROM crm_opportunity WHERE source != ''");
 	
 	if(isset($columns['source']) && $count) {
 		// Create the new custom field
@@ -70,7 +70,7 @@ if(isset($tables['crm_opportunity'])) {
 if(isset($tables['crm_opportunity'])) {
 	list($columns, $indexes) = $db->metaTable('crm_opportunity');
 
-	$count = $db->ExecuteMaster("SELECT count(id) FROM crm_opportunity WHERE next_action != ''");
+	$count = $db->GetOneMaster("SELECT count(id) FROM crm_opportunity WHERE next_action != ''");
 	
 	if(isset($columns['next_action']) && $count) {
 		// Create the new custom field
