@@ -1061,6 +1061,20 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
+				
+			case 'params':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_WorkerRole::PARAMS_JSON] = $json;
+				break;
 		}
 		
 		return true;
