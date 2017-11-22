@@ -63,7 +63,6 @@ class DAO_Group extends Cerb_ORMHelper {
 		$validation
 			->addField(self::REPLY_ADDRESS_ID)
 			->id()
-			->setRequired(true)
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ADDRESS))
 			->addValidator(function($value, &$error) {
 				if(false == ($address = DAO_Address::get($value))) {
@@ -347,6 +346,9 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::CREATED]))
 			$fields[self::CREATED] = time();
+		
+		if(!isset($fields[self::REPLY_ADDRESS_ID]) && false !== ($default_sender = DAO_Address::getDefaultLocalAddress()))
+			$fields[self::REPLY_ADDRESS_ID] = $default_sender->id;
 		
 		self::update($id, $fields);
 		
