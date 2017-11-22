@@ -318,6 +318,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
+		$settings = DevblocksPlatform::services()->pluginSettings();
 
 		if(!is_array($ids))
 			$ids = [$ids];
@@ -342,6 +343,11 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 			// Drop the table
 			$sql = sprintf("DROP TABLE %s", $table_name);
 			$db->ExecuteMaster($sql);
+			
+			// Remove prefs
+			$settings->delete('cerberusweb.core', [
+				sprintf("card:contexts.custom_record.%d", $id),
+			]);
 			
 			// Remove the PHP class
 			@unlink(APP_STORAGE_PATH . sprintf('classes/abstract_record_%d', $id));
