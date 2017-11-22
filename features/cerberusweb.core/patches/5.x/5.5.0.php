@@ -22,30 +22,6 @@ if(isset($tables['preparse_rule'])) {
 		);
 	}
 
-	// Insert trigger_event
-	$db->ExecuteMaster(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
-		"VALUES (%s, %d, %s, %s)",
-		$db->qstr('cerberusweb.contexts.app'),
-		0,
-		$db->qstr('event.mail.received.app'),
-		$db->qstr('Delivery Blacklist')
-	));
-	$trigger_id = $db->LastInsertId();
-	
-	// Decision: Delivered to inbox?
-	$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
-		"VALUES (%d, %d, %s, %s, %s, %d)",
-		0,
-		$trigger_id,
-		$db->qstr('First match:'),
-		$db->qstr(''),
-		$db->qstr('switch'),
-		0
-	));
-	$parent_id = $db->LastInsertId();
-	
-	$parent_filters_node_id = $parent_id;
-
 	// Rules
 		
 	$sql = sprintf("SELECT name, criteria_ser, actions_ser ".
@@ -54,9 +30,35 @@ if(isset($tables['preparse_rule'])) {
 	);
 	$results = $db->GetArrayMaster($sql);
 
+	if(!empty($results)) {
+		// Insert trigger_event
+		$db->ExecuteMaster(sprintf("INSERT INTO trigger_event (owner_context, owner_context_id, event_point, title) ".
+			"VALUES (%s, %d, %s, %s)",
+			$db->qstr('cerberusweb.contexts.app'),
+			0,
+			$db->qstr('event.mail.received.app'),
+			$db->qstr('Delivery Blacklist')
+		));
+		$trigger_id = $db->LastInsertId();
+		
+		// Decision: Delivered to inbox?
+		$db->ExecuteMaster(sprintf("INSERT INTO decision_node (parent_id, trigger_id, title, params_json, node_type, pos) ".
+			"VALUES (%d, %d, %s, %s, %s, %d)",
+			0,
+			$trigger_id,
+			$db->qstr('First match:'),
+			$db->qstr(''),
+			$db->qstr('switch'),
+			0
+		));
+		$parent_id = $db->LastInsertId();
+		
+		$parent_filters_node_id = $parent_id;
+	}
+	
 	$outcome_pos = 0;
 	
-	if(is_array($results))
+	if(!empty($results) && is_array($results))
 	foreach($results as $result) {
 		$conditions = array();
 
@@ -332,7 +334,7 @@ if(isset($tables['preparse_rule'])) {
 				}
 			}
 		} // end recipients nest check
-							
+		
 		// Nest decision if multiple senders
 		if(isset($criterion['from'])) {
 			$data = $criterion['from'];
@@ -359,7 +361,7 @@ if(isset($tables['preparse_rule'])) {
 					);
 				}
 			}
-		} // end sender nest check					
+		} // end sender nest check
 		
 		if(!empty($conditions))
 			$groups[] = array(
