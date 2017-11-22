@@ -292,8 +292,6 @@ class Page_Custom extends CerberusPageExtension {
 
 		// Workflow: Open conversations
 		
-			// [TODO] Recommended
-		
 			$context = CerberusContexts::CONTEXT_TICKET;
 			$context_ext = Extension_DevblocksContext::get($context);
 			$view = $context_ext->getChooserView(); /* @var $view C4_AbstractView */
@@ -301,7 +299,6 @@ class Page_Custom extends CerberusPageExtension {
 			$view->name = 'Needs attention';
 			$view->renderLimit = 10;
 			$view->view_columns = array(
-				SearchFields_Ticket::BUCKET_RESPONSIBILITY,
 				SearchFields_Ticket::TICKET_LAST_WROTE_ID,
 				SearchFields_Ticket::TICKET_UPDATED_DATE,
 				SearchFields_Ticket::TICKET_GROUP_ID,
@@ -309,7 +306,7 @@ class Page_Custom extends CerberusPageExtension {
 				SearchFields_Ticket::TICKET_OWNER_ID,
 			);
 			$view->options = array('disable_watchers' => true);
-			$view->renderSortBy = SearchFields_Ticket::BUCKET_RESPONSIBILITY;
+			$view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 			$view->renderSortAsc = 0;
 			$view->renderSubtotals = SearchFields_Ticket::TICKET_GROUP_ID;
 			$view->addParams(array(
