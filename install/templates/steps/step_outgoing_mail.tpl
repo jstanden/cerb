@@ -4,7 +4,31 @@
 <input type="hidden" name="step" value="{$smarty.const.STEP_OUTGOING_MAIL}">
 <input type="hidden" name="form_submit" value="1">
 
-<h3>Default Mail Transport</h3>
+<h3>Default Sender</h3>
+
+When a worker replies to messages from Cerb, this email address will be 
+used as the sender by default.  This proxy protects your workers' direct email 
+addresses and ensures that all replies are routed back to Cerb.  Each 
+group may configure their own sender information (e.g., sales@yourcompany, 
+support@yourcompany, marketing@yourcompany).<br>
+<br>
+The sender <b>absolutely must</b> be an email address that routes back into 
+Cerb (e.g. by POP3) so that incoming replies to your messages are properly 
+received.<br>
+<br>
+
+<b>What email address should be the default sender for outgoing email?</b><br>
+<input type="text" name="default_reply_from" value="{$default_reply_from}" placeholder="support@example.com" size="64">
+(e.g. support@example.com)
+<br>
+<br>
+
+<b>Would you like to use a personalized sender name for outgoing email?</b> (optional)<br>
+<input type="text" name="default_reply_personal" value="{$default_reply_personal}" placeholder="Example, Inc." size="64">
+(e.g. "Acme Widgets Helpdesk")
+<br>
+
+<h3>Mail Transport</h3>
 
 <b>Type:</b>
 

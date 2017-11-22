@@ -55,9 +55,8 @@ define('STEP_LICENSE', 2);
 define('STEP_DATABASE', 3);
 define('STEP_SAVE_CONFIG_FILE', 4);
 define('STEP_INIT_DB', 5);
-define('STEP_CONTACT', 6);
-define('STEP_OUTGOING_MAIL', 7);
-define('STEP_DEFAULTS', 8);
+define('STEP_OUTGOING_MAIL', 6);
+define('STEP_DEFAULTS', 7);
 define('STEP_REGISTER', 9);
 define('STEP_UPGRADE', 10);
 define('STEP_FINISHED', 11);
@@ -586,7 +585,7 @@ switch($step) {
 				// [TODO] Verify the database
 				
 				// Success
-				$tpl->assign('step', STEP_CONTACT);
+				$tpl->assign('step', STEP_OUTGOING_MAIL);
 				$tpl->display('steps/redirect.tpl');
 				exit;
 				
@@ -609,59 +608,13 @@ switch($step) {
 			
 		break;
 		
-
-	// Personalize system information (title, timezone, language)
-	case STEP_CONTACT:
+	// Set up and test the outgoing SMTP
+	case STEP_OUTGOING_MAIL:
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		
 		@$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'],'string','noreply@cerb.example');
 		@$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'],'string','');
-		@$helpdesk_title = DevblocksPlatform::importGPC($_POST['helpdesk_title'],'string',$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE,CerberusSettingsDefaults::HELPDESK_TITLE));
-		@$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'],'integer');
 		
-		if(!empty($form_submit) && !empty($default_reply_from)) {
-			$validate = imap_rfc822_parse_adrlist(sprintf("<%s>", $default_reply_from),"localhost");
-
-			$fields = [
-				DAO_EmailSignature::NAME => 'Default',
-				DAO_EmailSignature::IS_DEFAULT => 1,
-				DAO_EmailSignature::SIGNATURE => "-- \n{{first_name}}{% if title %}, {{title}}{% endif %}\n",
-				DAO_EmailSignature::UPDATED_AT => time(),
-			];
-			$sig_id = DAO_EmailSignature::create($fields);
-			
-			if(!empty($default_reply_from) && is_array($validate) && 1==count($validate)) {
-				if(null != ($address = DAO_Address::lookupAddress($default_reply_from, true))) {
-					DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::MAIL_DEFAULT_FROM_ID, $address->id);
-				}
-			}
-			
-			if(!empty($default_reply_personal)) {
-				DevblocksPlatform::setPluginSetting('cerberusweb.core', 'mail_default_from_personal', $default_reply_personal);
-			}
-			
-			if(!empty($helpdesk_title))
-				$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $helpdesk_title);
-			
-			$tpl->assign('step', STEP_OUTGOING_MAIL);
-			$tpl->display('steps/redirect.tpl');
-			exit;
-		}
-		
-		if(!empty($form_submit) && empty($default_reply_from)) {
-			$tpl->assign('failed', true);
-		}
-		
-		$tpl->assign('default_reply_from', $default_reply_from);
-		$tpl->assign('default_reply_personal', $default_reply_personal);
-		$tpl->assign('helpdesk_title', $helpdesk_title);
-		
-		$tpl->assign('template', 'steps/step_contact.tpl');
-		
-		break;
-	
-	// Set up and test the outgoing SMTP
-	case STEP_OUTGOING_MAIL:
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string');
 		@$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'],'string');
 		@$smtp_port = DevblocksPlatform::importGPC($_POST['smtp_port'],'integer');
@@ -673,7 +626,23 @@ switch($step) {
 		@$passed = DevblocksPlatform::importGPC($_POST['passed'],'integer');
 		
 		if(!empty($form_submit)) {
+			if(!$default_reply_from)
+				throw new Exception_CerbInstaller("The default sender is required.");
+				
+			$validate = imap_rfc822_parse_adrlist(sprintf("<%s>", $default_reply_from),"localhost");
+			
+			if(!is_array($validate) || 1 != count($validate))
+				throw new Exception_CerbInstaller("The default sender is invalid.");
 
+			if(false == ($address = DAO_Address::lookupAddress($default_reply_from, true)))
+				throw new Exception_CerbInstaller("The default sender is invalid.");
+				
+			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::MAIL_DEFAULT_FROM_ID, $address->id);
+			
+			if(!empty($default_reply_personal)) {
+				DevblocksPlatform::setPluginSetting('cerberusweb.core', 'mail_default_from_personal', $default_reply_personal);
+			}
+			
 			// Test the given mail transport details
 			try {
 				if(false == ($mail_transport = Extension_MailTransport::get($extension_id)))
@@ -731,6 +700,9 @@ switch($step) {
 			} catch (Exception_CerbInstaller $e) {
 				$error = $e->getMessage();
 				
+				$tpl->assign('default_reply_from', $default_reply_from);
+				$tpl->assign('default_reply_personal', $default_reply_personal);
+				
 				$tpl->assign('extension_id', $extension_id);
 				$tpl->assign('smtp_host', $smtp_host);
 				$tpl->assign('smtp_port', $smtp_port);
@@ -739,11 +711,14 @@ switch($step) {
 				$tpl->assign('smtp_enc', $smtp_enc);
 				$tpl->assign('form_submit', true);
 				
-				$tpl->assign('error_display', 'SMTP Connection Failed! ' . $e->getMessage());
+				$tpl->assign('error_display', 'SMTP Connection Failed! ' . $error);
 				$tpl->assign('template', 'steps/step_outgoing_mail.tpl');
 			}
 			
 		} else {
+			$tpl->assign('default_reply_from', $default_reply_from);
+			$tpl->assign('default_reply_personal', $default_reply_personal);
+			
 			$tpl->assign('template', 'steps/step_outgoing_mail.tpl');
 		}
 		
