@@ -731,10 +731,10 @@ class Cerb_Packages {
 		
 		$placeholders['default'] = [
 			'base_url' => $url_writer->write('', true),
-			'group_id' => @$default_group->id ?: 0,
-			'bucket_id' => @$default_group->getDefaultBucket()->id ?: 0,
-			'replyto_id' => @$default_replyto->id ?: 0,
-			'replyto_email' => @$default_replyto->email ?: 0,
+			'group_id' => $default_group ? $default_group->id : 0,
+			'bucket_id' => $default_group ? $default_group->getDefaultBucket()->id : 0,
+			'replyto_id' => $default_replyto ? $default_replyto->id : 0,
+			'replyto_email' => $default_replyto ? $default_replyto->email : 0,
 		];
 		
 		// Build
