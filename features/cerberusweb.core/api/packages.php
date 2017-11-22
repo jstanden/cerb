@@ -227,6 +227,9 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $record['uid'], $error));
 		}
 		
+		@$worker_prefs = $json['worker_prefs'];
+		// We don't need to validate anything on prefs
+		
 		@$custom_fieldsets = $json['custom_fieldsets'];
 		
 		if(is_array($custom_fieldsets))
@@ -459,6 +462,9 @@ class Cerb_Packages {
 			
 			$uids[$uid_record] = $record_id;
 		}
+		
+		@$worker_prefs = $json['worker_preferences'];
+		// We don't need to pre-insert prefs
 		
 		@$custom_fieldsets = $json['custom_fieldsets'];
 		
@@ -797,6 +803,24 @@ class Cerb_Packages {
 			}, $dicts);
 			
 			$records_created[$context_ext_id] = $dicts;
+		}
+		
+		@$worker_prefs = $json['worker_preferences'];
+		$workers = DAO_Worker::getAll();
+		
+		if(is_array($worker_prefs))
+		foreach($worker_prefs as $worker_id => $prefs) {
+			if(!isset($workers[$worker_id]))
+				continue;
+			
+			// [TODO] Intersect approved $pref_key?
+			
+			foreach($prefs as $pref_key => $pref_value) {
+				if(!is_string($pref_value) && !is_numeric($pref_value))
+					continue;
+				
+				DAO_WorkerPref::set($worker_id, $pref_key, $pref_value);
+			}
 		}
 		
 		@$custom_fieldsets = $json['custom_fieldsets'];
