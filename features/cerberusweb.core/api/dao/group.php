@@ -28,6 +28,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	const UPDATED = 'updated';
 	
 	const _IMAGE = '_image';
+	const _MEMBERS = '_members';
 	
 	const CACHE_ALL = 'cerberus_cache_groups_all';
 	const CACHE_ROSTERS = 'ch_group_rosters';
@@ -100,6 +101,11 @@ class DAO_Group extends Cerb_ORMHelper {
 		$validation
 			->addField(self::_IMAGE)
 			->image('image/png', 50, 50, 500, 500, 100000)
+			;
+		$validation
+			->addField(self::_MEMBERS)
+			->string()
+			->setMaxLength(65535)
 			;
 		$validation
 			->addField('_links')
@@ -368,6 +374,32 @@ class DAO_Group extends Cerb_ORMHelper {
 				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_GROUP, $id, $fields[self::_IMAGE]);
 			}
 			unset($fields[self::_IMAGE]);
+		}
+		
+		// Handle membership changes
+		if(isset($fields[self::_MEMBERS])) {
+			if(false != (@$roster_changes = json_decode($fields[self::_MEMBERS], true))) {
+				@$roster_managers = DevblocksPlatform::parseCsvString($roster_changes['manager']);
+				@$roster_members = DevblocksPlatform::parseCsvString($roster_changes['member']);
+				@$roster_remove = DevblocksPlatform::parseCsvString($roster_changes['remove']);
+				
+				if(is_array($roster_managers))
+				foreach($ids as $group_id)
+					foreach($roster_managers as $worker_id)
+						DAO_Group::setGroupMember($group_id, $worker_id, true);
+				
+				if(is_array($roster_members))
+				foreach($ids as $group_id)
+					foreach($roster_members as $worker_id)
+						DAO_Group::setGroupMember($group_id, $worker_id, false);
+				
+				if(is_array($roster_remove))
+				foreach($ids as $group_id)
+					foreach($roster_remove as $worker_id)
+						DAO_Group::unsetGroupMember($group_id, $worker_id);
+			}
+			
+			unset($fields[self::_MEMBERS]);
 		}
 		
 		// Make a diff for the requested objects in batches
@@ -1951,6 +1983,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+				
+			case 'members':
+				$out_fields[DAO_Group::_MEMBERS] = json_encode($value);
 				break;
 		}
 		
