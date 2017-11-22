@@ -1,0 +1,50 @@
+{
+	"package": {
+		"name": "Page Wizard: Knowledgebase",
+		"revision": 1,
+		"requires": {
+			"cerb_version": "8.2.4",
+			"plugins": [
+
+			]
+		},
+		"configure": {
+			"prompts": [
+				{
+					"type": "chooser",
+					"label": "Target Worker:",
+					"key": "target_worker_id",
+					"params": {
+						"context": "cerberusweb.contexts.worker",
+						"query": "isDisabled:n",
+						"single": true
+					}
+				}
+			],
+			"placeholders": [
+
+			]
+		}
+	},
+	"records": [
+		{
+			"uid": "workspace_kb",
+			"_context": "workspace_page",
+			"name": "Knowledgebase",
+			"owner__context": "worker",
+			"owner_id": "{{{target_worker_id}}}",
+			"extension_id": "core.workspace.page.workspace"
+		},
+		{
+			"uid": "workspace_tab_kb",
+			"_context": "workspace_tab",
+			"name": "Topics",
+			"page_id": "{{{uid.workspace_kb}}}",
+			"pos": 0,
+			"extension_id": "cerberusweb.kb.tab.browse",
+			"params": [
+
+			]
+		}
+	]
+}
