@@ -45,7 +45,7 @@ Next, we'll create your administrator account.<br>
 </div>
 {/if}
 
-<input type="submit" value="Continue &gt;&gt;">
+<button type="submit">Continue &raquo;</button>
 </form>
 
 <script type="text/javascript">

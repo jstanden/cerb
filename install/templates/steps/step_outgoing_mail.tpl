@@ -55,9 +55,10 @@
 </div>
 {/if}
 
-<input type="submit" value="Test Outgoing Mail &gt;&gt;">
+<button type="submit">Verify mail settings &raquo;</button>
 
 </form>
+<br>
 
 <script type="text/javascript">
 $(function() {

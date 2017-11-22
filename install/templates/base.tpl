@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Cerb - Browser-based Installation</title>
+	<title>Installing Cerb...</title>
 	<link rel="stylesheet" href="install.css" type="text/css">
 	<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
 </head>

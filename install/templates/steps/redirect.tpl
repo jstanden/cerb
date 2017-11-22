@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Cerb - Browser-based Installation</title>
+	<title>Installing Cerb...</title>
 	<link rel="stylesheet" href="install.css" type="text/css">
 	<meta http-equiv="refresh" content="1;url=index.php?step={$step}">
 </head>

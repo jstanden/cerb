@@ -43,5 +43,5 @@
 <input type="text" name="db_pass" value="{$db_pass}"><br>
 <br>
 
-<input type="submit" value="Test Settings &gt;&gt;">
+<button type="submit">Verify database connection &raquo;</button>
 </form>

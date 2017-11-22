@@ -25,7 +25,7 @@
 </div>
 <br>
 
-<input type="submit" value="Continue &gt;&gt;">
+<button type="submit">Continue &raquo;</button>
 <br>
 <br>
 

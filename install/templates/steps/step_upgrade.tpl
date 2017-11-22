@@ -11,8 +11,4 @@ You can return to your helpdesk:
 <a href="{devblocks_url full=true}{/devblocks_url}">{devblocks_url full=true}{/devblocks_url}</a><br>
 <br>
 
-{*
-	<span class='bad'>Database Upgrade Failed!</span><br>
-*}
-
 </form>

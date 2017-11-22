@@ -6,5 +6,5 @@
 <span class='bad'>{$error|default:'Database initialization failed!'}</span><br>
 <br>
 
-<input type="submit" value="Try Again &gt;&gt;">
+<button type="submit">Try again &raquo;</button>
 </form>

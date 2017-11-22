@@ -167,9 +167,9 @@
 
 {if !$fails}
 	<input type="hidden" name="step" value="{$smarty.const.STEP_LICENSE}">
-	<input type="submit" value="Next Step &gt;&gt;">
+	<button type="submit">Continue &raquo;</button>
 {else}
 	<input type="hidden" name="step" value="{$smarty.const.STEP_ENVIRONMENT}">
-	<input type="submit" value="Try Again">
+	<button type="submit">Try again &raquo;</button>
 {/if}
 </form>

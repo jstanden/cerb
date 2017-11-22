@@ -65,13 +65,7 @@ define('STEP_FINISHED', 11);
 define('TOTAL_STEPS', 11);
 
 // Import GPC variables to determine our scope/step.
-@$step = DevblocksPlatform::importGPC($_REQUEST['step'],'integer');
-
-/*
- * [TODO] We can run some quick tests to bypass steps we've already passed
- * even when returning to the page with a NULL step.
- */
-if(empty($step)) $step = STEP_ENVIRONMENT;
+@$step = DevblocksPlatform::importGPC($_REQUEST['step'],'integer',0) ?: STEP_ENVIRONMENT;
 
 // [TODO] Could convert to CerberusApplication::checkRequirements()
 
@@ -317,7 +311,6 @@ switch($step) {
 			break;
 	
 	// Configure and test the database connection
-	// [TODO] This should remind the user to make a backup (and refer to a wiki article how)
 	case STEP_DATABASE:
 		// Import scope (if post)
 		@$db_driver = DevblocksPlatform::importGPC($_POST['db_driver'],'string');
@@ -342,8 +335,6 @@ switch($step) {
 			$drivers['mysqli'] = 'MySQLi';
 		
 		$tpl->assign('drivers', $drivers);
-		
-		// [JAS]: Possible storage engines
 		
 		$engines = array(
 			'innodb' => 'InnoDB (Recommended)',
@@ -587,12 +578,17 @@ switch($step) {
 				// Reload plugin translations
 				DAO_Translation::reloadPluginStrings();
 				
+				// Update the cached version to prevent /update
+				$path = APP_STORAGE_PATH . '/version.php';
+				$contents = sprintf('<?php define(\'APP_BUILD_CACHED\', %s);', APP_BUILD);
+				file_put_contents($path, $contents);
+				
+				// [TODO] Verify the database
+				
 				// Success
 				$tpl->assign('step', STEP_CONTACT);
 				$tpl->display('steps/redirect.tpl');
 				exit;
-				
-				// [TODO] Verify the database
 				
 			} catch(Exception $e) {
 				$tpl->assign('error', $e->getMessage());
@@ -928,10 +924,6 @@ switch($step) {
 		break;
 		
 	case STEP_FINISHED:
-		// Update the cached version to prevent /update
-		$path = APP_STORAGE_PATH . '/version.php';
-		$contents = sprintf('<?php define(\'APP_BUILD_CACHED\', %s);', APP_BUILD);
-		file_put_contents($path, $contents);
 		
 		// Set up the default cron jobs
 		$crons = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
@@ -969,7 +961,5 @@ switch($step) {
 		$tpl->assign('template', 'steps/step_finished.tpl');
 		break;
 }
-
-// [TODO] Check apache rewrite (somehow)
 
 $tpl->display('base.tpl');
