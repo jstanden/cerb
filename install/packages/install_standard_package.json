@@ -335,6 +335,283 @@
 			"hash_header_message_id": "{{{'<welcome@cerb.example>'|sha1}}}",
 			"headers": "To: {{{default.replyto_email}}}\nFrom: Webgroup Media <support@webgroupmedia.com>\nSubject: Welcome to Cerb!\nX-Mailer: Cerb\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <welcome@cerb.example>\n",
 			"content": "Welcome to Cerb!"
+		},
+		{
+			"uid": "fieldset_getting_started",
+			"_context": "custom_fieldset",
+			"context": "task",
+			"owner__context": "bot",
+			"owner_id": "{{{uid.bot_getting_started}}}",
+			"name": "Getting Started"
+		},
+		{
+			"uid": "field_getting_started_notes",
+			"_context": "custom_field",
+			"context": "task",
+			"custom_fieldset_id": "{{{uid.fieldset_getting_started}}}",
+			"name": "Notes",
+			"type": "T",
+			"params": {
+			}
+		},
+		{
+			"uid": "card_task_001",
+			"_context": "task",
+			"title": "Welcome to Cerb!",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<p>This project board provides a quick checklist for getting Cerb up and running.</p>\n\n<p>Drag cards from the top of the <b>TODO</b> backlog into the <b>In Progress</b> column to work on them. You should limit the in progress cards to only a few at a time.</p>\n\n<p>When you finish a card, drag it from <b>In Progress</b> to <b>Completed!</b>. You'll notice that a bot automatically marks the task completed for you.</p>\n\n<p>This on-boarding workflow was built entirely with Cerb's tools in the browser. You can <a href=\"javascript:;\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.project.board\" data-context-id=\"{{{uid.project_board_checklist}}}\"><b>edit the project board</b></a>, <a href=\"javascript:;\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.bot\" data-context-id=\"{{{uid.bot_getting_started}}}\"><b>bot</b></a>, and <a href=\"javascript:;\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.custom_fieldset\" data-context-id=\"{{{uid.fieldset_getting_started}}}\"><b>custom fieldset</b></a> to see how it works (or even make changes).</p>\n\n<p>Drag this card to <b>Completed!</b> <span class=\"glyphicons glyphicons-right-arrow\" style=\"margin-left:5px;\"></span></p>"
+		},
+		{
+			"uid": "card_task_002",
+			"_context": "task",
+			"title": "Configure branding",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Navigate to <b>Setup &raquo; Configure &raquo; Branding</b>.</li>\n<li>Upload your logo.</li>\n</ol>"
+		},
+		{
+			"uid": "card_task_003",
+			"_context": "task",
+			"title": "Configure sender addresses",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.address\" data-query=\"mailTransport.id:>0\"><b>List sender addresses</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new email addresses.</li>\n<li>Add <a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mail.transport\" data-query=\"\"><b>mail transport</b></a> to an address to enable it as a outgoing sender.</li>\n</ol>"
+		},
+		{
+			"uid": "card_task_004",
+			"_context": "task",
+			"title": "Configure email signatures",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.email.signature\" data-query=\"\"><b>List email signatures</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new signatures.</li>\n<li>Modify signatures to meet your needs.</li>\n</ol>"
+		},
+		{
+			"uid": "card_task_005",
+			"_context": "task",
+			"title": "Configure mailboxes",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mailbox\" data-query=\"\"><b>List mailboxes</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new mailboxes.</li>\n</ol>"
+		},
+		{
+			"uid": "card_task_006",
+			"_context": "task",
+			"title": "Review groups",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.group\" data-query=\"\"><b>List groups</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new groups.</li>\n<li>Review the mail settings for each group.</li>\n</ol>"
+		},
+		{
+			"uid": "card_task_007",
+			"_context": "task",
+			"title": "Invite other team members",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.worker\" data-query=\"\"><b>List workers</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to create new workers.</li>\n</ol>"
+		},
+		{
+			"uid": "card_task_008",
+			"_context": "task",
+			"title": "Configure roles",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.role\" data-query=\"\"><b>List roles</b></a>.</li>\n<li>Determine the permissions for each role.</li>\n<li>Assign the roles to workers and groups.</li>\n</ol>"
+		},
+		{
+			"uid": "card_task_009",
+			"_context": "task",
+			"title": "Create a mail workspace",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Click on the <span class=\"glyphicons glyphicons-chevron-down\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon in the top navigation bar.</li>\n<li>Click <b>Help me create a page!</b> at the top.</li>\n<li>Click <b>Mail</b>.</li>\n<li>Click <b>Save Changes</b>.</li>\n</ol>"
+		},
+		{
+			"uid": "card_task_010",
+			"_context": "task",
+			"title": "Add your license",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"https://cerb.ai/try/#bot/license.free\" target=\"_blank\"><b>Request a free 3-seat license</b></a> if you haven't already.</li>\n<li>Install your license in <b>Setup &raquo; Configure &raquo; License</b>.</li>\n</ol>"
+		},
+		{
+			"uid": "card_task_011",
+			"_context": "task",
+			"title": "Enable the scheduler",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Navigate to <b>Setup &raquo; Configure &raquo; Scheduler</b>.</li>\n<li>Configure the scheduler to run automatically.</li>\n</ol>"
+		},
+		{
+			"uid": "project_board_checklist",
+			"_context": "cerberusweb.contexts.project.board",
+			"name": "Checklist",
+			"owner__context": "app",
+			"owner_id": "0",
+			"columns": [
+				"{{{uid.project_board_checklist_todo}}}",
+				"{{{uid.project_board_checklist_in_progress}}}",
+				"{{{uid.project_board_checklist_completed}}}"
+			],
+			"params": {
+				"card_queries": {
+					"cerberusweb.contexts.task": "status:[o,w]"
+				},
+				"card_templates": {
+					"cerberusweb.contexts.task": "{% spaceless %}\n{% if is_completed %}\n<div style=\"font-size:120%;\">\n\t<span class=\"glyphicons glyphicons-circle-ok\" style=\"color:rgb(0,150,0);\"></span> Completed!\n</div>\n{% elseif column__label == 'TODO' %}\n<div>\n\tDrag this to <b>In Progress</b> to start <span class=\"glyphicons glyphicons-right-arrow\"></span>\n</div>\n{% else %}\n{{custom_{{{uid.field_getting_started_notes}}}}}\n{% endif %}\n{% endspaceless %}"
+				},
+				"contexts": [
+					"cerberusweb.contexts.task"
+				]
+			}
+		},
+		{
+			"uid": "project_board_checklist_todo",
+			"_context": "cerberusweb.contexts.project.board.column",
+			"name": "TODO",
+			"board_id": "{{{uid.project_board_checklist}}}",
+			"params": {
+			},
+			"cards": [
+				"task:{{{uid.card_task_002}}}",
+				"task:{{{uid.card_task_003}}}",
+				"task:{{{uid.card_task_004}}}",
+				"task:{{{uid.card_task_005}}}",
+				"task:{{{uid.card_task_006}}}",
+				"task:{{{uid.card_task_007}}}",
+				"task:{{{uid.card_task_008}}}",
+				"task:{{{uid.card_task_009}}}",
+				"task:{{{uid.card_task_010}}}",
+				"task:{{{uid.card_task_011}}}"
+			]
+		},
+		{
+			"uid": "project_board_checklist_in_progress",
+			"_context": "cerberusweb.contexts.project.board.column",
+			"name": "In Progress",
+			"board_id": "{{{uid.project_board_checklist}}}",
+			"params": {
+			},
+			"cards": [
+				"task:{{{uid.card_task_001}}}"
+			]
+		},
+		{
+			"uid": "project_board_checklist_completed",
+			"_context": "cerberusweb.contexts.project.board.column",
+			"name": "Completed!",
+			"board_id": "{{{uid.project_board_checklist}}}",
+			"params": {
+				"behaviors": {
+					"{{{uid.behavior_mark_task_completed}}}": [
+
+					]
+				}
+			},
+			"cards": [
+
+			]
+		},
+		{
+			"uid": "workspace_getting_started",
+			"_context": "workspace_page",
+			"name": "Getting Started",
+			"owner__context": "worker",
+			"owner_id": "{{{uid.worker_admin}}}",
+			"extension_id": "core.workspace.page.workspace"
+		},
+		{
+			"uid": "workspace_tab_checklist",
+			"_context": "workspace_tab",
+			"name": "Checklist",
+			"page_id": "{{{uid.workspace_getting_started}}}",
+			"pos": 1,
+			"extension_id": "core.workspace.tab.board",
+			"params": {
+				"board_id": "{{{uid.project_board_checklist}}}"
+			}
 		}
-	]
+	],
+	"bots": [
+		{
+			"uid": "bot_getting_started",
+			"name": "Getting Started Bot",
+			"owner": {
+				"context": "cerberusweb.contexts.app",
+				"id": 0
+			},
+			"is_disabled": false,
+			"params": {
+				"config": null,
+				"events": {
+					"mode": "all",
+					"items": [
+
+					]
+				},
+				"actions": {
+					"mode": "all",
+					"items": [
+
+					]
+				}
+			},
+			"image": "data:image/png;base64,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",
+			"behaviors": [
+				{
+					"uid": "behavior_mark_task_completed",
+					"title": "Mark task completed",
+					"is_disabled": false,
+					"is_private": false,
+					"priority": 50,
+					"event": {
+						"key": "event.macro.task",
+						"label": "Custom behavior on task"
+					},
+					"nodes": [
+						{
+							"type": "action",
+							"title": "Mark completed",
+							"status": "live",
+							"params": {
+								"actions": [
+									{
+										"action": "set_status",
+										"status_id": "1"
+									}
+								]
+							}
+						}
+					]
+				},
+				{
+					"uid": "behavior_eval_get_interactions",
+					"title": "Get interactions for worker",
+					"is_disabled": false,
+					"is_private": false,
+					"priority": 50,
+					"event": {
+						"key": "event.interactions.get.worker",
+						"label": "Conversation get interactions for worker",
+						"params": {
+							"listen_points": ""
+						}
+					},
+					"nodes": [
+
+					]
+				}
+			]
+		}
+	],
+	"settings": {
+		"cerberusweb.core": {
+			"helpdesk_title": "Cerb"
+		}
+	},
+	"worker_preferences": {
+		"{{{uid.worker_admin}}}": {
+			"menu_json": "[{{{uid.workspace_getting_started}}}]"
+		}
+	}
 }
