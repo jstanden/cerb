@@ -358,6 +358,10 @@ $(function() {
 				.find('.cerb-peek-trigger')
 					.cerbPeekTrigger()
 			;
+			$card
+				.find('.cerb-search-trigger')
+					.cerbSearchTrigger()
+			;
 		});
 	});
 	
@@ -433,6 +437,9 @@ $(function() {
 		;
 	$cards.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
+		;
+	$cards.find('.cerb-search-trigger')
+		.cerbSearchTrigger()
 		;
 });
 </script>
