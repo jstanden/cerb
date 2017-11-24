@@ -126,21 +126,38 @@
 	</table>
 </fieldset>
 
-<fieldset class="peek">
+<fieldset class="peek cerb-worker-group-memberships">
 	<legend>{'common.members'|devblocks_translate|capitalize}</legend>
 	
-	{foreach from=$workers item=worker}
-	<div>
-		<input type="hidden" name="member_ids[]" value="{$worker->id}">
-		<select name="member_levels[]">
-			<option value=""></option>
-			<option value="1" {if isset($members.{$worker->id}) && !$members.{$worker->id}->is_manager}selected="selected"{/if}>{'common.member'|devblocks_translate|capitalize}</option>
-			<option value="2" style="font-weight:bold;" {if isset($members.{$worker->id}) && $members.{$worker->id}->is_manager}selected="selected"{/if}>{'common.manager'|devblocks_translate|capitalize}</option>
-		</select>
-		&nbsp; 
-		{$worker->getName()} {if !empty($worker->title)}<span style="color:rgb(0,120,0);">({$worker->title})</span>{/if}
-	</div>
-	{/foreach}
+	<table style="text-align:center;border-spacing:0;">
+		<thead>
+			<tr>
+				<th></th>
+				<th width="60"><a href="javascript:;" data-value="1">{'common.member'|devblocks_translate|capitalize}</a></th>
+				<th width="60"><a href="javascript:;" data-value="2">{'common.manager'|devblocks_translate|capitalize}</a></th>
+				<th width="60"><a href="javascript:;" data-value="0">{'common.neither'|devblocks_translate|capitalize}</a></th>
+			</tr>
+		</thead>
+		{foreach from=$workers item=worker key=worker_id name=workers}
+		{$member = $members.$worker_id}
+		<tbody style="{if 0 == $smarty.foreach.workers.iteration % 2}background-color:rgb(240,240,240);{/if}">
+			<tr>
+				<td style="text-align:left;padding-right:30px;">
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}"><b>{$worker->getName()}</b></a>
+				</td>
+				<td>
+					<input type="radio" name="group_memberships[{$worker->id}]" value="1" {if $member && !$member->is_manager}checked="checked"{/if}>
+				</td>
+				<td>
+					<input type="radio" name="group_memberships[{$worker->id}]" value="2" {if $member && $member->is_manager}checked="checked"{/if}>
+				</td>
+				<td>
+					<input type="radio" name="group_memberships[{$worker->id}]" value="0" {if !$member}checked="checked"{/if}>
+				</td>
+			</tr>
+		</tbody>
+		{/foreach}
+	</table>
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_GROUP context_id=$group->id}
@@ -233,6 +250,18 @@ $(function() {
 		$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			;
+		
+		// Group matrix
+		
+		var $group_fieldset = $popup.find('fieldset.cerb-worker-group-memberships');
+		
+		$group_fieldset.find('th a').on('click', function(e) {
+			var $a = $(this);
+			var value = $a.attr('data-value');
+			var $table = $a.closest('table');
+			
+			$table.find('input:radio[value=' + value + ']').click();
+		});
 	});
 });
 </script>
