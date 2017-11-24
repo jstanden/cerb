@@ -10,136 +10,132 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+<table cellpadding="0" cellspacing="2" border="0" width="98%">
+	<tr>
+		<td width="0%" nowrap="nowrap">{'common.status'|devblocks_translate|capitalize}: </td>
+		<td width="100%">
+			{if $active_worker->id == $worker->id}
+				<input type="hidden" name="is_disabled" value="{$worker->is_disabled}">
+				{if $worker->is_disabled}{'common.inactive'|devblocks_translate|capitalize}{else}{'common.active'|devblocks_translate|capitalize}{/if}
+			{else}
+				<label><input type="radio" name="is_disabled" value="0" {if !$worker->is_disabled}checked="checked"{/if}> {'common.active'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="is_disabled" value="1" {if $worker->is_disabled}checked="checked"{/if}> {'common.inactive'|devblocks_translate|capitalize}</label>
+			{/if}
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="middle"><b>{'common.name.first'|devblocks_translate|capitalize}:</b> </td>
+		<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}" style="width:98%;" autofocus="autofocus"></td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="middle">{'common.name.last'|devblocks_translate|capitalize}: </td>
+		<td width="100%"><input type="text" name="last_name" value="{$worker->last_name}" style="width:98%;"></td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top" title="(one per line)">
+			{'common.aliases'|devblocks_translate|capitalize}:
+		</td>
+		<td width="99%" valign="top">
+			<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{$aliases|implode:"\n"}</textarea>
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">{'common.photo'|devblocks_translate|capitalize}:</td>
+		<td width="99%" valign="top">
+			<div style="float:left;margin-right:5px;">
+				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:50px;width:50px;">
+			</div>
+			<div style="float:left;">
+				<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{'common.edit'|devblocks_translate|capitalize}</button>
+				<input type="hidden" name="avatar_image">
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="middle">{'worker.title'|devblocks_translate|capitalize}: </td>
+		<td width="100%"><input type="text" name="title" value="{$worker->title}" style="width:98%;"></td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="middle"><b>{'common.email'|devblocks_translate}</b>: </td>
+		<td width="100%">
+			<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+			
+			<ul class="bubbles chooser-container">
+				{$addy = $worker->getEmailModel()}
+				{if $addy}
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="email_id" value="{$addy->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a></li>
+				{/if}
+			</ul>
+		</td>
+	</tr>
 	
-	<table cellpadding="0" cellspacing="2" border="0" width="98%">
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle"><b>{'common.name.first'|devblocks_translate|capitalize}:</b> </td>
-			<td width="100%"><input type="text" name="first_name" value="{$worker->first_name}" style="width:98%;" autofocus="autofocus"></td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'common.name.last'|devblocks_translate|capitalize}: </td>
-			<td width="100%"><input type="text" name="last_name" value="{$worker->last_name}" style="width:98%;"></td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top" align="right" title="(one per line)">
-				{'common.aliases'|devblocks_translate|capitalize}:
-			</td>
-			<td width="99%" valign="top">
-				<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{$aliases|implode:"\n"}</textarea>
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.title'|devblocks_translate|capitalize}: </td>
-			<td width="100%"><input type="text" name="title" value="{$worker->title}" style="width:98%;"></td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle"><b>{'common.email'|devblocks_translate}</b>: </td>
-			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
-				
-				<ul class="bubbles chooser-container">
-					{$addy = $worker->getEmailModel()}
-					{if $addy}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="email_id" value="{$addy->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a></li>
-					{/if}
-				</ul>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" align="right">{'common.phone'|devblocks_translate|capitalize}:</td>
-			<td width="99%">
-				<input type="text" name="phone" value="{$worker->phone}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" align="right">{'common.mobile'|devblocks_translate|capitalize}:</td>
-			<td width="99%">
-				<input type="text" name="mobile" value="{$worker->mobile}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" align="right">{'common.location'|devblocks_translate|capitalize}:</td>
-			<td width="99%">
-				<input type="text" name="location" value="{$worker->location}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.gender'|devblocks_translate|capitalize}:</td>
-			<td width="99%">
-				<label><input type="radio" name="gender" value="M" {if $worker->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
-				&nbsp; 
-				&nbsp; 
-				<label><input type="radio" name="gender" value="F" {if $worker->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
-				&nbsp; 
-				&nbsp; 
-				<label><input type="radio" name="gender" value="" {if empty($worker->gender)}checked="checked"{/if}> {'common.unknown'|devblocks_translate|capitalize}</label>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" align="right">{'common.dob'|devblocks_translate|capitalize}:</td>
-			<td width="99%">
-				<input type="text" name="dob" value="{if $worker->dob}{$worker->dob}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.at_mention_name'|devblocks_translate}: </td>
-			<td width="100%"><input type="text" name="at_mention_name" value="{$worker->at_mention_name}" style="width:98%;" placeholder="UserNickname"></td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.status'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				{if $active_worker->id == $worker->id}
-					<input type="hidden" name="is_disabled" value="{$worker->is_disabled}">
-					{if $worker->is_disabled}{'common.inactive'|devblocks_translate|capitalize}{else}{'common.active'|devblocks_translate|capitalize}{/if}
-				{else}
-					<label><input type="radio" name="is_disabled" value="0" {if !$worker->is_disabled}checked="checked"{/if}> {'common.active'|devblocks_translate|capitalize}</label>
-					<label><input type="radio" name="is_disabled" value="1" {if $worker->is_disabled}checked="checked"{/if}> {'common.inactive'|devblocks_translate|capitalize}</label>
-				{/if}
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.privileges'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				{if $active_worker->id == $worker->id}
-					<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
-					{if !$worker->is_superuser}{'common.worker'|devblocks_translate|capitalize}{else}{'worker.is_superuser'|devblocks_translate|capitalize}{/if}
-				{else}
-					<label><input type="radio" name="is_superuser" value="0" {if !$worker->is_superuser}checked="checked"{/if}> {'common.worker'|devblocks_translate|capitalize}</label>
-					<label><input type="radio" name="is_superuser" value="1" {if $worker->is_superuser}checked="checked"{/if}> {'worker.is_superuser'|devblocks_translate|capitalize}</label>
-				{/if}
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.photo'|devblocks_translate|capitalize}:</td>
-			<td width="99%" valign="top">
-				<div style="float:left;margin-right:5px;">
-					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}" style="height:50px;width:50px;">
-				</div>
-				<div style="float:left;">
-					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{'common.edit'|devblocks_translate|capitalize}</button>
-					<input type="hidden" name="avatar_image">
-				</div>
-			</td>
-		</tr>
-		
-	</table>
-</fieldset>
+	<tr>
+		<td width="1%" nowrap="nowrap">{'common.phone'|devblocks_translate|capitalize}:</td>
+		<td width="99%">
+			<input type="text" name="phone" value="{$worker->phone}" style="width:98%;" autocomplete="off" spellcheck="false">
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap">{'common.mobile'|devblocks_translate|capitalize}:</td>
+		<td width="99%">
+			<input type="text" name="mobile" value="{$worker->mobile}" style="width:98%;" autocomplete="off" spellcheck="false">
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap">{'common.location'|devblocks_translate|capitalize}:</td>
+		<td width="99%">
+			<input type="text" name="location" value="{$worker->location}" style="width:98%;" autocomplete="off" spellcheck="false">
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">{'common.gender'|devblocks_translate|capitalize}:</td>
+		<td width="99%">
+			<label><input type="radio" name="gender" value="M" {if $worker->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
+			&nbsp; 
+			&nbsp; 
+			<label><input type="radio" name="gender" value="F" {if $worker->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
+			&nbsp; 
+			&nbsp; 
+			<label><input type="radio" name="gender" value="" {if empty($worker->gender)}checked="checked"{/if}> {'common.unknown'|devblocks_translate|capitalize}</label>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap">{'common.dob'|devblocks_translate|capitalize}:</td>
+		<td width="99%">
+			<input type="text" name="dob" value="{if $worker->dob}{$worker->dob}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="middle">{'worker.at_mention_name'|devblocks_translate}: </td>
+		<td width="100%"><input type="text" name="at_mention_name" value="{$worker->at_mention_name}" style="width:98%;" placeholder="UserNickname"></td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap">{'common.privileges'|devblocks_translate|capitalize}: </td>
+		<td width="100%">
+			{if $active_worker->id == $worker->id}
+				<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
+				{if !$worker->is_superuser}{'common.worker'|devblocks_translate|capitalize}{else}{'worker.is_superuser'|devblocks_translate|capitalize}{/if}
+			{else}
+				<label><input type="radio" name="is_superuser" value="0" {if !$worker->is_superuser}checked="checked"{/if}> {'common.worker'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="is_superuser" value="1" {if $worker->is_superuser}checked="checked"{/if}> {'worker.is_superuser'|devblocks_translate|capitalize}</label>
+			{/if}
+		</td>
+	</tr>
+	
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" tbody=true bulk=false}
+</table>
 
 <fieldset class="peek">
 	<legend>{'common.localization'|devblocks_translate|capitalize}</legend>
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'common.language'|devblocks_translate}: </td>
+			<td width="0%" nowrap="nowrap" valign="middle">{'common.language'|devblocks_translate}: </td>
 			<td width="100%">
 				<select name="lang_code">
 					{foreach from=$languages key=lang_code item=lang_name}
@@ -149,7 +145,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'common.timezone'|devblocks_translate}: </td>
+			<td width="0%" nowrap="nowrap" valign="middle">{'common.timezone'|devblocks_translate}: </td>
 			<td width="100%">
 				<select name="timezone">
 					{foreach from=$timezones item=timezone}
@@ -159,7 +155,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="middle">{'worker.time_format'|devblocks_translate}: </td>
+			<td width="0%" nowrap="nowrap" valign="middle">{'worker.time_format'|devblocks_translate}: </td>
 			<td width="100%">
 				<select name="time_format">
 					{$timeformats = ['D, d M Y h:i a', 'D, d M Y H:i']}
@@ -177,7 +173,7 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top"><b>Authentication</b>: </td>
+			<td width="0%" nowrap="nowrap" valign="top"><b>Authentication</b>: </td>
 			<td width="100%">
 				<select name="auth_extension_id">
 					{foreach from=$auth_extensions item=auth_ext_mft key=auth_ext_id}
@@ -187,13 +183,13 @@
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">New Password: </td>
+			<td width="0%" nowrap="nowrap" valign="top">New Password: </td>
 			<td width="100%">
 				<input type="password" name="password_new" value=""  style="width:90%;" placeholder="{if $worker->id}(leave blank for unchanged){else}(leave blank to send a random password by email){/if}">
 			</td>
 		</tr>
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">Verify Password: </td>
+			<td width="0%" nowrap="nowrap" valign="top">Verify Password: </td>
 			<td width="100%">
 				<input type="password" name="password_verify" value="" style="width:90%;">
 			</td>
@@ -256,13 +252,6 @@
 		</select>
 	</div>
 </fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_WORKER context_id=$worker->id}
 
