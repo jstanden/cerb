@@ -33,9 +33,9 @@
 			"extension_id": "core.workspace.page.workspace"
 		},
 		{
-			"uid": "workspace_tab_mail",
+			"uid": "workspace_tab_inbox",
 			"_context": "workspace_tab",
-			"name": "Mail",
+			"name": "Inbox",
 			"page_id": "{{{uid.workspace_mail}}}",
 			"pos": 0,
 			"extension_id": "core.workspace.tab.worklists",
@@ -69,7 +69,7 @@
 			"uid": "workspace_list_mail",
 			"_context": "workspace_list",
 			"context": "ticket",
-			"tab_id": "{{{uid.workspace_tab_mail}}}",
+			"tab_id": "{{{uid.workspace_tab_inbox}}}",
 			"pos": 0,
 			"view": {
 				"title": "Needs Attention",
