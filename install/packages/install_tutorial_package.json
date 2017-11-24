@@ -162,7 +162,7 @@
 			"name": "Default Signature",
 			"owner__context": "app",
 			"owner_id": 0,
-			"signature": "-- \n{{first_name}}{% if title is not empty %}, {{title}}{% endif %}\n\n{{org_name}}",
+			"signature": "-- \n{{first_name}}{% if title is not empty %}, {{title}}{% endif %}\n\n{{{org_name}}}",
 			"is_default": "1"
 		},
 		{
@@ -1803,7 +1803,7 @@
 			"title": "Configure sender addresses",
 			"importance": "50",
 			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.address\" data-query=\"mailTransport.id:>0\"><b>List sender addresses</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new email addresses.</li>\n<li>Add <a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mail.transport\" data-query=\"\"><b>mail transport</b></a> to an address to enable it as a outgoing sender.</li>\n</ol>"
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.address\" data-query=\"mailTransport.id:>0\"><b>List sender addresses</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new email addresses.</li>\n<li>Add a <a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mail.transport\" data-query=\"\"><b>mail transport</b></a> to an address to enable it as a outgoing sender.</li>\n</ol>"
 		},
 		{
 			"uid": "card_task_004",
@@ -1986,26 +1986,26 @@
 			"extension_id": "core.workspace.page.workspace"
 		},
 		{
-			"uid": "workspace_tab_eval_mail",
-			"_context": "workspace_tab",
-			"name": "Mail",
-			"page_id": "{{{uid.workspace_tutorial}}}",
-			"pos": 0,
-			"extension_id": "core.workspace.tab.worklists",
-			"params": [
-
-			]
-		},
-		{
 			"uid": "workspace_tab_eval_checklist",
 			"_context": "workspace_tab",
 			"name": "Checklist",
 			"page_id": "{{{uid.workspace_tutorial}}}",
-			"pos": 1,
+			"pos": 0,
 			"extension_id": "core.workspace.tab.board",
 			"params": {
 				"board_id": "{{{uid.project_board_checklist}}}"
 			}
+		},
+		{
+			"uid": "workspace_tab_eval_mail",
+			"_context": "workspace_tab",
+			"name": "Mail",
+			"page_id": "{{{uid.workspace_tutorial}}}",
+			"pos": 1,
+			"extension_id": "core.workspace.tab.worklists",
+			"params": [
+
+			]
 		},
 		{
 			"uid": "workspace_list_eval_mail",
