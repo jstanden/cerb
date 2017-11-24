@@ -1295,6 +1295,11 @@
 				<seg>Last Name</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.neither">
+			<tuv xml:lang="en_US">
+				<seg>Neither</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.never">
 			<tuv xml:lang="en_US">
 				<seg>Never</seg>

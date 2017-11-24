@@ -236,8 +236,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'],'string');
 				@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'bit', 0);
 				@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'bit',0);
-				@$group_ids = DevblocksPlatform::importGPC($_POST['group_ids'],'array');
-				@$group_roles = DevblocksPlatform::importGPC($_POST['group_roles'],'array');
+				@$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'],'array');
 				
 				// ============================================
 				// Defaults
@@ -378,15 +377,19 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				}
 				
 				// Update group memberships
-				if(is_array($group_ids) && is_array($group_roles))
-				foreach($group_ids as $idx => $group_id) {
-					if(empty($group_roles[$idx])) {
-						DAO_Group::unsetGroupMember($group_id, $id);
-					} else {
-						DAO_Group::setGroupMember($group_id, $id, (2==$group_roles[$idx]));
+				if(is_array($group_memberships))
+				foreach($group_memberships as $group_id => $membership) {
+					switch($membership) {
+						case 0:
+							DAO_Group::unsetGroupMember($group_id, $id);
+							break;
+						case 1:
+						case 2:
+							DAO_Group::setGroupMember($group_id, $id, (2==$membership));
+							break;
 					}
 				}
-	
+				
 				if($id) {
 					// Aliases
 					DAO_ContextAlias::set(CerberusContexts::CONTEXT_WORKER, $id, DevblocksPlatform::parseCrlfString(sprintf("%s%s", $first_name, $last_name ? (' '.$last_name) : '') . "\n" . $aliases));

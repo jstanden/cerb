@@ -201,6 +201,45 @@
 	</table>
 </fieldset>
 
+<fieldset class="peek cerb-worker-group-memberships">
+	<legend>
+		<a href="javascript:;">{'common.groups'|devblocks_translate|capitalize}</a>
+	</legend>
+	
+	{if $worker->id}
+	{$worker_groups = $worker->getMemberships()}
+	<table style="text-align:center;border-spacing:0;">
+		<thead>
+			<tr>
+				<th></th>
+				<th width="60"><a href="javascript:;" data-value="1">{'common.member'|devblocks_translate|capitalize}</a></th>
+				<th width="60"><a href="javascript:;" data-value="2">{'common.manager'|devblocks_translate|capitalize}</a></th>
+				<th width="60"><a href="javascript:;" data-value="0">{'common.neither'|devblocks_translate|capitalize}</a></th>
+			</tr>
+		</thead>
+		{foreach from=$groups item=group key=group_id name=groups}
+		{$member = $worker_groups.$group_id}
+		<tbody style="{if 0 == $smarty.foreach.groups.iteration % 2}background-color:rgb(240,240,240);{/if}">
+			<tr>
+				<td style="text-align:left;padding-right:30px;">
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}"><b>{$group->name}</b></a>
+				</td>
+				<td>
+					<input type="radio" name="group_memberships[{$group->id}]" value="1" {if $member && !$member->is_manager}checked="checked"{/if}>
+				</td>
+				<td>
+					<input type="radio" name="group_memberships[{$group->id}]" value="2" {if $member && $member->is_manager}checked="checked"{/if}>
+				</td>
+				<td>
+					<input type="radio" name="group_memberships[{$group->id}]" value="0" {if !$member}checked="checked"{/if}>
+				</td>
+			</tr>
+		</tbody>
+		{/foreach}
+	</table>
+	{/if}
+</fieldset>
+
 <fieldset class="peek">
 	<legend>{'common.availability'|devblocks_translate|capitalize}</legend>
 	
@@ -216,22 +255,6 @@
 			{/foreach}
 		</select>
 	</div>
-</fieldset>
-
-<fieldset class="peek">
-	<legend>{'common.groups'|devblocks_translate|capitalize}</legend>
-	
-	{if $worker->id}{assign var=workerGroups value=$worker->getMemberships()}{/if}
-	{foreach from=$groups item=group key=group_id}
-	{assign var=member value=$workerGroups.$group_id}
-	<input type="hidden" name="group_ids[]" value="{$group->id}">
-	<select name="group_roles[]" {if $disabled} disabled="disabled"{/if}>
-		<option value="">&nbsp;</option>
-		<option value="1" {if $member && !$member->is_manager}selected{/if}>Member</option>
-		<option value="2" {if $member && $member->is_manager}selected{/if}>Manager</option>
-	</select>
-	{$group->name}<br>
-	{/foreach}
 </fieldset>
 
 {if !empty($custom_fields)}
@@ -314,6 +337,18 @@ $(function() {
 		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
 		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
 		ajax.chooserAvatar($avatar_chooser, $avatar_image);
+		
+		// Group matrix
+		
+		var $group_fieldset = $popup.find('fieldset.cerb-worker-group-memberships');
+		
+		$group_fieldset.find('th a').on('click', function(e) {
+			var $a = $(this);
+			var value = $a.attr('data-value');
+			var $table = $a.closest('table');
+			
+			$table.find('input:radio[value=' + value + ']').click();
+		});
 	});
 });
 </script>
