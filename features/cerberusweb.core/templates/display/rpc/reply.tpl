@@ -8,6 +8,16 @@
 	</tr>
 	<tr>
 		<td width="100%">
+			{if 'core.mail.transport.null' == $reply_transport->extension_id}
+			<div class="help-box">
+				<h1>Your message will not be delivered.</h1>
+				<p>
+					This bucket is configured to discard outgoing messages. 
+					To send live email, change the mail transport on the <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
+				</p>
+			</div>
+			{/if}
+			
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>&nbsp;</td>
