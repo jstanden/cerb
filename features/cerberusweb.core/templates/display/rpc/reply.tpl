@@ -9,14 +9,13 @@
 	<tr>
 		<td width="100%">
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
-				{if isset($groups.{$ticket->group_id})}
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
-						{$groups.{$ticket->group_id}->name}
+						{$reply_as} &lt;<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$reply_from->id}">{$reply_from->email}</a>&gt; via 
+						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$reply_transport->id}">{$reply_transport->name}</a>
 					</td>
 				</tr>
-				{/if}
 				
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query=""><b>{'message.header.to'|devblocks_translate|capitalize}</b></a>:&nbsp;</td>
@@ -344,6 +343,7 @@
 			})
 			;
 		
+		$frm.find('.cerb-peek-trigger').cerbPeekTrigger();
 		$frm2.find('button.chooser-abstract').cerbChooserTrigger();
 		
 		// Snippet insert menu
@@ -536,7 +536,7 @@
 				},
 				{
 					async: false
- 				}
+				}
 			);
 			
 			return content;
