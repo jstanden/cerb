@@ -1343,6 +1343,12 @@
 			"group_id": "{{{uid.group_support}}}"
 		},
 		{
+			"uid": "bucket_support_docs",
+			"_context": "bucket",
+			"name": "Documentation",
+			"group_id": "{{{uid.group_support}}}"
+		},
+		{
 			"uid": "bucket_sales_inbox",
 			"_context": "bucket",
 			"name": "Inbox",
@@ -1350,10 +1356,28 @@
 			"group_id": "{{{uid.group_sales}}}"
 		},
 		{
+			"uid": "bucket_sales_leads",
+			"_context": "bucket",
+			"name": "Leads",
+			"group_id": "{{{uid.group_sales}}}"
+		},
+		{
 			"uid": "bucket_development_inbox",
 			"_context": "bucket",
 			"name": "Inbox",
 			"is_default": "1",
+			"group_id": "{{{uid.group_development}}}"
+		},
+		{
+			"uid": "bucket_development_bugs",
+			"_context": "bucket",
+			"name": "Bug Reports",
+			"group_id": "{{{uid.group_development}}}"
+		},
+		{
+			"uid": "bucket_development_features",
+			"_context": "bucket",
+			"name": "Feature Requests",
 			"group_id": "{{{uid.group_development}}}"
 		},
 		{
@@ -1367,6 +1391,12 @@
 			"uid": "bucket_billing_invoices",
 			"_context": "bucket",
 			"name": "Invoices",
+			"group_id": "{{{uid.group_billing}}}"
+		},
+		{
+			"uid": "bucket_billing_receipts",
+			"_context": "bucket",
+			"name": "Receipts",
 			"group_id": "{{{uid.group_billing}}}"
 		},
 		{
@@ -1509,8 +1539,6 @@
 			"org_id": "{{{uid.org_donter}}}",
 			"spam_score": 0.0001,
 			"spam_training": "N",
-			"created": "{{{date('-6 days 04:00')|date('U')}}}",
-			"updated": "{{{date('-6 days 04:00')|date('U')}}}",
 			"participants": "z.de.vos@donter.example"
 		},
 		{
@@ -1537,8 +1565,6 @@
 			"org_id": "{{{uid.org_twinton}}}",
 			"spam_score": 0.0001,
 			"spam_training": "",
-			"created": "{{{date('-10 mins')|date('U')}}}",
-			"updated": "{{{date('-10 mins')|date('U')}}}",
 			"participants": "c.bailey@twinton.example"
 		},
 		{
@@ -1574,8 +1600,6 @@
 			"org_id": "{{{uid.org_helderster}}}",
 			"spam_score": 0.0001,
 			"spam_training": "",
-			"created": "{{{date('-5 mins')|date('U')}}}",
-			"updated": "{{{date('-5 mins')|date('U')}}}",
 			"participants": "m.janssen@helderster.example"
 		},
 		{
@@ -1611,8 +1635,6 @@
 			"org_id": "0",
 			"spam_score": 0.985,
 			"spam_training": "",
-			"created": "{{{date('-2 mins')|date('U')}}}",
-			"updated": "{{{date('-2 mins')|date('U')}}}",
 			"participants": "taevac.rotpme@spam.example"
 		},
 		{
@@ -1640,37 +1662,76 @@
 			"uid": "ticket_007",
 			"_context": "ticket",
 			"mask": "EVAL-007",
+			"created": "{{{date('-5 minutes')|date('U')}}}",
+			"updated": "{{{date('-1 minute')|date('U')}}}",
 			"group_id": "{{{uid.group_support}}}",
 			"bucket_id": "{{{uid.bucket_support_inbox}}}",
 			"org_id": "{{{uid.org_helderster}}}",
-			"subject": "This should be merged",
+			"subject": "Here's a screenshot",
 			"participants": "k.mulder@helderster.example"
 		},
 		{
 			"uid": "message_007_001",
 			"_context": "message",
+			"created": "{{{date('-5 minutes')|date('U')}}}",
 			"ticket_id": "{{{uid.ticket_007}}}",
 			"sender_id": "{{{uid.address_kyan_mulder}}}",
-			"headers": "To: support@cerb.example\r\nFrom: k.mulder@helderster.example\r\nSubject: This should be merged\r\nX-Mailer: Cerb",
-			"content": "This should be merged."
+			"headers": "To: support@cerb.example\r\nFrom: k.mulder@helderster.example\r\nSubject: Here's a screenshot\r\nX-Mailer: Cerb",
+			"content": "I can't sort addresses by organization.\r\n\r\nHere's a screenshot of what I'm seeing."
+		},
+		{
+			"uid": "message_007_002",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_007}}}",
+			"created": "{{{date('-1 minute')|date('U')}}}",
+			"sender_id": "{{{default.replyto_id}}}",
+			"worker_id": "{{{uid.worker_kina}}}",
+			"response_time": 240,
+			"is_outgoing": 1,
+			"hash_header_message_id": "{{{'<convo7.msg2@cerb.example>'|sha1}}}",
+			"headers": "To: Kyan Mulder <k.mulder@helderster.example>\nFrom: {{{default.replyto_email}}}\nSubject: Here's a screenshot\nX-Mailer: Cerb\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <convo7.msg2@cerb.example>\n",
+			"content": "> Here's a screenshot of what I'm seeing\n\nHi Kyan,\n\nIt looks like you forgot to attach the file.\n\n-- \nKina Halpue, Support\n"
 		},
 		{
 			"uid": "ticket_008",
 			"_context": "ticket",
 			"mask": "EVAL-008",
+			"created": "{{{date('-30 seconds')|date('U')}}}",
+			"updated": "{{{date('-30 seconds')|date('U')}}}",
 			"group_id": "{{{uid.group_support}}}",
 			"bucket_id": "{{{uid.bucket_support_inbox}}}",
 			"org_id": "{{{uid.org_helderster}}}",
-			"subject": "Re: This should be merged",
+			"subject": "Re: Here's a screenshot",
 			"participants": "k.mulder@helderster.example"
+		},
+		{
+			"uid": "attachment_message_008_html",
+			"_context": "attachment",
+			"name": "original_message.html",
+			"mime_type": "text/html",
+			"attach": [
+				"message:{{{uid.message_008_001}}}"
+			],
+			"content": "<p><i>&gt; It looks like you forgot to attach the file.</i></p><p>Whoops! Here you go:</p><p><img src=\"{{{default.base_url}}}files/{{{uid.attachment_message_008_image}}}/screenshot.png\" alt=\"inline-image\"></p>"
+		},
+		{
+			"uid": "attachment_message_008_image",
+			"_context": "attachment",
+			"name": "screenshot.png",
+			"mime_type": "image/png",
+			"attach": [
+				"message:{{{uid.message_008_001}}}"
+			],
+			"content": "data:image/png;base64,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"
 		},
 		{
 			"uid": "message_008_001",
 			"_context": "message",
 			"ticket_id": "{{{uid.ticket_008}}}",
 			"sender_id": "{{{uid.address_kyan_mulder}}}",
-			"headers": "To: support@cerb.example\r\nFrom: k.mulder@helderster.example\r\nSubject: Re: This should be merged\r\nX-Mailer: Cerb",
-			"content": "This should be merged."
+			"html_attachment_id": "{{{uid.attachment_message_008_html}}}",
+			"headers": "To: support@cerb.example\r\nFrom: k.mulder@helderster.example\r\nSubject: Re: Here's a screenshot\r\nX-Mailer: Cerb",
+			"content": "> It looks like you forgot to attach the file.\r\n\r\nWhoops! Here you go.\r\n\r\n-Kyan"
 		},
 		{
 			"uid": "ticket_009",
@@ -1679,7 +1740,7 @@
 			"group_id": "{{{uid.group_support}}}",
 			"bucket_id": "{{{uid.bucket_support_inbox}}}",
 			"org_id": "{{{uid.org_ghoux}}}",
-			"subject": "This is question one",
+			"subject": "A ticket with two unrelated questions",
 			"participants": "y.joubert@ghoux.example"
 		},
 		{
@@ -1687,16 +1748,16 @@
 			"_context": "message",
 			"ticket_id": "{{{uid.ticket_009}}}",
 			"sender_id": "{{{uid.address_yaseen_joubert}}}",
-			"headers": "To: support@cerb.example\r\nFrom: y.joubert@ghoux.example\r\nSubject: This is question one\r\nX-Mailer: Cerb",
-			"content": "This is question one."
+			"headers": "To: support@cerb.example\r\nFrom: y.joubert@ghoux.example\r\nSubject: I have a question\r\nX-Mailer: Cerb",
+			"content": "I have a question."
 		},
 		{
 			"uid": "message_009_002",
 			"_context": "message",
 			"ticket_id": "{{{uid.ticket_009}}}",
 			"sender_id": "{{{uid.address_yaseen_joubert}}}",
-			"headers": "To: support@cerb.example\r\nFrom: y.joubert@ghoux.example\r\nSubject: This is question two\r\nX-Mailer: Cerb",
-			"content": "This is question two (split me)."
+			"headers": "To: support@cerb.example\r\nFrom: y.joubert@ghoux.example\r\nSubject: I have another question\r\nX-Mailer: Cerb",
+			"content": "I have another unrelated question."
 		},
 		{
 			"uid": "ticket_010",
@@ -1724,6 +1785,15 @@
 			"author__context": "bot",
 			"author_id": "{{{uid.bot_tutorial}}}",
 			"comment": "If the GPG extension is enabled, you can copy this PGP key and import it into Search->Public Keys."
+		},
+		{
+			"uid": "snippet_ticket_summary",
+			"_context": "snippet",
+			"title": "General: Ticket summary",
+			"context": "cerberusweb.contexts.ticket",
+			"owner__context": "app",
+			"owner_id": "0",
+			"content": "~~~~~~~~~~~~~~~~~~~~\nMask: {{mask}}\nSubject: {{subject}}\nGroup: {{group__label}} {{bucket__label}}\nStatus: {{status}}\nCreated: {{created|date('r')}} ({{created|date_pretty}}\nUpdated: {{updated|date('r')}} ({{updated|date_pretty}})\nOwner: {{owner__label|default('nobody')}}\n~~~~~~~~~~~~~~~~~~~~\n"
 		},
 		{
 			"uid": "snippet_plaintext_mailing_address",
@@ -1997,15 +2067,70 @@
 			}
 		},
 		{
-			"uid": "workspace_tab_eval_mail",
+			"uid": "workspace_tab_eval_team_setup",
 			"_context": "workspace_tab",
-			"name": "Mail",
+			"name": "Team Setup",
 			"page_id": "{{{uid.workspace_tutorial}}}",
 			"pos": 1,
 			"extension_id": "core.workspace.tab.worklists",
 			"params": [
 
 			]
+		},
+		{
+			"uid": "workspace_tab_eval_mail_setup",
+			"_context": "workspace_tab",
+			"name": "Mail Setup",
+			"page_id": "{{{uid.workspace_tutorial}}}",
+			"pos": 2,
+			"extension_id": "core.workspace.tab.worklists",
+			"params": [
+
+			]
+		},
+		{
+			"uid": "workspace_tab_eval_clients",
+			"_context": "workspace_tab",
+			"name": "Clients",
+			"page_id": "{{{uid.workspace_tutorial}}}",
+			"pos": 3,
+			"extension_id": "core.workspace.tab.worklists",
+			"params": [
+
+			]
+		},
+		{
+			"uid": "workspace_tab_eval_mail",
+			"_context": "workspace_tab",
+			"name": "Tickets",
+			"page_id": "{{{uid.workspace_tutorial}}}",
+			"pos": 4,
+			"extension_id": "core.workspace.tab.worklists",
+			"params": [
+
+			]
+		},
+		{
+			"uid": "workspace_tab_eval_dashboard",
+			"_context": "workspace_tab",
+			"name": "Dashboards",
+			"page_id": "{{{uid.workspace_tutorial}}}",
+			"pos": 5,
+			"extension_id": "core.workspace.tab",
+			"params": {
+				"num_columns": "3"
+			}
+		},
+		{
+			"uid": "workspace_tab_eval_calendar_officehours",
+			"_context": "workspace_tab",
+			"name": "Calendars",
+			"page_id": "{{{uid.workspace_tutorial}}}",
+			"pos": 6,
+			"extension_id": "core.workspace.tab.calendar",
+			"params": {
+				"calendar_id": "{{{uid.calendar_office_hours}}}"
+			}
 		},
 		{
 			"uid": "workspace_list_eval_mail",
@@ -2021,10 +2146,11 @@
 					},
 					"columns": [
 						"t_last_wrote_address_id",
-						"t_updated_date",
+						"t_mask",
 						"t_group_id",
 						"t_bucket_id",
-						"t_owner_id"
+						"t_owner_id",
+						"t_updated_date"
 					],
 					"params": [
 
@@ -2041,33 +2167,454 @@
 						}
 					},
 					"limit": 25,
-					"sort_by": "t_updated_date",
-					"sort_asc": false,
+					"sort_by": "t_mask",
+					"sort_asc": true,
 					"subtotals": "t_group_id",
 					"context": "cerberusweb.contexts.ticket"
 				}
 			}
 		},
 		{
-			"uid": "workspace_tab_eval_dashboard",
-			"_context": "workspace_tab",
-			"name": "Dashboard",
-			"page_id": "{{{uid.workspace_tutorial}}}",
-			"pos": 2,
-			"extension_id": "core.workspace.tab",
-			"params": {
-				"num_columns": "3"
+			"uid": "workspace_list_eval_team_groups",
+			"_context": "workspace_list",
+			"context": "group",
+			"tab_id": "{{{uid.workspace_tab_eval_team_setup}}}",
+			"pos": 0,
+			"view": {
+				"title": "Groups",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"g_name",
+						"g_is_private",
+						"g_is_default",
+						"g_updated"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "g_name",
+					"sort_asc": true,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.group"
+				}
 			}
 		},
 		{
-			"uid": "workspace_tab_eval_calendar_officehours",
-			"_context": "workspace_tab",
-			"name": "Office Hours",
-			"page_id": "{{{uid.workspace_tutorial}}}",
+			"uid": "workspace_list_eval_team_workers",
+			"_context": "workspace_list",
+			"context": "worker",
+			"tab_id": "{{{uid.workspace_tab_eval_team_setup}}}",
+			"pos": 1,
+			"view": {
+				"title": "Workers",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"w_title",
+						"w_address_email",
+						"w_is_superuser",
+						"w_at_mention_name",
+						"w_language",
+						"w_timezone"
+					],
+					"params": {
+						"w_is_disabled": {
+							"field": "w_is_disabled",
+							"operator": "=",
+							"value": 0
+						}
+					},
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "w_first_name",
+					"sort_asc": true,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.worker"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_team_roles",
+			"_context": "workspace_list",
+			"context": "role",
+			"tab_id": "{{{uid.workspace_tab_eval_team_setup}}}",
+			"pos": 2,
+			"view": {
+				"title": "Roles",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"w_name",
+						"w_updated_at"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "w_name",
+					"sort_asc": true,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.role"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_groups",
+			"_context": "workspace_list",
+			"context": "group",
+			"tab_id": "{{{uid.workspace_tab_eval_mail_setup}}}",
+			"pos": 0,
+			"view": {
+				"title": "Groups",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"g_name",
+						"g_is_private",
+						"g_is_default",
+						"g_reply_address_id",
+						"g_reply_personal",
+						"g_reply_signature_id",
+						"g_reply_html_template_id",
+						"g_updated"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "g_name",
+					"sort_asc": true,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.group"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_buckets",
+			"_context": "workspace_list",
+			"context": "bucket",
+			"tab_id": "{{{uid.workspace_tab_eval_mail_setup}}}",
+			"pos": 1,
+			"view": {
+				"title": "Buckets",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"b_group_id",
+						"b_name",
+						"b_is_default",
+						"b_reply_address_id",
+						"b_reply_personal",
+						"b_reply_signature_id",
+						"b_reply_html_template_id",
+						"b_updated_at"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "b_name",
+					"sort_asc": true,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.bucket"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_sigs",
+			"_context": "workspace_list",
+			"context": "email_signature",
+			"tab_id": "{{{uid.workspace_tab_eval_mail_setup}}}",
+			"pos": 2,
+			"view": {
+				"title": "Email Signatures",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"e_name",
+						"*_owner",
+						"e_updated_at"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "e_updated_at",
+					"sort_asc": false,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.email.signature"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_senders",
+			"_context": "workspace_list",
+			"context": "address",
+			"tab_id": "{{{uid.workspace_tab_eval_mail_setup}}}",
 			"pos": 3,
-			"extension_id": "core.workspace.tab.calendar",
-			"params": {
-				"calendar_id": "{{{uid.calendar_office_hours}}}"
+			"view": {
+				"title": "Sender Addresses",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"a_updated",
+						"a_mail_transport_id"
+					],
+					"params": [
+
+					],
+					"params_required": {
+						"5a18bc04b4e63": {
+							"field": "a_mail_transport_id",
+							"operator": ">",
+							"value": 0
+						}
+					},
+					"limit": 5,
+					"sort_by": "a_email",
+					"sort_asc": true,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.address"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_transports",
+			"_context": "workspace_list",
+			"context": "mail_transport",
+			"tab_id": "{{{uid.workspace_tab_eval_mail_setup}}}",
+			"pos": 4,
+			"view": {
+				"title": "Mail Transports",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"m_name",
+						"m_extension_id",
+						"m_created_at",
+						"m_updated_at"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "m_updated_at",
+					"sort_asc": false,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.mail.transport"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_mailboxes",
+			"_context": "workspace_list",
+			"context": "mailbox",
+			"tab_id": "{{{uid.workspace_tab_eval_mail_setup}}}",
+			"pos": 5,
+			"view": {
+				"title": "Mailboxes",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"p_name",
+						"p_protocol",
+						"p_host",
+						"p_username",
+						"p_port",
+						"p_num_fails",
+						"p_timeout_secs",
+						"p_max_msg_size_kb",
+						"p_updated_at",
+						"p_checked_at"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "p_updated_at",
+					"sort_asc": true,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.mailbox"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_snippets",
+			"_context": "workspace_list",
+			"context": "snippet",
+			"tab_id": "{{{uid.workspace_tab_eval_mail_setup}}}",
+			"pos": 6,
+			"view": {
+				"title": "Snippets",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"s_title",
+						"s_context",
+						"*_owner",
+						"suh_my_uses",
+						"s_total_uses",
+						"s_updated_at"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "s_title",
+					"sort_asc": true,
+					"subtotals": "s_context",
+					"context": "cerberusweb.contexts.snippet"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_clients_orgs",
+			"_context": "workspace_list",
+			"context": "org",
+			"tab_id": "{{{uid.workspace_tab_eval_clients}}}",
+			"pos": 0,
+			"view": {
+				"title": "Organizations",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"c_phone",
+						"c_country",
+						"c_website"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "c_name",
+					"sort_asc": true,
+					"subtotals": "c_country",
+					"context": "cerberusweb.contexts.org"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_clients_contacts",
+			"_context": "workspace_list",
+			"context": "contact",
+			"tab_id": "{{{uid.workspace_tab_eval_clients}}}",
+			"pos": 1,
+			"view": {
+				"title": "Contacts",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"c_primary_email_id",
+						"c_title",
+						"c_org_id",
+						"c_username",
+						"c_gender",
+						"c_location",
+						"c_language",
+						"c_timezone",
+						"c_updated_at",
+						"c_last_login_at"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "c_updated_at",
+					"sort_asc": true,
+					"subtotals": "o_name",
+					"context": "cerberusweb.contexts.contact"
+				}
+			}
+		},
+		{
+			"uid": "workspace_list_eval_clients_addys",
+			"_context": "workspace_list",
+			"context": "address",
+			"tab_id": "{{{uid.workspace_tab_eval_clients}}}",
+			"pos": 2,
+			"view": {
+				"title": "Email Addresses",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"a_contact_id",
+						"o_name",
+						"a_host",
+						"a_mail_transport_id",
+						"a_updated"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "a_email",
+					"sort_asc": true,
+					"subtotals": "a_host",
+					"context": "cerberusweb.contexts.address"
+				}
 			}
 		},
 		{
@@ -2618,23 +3165,6 @@
 								]
 							}
 						}
-					]
-				},
-				{
-					"uid": "behavior_eval_get_interactions",
-					"title": "Get interactions for worker",
-					"is_disabled": false,
-					"is_private": false,
-					"priority": 50,
-					"event": {
-						"key": "event.interactions.get.worker",
-						"label": "Conversation get interactions for worker",
-						"params": {
-							"listen_points": ""
-						}
-					},
-					"nodes": [
-
 					]
 				}
 			]
