@@ -2,11 +2,11 @@
 {$peek_context = CerberusContexts::CONTEXT_TICKET}
 
 <div id="{$div_id}">
-	<div style="float:left;margin-right:10px;">
-		<img src="{devblocks_url}c=avatars&context=org&context_id={$dict->org_id}{/devblocks_url}?v={$dict->org_updated}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
-	</div>
+	<div style="font-weight:bold;">
+		<div style="float:left;margin-right:10px;">
+			<img src="{devblocks_url}c=avatars&context=org&context_id={$dict->org_id}{/devblocks_url}?v={$dict->org_updated}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
+		</div>
 	
-	<div style="float:left;font-weight:bold;">
 		<div>
 			{$dict->mask}
 		</div>
@@ -14,21 +14,21 @@
 		<h1>
 			{$dict->subject}
 		</h1>
+	</div>
+	
+	<div style="clear:both;padding-top:5px;">
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+		{if $is_readable}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
 		
-		<div style="margin-top:5px;">
-			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
-			{if $is_readable}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
-			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}<button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>{/if}
-			
-			{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
-				{if !empty($dict->id)}
-					{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
-					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
-				{/if}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
+			{if !empty($dict->id)}
+				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
 			{/if}
-			
-			{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
-		</div>
+		{/if}
+		
+		{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
 	</div>
 </div>
 
