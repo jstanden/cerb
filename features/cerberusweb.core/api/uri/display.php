@@ -49,8 +49,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('message_id', $message->id);
 		
 		// Sender info
-		$message_senders = array();
-		$message_sender_orgs = array();
+		$message_senders = [];
+		$message_sender_orgs = [];
 		
 		if(null != ($sender_addy = CerberusApplication::hashLookupAddress($message->address_id))) {
 			$message_senders[$sender_addy->id] = $sender_addy;
@@ -78,12 +78,12 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Expanded/Collapsed
 		if(empty($hide)) {
 			$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, $message->id);
-			$message_notes = array();
+			$message_notes = [];
 			// Index notes by message id
 			if(is_array($notes))
 			foreach($notes as $note) {
 				if(!isset($message_notes[$note->context_id]))
-					$message_notes[$note->context_id] = array();
+					$message_notes[$note->context_id] = [];
 				$message_notes[$note->context_id][$note->id] = $note;
 			}
 			$tpl->assign('message_notes', $message_notes);
@@ -205,7 +205,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			} else {
 				
 				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
+				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
 				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MESSAGE, $id, $field_ids);
 			}
 		
@@ -308,11 +308,11 @@ class ChDisplayPage extends CerberusPageExtension {
 	private function _checkRecentTicketActivity($ticket_id, $since_timestamp) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$workers = DAO_Worker::getAll();
-		$activities = array();
+		$activities = [];
 		
 		// Check drafts
 		list($results, $null) = DAO_MailQueue::search(
-			array(),
+			[],
 			array(
 				SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, '=', 0),
 				SearchFields_MailQueue::TICKET_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::TICKET_ID, '=', $ticket_id),
@@ -350,7 +350,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		);
 		
 		list($results, $null) = DAO_ContextActivityLog::search(
-			array(),
+			[],
 			array(
 				SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT, '=', CerberusContexts::CONTEXT_TICKET),
 				SearchFields_ContextActivityLog::TARGET_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT_ID, '=', $ticket_id),
@@ -375,7 +375,7 @@ class ChDisplayPage extends CerberusPageExtension {
 						continue;
 			
 			$activities[] = array(
-				'message' => CerberusContexts::formatActivityLogEntry($json, array(), array('target')),
+				'message' => CerberusContexts::formatActivityLogEntry($json, [], array('target')),
 				'timestamp' => intval($row['c_created']),
 			);
 		}
@@ -420,7 +420,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			'html_template_id' => ($html_template) ? $html_template->id : 0,
 		);
 		
-		$hash_commands = array();
+		$hash_commands = [];
 		
 		$this->_parseReplyHashCommands($active_worker, $message_properties, $hash_commands);
 		
@@ -463,7 +463,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			'content' => $content,
 		);
 		
-		$hash_commands = array();
+		$hash_commands = [];
 		
 		$this->_parseReplyHashCommands($active_worker, $message_properties, $hash_commands);
 		
@@ -558,7 +558,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				if(isset($message_headers['to'])) {
 					$from = isset($message_headers['reply-to']) ? $message_headers['reply-to'] : $message_headers['from'];
 					$addys = CerberusMail::parseRfcAddresses($from . ', ' . $message_headers['to'], true);
-					$recipients = array();
+					$recipients = [];
 					
 					if(is_array($addys))
 					foreach($addys as $addy) {
@@ -570,7 +570,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				
 				if(isset($message_headers['cc'])) {
 					$addys = CerberusMail::parseRfcAddresses($message_headers['cc'], true);
-					$recipients = array();
+					$recipients = [];
 					
 					if(is_array($addys))
 					foreach($addys as $addy) {
@@ -588,7 +588,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				
 			// Normal reply quoted or not
 			} else {
-				$recipients = array();
+				$recipients = [];
 				
 				if(is_array($requesters))
 				foreach($requesters as $requester) {
@@ -669,7 +669,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		// VA behavior
 		
 		if(null != $active_worker) {
-			$actions = array();
+			$actions = [];
 
 			// [TODO] Filter by $ticket->group_id
 			$macros = DAO_TriggerEvent::getReadableByActor(
@@ -688,8 +688,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 		
 		// Dictionary
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $message, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		//$tpl->assign('dict', $dict);
@@ -716,7 +716,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$to = DevblocksPlatform::importGPC(@$_REQUEST['to']);
 		
 		// Attachments
-		@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'],'array',array());
+		@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'],'array',[]);
 		$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('unique', 'nonzero'));
 		
 		try {
@@ -818,7 +818,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$to = DevblocksPlatform::importGPC(@$_REQUEST['to']);
 
 		// Attachments
-		@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'],'array',array());
+		@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'],'array',[]);
 		$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('unique', 'nonzero'));
 		
 		if(null == ($worker = CerberusApplication::getActiveWorker()))
@@ -851,12 +851,12 @@ class ChDisplayPage extends CerberusPageExtension {
 			'link_forward_files' => true,
 		);
 		
-		$hash_commands = array();
+		$hash_commands = [];
 		
 		$this->_parseReplyHashCommands($worker, $properties, $hash_commands);
 		
 		// Custom fields
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
 		$field_values = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TICKET, $field_ids);
 		if(!empty($field_values)) {
 			$properties['custom_fields'] = $field_values;
@@ -904,7 +904,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	private function _parseReplyHashCommands(Model_worker $worker, array &$message_properties, array &$commands) {
 		$lines_in = DevblocksPlatform::parseCrlfString($message_properties['content'], true, false);
-		$lines_out = array();
+		$lines_out = [];
 		
 		$is_cut = false;
 		
@@ -931,7 +931,7 @@ class ChDisplayPage extends CerberusPageExtension {
 						$message_properties['link_forward_files'] = true;
 						
 						if(!isset($message_properties['forward_files']))
-							$message_properties['forward_files'] = array();
+							$message_properties['forward_files'] = [];
 						
 						$message_properties['forward_files'] = array_merge($message_properties['forward_files'], array_keys($attachments));
 						break;
@@ -1054,14 +1054,14 @@ class ChDisplayPage extends CerberusPageExtension {
 			return false;
 		
 		// Params
-		$params = array();
+		$params = [];
 		
 		foreach($_POST as $k => $v) {
 			if(is_string($v)) {
 				$v = DevblocksPlatform::importGPC($_POST[$k], 'string', null);
 				
 			} elseif(is_array($v)) {
-				$v = DevblocksPlatform::importGPC($_POST[$k], 'array', array());
+				$v = DevblocksPlatform::importGPC($_POST[$k], 'array', []);
 				
 			} else {
 				continue;
@@ -1081,7 +1081,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		unset($params['is_ajax']);
 		unset($params['reply_mode']);
 		
-		@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'],'array',array());
+		@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'],'array',[]);
 		$field_ids = DevblocksPlatform::sanitizeArray($field_ids, 'integer', array('nonzero','unique'));
 
 		if(!empty($field_ids)) {
@@ -1102,7 +1102,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			
 		} else {
 			$reqs = $ticket->getRequesters();
-			$addys = array();
+			$addys = [];
 			
 			if(is_array($reqs))
 			foreach($reqs as $addy) {
@@ -1223,7 +1223,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	function saveRelayMessagePopupAction() {
 		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$emails = DevblocksPlatform::importGPC($_REQUEST['emails'],'array',array());
+		@$emails = DevblocksPlatform::importGPC($_REQUEST['emails'],'array',[]);
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
 		@$include_attachments = DevblocksPlatform::importGPC($_REQUEST['include_attachments'], 'integer', 0);
 
@@ -1265,7 +1265,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			$tpl->assign('drafts', $drafts);
 		
 		// Only unqueued drafts
-		$pending_drafts = array();
+		$pending_drafts = [];
 		
 		if(!empty($drafts) && is_array($drafts))
 		foreach($drafts as $draft_id => $draft) {
@@ -1285,11 +1285,11 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('messages', $messages);
 
 		// Thread comments and messages on the same level
-		$convo_timeline = array();
+		$convo_timeline = [];
 
 		// Track senders and their orgs
-		$message_senders = array();
-		$message_sender_orgs = array();
+		$message_senders = [];
+		$message_sender_orgs = [];
 
 		// Loop messages
 		if(is_array($messages))
@@ -1387,24 +1387,24 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		// Message Notes
 		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, array_keys($messages));
-		$message_notes = array();
+		$message_notes = [];
 		// Index notes by message id
 		if(is_array($notes))
 		foreach($notes as $note) {
 			if(!isset($message_notes[$note->context_id]))
-				$message_notes[$note->context_id] = array();
+				$message_notes[$note->context_id] = [];
 			$message_notes[$note->context_id][$note->id] = $note;
 		}
 		$tpl->assign('message_notes', $message_notes);
 		
 		// Draft Notes
 		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_DRAFT, array_keys($drafts));
-		$draft_notes = array();
+		$draft_notes = [];
 		// Index notes by draft id
 		if(is_array($notes))
 		foreach($notes as $note) {
 			if(!isset($draft_notes[$note->context_id]))
-				$draft_notes[$note->context_id] = array();
+				$draft_notes[$note->context_id] = [];
 			$draft_notes[$note->context_id][$note->id] = $note;
 		}
 		$tpl->assign('draft_notes', $draft_notes);
@@ -1557,8 +1557,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		$scope = $visit->get('display.history.scope', '');
 		
 		// Dictionary
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
