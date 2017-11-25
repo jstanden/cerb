@@ -2235,6 +2235,12 @@ class DevblocksPlatform extends DevblocksEngine {
 				$results[$extension->id] = ($as_instances) ? $extension->createInstance() : $extension;
 			}
 		}
+		
+		if($as_instances)
+			DevblocksPlatform::sortObjects($results, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($results, 'name');
+		
 		return $results;
 	}
 
