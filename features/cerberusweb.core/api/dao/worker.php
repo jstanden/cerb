@@ -918,6 +918,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		DAO_AddressToWorker::unassignAll($id);
 		
+		$sql = sprintf("DELETE FROM webapi_credentials WHERE worker_id = %d", $id);
+		$db->ExecuteMaster($sql);
+		
 		$sql = sprintf("DELETE FROM worker_to_group WHERE worker_id = %d", $id);
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
