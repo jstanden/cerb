@@ -808,19 +808,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			);
 			$db->ExecuteMaster($sql);
 			
-			// Clear old ticket meta
-			$fields = array(
-				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
-				DAO_Ticket::REOPEN_AT => 0,
-				DAO_Ticket::FIRST_MESSAGE_ID => 0,
-				DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
-				DAO_Ticket::LAST_MESSAGE_ID => 0,
-				DAO_Ticket::NUM_MESSAGES => 0,
-				DAO_Ticket::ELAPSED_RESPONSE_FIRST => 0,
-				DAO_Ticket::ELAPSED_RESOLUTION_FIRST => 0,
-			);
-			DAO_Ticket::update($merge_ticket_ids, $fields, false);
-
 			// Sort merge tickets by updated date ascending to find the latest touched
 			$tickets = $merged_tickets;
 			array_unshift($tickets, $oldest_ticket);
@@ -852,7 +839,21 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			// Set up forwarders for the old masks to their new mask
 			$new_mask = $oldest_ticket[SearchFields_Ticket::TICKET_MASK];
 			if(is_array($merged_tickets))
-			foreach($merged_tickets as $ticket) {
+			foreach($merged_tickets as $ticket_id => $ticket) {
+				// Clear old ticket meta
+				$fields = [
+					DAO_Ticket::MASK => $ticket[SearchFields_Ticket::TICKET_MASK] . '-MERGED',
+					DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
+					DAO_Ticket::REOPEN_AT => 0,
+					DAO_Ticket::FIRST_MESSAGE_ID => 0,
+					DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
+					DAO_Ticket::LAST_MESSAGE_ID => 0,
+					DAO_Ticket::NUM_MESSAGES => 0,
+					DAO_Ticket::ELAPSED_RESPONSE_FIRST => 0,
+					DAO_Ticket::ELAPSED_RESOLUTION_FIRST => 0,
+				];
+				DAO_Ticket::update($ticket_id, $fields, false);
+				
 				// Forward the old mask to the new mask
 				$sql = sprintf("INSERT IGNORE INTO ticket_mask_forward (old_mask, new_mask, new_ticket_id) VALUES (%s, %s, %d)",
 					$db->qstr($ticket[SearchFields_Ticket::TICKET_MASK]),
