@@ -54,8 +54,6 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	}
 	
 	private function getId($id) {
-		$worker = CerberusApplication::getActiveWorker();
-		
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -304,10 +302,7 @@ class ChRest_Addresses extends Extension_RestController implements IExtensionRes
 	}
 	
 	function postSearch() {
-		$worker = CerberusApplication::getActiveWorker();
-		
 		$container = $this->_handlePostSearch();
-		
 		$this->success($container);
 	}
 };

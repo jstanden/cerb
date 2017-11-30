@@ -2228,7 +2228,7 @@
 					},
 					"columns": [
 						"w_title",
-						"w_address_email",
+						"a_address_email",
 						"w_is_superuser",
 						"w_at_mention_name",
 						"w_language",

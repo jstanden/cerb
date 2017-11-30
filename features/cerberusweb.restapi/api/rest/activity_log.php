@@ -142,10 +142,7 @@ class Rest_ActivityLog extends Extension_RestController implements IExtensionRes
 	}
 	
 	function postSearch() {
-		$worker = CerberusApplication::getActiveWorker();
-		
 		$container = $this->_handlePostSearch();
-		
 		$this->success($container);
 	}
 };
