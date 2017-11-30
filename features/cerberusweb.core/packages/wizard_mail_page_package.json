@@ -99,7 +99,7 @@
 						"596574e22d033": {
 							"field": "*_groups_of_worker",
 							"operator": "=",
-							"value": "1"
+							"value": "{{current_worker_id}}"
 						}
 					},
 					"limit": 10,
