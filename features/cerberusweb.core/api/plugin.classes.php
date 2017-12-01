@@ -538,11 +538,12 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		}
 		
 		$out .= sprintf(">>> Saving response to {{%1\$s}}\n".
-				" * {{%1\$s.content_type}}\n".
 				" * {{%1\$s.body}}\n".
+				" * {{%1\$s.content_type}}\n".
+				" * {{%1\$s.error}}\n".
+				" * {{%1\$s.headers}}\n".
 				" * {{%1\$s.info}}\n".
 				" * {{%1\$s.info.http_code}}\n".
-				" * {{%1\$s.error}}\n".
 				"\n",
 				$response_placeholder
 		);
@@ -557,10 +558,13 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 				$out .= sprintf(">>> Error in response:\n%s\n", $response['error']);
 			} else {
 				if(isset($response['info']))
-					$out .= sprintf(">>> Debug:\n%s\n\n", DevblocksPlatform::strFormatJson(json_encode($response['info'])));
+					$out .= sprintf(">>> Response info:\n%s\n\n", DevblocksPlatform::strFormatJson(json_encode($response['info'])));
+				
+				if(isset($response['headers']))
+					$out .= sprintf(">>> Response headers:\n%s\n\n", DevblocksPlatform::strFormatJson(json_encode($response['headers'])));
 				
 				if(isset($response['body']))
-					$out .= sprintf(">>> Body:\n%s\n", $response['body']);
+					$out .= sprintf(">>> Response body:\n%s\n", $response['body']);
 			}
 			
 		} else {
