@@ -658,6 +658,30 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 		
+		$response_headers = [];
+		
+		curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($curl, $header) use (&$response_headers) {
+			$len = strlen($header);
+			
+			$parts = explode(':', $header, 2);
+			
+			if(count($parts) < 2)
+				return $len;
+			
+			$header_name = trim(strtolower($parts[0]));
+			$header_value = trim($parts[1]);
+			
+			if(!isset($response_headers[$header_name])) {
+				$response_headers[$header_name] = $header_value;
+			} else {
+				if(!isset($response_headers[$header_name]))
+					$response_headers[$header_name] = [];
+				
+				$response_headers[$header_name][] = $header_value;
+			}
+			return $len;
+		});
+		
 		// [TODO] User-level option to follow redirects
 		
 		$out = DevblocksPlatform::curlExec($ch, true);
@@ -729,12 +753,13 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		curl_close($ch);
 		
-		return array(
+		return [
 			'content_type' => $content_type,
+			'headers' => $response_headers,
 			'body' => $out,
 			'info' => $info,
 			'error' => $error,
-		);
+		];
 	}
 };
 
