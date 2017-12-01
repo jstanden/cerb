@@ -730,7 +730,54 @@ class DevblocksPlatform extends DevblocksEngine {
 		return implode('.', $parts);
 	}
 	
-	static function strParseQueryString($string, $decode=true) {
+	static function arrayDictSet($var, $path, $val) {
+		if(empty($var))
+			$var = is_array($var) ? [] : new stdClass();
+		
+		$parts = explode('.', $path);
+		$ptr =& $var;
+		
+		if(is_array($parts))
+		foreach($parts as $part) {
+			$part = str_replace('{DOT}', '.', $part);
+			
+			if('[]' == $part) {
+				if(is_array($ptr))
+					$ptr =& $ptr[];
+				
+			} elseif(is_array($ptr)) {
+				if(!isset($ptr[$part]))
+					$ptr[$part] = [];
+
+				$ptr =& $ptr[$part];
+				
+			} elseif(is_object($ptr)) {
+				if(!isset($ptr->$part))
+					$ptr->$part = [];
+				
+				$ptr =& $ptr->$part;
+			}
+		}
+		
+		$ptr = $val;
+		
+		return $var;
+	}
+	
+	static function arrayBuildQueryString(array $args, $sort=true, $fix_numeric_indices=true) {
+		if($sort)
+			ksort($args);
+		
+		$str = http_build_query($args, null, '&', PHP_QUERY_RFC3986);
+		
+		// Fix numeric indices
+		if($fix_numeric_indices)
+			$str = preg_replace('#%5B[0-9]+%5D#simU', '%5B%5D', $str);
+		
+		return $str;
+	}
+	
+	static function strParseQueryString($string) {
 		if(empty($string))
 			return [];
 		
@@ -743,9 +790,14 @@ class DevblocksPlatform extends DevblocksEngine {
 			if(empty($key))
 				continue;
 			
-			$key = $decode ? urldecode($key) : $key;
-			$value = $decode ? urldecode($value) : $value;
-			$vars[$key] = $value;
+			$key = urldecode($key);
+			$value = urldecode($value);
+			
+			// Rewrite field[key] to field.key
+			$key = str_replace('.', '{DOT}', $key);
+			$key = preg_replace('#\[(.+?)\]#', '.\1', $key);
+			$key = preg_replace('#\[\]#', '.[]', $key);
+			$vars = DevblocksPlatform::arrayDictSet($vars, $key, $value);
 		}
 		
 		return $vars;

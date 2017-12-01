@@ -129,7 +129,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 			$header_signature = $_SERVER['HTTP_CERB5_AUTH'];
 		}
 
-		@$this->_payload = $this->_getRawPost();
+		@$this->_payload = DevblocksPlatform::getHttpBody();
 		@list($auth_access_key, $auth_signature) = explode(":", $header_signature, 2);
 		$url_parts = parse_url(DevblocksPlatform::getWebPath());
 		$url_path = $url_parts['path'];
@@ -217,11 +217,13 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		}
 	}
 
+	// This maintains the encoding of the caller
 	private function _sortQueryString($query) {
 		// Strip the leading ?
 		$query = ltrim($query, '?');
 		
 		$args = [];
+		
 		$parts = explode('&', $query);
 		foreach($parts as $part) {
 			$pair = explode('=', $part, 2);
@@ -229,14 +231,27 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 			if(!is_array($pair))
 				continue;
 			
+			$value = null;
+			
 			if(2==count($pair)) {
-				$args[$pair[0]] = $part;
-			} elseif(1==count($pair)) {
-				$args[$pair[0]] = null;
+				$value = $part;
 			}
+			
+			if(!isset($args[$pair[0]]))
+				$args[$pair[0]] = [];
+			
+			$args[$pair[0]][] = $part;
 		}
+
 		ksort($args);
-		return implode("&", $args);
+		
+		$results = [];
+		
+		foreach($args as $k => $values)
+			foreach($values as $value)
+				$results[] = $value;
+		
+		return implode("&", $results);
 	}
 
 	/**
@@ -250,17 +265,6 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		$mktime_rfcnow = strtotime(date('r'));
 		$diff = $mktime_rfcnow - $mktime_rfcdate;
 		return ($diff > (-1*$diff_allowed) && $diff < $diff_allowed) ? true : false;
-	}
-
-	private function _getRawPost() {
-		$contents = "";
-
-		$putdata = fopen( "php://input" , "rb" );
-		while(!feof( $putdata ))
-			$contents .= fread($putdata, 4096);
-		fclose($putdata);
-
-		return $contents;
 	}
 
 	function writeResponse(DevblocksHttpResponse $response) {
@@ -477,11 +481,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 		switch(DevblocksPlatform::strUpper($verb)) {
 			case 'PATCH':
 			case 'PUT':
-				$_vars = DevblocksPlatform::strParseQueryString($this->_payload);
-				foreach($_vars as $k => $v) {
-					$_POST[$k] = $v;
-					$_REQUEST[$k] = $v;
-				}
+				parse_str($this->getPayload(), $_vars);
+				$_POST = array_merge_recursive($_POST, $_vars);
+				$_REQUEST = array_merge_recursive($_REQUEST, $_vars);
 				break;
 		}
 

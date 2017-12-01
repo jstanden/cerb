@@ -778,35 +778,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function function_dict_set($var, $path, $val) {
-		if(empty($var))
-			$var = is_array($var) ? array() : new stdClass();
-		
-		$parts = explode('.', $path);
-		$ptr =& $var;
-		
-		if(is_array($parts))
-		foreach($parts as $part) {
-			if('[]' == $part) {
-				if(is_array($ptr))
-					$ptr =& $ptr[];
-				
-			} elseif(is_array($ptr)) {
-				if(!isset($ptr[$part]))
-					$ptr[$part] = array();
-
-				$ptr =& $ptr[$part];
-				
-			} elseif(is_object($ptr)) {
-				if(!isset($ptr->$part))
-					$ptr->$part = array();
-				
-				$ptr =& $ptr->$part;
-			}
-		}
-		
-		$ptr = $val;
-		
-		return $var;
+		return DevblocksPlatform::arrayDictSet($var, $path, $val);
 	}
 	
 	function function_regexp_match_all($pattern, $text, $group = 0) {

@@ -111,6 +111,8 @@ class _DevblocksOAuthService {
 		
 		$query = array_map('rawurlencode', $query);
 		$postdata = array_map('rawurlencode', $postdata);
+		
+		$params = array_merge($query, $postdata);
 
 		$http_headers = array(
 			'Content-Type: application/x-www-form-urlencoded',
@@ -122,7 +124,7 @@ class _DevblocksOAuthService {
 		
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $http_headers);
 		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, urldecode(http_build_query($postdata)));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, urldecode(http_build_query($params)));
 		
 		if(false == ($out = DevblocksPlatform::curlExec($ch))) {
 			error_log(sprintf("cURL error: %s", curl_error($ch)));
@@ -459,8 +461,6 @@ class _DevblocksOAuthService {
 		);
 		
 		$query = array();
-		
-		// [TODO] Merge payload
 		
 		if(isset($url_parts['query']))
 			$query = DevblocksPlatform::strParseQueryString($url_parts['query']);

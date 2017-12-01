@@ -1078,6 +1078,95 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testArrayDictSet() {
+		// Nested dot notation
+		
+		$expected = [
+			'person' => [
+				'name' => [
+					'first' => 'Bob'
+				]
+			]
+		];
+		$actual = [];
+		$key = "person.name.first";
+		$val = "Bob";
+		
+		$actual = DevblocksPlatform::arrayDictSet($actual, $key, $val);
+		$this->assertEquals($expected, $actual);
+		
+		// Using {DOT} escaping
+		
+		$expected = [
+			'person' => [
+				'name.first' => 'Bob'
+			]
+		];
+		$actual = [];
+		$key = "person.name{DOT}first";
+		$val = "Bob";
+		
+		$actual = DevblocksPlatform::arrayDictSet($actual, $key, $val);
+		$this->assertEquals($expected, $actual);
+	}
+	
+	public function testStrParseQueryString() {
+		// Bracket fields
+		
+		$query = "expand=custom_&fields%5Bcustom_54%5D%5B%5D=MySQL&fields%5Bcustom_54%5D%5B%5D=PHP";
+
+		$expected = [
+			'expand' => 'custom_',
+			'fields' => [
+				'custom_54' => [
+					'MySQL',
+					'PHP',
+				]
+			]
+		];
+		
+		$args = DevblocksPlatform::strParseQueryString($query);
+		$this->assertEquals($expected, $args);
+		
+		// Multiple values
+		
+		$query = "field1=value1&field2=value2&field3=value3";
+		
+		$expected = [
+			'field1' => 'value1',
+			'field2' => 'value2',
+			'field3' => 'value3',
+		];
+		
+		$actual = DevblocksPlatform::strParseQueryString($query);
+		$this->assertEquals($expected, $actual);
+		
+		// Nested fields
+		
+		$expected = [
+			'fields' => [
+				'title' => 'This is the title',
+			]
+		];
+		
+		$raw_body = DevblocksPlatform::arrayBuildQueryString($expected);
+		
+		$actual = DevblocksPlatform::strParseQueryString($raw_body);
+		$this->assertEquals($expected, $actual);
+		
+		// Dots in field names (nested)
+		
+		$expected = [
+			'record.id' => 'id',
+			'record.name' => 'name',
+		];
+		
+		$raw_body = DevblocksPlatform::arrayBuildQueryString($expected);
+		
+		$actual = DevblocksPlatform::strParseQueryString($raw_body);
+		$this->assertEquals($expected, $actual);
+	}
+	
 	public function testStrPrettyBytes() {
 		// bytes
 		$expected = '512 bytes';
