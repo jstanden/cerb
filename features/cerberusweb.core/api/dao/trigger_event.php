@@ -770,6 +770,19 @@ class Model_TriggerEvent {
 	
 	private $_nodes = array();
 	
+	public function isDisabled() {
+		if($this->is_disabled)
+			return true;
+		
+		if(false == ($bot = $this->getBot()))
+			return true;
+		
+		if($bot->is_disabled)
+			return true;
+		
+		return false;
+	}
+	
 	public function hasPublicVariables() {
 		if(is_array($this->variables))
 		foreach($this->variables as $k => $v) {
