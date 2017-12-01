@@ -1262,6 +1262,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				case SearchFields_Address::IS_BANNED:
 				case SearchFields_Address::IS_DEFUNCT:
 				case SearchFields_Address::CONTACT_ORG_ID:
+				case SearchFields_Address::MAIL_TRANSPORT_ID:
 					$pass = true;
 					break;
 					
@@ -1310,6 +1311,12 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 					return array_column(DevblocksPlatform::objectsToArrays($rows), 'name', 'id');
 				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, SearchFields_Address::CONTACT_ORG_ID, $label_map, '=', 'value[]');
+				break;
+				
+			case SearchFields_Address::MAIL_TRANSPORT_ID:
+				$mail_transports = DAO_MailTransport::getAll();
+				$label_map = array_column($mail_transports, 'name', 'id');
+				$counts = $this->_getSubtotalCountForStringColumn($context, SearchFields_Address::MAIL_TRANSPORT_ID, $label_map, '=', 'value');
 				break;
 				
 			// Virtuals
