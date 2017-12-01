@@ -635,7 +635,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$edit = DevblocksPlatform::importGPC($_REQUEST['edit'], 'string', null);
 		
-		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(null == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return;
 		
 		if(!($context_ext instanceof IDevblocksContextPeek))
