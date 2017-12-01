@@ -1284,7 +1284,13 @@ var ajax = new cAjaxCalls();
 							if(0 == $ul.find('input:hidden[value="' + json[i].id + '"]').length) {
 								var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(json[i].id);
 								var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-								var $li = $('<li/>').text(json[i].name + ' (' + json[i].size + ' bytes)').append($hidden).append($remove);
+								var $a = $('<a href="javascript:;"/>')
+									.attr('data-context', 'attachment')
+									.attr('data-context-id', json[i].id)
+									.text(json[i].name + ' (' + json[i].size + ' bytes)')
+									.cerbPeekTrigger()
+									;
+								var $li = $('<li/>').append($a).append($hidden).append($remove);
 								$ul.append($li);
 							}
 						}
