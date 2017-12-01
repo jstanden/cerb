@@ -148,6 +148,10 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		if(null == (@$worker = DAO_Worker::get($credential->worker_id))) {
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: worker)"));
 		}
+		
+		if($worker->is_disabled) {
+			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: worker account is disabled)"));
+		}
 
 		$secret = DevblocksPlatform::strLower(md5($credential->secret_key));
 		$string_to_sign = "$string_to_sign_prefix\n$secret\n";
