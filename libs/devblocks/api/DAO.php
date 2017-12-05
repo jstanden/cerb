@@ -171,18 +171,19 @@ abstract class DevblocksORMHelper {
 					;
 					break;
 				case Model_CustomField::TYPE_LIST:
-					// [TODO]
-					break;
-				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-					// [TODO] Array
-					/*
 					$validation
 						->addField($field_id)
-						->string()
+						->stringOrArray()
 						->setMaxLength(255)
-						->setPossibleValues($custom_field->params['options'] ?: [])
 						;
-					*/
+					break;
+				case Model_CustomField::TYPE_MULTI_CHECKBOX:
+					$options = $custom_field->params['options'];
+					$validation
+						->addField($field_id)
+						->stringOrArray()
+						->setPossibleValues(is_array($options) ? $options : [])
+						;
 					break;
 				case Model_CustomField::TYPE_MULTI_LINE:
 					$validation

@@ -93,6 +93,17 @@ class _DevblocksValidationField {
 	
 	/**
 	 * 
+	 * @return _DevblocksValidationTypeStringOrArray
+	 */
+	function stringOrArray() {
+		$this->_type = new _DevblocksValidationTypeStringOrArray();
+		return $this->_type
+			->setMaxLength(255)
+			;
+	}
+	
+	/**
+	 * 
 	 * @return _DevblocksValidationTypeNumber
 	 */
 	function timestamp() {
@@ -474,6 +485,22 @@ class _DevblocksValidationTypeString extends _DevblocksValidationType {
 	}
 }
 
+class _DevblocksValidationTypeStringOrArray extends _DevblocksValidationType {
+	function setMaxLength($length) {
+		if(is_string($length)) {
+			$length = DevblocksPlatform::strBitsToInt($length);
+		}
+		
+		$this->_data['length'] = intval($length);
+		return $this;
+	}
+	
+	function setPossibleValues(array $possible_values) {
+		$this->_data['possible_values'] = $possible_values;
+		return $this;
+	}
+}
+
 class _DevblocksValidationService {
 	private $_fields = [];
 	
@@ -602,8 +629,31 @@ class _DevblocksValidationService {
 					}
 					
 					if(isset($data['possible_values']) && !in_array($value, $data['possible_values'])) {
-						// [TODO] Handle multiple values
 						throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_name, implode(', ', $data['possible_values'])));
+					}
+				}
+				break;
+				
+			case '_DevblocksValidationTypeStringOrArray':
+				if(!is_null($value) && !is_string($value) && !is_array($value)) {
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a string or array (%s).", $field_name, gettype($value)));
+				}
+				
+				if(!is_array($value)) {
+					$values = [$value];
+				} else {
+					$values = $value;
+				}
+				
+				if($data) {
+					foreach($values as $value) {
+						if(isset($data['length']) && strlen($value) > $data['length']) {
+							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_name, $data['length']));
+						}
+						
+						if(isset($data['possible_values']) && !in_array($value, $data['possible_values'])) {
+							throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_name, implode(', ', $data['possible_values'])));
+						}
 					}
 				}
 				break;
