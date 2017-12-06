@@ -571,10 +571,48 @@ switch($step) {
 			
 			// Platform + App
 			try {
+				// Flush cache
 				DevblocksPlatform::clearCache();
 				
 				CerberusApplication::update();
 				
+				// Set up the default cron jobs
+				$crons = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
+				if(is_array($crons))
+				foreach($crons as $id => $cron) { /* @var $cron CerberusCronPageExtension */
+					switch($id) {
+						case 'cron.bot.scheduled_behavior':
+							$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+							$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '5');
+							$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+							$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
+							break;
+						case 'cron.heartbeat':
+							$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+							$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '5');
+							$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+							$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
+							break;
+						case 'cron.mailbox':
+							$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+							$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '5');
+							$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+							$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Today'));
+							break;
+						case 'cron.maint':
+							$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+							$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '24');
+							$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'h');
+							$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
+							break;
+						case 'cron.parser':
+							$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
+							$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '1');
+							$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
+							$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Today'));
+							break;
+					}
+				}
 				// Reload plugin translations
 				DAO_Translation::reloadPluginStrings();
 				
@@ -871,39 +909,6 @@ switch($step) {
 		
 	case STEP_FINISHED:
 		@unlink(APP_TEMP_PATH . '/setup.json');
-		
-		// Set up the default cron jobs
-		$crons = DevblocksPlatform::getExtensions('cerberusweb.cron', true);
-		if(is_array($crons))
-		foreach($crons as $id => $cron) { /* @var $cron CerberusCronPageExtension */
-			switch($id) {
-				case 'cron.mailbox':
-					$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
-					$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '5');
-					$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
-					$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Today'));
-					break;
-				case 'cron.parser':
-					$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
-					$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '1');
-					$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
-					$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Today'));
-					break;
-				case 'cron.maint':
-					$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
-					$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '24');
-					$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'h');
-					$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
-					break;
-				case 'cron.heartbeat':
-					$cron->setParam(CerberusCronPageExtension::PARAM_ENABLED, true);
-					$cron->setParam(CerberusCronPageExtension::PARAM_DURATION, '5');
-					$cron->setParam(CerberusCronPageExtension::PARAM_TERM, 'm');
-					$cron->setParam(CerberusCronPageExtension::PARAM_LASTRUN, strtotime('Yesterday'));
-					break;
-			}
-			
-		}
 		
 		$tpl->assign('template', 'steps/step_finished.tpl');
 		break;
