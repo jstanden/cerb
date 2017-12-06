@@ -529,6 +529,9 @@ class CerberusMail {
 				
 				$embedded_files[] = $html_body_id;
 			}
+			
+			// Convert to a plaintext part
+			$content_saved = self::_generateTextFromMarkdown($content_saved);
 		}
 
 		$fields = array(
@@ -1074,6 +1077,9 @@ class CerberusMail {
 					
 					$embedded_files[] = $html_body_id;
 				}
+				
+				// Convert to a plaintext part
+				$content_saved = self::_generateTextFromMarkdown($content_saved);
 			}
 			
 			// Fields
