@@ -3287,7 +3287,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function redirect(DevblocksHttpIO $httpIO, $wait_secs=0) {
-		$url_service = self::getUrlService();
+		$url_service = DevblocksPlatform::services()->url();
 		session_write_close();
 		$url = $url_service->writeDevblocksHttpIO($httpIO, true);
 		header('Location: '.$url);
@@ -3300,7 +3300,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	static function redirectURL($url, $wait_secs=0) {
 		if(empty($url)) {
-			$url_service = self::getUrlService();
+			$url_service = DevblocksPlatform::services()->url();
 			$url = $url_service->writeNoProxy('', true);
 		}
 		session_write_close();

@@ -518,7 +518,7 @@ class CerberusMail {
 		// Save a copy of the sent HTML body
 		$html_body_id = 0;
 		if($content_format == 'parsedown') {
-			if(false !== ($html = $html_body = DevblocksPlatform::parseMarkdown($content_saved))) {
+			if(false !== ($html = DevblocksPlatform::parseMarkdown($content_saved))) {
 				$html_body_id = DAO_Attachment::create([
 					DAO_Attachment::NAME => 'original_message.html',
 					DAO_Attachment::MIME_TYPE => 'text/html',
@@ -1063,7 +1063,7 @@ class CerberusMail {
 			// Save a copy of the sent HTML body
 			$html_body_id = 0;
 			if($content_format == 'parsedown') {
-				if(false !== ($html = $html_body = DevblocksPlatform::parseMarkdown($content_saved))) {
+				if(false !== ($html = DevblocksPlatform::parseMarkdown($content_saved))) {
 					$html_body_id = DAO_Attachment::create([
 						DAO_Attachment::NAME => 'original_message.html',
 						DAO_Attachment::MIME_TYPE => 'text/html',
