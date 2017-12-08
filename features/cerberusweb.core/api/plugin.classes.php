@@ -664,6 +664,7 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		$response_headers = [];
 		
+		// See: https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
 		curl_setopt($ch, CURLOPT_HEADERFUNCTION, function($curl, $header) use (&$response_headers) {
 			$len = strlen($header);
 			
@@ -678,11 +679,9 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			if(!isset($response_headers[$header_name])) {
 				$response_headers[$header_name] = $header_value;
 			} else {
-				if(!isset($response_headers[$header_name]))
-					$response_headers[$header_name] = [];
-				
-				$response_headers[$header_name][] = $header_value;
+				$response_headers[$header_name] .= ', ' . $header_value;
 			}
+			
 			return $len;
 		});
 		
