@@ -89,6 +89,8 @@ $(function() {
 				}
 				
 				$response.find('.cerb-peek-trigger').cerbPeekTrigger();
+				$response.find('.cerb-search-trigger').cerbSearchTrigger();
+				$response.find('.cerb-bot-trigger').cerbBotTrigger();
 				
 				$response.each(function(i) {
 					var $object = $(this);
