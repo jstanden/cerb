@@ -1,5 +1,5 @@
 {if !empty($tour)}
-<script language="javascript" type="text/javascript" src="{devblocks_url}c=resource&plugin=devblocks.core&f=js/jquery/jquery.qtip.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
+<script type="text/javascript" src="{devblocks_url}c=resource&plugin=devblocks.core&f=js/jquery/jquery.qtip.min.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <link rel="stylesheet" type="text/css" href="{devblocks_url}c=resource&plugin=devblocks.core&f=css/jquery.qtip.min.css{/devblocks_url}?v={$smarty.const.APP_BUILD}" />
 
 <div id="tourDiv" class="help-box">
@@ -26,7 +26,7 @@
 				<div style="margin:5px;">
 				{foreach from=$tour.callouts item=callout key=callout_id name=callouts}
 					<span class="glyphicons glyphicons-pushpin"></span> <a href="javascript:;" id="callout{$callout_id}">{$callout->title}</a>
-					 &nbsp; 
+					&nbsp; 
 				{/foreach}
 				</div>
 			{/if}
