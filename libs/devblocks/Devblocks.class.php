@@ -652,6 +652,30 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * Parse HTTP header attribute strings, like: charset=utf-8
+	 * 
+	 * @param string $header_value
+	 * @return boolean|array
+	 */
+	static function parseHttpHeaderAttributes($header_value) {
+		$results = [];
+		
+		if(
+			empty($header_value)
+			|| false == ($attributes = explode(';', $header_value)) 
+			|| !is_array($attributes)
+			)
+			return false;
+		
+		foreach($attributes as $attribute) {
+			list($k, $v) = array_map('trim', explode('=', $attribute, 2));
+			$results[DevblocksPlatform::strLower($k)] = $v;
+		}
+		
+		return $results;
+	}
+	
+	/**
 	 * 
 	 * @param string $string
 	 * @return array

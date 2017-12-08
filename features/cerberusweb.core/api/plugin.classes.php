@@ -714,7 +714,14 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 			
 		} elseif (isset($info['content_type'])) {
 			// Split content_type + charset in the header
-			@list($content_type, $content_charset) = explode(';', DevblocksPlatform::strLower($info['content_type']));
+			@list($content_type, $content_attributes) = explode(';', $info['content_type'], 2);
+			
+			$content_type = trim(DevblocksPlatform::strLower($content_type));
+			$content_attributes = DevblocksPlatform::parseHttpHeaderAttributes($content_attributes);
+			
+			// Fix bad encodings
+			if(isset($content_attributes['charset']))
+				$out = mb_convert_encoding($out, $content_attributes['charset']);
 			
 			// Auto-convert the response body based on the type
 			if(!(isset($options['raw_response_body']) && $options['raw_response_body'])) {
@@ -756,13 +763,15 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		
 		curl_close($ch);
 		
-		return [
+		$result = [
 			'content_type' => $content_type,
 			'headers' => $response_headers,
 			'body' => $out,
 			'info' => $info,
 			'error' => $error,
 		];
+		
+		return $result;
 	}
 };
 

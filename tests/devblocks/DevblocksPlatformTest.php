@@ -641,6 +641,26 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		
 	}
 	
+	public function testParseHttpHeaderAttributes() {
+		// Lowercase attribute names
+		$expected = ['charset' => 'utf-8'];
+		$header_value = "CHARSET=utf-8";
+		$actual = DevblocksPlatform::parseHttpHeaderAttributes($header_value);
+		$this->assertEquals($expected, $actual);
+		
+		// Multiple attributes
+		$expected = ['charset' => 'ISO-8859-1', 'boundary' => 'a1b2c3de'];
+		$header_value = "charset=ISO-8859-1; boundary=a1b2c3de";
+		$actual = DevblocksPlatform::parseHttpHeaderAttributes($header_value);
+		$this->assertEquals($expected, $actual);
+		
+		// Whitespace in the header value
+		$expected = ['charset' => 'ISO-8859-1', 'boundary' => 'a1b2c3de'];
+		$header_value = "charset = ISO-8859-1 ; boundary = a1b2c3de";
+		$actual = DevblocksPlatform::parseHttpHeaderAttributes($header_value);
+		$this->assertEquals($expected, $actual);
+	}
+	
 	public function testParseMarkdown() {
 		// Bold
 		$expected = '<p><strong>Bold</strong></p>'; 
