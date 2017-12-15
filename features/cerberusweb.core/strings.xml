@@ -1485,6 +1485,16 @@
 				<seg>OK</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.package">
+			<tuv xml:lang="en_US">
+				<seg>package</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.packages">
+			<tuv xml:lang="en_US">
+				<seg>packages</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.param">
 			<tuv xml:lang="en_US">
 				<seg>param</seg>
