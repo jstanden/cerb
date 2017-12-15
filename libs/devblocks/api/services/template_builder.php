@@ -130,6 +130,7 @@ class _DevblocksTemplateBuilder {
 				'dict_set',
 				'json_decode',
 				'jsonpath_set',
+				'placeholders_list',
 				'random_string',
 				'regexp_match_all',
 				'shuffle',
@@ -675,6 +676,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
 			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
 			new Twig_SimpleFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
+			new Twig_SimpleFunction('placeholders_list', [$this, 'function_placeholders_list'], ['needs_environment' => true]),
 			new Twig_SimpleFunction('random_string', [$this, 'function_random_string']),
 			new Twig_SimpleFunction('regexp_match_all', [$this, 'function_regexp_match_all']),
 			new Twig_SimpleFunction('shuffle', [$this, 'function_shuffle']),
@@ -770,6 +772,16 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		$ptr = $val;
 		
 		return $var;
+	}
+	
+	function function_placeholders_list(Twig_Environment $env) {
+		if(false == (@$callback = $env->getUndefinedVariableCallbacks()[0]) || !is_array($callback))
+			return [];
+		
+		if(false == (@$dict = $callback[0]))
+			return [];
+		
+		return $dict->getDictionary('', false);
 	}
 	
 	function function_random_string($length=8) {

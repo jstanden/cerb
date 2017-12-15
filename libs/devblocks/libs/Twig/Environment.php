@@ -1154,6 +1154,15 @@ class Twig_Environment
 		}
 		
 		/**
+		 * Returns all undefined variable callbacks
+		 * 
+		 * @return array
+		 */
+		public function getUndefinedVariableCallbacks() {
+			return $this->variableCallbacks;
+		}
+
+		/**
 		 * Attempts to get a value for an undefined variable from a callback.
 		 * 
 		 * @param string $name The undefined variable
