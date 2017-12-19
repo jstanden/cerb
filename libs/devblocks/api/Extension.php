@@ -2453,24 +2453,25 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 			}
 		}
-
+		
 		// Append to simulator output
 		if(!empty($out)) {
 			/* @var $trigger Model_TriggerEvent */
 			$all_actions = $this->getActions($trigger);
 			$log = EventListener_Triggers::getNodeLog();
-
+			
 			if(!isset($dict->__simulator_output) || !is_array($dict->__simulator_output))
-				$dict->__simulator_output = array();
+				$dict->__simulator_output = [];
 
 			$node_id = array_pop($log);
-
+			
 			if(!empty($node_id) && false !== ($node = DAO_DecisionNode::get($node_id))) {
 				$output = array(
 					'action' => $node->title,
 					'title' => $all_actions[$token]['label'],
 					'content' => $out,
 				);
+				
 				
 				$previous_output = $dict->__simulator_output;
 				$previous_output[] = $output;

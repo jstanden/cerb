@@ -3868,6 +3868,23 @@
 		</extension>
 		
 		<extension point="devblocks.event.action">
+			<id>core.bot.action.email_parser</id>
+			<name>Email Parser</name>
+			<class>
+				<file>api/plugin.classes.php</file>
+				<name>BotAction_EmailParser</name>
+			</class>
+			<params>
+				<param key="label" value="Execute email parser" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event.action">
 			<id>core.bot.action.calculate_time_elapsed</id>
 			<name>Get time elapsed using calendar availability</name>
 			<class>
