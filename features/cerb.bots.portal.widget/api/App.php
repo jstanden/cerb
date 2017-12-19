@@ -451,6 +451,11 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 									$tpl->assign('delay_ms', 0);
 									$tpl->display('devblocks:cerb.bots.portal.widget::widget/convo/script.tpl');
 									break;
+									
+								case 'window.close':
+									$tpl->assign('delay_ms', 0);
+									$tpl->display('devblocks:cerb.bots.portal.widget::widget/convo/window_close.tpl');
+									break;
 							}
 						}
 						

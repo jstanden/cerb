@@ -281,6 +281,7 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				'send_message' => array('label' => 'Respond with message'),
 				'send_script' => array('label' => 'Respond with script'),
 				'switch_behavior' => array('label' => 'Switch conversational behavior'),
+				'window_close' => array('label' => 'Close chat window'),
 				
 				'send_email' => array('label' => 'Send email'),
 			)
@@ -350,6 +351,9 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				
 			case 'switch_behavior':
 				$tpl->display('devblocks:cerb.bots.portal.widget::widget/convo/event/action_switch_behavior.tpl');
+				break;
+				
+			case 'window_close':
 				break;
 		}
 		
@@ -459,6 +463,10 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 					"%d\n",
 					$behavior_id
 				);
+				break;
+				
+			case 'window_close':
+				$out = sprintf(">>> Closing the chat window\n");
 				break;
 		}
 		
@@ -684,6 +692,17 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				);
 				
 				$dict->__exit = 'suspend';
+				break;
+				
+			case 'window_close':
+				$actions =& $dict->_actions;
+
+				$actions[] = array(
+					'_action' => 'window.close',
+					'_trigger_id' => $trigger->id,
+				);
+
+				$dict->__exit = 'exit';
 				break;
 		}
 	}
