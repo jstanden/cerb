@@ -16,7 +16,7 @@
 
 <b>Save package results to a placeholder named:</b><br>
 <div style="margin-left:10px;margin-bottom:10px;">
-	&#123;&#123;<input type="text" name="{$namePrefix}[object_placeholder]" value="{$params.object_placeholder|default:"_record"}" required="required" spellcheck="false" size="32" placeholder="e.g. _record">&#125;&#125;
+	&#123;&#123;<input type="text" name="{$namePrefix}[object_placeholder]" value="{$params.object_placeholder|default:"_results"}" required="required" spellcheck="false" size="32" placeholder="e.g. _results">&#125;&#125;
 </div>
 
 <script type="text/javascript">

@@ -91,7 +91,7 @@
 				{$owner_context_id = $result.c_owner_context_id}
 				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
 				<td data-column="{$column}">
-					{if !is_null($owner_context_ext)}
+					{if $owner_context_ext instanceof Extension_DevblocksContext}
 						{$meta = $owner_context_ext->getMeta($owner_context_id)}
 						{if !empty($meta)}
 						{$meta.name} 
