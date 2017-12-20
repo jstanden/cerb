@@ -354,6 +354,18 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM mail_queue WHERE id IN (%s)", $ids_list));
 		
+		// Fire event
+		$eventMgr = DevblocksPlatform::services()->event();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_DRAFT,
+					'context_ids' => $ids
+				)
+			)
+		);
+		
 		return true;
 	}
 	
@@ -467,6 +479,27 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		mysqli_free_result($rs);
 		
 		return array($results,$total);
+	}
+	
+	static function maint() {
+		$db = DevblocksPlatform::services()->database();
+		$logger = DevblocksPlatform::services()->log();
+		
+		$db->ExecuteMaster("DELETE FROM attachment_link WHERE context = 'cerberusweb.contexts.mail.draft' AND context_id NOT IN (SELECT id FROM mail_queue)");
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' draft attachment_link records.');
+
+		// Fire event
+		$eventMgr = DevblocksPlatform::services()->event();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.maint',
+				array(
+					'context' => CerberusContexts::CONTEXT_DRAFT,
+					'context_table' => 'mail_queue',
+					'context_key' => 'id',
+				)
+			)
+		);
 	}
 };
 
