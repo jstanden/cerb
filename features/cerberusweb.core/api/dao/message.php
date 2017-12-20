@@ -432,6 +432,10 @@ class DAO_Message extends Cerb_ORMHelper {
 		// Headers
 		$db->ExecuteMaster("DELETE message_headers FROM message_headers INNER JOIN _tmp_maint_message ON (_tmp_maint_message.id=message_headers.message_id)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message_headers records.');
+		
+		// Attachments
+		$db->ExecuteMaster("DELETE FROM attachment_link WHERE context = 'cerberusweb.contexts.message' AND context_id NOT IN (SELECT id FROM message)");
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' message attachment_link records.');
 
 		// Search indexes
 		if(isset($tables['fulltext_message_content'])) {

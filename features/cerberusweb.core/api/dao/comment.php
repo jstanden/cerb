@@ -481,6 +481,9 @@ class DAO_Comment extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
 		$tables = DevblocksPlatform::getDatabaseTables();
+		
+		$db->ExecuteMaster("DELETE FROM attachment_link WHERE context = 'cerberusweb.contexts.comment' AND context_id NOT IN (SELECT id FROM comment)");
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' comment attachment_link records.');
 
 		// Search indexes
 		if(isset($tables['fulltext_comment_content'])) {
