@@ -201,8 +201,7 @@ class ChRest_Records extends Extension_RestController {
 		$dao_class::onUpdateByActor($active_worker, $dao_fields, $id);
 		
 		if($custom_fields)
-		foreach($custom_fields as $field_id => $value)
-			DAO_CustomFieldValue::setFieldValue($context_ext->id, $id, $field_id, $value);
+			DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $id, $custom_fields);
 		
 		$this->_getContextRecord($context_ext->manifest, [$id]);
 	}
@@ -258,8 +257,7 @@ class ChRest_Records extends Extension_RestController {
 		$dao_class::onUpdateByActor($active_worker, $dao_fields, $id);
 		
 		if($custom_fields)
-		foreach($custom_fields as $field_id => $value)
-			DAO_CustomFieldValue::setFieldValue($context_ext->id, $id, $field_id, $value);
+			DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $id, $custom_fields);
 		
 		$this->_getContextRecord($context_ext->manifest, [$id]);
 	}

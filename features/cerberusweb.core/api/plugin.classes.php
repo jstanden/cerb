@@ -1449,8 +1449,7 @@ class BotAction_RecordCreate extends Extension_DevblocksEventAction {
 			return false;
 		
 		if($custom_fields)
-		foreach($custom_fields as $field_id => $value)
-			DAO_CustomFieldValue::setFieldValue($context_ext->id, $id, $field_id, $value);
+			DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $id, $custom_fields);
 		
 		$dao_class::onUpdateByActor($actor, $dao_fields, $id);
 		
@@ -1597,8 +1596,7 @@ class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 		$dao_class::update($id, $dao_fields);
 		
 		if($custom_fields)
-		foreach($custom_fields as $field_id => $value)
-			DAO_CustomFieldValue::setFieldValue($context_ext->id, $id, $field_id, $value);
+			DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $id, $custom_fields);
 		
 		$dao_class::onUpdateByActor($actor, $dao_fields, $id);
 		
