@@ -322,7 +322,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			// Return to the caller if we have one
 			@$caller = array_pop($interaction->session_data['callers']);
-			$interaction->session_data['behavior_has_parent'] = 0;
+			$interaction->session_data['behavior_has_parent'] = !empty($interaction->session_data['callers']) ? 1 : 0;
 			
 			if(is_array($caller)) {
 				$caller_behavior_id = $caller['behavior_id'];

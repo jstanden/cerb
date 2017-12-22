@@ -232,10 +232,10 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 							'message' => $message,
 							'actions' => &$actions,
 								
-							// [TODO] If we have a caller?
 							'bot_name' => $bot_name,
 							'bot_image' => @$interaction->session_data['bot_image'],
 							'behavior_id' => $behavior_id,
+							'behavior_has_parent' => @$interaction->session_data['behavior_has_parent'],
 							'cookie' => @$interaction->session_data['cookie'],
 							'portal_code' => @$interaction->session_data['portal_code'],
 							'interaction' => @$interaction->session_data['interaction'],
@@ -293,6 +293,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 							
 							// Return to the caller if we have one
 							@$caller = array_pop($interaction->session_data['callers']);
+							$interaction->session_data['behavior_has_parent'] = !empty($interaction->session_data['callers']) ? 1 : 0;
 							
 							if(is_array($caller)) {
 								$caller_behavior_id = $caller['behavior_id'];
@@ -353,6 +354,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 									}
 									
 									$interaction->session_data['behavior_id'] = $new_behavior->id;
+									$interaction->session_data['behavior_has_parent'] = 1;
 									$interaction->session_data['behaviors'][$new_behavior->id]['dict'] = $new_dict;
 									$interaction->session_data['behaviors'][$new_behavior->id]['path'] = [];
 									
