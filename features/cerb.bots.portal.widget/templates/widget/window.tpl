@@ -26,6 +26,36 @@
 	
 	var $spinner = $('<div class="cerb-bot-chat-message cerb-bot-chat-left"><div class="cerb-bot-chat-message-bubble"><span class="cerb-ajax-spinner" style="zoom:0.5;-moz-transform:scale(0.5);"></span></div></div>');
 	
+	var message_queue = (function() {
+		var API;
+		var queue = [];
+		var job = null;
+		var timer;
+		
+		function next() {
+			if(job !== null) {
+				job.func();
+				job = null;
+			}
+			
+			if(0 < queue.length) {
+				job = queue.shift();
+				timer = setTimeout(next, job.delay_ms);
+				
+			} else {
+				timer = setTimeout(next, 250);
+			}
+		}
+		
+		timer = setTimeout(next, 0);
+		
+		return API = {
+			add: function(func, delay_ms) {
+				queue.push({ func: func, delay_ms: delay_ms });
+			}
+		}
+	})();
+	
 	$close.on('click', function(e) {
 		e.stopPropagation();
 		$embed.trigger('cerb-bot-close');
@@ -55,7 +85,6 @@
 			
 		}).done(function(html) {
 			var $response = $(html);
-			var delay_ms = 0;
 			
 			if(0 == $response.length) {
 				$spinner.hide();
@@ -81,10 +110,8 @@
 						$convo.trigger('update');
 					}
 					
-					setTimeout(func, delay_ms);
+					message_queue.add(func, 0);
 				}
-				
-				delay_ms += parseInt(delay);
 				
 				var func = function() {
 					$object.appendTo($convo).hide().fadeIn();
@@ -92,7 +119,7 @@
 					$convo.trigger('update');
 				}
 				
-				setTimeout(func, delay_ms);
+				message_queue.add(func, parseInt(delay));
 			});
 		});
 	});
