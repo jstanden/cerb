@@ -80,8 +80,3 @@ var $fieldset_cfields = $form.actions.find('div.reply-custom-fields');
 
 {/if}{/if}</textarea>
 </div>
-
-<script type="text/javascript">
-$action = $('fieldset#{$namePrefix}');
-$action.find('textarea').autosize();
-</script>

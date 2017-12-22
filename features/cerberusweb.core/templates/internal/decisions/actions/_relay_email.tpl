@@ -42,10 +42,3 @@ Lines that begin with <code>##</code> will be ignored on reply.
 
 <b>{'common.attachments'|devblocks_translate}:</b><br>
 <label><input type="checkbox" name="{$namePrefix}[include_attachments]" value="1" {if $params.include_attachments}checked="checked"{/if}> Include attachments</label><br>
-
-<script type="text/javascript">
-$(function() {
-	var $action = $('fieldset#{$namePrefix}');
-	$action.find('textarea').autosize();
-});
-</script>

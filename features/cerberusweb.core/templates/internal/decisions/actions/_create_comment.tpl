@@ -33,8 +33,6 @@ $(function() {
 	var $action = $('fieldset#{$namePrefix}');
 	var $textarea = $action.find('textarea').first();
 	
-	$textarea.autosize();
-	
 	var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
 
 	$textarea.atwho({

@@ -35,7 +35,6 @@
 $(function() {
 	var $action = $('fieldset#{$namePrefix}');
 	
-	$action.find('textarea').autosize();
 	
 	$action.find('div.set-date-mode input:radio').change(function() {
 		var $radio = $(this);

@@ -104,7 +104,6 @@
 <script type="text/javascript">
 $(function() {
 	var $action = $('fieldset#{$namePrefix}');
-	$action.find('textarea').autosize();
 	$action.find('input:radio[name$="[status]"]').change(function() {
 		var $val = $(this).val();
 		

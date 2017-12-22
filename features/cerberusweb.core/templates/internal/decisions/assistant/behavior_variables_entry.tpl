@@ -66,9 +66,6 @@
 $(function() {
 	var $container = $('#{$vars_uniqid}');
 	
-	// Elastic textareas
-	$container.find('textarea').autosize();
-	
 	// Choosers
 	$container.find('button.cerb-chooser-trigger')
 		.cerbChooserTrigger()

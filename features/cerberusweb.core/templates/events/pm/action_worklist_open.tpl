@@ -66,8 +66,6 @@ $(function() {
 	var $parent = $div.parent();
 	var $popup = $div.closest('.ui-dialog');
 	
-	$parent.find('textarea').autosize();
-	
 	$div.click(function(e) {
 		var width = $(window).width()-100;
 		var $mode = $popup.parent().find('input.mode');

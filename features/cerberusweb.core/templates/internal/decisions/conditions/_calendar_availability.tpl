@@ -4,8 +4,8 @@
 	{/foreach}
 </select>
 
- is 
- 
+is 
+
 <select name="{$namePrefix}[is_available]">
 	<option value="1" {if $params.is_available}selected="selected"{/if}>Available</option>
 	<option value="0" {if !$params.is_available}selected="selected"{/if}>Busy</option>
@@ -18,8 +18,3 @@
 	-{'search.date.between.and'|devblocks_translate}-<br>
 	<input type="text" name="{$namePrefix}[to]" size="20" value="{$params.to}" style="width:98%;"><br>
 </blockquote>
-
-<script type="text/javascript">
-$condition = $('li#{$namePrefix}');
-</script>
-
