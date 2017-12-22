@@ -45,7 +45,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $action = $('fieldset#{$namePrefix}');
+	var $action = $('#{$namePrefix}_{$nonce}');
 	var $add = $action.find('button.cerb-prompt-image-add');
 	var $template = $action.find('fieldset.cerb-prompt-image-add-template');
 	

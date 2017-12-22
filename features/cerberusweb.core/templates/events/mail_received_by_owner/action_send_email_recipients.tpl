@@ -70,7 +70,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $action = $('fieldset#{$namePrefix}');
+	var $action = $('#{$namePrefix}_{$nonce}');
 	var $content = $action.find('textarea.editor');
 	
 	$action.find('.cerb-peek-trigger').cerbPeekTrigger();

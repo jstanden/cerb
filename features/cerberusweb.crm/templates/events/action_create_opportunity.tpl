@@ -75,6 +75,6 @@
 
 {*
 <script type="text/javascript">
-var $action = $('fieldset#{$namePrefix}');
+var $action = $('#{$namePrefix}_{$nonce}');
 </script>
 *}

@@ -103,7 +103,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $action = $('fieldset#{$namePrefix}');
+	var $action = $('#{$namePrefix}_{$nonce}');
 	$action.find('input:radio[name$="[status]"]').change(function() {
 		var $val = $(this).val();
 		

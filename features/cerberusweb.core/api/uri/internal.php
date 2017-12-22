@@ -3724,6 +3724,11 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->assign('values', $values);
 				}
 				
+				// Nonce scope
+				$nonce = uniqid();
+				$tpl->assign('nonce', $nonce);
+
+				// Template
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/outcome.tpl');
 				break;
 				
@@ -3755,6 +3760,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 				// Workers
 				$tpl->assign('workers', DAO_Worker::getAll());
+				
+				// Nonce scope
+				$nonce = uniqid();
+				$tpl->assign('nonce', $nonce);
 				
 				// Template
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/action.tpl');
@@ -4015,6 +4024,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$condition = DevblocksPlatform::importGPC($_REQUEST['condition'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
 		@$seq = DevblocksPlatform::importGPC($_REQUEST['seq'],'integer', 0);
+		@$nonce = DevblocksPlatform::importGPC($_REQUEST['nonce'],'string', '');
 
 		$tpl = DevblocksPlatform::services()->template();
 
@@ -4027,6 +4037,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('trigger', $trigger);
 		$tpl->assign('event', $event);
 		$tpl->assign('seq', $seq);
+		$tpl->assign('nonce', $nonce);
 			
 		$event->renderCondition($condition, $trigger, null, $seq);
 	}
@@ -4035,6 +4046,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
 		@$seq = DevblocksPlatform::importGPC($_REQUEST['seq'],'integer', 0);
+		@$nonce = DevblocksPlatform::importGPC($_REQUEST['nonce'],'string', '');
 
 		$tpl = DevblocksPlatform::services()->template();
 
@@ -4047,7 +4059,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('trigger', $trigger);
 		$tpl->assign('event', $event);
 		$tpl->assign('seq', $seq);
-			
+		$tpl->assign('nonce', $nonce);
+		
 		$event->renderAction($action, $trigger, null, $seq);
 	}
 

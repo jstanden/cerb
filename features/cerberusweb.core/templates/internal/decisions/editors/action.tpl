@@ -24,7 +24,7 @@
 {$seq = null}
 {if $model && isset($model->params.actions) && is_array($model->params.actions)}
 {foreach from=$model->params.actions item=params key=seq}
-<fieldset id="action{$seq}">
+<fieldset id="action{$seq}_{$nonce}">
 	<legend style="cursor:move;">
 		<a href="javascript:;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
 		{if $actions[$params.action]}
@@ -87,6 +87,7 @@
 <form id="frmDecisionActionAdd{$id}" action="javascript:;" onsubmit="return false;">
 <input type="hidden" name="seq" value="{$model->params.actions|count}">
 <input type="hidden" name="action" value="">
+<input type="hidden" name="nonce" value="{$nonce}">
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -342,7 +343,7 @@ $(function() {
 					if(null == seq)
 						seq = 0;
 					
-					var $container = $('<fieldset/>').attr('id','action' + seq);
+					var $container = $('<fieldset/>').attr('id','action' + seq + '_{$nonce}');
 					$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a> ' + label + '</legend>');
 					$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
 					$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');

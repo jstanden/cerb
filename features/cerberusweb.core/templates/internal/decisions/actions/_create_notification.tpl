@@ -26,7 +26,7 @@
 </div>
 
 <script type="text/javascript">
-$action = $('fieldset#{$namePrefix}');
+var $action = $('#{$namePrefix}_{$nonce}');
 $action.find('select:first').change(function(e) {
 	$this = $(this);
 	$input = $this.next('div');

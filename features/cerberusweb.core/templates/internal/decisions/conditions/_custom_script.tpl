@@ -1,5 +1,5 @@
 <textarea name="{$namePrefix}[tpl]" class="placeholders">{$params.tpl}</textarea>
- 
+
 <select name="{$namePrefix}[oper]">
 	<option value="is" {if $params.oper=='is'}selected="selected"{/if}>is</option>
 	<option value="!is" {if $params.oper=='!is'}selected="selected"{/if}>is not</option>
@@ -16,6 +16,6 @@
 
 <script type="text/javascript">
 $(function() {
-	var $condition = $('li#{$namePrefix}');
+	var $condition = $('#{$namePrefix}_{$nonce}');
 })
 </script>

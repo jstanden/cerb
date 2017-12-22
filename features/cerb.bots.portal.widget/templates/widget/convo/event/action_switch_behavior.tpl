@@ -27,9 +27,8 @@
 
 <script type="text/javascript">
 $(function() {
-	var $action = $('fieldset#{$namePrefix}');
+	var $action = $('#{$namePrefix}_{$nonce}');
 	var $behavior_params = $action.find('div.parameters');
-	var $bubbles = $action.find('ul.chooser-container');
 	
 	$action.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
@@ -38,6 +37,7 @@ $(function() {
 	$action.find('.chooser-behavior')
 		.cerbChooserTrigger()
 			.on('cerb-chooser-saved', function(e) {
+				var $bubbles = $action.find('ul.chooser-container');
 				var $bubble = $bubbles.find('> li:first input:hidden');
 				var id = $bubble.first().val();
 				

@@ -58,7 +58,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $action = $('fieldset#{$namePrefix}');
+	var $action = $('#{$namePrefix}_{$nonce}');
 	var $select = $action.find('select.context');
 	var $query = $action.find('input.cerb-query-trigger');
 	

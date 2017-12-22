@@ -11,7 +11,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $condition = $('fieldset#{$namePrefix}');
+	var $condition = $('#{$namePrefix}_{$nonce}');
 	$condition.find('textarea').cerbCodeEditor();
 })
 </script>

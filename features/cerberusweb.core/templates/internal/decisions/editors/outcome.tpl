@@ -44,7 +44,7 @@
 		<ul class="rules" style="margin:0px;list-style:none;padding:0px 0px 2px 0px;">
 			{if isset($group_data.conditions) && is_array($group_data.conditions)}
 			{foreach from=$group_data.conditions item=params}
-				<li style="padding-bottom:5px;" id="condition{$seq}">
+				<li style="padding-bottom:5px;" id="condition{$seq}_{$nonce}">
 					<input type="hidden" name="nodes[]" value="{$seq}">
 					<input type="hidden" name="condition{$seq}[condition]" value="{$params.condition}">
 					<a href="javascript:;" onclick="$(this).closest('li').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
@@ -99,6 +99,7 @@
 <form id="frmDecisionOutcomeAdd{$id}" action="javascript:;" onsubmit="return false;">
 <input type="hidden" name="seq" value="{$seq}">
 <input type="hidden" name="condition" value="">
+<input type="hidden" name="nonce" value="{$nonce}">
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -366,7 +367,7 @@ $(function() {
 					
 					var $html = $('<div style="margin-left:20px;"/>').html(html);
 					
-					var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition'+seq);
+					var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition' + seq + '_{$nonce}');
 					$container.append($('<input type="hidden" name="nodes[]">').attr('value', seq));
 					$container.append($('<input type="hidden">').attr('name', 'condition'+seq+'[condition]').attr('value',token));
 					$container.append($('<a href="javascript:;" onclick="$(this).closest(\'li\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>'));

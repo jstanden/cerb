@@ -19,7 +19,7 @@
 {*
 <script type="text/javascript">
 $(function() {
-	var $action = $('fieldset#{$namePrefix}');
+	var $action = $('#{$namePrefix}_{$nonce}');
 }
 </script>
 *}
