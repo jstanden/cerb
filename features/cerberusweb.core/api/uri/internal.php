@@ -468,12 +468,14 @@ class ChInternalController extends DevblocksControllerExtension {
 					
 				case 'prompt.text':
 					@$placeholder = $params['placeholder'];
+					@$default = $params['default'];
 					
 					if(empty($placeholder))
 						$placeholder = 'say something';
 					
 					$tpl->assign('delay_ms', 0);
 					$tpl->assign('placeholder', $placeholder);
+					$tpl->assign('default', $default);
 					$tpl->display('devblocks:cerberusweb.core::console/prompt_text.tpl');
 					break;
 					

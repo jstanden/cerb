@@ -419,12 +419,14 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 									
 								case 'prompt.text':
 									@$placeholder = $params['placeholder'];
+									@$default = $params['default'];
 									
 									if(empty($placeholder))
 										$placeholder = 'say something';
 									
 									$tpl->assign('delay_ms', 0);
 									$tpl->assign('placeholder', $placeholder);
+									$tpl->assign('default', $default);
 									$tpl->display('devblocks:cerb.bots.portal.widget::widget/convo/prompt_text.tpl');
 									break;
 									

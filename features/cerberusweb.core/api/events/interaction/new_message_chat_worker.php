@@ -621,11 +621,13 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+				@$default = $tpl_builder->build($params['default'], $dict);
 
 				$actions[] = array(
 					'_action' => 'prompt.text',
 					'_trigger_id' => $trigger->id,
 					'placeholder' => $placeholder,
+					'default' => $default,
 				);
 
 				$dict->__exit = 'suspend';
