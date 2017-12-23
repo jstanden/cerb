@@ -174,11 +174,19 @@
 
 .cerb-bot-chat-window INPUT.cerb-bot-chat-input {
 	width:94%;
-	position: relative;
-	left: 3%;
+	margin: 10px 0px 0px 3%;
 	font-size:1em;
 	padding:5px;
-	margin-top: 10px;
+	border-radius:5px;
+	border:1px solid rgb(220,220,220);
+}
+
+.cerb-bot-chat-window TEXTAREA.cerb-bot-chat-input {
+	font-family: 'Helvetica Neue', Helvetica, Arial;
+	width:94%;
+	margin: 10px 0px 0px 3%;
+	font-size:1em;
+	padding:5px;
 	border-radius:5px;
 	border:1px solid rgb(220,220,220);
 }
@@ -186,11 +194,11 @@
 .cerb-bot-chat-window BUTTON.cerb-bot-chat-button {
 	color: white;
 	padding: 5px;
-	width: 100%;
+	width: 94%;
+	margin: 2px 2px 2px 3%;
 	font-size: 1.25em;
 	font-family: inherit;
 	font-weight: bold;
-	margin: 2px;
 	border: 0;
 	vertical-align: middle;
 	cursor: pointer;

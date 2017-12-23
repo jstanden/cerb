@@ -12,7 +12,7 @@
 		
 		var $chat_window_convo = $('#{$layer} div.bot-chat-window-convo');
 		var $chat_window_input_form = $('#{$layer} form.bot-chat-window-input-form');
-		var $chat_input = $chat_window_input_form.find('input[name=message]');
+		var $chat_input = $chat_window_input_form.find('textarea[name=message]');
 		
 		$msg.find('button.bot-chat-file').click(function(e) {
 			e.stopPropagation();

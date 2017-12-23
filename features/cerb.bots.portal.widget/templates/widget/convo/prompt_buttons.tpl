@@ -37,7 +37,7 @@
 		var $msg = $('#{$msg_id}');
 	
 		var $chat_window_input_form = $('form.cerb-bot-chat-window-input-form');
-		var $chat_input = $chat_window_input_form.find('input[name=message]');
+		var $chat_input = $chat_window_input_form.find('textarea[name=message]');
 		
 		$msg.find('button.cerb-bot-chat-button')
 			.click(function() {

@@ -8,6 +8,12 @@
 	<textarea name="{$namePrefix}[default]" class="placeholders">{$params.default}</textarea>
 </div>
 
+<b>{'common.options'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<label><input type="radio" name="{$namePrefix}[mode]" value="" {if $params.mode != 'multiple'}checked="checked"{/if}> Single line</label>
+	<label><input type="radio" name="{$namePrefix}[mode]" value="multiple" {if $params.mode == 'multiple'}checked="checked"{/if}> Multiple lines</label>
+</div>
+
 <script type="text/javascript">
 $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');

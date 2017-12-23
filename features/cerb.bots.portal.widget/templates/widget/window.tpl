@@ -9,7 +9,7 @@
 	<div class="cerb-bot-chat-window-input">
 		<form class="cerb-bot-chat-window-input-form" action="javascript:;" onsubmit="return false;">
 			<input type="hidden" name="session_id" value="{$session_id}">
-			<input type="hidden" name="message" value="">
+			<textarea name="message" style="display:none;"></textarea>
 		</form>
 	</div>
 </div>
@@ -22,7 +22,7 @@
 	var $close = $window.find('div.cerb-bot-chat-window-close');
 	var $convo = $window.find('div.cerb-bot-chat-window-convo');
 	var $form = $window.find('form');
-	var $msg = $form.find('input:hidden[name=message]');
+	var $msg = $form.find('textarea[name=message]');
 	
 	var $spinner = $('<div class="cerb-bot-chat-message cerb-bot-chat-left"><div class="cerb-bot-chat-message-bubble"><span class="cerb-ajax-spinner" style="zoom:0.5;-moz-transform:scale(0.5);"></span></div></div>');
 	
@@ -131,12 +131,20 @@
 		
 		if(txt.length > 0) {
 			// Create outgoing message in log
-			var $new_msg = $('<div class="cerb-bot-chat-message cerb-bot-chat-right"></div>');
-			var $bubble = $('<div class="cerb-bot-chat-message-bubble"></div>');
+			var $new_msg = document.createElement('div');
+			$new_msg.className = 'cerb-bot-chat-message cerb-bot-chat-right';
 			
-			$bubble.text(txt).appendTo($new_msg.appendTo($convo));
+			var $bubble = document.createElement('div');
+			$bubble.className = 'cerb-bot-chat-message-bubble';
+			$bubble.innerText = txt;
 			
-			$('<br clear="all">').insertAfter($new_msg);
+			$new_msg.appendChild($bubble);
+			
+			$br = document.createElement('br');
+			$br.setAttribute('clear', 'all');
+			
+			$convo.append($new_msg);
+			$convo.append($br);
 		}
 		
 		$convo.trigger('cerb-bot-chat-message-send');

@@ -3,7 +3,7 @@
 	(function($) {
 		var $chat_window_convo = $('#cerb-bot-chat-window div.cerb-bot-chat-window-convo');
 		var $chat_window_input_form = $('#cerb-bot-chat-window form.cerb-bot-chat-window-input-form');
-		var $chat_input = $chat_window_input_form.find('input[name=message]');
+		var $chat_input = $chat_window_input_form.find('textarea[name=message]');
 		
 		var cb = function() {
 			$chat_input.val('');

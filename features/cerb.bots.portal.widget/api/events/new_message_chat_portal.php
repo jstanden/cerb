@@ -569,14 +569,17 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				$actions =& $dict->_actions;
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+				
+				@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
 				@$default = $tpl_builder->build($params['default'], $dict);
+				@$mode = $params['mode'];
 				
 				$actions[] = array(
 					'_action' => 'prompt.text',
 					'_trigger_id' => $trigger->id,
 					'placeholder' => $placeholder,
 					'default' => $default,
+					'mode' => $mode,
 				);
 				
 				$dict->__exit = 'suspend';

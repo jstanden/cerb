@@ -53,7 +53,7 @@
 		
 		var $chat_window_convo = $('#cerb-bot-chat-window div.cerb-bot-chat-window-convo');
 		var $chat_window_input_form = $('form.cerb-bot-chat-window-input-form');
-		var $chat_input = $chat_window_input_form.find('input[name=message]');
+		var $chat_input = $chat_window_input_form.find('textarea[name=message]');
 		var $button = $msg.find('button');
 		
 		$msg.find('table').on('click', function(e) {
