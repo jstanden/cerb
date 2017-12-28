@@ -593,12 +593,14 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		$db = DevblocksPlatform::services()->database();
 		
-		$db->ExecuteMaster(sprintf("REPLACE INTO worker_to_group (worker_id, group_id, is_manager) ".
-			"VALUES (%d, %d, %d)",
+		$sql = sprintf("INSERT INTO worker_to_group (worker_id, group_id, is_manager) VALUES (%d, %d, %d) ".
+			"ON DUPLICATE KEY UPDATE  is_manager=%d",
 			$worker_id,
 			$group_id,
+			($is_manager?1:0),
 			($is_manager?1:0)
-		));
+		);
+		$db->ExecuteMaster($sql);
 		
 		if(1 == $db->Affected_Rows()) { // insert but no delete
 			DAO_Group::setMemberDefaultResponsibilities($group_id, $worker_id);
@@ -711,10 +713,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		);
 		$db->ExecuteMaster($sql);
 		
-		if(1 == $db->Affected_Rows()) {
-			self::unsetGroupMemberResponsibilities($group_id, $worker_id);
-		}
-		
+		self::unsetGroupMemberResponsibilities($group_id, $worker_id);
 		self::clearCache();
 	}
 	
