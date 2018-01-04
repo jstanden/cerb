@@ -29,9 +29,12 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		@array_shift($stack); // time_tracking
 		@$id = intval(array_shift($stack));
 		
-		if(null != ($time_entry = DAO_TimeTrackingEntry::get($id))) {
-			$tpl->assign('time_entry', $time_entry);
+		if(false == ($time_entry = DAO_TimeTrackingEntry::get($id))) {
+			DevblocksPlatform::redirect(new DevblocksHttpRequest());
+			return;
 		}
+		
+		$tpl->assign('time_entry', $time_entry);
 		
 		// Dictionary
 		$labels = array();
