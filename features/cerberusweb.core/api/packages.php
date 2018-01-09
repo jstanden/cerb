@@ -1036,9 +1036,6 @@ class Cerb_Packages {
 			
 			if(is_array($params))
 			foreach($params as $k => $v) {
-				$uid = $tab['uid'];
-				$id = $uids[$uid];
-				
 				DAO_CommunityToolProperty::set($portal_model->code, $k, $v);
 			}
 		}
