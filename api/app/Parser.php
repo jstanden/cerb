@@ -1658,6 +1658,7 @@ class CerberusParser {
 	}
 	
 	static function convertEncoding($text, $charset=null) {
+		$has_iconv = extension_loaded('iconv') ? true : false;
 		$charset = DevblocksPlatform::strLower($charset);
 		
 		// Otherwise, fall back to mbstring's auto-detection
@@ -1696,21 +1697,12 @@ class CerberusParser {
 			);
 		}
 		
-		if($charset 
-			&& mb_check_encoding($text, $charset)
-			&& false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset))
-			) {
-				return $out;
-			
-		} else {
-			$has_iconv = extension_loaded('iconv') ? true : false;
-			$charset = mb_detect_encoding($text);
-			
-			// If we can use iconv, do so first
-			if($has_iconv && false !== ($out = iconv($charset, LANG_CHARSET_CODE . '//TRANSLIT//IGNORE', $text)))
-				return $out;
-			
-			// Then try mbstring
+		// If we can use iconv, do so first
+		if($has_iconv && false !== ($out = iconv($charset, LANG_CHARSET_CODE . '//TRANSLIT//IGNORE', $text)))
+			return $out;
+		
+		// Otherwise, try mbstring
+		if(@mb_check_encoding($text, $charset)) {
 			if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE, $charset)))
 				return $out;
 			
