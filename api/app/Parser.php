@@ -1698,8 +1698,9 @@ class CerberusParser {
 		}
 		
 		// If we can use iconv, do so first
-		if($has_iconv && false !== ($out = iconv($charset, LANG_CHARSET_CODE . '//TRANSLIT//IGNORE', $text)))
+		if($has_iconv && false !== ($out = @iconv($charset, LANG_CHARSET_CODE . '//TRANSLIT//IGNORE', $text))) {
 			return $out;
+		}
 		
 		// Otherwise, try mbstring
 		if(@mb_check_encoding($text, $charset)) {
@@ -1741,10 +1742,6 @@ class CerberusParser {
 			foreach($parts as $part) {
 				try {
 					$charset = ($part->charset != 'default') ? $part->charset : $encoding;
-
-					if(empty($charset))
-						$charset = 'auto';
-
 					$out .= CerberusParser::convertEncoding($part->text, $charset);
 					
 				} catch(Exception $e) {}
