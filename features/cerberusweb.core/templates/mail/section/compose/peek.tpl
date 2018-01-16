@@ -223,7 +223,23 @@
 
 <div class="status"></div>
 
-<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'display.ui.send_message'|devblocks_translate}</button>
+<div class="help-box submit-no-recipients" style="display:none;">
+	<h1>You haven't specified any recipients.</h1>
+	<p>
+		A new ticket will be created without sending any email.
+		This is normal if you're working on an issue and you plan to add an email address later (e.g. phone call).
+	</p>
+	<p>
+		If this isn't what you meant to do, add a recipient in the <b>To:</b> field above.
+	</p>
+	<div>
+		<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Create a ticket without recipients</button>
+	</div>
+</div>
+
+<div class="submit-normal" style="display:none;">
+	<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'display.ui.send_message'|devblocks_translate}</button>
+</div>
 </form>
 
 <script type="text/javascript">
@@ -504,6 +520,20 @@
 			$bucket.focus();
 		});
 		
+		$frm.find('input:text[name=to]').on('change keyup', function(event) {
+			var $input = $(this);
+			
+			if($input.val().length > 0) {
+				$frm.find('div.submit-normal').show();
+				$frm.find('div.submit-no-recipients').hide();
+				
+			} else {
+				$frm.find('div.submit-normal').hide();
+				$frm.find('div.submit-no-recipients').show();
+				
+			}
+		}).trigger('change');
+		
 		$frm.find('input:text[name=to], input:text[name=cc], input:text[name=bcc]').focus(function(event) {
 			$('#compose_suggested{$popup_uniqid}').appendTo($(this).closest('td'));
 		});
@@ -555,6 +585,8 @@
 					$this.closest('li').remove();
 					if(0==$ul.find('li').length)
 						$ul.closest('div').remove();
+					
+					$to.trigger('change');
 				});
 				
 				$sug.show();
