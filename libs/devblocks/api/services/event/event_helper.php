@@ -3354,7 +3354,11 @@ class DevblocksEventHelper {
 
 		// Placeholder?
 		if(!is_numeric($owner_id) && $dict->exists($owner_id)) {
-			@$owner_id = intval($dict->$owner_id);
+			if(is_array($dict->$owner_id)) {
+				$owner_id = intval(key($dict->$owner_id));
+			} else {
+				$owner_id = intval($dict->$owner_id);
+			}
 		}
 		
 		if(empty($owner_id)) {
@@ -3378,7 +3382,11 @@ class DevblocksEventHelper {
 		
 		// Placeholder?
 		if(!is_numeric($owner_id) && $dict->exists($owner_id)) {
-			@$owner_id = intval($dict->$owner_id);
+			if(is_array($dict->$owner_id)) {
+				$owner_id = intval(key($dict->$owner_id));
+			} else {
+				$owner_id = intval($dict->$owner_id);
+			}
 		}
 		
 		if(empty($owner_id) || null != ($owner_model = DAO_Worker::get($owner_id))) {
