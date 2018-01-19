@@ -1333,6 +1333,11 @@
 				<seg>Members</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.merge">
+			<tuv xml:lang="en_GB">
+				<seg>Merge</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.message">
 			<tuv xml:lang="en_GB">
 				<seg>Message</seg>
@@ -3256,11 +3261,6 @@
 		<tu tuid="mail.log_message.send_to_requesters">
 			<tuv xml:lang="en_GB">
 				<seg>Send a copy of this message to the participants.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="mail.merge">
-			<tuv xml:lang="en_GB">
-				<seg>Merge</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.nav.search_mail">

@@ -1204,7 +1204,6 @@ INSERT INTO `translation` VALUES (451,'mail.inbox_filter','en_US','Inbox Filter'
 INSERT INTO `translation` VALUES (452,'mail.log_message','en_US','Open Ticket',NULL);
 INSERT INTO `translation` VALUES (453,'mail.log_message.requesters','en_US','Recipient(s)',NULL);
 INSERT INTO `translation` VALUES (454,'mail.log_message.send_to_requesters','en_US','Send a copy of this message to the recipients.',NULL);
-INSERT INTO `translation` VALUES (455,'mail.merge','en_US','Merge',NULL);
 INSERT INTO `translation` VALUES (456,'mail.nav.search_mail','en_US','Search:',NULL);
 INSERT INTO `translation` VALUES (457,'mail.not_waiting','en_US','Not Waiting',NULL);
 INSERT INTO `translation` VALUES (458,'mail.overview.all_done_text','en_US','There are no available tickets matching your selection.',NULL);

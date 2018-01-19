@@ -20,7 +20,7 @@ $(function() {
 	var $popup = genericAjaxPopupFetch('merge');
 	
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','{'mail.merge'|devblocks_translate|escape:'javascript' nofilter}');
+		$popup.dialog('option','title','{'common.merge'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		$popup.dialog('option', 'resizable', false);
 		$popup.dialog('option', 'minHeight', 50);
 		

@@ -988,6 +988,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.merge">
+			<tuv xml:lang="it_IT">
+				<seg>Unisci</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.message">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -2761,11 +2766,6 @@
 		<tu tuid="mail.log_message.send_to_requesters">
 			<tuv xml:lang="it_IT">
 				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="mail.merge">
-			<tuv xml:lang="it_IT">
-				<seg>Unisci</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.nav.search_mail">

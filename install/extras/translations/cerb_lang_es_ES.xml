@@ -993,6 +993,11 @@
 				<seg/>
 			</tuv>
 		</tu>
+		<tu tuid="common.merge">
+			<tuv xml:lang="es_ES">
+				<seg>Fusionar</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.message">
 			<tuv xml:lang="es_ES">
 				<seg/>
@@ -2776,11 +2781,6 @@
 		<tu tuid="mail.log_message.send_to_requesters">
 			<tuv xml:lang="es_ES">
 				<seg>Enviar una copia de este mensaje a los usuarios.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="mail.merge">
-			<tuv xml:lang="es_ES">
-				<seg>Fusionar</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.nav.search_mail">

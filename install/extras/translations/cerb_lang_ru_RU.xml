@@ -993,6 +993,11 @@
 				<seg>Участники</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.merge">
+			<tuv xml:lang="ru_RU">
+				<seg>Объединить</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.message">
 			<tuv xml:lang="ru_RU">
 				<seg/>
@@ -2771,11 +2776,6 @@
 		<tu tuid="mail.log_message.send_to_requesters">
 			<tuv xml:lang="ru_RU">
 				<seg>Отослать копию этого сообщения заявителям.</seg>
-			</tuv>
-		</tu>
-		<tu tuid="mail.merge">
-			<tuv xml:lang="ru_RU">
-				<seg>Объединить</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.nav.search_mail">

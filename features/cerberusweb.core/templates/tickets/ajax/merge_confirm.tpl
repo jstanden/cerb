@@ -12,7 +12,7 @@
 	<b>This action cannot be undone.</b>
 	
 	<div style="padding:5px;">
-		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'mail.merge'|devblocks_translate|capitalize}</button>
+		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.merge'|devblocks_translate|capitalize}</button>
 		<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
@@ -26,7 +26,7 @@ $(function() {
 	$popup.one('popup_open', function(event,ui) {
 		var $this = $(this);
 		
-		$this.dialog('option','title',"{'mail.merge'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$this.dialog('option','title',"{'common.merge'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		$this.find('button.submit')
 			.click(function() {
