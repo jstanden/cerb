@@ -260,16 +260,6 @@ var cAjaxCalls = function() {
 		var formName = 'viewForm'+view_id;
 
 		switch(action) {
-			case 'merge_popup':
-				genericAjaxPopup('merge','c=tickets&a=viewMergeTicketsPopup&view_id=' + view_id,null,true,'550');
-				break;
-			case 'merge':
-				showLoadingPanel();
-				genericAjaxPost(formName, '', 'c=tickets&a=viewMergeTickets&view_id='+view_id, function(html) {
-					$('#'+divName).html(html).trigger('view_refresh');
-					hideLoadingPanel();
-				});
-				break;
 			case 'not_spam':
 				showLoadingPanel();
 				genericAjaxPost(formName, '', 'c=tickets&a=viewNotSpamTickets&view_id='+view_id, function(html) {

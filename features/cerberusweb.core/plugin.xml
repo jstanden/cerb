@@ -1066,11 +1066,6 @@
 			<param key="task_id" />
 			<param key="fields" />
 		</event>
-		<event id="ticket.action.merge">
-			<name>Ticket Merge</name>
-			<param key="new_ticket_id" />
-			<param key="old_ticket_ids" />
-		</event>
 		<event id="worker.delete">
 			<name>Worker Delete</name>
 			<param key="worker_ids" />

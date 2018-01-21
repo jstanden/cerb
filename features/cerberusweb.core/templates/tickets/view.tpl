@@ -303,7 +303,7 @@
 			</select>
 		</div>
 		
-		{if $active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.merge')}<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','merge_popup');">{'common.merge'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.merge")}<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=showRecordsMergePopup&view_id={$view->id}&context={$view_context}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','ticket_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-git-merge"></span> {'common.merge'|devblocks_translate|lower}</button>{/if}
 		<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','waiting');">{'mail.waiting'|devblocks_translate|lower}</button>
 		<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_waiting');">{'mail.not_waiting'|devblocks_translate|lower}</button>
 		<button type="button" onclick="ajax.viewTicketsAction('{$view->id}','not_spam');">{'common.notspam'|devblocks_translate|lower}</button>

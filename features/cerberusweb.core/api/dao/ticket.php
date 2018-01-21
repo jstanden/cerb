@@ -692,223 +692,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		);
 	}
 	
-	static function merge($ids=array()) {
-		if(!is_array($ids) || empty($ids) || count($ids) < 2) {
-			return false;
-		}
-		
-		$db = DevblocksPlatform::services()->database();
-			
-		list($merged_tickets, $null) = DAO_Ticket::search(
-			array(),
-			array(
-				new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ID,DevblocksSearchCriteria::OPER_IN,$ids),
-			),
-			50, // safety trigger
-			0,
-			SearchFields_Ticket::TICKET_CREATED_DATE,
-			true,
-			false
-		);
-		
-		// Merge the rest of the tickets into the oldest
-		if(is_array($merged_tickets)) {
-			list($oldest_id, $oldest_ticket) = each($merged_tickets);
-			unset($merged_tickets[$oldest_id]);
-			
-			$merge_ticket_ids = array_keys($merged_tickets);
-			
-			if(empty($oldest_id) || empty($merge_ticket_ids))
-				return null;
-			
-			// Messages
-			$sql = sprintf("UPDATE message SET ticket_id = %d WHERE ticket_id IN (%s)",
-				$oldest_id,
-				implode(',', $merge_ticket_ids)
-			);
-			$db->ExecuteMaster($sql);
-			
-			// Mail queue
-			$sql = sprintf("UPDATE mail_queue SET ticket_id = %d WHERE ticket_id IN (%s)",
-				$oldest_id,
-				implode(',', $merge_ticket_ids)
-			);
-			$db->ExecuteMaster($sql);
-			
-			// Requesters (merge)
-			$sql = sprintf("INSERT IGNORE INTO requester (address_id, ticket_id) ".
-				"SELECT address_id, %d FROM requester WHERE ticket_id IN (%s)",
-				$oldest_id,
-				implode(',', $merge_ticket_ids)
-			);
-			$db->ExecuteMaster($sql);
-			
-			$sql = sprintf("DELETE FROM requester WHERE ticket_id IN (%s)",
-				implode(',', $merge_ticket_ids)
-			);
-			$db->ExecuteMaster($sql);
-
-			// Context Links
-			
-			$db->ExecuteMaster(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
-				"SELECT 'cerberusweb.contexts.ticket', %d, to_context, to_context_id ".
-				"FROM context_link WHERE from_context = 'cerberusweb.contexts.ticket' AND from_context_id IN (%s)",
-				$oldest_id,
-				implode(',', $merge_ticket_ids)
-			));
-			
-			$db->ExecuteMaster(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
-				"SELECT from_context, from_context_id, 'cerberusweb.contexts.ticket', %d ".
-				"FROM context_link WHERE to_context = 'cerberusweb.contexts.ticket' AND to_context_id IN (%s)",
-				$oldest_id,
-				implode(',', $merge_ticket_ids)
-			));
-			
-			$db->ExecuteMaster(sprintf("DELETE FROM context_link ".
-				"WHERE (from_context = 'cerberusweb.contexts.ticket' AND from_context_id IN (%s)) ".
-				"OR (to_context = 'cerberusweb.contexts.ticket' AND to_context_id IN (%s))",
-				implode(',', $merge_ticket_ids),
-				implode(',', $merge_ticket_ids)
-			));
-			
-			$db->ExecuteMaster(sprintf("DELETE FROM context_link WHERE from_context=to_context AND from_context_id=to_context_id ".
-				"AND from_context = 'cerberusweb.contexts.ticket' AND from_context_id = %d",
-				$oldest_id
-			));
-			
-			// Activity log
-			
-			$db->ExecuteMaster(sprintf("UPDATE IGNORE context_activity_log ".
-				"SET target_context_id = %d ".
-				"WHERE target_context = 'cerberusweb.contexts.ticket' AND target_context_id IN (%s) ",
-				$oldest_id,
-				implode(',', $merge_ticket_ids)
-			));
-			
-			$db->ExecuteMaster(sprintf("DELETE FROM context_activity_log ".
-				"WHERE target_context = 'cerberusweb.contexts.ticket' AND target_context_id IN (%s) ",
-				implode(',', $merge_ticket_ids)
-			));
-			
-			// Notifications
-			
-			$sql = sprintf("UPDATE notification SET context_id = %d WHERE context = %s AND context_id IN (%s)",
-				$oldest_id,
-				$db->qstr(CerberusContexts::CONTEXT_TICKET),
-				implode(',', $merge_ticket_ids)
-			);
-			$db->ExecuteMaster($sql);
-			
-			// Comments
-			
-			$sql = sprintf("UPDATE comment SET context_id = %d WHERE context = %s AND context_id IN (%s)",
-				$oldest_id,
-				$db->qstr(CerberusContexts::CONTEXT_TICKET),
-				implode(',', $merge_ticket_ids)
-			);
-			$db->ExecuteMaster($sql);
-			
-			// Sort merge tickets by updated date ascending to find the latest touched
-			$tickets = $merged_tickets;
-			array_unshift($tickets, $oldest_ticket);
-			DevblocksPlatform::sortObjects($tickets, '[' . SearchFields_Ticket::TICKET_UPDATED_DATE . ']');
-			$most_recent_updated_ticket = end($tickets);
-
-			// Default our status bits to the most recently updated
-			$merge_dst_status_id = $most_recent_updated_ticket[SearchFields_Ticket::TICKET_STATUS_ID];
-			
-			reset($tickets);
-			
-			// If any ticket in the list is status open, our destination should be open
-			foreach($tickets as $merged_ticket) {
-				if($merged_ticket[SearchFields_Ticket::TICKET_STATUS_ID] == Model_Ticket::STATUS_OPEN) {
-					$merge_dst_status_id = Model_Ticket::STATUS_OPEN;
-					break;
-				}
-			}
-			
-			// Set our destination ticket to the latest touched details
-			$fields = array(
-				DAO_Ticket::UPDATED_DATE => $most_recent_updated_ticket[SearchFields_Ticket::TICKET_UPDATED_DATE],
-				DAO_Ticket::STATUS_ID => $merge_dst_status_id,
-			);
-			DAO_Ticket::update($oldest_id, $fields, false);
-			
-			DAO_Ticket::rebuild($oldest_id);
-			
-			// Set up forwarders for the old masks to their new mask
-			$new_mask = $oldest_ticket[SearchFields_Ticket::TICKET_MASK];
-			if(is_array($merged_tickets))
-			foreach($merged_tickets as $ticket_id => $ticket) {
-				// Clear old ticket meta
-				$fields = [
-					DAO_Ticket::MASK => $ticket[SearchFields_Ticket::TICKET_MASK] . '-MERGED',
-					DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
-					DAO_Ticket::REOPEN_AT => 0,
-					DAO_Ticket::FIRST_MESSAGE_ID => 0,
-					DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
-					DAO_Ticket::LAST_MESSAGE_ID => 0,
-					DAO_Ticket::NUM_MESSAGES => 0,
-					DAO_Ticket::ELAPSED_RESPONSE_FIRST => 0,
-					DAO_Ticket::ELAPSED_RESOLUTION_FIRST => 0,
-				];
-				DAO_Ticket::update($ticket_id, $fields, false);
-				
-				// Forward the old mask to the new mask
-				$sql = sprintf("INSERT IGNORE INTO ticket_mask_forward (old_mask, new_mask, new_ticket_id) VALUES (%s, %s, %d)",
-					$db->qstr($ticket[SearchFields_Ticket::TICKET_MASK]),
-					$db->qstr($new_mask),
-					$oldest_id
-				);
-				$db->ExecuteMaster($sql);
-				
-				// If the old mask was a new_mask in a past life, change to its new destination
-				$sql = sprintf("UPDATE ticket_mask_forward SET new_mask = %s, new_ticket_id = %d WHERE new_mask = %s",
-					$db->qstr($new_mask),
-					$oldest_id,
-					$db->qstr($ticket[SearchFields_Ticket::TICKET_MASK])
-				);
-				$db->ExecuteMaster($sql);
-			}
-			
-			if(is_array($merged_tickets))
-			foreach($merged_tickets as $ticket) {
-				/*
-				 * Log activity (ticket.merge)
-				 */
-				$entry = array(
-					//{{actor}} merged ticket {{source}} with ticket {{target}}
-					'message' => 'activities.ticket.merge',
-					'variables' => array(
-						'source' => sprintf("[%s] %s", $ticket[SearchFields_Ticket::TICKET_MASK], $ticket[SearchFields_Ticket::TICKET_SUBJECT]),
-						'target' => sprintf("[%s] %s", $oldest_ticket[SearchFields_Ticket::TICKET_MASK], $oldest_ticket[SearchFields_Ticket::TICKET_SUBJECT]),
-						),
-					'urls' => array(
-						'source' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket[SearchFields_Ticket::TICKET_MASK]),
-						'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $oldest_ticket[SearchFields_Ticket::TICKET_MASK]),
-						)
-				);
-				CerberusContexts::logActivity('ticket.merge', CerberusContexts::CONTEXT_TICKET, $oldest_id, $entry);
-			}
-			
-			/*
-			 * Notify anything that wants to know when tickets merge.
-			 */
-			$eventMgr = DevblocksPlatform::services()->event();
-			$eventMgr->trigger(
-				new Model_DevblocksEvent(
-					'ticket.action.merge',
-					array(
-						'new_ticket_id' => $oldest_id,
-						'old_ticket_ids' => $merge_ticket_ids,
-					)
-				)
-			);
-			
-			return $oldest_id;
-		}
-	}
-	
 	static function rebuild($id) {
 		if(null == ($ticket = DAO_Ticket::get($id)))
 			return FALSE;
@@ -1161,13 +944,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$change_fields = array();
 		$custom_fields = array();
 		$worker_dict = null;
-		
-		// If merging, do that first, then run subsequent actions on the lone destination ticket
-		if(isset($do['merge'])) {
-			if(null != ($merged_into_id = DAO_Ticket::merge($ids))) {
-				$ids = array($merged_into_id);
-			}
-		}
 		
 		// Actions
 		if(is_array($do))
@@ -1950,6 +1726,106 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				return DAO_Ticket::getIds(array_keys($objects));
 				break;
 		}
+	}
+	
+	static function mergeIds($from_ids, $to_id) {
+		$db = DevblocksPlatform::services()->database();
+
+		$context = CerberusContexts::CONTEXT_TICKET;
+		
+		if(empty($from_ids) || empty($to_id))
+			return false;
+			
+		if(!is_numeric($to_id) || !is_array($from_ids))
+			return false;
+		
+		self::_mergeIds($context, $from_ids, $to_id);
+		
+		// Messages
+		$sql = sprintf("UPDATE message SET ticket_id = %d WHERE ticket_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		);
+		$db->ExecuteMaster($sql);
+		
+		// Mail queue
+		$sql = sprintf("UPDATE mail_queue SET ticket_id = %d WHERE ticket_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		);
+		$db->ExecuteMaster($sql);
+		
+		// Requesters
+		$sql = sprintf("INSERT IGNORE INTO requester (address_id, ticket_id) ".
+			"SELECT address_id, %d FROM requester WHERE ticket_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		);
+		$db->ExecuteMaster($sql);
+		
+		$sql = sprintf("DELETE FROM requester WHERE ticket_id IN (%s)",
+			implode(',', $from_ids)
+		);
+		$db->ExecuteMaster($sql);
+		
+		DAO_Ticket::rebuild($to_id);
+		
+		$dest_ticket = DAO_Ticket::get($to_id);
+		$merged_tickets = DAO_Ticket::getIds($from_ids);
+		
+		// Set up forwarders for the old masks to their new mask
+		if(is_array($merged_tickets))
+		foreach($merged_tickets as $ticket_id => $ticket) {
+			// Clear old ticket meta
+			$fields = [
+				DAO_Ticket::MASK => $ticket->mask . '-MERGED',
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
+				DAO_Ticket::REOPEN_AT => 0,
+				DAO_Ticket::FIRST_MESSAGE_ID => 0,
+				DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
+				DAO_Ticket::LAST_MESSAGE_ID => 0,
+				DAO_Ticket::NUM_MESSAGES => 0,
+				DAO_Ticket::ELAPSED_RESPONSE_FIRST => 0,
+				DAO_Ticket::ELAPSED_RESOLUTION_FIRST => 0,
+			];
+			DAO_Ticket::update($ticket_id, $fields, false);
+			
+			// Forward the old mask to the new mask
+			$sql = sprintf("INSERT IGNORE INTO ticket_mask_forward (old_mask, new_mask, new_ticket_id) VALUES (%s, %s, %d)",
+				$db->qstr($ticket->mask),
+				$db->qstr($dest_ticket->mask),
+				$dest_ticket->id
+			);
+			$db->ExecuteMaster($sql);
+			
+			// If the old mask was a new_mask in a past life, change to its new destination
+			$sql = sprintf("UPDATE ticket_mask_forward SET new_mask = %s, new_ticket_id = %d WHERE new_mask = %s",
+				$db->qstr($dest_ticket->mask),
+				$dest_ticket->id,
+				$db->qstr($ticket->mask)
+			);
+			$db->ExecuteMaster($sql);
+		}
+		
+		return true;
+	}
+	
+	/**
+	 *
+	 * @param array $ids
+	 */
+	static function delete($ids) {
+		if(!is_array($ids)) $ids = array($ids);
+		$db = DevblocksPlatform::services()->database();
+		
+		if(empty($ids))
+			return;
+		
+		$ids_list = implode(',', $ids);
+		
+		$db->ExecuteMaster(sprintf("UPDATE ticket SET status_id = %d WHERE id IN (%s)", Model_Ticket::STATUS_DELETED, $ids_list));
+
+		return true;
 	}
 
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
@@ -4248,7 +4124,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 };
 
-class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextImport, IDevblocksContextAutocomplete {
+class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.ticket';
 	
 	static function isReadableByActor($models, $actor) {
@@ -5311,6 +5187,20 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		return true;
+	}
+	
+	function mergeGetKeys() {
+		$keys = [
+			'closed_at',
+			'importance',
+			'org__label',
+			'owner__label',
+			'reopen_date',
+			'status',
+			'subject',
+		];
+		
+		return $keys;
 	}
 	
 	function importGetKeys() {

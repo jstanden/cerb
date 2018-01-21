@@ -69,7 +69,7 @@
 			{if $active_worker->hasPriv("contexts.{$page_context}.delete")}<button title="{'display.shortcut.delete'|devblocks_translate}" id="btnDelete" type="button" onclick="this.form.status_id.value='{Model_Ticket::STATUS_DELETED}';this.form.submit();"><span class="glyphicons glyphicons-circle-remove"></span></button>{/if}
 		{/if}
 		
-		{if $active_worker->hasPriv("contexts.{$page_context}.merge")}<button id="btnMerge" type="button" onclick="genericAjaxPopup('merge','c=display&a=showMergePanel&ticket_id={$dict->id}',null,false,'50%');" title="{'common.merge'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-git-merge"></span></button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.merge")}<button id="btnMerge" type="button"><span class="glyphicons glyphicons-git-merge"></span></button>{/if}
 		
 		{/if}
 		
@@ -229,6 +229,19 @@ $(function() {
 			
 		})
 		.on('cerb-peek-closed', function(e) {
+		})
+		;
+	
+	// Merge
+	
+	$('#btnMerge')
+		.on('click', function(e) {
+			var $merge_popup = genericAjaxPopup('peek','c=internal&a=showRecordsMergePopup&context={$page_context}&ids={$page_context_id}',null,false,'50%');
+			
+			$merge_popup.on('record_merged', function(e) {
+				e.stopPropagation();
+				document.location.reload();
+			});
 		})
 		;
 	

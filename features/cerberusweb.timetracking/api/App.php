@@ -88,7 +88,8 @@ class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
 				DAO_TimeTrackingEntry::maint();
 				break;
 				
-			case 'ticket.action.merge':
+			case 'record.merge':
+				$context = $event->params['context'];
 				$new_ticket_id = $event->params['new_ticket_id'];
 				$old_ticket_ids = $event->params['old_ticket_ids'];
 				
