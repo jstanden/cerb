@@ -298,6 +298,101 @@ class DAO_Address extends Cerb_ORMHelper {
 		);
 	}
 	
+	static function mergeIds($from_ids, $to_id) {
+		$db = DevblocksPlatform::services()->database();
+
+		$context = CerberusContexts::CONTEXT_ADDRESS;
+		
+		if(empty($from_ids) || empty($to_id))
+			return false;
+			
+		if(!is_numeric($to_id) || !is_array($from_ids))
+			return false;
+		
+		self::_mergeIds($context, $from_ids, $to_id);
+		
+		// Merge bucket
+		$db->ExecuteMaster(sprintf("UPDATE bucket SET reply_address_id = %d WHERE reply_address_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge contact primary
+		$db->ExecuteMaster(sprintf("UPDATE contact SET primary_email_id = %d WHERE primary_email_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge org primary
+		$db->ExecuteMaster(sprintf("UPDATE contact_org SET email_id = %d WHERE email_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge crm_opportunity
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE crm_opportunity SET primary_email_id = %d WHERE primary_email_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge feedback_entry
+		$db->ExecuteMaster(sprintf("UPDATE feedback_entry SET quote_address_id = %d WHERE quote_address_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge message sender
+		$db->ExecuteMaster(sprintf("UPDATE message SET address_id = %d WHERE address_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge requester
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE requester SET address_id = %d WHERE address_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		$db->ExecuteMaster(sprintf("DELETE FROM requester WHERE address_id IN (%s)",
+			implode(',', $from_ids)
+		));
+		
+		// Merge supportcenter_address_share
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE supportcenter_address_share SET share_address_id = %d WHERE share_address_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE supportcenter_address_share SET with_address_id = %d WHERE with_address_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge ticket first wrote
+		$db->ExecuteMaster(sprintf("UPDATE ticket SET first_wrote_address_id = %d WHERE first_wrote_address_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge ticket last wrote
+		$db->ExecuteMaster(sprintf("UPDATE ticket SET last_wrote_address_id = %d WHERE last_wrote_address_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge worker
+		$db->ExecuteMaster(sprintf("UPDATE worker SET email_id = %d WHERE email_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		// Merge worker_group
+		$db->ExecuteMaster(sprintf("UPDATE worker_group SET reply_address_id = %d WHERE reply_address_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		return true;
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 
@@ -1810,7 +1905,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
+class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -2354,6 +2449,18 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			
 			$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek.tpl');
 		}
+	}
+	
+	function mergeGetKeys() {
+		$keys = [
+			'is_banned',
+			'is_defunct',
+			'contact__label',
+			'org__label',
+			'mail_transport__label',
+		];
+		
+		return $keys;
 	}
 	
 	function importGetKeys() {
