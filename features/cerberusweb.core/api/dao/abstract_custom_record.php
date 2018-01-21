@@ -353,6 +353,22 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		return $db->Execute($sql);
 	}
 	
+	static function mergeIds($from_ids, $to_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$context = self::_getContextName();
+		
+		if(empty($from_ids) || empty($to_id))
+			return false;
+			
+		if(!is_numeric($to_id) || !is_array($from_ids))
+			return false;
+		
+		self::_mergeIds($context, $from_ids, $to_id);
+		
+		return true;
+	}
+	
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1073,7 +1089,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 	}
 };
 
-class Context_AbstractCustomRecord extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete, IDevblocksContextImport {
+class Context_AbstractCustomRecord extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete, IDevblocksContextImport, IDevblocksContextMerge {
 	const _ID = 0; // overridden by subclass
 	const ID = 'cerberusweb.contexts.abstract.custom.record';
 	
@@ -1451,6 +1467,14 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/abstract_custom_record/peek.tpl');
 		}
+	}
+	
+	function mergeGetKeys() {
+		$keys = [
+			'name'
+		];
+		
+		return $keys;
 	}
 	
 	function importGetKeys() {
