@@ -1454,6 +1454,30 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
+				
+			case 'status':
+				$statuses = ['open', 'closed_won', 'closed_lost'];
+
+				if(!in_array($value, $statuses)) {
+					$error = 'Status must be: open, closed_won, or closed_lost.';
+					return false;
+				}
+				
+				switch($value) {
+					case 'open':
+						$out_fields[DAO_CrmOpportunity::IS_CLOSED] = 0;
+						$out_fields[DAO_CrmOpportunity::IS_WON] = 0;
+						break;
+					case 'closed_won':
+						$out_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
+						$out_fields[DAO_CrmOpportunity::IS_WON] = 1;
+						break;
+					case 'closed_lost':
+						$out_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
+						$out_fields[DAO_CrmOpportunity::IS_WON] = 0;
+						break;
+				}
+				break;
 		}
 		
 		return true;
