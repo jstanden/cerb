@@ -64,6 +64,7 @@
 		<patch version="8.0.0" revision="1206" file="patches/8.x/8.0.0.php" />
 		<patch version="8.1.0" revision="1227" file="patches/8.x/8.1.0.php" />
 		<patch version="8.2.0" revision="1250" file="patches/8.x/8.2.0.php" />
+		<patch version="8.3.0" revision="1260" file="patches/8.x/8.3.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -879,6 +880,9 @@
 			<param key="string_key" value="activities.mailbox.check.error" />
 			<param key="options" value="" />
 		</activity>
+		<activity point="record.merge">
+			<param key="label_key" value="Record Merged" />
+			<param key="string_key" value="activities.record.merge" />
 			<param key="options" value="" />
 		</activity>
 		<activity point="task.created">
@@ -1060,6 +1064,11 @@
 		<event id="group.delete">
 			<name>Group Delete</name>
 			<param key="group_ids" />
+		</event>
+		<event id="record.merge">
+			<name>Record Merge</name>
+			<param key="target_id" />
+			<param key="source_ids" />
 		</event>
 		<event id="task.create">
 			<name>Task Create</name>

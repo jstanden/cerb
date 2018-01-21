@@ -90,10 +90,9 @@ class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
 				
 			case 'record.merge':
 				$context = $event->params['context'];
-				$new_ticket_id = $event->params['new_ticket_id'];
-				$old_ticket_ids = $event->params['old_ticket_ids'];
-				
 				// [TODO]
+				//$new_ticket_id = $event->params['new_ticket_id'];
+				//$old_ticket_ids = $event->params['old_ticket_ids'];
 				break;
 		}
 	}

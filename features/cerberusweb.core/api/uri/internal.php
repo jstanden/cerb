@@ -668,6 +668,351 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	/*
+	 * Merge
+	 */
+	
+	function showRecordsMergePopupAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		try {
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				throw new Exception_DevblocksValidationError("Invalid record type.");
+			
+			if(!$active_worker->hasPriv(sprintf('contexts.%s.merge', $context_ext->id)))
+				throw new Exception_DevblocksValidationError("You do not have permission to merge these records.");
+
+			if($ids) {
+				$ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($ids), 'int');
+				
+				if(is_array($ids)) {
+					$models = $context_ext->getModelObjects($ids);
+					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext->id);
+					ksort($dicts);
+					
+					$tpl->assign('dicts', $dicts);
+				}
+			}
+	
+			$tpl->assign('aliases', $context_ext->getAliasesForContext($context_ext->manifest));
+			$tpl->assign('context_ext', $context_ext);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_chooser.tpl');
+			
+		} catch (Exception_DevblocksValidationError $e) {
+			$tpl->assign('error_message', $e->getMessage());
+			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
+			return;
+			
+		} catch (Exception $e) {
+			$tpl->assign('error_message', 'An unexpected error occurred.');
+			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
+			return;
+		}
+	}
+	
+	function showRecordsMergeMappingPopupAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array',[]);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$DEBUG = false;
+		
+		try {
+			if($ids)
+				$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+			
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				throw new Exception_DevblocksValidationError("Invalid record type.");
+			
+			if(!$active_worker->hasPriv(sprintf('contexts.%s.merge', $context_ext->id)))
+				throw new Exception_DevblocksValidationError("You do not have permission to merge these records.");
+			
+			if(
+				empty($ids)
+				|| count($ids) < 2
+				|| false == ($models = $context_ext->getModelObjects($ids))
+				|| count($models) < 2
+				)
+				throw new Exception_DevblocksValidationError("You haven't provided at least two records to merge.");
+			
+			$field_labels = $field_values = [];
+			CerberusContexts::getContext($context_ext->id, null, $field_labels, $field_values, '', false, false);
+			$field_types = $field_values['_types'];
+			
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext->id);
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'custom_');
+			
+			ksort($dicts);
+			
+			if($DEBUG) {
+				var_dump($dicts);
+			}
+			
+			if(!($context_ext instanceof IDevblocksContextMerge))
+				throw new Exception_DevblocksValidationError("This record type doesn't support merging.");
+			
+			$properties = $context_ext->mergeGetKeys();
+			
+			// Add custom fields
+			foreach($field_labels as $label_key => $label) {
+				if(DevblocksPlatform::strStartsWith($label_key, 'custom_'))
+					$properties[] = $label_key;
+			}
+			
+			$field_values = [];
+			
+			foreach($properties as $k) {
+				if(!isset($field_labels[$k]) || !isset($field_types[$k]))
+					continue;
+				
+				$field_values[$k] = [
+					'label' => $field_labels[$k],
+					'type' => $field_types[$k],
+					'values' => [],
+				];
+				
+				foreach($dicts as $dict) {
+					@$v = $dict->$k;
+					
+					// Label translation
+					switch($field_types[$k]) {
+						case 'context_url':
+							if($v) {
+								$dict_key_id = substr($k, 0, -6) . 'id';
+								$v = sprintf("%s", $v, $dict->$dict_key_id);
+							}
+							break;
+							
+						case Model_CustomField::TYPE_CHECKBOX:
+							$v = (1 == $v) ? 'yes' : 'no';
+							break;
+					}
+					
+					if(0 != strlen($v)) {
+						if(false === array_search($v, $field_values[$k]['values']))
+							$field_values[$k]['values'][$dict->id] = $v;
+					}
+				}
+			}
+			
+			if($DEBUG) {
+				var_dump($field_values);
+			}
+			
+			$tpl->assign('aliases', $context_ext->getAliasesForContext($context_ext->manifest));
+			$tpl->assign('context_ext', $context_ext);
+			$tpl->assign('dicts', $dicts);
+			$tpl->assign('field_values', $field_values);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_mapping.tpl');
+			
+		} catch (Exception_DevblocksValidationError $e) {
+			$tpl->assign('error_message', $e->getMessage());
+			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
+			return;
+			
+		} catch (Exception $e) {
+			$tpl->assign('error_message', 'An unexpected error occurred.');
+			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
+			return;
+		}
+	}
+	
+	function doRecordsMergeAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array',[]);
+		@$target_id = DevblocksPlatform::importGPC($_REQUEST['target_id'],'integer',0);
+		@$values = DevblocksPlatform::importGPC($_REQUEST['values'],'array',[]);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$DEBUG = false;
+		
+		try {
+			if($ids)
+				$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+			
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				throw new Exception_DevblocksValidationError("Invalid record type.");
+			
+			$aliases = $context_ext->getAliasesForContext($context_ext->manifest);
+			
+			if(!$active_worker->hasPriv(sprintf('contexts.%s.merge', $context_ext->id)))
+				throw new Exception_DevblocksValidationError("You do not have permission to merge these records.");
+			
+			if(
+				empty($ids)
+				|| count($ids) < 2
+				|| false == ($models = $context_ext->getModelObjects($ids))
+				|| count($models) < 2
+				)
+				throw new Exception_DevblocksValidationError("You must provide at least two records to merge.");
+				
+			// Determine target + sources
+			
+			if(!in_array($target_id, $ids))
+				throw new Exception_DevblocksValidationError("Invalid targer record.");
+			
+			$source_ids = array_diff($ids, [$target_id]);
+			
+			$field_labels = $field_values = [];
+			CerberusContexts::getContext($context_ext->id, null, $field_labels, $field_values, '', false, false);
+			$field_types = $field_values['_types'];
+			
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext->id);
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'custom_');
+			
+			ksort($dicts);
+			
+			$changeset = [];
+			
+			if($DEBUG) {
+				var_dump($values);
+			}
+			
+			foreach($values as $value_key => $dict_id) {
+				if(DevblocksPlatform::strStartsWith($value_key, 'custom_')) {
+					$cfield_id = intval(substr($value_key, 7));
+					
+					switch(@$field_types[$value_key]) {
+						case Model_CustomField::TYPE_CHECKBOX:
+							$value = $dicts[$dict_id]->custom[$cfield_id] ? 1 : 0;
+							break;
+							
+						default:
+							$value = $dicts[$dict_id]->custom[$cfield_id];
+							break;
+					}
+					
+				} else {
+					switch(@$field_types[$value_key]) {
+						case 'context_url':
+							if($value_key) {
+								$value_key = substr($value_key, 0, -6) . 'id';
+								$value = $dicts[$dict_id]->$value_key;
+							}
+							break;
+							
+						default:
+							$value = $dicts[$dict_id]->$value_key;
+							break;
+					}
+				}
+				
+				$changeset[$value_key] = $value;
+			}
+			
+			if($DEBUG) {
+				var_dump($target_id);
+				var_dump($source_ids);
+				var_dump($changeset);
+			}
+			
+			$dao_class = $context_ext->getDaoClass();
+			$dao_fields = $custom_fields = [];
+			
+			if(!method_exists($dao_class, 'update'))
+				throw new Exception_DevblocksValidationError("Not implemented.");
+			
+			if(!method_exists($context_ext, 'getDaoFieldsFromKeysAndValues'))
+				throw new Exception_DevblocksValidationError("Not implemented.");
+			
+			if(!$context_ext->getDaoFieldsFromKeysAndValues($changeset, $dao_fields, $custom_fields, $error))
+				throw new Exception_DevblocksValidationError($error);
+			
+			if(is_array($dao_fields))
+			if(!$dao_class::validate($dao_fields, $error, $target_id))
+				throw new Exception_DevblocksValidationError($error);
+			
+			if($custom_fields)
+			if(!DAO_CustomField::validateCustomFields($custom_fields, $context_ext->id, $error))
+				throw new Exception_DevblocksValidationError($error);
+			
+			if(!$dao_class::onBeforeUpdateByActor($active_worker, $dao_fields, $target_id, $error))
+				throw new Exception_DevblocksValidationError($error);
+			
+			if($DEBUG) {
+				var_dump($dao_fields);
+				var_dump($custom_fields);
+			}
+			
+			$dao_class::update($target_id, $dao_fields);
+			$dao_class::onUpdateByActor($active_worker, $dao_fields, $target_id);
+			
+			if($custom_fields)
+				DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $target_id, $custom_fields);
+			
+			if(method_exists($dao_class, 'mergeIds'))
+				$dao_class::mergeIds($source_ids, $target_id);
+			
+			foreach($source_ids as $source_id) {
+				/*
+				 * Log activity (context.merge)
+				 */
+				$entry = [
+					//{{actor}} merged {{context_label}} {{source}} into {{context_label}} {{target}}
+					'message' => 'activities.record.merge',
+					'variables' => [
+						'context' => $context_ext->id,
+						'context_label' => DevblocksPlatform::strLower($aliases['singular']),
+						'source' => sprintf("%s", $dicts[$source_id]->_label),
+						'target' => sprintf("%s", $dicts[$target_id]->_label),
+						],
+					'urls' => [
+						'target' => sprintf("ctx://%s:%d/%s", $context_ext->id, $target_id, DevblocksPlatform::strToPermalink($dicts[$target_id]->_label)),
+						],
+				];
+				CerberusContexts::logActivity('record.merge', $context_ext->id, $target_id, $entry);
+			}
+			
+			// Fire a merge event for plugins
+			$eventMgr = DevblocksPlatform::services()->event();
+			
+			$eventMgr->trigger(
+				new Model_DevblocksEvent(
+					'record.merge',
+					array(
+						'context' => $context_ext->id,
+						'target_id' => $target_id,
+						'source_ids' => $source_ids,
+					)
+				)
+			);
+			
+			// Nuke the source orgs
+			$dao_class::delete($source_ids);
+			
+			// Display results
+			$tpl->assign('aliases', $context_ext->getAliasesForContext($context_ext->manifest));
+			$tpl->assign('context_ext', $context_ext);
+			$tpl->assign('target_id', $target_id);
+			$tpl->assign('dicts', $dicts);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_results.tpl');
+			
+		} catch(Exception_DevblocksValidationError $e) {
+			$tpl->assign('error_message', $e->getMessage());
+			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
+			return;
+			
+		} catch(Exception $e) {
+			$tpl->assign('error_message', 'An unexpected error occurred.');
+			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
+			return;
+		}
+	}
+	
+	/*
 	 * Import
 	 */
 	

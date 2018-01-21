@@ -96,6 +96,10 @@ interface IDevblocksContextImport {
 	function importSaveObject(array $fields, array $custom_fields, array $meta);
 }
 
+interface IDevblocksContextMerge {
+	function mergeGetKeys();
+}
+
 interface IDevblocksContextProfile {
 	function profileGetUrl($context_id);
 }

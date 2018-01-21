@@ -471,6 +471,179 @@ abstract class DevblocksORMHelper {
 		}
 	}
 	
+	static protected function _mergeIds($context, $from_ids, $to_id) {
+		if(empty($from_ids) || empty($to_id))
+			return false;
+			
+		if(!is_numeric($to_id) || !is_array($from_ids))
+			return false;
+		
+		// Log the ID changes
+		foreach($from_ids as $from_id)
+			DAO_ContextMergeHistory::logMerge($context, $from_id, $to_id);
+		
+		$db = DevblocksPlatform::services()->database();
+		
+		// Merge bot owners
+		$db->ExecuteMaster(sprintf("UPDATE bot SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge calendar owners
+		$db->ExecuteMaster(sprintf("UPDATE calendar SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge classifier owners
+		$db->ExecuteMaster(sprintf("UPDATE classifier SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge comment targets
+		$db->ExecuteMaster(sprintf("UPDATE comment SET context_id = %d WHERE context = %s AND context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge comment owners
+		$db->ExecuteMaster(sprintf("UPDATE comment SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge connected account owners
+		$db->ExecuteMaster(sprintf("UPDATE connected_account SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge context_activity_log actors
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_activity_log SET actor_context_id = %d WHERE actor_context = %s AND actor_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge context_activity_log targets
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_activity_log SET target_context_id = %d WHERE target_context = %s AND target_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge context_alias
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_alias SET id = %d WHERE context = %s AND id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge context_avatar
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_avatar SET context_id = %d WHERE context = %s AND context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		$db->ExecuteMaster(sprintf("DELETE FROM context_avatar WHERE context = %s AND context_id IN (%s)",
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge context_link
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_link SET from_context_id = %d WHERE from_context = %s AND from_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_link SET to_context_id = %d WHERE to_context = %s AND to_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		$db->ExecuteMaster(sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id IN (%s)",
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		$db->ExecuteMaster(sprintf("DELETE FROM context_link WHERE to_context = %s AND to_context_id IN (%s)",
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge context_saved_search
+		$db->ExecuteMaster(sprintf("UPDATE context_saved_search SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+
+		// Merge context_scheduled_behavior
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_scheduled_behavior SET context_id = %d WHERE context = %s AND context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge custom_fieldset owner
+		$db->ExecuteMaster(sprintf("UPDATE custom_fieldset SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge email_signature owner
+		$db->ExecuteMaster(sprintf("UPDATE email_signature SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge file_bundle owner
+		$db->ExecuteMaster(sprintf("UPDATE file_bundle SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge mail_html_template owner
+		$db->ExecuteMaster(sprintf("UPDATE mail_html_template SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge notifications
+		$db->ExecuteMaster(sprintf("UPDATE IGNORE notification SET context_id = %d WHERE context = %s AND context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge project_board owner
+		$db->ExecuteMaster(sprintf("UPDATE project_board SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		// Merge snippet owner
+		$db->ExecuteMaster(sprintf("UPDATE snippet SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+			$to_id,
+			$db->qstr($context),
+			implode(',', $from_ids)
+		));
+		
+		return true;
+	}
+	
 	static protected function _parseSearchParams($params, $columns=array(), $search_class, $sortBy='') {
 		$db = DevblocksPlatform::services()->database();
 		
