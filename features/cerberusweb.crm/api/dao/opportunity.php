@@ -432,6 +432,22 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		);
 	}
 	
+	static function mergeIds($from_ids, $to_id) {
+		$db = DevblocksPlatform::services()->database();
+
+		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
+		
+		if(empty($from_ids) || empty($to_id))
+			return false;
+			
+		if(!is_numeric($to_id) || !is_array($from_ids))
+			return false;
+		
+		self::_mergeIds($context, $from_ids, $to_id);
+		
+		return true;
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
@@ -1215,7 +1231,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	}
 };
 
-class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1611,6 +1627,17 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			
 			$tpl->display('devblocks:cerberusweb.crm::crm/opps/peek.tpl');
 		}
+	}
+	
+	function mergeGetKeys() {
+		$keys = [
+			'amount',
+			'email__label',
+			'status',
+			'title',
+		];
+		
+		return $keys;
 	}
 	
 	function importGetKeys() {
