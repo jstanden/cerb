@@ -2530,6 +2530,7 @@
 						<data key="delete" />
 						<data key="export" />
 						<data key="import" />
+						<data key="merge" />
 						<data key="update" />
 						<data key="update.bulk" />
 					</value>

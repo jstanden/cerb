@@ -426,6 +426,22 @@ class DAO_Task extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	static function mergeIds($from_ids, $to_id) {
+		$db = DevblocksPlatform::services()->database();
+
+		$context = CerberusContexts::CONTEXT_TASK;
+		
+		if(empty($from_ids) || empty($to_id))
+			return false;
+			
+		if(!is_numeric($to_id) || !is_array($from_ids))
+			return false;
+		
+		self::_mergeIds($context, $from_ids, $to_id);
+		
+		return true;
+	}
+	
 	/**
 	 *
 	 * @param array $ids
@@ -1277,7 +1293,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 	}
 };
 
-class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge {
 	const ID = 'cerberusweb.contexts.task';
 	
 	static function isReadableByActor($models, $actor) {
@@ -1693,6 +1709,19 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			
 			$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');
 		}
+	}
+	
+	function mergeGetKeys() {
+		$keys = [
+			'due',
+			'importance',
+			'owner__label',
+			'reopen',
+			'status',
+			'title',
+		];
+		
+		return $keys;
 	}
 	
 	function importGetKeys() {
