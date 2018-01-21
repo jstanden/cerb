@@ -247,6 +247,8 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	
 	static function mergeIds($from_ids, $to_id) {
 		$db = DevblocksPlatform::services()->database();
+
+		$context = CerberusContexts::CONTEXT_ORG;
 		
 		if(empty($from_ids) || empty($to_id))
 			return false;
@@ -254,16 +256,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		if(!is_numeric($to_id) || !is_array($from_ids))
 			return false;
 		
-		// Log the ID changes
-		foreach($from_ids as $from_id)
-			DAO_ContextMergeHistory::logMerge(CerberusContexts::CONTEXT_ORG, $from_id, $to_id);
-			
-		// Merge comments
-		$db->ExecuteMaster(sprintf("UPDATE comment SET context_id = %d WHERE context = %s AND context_id IN (%s)",
-			$to_id,
-			$db->qstr(CerberusContexts::CONTEXT_ORG),
-			implode(',', $from_ids)
-		));
+		self::_mergeIds($context, $from_ids, $to_id);
 		
 		// Merge email addresses
 		$db->ExecuteMaster(sprintf("UPDATE address SET contact_org_id = %d WHERE contact_org_id IN (%s)",
@@ -277,56 +270,15 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			implode(',', $from_ids)
 		));
 		
-		// Merge context_avatar
-		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_avatar SET from_context_id = %d WHERE from_context = %s AND from_context_id IN (%s)",
-			$to_id,
-			$db->qstr(CerberusContexts::CONTEXT_ORG),
-			implode(',', $from_ids)
-		));
-		// Remove any stragglers
-		$db->ExecuteMaster(sprintf("DELETE FROM context_avatar WHERE context = %s AND context_id IN (%s)",
-			$db->qstr(CerberusContexts::CONTEXT_ORG),
-			implode(',', $from_ids)
-		));
-		
-		// Merge context_link
-		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_link SET from_context_id = %d WHERE from_context = %s AND from_context_id IN (%s)",
-			$to_id,
-			$db->qstr(CerberusContexts::CONTEXT_ORG),
-			implode(',', $from_ids)
-		));
-		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_link SET to_context_id = %d WHERE to_context = %s AND to_context_id IN (%s)",
-			$to_id,
-			$db->qstr(CerberusContexts::CONTEXT_ORG),
-			implode(',', $from_ids)
-		));
-
-		// Merge notifications
-		$db->ExecuteMaster(sprintf("UPDATE IGNORE notification SET context_id = %d WHERE context = %s AND context_id IN (%s)",
-			$to_id,
-			$db->qstr(CerberusContexts::CONTEXT_ORG),
-			implode(',', $from_ids)
-		));
-		
-		// Merge context_activity_log
-		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_activity_log SET target_context_id = %d WHERE target_context = %s AND target_context_id IN (%s)",
-			$to_id,
-			$db->qstr(CerberusContexts::CONTEXT_ORG),
-			implode(',', $from_ids)
-		));
-		
-		// Merge context_scheduled_behavior
-		$db->ExecuteMaster(sprintf("UPDATE IGNORE context_scheduled_behavior SET context_id = %d WHERE context = %s AND context_id IN (%s)",
-			$to_id,
-			$db->qstr(CerberusContexts::CONTEXT_ORG),
-			implode(',', $from_ids)
-		));
-		
 		// Merge tickets
 		$db->ExecuteMaster(sprintf("UPDATE ticket SET org_id = %d WHERE org_id IN (%s)",
 			$to_id,
 			implode(',', $from_ids)
 		));
+		
+		// Index immediately
+		$search = Extension_DevblocksSearchSchema::get(Search_Org::ID);
+		$search->indexIds(array($to_id));
 		
 		return true;
 	}
@@ -1495,7 +1447,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 };
 
-class Context_Org extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
+class Context_Org extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.org';
 	
 	static function isReadableByActor($models, $actor) {
@@ -1934,6 +1886,22 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			
 			$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek.tpl');
 		}
+	}
+	
+	function mergeGetKeys() {
+		$keys = [
+			'name',
+			'street',
+			'city',
+			'province',
+			'postal',
+			'country',
+			'phone',
+			'website',
+			'email__label',
+		];
+		
+		return $keys;
 	}
 	
 	function importGetKeys() {

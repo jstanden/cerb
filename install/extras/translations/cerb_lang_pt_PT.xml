@@ -133,11 +133,6 @@
 				<seg>{{actor}} alterou a oportunidade {{target}} para o estado {{status}}</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activities.org.merge">
-			<tuv xml:lang="pt_PT">
-				<seg>{{actor}} uniu a organização {{source}} com a organização {{target}}</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activities.task.created">
 			<tuv xml:lang="pt_PT">
 				<seg/>

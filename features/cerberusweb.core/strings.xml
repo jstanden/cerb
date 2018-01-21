@@ -79,9 +79,9 @@
 				<seg>Mailbox {{target}} has failed to download mail on {{count}} consecutive attempts: {{error}}</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activities.org.merge">
+		<tu tuid="activities.record.merge">
 			<tuv xml:lang="en_US">
-				<seg>{{actor}} merged organization {{source}} with organization {{target}}</seg>
+				<seg>{{actor}} merged {{context_label}} {{source}} into {{context_label}} {{target}}</seg>
 			</tuv>
 		</tu>
 		<tu tuid="activities.task.created">

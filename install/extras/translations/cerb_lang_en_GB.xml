@@ -123,11 +123,6 @@
 				<seg>{{actor}} changed opportunity {{target}} to status {{status}}</seg>
 			</tuv>
 		</tu>
-		<tu tuid="activities.org.merge">
-			<tuv xml:lang="en_GB">
-				<seg>{{actor}} merged organisation {{source}} with organisation {{target}}</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activities.task.created">
 			<tuv xml:lang="en_GB">
 				<seg>{{actor}} created task {{target}}</seg>

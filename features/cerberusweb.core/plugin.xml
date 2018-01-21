@@ -879,9 +879,6 @@
 			<param key="string_key" value="activities.mailbox.check.error" />
 			<param key="options" value="" />
 		</activity>
-		<activity point="org.merge">
-			<param key="label_key" value="Organization Merged" />
-			<param key="string_key" value="activities.org.merge" />
 			<param key="options" value="" />
 		</activity>
 		<activity point="task.created">
