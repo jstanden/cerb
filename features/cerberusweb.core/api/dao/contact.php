@@ -477,6 +477,28 @@ class DAO_Contact extends Cerb_ORMHelper {
 		return self::_getRandom('contact');
 	}
 	
+	static function mergeIds($from_ids, $to_id) {
+		$db = DevblocksPlatform::services()->database();
+
+		$context = CerberusContexts::CONTEXT_CONTACT;
+		
+		if(empty($from_ids) || empty($to_id))
+			return false;
+			
+		if(!is_numeric($to_id) || !is_array($from_ids))
+			return false;
+		
+		self::_mergeIds($context, $from_ids, $to_id);
+		
+		// Merge email addresses
+		$db->ExecuteMaster(sprintf("UPDATE address SET contact_id = %d WHERE contact_id IN (%s)",
+			$to_id,
+			implode(',', $from_ids)
+		));
+		
+		return true;
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
@@ -1729,7 +1751,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Contact extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
+class Context_Contact extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -2210,6 +2232,27 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 	
 			$tpl->display('devblocks:cerberusweb.core::internal/contact/peek.tpl');
 		}
+	}
+	
+	function mergeGetKeys() {
+		$keys = [
+			'dob',
+			'first_name',
+			'gender',
+			'language',
+			'last_login_at',
+			'last_name',
+			'location',
+			'mobile',
+			'phone',
+			'timezone',
+			'title',
+			'username',
+			'email__label',
+			'org__label',
+		];
+		
+		return $keys;
 	}
 	
 	function importGetKeys() {
