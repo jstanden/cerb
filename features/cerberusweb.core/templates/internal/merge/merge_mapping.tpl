@@ -33,31 +33,46 @@
 		{$field_type = $data.type}
 		{if 0 != count($data.values)}
 		<tr>
-			<td align="right" style="padding-right:10px;">
+			<td align="right" style="padding-right:10px;vertical-align:top;">
+				<input type="hidden" name="keys[]" value="{$k}">
 				<b>{$data.label|trim}:</b>
 				{*({$field_type})*}
 			</td>
 			<td>
-				{if 1 == count($data.values)}
-				{$v = $data.values|@reset}
-				{if 'E' == $field_type}
-					{if $v}{$v|devblocks_date} ({$v|devblocks_prettytime}){/if}
+				{if in_array($field_type, ['I','M','X']) == $field_type}
+					{foreach from=$data.values item=item_label key=item_key}
+						<div>
+							<label>
+							<input type="checkbox" name="values[{$k}][]" value="{$item_key}" checked="checked">
+							{$item_label}
+							</label>
+						</div>
+					{/foreach}
+					
 				{else}
-					{$v}
-				{/if}
-				<input type="hidden" name="values[{$k}]" value="{$data.values|@key}">
-				{else}
-				<select name="values[{$k}]">
-				{foreach from=$data.values item=v key=id}
-				<option value="{$id}">
+					{if 1 == count($data.values)}
+					{$v = $data.values|@reset}
 					{if 'E' == $field_type}
 						{if $v}{$v|devblocks_date} ({$v|devblocks_prettytime}){/if}
 					{else}
 						{$v}
 					{/if}
-				</option>
-				{/foreach}
-				</select>
+					<input type="hidden" name="values[{$k}]" value="{$data.values|@key}">
+					{else}
+					<select name="values[{$k}]">
+					{foreach from=$data.values item=v key=id name=items}
+					<option value="{$id}">
+						{if 'E' == $field_type}
+							{if $v}{$v|devblocks_date} ({$v|devblocks_prettytime}){/if}
+						{elseif 'T' == $field_type}
+							{$v|truncate:255}
+						{else}
+							{$v}
+						{/if}
+					</option>
+					{/foreach}
+					</select>
+					{/if}
 				{/if}
 			</td>
 		</tr>

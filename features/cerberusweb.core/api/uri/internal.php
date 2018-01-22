@@ -763,7 +763,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			// Add custom fields
 			foreach($field_labels as $label_key => $label) {
-				if(DevblocksPlatform::strStartsWith($label_key, 'custom_'))
+				if(preg_match('#^custom_\d+$#', $label_key))
 					$properties[] = $label_key;
 			}
 			
@@ -779,26 +779,85 @@ class ChInternalController extends DevblocksControllerExtension {
 					'values' => [],
 				];
 				
+				$cfield_id = 0;
+				if(preg_match('#^custom_(\d+)$#', $k, $matches)) {
+					$cfield_id = $matches[1];
+				}
+				
 				foreach($dicts as $dict) {
 					@$v = $dict->$k;
+					$handled = false;
 					
 					// Label translation
 					switch($field_types[$k]) {
 						case 'context_url':
 							if($v) {
 								$dict_key_id = substr($k, 0, -6) . 'id';
-								$v = sprintf("%s", $v, $dict->$dict_key_id);
+								$v = sprintf("%s", $v);
 							}
 							break;
 							
 						case Model_CustomField::TYPE_CHECKBOX:
 							$v = (1 == $v) ? 'yes' : 'no';
 							break;
+							
+						case Model_CustomField::TYPE_FILE:
+							if($v && false !== ($file = DAO_Attachment::get($v)))
+								$v = sprintf("%s (%s) %s", $file->name, $file->mime_type, DevblocksPlatform::strPrettyBytes($file->storage_size));
+							break;
+							
+						case Model_CustomField::TYPE_FILES:
+							@$values = $dict->custom[$cfield_id];
+							
+							if(!is_array($values))
+								break;
+							
+							$file_ids = DevblocksPlatform::parseCsvString($v);
+							$ptr =& $field_values[$k]['values'];
+							
+							if(is_array($file_ids) && false !== ($files = DAO_Attachment::getIds($file_ids))) {
+								foreach($files as $file_id => $file) {
+									$ptr[$file_id] = sprintf("%s (%s) %s", $file->name, $file->mime_type, DevblocksPlatform::strPrettyBytes($file->storage_size));
+								}
+							}
+							
+							asort($ptr);
+							$handled = true;
+							break;
+							
+						case Model_CustomField::TYPE_LINK:
+							if($v) {
+								$dict_key_id = $k . '__label';
+								$v = sprintf("%s (#%d)", $dict->$dict_key_id, $dict->$k);
+							}
+							break;
+							
+						case Model_CustomField::TYPE_LIST:
+						case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							@$values = $dict->custom[$cfield_id];
+							
+							if(!is_array($values))
+								break;
+							
+							foreach($values as $v)
+								$field_values[$k]['values'][$v] = $v;
+							
+							asort($field_values[$k]['values']);
+							
+							$handled = true;
+							break;
+							
+						case Model_CustomField::TYPE_WORKER:
+							if($v && false !== ($worker = DAO_Worker::get($v)))
+								$v = $worker->getName();
+							break;
 					}
 					
-					if(0 != strlen($v)) {
-						if(false === array_search($v, $field_values[$k]['values']))
-							$field_values[$k]['values'][$dict->id] = $v;
+					if(!$handled) {
+						if(0 != strlen($v)) {
+							if(false === array_search($v, $field_values[$k]['values']))
+								$field_values[$k]['values'][$dict->id] = $v;
+						}
 					}
 				}
 			}
@@ -830,6 +889,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array',[]);
 		@$target_id = DevblocksPlatform::importGPC($_REQUEST['target_id'],'integer',0);
+		@$keys = DevblocksPlatform::importGPC($_REQUEST['keys'],'array',[]);
 		@$values = DevblocksPlatform::importGPC($_REQUEST['values'],'array',[]);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
@@ -880,21 +940,36 @@ class ChInternalController extends DevblocksControllerExtension {
 				var_dump($values);
 			}
 			
-			foreach($values as $value_key => $dict_id) {
-				if(DevblocksPlatform::strStartsWith($value_key, 'custom_')) {
+			foreach($keys as $value_key) {
+				if(preg_match('#^custom\_(\d+)$#', $value_key)) {
 					$cfield_id = intval(substr($value_key, 7));
 					
 					switch(@$field_types[$value_key]) {
 						case Model_CustomField::TYPE_CHECKBOX:
-							$value = $dicts[$dict_id]->custom[$cfield_id] ? 1 : 0;
+							@$dict_id = $values[$value_key];
+							@$value = $dicts[$dict_id]->custom[$cfield_id] ? 1 : 0;
+							break;
+							
+						case Model_CustomField::TYPE_FILES:
+						case Model_CustomField::TYPE_LIST:
+						case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							if(!isset($values[$value_key])) {
+								$value = [];
+							} else {
+								$value = $values[$value_key];
+							}
+							
 							break;
 							
 						default:
+							@$dict_id = $values[$value_key];
 							$value = $dicts[$dict_id]->custom[$cfield_id];
 							break;
 					}
 					
 				} else {
+					@$dict_id = $values[$value_key];
+					
 					switch(@$field_types[$value_key]) {
 						case 'context_url':
 							if($value_key) {
