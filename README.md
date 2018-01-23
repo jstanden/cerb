@@ -14,6 +14,8 @@
 
 * __Dashboards__ for real-time reporting, monitoring, goal tracking, and operational intelligence.
 
+* __Project boards__ for coordinating tasks and visualizing the current progress.
+
 * __Connected accounts__ for integration with third-party apps and services.
 
 * __Contact management__ for tracking important details and nurturing customer relationships.
@@ -40,7 +42,7 @@
 
 * ... Time tracking, call logging, opportunity management, __and much more__.
 
-Cerb has continuously evolved for more than 15 years based on community feedback from thousands of teams.
+Cerb has continuously evolved for more than 16 years based on community feedback from thousands of teams.
 
 The software is distributed under the [Devblocks Public License](https://cerb.ai/license) as a commercial open source project. The full source code is publicly available on GitHub.
 
