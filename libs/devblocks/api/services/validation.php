@@ -60,6 +60,15 @@ class _DevblocksValidationField {
 	
 	/**
 	 * 
+	 * @return _DevblocksValidationTypeNumber
+	 */
+	function idArray() {
+		$this->_type = new _DevblocksValidationTypeIdArray();
+		return $this->_type;
+	}
+	
+	/**
+	 * 
 	 * @return _DevblocksValidationTypeString
 	 */
 	function image($type='image/png', $min_width=1, $min_height=1, $max_width=1000, $max_height=1000, $max_size=512000) {
@@ -188,6 +197,33 @@ class _DevblocksValidators {
 			if(!isset($models[$id])) {
 				$error = "is not a valid target record.";
 				return false;
+			}
+			
+			return true;
+		};
+	}
+	
+	function contextIds($context, $allow_empty=false) {
+		return function($value, &$error=null) use ($context, $allow_empty) {
+			if(!is_array($value)) {
+				$error = "must be an array of IDs.";
+				return false;
+			}
+			
+			$ids = DevblocksPlatform::sanitizeArray($value, 'int');
+			
+			if(!$allow_empty && empty($ids)) {
+				$error = sprintf("must not be blank.");
+				return false;
+			}
+			
+			$models = CerberusContexts::getModels($context, $ids);
+			
+			foreach($ids as $id) {
+				if(!isset($models[$id])) {
+					$error = sprintf("value (%d) is not a valid target record.", $id);
+					return false;
+				}
 			}
 			
 			return true;
@@ -438,6 +474,13 @@ class _DevblocksValidationTypeFloat extends _DevblocksValidationType {
 	}
 }
 
+class _DevblocksValidationTypeIdArray extends _DevblocksValidationType {
+	function __construct() {
+		parent::__construct();
+		return $this;
+	}
+}
+
 class _DevblocksValidationTypeNumber extends _DevblocksValidationType {
 	function __construct() {
 		parent::__construct();
@@ -618,6 +661,23 @@ class _DevblocksValidationService {
 				}
 				break;
 				
+			case '_DevblocksValidationTypeIdArray':
+				if(!is_array($value)) {
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be an array of IDs (%s).", $field_name, gettype($value)));
+				}
+				
+				$values = $value;
+				
+				foreach($values as $value) {
+					if(!is_numeric($value)) {
+						throw new Exception_DevblocksValidationError(sprintf("Value '%s' must be a number (%s: %s).", $field_name, gettype($value), $value));
+					}
+				}
+				
+				if($data) {
+				}
+				break;
+				
 			case '_DevblocksValidationTypeString':
 				if(!is_null($value) && !is_string($value)) {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a string (%s).", $field_name, gettype($value)));
@@ -658,7 +718,7 @@ class _DevblocksValidationService {
 				}
 				break;
 		}
-			
+		
 		return true;
 	}
 };

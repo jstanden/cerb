@@ -159,7 +159,11 @@ abstract class DevblocksORMHelper {
 					;
 					break;
 				case Model_CustomField::TYPE_FILES:
-					// [TODO]
+					$validation
+						->addField($field_id)
+						->idArray()
+						->addFormatter($validation->validators()->contextIds(CerberusContexts::CONTEXT_ATTACHMENT, true))
+					;
 					break;
 				case Model_CustomField::TYPE_LINK:
 					@$link_context = $custom_field->params['context'];
