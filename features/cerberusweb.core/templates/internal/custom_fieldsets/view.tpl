@@ -78,6 +78,12 @@
 				<a href="{devblocks_url}c=profiles&type=custom_fieldset&id={$result.c_id}-{$result.c_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_name}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
+			{elseif in_array($column,["c_updated_at"])}
+				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
+					{if !empty($result.$column)}
+						{$result.$column|devblocks_prettytime}&nbsp;
+					{/if}
+				</td>
 			{elseif $column=="c_context"}
 			<td data-column="{$column}">
 				{if isset($contexts.{$result.$column})}

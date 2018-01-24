@@ -5,6 +5,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
+	const UPDATED_AT = 'updated_at';
 
 	const CACHE_ALL = 'ch_CustomFieldsets';
 	
@@ -38,6 +39,11 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			->id()
 			->setRequired(true)
 			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
 		$validation
 			->addField('_links')
 			->string()
@@ -61,6 +67,10 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	
 	static function update($ids, $fields) {
 		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+		
 		self::_updateAbstract($context, $ids, $fields);
 		
 		parent::_update($ids, 'custom_fieldset', $fields);
@@ -165,7 +175,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, context, owner_context, owner_context_id ".
+		$sql = "SELECT id, name, context, owner_context, owner_context_id, updated_at ".
 			"FROM custom_fieldset ".
 			$where_sql.
 			$sort_sql.
@@ -330,6 +340,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			$object->context = $row['context'];
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
+			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -411,11 +422,13 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			"custom_fieldset.id as %s, ".
 			"custom_fieldset.name as %s, ".
 			"custom_fieldset.context as %s, ".
+			"custom_fieldset.updated_at as %s, ".
 			"custom_fieldset.owner_context as %s, ".
 			"custom_fieldset.owner_context_id as %s ",
 				SearchFields_CustomFieldset::ID,
 				SearchFields_CustomFieldset::NAME,
 				SearchFields_CustomFieldset::CONTEXT,
+				SearchFields_CustomFieldset::UPDATED_AT,
 				SearchFields_CustomFieldset::OWNER_CONTEXT,
 				SearchFields_CustomFieldset::OWNER_CONTEXT_ID
 			);
@@ -523,6 +536,7 @@ class SearchFields_CustomFieldset extends DevblocksSearchFields {
 	const CONTEXT = 'c_context';
 	const OWNER_CONTEXT = 'c_owner_context';
 	const OWNER_CONTEXT_ID = 'c_owner_context_id';
+	const UPDATED_AT = 'c_updated_at';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_OWNER = '*_owner';
@@ -581,6 +595,7 @@ class SearchFields_CustomFieldset extends DevblocksSearchFields {
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'custom_fieldset', 'context', $translate->_('common.context'), null, true),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'custom_fieldset', 'owner_context', $translate->_('common.owner_context'), null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'custom_fieldset', 'owner_context_id', $translate->_('common.owner_context_id'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'custom_fieldset', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
@@ -599,6 +614,7 @@ class Model_CustomFieldset {
 	public $context;
 	public $owner_context;
 	public $owner_context_id;
+	public $updated_at;
 
 	/**
 	 *
@@ -641,6 +657,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_CustomFieldset::NAME,
 			SearchFields_CustomFieldset::CONTEXT,
 			SearchFields_CustomFieldset::VIRTUAL_OWNER,
+			SearchFields_CustomFieldset::UPDATED_AT,
 		);
 
 		$this->addColumnsHidden(array(
@@ -785,6 +802,11 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CustomFieldset::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_CustomFieldset::UPDATED_AT),
+				),
 		);
 		
 		// Add dynamic owner.* fields
@@ -853,7 +875,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_CustomFieldset::UPDATED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -947,7 +969,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_CustomFieldset::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
@@ -1013,7 +1035,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			'id' => $context_id,
 			'name' => $cfieldset->name,
 			'permalink' => '', //$url_writer->writeNoProxy('c=tasks&action=display&id='.$task->id, true),
-			'updated' => 0,
+			'updated' => $cfieldset->updated_at,
 		);
 	}
 	
@@ -1043,6 +1065,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		return array(
 			'context',
 			'owner__label',
+			'updated_at',
 		);
 	}
 	
@@ -1070,6 +1093,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			'context' => $prefix.$translate->_('common.context'),
 			'name' => $prefix.$translate->_('common.name'),
 			'owner__label' => $prefix.$translate->_('common.owner'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
 		// Token types
@@ -1079,6 +1103,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			'context' => Model_CustomField::TYPE_MULTI_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'owner__label' => 'context_url',
+			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
 		// Token values
@@ -1093,6 +1118,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			$token_values['id'] = $cfieldset->id;
 			$token_values['context'] = $cfieldset->context;
 			$token_values['name'] = $cfieldset->name;
+			$token_values['updated_at'] = $cfieldset->updated_at;
 			
 			// For lazy loading
 			$token_values['owner__context'] = $cfieldset->owner_context;
@@ -1110,6 +1136,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			'name' => DAO_CustomFieldset::NAME,
 			'owner__context' => DAO_CustomFieldset::OWNER_CONTEXT,
 			'owner_id' => DAO_CustomFieldset::OWNER_CONTEXT_ID,
+			'updated_at' => DAO_CustomFieldset::UPDATED_AT,
 		];
 	}
 	

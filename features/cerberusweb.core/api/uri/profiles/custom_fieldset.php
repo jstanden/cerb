@@ -58,6 +58,12 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 			]
 		);
 		
+		$properties['updated_date'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $custom_fieldset->updated_at,
+		);
+		
 		// Custom Fields
 		
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $custom_fieldset->id)) or array();
