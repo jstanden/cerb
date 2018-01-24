@@ -45,6 +45,10 @@
 			<span class="glyphicons glyphicons-eye-open" style="color:rgb(80,80,80);"></span>
 		</th>
 		{/if}
+		
+		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.photo'|devblocks_translate|capitalize}">
+			<span class="glyphicons glyphicons-camera" style="color:rgb(80,80,80);"></span>
+		</th>
 
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
@@ -92,6 +96,11 @@
 		<tr class="{$tableRowClass}">
 			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.c_id}
+			</td>
+			<td data-column="*_image" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+				<div style="position:relative;">
+					<img src="{devblocks_url}c=avatars&context=contact&context_id={$result.c_id}{/devblocks_url}?v={$result.c_updated_at}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
+				</div>
 			</td>
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				{$full_name = "{$result.c_first_name}{if $result.c_first_name && $result.c_last_name} {/if}{$result.c_last_name}"}
