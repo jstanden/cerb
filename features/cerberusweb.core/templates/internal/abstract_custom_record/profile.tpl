@@ -1,37 +1,45 @@
 {$page_context_id = $abstract_custom_record->id}
 {$is_writeable = Context_AbstractCustomRecord::isWriteableByActor($abstract_custom_record, $active_worker)}
 
-<h1>{$abstract_custom_record->name}</h1>
+{if $custom_record->hasOption('avatars')}
+<div style="float:left;margin-right:10px;position:relative;">
+	<img src="{devblocks_url}c=avatars&context={$custom_record->getContext()}&context_id={$page_context_id}{/devblocks_url}?v={$abstract_custom_record->updated_at}" style="height:75px;width:75px;border-radius:5px;">
+</div>
+{/if}
 
-<div class="cerb-profile-toolbar">
-	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-		
-		<span id="spanInteractions">
-		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
-		</span>
-		
-		<!-- Card -->
-		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
-		
-		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-		</span>
-		
-		<!-- Edit -->
-		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-		<button type="button" id="btnDisplayAbstractCustomRecordEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
-		{/if}
-	</form>
+<div class="cerb-profile-header">
+	<h1>{$abstract_custom_record->name}</h1>
 	
-	{if $pref_keyboard_shortcuts}
-		<small>
-		{$translate->_('common.keyboard')|lower}:
-		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		(<b>1-9</b>) change tab
-		</small>
-	{/if}
+	<div class="cerb-profile-toolbar">
+		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
+			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+			
+			<span id="spanInteractions">
+			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
+			</span>
+			
+			<!-- Card -->
+			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+			
+			<span>
+			{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+			</span>
+			
+			<!-- Edit -->
+			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
+			<button type="button" id="btnDisplayAbstractCustomRecordEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			{/if}
+		</form>
+		
+		{if $pref_keyboard_shortcuts}
+			<small>
+			{$translate->_('common.keyboard')|lower}:
+			(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+			(<b>1-9</b>) change tab
+			</small>
+		{/if}
+	</div>
 </div>
 
 <fieldset class="properties">

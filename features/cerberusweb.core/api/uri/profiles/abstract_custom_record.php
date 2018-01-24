@@ -214,6 +214,10 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
 				DAO_CustomFieldValue::handleFormPost($context, $id, $field_ids);
 				
+				// Avatar image
+				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+				DAO_ContextAvatar::upsertWithImage($context, $id, $avatar_image);
+				
 				echo json_encode(array(
 					'status' => true,
 					'id' => $id,

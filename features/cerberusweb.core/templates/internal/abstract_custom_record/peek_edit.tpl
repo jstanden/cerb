@@ -18,6 +18,7 @@
 			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 		</td>
 	</tr>
+	
 	{if $owners_menu}
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top">
@@ -36,6 +37,21 @@
 			{else}
 			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
 			{/if}
+		</td>
+	</tr>
+	{/if}
+	
+	{if $custom_record->hasOption('avatars')}
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">{'common.photo'|devblocks_translate|capitalize}:</td>
+		<td width="99%" valign="top">
+			<div style="float:left;margin-right:5px;">
+				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$custom_record->uri}&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
+			</div>
+			<div style="float:left;">
+				<button type="button" class="cerb-avatar-chooser" data-context="{$custom_record->getContext()}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
+				<input type="hidden" name="avatar_image">
+			</div>
 		</td>
 	</tr>
 	{/if}
@@ -136,6 +152,12 @@ $(function() {
 			}
 		});
 		{/if}
+		
+		// Avatar chooser
+		
+		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
+		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
+		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 	});
 });
 </script>

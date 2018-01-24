@@ -45,6 +45,12 @@
 		</th>
 		{/if}
 
+		{if $custom_record->hasOption('avatars')}
+		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.photo'|devblocks_translate|capitalize}">
+			<span class="glyphicons glyphicons-camera" style="color:rgb(80,80,80);"></span>
+		</th>
+		{/if}
+	
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th class="{if $view->options.disable_sorting}no-sort{/if}">
@@ -86,6 +92,14 @@
 			{if !$view->options.disable_watchers}
 			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.a_id}
+			</td>
+			{/if}
+			
+			{if $custom_record->hasOption('avatars')}
+			<td data-column="*_image" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+				<div style="position:relative;">
+					<img src="{devblocks_url}c=avatars&context={$view_context}&context_id={$result.a_id}{/devblocks_url}?v={$result.a_updated_at}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
+				</div>
 			</td>
 			{/if}
 			

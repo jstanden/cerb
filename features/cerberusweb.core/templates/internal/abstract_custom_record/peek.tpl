@@ -3,6 +3,11 @@
 {$is_writeable = Context_AbstractCustomRecord::isWriteableByActor($dict, $active_worker)}
 
 <div id="{$div_id}">
+	{if $custom_record->hasOption('avatars')}
+	<div style="float:left;margin-right:10px;">
+		<img src="{devblocks_url}c=avatars&context={$peek_context}&context_id={$dict->id}{/devblocks_url}?v={$dict->updated_at}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
+	</div>
+	{/if}
 	
 	<div style="float:left;">
 		<h1>
