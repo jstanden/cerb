@@ -20,7 +20,8 @@
 		"swiftmailer/swiftmailer" : "5.4.8",
 		"mtdowling/cron-expression" : "^1.2",
 		"defuse/php-encryption": "^2.1",
-		"sebastian/diff": "1.4.3"
+		"sebastian/diff": "1.4.3",
+		"giggsey/libphonenumber-for-php": "^8.8"
 	},
 	"require-dev" : {
 	},
