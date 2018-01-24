@@ -83,6 +83,12 @@
 				<a href="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.w_name)}{$result.w_name}{else}New Page{/if}</a>
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$result.w_id}&view_id={$view->id}',null,true,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
+			{elseif in_array($column,["w_updated_at"])}
+				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
+					{if !empty($result.$column)}
+						{$result.$column|devblocks_prettytime}&nbsp;
+					{/if}
+				</td>
 			{elseif $column=="*_owner"}
 				{$owner_context = $result.w_owner_context}
 				{$owner_context_id = $result.w_owner_context_id}

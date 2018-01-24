@@ -21,6 +21,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
+	const UPDATED_AT = 'updated_at';
 	
 	const _CACHE_ALL = 'ch_workspace_pages';
 	
@@ -69,6 +70,11 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			->id()
 			->setRequired(true)
 			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
 		$validation
 			->addField('_links')
 			->string()
@@ -92,6 +98,10 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 
 	static function update($ids, $fields) {
 		$context = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
+		
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+		
 		self::_updateAbstract($context, $ids, $fields);
 		
 		parent::_update($ids, 'workspace_page', $fields);
@@ -157,7 +167,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
 		// SQL
-		$sql = "SELECT id, name, owner_context, owner_context_id, extension_id ".
+		$sql = "SELECT id, name, owner_context, owner_context_id, extension_id, updated_at ".
 			"FROM workspace_page ".
 			$where_sql.
 			$sort_sql.
@@ -275,6 +285,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
 			$object->extension_id = $row['extension_id'];
+			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
 		}
 
@@ -321,11 +332,13 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"workspace_page.id as %s, ".
 			"workspace_page.name as %s, ".
+			"workspace_page.updated_at as %s, ".
 			"workspace_page.owner_context as %s, ".
 			"workspace_page.owner_context_id as %s, ".
 			"workspace_page.extension_id as %s ",
 			SearchFields_WorkspacePage::ID,
 			SearchFields_WorkspacePage::NAME,
+			SearchFields_WorkspacePage::UPDATED_AT,
 			SearchFields_WorkspacePage::OWNER_CONTEXT,
 			SearchFields_WorkspacePage::OWNER_CONTEXT_ID,
 			SearchFields_WorkspacePage::EXTENSION_ID
@@ -832,6 +845,7 @@ class SearchFields_WorkspacePage extends DevblocksSearchFields {
 	const OWNER_CONTEXT = 'w_owner_context';
 	const OWNER_CONTEXT_ID = 'w_owner_context_id';
 	const EXTENSION_ID = 'w_extension_id';
+	const UPDATED_AT = 'w_updated_at';
 	
 	const VIRTUAL_OWNER = '*_owner';
 	
@@ -885,7 +899,8 @@ class SearchFields_WorkspacePage extends DevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'workspace_page', 'owner_context', null, null, false),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'workspace_page', 'owner_context_id', null, null, false),
 			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_page', 'extension_id', null, null, true),
-				
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_page', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
 		);
 		
@@ -961,6 +976,7 @@ class Model_WorkspacePage {
 	public $owner_context;
 	public $owner_context_id;
 	public $extension_id;
+	public $updated_at;
 	
 	function getExtension() {
 		$extension = Extension_WorkspacePage::get($this->extension_id);
@@ -1274,6 +1290,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$this->view_columns = array(
 			SearchFields_WorkspacePage::NAME,
 			SearchFields_WorkspacePage::VIRTUAL_OWNER,
+			SearchFields_WorkspacePage::UPDATED_AT,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -1332,6 +1349,11 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WorkspacePage::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_WorkspacePage::UPDATED_AT),
 				),
 		);
 		
@@ -1395,7 +1417,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 
-			case 'placeholder_date':
+			case SearchFields_WorkspacePage::UPDATED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
@@ -1451,7 +1473,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 
-			case 'placeholder_date':
+			case SearchFields_WorkspacePage::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 
@@ -1506,8 +1528,16 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 			'id' => $workspace_page->id,
 			'name' => $workspace_page->name,
 			'permalink' => $url,
-			'updated' => 0, // [TODO]
+			'updated' => $workspace_page->updated_at,
 		];
+	}
+	
+	function getDefaultProperties() {
+		return array(
+			'name',
+			'owner__label',
+			'updated_at',
+		);
 	}
 	
 	function getContext($page, &$token_labels, &$token_values, $prefix=null) {
@@ -1536,6 +1566,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 			'owner_context_id' => $prefix.$translate->_('common.context_id'),
 			'extension_id' => $prefix.$translate->_('common.extension'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
 		// Token types
@@ -1546,6 +1577,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 			'owner_context_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
+			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1569,6 +1601,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 			$token_values['id'] = $page->id;
 			$token_values['name'] = $page->name;
 			$token_values['extension_id'] = $page->extension_id;
+			$token_values['updated_at'] = $page->updated_at;
 
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($page, $token_values);
@@ -1592,6 +1625,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext {
 			'name' => DAO_WorkspacePage::NAME,
 			'owner__context' => DAO_WorkspacePage::OWNER_CONTEXT,
 			'owner_id' => DAO_WorkspacePage::OWNER_CONTEXT_ID,
+			'updated_at' => DAO_WorkspacePage::UPDATED_AT,
 		];
 	}
 	

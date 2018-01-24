@@ -18,6 +18,23 @@ $db->ExecuteMaster("UPDATE context_activity_log SET entry_json = replace(entry_j
 $db->ExecuteMaster("UPDATE context_activity_log SET activity_point = 'record.merge' WHERE activity_point = 'ticket.merge'");
 
 // ===========================================================================
+// Add `updated_at` field to the `workspace_page` table
+
+if(!isset($tables['workspace_page'])) {
+	$logger->error("The 'workspace_page' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('workspace_page');
+
+if(!isset($columns['updated_at'])) {
+	$sql = 'ALTER TABLE workspace_page ADD COLUMN updated_at int(10) unsigned NOT NULL DEFAULT 0';
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster(sprintf("UPDATE workspace_page SET updated_at = %d", time()));
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
