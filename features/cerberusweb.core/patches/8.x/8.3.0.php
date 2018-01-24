@@ -18,6 +18,11 @@ $db->ExecuteMaster("UPDATE context_activity_log SET entry_json = replace(entry_j
 $db->ExecuteMaster("UPDATE context_activity_log SET activity_point = 'record.merge' WHERE activity_point = 'ticket.merge'");
 
 // ===========================================================================
+// Clear empty email addresses
+
+$db->ExecuteMaster("DELETE FROM address WHERE email = ''");
+
+// ===========================================================================
 // Add `updated_at` field to the `custom_fieldset` table
 
 if(!isset($tables['custom_fieldset'])) {
