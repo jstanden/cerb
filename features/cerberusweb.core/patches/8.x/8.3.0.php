@@ -57,6 +57,20 @@ if(!isset($columns['updated_at'])) {
 }
 
 // ===========================================================================
+// Increase the size of `custom_field_numbervalue` from int4 to int8
+
+if(!isset($tables['custom_field_numbervalue'])) {
+	$logger->error("The 'custom_field_numbervalue' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('custom_field_numbervalue');
+
+if(@$columns['field_value'] && 0 == strcasecmp($columns['field_value']['type'], 'int(10) unsigned')) {
+	$db->ExecuteMaster("ALTER TABLE custom_field_numbervalue MODIFY COLUMN field_value BIGINT UNSIGNED NOT NULL DEFAULT 0");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
