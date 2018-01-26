@@ -1542,11 +1542,14 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		$opp = new Model_CrmOpportunity();
+		
 		if(!empty($context_id)) {
 			$opp = DAO_CrmOpportunity::get($context_id);
-			$tpl->assign('opp', $opp);
+		} else {
+			$opp->currency_id = DAO_Currency::getDefaultId();
 		}
-
+		
 		if(empty($context_id) || $edit) {
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
@@ -1561,6 +1564,8 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			
 			$currencies = DAO_Currency::getAll();
 			$tpl->assign('currencies', $currencies);
+			
+			$tpl->assign('opp', $opp);
 			
 			// View
 			$tpl->assign('id', $context_id);

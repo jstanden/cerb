@@ -11,9 +11,9 @@
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%" style="margin-bottom:10px;">
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.title'|devblocks_translate|capitalize}: </td>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.name'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
-			<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->name}" autocomplete="off" autofocus="autofocus">
+			<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->name}" autocomplete="off" autofocus="autofocus" placeholder="Potential sale">
 		</td>
 	</tr>
 	
