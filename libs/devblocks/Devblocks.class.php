@@ -2015,6 +2015,64 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $tokens;
 	}
 	
+	static function strParseDecimal($number, $decimal_places=2, $decimal_separator='.') {
+		if(0 == strlen($number))
+			$number = '0';
+		
+		if(false === strpos($decimal_separator, $number))
+			$number .= $decimal_separator . str_repeat('0', $decimal_places);
+		
+		$parts = explode($decimal_separator, $number);
+		
+		$whole = DevblocksPlatform::strNum($parts[0]);
+		$whole = str_pad($whole, 1, '0', STR_PAD_LEFT);
+		
+		$decimal = DevblocksPlatform::strNum($parts[1]);
+		$decimal = str_pad($decimal, $decimal_places, '0', STR_PAD_RIGHT);
+		
+		$number =  $whole . $decimal;
+		
+		if(0 == $number)
+			$number = '0';
+		
+		return $number;
+	}
+	
+	static function strFormatDecimal($number, $decimal_places=2, $decimal_separator='.', $thousands_separator=',') {
+		if(0 == strlen($number))
+			$number = '0';
+		
+		if($decimal_places) {
+			$whole = substr($number, 0, -$decimal_places);
+			$decimal = substr($number, -$decimal_places);
+			$decimal = str_pad($decimal, $decimal_places, '0', STR_PAD_LEFT);
+			
+		} else {
+			$whole = $number;
+		}
+		
+		if(empty($whole))
+			$whole = '0';
+		
+		if($thousands_separator && strlen($whole) > 3) {
+			$whole_parts = preg_split('//', $whole, -1, PREG_SPLIT_NO_EMPTY);
+			
+			for($pos=count($whole_parts)-3; $pos > 0; $pos -= 3) {
+				array_splice($whole_parts, $pos, 0, [$thousands_separator]);
+			}
+			
+			$whole = implode('', $whole_parts);
+		}
+		
+		if($decimal_places) {
+			$number = $whole . $decimal_separator . $decimal;
+		} else {
+			$number = $whole;
+		}
+		
+		return $number;
+	}
+	
 	/**
 	 * 
 	 * @param integer $number
@@ -2075,7 +2133,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		return false;
 	}
-
+	
 	/**
 	 * Returns a pointer to an arbitrary property in a deeply nested JSON tree.  The pointer
 	 * can be used to get or set the value at that location.

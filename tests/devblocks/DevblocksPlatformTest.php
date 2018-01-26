@@ -1130,6 +1130,90 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testStrParseDecimal() {
+		// comma thousands, no dot, two decimal places
+		$string = '525,000';
+		$expected = '52500000';
+		$actual = DevblocksPlatform::strParseDecimal($string, 2);
+		$this->assertSame($expected, $actual);
+		
+		// No comma or dot, no decimal places
+		$string = '525000';
+		$expected = '525000';
+		$actual = DevblocksPlatform::strParseDecimal($string, 0);
+		$this->assertSame($expected, $actual);
+		
+		// Comma thousands, decimal dot, four decimal places
+		$string = '525,000.00';
+		$expected = '5250000000';
+		$actual = DevblocksPlatform::strParseDecimal($string, 4);
+		$this->assertSame($expected, $actual);
+		
+		// Comma decimal separator, space thousands separator, two decimal places
+		$string = '525 000,00';
+		$expected = '52500000';
+		$actual = DevblocksPlatform::strParseDecimal($string, 2, ',');
+		$this->assertSame($expected, $actual);
+		
+		// Invalid number
+		$string = 'abcd';
+		$expected = '0';
+		$actual = DevblocksPlatform::strParseDecimal($string, 2, ',');
+		$this->assertSame($expected, $actual);
+		
+		// Invalid number with decimal
+		$string = 'abcd.ef';
+		$expected = '0';
+		$actual = DevblocksPlatform::strParseDecimal($string, 2, ',');
+		$this->assertSame($expected, $actual);
+		
+		// Blank with two decimals
+		$string = '';
+		$expected = '0';
+		$actual = DevblocksPlatform::strParseDecimal($string, 2, ',');
+		$this->assertSame($expected, $actual);
+	}
+	
+	public function testStrFormatDecimal() {
+		$string = '52500000';
+		$expected = '525,000.00';
+		$actual = DevblocksPlatform::strFormatDecimal($string, 2, '.', ',');
+		$this->assertSame($expected, $actual);
+		
+		$string = '525000';
+		$expected = '525,000';
+		$actual = DevblocksPlatform::strFormatDecimal($string, 0);
+		$this->assertSame($expected, $actual);
+		
+		$string = '5250000000';
+		$expected = '525 000.0000';
+		$actual = DevblocksPlatform::strFormatDecimal($string, 4, '.', ' ');
+		$this->assertSame($expected, $actual);
+		
+		$string = '52500000';
+		$expected = '525 000,00';
+		$actual = DevblocksPlatform::strFormatDecimal($string, 2, ',',' ');
+		$this->assertSame($expected, $actual);
+		
+		// Blank with two decimals
+		$string = '';
+		$expected = '0.00';
+		$actual = DevblocksPlatform::strFormatDecimal($string, 2, '.',',');
+		$this->assertSame($expected, $actual);
+		
+		// Trailing zeroes
+		$string = '250';
+		$expected = '2.50';
+		$actual = DevblocksPlatform::strFormatDecimal($string, 2, '.',',');
+		$this->assertSame($expected, $actual);
+		
+		// Bitcoin
+		$string = '1';
+		$expected = '0.00000001';
+		$actual = DevblocksPlatform::strFormatDecimal($string, 8, '.',',');
+		$this->assertSame($expected, $actual);
+	}
+	
 	public function testStrParseQueryString() {
 		// Bracket fields
 		
