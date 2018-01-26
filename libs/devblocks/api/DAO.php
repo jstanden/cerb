@@ -196,6 +196,14 @@ abstract class DevblocksORMHelper {
 						->setMaxLength(16777215)
 					;
 					break;
+				case Model_CustomField::TYPE_CURRENCY:
+					$validation
+						->addField($field_id)
+						->number()
+						->setMin(0)
+						->setMax('64 bits')
+					;
+					break;
 				case Model_CustomField::TYPE_NUMBER:
 					$validation
 						->addField($field_id)

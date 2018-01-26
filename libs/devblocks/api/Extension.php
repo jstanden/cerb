@@ -941,6 +941,16 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			}
 
 			switch($fields[$cf_id]->type) {
+				case Model_CustomField::TYPE_CURRENCY:
+					@$currency_id = intval($fields[$cf_id]->params['currency_id']);
+					@$token_values['custom_' . $cf_id . '_currency__context'] = CerberusContexts::CONTEXT_CURRENCY;
+					@$token_values['custom_' . $cf_id . '_currency_id'] = $currency_id;
+					if(false != ($currency = DAO_Currency::get($currency_id))) {
+						@$token_values['custom_' . $cf_id . '_label'] = $currency->format($field_values[$cf_id], true);
+						@$token_values['custom_' . $cf_id . '_decimal'] = $currency->format($field_values[$cf_id], false);
+					}
+					break;
+					
 				case Model_CustomField::TYPE_LINK:
 					@$token_values['custom_' . $cf_id . '_id'] = $field_values[$cf_id];
 					@$token_values['custom_' . $cf_id . '__context'] = $fields[$cf_id]->params['context'];

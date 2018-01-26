@@ -8,6 +8,18 @@
 		</div>
 	</fieldset>
 {elseif $model->type == 'L'}
+{elseif $model->type == Model_CustomField::TYPE_CURRENCY}
+	<fieldset>
+		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
+		
+		<b>Currency:</b>
+		{$currencies = DAO_Currency::getAll()}
+		<select name="params[currency_id]">
+		{foreach from=$currencies item=currency}
+		<option value="{$currency->id}" {if $model->params.currency_id==$currency->id}selected="selected"{/if}>{$currency->name}</option>
+		{/foreach}
+		</select>
+	</fieldset>
 	{$contexts = Extension_DevblocksContext::getAll(false)}
 	<fieldset>
 		<legend>To record type:</legend>

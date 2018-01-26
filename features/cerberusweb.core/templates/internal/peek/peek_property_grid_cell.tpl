@@ -10,6 +10,19 @@
 	{if $dict->$k}<span class="glyphicons glyphicons-check"></span>{else}<span class="glyphicons glyphicons-unchecked"></span>{/if}
 {elseif $types.$k == Model_CustomField::TYPE_DATE}
 	<abbr title="{$dict->$k|devblocks_date}">{$dict->$k|devblocks_prettytime}</abbr>
+{elseif $types.$k == Model_CustomField::TYPE_CURRENCY}
+	{$currency_id = $dict->get("{$k}_currency_id")}
+	{$currency_symbol = $dict->get("{$k}_currency_symbol")}
+	{$currency_code = $dict->get("{$k}_currency_code")}
+	{$currency_decimal_at = $dict->get("{$k}_currency_decimal_at")}
+	
+	{if $currency_id}
+		{$currency_symbol}
+		{DevblocksPlatform::strFormatDecimal($dict->$k, $currency_decimal_at)}
+		{$currency_code}
+	{else}
+		{DevblocksPlatform::strFormatDecimal($dict->$k)}
+	{/if}
 {elseif $types.$k == Model_CustomField::TYPE_NUMBER}
 	{$dict->$k|number_format}
 {elseif $types.$k == Model_CustomField::TYPE_DROPDOWN}

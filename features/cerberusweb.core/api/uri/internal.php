@@ -801,6 +801,13 @@ class ChInternalController extends DevblocksControllerExtension {
 							$v = (1 == $v) ? 'yes' : 'no';
 							break;
 							
+						case Model_CustomField::TYPE_CURRENCY:
+							@$currency_id = $dict->get($k . '_currency_id');
+							if($currency_id && false != ($currency = DAO_Currency::get($currency_id))) {
+								$v = $currency->format($dict->$k);
+							}
+							break;
+							
 						case Model_CustomField::TYPE_FILE:
 							if($v && false !== ($file = DAO_Attachment::get($v)))
 								$v = sprintf("%s (%s) %s", $file->name, $file->mime_type, DevblocksPlatform::strPrettyBytes($file->storage_size));
@@ -948,6 +955,11 @@ class ChInternalController extends DevblocksControllerExtension {
 						case Model_CustomField::TYPE_CHECKBOX:
 							@$dict_id = $values[$value_key];
 							@$value = $dicts[$dict_id]->custom[$cfield_id] ? 1 : 0;
+							break;
+							
+						case Model_CustomField::TYPE_CURRENCY:
+							@$dict_id = $values[$value_key];
+							$value = $dicts[$dict_id]->get(sprintf('%s_decimal', $value_key));
 							break;
 							
 						case Model_CustomField::TYPE_FILES:

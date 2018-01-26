@@ -36,6 +36,11 @@
 						{/foreach}
 						<button type="button" class="multi-text-add" data-field-name="{$field_name}"><span class="glyphicons glyphicons-circle-plus"></span></button>
 					</div>
+				{elseif $f->type==Model_CustomField::TYPE_CURRENCY}
+					{$currency = DAO_Currency::get($f->params.currency_id)}
+					{$currency->symbol}
+					<input type="text" name="{$field_name}" size="24" maxlength="64" value="{DevblocksPlatform::strFormatDecimal($custom_field_values.$f_id, $currency->decimal_at)}" class="currency">
+					{$currency->code}
 				{elseif $f->type==Model_CustomField::TYPE_NUMBER}
 					<input type="text" name="{$field_name}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="number">
 				{elseif $f->type==Model_CustomField::TYPE_MULTI_LINE}

@@ -6,6 +6,8 @@
 	<td data-column="{$column}">{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_URL}
 	<td data-column="{$column}">{if !empty($result.$column)}<a href="{$result.$column}" target="_blank">{$result.$column}</a>{/if}</td>
+{elseif $col->type==Model_CustomField::TYPE_CURRENCY}
+	<td data-column="{$column}">{DevblocksPlatform::strFormatDecimal($result.$column)}</td>
 {elseif $col->type==Model_CustomField::TYPE_NUMBER}
 	<td data-column="{$column}">{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_MULTI_LINE}

@@ -621,6 +621,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				break;
 			// number
 			case Model_CustomField::TYPE_CHECKBOX:
+			case Model_CustomField::TYPE_CURRENCY:
 			case Model_CustomField::TYPE_DATE:
 			case Model_CustomField::TYPE_FILE:
 			case Model_CustomField::TYPE_FILES:
@@ -715,6 +716,14 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					}
 					break;
 
+				case Model_CustomField::TYPE_CURRENCY:
+					@$currency_id = $field->params['currency_id'];
+					
+					if($currency_id && false !=  ($currency = DAO_Currency::get($currency_id))) {
+						$value = DevblocksPlatform::strParseDecimal($value, $currency->decimal_at, '.');
+					}
+					break;
+					
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_NUMBER:
 				case Model_CustomField::TYPE_WORKER:
@@ -909,6 +918,15 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
 
+				case Model_CustomField::TYPE_CURRENCY:
+					@$currency_id = $field->params['currency_id'];
+					
+					if($currency_id && false !=  ($currency = DAO_Currency::get($currency_id))) {
+						$value = DevblocksPlatform::strParseDecimal($value, $currency->decimal_at, '.');
+						self::setFieldValue($context, $context_id, $field_id, $value);
+					}
+					break;
+					
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
@@ -953,6 +971,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				if(255 < strlen($value))
 					$value = substr($value,0,255);
 				break;
+			case Model_CustomField::TYPE_CURRENCY:
 			case Model_CustomField::TYPE_FILE:
 			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_NUMBER:
@@ -1064,6 +1083,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
+				case Model_CustomField::TYPE_CURRENCY:
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
@@ -1127,6 +1147,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 					
 				case Model_CustomField::TYPE_CHECKBOX:
+				case Model_CustomField::TYPE_CURRENCY:
 				case Model_CustomField::TYPE_DATE:
 				case Model_CustomField::TYPE_DROPDOWN:
 				case Model_CustomField::TYPE_FILE:
@@ -1361,6 +1382,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 
 class Model_CustomField {
 	const TYPE_CHECKBOX = 'C';
+	const TYPE_CURRENCY = 'Y';
 	const TYPE_DATE = 'E';
 	const TYPE_DROPDOWN = 'D';
 	const TYPE_FILE = 'F';
@@ -1388,6 +1410,7 @@ class Model_CustomField {
 		
 		$fields = array(
 			self::TYPE_CHECKBOX => 'Checkbox',
+			self::TYPE_CURRENCY => 'Currency',
 			self::TYPE_DATE => 'Date',
 			self::TYPE_DROPDOWN => 'Picklist',
 			self::TYPE_FILE => 'File',

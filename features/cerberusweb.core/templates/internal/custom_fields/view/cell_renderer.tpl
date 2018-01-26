@@ -9,6 +9,13 @@
 	<td data-column="{$column}">{$result.$column|escape|devblocks_hyperlinks nofilter}</td>
 {elseif $col->type==Model_CustomField::TYPE_NUMBER}
 	<td data-column="{$column}">{$result.$column}</td>
+{elseif $col->type==Model_CustomField::TYPE_CURRENCY}
+	<td data-column="{$column}">
+		{$currency = DAO_Currency::get($col->params.currency_id)}
+		{$currency->symbol}
+		{DevblocksPlatform::strFormatDecimal($result.$column, $currency->decimal_at)}
+		{$currency->code}
+	</td>
 {elseif $col->type==Model_CustomField::TYPE_MULTI_LINE}
 	<td data-column="{$column}" title="{$result.$column}">{$result.$column|escape|devblocks_hyperlinks nofilter}</td>
 {elseif $col->type==Model_CustomField::TYPE_DROPDOWN}
