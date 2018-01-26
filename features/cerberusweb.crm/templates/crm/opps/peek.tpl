@@ -40,6 +40,9 @@
 			{if $dict->$k}
 			<div>
 			{if $k == ''}
+			{elseif $k == 'amount'}
+				<label>{$labels.$k}</label>
+				{$dict->amount__label}
 			{elseif $k == 'importance'}
 				<label>{$labels.$k}</label>
 				<div style="display:inline-block;margin-top:5px;width:75px;height:8px;background-color:rgb(220,220,220);border-radius:8px;">

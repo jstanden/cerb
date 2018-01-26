@@ -100,14 +100,26 @@
 						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$result.org_id}&view_id={$view->id}',null,false,'50%');">{$result.org_name}</a>&nbsp;
 					{/if}
 				</td>
-			{elseif $column=="o_amount"}
-				<td data-column="{$column}">{$result.o_amount|number_format:2}&nbsp;</td>
 			{elseif $column=="a_email"}
+			{elseif $column=="o_currency_amount"}
 				<td data-column="{$column}">
 					{if !empty($result.a_email)}
 						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'50%');" title="{$result.a_email}">{$result.a_email}</a>&nbsp;
+					{$currency = DAO_Currency::get($result.o_currency_id)}
+					{if $currency}
+					{$currency->symbol} 
+					{DevblocksPlatform::strFormatDecimal($result.o_currency_amount,$currency->decimal_at)} 
+					{$currency->code}
 					{else}
 						<!-- [<a href="javascript:;">assign</a>]  -->
+					{DevblocksPlatform::strFormatDecimal($result.o_currency_amount,2)}
+					{/if}
+				</td>
+			{elseif $column=="o_currency_id"}
+				<td data-column="{$column}">
+					{$currency = DAO_Currency::get($result.o_currency_id)}
+					{if $currency}
+						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CURRENCY}" data-context-id="{$currency->id}">{$currency->name} ({$currency->code})</a>
 					{/if}
 				</td>
 			{elseif $column=="o_created_date"}

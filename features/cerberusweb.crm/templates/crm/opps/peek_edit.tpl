@@ -65,6 +65,20 @@
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 </fieldset>
 {/if}
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.amount'|devblocks_translate|capitalize}: </td>
+		<td width="100%">
+			<input type="text" name="currency_amount" size="24" style="border:1px solid rgb(180,180,180);padding:2px;" value="{if $opp}{$opp->getAmountString(false)}{/if}" placeholder="1,500.00" autocomplete="off">
+			<select name="currency_id">
+				{if is_array($currencies)}
+				{foreach from=$currencies item=currency}
+				<option value="{$currency->id}" {if $opp->currency_id == $currency->id}selected="selected"{/if}>{$currency->name_plural|default:$currency->name} ({$currency->code})</option>
+				{/foreach}
+				{/if}
+			</select>
+		</td>
+	</tr>
+	
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$opp->id}
 

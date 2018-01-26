@@ -125,7 +125,8 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			
 		} else {
 			$tokens = array(
-				'amount' => SearchFields_CrmOpportunity::AMOUNT,
+				'amount' => SearchFields_CrmOpportunity::CURRENCY_AMOUNT,
+				'currency_id' => SearchFields_CrmOpportunity::CURRENCY_ID,
 				'created' => SearchFields_CrmOpportunity::CREATED_DATE,
 				'email_address' => SearchFields_CrmOpportunity::EMAIL_ADDRESS,
 				'email_id' => SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
@@ -260,6 +261,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			'email_id' => 'integer',
 			'is_closed' => 'bit',
 			'is_won' => 'bit',
+			'currency_id' => 'integer',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);

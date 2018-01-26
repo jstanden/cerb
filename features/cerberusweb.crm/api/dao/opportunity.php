@@ -16,9 +16,10 @@
  ***********************************************************************/
 
 class DAO_CrmOpportunity extends Cerb_ORMHelper {
-	const AMOUNT = 'amount';
 	const CLOSED_DATE = 'closed_date';
 	const CREATED_DATE = 'created_date';
+	const CURRENCY_AMOUNT = 'currency_amount';
+	const CURRENCY_ID = 'currency_id';
 	const ID = 'id';
 	const IS_CLOSED = 'is_closed';
 	const IS_WON = 'is_won';
@@ -31,11 +32,6 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
-		// decimal(8,2)
-		$validation
-			->addField(self::AMOUNT)
-			->float()
-			;
 		// int(10) unsigned
 		$validation
 			->addField(self::CLOSED_DATE)
@@ -46,16 +42,20 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			->addField(self::CREATED_DATE)
 			->timestamp()
 			;
-		// int(10) unsigned
+		// bigint
 		$validation
-			->addField(self::ID)
-			->id()
-			->setEditable(false)
+			->addField(self::CURRENCY_AMOUNT)
+			->number()
+			->setMin(0)
+			->setMax('8 bytes')
 			;
 		// tinyint(1) unsigned
 		$validation
 			->addField(self::IS_CLOSED)
 			->bit()
+			->addField(self::CURRENCY_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CURRENCY, true))
 			;
 		// tinyint(1) unsigned
 		$validation
@@ -355,7 +355,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$sql = "SELECT id, name, amount, primary_email_id, created_date, updated_date, closed_date, is_won, is_closed ".
+		$sql = "SELECT id, name, currency_id, currency_amount, created_date, updated_date, closed_date, status_id ".
 			"FROM crm_opportunity ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -397,8 +397,9 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			$object = new Model_CrmOpportunity();
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
-			$object->amount = doubleval($row['amount']);
 			$object->primary_email_id = intval($row['primary_email_id']);
+			$object->currency_id = intval($row['currency_id']);
+			$object->currency_amount = $row['currency_amount'];
 			$object->created_date = $row['created_date'];
 			$object->updated_date = $row['updated_date'];
 			$object->closed_date = $row['closed_date'];
@@ -484,11 +485,12 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"o.id as %s, ".
 			"o.name as %s, ".
-			"o.amount as %s, ".
 			"org.id as %s, ".
 			"org.name as %s, ".
 			"o.primary_email_id as %s, ".
 			"a.email as %s, ".
+			"o.currency_id as %s, ".
+			"o.currency_amount as %s, ".
 			"o.created_date as %s, ".
 			"o.updated_date as %s, ".
 			"o.closed_date as %s, ".
@@ -496,11 +498,12 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			"o.is_won as %s ",
 				SearchFields_CrmOpportunity::ID,
 				SearchFields_CrmOpportunity::NAME,
-				SearchFields_CrmOpportunity::AMOUNT,
 				SearchFields_CrmOpportunity::ORG_ID,
 				SearchFields_CrmOpportunity::ORG_NAME,
 				SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 				SearchFields_CrmOpportunity::EMAIL_ADDRESS,
+				SearchFields_CrmOpportunity::CURRENCY_ID,
+				SearchFields_CrmOpportunity::CURRENCY_AMOUNT,
 				SearchFields_CrmOpportunity::CREATED_DATE,
 				SearchFields_CrmOpportunity::UPDATED_DATE,
 				SearchFields_CrmOpportunity::CLOSED_DATE,
@@ -626,7 +629,8 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	const ID = 'o_id';
 	const PRIMARY_EMAIL_ID = 'o_primary_email_id';
 	const NAME = 'o_name';
-	const AMOUNT = 'o_amount';
+	const CURRENCY_AMOUNT = 'o_currency_amount';
+	const CURRENCY_ID = 'o_currency_id';
 	const CREATED_DATE = 'o_created_date';
 	const UPDATED_DATE = 'o_updated_date';
 	const CLOSED_DATE = 'o_closed_date';
@@ -715,7 +719,8 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'org', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
 			self::NAME => new DevblocksSearchField(self::NAME, 'o', 'name', $translate->_('common.title'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::AMOUNT => new DevblocksSearchField(self::AMOUNT, 'o', 'amount', $translate->_('crm.opportunity.amount'), Model_CustomField::TYPE_NUMBER, true),
+			self::CURRENCY_AMOUNT => new DevblocksSearchField(self::CURRENCY_AMOUNT, 'o', 'currency_amount', $translate->_('crm.opportunity.amount'), Model_CustomField::TYPE_NUMBER, true),
+			self::CURRENCY_ID => new DevblocksSearchField(self::CURRENCY_ID, 'o', 'currency_id', $translate->_('common.currency'), Model_CustomField::TYPE_NUMBER, true),
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'o', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'o', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::CLOSED_DATE => new DevblocksSearchField(self::CLOSED_DATE, 'o', 'closed_date', $translate->_('crm.opportunity.closed_date'), Model_CustomField::TYPE_DATE, true),
@@ -751,8 +756,9 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 class Model_CrmOpportunity {
 	public $id;
 	public $name;
-	public $amount;
 	public $primary_email_id;
+	public $currency_amount;
+	public $currency_id;
 	public $created_date;
 	public $updated_date;
 	public $closed_date;
@@ -765,6 +771,19 @@ class Model_CrmOpportunity {
 	 */
 	function getPrimaryEmail() {
 		return DAO_Address::get($this->primary_email_id);
+	function getCurrency() {
+		return DAO_Currency::get($this->currency_id);
+	}
+	
+	function getAmountString($with_symbols=true) {
+		if(false == ($currency = $this->getCurrency()))
+			return '';
+		
+		return sprintf("%s%s%s",
+			($with_symbols && $currency->symbol ? ($currency->symbol . ' ') : ''),
+			DevblocksPlatform::strFormatDecimal($this->currency_amount, $currency->decimal_at),
+			($with_symbols && $currency->code ? (' ' . $currency->code) : '')
+		);
 	}
 };
 
@@ -781,7 +800,8 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$this->view_columns = array(
 			SearchFields_CrmOpportunity::EMAIL_ADDRESS,
 			SearchFields_CrmOpportunity::ORG_NAME,
-			SearchFields_CrmOpportunity::AMOUNT,
+			SearchFields_CrmOpportunity::CURRENCY_AMOUNT,
+			SearchFields_CrmOpportunity::CURRENCY_ID,
 			SearchFields_CrmOpportunity::UPDATED_DATE,
 		);
 		$this->addColumnsHidden(array(
@@ -927,7 +947,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			'amount' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::AMOUNT),
+					'options' => array('param_key' => SearchFields_CrmOpportunity::CURRENCY_AMOUNT),
 				),
 			'closedDate' => 
 				array(
@@ -953,11 +973,14 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 					]
 				),
 			'email.id' => 
+			'currency.id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID),
+					'options' => array('param_key' => SearchFields_CrmOpportunity::CURRENCY_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CURRENCY, 'q' => ''],
 					],
 				),
 			'id' => 
@@ -1107,7 +1130,8 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
-			case SearchFields_CrmOpportunity::AMOUNT:
+			case SearchFields_CrmOpportunity::CURRENCY_AMOUNT:
+			case SearchFields_CrmOpportunity::CURRENCY_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -1180,7 +1204,8 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case SearchFields_CrmOpportunity::AMOUNT:
+			case SearchFields_CrmOpportunity::CURRENCY_AMOUNT:
+			case SearchFields_CrmOpportunity::CURRENCY_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -1340,10 +1365,10 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$token_labels = array(
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
-			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
 			'created' => $prefix.$translate->_('common.created'),
 			'is_closed' => $prefix.$translate->_('crm.opportunity.is_closed'),
 			'is_won' => $prefix.$translate->_('crm.opportunity.is_won'),
+			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
 			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('common.title'),
 			'updated' => $prefix.$translate->_('common.updated'),
@@ -1354,10 +1379,10 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$token_types = array(
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
-			'amount' => Model_CustomField::TYPE_NUMBER,
 			'created' => Model_CustomField::TYPE_DATE,
 			'is_closed' => Model_CustomField::TYPE_CHECKBOX,
 			'is_won' => Model_CustomField::TYPE_CHECKBOX,
+			'amount' => Model_CustomField::TYPE_CURRENCY,
 			'status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated' => Model_CustomField::TYPE_DATE,
@@ -1382,8 +1407,9 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		if($opp) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $opp->name;
-			$token_values['id'] = $opp->id;
-			$token_values['amount'] = $opp->amount;
+			$token_values['amount'] = $opp->currency_amount; //$opp->getAmountString(false); 
+			$token_values['amount__label'] = $opp->getAmountString();
+			$token_values['amount_currency_id'] = $opp->currency_id;
 			$token_values['created'] = $opp->created_date;
 			$token_values['is_closed'] = $opp->is_closed;
 			$token_values['is_won'] = $opp->is_won;
@@ -1410,13 +1436,17 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		}
 		
 		// Lead
+		// Currency
 		$merge_token_labels = array();
 		$merge_token_values = array();
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CURRENCY, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
 			'email_',
 			$prefix.'Lead:',
+			'amount_currency_',
+			$prefix.'Currency:',
 			$merge_token_labels,
 			$merge_token_values,
 			$token_labels,
@@ -1428,7 +1458,8 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 	
 	function getKeyToDaoFieldMap() {
 		return [
-			'amount' => DAO_CrmOpportunity::AMOUNT,
+			'amount' => DAO_CrmOpportunity::CURRENCY_AMOUNT,
+			'amount_currency_id' => DAO_CrmOpportunity::CURRENCY_ID,
 			'created' => DAO_CrmOpportunity::CREATED_DATE,
 			'email_id' => DAO_CrmOpportunity::PRIMARY_EMAIL_ID,
 			'id' => DAO_CrmOpportunity::ID,
@@ -1538,6 +1569,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$view->view_columns = array(
 			SearchFields_CrmOpportunity::EMAIL_ADDRESS,
 			SearchFields_CrmOpportunity::ORG_NAME,
+			SearchFields_CrmOpportunity::CURRENCY_AMOUNT,
 			SearchFields_CrmOpportunity::UPDATED_DATE,
 		);
 		$view->addParams(array(
@@ -1599,6 +1631,9 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			$currencies = DAO_Currency::getAll();
+			$tpl->assign('currencies', $currencies);
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
@@ -1656,6 +1691,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 	function mergeGetKeys() {
 		$keys = [
 			'amount',
+			'amount_currency__label',
 			'email__label',
 			'status',
 			'title',
@@ -1670,8 +1706,13 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$keys = array(
 			'amount' => array(
 				'label' => 'Amount',
+				'type' => Model_CustomField::TYPE_CURRENCY,
+				'param' => SearchFields_CrmOpportunity::CURRENCY_AMOUNT,
+			),
+			'amount_currency_id' => array(
+				'label' => 'Currency ID',
 				'type' => Model_CustomField::TYPE_NUMBER,
-				'param' => SearchFields_CrmOpportunity::AMOUNT,
+				'param' => SearchFields_CrmOpportunity::CURRENCY_ID,
 			),
 			'closed_date' => array(
 				'label' => 'Closed Date',

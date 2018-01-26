@@ -87,11 +87,11 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				'value' => $opp->closed_date,
 			);
 			
-		if(!empty($opp->amount))
-			$properties['amount'] = array(
+		if(!empty($opp->currency_amount))
+			$properties['currency_amount'] = array(
 				'label' => mb_ucfirst($translate->_('crm.opportunity.amount')),
-				'type' => Model_CustomField::TYPE_NUMBER,
-				'value' => number_format(floatval($opp->amount),2),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $opp->getAmountString()
 			);
 			
 		$properties['created_date'] = array(
@@ -174,8 +174,9 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
-		@$amount = DevblocksPlatform::importGPC($_REQUEST['amount'],'string','0.00');
 		@$email_id = DevblocksPlatform::importGPC($_REQUEST['email_id'],'integer',0);
+		@$currency_amount = DevblocksPlatform::importGPC($_REQUEST['currency_amount'],'string','0.00');
+		@$currency_id = DevblocksPlatform::importGPC($_REQUEST['currency_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 		@$closed_date_str = DevblocksPlatform::importGPC($_REQUEST['closed_date'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
@@ -186,6 +187,11 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		
 		// Strip currency formatting symbols
 		$amount = floatval(str_replace(array(',','$','¢','£','€'),'',$amount));
+		if(false != ($currency = DAO_Currency::get($currency_id))) {
+			$currency_amount = DevblocksPlatform::strParseDecimal($currency_amount, $currency->decimal_at);
+		} else {
+			$currency_amount = '0';
+		}
 		
 		if(false === ($closed_date = strtotime($closed_date_str)))
 			$closed_date = ($is_closed) ? time() : 0;
@@ -223,8 +229,9 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				
 				$fields = array(
 					DAO_CrmOpportunity::NAME => $name,
-					DAO_CrmOpportunity::AMOUNT => $amount,
 					DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $email_id,
+					DAO_CrmOpportunity::CURRENCY_AMOUNT => $currency_amount,
+					DAO_CrmOpportunity::CURRENCY_ID => $currency_id,
 					DAO_CrmOpportunity::UPDATED_DATE => time(),
 					DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
 					DAO_CrmOpportunity::IS_CLOSED => $is_closed,

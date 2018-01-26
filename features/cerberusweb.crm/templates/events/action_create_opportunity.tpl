@@ -19,7 +19,18 @@
 
 <b>{'crm.opportunity.amount'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
-	<input type="text" name="{$namePrefix}[amount]" value="{$params.amount}" class="placeholders" spellcheck="false" size="45" style="width:100%;" placeholder="e.g. 1500.00">
+	<input type="text" name="{$namePrefix}[amount]" value="{$params.amount}" class="placeholders" spellcheck="false" size="45" placeholder="e.g. 1500.00">
+</div>
+
+<b>{'common.currency'|devblocks_translate|capitalize}:</b>
+<div style="margin-left:10px;margin-bottom:10px;">
+	<select name="{$namePrefix}[currency_id]">
+		{if is_array($currencies)}
+		{foreach from=$currencies item=currency}
+		<option value="{$currency->id}" {if $opp->currency_id == $currency->id}selected="selected"{/if}>{$currency->name_plural|default:$currency->name} ({$currency->code})</option>
+		{/foreach}
+		{/if}
+	</select>
 </div>
 
 {if !empty($custom_fields)}

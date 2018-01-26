@@ -40,6 +40,10 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		$values_to_contexts = $event->getValuesContexts($trigger);
 		$tpl->assign('values_to_contexts', $values_to_contexts);
 		
+		// Currencies
+		$currencies = DAO_Currency::getAll();
+		$tpl->assign('currencies', $currencies);
+		
 		// Custom fields
 		DevblocksEventHelper::renderActionCreateRecordSetCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY, $tpl);
 		
@@ -55,7 +59,8 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		@$name = $tpl_builder->build($params['name'], $dict);
 		@$email = $tpl_builder->build($params['email'], $dict);
 		@$status = $params['status'];
-		@$amount = floatval($tpl_builder->build($params['amount'], $dict));
+		@$currency_id = $params['currency_id'];
+		@$amount = $tpl_builder->build($params['amount'], $dict);
 		
 		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
@@ -72,16 +77,19 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		if(!in_array($status, array('open', 'closed_won', 'closed_lost')))
 			return "[ERROR] Status has an invalid value.";
 		
-		if(!is_float($amount))
-			return "[ERROR] Amount should be a numeric value.";
+		if(false == ($currency = DAO_Currency::get($currency_id)))
+			return "[ERROR] Currency is required.";
 		
 		$comment = $tpl_builder->build($params['comment'], $dict);
 		
-		$out = sprintf(">>> Creating opportunity: %s\nEmail: %s\nStatus: %s\nAmount: %0.2f\n",
+		$amount = DevblocksPlatform::strParseDecimal($amount, $currency->decimal_at);
+		
+		$out = sprintf(">>> Creating opportunity: %s\nStatus: %s\nAmount: %s (%s)\n",
 			$name,
 			$email,
 			$status,
-			$amount
+			DevblocksPlatform::strFormatDecimal($amount, $currency->decimal_at),
+			$currency->code
 		);
 		
 		// Custom fields
@@ -128,8 +136,9 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		@$name = $tpl_builder->build($params['name'], $dict);
 		@$email = $tpl_builder->build($params['email'], $dict);
 		@$status = $params['status'];
-		@$amount = floatval($tpl_builder->build($params['amount'], $dict));
-
+		@$currency_id = $params['currency_id'];
+		@$amount = $tpl_builder->build($params['amount'], $dict);
+		
 		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',array());
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 		
@@ -139,21 +148,21 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 			return;
 		
 		if(empty($email))
+		if(false == ($currency = DAO_Currency::get($currency_id)))
 			return;
 		
 		if(false == ($email_model = DAO_Address::lookupAddress($email, true)))
 			return;
+		$amount = DevblocksPlatform::strParseDecimal($amount, $currency->decimal_at);
 		
 		if(!in_array($status, array('open', 'closed_won', 'closed_lost')))
 			return ;
 		
-		if(!is_float($amount))
-			return;
-		
 		$fields = array(
 			DAO_CrmOpportunity::NAME => $name,
 			DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $email_model->id,
-			DAO_CrmOpportunity::AMOUNT => sprintf("%0.2f", $amount),
+			DAO_CrmOpportunity::CURRENCY_AMOUNT => $amount,
+			DAO_CrmOpportunity::CURRENCY_ID => $currency_id,
 		);
 		
 		switch($status) {
