@@ -64,7 +64,7 @@
 		<patch version="8.0.0" revision="1206" file="patches/8.x/8.0.0.php" />
 		<patch version="8.1.0" revision="1227" file="patches/8.x/8.1.0.php" />
 		<patch version="8.2.0" revision="1250" file="patches/8.x/8.2.0.php" />
-		<patch version="8.3.0" revision="1261" file="patches/8.x/8.3.0.php" />
+		<patch version="8.3.0" revision="1263" file="patches/8.x/8.3.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -323,6 +323,14 @@
 			<class name="Model_ContextScheduledBehavior" />
 			<class name="SearchFields_ContextScheduledBehavior" />
 			<class name="View_ContextScheduledBehavior" />
+		</file>
+		
+		<file path="api/dao/currency.php">
+			<class name="Context_Currency" />
+			<class name="DAO_Currency" />
+			<class name="Model_Currency" />
+			<class name="SearchFields_Currency" />
+			<class name="View_Currency" />
 		</file>
 		
 		<file path="api/dao/custom_field.php">
@@ -1466,6 +1474,50 @@
 						<data key="delete" />
 						<data key="export" />
 						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.currency</id>
+			<name>Currency</name>
+			<class>
+				<file>api/dao/currency.php</file>
+				<name>Context_Currency</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="currency" value="singular" />
+						<data key="currencies" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="currency" />
+				<param key="dao_class" value="DAO_Currency" />
+				<param key="view_class" value="View_Currency" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>
@@ -5132,6 +5184,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="custom_fieldset" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.currency</id>
+				<name>Currency Section</name>
+				<class>
+					<file>api/uri/profiles/currency.php</file>
+					<name>PageSection_ProfilesCurrency</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="currency" />
 				</params>
 			</extension>
 			

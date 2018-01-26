@@ -652,6 +652,16 @@
 				<seg>created</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.currency">
+			<tuv xml:lang="en_US">
+				<seg>currency</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.currencies">
+			<tuv xml:lang="en_US">
+				<seg>currencies</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.custom_field">
 			<tuv xml:lang="en_US">
 				<seg>custom field</seg>
@@ -2432,6 +2442,21 @@
 		
 		<tu tuid='dao.classifier_example.expression'>
 			<tuv xml:lang="en_US"><seg>Expression</seg></tuv>
+		</tu>
+		
+		<!-- Currency -->
+		
+		<tu tuid='dao.currency.code'>
+			<tuv xml:lang="en_US">
+			<seg>Code</seg></tuv>
+		</tu>
+		<tu tuid='dao.currency.symbol'>
+			<tuv xml:lang="en_US">
+			<seg>Symbol</seg></tuv>
+		</tu>
+		<tu tuid='dao.currency.decimal_at'>
+			<tuv xml:lang="en_US">
+			<seg>Decimal Places</seg></tuv>
 		</tu>
 
 		<!-- DecisionNode -->

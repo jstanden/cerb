@@ -57,6 +57,28 @@ if(!isset($columns['updated_at'])) {
 }
 
 // ===========================================================================
+// Add `currency`
+
+if(!isset($tables['currency'])) {
+	$sql = sprintf("
+	CREATE TABLE `currency` (
+		id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+		name VARCHAR(255) DEFAULT '',
+		name_plural VARCHAR(255) DEFAULT '',
+		code VARCHAR(4) DEFAULT '',
+		symbol VARCHAR(16) DEFAULT '',
+		decimal_at TINYINT UNSIGNED NOT NULL DEFAULT 0,
+		updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+		primary key (id),
+		index (updated_at)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['currency'] = 'currency';
+}
+
+// ===========================================================================
 // Increase the size of `custom_field_numbervalue` from int4 to int8
 
 if(!isset($tables['custom_field_numbervalue'])) {
