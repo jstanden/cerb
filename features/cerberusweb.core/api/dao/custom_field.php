@@ -622,6 +622,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			// number
 			case Model_CustomField::TYPE_CHECKBOX:
 			case Model_CustomField::TYPE_CURRENCY:
+			case Model_CustomField::TYPE_DECIMAL:
 			case Model_CustomField::TYPE_DATE:
 			case Model_CustomField::TYPE_FILE:
 			case Model_CustomField::TYPE_FILES:
@@ -722,6 +723,11 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					if($currency_id && false !=  ($currency = DAO_Currency::get($currency_id))) {
 						$value = DevblocksPlatform::strParseDecimal($value, $currency->decimal_at, '.');
 					}
+					break;
+					
+				case Model_CustomField::TYPE_DECIMAL:
+					@$decimal_at = $field->params['decimal_at'];
+					$value = DevblocksPlatform::strParseDecimal($value, $decimal_at, '.');
 					break;
 					
 				case Model_CustomField::TYPE_FILE:
@@ -927,6 +933,12 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					}
 					break;
 					
+				case Model_CustomField::TYPE_DECIMAL:
+					@$decimal_at = $field->params['decimal_at'];
+					$value = DevblocksPlatform::strParseDecimal($value, $decimal_at, '.');
+					self::setFieldValue($context, $context_id, $field_id, $value);
+					break;
+					
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
@@ -972,6 +984,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					$value = substr($value,0,255);
 				break;
 			case Model_CustomField::TYPE_CURRENCY:
+			case Model_CustomField::TYPE_DECIMAL:
 			case Model_CustomField::TYPE_FILE:
 			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_NUMBER:
@@ -1084,6 +1097,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 					
 				case Model_CustomField::TYPE_CURRENCY:
+				case Model_CustomField::TYPE_DECIMAL:
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
@@ -1149,6 +1163,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_CHECKBOX:
 				case Model_CustomField::TYPE_CURRENCY:
 				case Model_CustomField::TYPE_DATE:
+				case Model_CustomField::TYPE_DECIMAL:
 				case Model_CustomField::TYPE_DROPDOWN:
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_MULTI_LINE:
@@ -1384,6 +1399,7 @@ class Model_CustomField {
 	const TYPE_CHECKBOX = 'C';
 	const TYPE_CURRENCY = 'Y';
 	const TYPE_DATE = 'E';
+	const TYPE_DECIMAL = 'O';
 	const TYPE_DROPDOWN = 'D';
 	const TYPE_FILE = 'F';
 	const TYPE_FILES = 'I';
@@ -1412,6 +1428,7 @@ class Model_CustomField {
 			self::TYPE_CHECKBOX => 'Checkbox',
 			self::TYPE_CURRENCY => 'Currency',
 			self::TYPE_DATE => 'Date',
+			self::TYPE_DECIMAL => 'Decimal',
 			self::TYPE_DROPDOWN => 'Picklist',
 			self::TYPE_FILE => 'File',
 			self::TYPE_FILES => 'Files: Multiple',

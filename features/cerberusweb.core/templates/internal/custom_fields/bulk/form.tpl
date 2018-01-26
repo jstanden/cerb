@@ -41,6 +41,9 @@
 					{$currency->symbol}
 					<input type="text" name="{$field_name}" size="24" maxlength="64" value="{DevblocksPlatform::strFormatDecimal($custom_field_values.$f_id, $currency->decimal_at)}" class="currency">
 					{$currency->code}
+				{elseif $f->type==Model_CustomField::TYPE_DECIMAL}
+					{$decimal_at = $f->params.decimal_at}
+					<input type="text" name="{$field_name}" size="24" maxlength="64" value="{DevblocksPlatform::strFormatDecimal($custom_field_values.$f_id, $decimal_at)}" class="decimal">
 				{elseif $f->type==Model_CustomField::TYPE_NUMBER}
 					<input type="text" name="{$field_name}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}" class="number">
 				{elseif $f->type==Model_CustomField::TYPE_MULTI_LINE}

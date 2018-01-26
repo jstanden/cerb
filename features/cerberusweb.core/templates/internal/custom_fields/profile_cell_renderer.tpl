@@ -11,6 +11,13 @@
 	{else}
 	{$v.value}
 	{/if}
+{elseif $v.type == Model_CustomField::TYPE_DECIMAL}
+	{$decimal_at = $v.params.decimal_at}
+	{if $decimal_at}
+	{DevblocksPlatform::strFormatDecimal($v.value, $decimal_at)}
+	{else}
+	{$v.value}
+	{/if}
 {elseif $v.type == Model_CustomField::TYPE_SINGLE_LINE}
 	{$v.value|escape|devblocks_hyperlinks nofilter}
 {elseif $v.type == Model_CustomField::TYPE_MULTI_LINE}

@@ -23,6 +23,9 @@
 	{else}
 		{DevblocksPlatform::strFormatDecimal($dict->$k)}
 	{/if}
+{elseif $types.$k == Model_CustomField::TYPE_DECIMAL}
+	{$decimal_at = $dict->get("{$k}_decimal_at")}
+	{DevblocksPlatform::strFormatDecimal($dict->$k, $decimal_at)}
 {elseif $types.$k == Model_CustomField::TYPE_NUMBER}
 	{$dict->$k|number_format}
 {elseif $types.$k == Model_CustomField::TYPE_DROPDOWN}

@@ -445,6 +445,12 @@ class UmScContactController extends Extension_UmScController {
 							$value = null;
 						break;
 						
+					case Model_CustomField::TYPE_DECIMAL:
+						@$value = $aFollowUpA[$iIdx];
+						if(!is_numeric($value) || 0 == strlen($value))
+							$value = null;
+						break;
+						
 					case Model_CustomField::TYPE_NUMBER:
 						@$value = $aFollowUpA[$iIdx];
 						if(!is_numeric($value) || 0 == strlen($value))

@@ -19,6 +19,13 @@
 		{/foreach}
 		</select>
 	</fieldset>
+{elseif $model->type == Model_CustomField::TYPE_DECIMAL}
+	<fieldset>
+		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
+		
+		<b>{'dao.currency.decimal_at'|devblocks_translate|capitalize}:</b>
+		<input type="text" name="params[decimal_at]" size="3" maxlength="2" value="{$model->params.decimal_at}" style="width:4em;" placeholder="2">
+	</fieldset>
 {elseif $model->type == Model_CustomField::TYPE_LINK}
 	{$contexts = Extension_DevblocksContext::getAll(false)}
 	<fieldset>

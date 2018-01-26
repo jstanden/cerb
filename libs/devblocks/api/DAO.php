@@ -204,6 +204,14 @@ abstract class DevblocksORMHelper {
 						->setMax('64 bits')
 					;
 					break;
+				case Model_CustomField::TYPE_DECIMAL:
+					$validation
+						->addField($field_id)
+						->number()
+						->setMin(0)
+						->setMax('64 bits')
+					;
+					break;
 				case Model_CustomField::TYPE_NUMBER:
 					$validation
 						->addField($field_id)

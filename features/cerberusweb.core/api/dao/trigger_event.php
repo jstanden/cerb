@@ -841,6 +841,7 @@ class Model_TriggerEvent {
 				break;
 				
 			case Model_CustomField::TYPE_CURRENCY:
+			case Model_CustomField::TYPE_DECIMAL:
 			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_NUMBER:
 				settype($value, 'integer');

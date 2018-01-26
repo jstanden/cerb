@@ -16,6 +16,11 @@
 		{DevblocksPlatform::strFormatDecimal($result.$column, $currency->decimal_at)}
 		{$currency->code}
 	</td>
+{elseif $col->type==Model_CustomField::TYPE_DECIMAL}
+	<td data-column="{$column}">
+		{$decimal_at = $col->params.decimal_at}
+		{DevblocksPlatform::strFormatDecimal($result.$column, $decimal_at)}
+	</td>
 {elseif $col->type==Model_CustomField::TYPE_MULTI_LINE}
 	<td data-column="{$column}" title="{$result.$column}">{$result.$column|escape|devblocks_hyperlinks nofilter}</td>
 {elseif $col->type==Model_CustomField::TYPE_DROPDOWN}

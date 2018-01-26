@@ -951,6 +951,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					}
 					break;
 					
+				case Model_CustomField::TYPE_DECIMAL:
+					@$token_values['custom_' . $cf_id . '_decimal_at'] = intval(@$fields[$cf_id]->params['decimal_at']);
+					break;
+					
 				case Model_CustomField::TYPE_LINK:
 					@$token_values['custom_' . $cf_id . '_id'] = $field_values[$cf_id];
 					@$token_values['custom_' . $cf_id . '__context'] = $fields[$cf_id]->params['context'];
