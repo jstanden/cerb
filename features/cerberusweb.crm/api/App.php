@@ -139,7 +139,8 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 			return;
 		
 		if(false == ($currency = DAO_Currency::get($currency_id)))
-			return;
+			if(false == ($currency = DAO_Currency::getDefault()))
+				return;
 		
 		$amount = DevblocksPlatform::strParseDecimal($amount, $currency->decimal_at);
 		

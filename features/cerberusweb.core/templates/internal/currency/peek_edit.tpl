@@ -51,6 +51,19 @@
 				<input type="text" name="decimal_at" size="3" maxlength="2" value="{$model->decimal_at}" style="width:4em;" placeholder="2">
 			</td>
 		</tr>
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.default'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<label>
+					<input type="radio" name="is_default" value="1" {if $model->is_default}checked="checked"{/if}> 
+					{'common.yes'|devblocks_translate|capitalize}
+				</label>
+				<label>
+					<input type="radio" name="is_default" value="0" {if !$model->is_default}checked="checked"{/if}> 
+					{'common.no'|devblocks_translate|capitalize}
+				</label>
+			</td>
+		</tr>
 		
 		{if !empty($custom_fields)}
 		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" tbody=true bulk=false}

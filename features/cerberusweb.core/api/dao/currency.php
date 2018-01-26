@@ -3,6 +3,7 @@ class DAO_Currency extends Cerb_ORMHelper {
 	const CODE = 'code';
 	const DECIMAL_AT = 'decimal_at';
 	const ID = 'id';
+	const IS_DEFAULT = 'is_default';
 	const NAME = 'name';
 	const NAME_PLURAL = 'name_plural';
 	const SYMBOL = 'symbol';
@@ -30,6 +31,10 @@ class DAO_Currency extends Cerb_ORMHelper {
 			->addField(self::ID)
 			->id()
 			->setEditable(false)
+			;
+		$validation
+			->addField(self::IS_DEFAULT)
+			->bit()
 			;
 		$validation
 			->addField(self::NAME)
@@ -77,8 +82,12 @@ class DAO_Currency extends Cerb_ORMHelper {
 			
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
-			
-		$context = "cerberusweb.contexts.currency";
+		
+		if(isset($fields[self::IS_DEFAULT]) && $fields[self::IS_DEFAULT]) {
+			DAO_Currency::clearDefault();
+		}
+		
+		$context = CerberusContexts::CONTEXT_CURRENCY;
 		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
@@ -130,6 +139,33 @@ class DAO_Currency extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function getDefault() {
+		$currencies = DAO_Currency::getAll();
+		
+		foreach($currencies as $currency) {
+			if($currency->is_default)
+				return $currency;
+		}
+		
+		return null;
+	}
+	
+	static function getDefaultId() {
+		if(false == ($default_currency = self::getDefault()))
+			return 0;
+		
+		return $default_currency->id;
+	}
+	
+	static function setDefault($id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$db->ExecuteMaster("UPDATE currency SET is_default = 0");
+		$db->ExecuteMaster(sprintf("UPDATE currency SET is_default = 1 WHERE id = %d", $id));
+		
+		return true;
+	}
+	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -143,7 +179,7 @@ class DAO_Currency extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, name_plural, code, symbol, decimal_at, updated_at ".
+		$sql = "SELECT id, name, name_plural, code, symbol, decimal_at, is_default, updated_at ".
 			"FROM currency ".
 			$where_sql.
 			$sort_sql.
@@ -237,13 +273,14 @@ class DAO_Currency extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Currency();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			$object->name_plural = $row['name_plural'];
 			$object->code = $row['code'];
 			$object->symbol = $row['symbol'];
-			$object->decimal_at = $row['decimal_at'];
-			$object->updated_at = $row['updated_at'];
+			$object->decimal_at = intval($row['decimal_at']);
+			$object->is_default = intval($row['is_default']);
+			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -300,6 +337,7 @@ class DAO_Currency extends Cerb_ORMHelper {
 			"currency.code as %s, ".
 			"currency.symbol as %s, ".
 			"currency.decimal_at as %s, ".
+			"currency.is_default as %s, ".
 			"currency.updated_at as %s ",
 				SearchFields_Currency::ID,
 				SearchFields_Currency::NAME,
@@ -307,6 +345,7 @@ class DAO_Currency extends Cerb_ORMHelper {
 				SearchFields_Currency::CODE,
 				SearchFields_Currency::SYMBOL,
 				SearchFields_Currency::DECIMAL_AT,
+				SearchFields_Currency::IS_DEFAULT,
 				SearchFields_Currency::UPDATED_AT
 			);
 			
@@ -430,6 +469,7 @@ class SearchFields_Currency extends DevblocksSearchFields {
 	const CODE = 'c_code';
 	const SYMBOL = 'c_symbol';
 	const DECIMAL_AT = 'c_decimal_at';
+	const IS_DEFAULT = 'c_is_default';
 	const UPDATED_AT = 'c_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -491,6 +531,7 @@ class SearchFields_Currency extends DevblocksSearchFields {
 			self::CODE => new DevblocksSearchField(self::CODE, 'currency', 'code', $translate->_('dao.currency.code'), null, true),
 			self::SYMBOL => new DevblocksSearchField(self::SYMBOL, 'currency', 'symbol', $translate->_('dao.currency.symbol'), null, true),
 			self::DECIMAL_AT => new DevblocksSearchField(self::DECIMAL_AT, 'currency', 'decimal_at', $translate->_('dao.currency.decimal_at'), null, true),
+			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'currency', 'is_default', $translate->_('common.default'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'currency', 'updated_at', $translate->_('common.updated'), null, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -518,6 +559,7 @@ class Model_Currency {
 	public $code;
 	public $symbol;
 	public $decimal_at;
+	public $is_default;
 	public $updated_at;
 	
 	function format($number, $with_symbols=true) {
@@ -679,6 +721,11 @@ class View_Currency extends C4_AbstractView implements IAbstractView_Subtotals, 
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Currency::DECIMAL_AT),
 				),
+			'default' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Currency::IS_DEFAULT),
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -773,7 +820,7 @@ class View_Currency extends C4_AbstractView implements IAbstractView_Subtotals, 
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_Currency::IS_DEFAULT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -861,7 +908,7 @@ class View_Currency extends C4_AbstractView implements IAbstractView_Subtotals, 
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
+			case SearchFields_Currency::IS_DEFAULT:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -945,6 +992,7 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 			'code',
 			'symbol',
 			'decimal_at',
+			'is_default',
 			'updated_at',
 		);
 	}
@@ -973,6 +1021,7 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 			'code' => $prefix.$translate->_('dao.currency.code'),
 			'decimal_at' => $prefix.$translate->_('dao.currency.decimal_at'),
 			'id' => $prefix.$translate->_('common.id'),
+			'is_default' => $prefix.$translate->_('common.default'),
 			'name' => $prefix.$translate->_('common.name'),
 			'name_plural' => $prefix.$translate->_('common.plural'),
 			'symbol' => $prefix.$translate->_('dao.currency.symbol'),
@@ -986,6 +1035,7 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 			'code' => Model_CustomField::TYPE_SINGLE_LINE,
 			'decimal_at' => Model_CustomField::TYPE_NUMBER,
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'is_default' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'name_plural' => Model_CustomField::TYPE_SINGLE_LINE,
 			'symbol' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1013,6 +1063,7 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 			$token_values['code'] = $currency->code;
 			$token_values['decimal_at'] = $currency->decimal_at;
 			$token_values['id'] = $currency->id;
+			$token_values['is_default'] = $currency->is_default;
 			$token_values['name'] = $currency->name;
 			$token_values['name_plural'] = $currency->name_plural;
 			$token_values['symbol'] = $currency->symbol;
@@ -1034,6 +1085,7 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 			'code' => DAO_Currency::CODE,
 			'decimal_at' => DAO_Currency::DECIMAL_AT,
 			'id' => DAO_Currency::ID,
+			'is_default' => DAO_Currency::IS_DEFAULT,
 			'links' => '_links',
 			'name' => DAO_Currency::NAME,
 			'name_plural' => DAO_Currency::NAME_PLURAL,

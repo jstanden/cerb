@@ -145,6 +145,7 @@ class PageSection_ProfilesCurrency extends Extension_PageSection {
 				@$symbol = DevblocksPlatform::importGPC($_REQUEST['symbol'], 'string', '');
 				@$code = DevblocksPlatform::importGPC($_REQUEST['code'], 'string', '');
 				@$decimal_at = DevblocksPlatform::importGPC($_REQUEST['decimal_at'], 'integer', 0);
+				@$is_default = DevblocksPlatform::importGPC($_REQUEST['is_default'], 'integer', 0);
 				
 				if(empty($id)) { // New
 					$fields = array(
@@ -188,9 +189,14 @@ class PageSection_ProfilesCurrency extends Extension_PageSection {
 					DAO_Currency::onUpdateByActor($active_worker, $id, $fields);
 				}
 				
-				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CURRENCY, $id, $field_ids);
+				if($id) {
+					if($is_default)
+						DAO_Currency::setDefault($id);
+					
+					// Custom fields
+					@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
+					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CURRENCY, $id, $field_ids);
+				}
 				
 				echo json_encode(array(
 					'status' => true,

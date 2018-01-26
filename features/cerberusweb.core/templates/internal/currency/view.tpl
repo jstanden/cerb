@@ -84,6 +84,9 @@
 			{elseif $column == "c_name"}
 			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
+				{if $result.c_is_default}
+				<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);" title="{'common.default'|devblocks_translate|lower}"></span>
+				{/if}
 				<a href="{devblocks_url}c=profiles&type=currency&id={$result.c_id}-{$result.c_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_name}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>

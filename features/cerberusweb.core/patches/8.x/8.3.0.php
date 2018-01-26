@@ -68,6 +68,7 @@ if(!isset($tables['currency'])) {
 		code VARCHAR(4) DEFAULT '',
 		symbol VARCHAR(16) DEFAULT '',
 		decimal_at TINYINT UNSIGNED NOT NULL DEFAULT 0,
+		is_default TINYINT UNSIGNED NOT NULL DEFAULT 0,
 		updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 		primary key (id),
 		index (updated_at)
