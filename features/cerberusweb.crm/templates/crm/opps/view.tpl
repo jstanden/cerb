@@ -94,17 +94,10 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="o_id"}
 				<td data-column="{$column}">{$result.o_id}&nbsp;</td>
-			{elseif $column=="org_name"}
-				<td>
-					{if !empty($result.org_id)}
-						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ORG}&context_id={$result.org_id}&view_id={$view->id}',null,false,'50%');">{$result.org_name}</a>&nbsp;
 					{/if}
 				</td>
-			{elseif $column=="a_email"}
 			{elseif $column=="o_currency_amount"}
 				<td data-column="{$column}">
-					{if !empty($result.a_email)}
-						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_ADDRESS}&email={$result.a_email|escape:'url'}&view_id={$view->id}',null,false,'50%');" title="{$result.a_email}">{$result.a_email}</a>&nbsp;
 					{$currency = DAO_Currency::get($result.o_currency_id)}
 					{if $currency}
 					{$currency->symbol} 

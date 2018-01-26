@@ -55,30 +55,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 			'is_won' => $opp->is_won,
 		);
 		
-		if(!empty($opp->primary_email_id)) {
-			if(null != ($address = DAO_Address::get($opp->primary_email_id))) {
-				$properties['lead'] = array(
-					'label' => mb_ucfirst($translate->_('common.email')),
-					'type' => Model_CustomField::TYPE_LINK,
-					'value' => $address->id,
-					'params' => array(
-						'context' => CerberusContexts::CONTEXT_ADDRESS,
-					),
-				);
-			}
-				
-			if(!empty($address->contact_org_id) && null != ($org = DAO_ContactOrg::get($address->contact_org_id))) {
-				$properties['org'] = array(
-					'label' => mb_ucfirst($translate->_('common.organization')),
-					'type' => Model_CustomField::TYPE_LINK,
-					'value' => $org->id,
-					'params' => array(
-						'context' => CerberusContexts::CONTEXT_ORG,
-					),
-				);
-			}
-		}
-		
 		if(!empty($opp->is_closed))
 			if(!empty($opp->closed_date))
 			$properties['closed_date'] = array(
@@ -134,17 +110,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 			),
 		);
 		
-		if(!empty($opp->primary_email_id)) {
-			$properties_links[CerberusContexts::CONTEXT_ADDRESS] = array(
-				$opp->primary_email_id => 
-					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_ADDRESS,
-						$opp->primary_email_id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			);
-		}
-		
 		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
@@ -174,7 +139,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
-		@$email_id = DevblocksPlatform::importGPC($_REQUEST['email_id'],'integer',0);
 		@$currency_amount = DevblocksPlatform::importGPC($_REQUEST['currency_amount'],'string','0.00');
 		@$currency_id = DevblocksPlatform::importGPC($_REQUEST['currency_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
@@ -229,7 +193,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 				
 				$fields = array(
 					DAO_CrmOpportunity::NAME => $name,
-					DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $email_id,
 					DAO_CrmOpportunity::CURRENCY_AMOUNT => $currency_amount,
 					DAO_CrmOpportunity::CURRENCY_ID => $currency_id,
 					DAO_CrmOpportunity::UPDATED_DATE => time(),

@@ -28,4 +28,22 @@ if(isset($columns['amount'])) {
 	}
 }
 
+// ===========================================================================
+// Move the `primary_email_id` field to record links
+
+if(!isset($tables['crm_opportunity']))
+	return FALSE;
+
+list($columns, $indexes) = $db->metaTable('crm_opportunity');
+
+if(isset($columns['primary_email_id'])) {
+	$sql = "INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.opportunity', id, 'cerberusweb.contexts.address', primary_email_id from crm_opportunity where primary_email_id > 0";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) SELECT 'cerberusweb.contexts.address', primary_email_id, 'cerberusweb.contexts.opportunity', id from crm_opportunity where primary_email_id > 0";
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster('ALTER TABLE crm_opportunity DROP COLUMN primary_email_id');
+}
+
 return TRUE;

@@ -3,11 +3,6 @@
 	<input type="text" name="{$namePrefix}[name]" value="{$params.name}" class="placeholders" spellcheck="false" size="45" style="width:100%;" placeholder="">
 </div>
 
-<b>{'common.email'|devblocks_translate|capitalize}:</b>
-<div style="margin-left:10px;margin-bottom:10px;">
-	<input type="text" name="{$namePrefix}[email]" value="{$params.email}" class="placeholders" spellcheck="false" size="45" style="width:100%;" placeholder="user@example.com">
-</div>
-
 <b>{'common.status'|devblocks_translate|capitalize}:</b>
 <div style="margin-left:10px;margin-bottom:10px;">
 	<select name="{$namePrefix}[status]">

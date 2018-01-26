@@ -57,7 +57,6 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		$out = null;
 		
 		@$name = $tpl_builder->build($params['name'], $dict);
-		@$email = $tpl_builder->build($params['email'], $dict);
 		@$status = $params['status'];
 		@$currency_id = $params['currency_id'];
 		@$amount = $tpl_builder->build($params['amount'], $dict);
@@ -67,12 +66,6 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		
 		if(empty($name))
 			return "[ERROR] Name is required.";
-		
-		if(empty($email))
-			return "[ERROR] Email is required.";
-		
-		if(false == ($email_model = DAO_Address::lookupAddress($email, true)))
-			return "[ERROR] The email address is invalid.";
 		
 		if(!in_array($status, array('open', 'closed_won', 'closed_lost')))
 			return "[ERROR] Status has an invalid value.";
@@ -86,7 +79,6 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		
 		$out = sprintf(">>> Creating opportunity: %s\nStatus: %s\nAmount: %s (%s)\n",
 			$name,
-			$email,
 			$status,
 			DevblocksPlatform::strFormatDecimal($amount, $currency->decimal_at),
 			$currency->code
@@ -134,7 +126,6 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$name = $tpl_builder->build($params['name'], $dict);
-		@$email = $tpl_builder->build($params['email'], $dict);
 		@$status = $params['status'];
 		@$currency_id = $params['currency_id'];
 		@$amount = $tpl_builder->build($params['amount'], $dict);
@@ -147,12 +138,9 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		if(empty($name))
 			return;
 		
-		if(empty($email))
 		if(false == ($currency = DAO_Currency::get($currency_id)))
 			return;
 		
-		if(false == ($email_model = DAO_Address::lookupAddress($email, true)))
-			return;
 		$amount = DevblocksPlatform::strParseDecimal($amount, $currency->decimal_at);
 		
 		if(!in_array($status, array('open', 'closed_won', 'closed_lost')))
@@ -160,7 +148,6 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		
 		$fields = array(
 			DAO_CrmOpportunity::NAME => $name,
-			DAO_CrmOpportunity::PRIMARY_EMAIL_ID => $email_model->id,
 			DAO_CrmOpportunity::CURRENCY_AMOUNT => $amount,
 			DAO_CrmOpportunity::CURRENCY_ID => $currency_id,
 		);

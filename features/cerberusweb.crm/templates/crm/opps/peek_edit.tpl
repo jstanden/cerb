@@ -1,7 +1,4 @@
 {$peek_context = CerberusContexts::CONTEXT_OPPORTUNITY}
-{if $opp && $opp->id}
-	{$address = $opp->getPrimaryEmail()}
-{/if}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formOppPeek" name="formOppPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
@@ -12,59 +9,14 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<table cellpadding="0" cellspacing="2" border="0" width="98%" style="margin-bottom:10px;">
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.title'|devblocks_translate|capitalize}: </td>
+		<td width="100%">
+			<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->name}" autocomplete="off" autofocus="autofocus">
+		</td>
+	</tr>
 	
-	<table cellpadding="0" cellspacing="2" border="0" width="98%">
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.title'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<input type="text" name="name" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->name}" autocomplete="off" autofocus="autofocus">
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.email'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
-				
-				<ul class="bubbles chooser-container">
-					{if $address}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$address->id}{/devblocks_url}?v={$address->updated}"><input type="hidden" name="email_id" value="{$address->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$address->id}">{$address->getNameWithEmail()}</a></li>
-					{/if}
-				</ul>
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<label><input type="radio" name="status" value="0" onclick="toggleDiv('oppPeekClosedDate','none');" {if empty($opp->id) || 0==$opp->is_closed}checked="checked"{/if}> {'crm.opp.status.open'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="status" value="1" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && $opp->is_won}checked="checked"{/if}> {'crm.opp.status.closed.won'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="status" value="2" onclick="toggleDiv('oppPeekClosedDate','');" {if $opp->is_closed && !$opp->is_won}checked="checked"{/if}> {'crm.opp.status.closed.lost'|devblocks_translate|capitalize}</label>
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.amount'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<input type="text" name="amount" size="32" style="border:1px solid rgb(180,180,180);padding:2px;" value="{$opp->amount|number_format:2}" placeholder="1,500.00" autocomplete="off">
-			</td>
-		</tr>
-		
-		<tr id="oppPeekClosedDate" {if !$opp->is_closed}style="display:none;"{/if}>
-			<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<input type="text" name="closed_date" size="35" class="input_date" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}">
-			</td>
-		</tr>
-		
-	</table>
-</fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.amount'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
@@ -79,6 +31,10 @@
 		</td>
 	</tr>
 	
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	{/if}
+</table>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$opp->id}
 

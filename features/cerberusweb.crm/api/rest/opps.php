@@ -98,7 +98,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			$tokens = array(
 				'amount' => DAO_CrmOpportunity::AMOUNT,
 				'created' => DAO_CrmOpportunity::CREATED_DATE,
-				'email_id' => DAO_CrmOpportunity::PRIMARY_EMAIL_ID,
 				'is_closed' => DAO_CrmOpportunity::IS_CLOSED,
 				'is_won' => DAO_CrmOpportunity::IS_WON,
 				'title' => DAO_CrmOpportunity::NAME,
@@ -111,8 +110,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 				'links' => SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK,
 				'watchers' => SearchFields_CrmOpportunity::VIRTUAL_WATCHERS,
 					
-				'email_address' => SearchFields_CrmOpportunity::EMAIL_ADDRESS,
-				'email_is_defunct' => SearchFields_CrmOpportunity::EMAIL_IS_DEFUNCT,
 				'is_closed' => SearchFields_CrmOpportunity::IS_CLOSED,
 				'is_won' => SearchFields_CrmOpportunity::IS_WON,
 				'org' => SearchFields_CrmOpportunity::ORG_NAME,
@@ -128,8 +125,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 				'amount' => SearchFields_CrmOpportunity::CURRENCY_AMOUNT,
 				'currency_id' => SearchFields_CrmOpportunity::CURRENCY_ID,
 				'created' => SearchFields_CrmOpportunity::CREATED_DATE,
-				'email_address' => SearchFields_CrmOpportunity::EMAIL_ADDRESS,
-				'email_id' => SearchFields_CrmOpportunity::PRIMARY_EMAIL_ID,
 				'id' => SearchFields_CrmOpportunity::ID,
 				'is_closed' => SearchFields_CrmOpportunity::IS_CLOSED,
 				'is_won' => SearchFields_CrmOpportunity::IS_WON,
@@ -257,8 +252,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			'amount' => 'float',
 			'assignee_id' => 'integer',
 			'created' => 'timestamp',
-			'email_address' => 'string',
-			'email_id' => 'integer',
 			'is_closed' => 'bit',
 			'is_won' => 'bit',
 			'currency_id' => 'integer',
@@ -279,13 +272,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 
 			// Pre-filter
 			switch($putfield) {
-				case 'email_address':
-					if(null != ($lookup = DAO_Address::lookupAddress($value, true))) {
-						unset($putfields['email_id']);
-						$putfield = 'email_id';
-						$value = $lookup->id;
-					}
-					break;
 			}
 			
 			if(null == ($field = self::translateToken($putfield, 'dao'))) {
@@ -330,8 +316,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			'amount' => 'float',
 			'assignee_id' => 'integer',
 			'created' => 'timestamp',
-			'email_address' => 'string',
-			'email_id' => 'integer',
 			'is_closed' => 'bit',
 			'is_won' => 'bit',
 			'title' => 'string',
@@ -351,13 +335,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			
 			// Pre-filter
 			switch($postfield) {
-				case 'email_address':
-					if(null != ($lookup = DAO_Address::lookupAddress($value, true))) {
-						unset($postfields['email_id']);
-						$postfield = 'email_id';
-						$value = $lookup->id;
-					}
-					break;
 			}
 			
 			if(null == ($field = self::translateToken($postfield, 'dao'))) {
@@ -375,7 +352,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		// Check required fields
 		$reqfields = array(
 			DAO_CrmOpportunity::NAME,
-			DAO_CrmOpportunity::PRIMARY_EMAIL_ID,
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
 		
