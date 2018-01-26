@@ -154,16 +154,13 @@ class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
 		
 		switch($status) {
 			case 'open':
-				$fields[DAO_CrmOpportunity::IS_CLOSED] = 0;
-				$fields[DAO_CrmOpportunity::IS_WON] = 0;
+				$fields[DAO_CrmOpportunity::STATUS_ID] = 0;
 				break;
 			case 'closed_won':
-				$fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
-				$fields[DAO_CrmOpportunity::IS_WON] = 1;
+				$fields[DAO_CrmOpportunity::STATUS_ID] = 1;
 				break;
 			case 'closed_lost':
-				$fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
-				$fields[DAO_CrmOpportunity::IS_WON] = 0;
+				$fields[DAO_CrmOpportunity::STATUS_ID] = 2;
 				break;
 		}
 			

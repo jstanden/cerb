@@ -82,8 +82,8 @@
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.o_id}" style="display:none;">
 				
-				{if $result.o_is_closed && $result.o_is_won}<span style="color:rgb(0,120,0);font-weight:bold;"><span class="glyphicons glyphicons-up-arrow" title="Won" style="line-height:16px;"></span></span> 
-				{elseif $result.o_is_closed && !$result.o_is_won}<span style="color:rgb(150,0,0);font-weight:bold;"><span class="glyphicons glyphicons-down-arrow" title="Lost" style="line-height:16px;"></span></span> {/if}
+				{if 1 == $result.o_status_id}<span style="color:rgb(0,120,0);font-weight:bold;"><span class="glyphicons glyphicons-up-arrow" title="Won" style="line-height:16px;"></span></span> 
+				{elseif 2 == $result.o_status_id}<span style="color:rgb(150,0,0);font-weight:bold;"><span class="glyphicons glyphicons-down-arrow" title="Lost" style="line-height:16px;"></span></span> {/if}
 				<a href="{devblocks_url}c=profiles&d=opportunity&id={$result.o_id}-{$result.o_name|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.o_name)}{$result.o_name}{else}{'common.no_title'|devblocks_translate}{/if}</a> 
 				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$view_context}&context_id={$result.o_id}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
@@ -94,6 +94,14 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="o_id"}
 				<td data-column="{$column}">{$result.o_id}&nbsp;</td>
+			{elseif $column=="o_status_id"}
+				<td data-column="{$column}">
+					{if 1 == $result.o_status_id}
+						{'crm.opp.status.open'|devblocks_translate}
+					{elseif 1 == $result.o_status_id}
+						{'crm.opp.status.closed.won'|devblocks_translate}
+					{else}
+						{'crm.opp.status.closed.lost'|devblocks_translate}
 					{/if}
 				</td>
 			{elseif $column=="o_currency_amount"}

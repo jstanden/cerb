@@ -31,6 +31,22 @@
 		</td>
 	</tr>
 	
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
+		<td width="100%">
+			<label><input type="radio" name="status_id" value="0" onclick="toggleDiv('oppPeekClosedDate','none');" {if !$opp->status_id}checked="checked"{/if}> {'crm.opp.status.open'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="status_id" value="1" onclick="toggleDiv('oppPeekClosedDate','');" {if 1 == $opp->status_id}checked="checked"{/if}> {'crm.opp.status.closed.won'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="status_id" value="2" onclick="toggleDiv('oppPeekClosedDate','');" {if 2 == $opp->status_id}checked="checked"{/if}> {'crm.opp.status.closed.lost'|devblocks_translate|capitalize}</label>
+		</td>
+	</tr>
+	
+	<tr id="oppPeekClosedDate" {if !$opp->status_id}style="display:none;"{/if}>
+		<td width="0%" nowrap="nowrap" align="right" valign="top">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}: </td>
+		<td width="100%">
+			<input type="text" name="closed_date" size="35" class="input_date" value="{if !empty($opp->closed_date)}{$opp->closed_date|devblocks_date}{/if}">
+		</td>
+	</tr>
+	
 	{if !empty($custom_fields)}
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
 	{/if}

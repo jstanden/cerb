@@ -48,14 +48,13 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		
 		$properties = array();
 		
-		$properties['status'] = array(
+		$properties['status_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.status')),
 			'type' => null,
-			'is_closed' => $opp->is_closed,
-			'is_won' => $opp->is_won,
+			'status_id' => $opp->status_id,
 		);
 		
-		if(!empty($opp->is_closed))
+		if(!empty($opp->status_id))
 			if(!empty($opp->closed_date))
 			$properties['closed_date'] = array(
 				'label' => mb_ucfirst($translate->_('crm.opportunity.closed_date')),
@@ -138,16 +137,12 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer',0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
+		@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
 		@$currency_amount = DevblocksPlatform::importGPC($_REQUEST['currency_amount'],'string','0.00');
 		@$currency_id = DevblocksPlatform::importGPC($_REQUEST['currency_id'],'integer',0);
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 		@$closed_date_str = DevblocksPlatform::importGPC($_REQUEST['closed_date'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
-		
-		// State
-		$is_closed = (0==$status) ? 0 : 1;
-		$is_won = (1==$status) ? 1 : 0;
 		
 		// Strip currency formatting symbols
 		$amount = floatval(str_replace(array(',','$','¢','£','€'),'',$amount));
@@ -158,9 +153,9 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		}
 		
 		if(false === ($closed_date = strtotime($closed_date_str)))
-			$closed_date = ($is_closed) ? time() : 0;
+			$closed_date = (0 != $status_id) ? time() : 0;
 
-		if(!$is_closed)
+		if(!$status_id)
 			$closed_date = 0;
 			
 		// Worker
@@ -197,8 +192,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 					DAO_CrmOpportunity::CURRENCY_ID => $currency_id,
 					DAO_CrmOpportunity::UPDATED_DATE => time(),
 					DAO_CrmOpportunity::CLOSED_DATE => intval($closed_date),
-					DAO_CrmOpportunity::IS_CLOSED => $is_closed,
-					DAO_CrmOpportunity::IS_WON => $is_won,
+					DAO_CrmOpportunity::STATUS_ID => $status_id,
 				);
 				
 				// Create

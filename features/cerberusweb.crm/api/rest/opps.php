@@ -98,8 +98,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			$tokens = array(
 				'amount' => DAO_CrmOpportunity::AMOUNT,
 				'created' => DAO_CrmOpportunity::CREATED_DATE,
-				'is_closed' => DAO_CrmOpportunity::IS_CLOSED,
-				'is_won' => DAO_CrmOpportunity::IS_WON,
+				'status_id' => DAO_CrmOpportunity::STATUS_ID,
 				'title' => DAO_CrmOpportunity::NAME,
 				'updated' => DAO_CrmOpportunity::UPDATED_DATE,
 			);
@@ -110,9 +109,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 				'links' => SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK,
 				'watchers' => SearchFields_CrmOpportunity::VIRTUAL_WATCHERS,
 					
-				'is_closed' => SearchFields_CrmOpportunity::IS_CLOSED,
-				'is_won' => SearchFields_CrmOpportunity::IS_WON,
-				'org' => SearchFields_CrmOpportunity::ORG_NAME,
+				'status_id' => SearchFields_CrmOpportunity::STATUS_ID,
 			);
 			
 			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_OPPORTUNITY);
@@ -126,9 +123,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 				'currency_id' => SearchFields_CrmOpportunity::CURRENCY_ID,
 				'created' => SearchFields_CrmOpportunity::CREATED_DATE,
 				'id' => SearchFields_CrmOpportunity::ID,
-				'is_closed' => SearchFields_CrmOpportunity::IS_CLOSED,
-				'is_won' => SearchFields_CrmOpportunity::IS_WON,
-				'id' => SearchFields_CrmOpportunity::ID,
+				'status_id' => SearchFields_CrmOpportunity::STATUS_ID,
 				'title' => SearchFields_CrmOpportunity::NAME,
 				'updated' => SearchFields_CrmOpportunity::UPDATED_DATE,
 			);
@@ -252,9 +247,8 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			'amount' => 'float',
 			'assignee_id' => 'integer',
 			'created' => 'timestamp',
-			'is_closed' => 'bit',
-			'is_won' => 'bit',
 			'currency_id' => 'integer',
+			'status_id' => 'integer',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);
@@ -277,7 +271,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			if(null == ($field = self::translateToken($putfield, 'dao'))) {
 				$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid field.", $putfield));
 			}
-						
+			
 			// Post-filter
 //			switch($field) {
 //				case DAO_Worker::PASSWORD:
@@ -316,8 +310,7 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 			'amount' => 'float',
 			'assignee_id' => 'integer',
 			'created' => 'timestamp',
-			'is_closed' => 'bit',
-			'is_won' => 'bit',
+			'status_id' => 'integer',
 			'title' => 'string',
 			'updated' => 'timestamp',
 		);

@@ -43,14 +43,12 @@
 	<div style="margin-left:15px;">
 	{foreach from=$properties item=v key=k name=props}
 		<div class="property">
-			{if $k == 'status'}
+			{if $k == 'status_id'}
 				<b>{$v.label|capitalize}:</b>
-				{if $v.is_closed}
-					{if $v.is_won}
-						<span style="color:rgb(0,120,0);font-weight:bold;"><span class="glyphicons glyphicons-circle-arrow-top" title="Won"></span> {'crm.opp.status.closed.won'|devblocks_translate}</span>
-					{else}
-						<span style="color:rgb(150,0,0);font-weight:bold;"><span class="glyphicons glyphicons-circle-arrow-down" title="Lost"></span> {'crm.opp.status.closed.lost'|devblocks_translate}</span>
-					{/if}
+				{if 1 == $v.status_id}
+					<span style="color:rgb(0,120,0);font-weight:bold;"><span class="glyphicons glyphicons-circle-arrow-top" title="Won"></span> {'crm.opp.status.closed.won'|devblocks_translate}</span>
+				{elseif 2 == $v.status_id}
+					<span style="color:rgb(150,0,0);font-weight:bold;"><span class="glyphicons glyphicons-circle-arrow-down" title="Lost"></span> {'crm.opp.status.closed.lost'|devblocks_translate}</span>
 				{else}
 					{'crm.opp.status.open'|devblocks_translate}
 				{/if}

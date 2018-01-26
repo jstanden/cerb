@@ -53,7 +53,7 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 			list($results) = DAO_CrmOpportunity::search(
 				array(),
 				array(
-					new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0),
+					new DevblocksSearchCriteria(SearchFields_CrmOpportunity::STATUS_ID,'=',0),
 				),
 				10,
 				0,
@@ -491,20 +491,17 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 				switch($to_status) {
 					case 'open':
 						$fields = array(
-							DAO_CrmOpportunity::IS_CLOSED => 0,
-							DAO_CrmOpportunity::IS_WON => 0,
+							DAO_CrmOpportunity::STATUS_ID => 0,
 						);
 						break;
 					case 'closed_won':
 						$fields = array(
-							DAO_CrmOpportunity::IS_CLOSED => 1,
-							DAO_CrmOpportunity::IS_WON => 1,
+							DAO_CrmOpportunity::STATUS_ID => 1,
 						);
 						break;
 					case 'closed_lost':
 						$fields = array(
-							DAO_CrmOpportunity::IS_CLOSED => 1,
-							DAO_CrmOpportunity::IS_WON => 0,
+							DAO_CrmOpportunity::STATUS_ID => 2,
 						);
 						break;
 				}

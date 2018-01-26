@@ -21,8 +21,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	const CURRENCY_AMOUNT = 'currency_amount';
 	const CURRENCY_ID = 'currency_id';
 	const ID = 'id';
-	const IS_CLOSED = 'is_closed';
-	const IS_WON = 'is_won';
+	const STATUS_ID = 'status_id';
 	const NAME = 'name';
 	const UPDATED_DATE = 'updated_date';
 	
@@ -48,18 +47,17 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			->setMin(0)
 			->setMax('8 bytes')
 			;
-		// tinyint(1) unsigned
+		// int(10) unsigned
 		$validation
-			->addField(self::IS_CLOSED)
-			->bit()
 			->addField(self::CURRENCY_ID)
 			->id()
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CURRENCY, true))
 			;
-		// tinyint(1) unsigned
+		// int(10) unsigned
 		$validation
-			->addField(self::IS_WON)
-			->bit()
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
 			;
 		// varchar(255)
 		$validation
@@ -68,7 +66,12 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			->setMaxLength(255)
 			->setRequired(true)
 			;
+		// tinyint(1) unsigned
 		$validation
+			->addField(self::STATUS_ID)
+			->number()
+			->setMin(0)
+			->setMax(2)
 			;
 		// int(10) unsigned
 		$validation
@@ -193,20 +196,17 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 				case 'status':
 					switch(DevblocksPlatform::strLower($v)) {
 						case 'open':
-							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 0;
-							$change_fields[DAO_CrmOpportunity::IS_WON] = 0;
+							$change_fields[DAO_CrmOpportunity::STATUS_ID] = 0;
 							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = 0;
 							break;
 							
 						case 'won':
-							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
-							$change_fields[DAO_CrmOpportunity::IS_WON] = 1;
+							$change_fields[DAO_CrmOpportunity::STATUS_ID] = 1;
 							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = time();
 							break;
 							
 						case 'lost':
-							$change_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
-							$change_fields[DAO_CrmOpportunity::IS_WON] = 0;
+							$change_fields[DAO_CrmOpportunity::STATUS_ID] = 2;
 							$change_fields[DAO_CrmOpportunity::CLOSED_DATE] = time();
 							break;
 							
@@ -261,8 +261,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		// We only care about these fields, so abort if they aren't referenced
 
 		$observed_fields = array(
-			DAO_CrmOpportunity::IS_CLOSED,
-			DAO_CrmOpportunity::IS_WON,
+			DAO_CrmOpportunity::STATUS_ID,
 		);
 		
 		$used_fields = array_intersect($observed_fields, array_keys($change_fields));
@@ -289,33 +288,29 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			 * Opp status changed
 			 */
 			
-			@$is_closed = $change_fields[DAO_CrmOpportunity::IS_CLOSED];
-			@$is_won = $change_fields[DAO_CrmOpportunity::IS_WON];
+			@$status_id = $change_fields[DAO_CrmOpportunity::STATUS_ID];
 			
-			if($is_closed == $before_model->is_closed)
-				unset($change_fields[DAO_CrmOpportunity::IS_CLOSED]);
-			
-			if($is_won == $before_model->is_won)
-				unset($change_fields[DAO_CrmOpportunity::IS_WON]);
+			if($status_id == $before_model->status_id)
+				unset($change_fields[DAO_CrmOpportunity::STATUS_ID]);
 			
 			if(
-				isset($change_fields[DAO_CrmOpportunity::IS_CLOSED])
-				|| isset($change_fields[DAO_CrmOpportunity::IS_WON])
+				isset($change_fields[DAO_CrmOpportunity::STATUS_ID])
 			) {
 				
-				if(!$model->is_closed) {
-					$activity_point = 'opp.status.open';
-					$status_to = 'open';
-					
-				} else {
-					if($model->is_won) {
+				switch($model->status_id) {
+					default:
+					case 0:
+						$activity_point = 'opp.status.open';
+						$status_to = 'open';
+						break;
+					case 1:
 						$activity_point = 'opp.status.closed_won';
 						$status_to = 'closed/won';
-						
-					} else {
+						break;
+					case 2:
 						$activity_point = 'opp.status.closed_lost';
 						$status_to = 'closed/lost';
-					}
+						break;
 				}
 				
 				/*
@@ -396,8 +391,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			$object->created_date = $row['created_date'];
 			$object->updated_date = $row['updated_date'];
 			$object->closed_date = $row['closed_date'];
-			$object->is_won = $row['is_won'];
-			$object->is_closed = $row['is_closed'];
+			$object->status_id = intval($row['status_id']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -483,8 +477,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			"o.created_date as %s, ".
 			"o.updated_date as %s, ".
 			"o.closed_date as %s, ".
-			"o.is_closed as %s, ".
-			"o.is_won as %s ",
+			"o.status_id as %s ",
 				SearchFields_CrmOpportunity::ID,
 				SearchFields_CrmOpportunity::NAME,
 				SearchFields_CrmOpportunity::CURRENCY_ID,
@@ -492,8 +485,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 				SearchFields_CrmOpportunity::CREATED_DATE,
 				SearchFields_CrmOpportunity::UPDATED_DATE,
 				SearchFields_CrmOpportunity::CLOSED_DATE,
-				SearchFields_CrmOpportunity::IS_CLOSED,
-				SearchFields_CrmOpportunity::IS_WON
+				SearchFields_CrmOpportunity::STATUS_ID
 			);
 
 		$join_sql =
@@ -614,8 +606,7 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	const CREATED_DATE = 'o_created_date';
 	const UPDATED_DATE = 'o_updated_date';
 	const CLOSED_DATE = 'o_closed_date';
-	const IS_WON = 'o_is_won';
-	const IS_CLOSED = 'o_is_closed';
+	const STATUS_ID = 'o_status_id';
 	
 	// Comment Content
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
@@ -686,8 +677,7 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 			self::CREATED_DATE => new DevblocksSearchField(self::CREATED_DATE, 'o', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::UPDATED_DATE => new DevblocksSearchField(self::UPDATED_DATE, 'o', 'updated_date', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::CLOSED_DATE => new DevblocksSearchField(self::CLOSED_DATE, 'o', 'closed_date', $translate->_('crm.opportunity.closed_date'), Model_CustomField::TYPE_DATE, true),
-			self::IS_WON => new DevblocksSearchField(self::IS_WON, 'o', 'is_won', $translate->_('crm.opportunity.is_won'), Model_CustomField::TYPE_CHECKBOX, true),
-			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'o', 'is_closed', $translate->_('crm.opportunity.is_closed'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::STATUS_ID => new DevblocksSearchField(self::STATUS_ID, 'o', 'status_id', $translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -722,8 +712,7 @@ class Model_CrmOpportunity {
 	public $created_date;
 	public $updated_date;
 	public $closed_date;
-	public $is_won;
-	public $is_closed;
+	public $status_id;
 	
 	/**
 	 * 
@@ -755,6 +744,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
+			SearchFields_CrmOpportunity::STATUS_ID,
 			SearchFields_CrmOpportunity::CURRENCY_AMOUNT,
 			SearchFields_CrmOpportunity::CURRENCY_ID,
 			SearchFields_CrmOpportunity::UPDATED_DATE,
@@ -767,7 +757,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		));
 		
 		$this->addParamsDefault(array(
-			SearchFields_CrmOpportunity::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0),
+			SearchFields_CrmOpportunity::STATUS_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::STATUS_ID,'=',0),
 		));
 		$this->addParamsHidden(array(
 			SearchFields_CrmOpportunity::ID,
@@ -811,8 +801,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			
 			switch($field_key) {
 				// Strings
-				case SearchFields_CrmOpportunity::IS_CLOSED:
-				case SearchFields_CrmOpportunity::IS_WON:
+				case SearchFields_CrmOpportunity::STATUS_ID:
 					$pass = true;
 					break;
 					
@@ -849,9 +838,8 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
 				break;
 				
-			case SearchFields_CrmOpportunity::IS_CLOSED:
-			case SearchFields_CrmOpportunity::IS_WON:
-				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
+			case SearchFields_CrmOpportunity::STATUS_ID:
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
 				break;
 			
 			case SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK:
@@ -923,15 +911,17 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_OPPORTUNITY, 'q' => ''],
 					]
 				),
-			'isClosed' => 
+			'status' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_BOOL,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::IS_CLOSED),
-				),
-			'isWon' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_BOOL,
-					'options' => array('param_key' => SearchFields_CrmOpportunity::IS_WON),
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_CrmOpportunity::STATUS_ID),
+					'examples' => array(
+						'open',
+						'lost',
+						'won',
+						'[o,w]',
+						'![l]',
+					),
 				),
 			'name' => 
 				array(
@@ -984,6 +974,38 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'status':
+				$field_key = SearchFields_CrmOpportunity::STATUS_ID;
+				$oper = null;
+				$value = null;
+				
+				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
+				
+				$values = array();
+				
+				// Normalize status labels
+				foreach($value as $idx => $status) {
+					switch(substr(DevblocksPlatform::strLower($status), 0, 1)) {
+						case 'o':
+						case '0':
+							$values['0'] = true;
+							break;
+						case 'w':
+						case '1':
+							$values['1'] = true;
+							break;
+						case 'l':
+						case '2':
+							$values['2'] = true;
+							break;
+					}
+				}
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					array_keys($values)
+				);
 				break;
 			
 			default:
@@ -1054,11 +1076,11 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				
 			case SearchFields_CrmOpportunity::CURRENCY_AMOUNT:
 			case SearchFields_CrmOpportunity::CURRENCY_ID:
+			case SearchFields_CrmOpportunity::STATUS_ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
-			case SearchFields_CrmOpportunity::IS_CLOSED:
-			case SearchFields_CrmOpportunity::IS_WON:
+			case '_bool':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
@@ -1102,9 +1124,13 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_CrmOpportunity::IS_CLOSED:
-			case SearchFields_CrmOpportunity::IS_WON:
-				$this->_renderCriteriaParamBoolean($param);
+			case SearchFields_CrmOpportunity::STATUS_ID:
+				$label_map = [
+					0 => DevblocksPlatform::translate('crm.opp.status.open'),
+					1 => DevblocksPlatform::translate('crm.opp.status.closed.won'),
+					2 => DevblocksPlatform::translate('crm.opp.status.closed.lost'),
+				];
+				$this->_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			default:
@@ -1127,11 +1153,11 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				
 			case SearchFields_CrmOpportunity::CURRENCY_AMOUNT:
 			case SearchFields_CrmOpportunity::CURRENCY_ID:
+			case SearchFields_CrmOpportunity::STATUS_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case SearchFields_CrmOpportunity::IS_CLOSED:
-			case SearchFields_CrmOpportunity::IS_WON:
+			case '_bool':
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -1287,8 +1313,6 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'created' => $prefix.$translate->_('common.created'),
-			'is_closed' => $prefix.$translate->_('crm.opportunity.is_closed'),
-			'is_won' => $prefix.$translate->_('crm.opportunity.is_won'),
 			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
 			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('common.title'),
@@ -1301,8 +1325,6 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'created' => Model_CustomField::TYPE_DATE,
-			'is_closed' => Model_CustomField::TYPE_CHECKBOX,
-			'is_won' => Model_CustomField::TYPE_CHECKBOX,
 			'amount' => Model_CustomField::TYPE_CURRENCY,
 			'status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1332,16 +1354,24 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			$token_values['amount__label'] = $opp->getAmountString();
 			$token_values['amount_currency_id'] = $opp->currency_id;
 			$token_values['created'] = $opp->created_date;
-			$token_values['is_closed'] = $opp->is_closed;
-			$token_values['is_won'] = $opp->is_won;
+			$token_values['id'] = $opp->id;
+			$token_values['is_closed'] = $opp->status_id != 0; // backwards compat
+			$token_values['is_won'] = $opp->status_id == 1; // backwards compat
+			$token_values['status_id'] = $opp->status_id;
 			$token_values['title'] = $opp->name;
 			$token_values['updated'] = $opp->updated_date;
 			
 			// Status
-			if($opp->is_closed) {
-				$token_values['status'] = ($opp->is_won) ? 'closed_won' : 'closed_lost';
-			} else {
-				$token_values['status'] = 'open';
+			switch($opp->status_id) {
+				case 0:
+					$token_values['status'] = 'open';
+					break;
+				case 1:
+					$token_values['status'] = 'closed_won';
+					break;
+				case 2:
+					$token_values['status'] = 'closed_lost';
+					break;
 			}
 			
 			// Custom fields
@@ -1375,9 +1405,8 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			'amount_currency_id' => DAO_CrmOpportunity::CURRENCY_ID,
 			'created' => DAO_CrmOpportunity::CREATED_DATE,
 			'id' => DAO_CrmOpportunity::ID,
-			'is_closed' => DAO_CrmOpportunity::IS_CLOSED,
-			'is_won' => DAO_CrmOpportunity::IS_WON,
 			'links' => '_links',
+			'status_id' => DAO_CrmOpportunity::STATUS_ID,
 			'title' => DAO_CrmOpportunity::NAME,
 			'updated' => DAO_CrmOpportunity::UPDATED_DATE,
 		];
@@ -1399,16 +1428,13 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 				
 				switch($value) {
 					case 'open':
-						$out_fields[DAO_CrmOpportunity::IS_CLOSED] = 0;
-						$out_fields[DAO_CrmOpportunity::IS_WON] = 0;
+						$out_fields[DAO_CrmOpportunity::STATUS_ID] = 0;
 						break;
 					case 'closed_won':
-						$out_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
-						$out_fields[DAO_CrmOpportunity::IS_WON] = 1;
+						$out_fields[DAO_CrmOpportunity::STATUS_ID] = 1;
 						break;
 					case 'closed_lost':
-						$out_fields[DAO_CrmOpportunity::IS_CLOSED] = 1;
-						$out_fields[DAO_CrmOpportunity::IS_WON] = 0;
+						$out_fields[DAO_CrmOpportunity::STATUS_ID] = 2;
 						break;
 				}
 				break;
@@ -1474,7 +1500,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			SearchFields_CrmOpportunity::UPDATED_DATE,
 		);
 		$view->addParams(array(
-			SearchFields_CrmOpportunity::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::IS_CLOSED,'=',0),
+			SearchFields_CrmOpportunity::STATUS_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::STATUS_ID,'=',0),
 		), true);
 		$view->renderSortBy = SearchFields_CrmOpportunity::UPDATED_DATE;
 		$view->renderSortAsc = false;
@@ -1625,21 +1651,15 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 				'type' => Model_CustomField::TYPE_DATE,
 				'param' => SearchFields_CrmOpportunity::CREATED_DATE,
 			),
-			'is_closed' => array(
-				'label' => 'Is Closed',
-				'type' => Model_CustomField::TYPE_CHECKBOX,
-				'param' => SearchFields_CrmOpportunity::IS_CLOSED,
-			),
-			'is_won' => array(
-				'label' => 'Is Won',
-				'type' => Model_CustomField::TYPE_CHECKBOX,
-				'param' => SearchFields_CrmOpportunity::IS_WON,
-			),
 			'name' => array(
 				'label' => 'Name',
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
 				'param' => SearchFields_CrmOpportunity::NAME,
 			),
+			'status_id' => array(
+				'label' => 'Status',
+				'type' => Model_CustomField::TYPE_NUMBER,
+				'param' => SearchFields_CrmOpportunity::STATUS_ID,
 			),
 			'updated_date' => array(
 				'label' => 'Updated Date',
