@@ -495,7 +495,7 @@ class _DevblocksValidationTypeNumber extends _DevblocksValidationType {
 		if(!is_numeric($n))
 			return false;
 		
-		$this->_data['min'] = intval($n);
+		$this->_data['min'] = $n;
 		return $this;
 	}
 	
@@ -507,7 +507,7 @@ class _DevblocksValidationTypeNumber extends _DevblocksValidationType {
 		if(!is_numeric($n))
 			return false;
 		
-		$this->_data['max'] = intval($n);
+		$this->_data['max'] = $n;
 		return $this;
 	}
 }
@@ -518,7 +518,10 @@ class _DevblocksValidationTypeString extends _DevblocksValidationType {
 			$length = DevblocksPlatform::strBitsToInt($length);
 		}
 		
-		$this->_data['length'] = intval($length);
+		if(!is_numeric($length))
+			return false;
+		
+		$this->_data['length'] = $length;
 		return $this;
 	}
 	
@@ -652,11 +655,11 @@ class _DevblocksValidationService {
 				
 				if($data) {
 					if(isset($data['min']) && $value < $data['min']) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be >= %d (%d)", $field_name, $data['min'], $value));
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be >= %u (%u)", $field_name, $data['min'], $value));
 					}
 					
 					if(isset($data['max']) && $value > $data['max']) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be <= %d (%d)", $field_name, $data['max'], $value));
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be <= %u (%u)", $field_name, $data['max'], $value));
 					}
 				}
 				break;

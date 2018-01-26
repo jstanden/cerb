@@ -966,10 +966,10 @@ class DevblocksPlatform extends DevblocksEngine {
 			return 0;
 		
 		// 32-bit overflow?
-		$max_bits = (PHP_INT_SIZE * 8)-1;
+		$max_bits = (PHP_INT_SIZE * 8)-1; // PHP ints are always signed
 		if($bits > $max_bits)
 			$bits = $max_bits;
-			
+		
 		return pow(2, $bits);
 	}
 	
