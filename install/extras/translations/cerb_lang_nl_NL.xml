@@ -1593,11 +1593,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opp.add">
-			<tuv xml:lang="nl_NL">
-				<seg>Voeg Opportunity toe</seg>
-			</tuv>
-		</tu>
 		<tu tuid="crm.opp.status.closed.lost">
 			<tuv xml:lang="nl_NL">
 				<seg>Gesloten/verloren</seg>
@@ -1623,32 +1618,7 @@
 				<seg>Datum gesloten</seg>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opportunity.contact_phone">
-			<tuv xml:lang="nl_NL">
-				<seg>Telefoon</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.is_closed">
-			<tuv xml:lang="nl_NL">
-				<seg>Gesloten</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.is_won">
-			<tuv xml:lang="nl_NL">
-				<seg>Gewonnen</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.org_id">
-			<tuv xml:lang="nl_NL">
-				<seg>Organisatie ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.primary_email_id">
-			<tuv xml:lang="nl_NL">
-				<seg>E-mail ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.tab.title">
+		<tu tuid="crm.common.opportunities">
 			<tuv xml:lang="nl_NL">
 				<seg>Opportunities</seg>
 			</tuv>

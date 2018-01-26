@@ -245,7 +245,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		
 		$putfields = array(
 			'amount' => 'float',
-			'assignee_id' => 'integer',
 			'created' => 'timestamp',
 			'currency_id' => 'integer',
 			'status_id' => 'integer',
@@ -308,7 +307,6 @@ class ChRest_Opps extends Extension_RestController implements IExtensionRestCont
 		
 		$postfields = array(
 			'amount' => 'float',
-			'assignee_id' => 'integer',
 			'created' => 'timestamp',
 			'status_id' => 'integer',
 			'title' => 'string',

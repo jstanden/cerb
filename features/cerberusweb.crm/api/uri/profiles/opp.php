@@ -144,8 +144,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		@$closed_date_str = DevblocksPlatform::importGPC($_REQUEST['closed_date'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
-		// Strip currency formatting symbols
-		$amount = floatval(str_replace(array(',','$','¢','£','€'),'',$amount));
 		if(false != ($currency = DAO_Currency::get($currency_id))) {
 			$currency_amount = DevblocksPlatform::strParseDecimal($currency_amount, $currency->decimal_at);
 		} else {

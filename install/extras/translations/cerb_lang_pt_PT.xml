@@ -1608,11 +1608,6 @@
 				<seg>Oportunidade</seg>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opp.add">
-			<tuv xml:lang="pt_PT">
-				<seg>Adicionar Oportunidade</seg>
-			</tuv>
-		</tu>
 		<tu tuid="crm.opp.status.closed.lost">
 			<tuv xml:lang="pt_PT">
 				<seg>Fechado/Perdido</seg>
@@ -1638,32 +1633,7 @@
 				<seg>Data em que foi Fechado</seg>
 			</tuv>
 		</tu>
-		<tu tuid="crm.opportunity.contact_phone">
-			<tuv xml:lang="pt_PT">
-				<seg>Telefone</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.is_closed">
-			<tuv xml:lang="pt_PT">
-				<seg>Fechar</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.is_won">
-			<tuv xml:lang="pt_PT">
-				<seg>Ganha</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.org_id">
-			<tuv xml:lang="pt_PT">
-				<seg>ID da Organização</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.opportunity.primary_email_id">
-			<tuv xml:lang="pt_PT">
-				<seg>ID do Email</seg>
-			</tuv>
-		</tu>
-		<tu tuid="crm.tab.title">
+		<tu tuid="crm.common.opportunities">
 			<tuv xml:lang="pt_PT">
 				<seg>Oportunidades</seg>
 			</tuv>

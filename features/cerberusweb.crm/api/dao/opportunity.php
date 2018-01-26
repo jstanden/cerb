@@ -716,6 +716,7 @@ class Model_CrmOpportunity {
 	
 	/**
 	 * 
+	 * @return Model_Currency
 	 */
 	function getCurrency() {
 		return DAO_Currency::get($this->currency_id);

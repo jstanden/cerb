@@ -112,7 +112,6 @@
 					{DevblocksPlatform::strFormatDecimal($result.o_currency_amount,$currency->decimal_at)} 
 					{$currency->code}
 					{else}
-						<!-- [<a href="javascript:;">assign</a>]  -->
 					{DevblocksPlatform::strFormatDecimal($result.o_currency_amount,2)}
 					{/if}
 				</td>
@@ -129,13 +128,6 @@
 				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.o_updated_date|devblocks_prettytime}</abbr>&nbsp;</td>
 			{elseif $column=="o_closed_date"}
 				<td data-column="{$column}"><abbr title="{$result.$column|devblocks_date}">{$result.o_closed_date|devblocks_prettytime}</abbr>&nbsp;</td>
-			{elseif $column=="o_worker_id"}
-				<td data-column="{$column}">
-					{assign var=o_worker_id value=$result.o_worker_id}
-					{if isset($workers.$o_worker_id)}
-						{$workers.$o_worker_id->getName()}&nbsp;
-					{/if}
-				</td>
 			{else}
 				<td data-column="{$column}">{$result.$column}</td>
 			{/if}
