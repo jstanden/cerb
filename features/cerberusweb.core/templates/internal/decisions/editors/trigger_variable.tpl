@@ -23,25 +23,25 @@
 		<tr>
 			<td colspan="2" valign="top">
 				<div style="margin:2px 0px 0px 10px;">
-				{if $var.type == 'S'}
+				{if $var.type == Model_CustomField::TYPE_SINGLE_LINE}
 				<div>
 					<label><input type="radio" name="var_params{$seq}[widget]" value="single" {if $var.params.widget=='single'}checked="checked"{/if}> Single line</label>
 					<label><input type="radio" name="var_params{$seq}[widget]" value="multiple" {if $var.params.widget=='multiple'}checked="checked"{/if}> Multiple lines</label>
 				</div>
-				{elseif $var.type == 'D'}
+				{elseif $var.type == Model_CustomField::TYPE_DROPDOWN}
 				<div>
 					<textarea name="var_params{$seq}[options]" rows="5" cols="45" style="width:100%;" placeholder="Enter one option per line">
 {$var.params.options}</textarea>
 				</div>
-				{elseif $var.type == 'N'}
-				{elseif $var.type == 'E'}
-				{elseif $var.type == 'C'}
+				{elseif $var.type == Model_CustomField::TYPE_NUMBER}
+				{elseif $var.type == Model_CustomField::TYPE_DATE}
+				{elseif $var.type == Model_CustomField::TYPE_CHECKBOX}
 				<div>
 					Default input to 
 					<label><input type="radio" name="var_params{$seq}[checkbox_default_on]" value="1" {if $var.params.checkbox_default_on}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
 					<label><input type="radio" name="var_params{$seq}[checkbox_default_on]" value="0" {if empty($var.params.checkbox_default_on)}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
 				</div>
-				{elseif $var.type == 'W'}
+				{elseif $var.type == Model_CustomField::TYPE_WORKER}
 				{elseif substr($var.type,0,4)=='ctx_'}
 				{/if}
 				</div>

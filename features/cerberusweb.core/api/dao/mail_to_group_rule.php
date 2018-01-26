@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 class DAO_MailToGroupRule extends Cerb_ORMHelper {
@@ -442,9 +442,9 @@ class Model_MailToGroupRule {
 							
 							// Type sensitive value comparisons
 							switch($field->type) {
-								case 'S': // string
-								case 'T': // clob
-								case 'U': // URL
+								case Model_CustomField::TYPE_SINGLE_LINE:
+								case Model_CustomField::TYPE_MULTI_LINE:
+								case Model_CustomField::TYPE_URL:
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : '';
 									$oper = isset($crit['oper']) ? $crit['oper'] : "=";
 									
@@ -453,7 +453,7 @@ class Model_MailToGroupRule {
 									elseif($oper == "!=" && @!preg_match(DevblocksPlatform::strToRegExp($value, true), $field_val))
 										$passed++;
 									break;
-								case 'N': // number
+								case Model_CustomField::TYPE_NUMBER:
 									if(!isset($field_values[$field_id]))
 										break;
 
@@ -469,7 +469,7 @@ class Model_MailToGroupRule {
 									elseif($oper=="<" && intval($field_val) < intval($value))
 										$passed++;
 									break;
-								case 'E': // date
+								case Model_CustomField::TYPE_DATE:
 									$field_val = isset($field_values[$field_id]) ? intval($field_values[$field_id]) : 0;
 									$from = isset($crit['from']) ? $crit['from'] : "0";
 									$to = isset($crit['to']) ? $crit['to'] : "now";
@@ -478,14 +478,14 @@ class Model_MailToGroupRule {
 										$passed++;
 									}
 									break;
-								case 'C': // checkbox
+								case Model_CustomField::TYPE_CHECKBOX:
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
 									if(intval($value)==intval($field_val))
 										$passed++;
 									break;
-								case 'D': // dropdown
-								case 'X': // multi-checkbox
-								case 'W': // worker
+								case Model_CustomField::TYPE_DROPDOWN:
+								case Model_CustomField::TYPE_MULTI_CHECKBOX:
+								case Model_CustomField::TYPE_WORKER:
 									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : array();
 									if(!is_array($value)) $value = array($value);
 										

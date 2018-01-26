@@ -1431,7 +1431,11 @@ class Model_CustomField {
 	}
 	
 	static function hasMultipleValues($type) {
-		$multiple_types = [Model_CustomField::TYPE_MULTI_CHECKBOX, Model_CustomField::TYPE_FILES, Model_CustomField::TYPE_LIST];
+		$multiple_types = [
+			Model_CustomField::TYPE_MULTI_CHECKBOX,
+			Model_CustomField::TYPE_FILES,
+			Model_CustomField::TYPE_LIST,
+		];
 		return in_array($type, $multiple_types);
 	}
 	

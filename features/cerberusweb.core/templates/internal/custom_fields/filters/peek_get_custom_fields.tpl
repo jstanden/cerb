@@ -17,7 +17,7 @@
 		</td>
 		<td width="99%">
 			<div style="display:{if !is_null($crit_field)}block{else}none{/if};" id="fieldGetValue{$field_id}">
-			{if 'S'==$field->type || 'T'==$field->type || 'U'==$field->type}
+			{if Model_CustomField::TYPE_SINGLE_LINE==$field->type || Model_CustomField::TYPE_MULTI_LINE==$field->type || Model_CustomField::TYPE_URL==$field->type}
 				<select name="value_cf_{$field_id}_oper">
 					<option value="=" {if $crit_field.oper=="="}selected="selected"{/if}>{'search.oper.equals'|devblocks_translate}</option>
 					<option value="!=" {if $crit_field.oper=="!="}selected="selected"{/if}>{'search.oper.equals.not'|devblocks_translate}</option>
@@ -25,7 +25,7 @@
 				<br>
 				<input type="text" name="value_cf_{$field_id}" size="45" value="{$crit_field.value}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 				<i>(use * for wildcards)</i>
-			{elseif 'N'==$field->type}
+			{elseif Model_CustomField::TYPE_NUMBER==$field->type}
 				<select name="value_cf_{$field_id}_oper">
 					<option value="=" {if $crit_field.oper=="="}selected="selected"{/if}>=</option>
 					<option value="!=" {if $crit_field.oper=="!="}selected="selected"{/if}>!=</option>
@@ -33,21 +33,21 @@
 					<option value="<" {if $crit_field.oper==chr(60)}selected="selected"{/if}>&lt;</option>
 				</select>
 				<input type="text" name="value_cf_{$field_id}" size="12" value="{$crit_field.value}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);">
-			{elseif 'C'==$field->type}
+			{elseif Model_CustomField::TYPE_CHECKBOX==$field->type}
 				<label><input type="radio" name="value_cf_{$field_id}" value="1" {if !is_null($crit_field) && 1==$crit_field.value}checked="checked"{/if} onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.checked)?false:true);"> {'common.yes'|devblocks_translate}</label>
 				<label><input type="radio" name="value_cf_{$field_id}" value="0" {if !is_null($crit_field) && 0==$crit_field.value}checked="checked"{/if} onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.checked)?false:true);"> {'common.no'|devblocks_translate}</label>
-			{elseif 'E'==$field->type}
+			{elseif Model_CustomField::TYPE_DATE==$field->type}
 				<i>between:</i><br>
 				<input type="text" name="value_cf_{$field_id}_from" size="20" value="{$crit_field.from}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 				<i>and:</i><br>
 				<input type="text" name="value_cf_{$field_id}_to" size="20" value="{$crit_field.to}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 				<i>(+2 hours, now, next Friday 5pm, 2pm, Jan 25)</i>
-			{elseif 'D'==$field->type || 'X'==$field->type}
+			{elseif Model_CustomField::TYPE_DROPDOWN==$field->type || Model_CustomField::TYPE_MULTI_CHECKBOX==$field->type}
 				<i>is any of these:</i><br>
 				{foreach from=$field->params.options item=option}
 					<label><input type="checkbox" name="value_cf_{$field_id}[]" value="{$option}" {if isset($crit_field.value.$option)}checked="checked"{/if}> {$option}</label><br>
 				{/foreach}
-			{elseif 'W'==$field->type}
+			{elseif Model_CustomField::TYPE_WORKER==$field->type}
 				{if empty($workers)}
 					{$workers = DAO_Worker::getAllActive()}
 				{/if}

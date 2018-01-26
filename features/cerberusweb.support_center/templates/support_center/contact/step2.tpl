@@ -8,7 +8,7 @@
 <input type="hidden" name="a" value="doContactSend">
 <input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 <table border="0" cellpadding="0" cellspacing="0" width="99%">
-  <tbody>
+	<tbody>
 	<tr>
 	<td colspan="2">
 		<fieldset>
@@ -62,41 +62,41 @@
 					{assign var=field value=$ticket_fields.$field_id}
 					<input type="hidden" name="field_ids[]" value="{$field_id}">
 					
-					{if $field->type=='S'}
+					{if $field->type==Model_CustomField::TYPE_SINGLE_LINE}
 						<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" style="width:100%;" class="{if $required}required{/if}">
-					{elseif $field->type=='U'}
+					{elseif $field->type==Model_CustomField::TYPE_URL}
 						<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" style="width:100%;" class="url {if $required}required{/if}">
-					{elseif $field->type=='N'}
+					{elseif $field->type==Model_CustomField::TYPE_NUMBER}
 						<input type="text" name="followup_a_{$idx}" size="12" maxlength="20" value="{$last_followup_a.$idx}" autocomplete="off" class="number {if $required}required{/if}">
-					{elseif $field->type=='T'}
+					{elseif $field->type==Model_CustomField::TYPE_MULTI_LINE}
 						<textarea name="followup_a_{$idx}" rows="5" cols="60" style="width:100%;" class="{if $required}required{/if}">{$last_followup_a.$idx}</textarea>
-					{elseif $field->type=='D'}
+					{elseif $field->type==Model_CustomField::TYPE_DROPDOWN}
 						<select name="followup_a_{$idx}" class="{if $required}required{/if}">
 							<option value=""></option>
 							{foreach from=$field->params.options item=opt}
 							<option value="{$opt}" {if $last_followup_a.$idx==$opt}selected="selected"{/if}>{$opt}
 							{/foreach}
 						</select>
-					{elseif $field->type=='W'}
+					{elseif $field->type==Model_CustomField::TYPE_WORKER}
 						<select name="followup_a_{$idx}" class="{if $required}required{/if}">
 							<option value=""></option>
 							{foreach from=$workers item=worker key=worker_id}
 							<option value="{$worker_id}" {if $last_followup_a.$idx==$worker_id}selected="selected"{/if}>{$worker->getName()}</option>
 							{/foreach}
 						</select>
-					{elseif $field->type=='E'}
+					{elseif $field->type==Model_CustomField::TYPE_DATE}
 						<input type="text" name="followup_a_{$idx}" value="{$last_followup_a.$idx}" autocomplete="off" class="date {if $required}required{/if}">
-					{elseif $field->type=='X'}
+					{elseif $field->type==Model_CustomField::TYPE_MULTI_CHECKBOX}
 						{foreach from=$field->params.options item=opt}
 						<label><input type="checkbox" name="followup_a_{$idx}[]" value="{$opt}"> {$opt}</label><br>
 						{/foreach}
-					{elseif $field->type=='C'}
+					{elseif $field->type==Model_CustomField::TYPE_CHECKBOX}
 						<label><input name="followup_a_{$idx}" type="checkbox" value="Yes" {if $last_followup_a.$idx}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
-					{elseif $field->type=='F'}
+					{elseif $field->type==Model_CustomField::TYPE_FILE}
 						<input type="file" name="followup_a_{$idx}">
-					{elseif $field->type=='I'}
+					{elseif $field->type==Model_CustomField::TYPE_FILES}
 						<input type="file" name="followup_a_{$idx}[]" multiple="multiple">
-					{elseif $field->type=='L'}
+					{elseif $field->type==Model_CustomField::TYPE_LINK}
 						{* N/A *}
 					{/if}
 					
@@ -136,6 +136,6 @@
 	</td>
 	</tr>
 	
-  </tbody>
+	</tbody>
 </table>
 </form>

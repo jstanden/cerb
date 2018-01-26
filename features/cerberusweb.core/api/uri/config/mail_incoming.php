@@ -303,16 +303,16 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 							continue;
 
 						switch($custom_fields[$field_id]->type) {
-							case 'S': // string
-							case 'T': // clob
-							case 'U': // URL
+							case Model_CustomField::TYPE_SINGLE_LINE:
+							case Model_CustomField::TYPE_MULTI_LINE:
+							case Model_CustomField::TYPE_URL:
 								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
 								$criteria['oper'] = $oper;
 								break;
 								
-							case 'D': // dropdown
-							case 'X': // multi-checkbox
-							case 'W': // worker
+							case Model_CustomField::TYPE_DROPDOWN:
+							case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							case Model_CustomField::TYPE_WORKER:
 								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
 								$out_array = array();
 								
@@ -325,7 +325,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 								$criteria['value'] = $out_array;
 								break;
 								
-							case 'E': // date
+							case Model_CustomField::TYPE_DATE:
 								$from = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_from'],'string','0');
 								$to = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_to'],'string','now');
 								$criteria['from'] = $from;
@@ -333,13 +333,13 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 								unset($criteria['value']);
 								break;
 								
-							case 'N': // number
+							case Model_CustomField::TYPE_NUMBER:
 								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
 								$criteria['oper'] = $oper;
 								$criteria['value'] = intval($value);
 								break;
 								
-							case 'C': // checkbox
+							case Model_CustomField::TYPE_CHECKBOX:
 								$criteria['value'] = intval($value);
 								break;
 						}
@@ -379,18 +379,18 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 							continue;
 
 						$action = array();
-							
+						
 						switch($custom_fields[$field_id]->type) {
-							case 'S': // string
-							case 'T': // clob
-							case 'U': // URL
-							case 'D': // dropdown
-							case 'W': // worker
+							case Model_CustomField::TYPE_SINGLE_LINE:
+							case Model_CustomField::TYPE_MULTI_LINE:
+							case Model_CustomField::TYPE_URL:
+							case Model_CustomField::TYPE_DROPDOWN:
+							case Model_CustomField::TYPE_WORKER:
 								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
 								$action['value'] = $value;
 								break;
 								
-							case 'X': // multi-checkbox
+							case Model_CustomField::TYPE_MULTI_CHECKBOX:
 								$in_array = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'array',array());
 								$out_array = array();
 								
@@ -403,13 +403,13 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 								$action['value'] = $out_array;
 								break;
 								
-							case 'E': // date
+							case Model_CustomField::TYPE_DATE:
 								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
 								$action['value'] = $value;
 								break;
 								
-							case 'N': // number
-							case 'C': // checkbox
+							case Model_CustomField::TYPE_NUMBER:
+							case Model_CustomField::TYPE_CHECKBOX:
 								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
 								$action['value'] = intval($value);
 								break;

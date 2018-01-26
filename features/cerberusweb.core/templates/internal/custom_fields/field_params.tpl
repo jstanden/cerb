@@ -1,4 +1,4 @@
-{if $model->type == 'D' || $model->type == 'X'}
+{if $model->type == Model_CustomField::TYPE_DROPDOWN || $model->type == Model_CustomField::TYPE_MULTI_CHECKBOX}
 	<fieldset>
 		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
 		
@@ -7,7 +7,6 @@
 			(one option per line)
 		</div>
 	</fieldset>
-{elseif $model->type == 'L'}
 {elseif $model->type == Model_CustomField::TYPE_CURRENCY}
 	<fieldset>
 		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
@@ -20,6 +19,7 @@
 		{/foreach}
 		</select>
 	</fieldset>
+{elseif $model->type == Model_CustomField::TYPE_LINK}
 	{$contexts = Extension_DevblocksContext::getAll(false)}
 	<fieldset>
 		<legend>To record type:</legend>
@@ -38,7 +38,7 @@
 		</select>
 		{/if}
 	</fieldset>
-{elseif $model->type == 'W'}
+{elseif $model->type == Model_CustomField::TYPE_WORKER}
 	<fieldset>
 		<legend>{'common.options'|devblocks_translate|capitalize}:</legend>
 		

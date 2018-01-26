@@ -7,13 +7,13 @@
 	<input type="hidden" name="var_keys[]" value="{$var.key}">
 	<b>{$var.label}:</b>
 	<div style="margin:0px 0px 5px 15px;">
-		{if $var.type == 'S'}
+		{if $var.type == Model_CustomField::TYPE_SINGLE_LINE}
 			{if $var.params.widget=='multiple'}
 			<textarea name="{$field_name}[{$var.key}]" style="height:50px;width:98%;" class="{if $with_placeholders}placeholders {/if}">{$variable_values.$var_key}</textarea>
 			{else}
 			<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" class="{if $with_placeholders}placeholders {/if}{if $var.params.mentions}cerb-mentions {/if}">
 			{/if}
-		{elseif $var.type == 'D'}
+		{elseif $var.type == Model_CustomField::TYPE_DROPDOWN}
 		<select name="{$field_name}[{$var.key}]">
 			{$options = DevblocksPlatform::parseCrlfString($var.params.options, true)}
 			{if is_array($options)}
@@ -22,14 +22,14 @@
 			{/foreach}
 			{/if}
 		</select>
-		{elseif $var.type == 'N'}
+		{elseif $var.type == Model_CustomField::TYPE_NUMBER}
 		<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" {if $with_placeholders}class="placeholders"{/if}>
-		{elseif $var.type == 'C'}
+		{elseif $var.type == Model_CustomField::TYPE_CHECKBOX}
 		<label><input type="radio" name="{$field_name}[{$var.key}]" value="1" {if (!is_null($variable_values.$var_key) && $variable_values.$var_key) || (is_null($variable_values.$var_key) && $var.params.checkbox_default_on)}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label> 
 		<label><input type="radio" name="{$field_name}[{$var.key}]" value="0" {if (!is_null($variable_values.$var_key) && !$variable_values.$var_key) || (is_null($variable_values.$var_key) && empty($var.params.checkbox_default_on))}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label> 
-		{elseif $var.type == 'E'}
+		{elseif $var.type == Model_CustomField::TYPE_DATE}
 		<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" {if $with_placeholders}class="placeholders"{/if}>
-		{elseif $var.type == 'W'}
+		{elseif $var.type == Model_CustomField::TYPE_WORKER}
 		{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
 		<select name="{$field_name}[{$var.key}]">
 			<option value=""></option>
