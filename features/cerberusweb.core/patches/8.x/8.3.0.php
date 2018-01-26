@@ -77,6 +77,54 @@ if(!isset($tables['currency'])) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 
 	$tables['currency'] = 'currency';
+	
+	// USD
+	$db->ExecuteMaster(sprintf("INSERT INTO currency (name, name_plural, code, symbol, decimal_at, is_default, updated_at) "
+		. "VALUES(%s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr('US Dollar'),
+		$db->qstr('US Dollars'),
+		$db->qstr('USD'),
+		$db->qstr('$'),
+		2,
+		1,
+		time()
+	));
+	
+	// EUR
+	$db->ExecuteMaster(sprintf("INSERT INTO currency (name, name_plural, code, symbol, decimal_at, is_default, updated_at) "
+		. "VALUES(%s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr('Euro'),
+		$db->qstr('Euros'),
+		$db->qstr('EUR'),
+		$db->qstr('€'),
+		2,
+		0,
+		time()
+	));
+	
+	// GBP
+	$db->ExecuteMaster(sprintf("INSERT INTO currency (name, name_plural, code, symbol, decimal_at, is_default, updated_at) "
+		. "VALUES(%s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr('British Pound'),
+		$db->qstr('British Pounds'),
+		$db->qstr('GBP'),
+		$db->qstr('£'),
+		2,
+		0,
+		time()
+	));
+	
+	// BTC
+	$db->ExecuteMaster(sprintf("INSERT INTO currency (name, name_plural, code, symbol, decimal_at, is_default, updated_at) "
+		. "VALUES(%s, %s, %s, %s, %d, %d, %d)",
+		$db->qstr('Bitcoin'),
+		$db->qstr('Bitcoins'),
+		$db->qstr('BTC'),
+		$db->qstr('Ƀ'),
+		8,
+		0,
+		time()
+	));
 }
 
 // ===========================================================================
