@@ -468,12 +468,18 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 						// var_dump($histo);
 
 						$value = (isset($results[$histo])) ? $results[$histo] : 0;
-
+						
+						$yaxis_label = ((int) $value != $value) ? sprintf("%0.2f", $value) : sprintf("%d", $value);
+						
+						if(isset($params['yaxis_format'])) {
+							$yaxis_label = DevblocksPlatform::formatNumberAs($yaxis_label, @$params['yaxis_format']);
+						}
+						
 						$data[] = array(
 							'x' => $histo,
 							'y' => (float)$value,
 							'x_label' => strftime($date_label, $current_tick),
-							'y_label' => ((int) $value != $value) ? sprintf("%0.2f", $value) : sprintf("%d", $value),
+							'y_label' => $yaxis_label,
 						);
 
 						$current_tick = strtotime(sprintf('+1 %s', $xaxis_tick), $current_tick);
