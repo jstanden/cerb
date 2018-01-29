@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2017, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 if(class_exists('Extension_PageSection')):
@@ -1420,24 +1420,24 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 	private function _hex2RGB($hex_color) {
 		$hex_color = preg_replace("/[^0-9A-Fa-f]/", '', $hex_color); // Gets a proper hex string
 		$rgb = array();
-	  
+		
 		// If a proper hex code, convert using bitwise operation. No overhead... faster
 		if (strlen($hex_color) == 6) {
 			$color_value = hexdec($hex_color);
 			$rgb['r'] = 0xFF & ($color_value >> 0x10);
 			$rgb['g'] = 0xFF & ($color_value >> 0x8);
 			$rgb['b'] = 0xFF & $color_value;
-			 
+			
 		// If shorthand notation, need some string manipulations
 		} elseif (strlen($hex_color) == 3) {
 			$rgb['r'] = hexdec(str_repeat(substr($hex_color, 0, 1), 2));
 			$rgb['g'] = hexdec(str_repeat(substr($hex_color, 1, 1), 2));
 			$rgb['b'] = hexdec(str_repeat(substr($hex_color, 2, 1), 2));
-			 
+			
 		} else {
 			return false;
 		}
-	  
+		
 		return $rgb;
 	}
 	
