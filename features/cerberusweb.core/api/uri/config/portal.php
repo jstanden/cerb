@@ -314,6 +314,7 @@ class PageSection_SetupPortal extends Extension_PageSection {
 		// Load all data
 		$view->renderLimit = -1;
 		$view->renderPage = 0;
+		$view->setAutoPersist(false);
 		list($results, $null) = $view->getData();
 		
 		// Add template
