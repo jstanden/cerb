@@ -151,9 +151,10 @@ class UmScKbController extends Extension_UmScController {
 
 				@$article_list = $umsession->getProperty(self::SESSION_ARTICLE_LIST, array());
 				if(!empty($article) && !isset($article_list[$id])) {
-					DAO_KbArticle::update($article->id, array(
-						DAO_KbArticle::VIEWS => ++$article->views
-					));
+					DAO_KbArticle::update($article->id, [
+						DAO_KbArticle::VIEWS => ++$article->views,
+						DAO_KbArticle::UPDATED => $article->updated,
+					]);
 					$article_list[$id] = $id;
 					$umsession->setProperty(self::SESSION_ARTICLE_LIST, $article_list);
 				}
