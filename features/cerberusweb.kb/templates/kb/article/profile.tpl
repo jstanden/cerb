@@ -53,7 +53,7 @@
 	<b>Filed under:</b> 
 	{foreach from=$breadcrumbs item=trail name=trail}
 		{foreach from=$trail item=step key=cat_id name=cats}
-		<span>{$categories.{$cat_id}->name}</span>
+		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-context-id="{$cat_id}">{$categories.{$cat_id}->name}</a>
 		{if !$smarty.foreach.cats.last} &raquo; {/if}
 		{/foreach}
 		{if !$smarty.foreach.trail.last}; {/if}
