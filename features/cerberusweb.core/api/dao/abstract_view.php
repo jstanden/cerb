@@ -4494,7 +4494,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'params_hidden_json' => $db->qstr(json_encode($model->paramsHidden)),
 			'render_page' => abs(intval($model->renderPage)),
 			'render_total' => !empty($model->renderTotal) ? 1 : 0,
-			'render_limit' => intval($model->renderLimit),
+			'render_limit' => max(intval($model->renderLimit),0),
 			'render_sort_json' => $db->qstr(json_encode($render_sort)),
 			'render_filters' => !empty($model->renderFilters) ? 1 : 0,
 			'render_subtotals' => $db->qstr($model->renderSubtotals),
@@ -4503,11 +4503,13 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'placeholder_values_json' => $db->qstr(json_encode($model->placeholderValues)),
 		);
 		
-		$db->ExecuteMaster(sprintf("REPLACE INTO worker_view_model (%s) ".
+		$sql = sprintf("REPLACE INTO worker_view_model (%s) ".
 			"VALUES (%s)",
 			implode(',', array_keys($fields)),
 			implode(',', $fields)
-		), _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
+		);
+		
+		$db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 	}
 	
 	static public function deleteView($worker_id, $view_id) {

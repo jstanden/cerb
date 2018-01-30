@@ -160,6 +160,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 					
 					$view->renderPage = 0;
 					$view->renderLimit = -1;
+					$view->setAutoPersist(false);
 
 					// [TODO] Paging
 					// [TODO] Subtotals
