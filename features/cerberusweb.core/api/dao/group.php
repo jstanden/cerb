@@ -2272,6 +2272,19 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
 			// Timeline
 			if($context_id) {
 				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
