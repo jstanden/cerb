@@ -24,7 +24,6 @@
 
 <script type="text/javascript">
 $(function() {
-	var $config = $('#widget{$widget->id}Config');
 	var $fieldset = $('fieldset#widget{$widget->id}Datasource');
 	
 	$fieldset.find('input:text.color-picker').minicolors({

@@ -1,3 +1,5 @@
+<div id="widget{$widget->id}Config">
+
 <b>Series Axes:</b>
 <label><input type="radio" name="params[axes_independent]" value="1" {if $widget->params.axes_independent}checked="checked"{/if}> Independent</label>
 <label><input type="radio" name="params[axes_independent]" value="0" {if empty($widget->params.axes_independent)}checked="checked"{/if}> Shared</label>
@@ -48,6 +50,8 @@
 		{/section}
 	</div>
 	
+</div>
+
 </div>
 
 <script type="text/javascript">
