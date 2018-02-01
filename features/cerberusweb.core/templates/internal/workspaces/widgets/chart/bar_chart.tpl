@@ -54,12 +54,24 @@
 		{$col_sum.total = $col_sum.total + $sum}
 	</tr>
 {/foreach}
-<tr>
-	<td></td>
-	{foreach from=$col_sum key=idx item=sum name=sums}
-	<td style="border-top:1px solid rgb(200,200,200);{if $smarty.foreach.sums.last}padding-left:5px; border-left:1px solid rgb(200,200,200);{/if}" align="center"><b>{$sum}</b></td>
-	{/foreach}
-</tr>
+
+{foreach from=$widget->params.subtotals item=subtotals key=func}
+	<tr>
+		<td>
+			<b>{$func}</b>
+		</td>
+		{foreach from=$subtotals key=series_idx item=subtotal}
+		<td style="border-top:1px solid rgb(200,200,200);{if $smarty.foreach.sums.last}padding-left:5px; border-left:1px solid rgb(200,200,200);{/if}" align="center">
+			{if $subtotal.format}
+			{DevblocksPlatform::formatNumberAs($subtotal.value, $subtotal.format)}
+			{else}
+			{$subtotal.value}
+			{/if}
+		</td>
+		{/foreach}
+	</tr>
+{/foreach}
+
 </tbody>
 </table>
 {/if}

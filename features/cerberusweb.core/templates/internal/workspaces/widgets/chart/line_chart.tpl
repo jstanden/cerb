@@ -31,20 +31,37 @@
 {foreach from=$widget->params.series item=series key=series_idx name=series}
 	{if $series.data}
 	<div style="display:inline-block;margin-right:10px;vertical-align:top;">
-	<b style="color:{$series.line_color};">{$series.label}</b>
 	<table cellpadding="2" cellspacing="0" style="margin-top:5px;">
-		{$sum = 0}
+		<thead>
+			<tr>
+				<td colspan="2" align="center"><b style="color:{$series.line_color};">{$series.label}</b></td>
+			</tr>
+		</thead>
 		{foreach from=$series.data item=data}
-		<tr>
-			<td valign="middle" align="right">{$data.x_label}</td>
-			<td valign="middle" align="center" style="padding-left:5px;"><b>{$data.y_label}</b></td>
-		</tr>
-		{$sum = $sum + $data.y_label}
+			<tr>
+				<td valign="middle" align="right">{$data.x_label}</td>
+				<td valign="middle" align="center" style="padding-left:5px;"><b style="color:{$series.line_color};">{$data.y_label}</b></td>
+			</tr>
 		{/foreach}
+		{foreach from=$widget->params.subtotals item=subtotals key=func}
 		<tr>
-			<td></td>
-			<td valign="middle" align="center" style="border-top:1px solid rgb(200,200,200);"><b>{$sum}</b></td>
+			<td>
+				<b>{$func}</b>
+			</td>
+			{$subtotal = $subtotals.$series_idx}
+			<td style="border-top:1px solid rgb(200,200,200);{if $smarty.foreach.sums.last}padding-left:5px; border-left:1px solid rgb(200,200,200);{/if}" align="center">
+				{if $subtotal}
+					{if $subtotal.format}
+					{DevblocksPlatform::formatNumberAs($subtotal.value, $subtotal.format)}
+					{else}
+					{$subtotal.value}
+					{/if}
+				{else}
+				--
+				{/if}
+			</td>
 		</tr>
+		{/foreach}
 	</table>
 	</div>
 	{/if}
