@@ -1,13 +1,26 @@
+{$tab_context = CerberusContexts::CONTEXT_WORKER}
+{$tab_context_id = $worker->id}
+
+{$tab_is_editable = $active_worker->is_superuser}
+{$tab_uniqid = uniqid()}
+
+{if $tab_is_editable}
+<form action="javascript:;" method="post" style="margin:5px;" onsubmit="return false;" id="frm{$tab_uniqid}">
+	<button type="button"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+</form>
+{/if}
+
+<div style="column-width:275px;">
+
 {foreach from=$groups item=group key=group_id}
 {if $worker->isGroupMember($group_id)}
-<fieldset class="peek" style="margin-bottom:0;">
+<fieldset class="peek" style="margin-bottom:0;display:block;vertical-align:top;break-inside:avoid-column;">
 	<legend>{$group->name}</legend>
 	
 	<div style="padding-left:10px;">
-	
 		{foreach from=$group->getBuckets() item=bucket key=bucket_id}
 		{$responsibility_level = $responsibilities.$bucket_id}
-		<div style="width:250px;display:inline-block;margin:0 10px 10px 5px;">
+		<div style="width:250px;display:block;margin:0 10px 10px 5px;">
 			<label><b>{$bucket->name}</b></label>
 			
 			<div style="margin-top:5px;position:relative;margin-left:5px;width:250px;height:10px;background-color:rgb(230,230,230);border-radius:10px;">
@@ -22,3 +35,26 @@
 </fieldset>
 {/if}
 {/foreach}
+
+</div>
+
+{if $tab_is_editable}
+<script type="text/javascript">
+$(function() {
+	var $frm = $('#frm{$tab_uniqid}');
+	
+	$frm.find('button').click(function() {
+		// Open popup
+		var $popup = genericAjaxPopup('peek', 'c=internal&a=handleSectionAction&section=responsibilities&action=showResponsibilitiesPopup&context={$tab_context}&context_id={$tab_context_id}', null, false, '90%');
+		
+		// When the popup saves, reload the tab
+		$popup.one('responsibilities_save', function() {
+			var $tabs = $frm.closest('div.ui-tabs');
+			var tabId = $tabs.tabs("option", "active");
+			$tabs.tabs("load", tabId);
+		});
+		
+	});
+});
+</script>
+{/if}

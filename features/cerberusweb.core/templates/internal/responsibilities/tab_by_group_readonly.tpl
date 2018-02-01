@@ -10,12 +10,13 @@
 </form>
 {/if}
 
+<div style="column-width:275px;">
+
 {foreach from=$buckets item=bucket key=bucket_id}
-<fieldset class="peek" style="margin-bottom:0;display:inline-block;">
+<fieldset class="peek" style="margin-bottom:0;display:inline-block;vertical-align:top;break-inside:avoid-column;">
 	<legend>{$bucket->name}</legend>
 	
 	<div style="padding-left:10px;">
-	
 		{foreach from=$members item=member}
 		{$worker_id = $member->id}
 		{$worker = $workers.$worker_id}
@@ -39,6 +40,8 @@
 </fieldset>
 {/foreach}
 
+</div>
+
 {if $tab_is_editable}
 <script type="text/javascript">
 $(function() {
@@ -46,7 +49,7 @@ $(function() {
 	
 	$frm.find('button').click(function() {
 		// Open popup
-		var $popup = genericAjaxPopup('peek', 'c=internal&a=handleSectionAction&section=responsibilities&action=showResponsibilitiesPopup&context={$tab_context}&context_id={$tab_context_id}', null, false, '650');
+		var $popup = genericAjaxPopup('peek', 'c=internal&a=handleSectionAction&section=responsibilities&action=showResponsibilitiesPopup&context={$tab_context}&context_id={$tab_context_id}', null, false, '90%');
 		
 		// When the popup saves, reload the tab
 		$popup.one('responsibilities_save', function() {

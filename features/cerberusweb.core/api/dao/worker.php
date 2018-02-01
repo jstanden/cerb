@@ -461,6 +461,35 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return $responsibilities;
 	}
 	
+	static function setResponsibilities($worker_id, $responsibilities) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!$worker_id || false == ($worker = DAO_Worker::get($worker_id)))
+			return false;
+		
+		if(!is_array($responsibilities))
+			return false;
+		
+		$values = [];
+		
+		foreach($responsibilities as $bucket_id => $level) {
+			$values[] = sprintf("(%d,%d,%d)", $bucket_id, $worker_id, $level);
+		}
+		
+		// Wipe current bucket responsibilities
+		$results = $db->ExecuteMaster(sprintf("DELETE FROM worker_to_bucket WHERE worker_id = %d",
+			$worker_id
+		));
+		
+		if(!empty($values)) {
+			$db->ExecuteMaster(sprintf("REPLACE INTO worker_to_bucket (bucket_id, worker_id, responsibility_level) VALUES %s",
+				implode(',', $values)
+			));
+		}
+		
+		return true;
+	}
+	
 	/**
 	 *
 	 * @param resource $rs
@@ -1034,7 +1063,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		// Get the cache
 		$rosters = DAO_Group::getRosters();
 
-		$memberships = array();
+		$memberships = [];
 		
 		// Remove any groups our desired worker isn't in
 		if(is_array($rosters))
@@ -1758,6 +1787,10 @@ class Model_Worker {
 	 */
 	function getResponsibilities() {
 		return DAO_Worker::getResponsibilities($this->id);
+	}
+	
+	public function setResponsibilities($responsibilities) {
+		return DAO_Worker::setResponsibilities($this->id, $responsibilities);
 	}
 	
 	function getPlaceholderLabelsValues(&$labels, &$values, $label_prefix='Current worker ', $values_prefix='current_worker_') {

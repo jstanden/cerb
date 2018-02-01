@@ -1,41 +1,42 @@
-<form id="group{$group->id}Responsibilities" action="javascript:;" onsubmit="return false;">
+<form id="worker{$worker->id}Responsibilities" action="javascript:;" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="responsibilities">
 <input type="hidden" name="action" value="saveResponsibilitiesPopup">
-<input type="hidden" name="context" value="{CerberusContexts::CONTEXT_GROUP}">
-<input type="hidden" name="context_id" value="{$group->id}">
+<input type="hidden" name="context" value="{CerberusContexts::CONTEXT_WORKER}">
+<input type="hidden" name="context_id" value="{$worker->id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div style="column-width:275px;">
 
-{foreach from=$buckets item=bucket}
-		<legend>{$bucket->name}</legend>
+{foreach from=$memberships item=membership}
+	{$group = $groups.{$membership->group_id}}
+	
+	{if $group}
 	<fieldset class="peek" style="vertical-align:top;break-inside: avoid-column;margin:0;">
+		<legend>
+			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a>
+		</legend>
 	
 		<div style="margin-left:15px;">
+			{$buckets = $group->getBuckets()}
+			{foreach from=$buckets item=bucket}
+			{$responsibility = $responsibilities.{$bucket->id}}
+			<div class="cerb-delta-slider-container" style="display:inline-block;">
+				<label>
+					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
+				</label>
+				
+				<input type="hidden" name="responsibilities[{$bucket->id}]" value="{$responsibility|default:0}"  data-worker-id="{$worker->id}"  data-bucket-id="{$bucket->id}">
 	
-		{foreach from=$members item=member}
-		{$worker = $workers.{$member->id}}
-		{$responsibility = $responsibilities.{$bucket->id}.{$member->id}}
-		
-		{if $worker}
-			<label>{$worker->getName()} <small>{if !empty($worker->title)}({$worker->title}){/if}</small></label>
-		<div class="cerb-delta-slider-container" style="display:block;margin-right:0;">
-			
-			<input type="hidden" name="responsibilities[{$bucket->id}][{$worker->id}]" value="{$responsibility|default:0}"  data-worker-id="{$worker->id}"  data-bucket-id="{$bucket->id}">
-
-			<div class="cerb-delta-slider {if $responsibility < 50}cerb-slider-red{elseif $responsibility > 50}cerb-slider-green{else}cerb-slider-gray{/if}">
-				<span class="cerb-delta-slider-midpoint"></span>
+				<div class="cerb-delta-slider {if $responsibility < 50}cerb-slider-red{elseif $responsibility > 50}cerb-slider-green{else}cerb-slider-gray{/if}">
+					<span class="cerb-delta-slider-midpoint"></span>
+				</div>
 			</div>
+			{/foreach}
 		</div>
-		{/if}
-		
-		{/foreach}
-		
-		</div>
-	
 	</fieldset>
+	{/if}
 {/foreach}
 
 </div>
@@ -47,11 +48,12 @@
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
-	var $frm = $('#group{$group->id}Responsibilities');
+	var $frm = $('#worker{$worker->id}Responsibilities');
 	
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{'common.responsibilities'|devblocks_translate|capitalize}: {$group->name}");
+		$popup.dialog('option','title',"{'common.responsibilities'|devblocks_translate|capitalize}: {$worker->getName()}");
 		
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		
 		$frm.find('div.cerb-delta-slider').each(function() {
 			var $this = $(this);
