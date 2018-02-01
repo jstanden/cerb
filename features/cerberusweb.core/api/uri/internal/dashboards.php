@@ -1318,18 +1318,25 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 		foreach($series as $series_idx => $series_params) {
 			@$datasource_extid = $series_params['datasource'];
 
-			if(empty($datasource_extid))
+			if(empty($datasource_extid)) {
+				unset($widget->params['series'][$series_idx]);
 				continue;
+			}
 			
-			if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
+			if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid))) {
+				unset($widget->params['series'][$series_idx]);
 				continue;
-
+			}
+			
 			$params_prefix = sprintf("[series][%d]", $series_idx);
 
 			$data = $datasource_ext->getData($widget, $series_params, $params_prefix);
-
-			if(!empty($data))
+			
+			if(!empty($data)) {
 				$widget->params['series'][$series_idx] = $data;
+			} else {
+				unset($widget->params['series'][$series_idx]);
+			}
 		}
 		
 		return true;
@@ -2296,18 +2303,25 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 		foreach($series as $series_idx => $series_params) {
 			@$datasource_extid = $series_params['datasource'];
 
-			if(empty($datasource_extid))
+			if(empty($datasource_extid)) {
+				unset($widget->params['series'][$series_idx]);
 				continue;
+			}
 			
-			if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid)))
+			if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($datasource_extid))) {
+				unset($widget->params['series'][$series_idx]);
 				continue;
+			}
 			
 			$params_prefix = sprintf("[series][%d]", $series_idx);
 			
 			$data = $datasource_ext->getData($widget, $series_params, $params_prefix);
 
-			if(!empty($data))
+			if(!empty($data)) {
 				$widget->params['series'][$series_idx] = $data;
+			} else {
+				unset($widget->params['series'][$series_idx]);
+			}
 		}
 		
 		return true;
