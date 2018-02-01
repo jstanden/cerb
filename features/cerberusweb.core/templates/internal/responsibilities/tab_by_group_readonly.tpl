@@ -10,11 +10,13 @@
 </form>
 {/if}
 
-<div style="column-width:275px;">
+<div id="fieldsets{$tab_uniqid}" style="column-width:275px;">
 
 {foreach from=$buckets item=bucket key=bucket_id}
 <fieldset class="peek" style="margin-bottom:0;display:inline-block;vertical-align:top;break-inside:avoid-column;">
-	<legend>{$bucket->name}</legend>
+	<legend>
+		<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
+	</legend>
 	
 	<div style="padding-left:10px;">
 		{foreach from=$members item=member}
@@ -24,7 +26,9 @@
 		
 		{if $worker}
 		<div style="width:250px;display:block;margin:0 10px 10px 5px;">
-			<label><b>{$worker->getName()}</b> {if $worker->title}({$worker->title}){/if}</label>
+			<label>
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}"><b>{$worker->getName()}</b></a> {if $worker->title}({$worker->title}){/if}
+			</label>
 			
 			<div style="margin-top:5px;position:relative;margin-left:5px;width:250px;height:10px;background-color:rgb(230,230,230);border-radius:10px;">
 				<span style="display:inline-block;background-color:rgb(200,200,200);height:18px;width:1px;position:absolute;top:-4px;margin-left:1px;left:50%;"></span>
@@ -46,6 +50,9 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frm{$tab_uniqid}');
+	var $fieldsets = $('#fieldsets{$tab_uniqid}');
+	
+	$fieldsets.find('.cerb-peek-trigger').cerbPeekTrigger();
 	
 	$frm.find('button').click(function() {
 		// Open popup

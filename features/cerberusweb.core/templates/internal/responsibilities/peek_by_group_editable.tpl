@@ -10,8 +10,10 @@
 <div style="column-width:275px;">
 
 {foreach from=$buckets item=bucket}
-		<legend>{$bucket->name}</legend>
 	<fieldset class="peek" style="vertical-align:top;break-inside: avoid-column;margin:0;">
+		<legend>
+			<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
+		</legend>
 	
 		<div style="margin-left:15px;">
 	
@@ -20,8 +22,11 @@
 		{$responsibility = $responsibilities.{$bucket->id}.{$member->id}}
 		
 		{if $worker}
-			<label>{$worker->getName()} <small>{if !empty($worker->title)}({$worker->title}){/if}</small></label>
 		<div class="cerb-delta-slider-container" style="display:block;margin-right:0;">
+			<label>
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a> 
+				<small>{if !empty($worker->title)}({$worker->title}){/if}</small>
+			</label>
 			
 			<input type="hidden" name="responsibilities[{$bucket->id}][{$worker->id}]" value="{$responsibility|default:0}"  data-worker-id="{$worker->id}"  data-bucket-id="{$bucket->id}">
 
@@ -52,6 +57,7 @@ $(function() {
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.responsibilities'|devblocks_translate|capitalize}: {$group->name}");
 		
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		
 		$frm.find('div.cerb-delta-slider').each(function() {
 			var $this = $(this);
