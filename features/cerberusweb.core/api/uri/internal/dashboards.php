@@ -1398,6 +1398,57 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 			$widget->params['subtotals'] = $subtotals;
 		}
 		
+		$row_subtotals = DevblocksPlatform::importVar(@$widget->params['chart_subtotal_row'], 'array', []);
+		
+		// If this is a bar chart with more than one series
+		if($chart_type == 'bar' && $row_subtotals && count($widget->params['series']) > 1) {
+			$yaxis_formats = array_count_values(array_column($widget->params['series'], 'yaxis_format'));
+			
+			// If all of the series have a consistent format
+			if(1 == count($yaxis_formats)) {
+				$yaxis_format = key($yaxis_formats);
+				$x_subtotals = array_fill_keys($row_subtotals, []);
+				$values = [];
+				
+				foreach($widget->params['series'] as $series_idx => &$series) {
+					foreach($series['data'] as $data) {
+						$values[$data['x']][] = $data['y'];
+					}
+				}
+				
+				foreach($values as $x => $data) {
+					if(array_key_exists('sum', $x_subtotals)) {
+						$x_subtotals['sum'][$x] = [
+							'value' => array_sum($data),
+						];
+					}
+					
+					if(array_key_exists('mean', $x_subtotals)) {
+						$x_subtotals['mean'][$x] = [
+							'value' => array_sum($data) / count($data),
+						];
+					}
+					
+					if(array_key_exists('min', $x_subtotals)) {
+						$x_subtotals['min'][$x] = [
+							'value' => min($data),
+						];
+					}
+					
+					if(array_key_exists('max', $x_subtotals)) {
+						$x_subtotals['max'][$x] = [
+							'value' => max($data),
+						];
+					}
+				}
+				
+				$widget->params['x_subtotals'] = [
+					'format' => $yaxis_format,
+					'data' => $x_subtotals,
+				];
+			}
+		}
+		
 		$tpl->assign('widget', $widget);
 		
 		switch($widget->params['chart_type']) {

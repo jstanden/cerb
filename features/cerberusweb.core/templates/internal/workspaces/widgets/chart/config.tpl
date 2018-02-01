@@ -24,6 +24,15 @@
 		<label><input type="checkbox" name="params[chart_subtotal_series][]" value="min" {if in_array('min', $series_subtotals)}checked="checked"{/if}> Min</label>
 		<label><input type="checkbox" name="params[chart_subtotal_series][]" value="max" {if in_array('max', $series_subtotals)}checked="checked"{/if}> Max</label>
 	</div>
+	
+	<div class="option-subtotals-row" style="{if in_array($widget->params.chart_type,['bar'])}{else}display:none;{/if}">
+		<b>Rows:</b>
+		{$row_subtotals = DevblocksPlatform::importVar($widget->params.chart_subtotal_row, 'array', [])}
+		<label><input type="checkbox" name="params[chart_subtotal_row][]" value="sum" {if in_array('sum', $row_subtotals)}checked="checked"{/if}> Sum</label>
+		<label><input type="checkbox" name="params[chart_subtotal_row][]" value="mean" {if in_array('mean', $row_subtotals)}checked="checked"{/if}> Mean</label>
+		<label><input type="checkbox" name="params[chart_subtotal_row][]" value="min" {if in_array('min', $row_subtotals)}checked="checked"{/if}> Min</label>
+		<label><input type="checkbox" name="params[chart_subtotal_row][]" value="max" {if in_array('max', $row_subtotals)}checked="checked"{/if}> Max</label>
+	</div>
 </fieldset>
 
 <div id="widget{$widget->id}ConfigTabs">
@@ -84,6 +93,7 @@ $(function() {
 	var $tabs = $('#widget{$widget->id}ConfigTabs').tabs();
 	var $fieldset_subtotals = $config.find('fieldset.option-subtotals');
 	var $option_subtotals_column = $fieldset_subtotals.find('div.option-subtotals-column');
+	var $option_subtotals_row = $fieldset_subtotals.find('div.option-subtotals-row');
 	
 	$tabs.find('input:text.color-picker').minicolors({
 		swatches: ['#CF2C1D','#FEAF03','#57970A','#007CBD','#7047BA','#D5D5D5','#ADADAD','#34434E']
@@ -116,6 +126,17 @@ $(function() {
 		}
 		
 	});
+	
+	$config.find('input[name="params[chart_type]"]').on('change', function(e) {
+		chart_type = $(this).val();
+		
+		if(chart_type == 'bar') {
+			$option_subtotals_row.fadeIn();
+			
+		} else {
+			$option_subtotals_row.hide();
+		}
+		
 	});
 });
 </script>

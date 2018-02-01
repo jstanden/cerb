@@ -26,6 +26,8 @@
 </div>
 {/if}
 
+{$x_subtotals = DevblocksPlatform::importVar($widget->params.x_subtotals, 'array', [])}
+
 {if $show_table}
 <table cellspacing="0" cellpadding="2">
 <thead>
@@ -34,24 +36,32 @@
 	{foreach from=$widget->params.series item=series}
 	<td style="border-bottom:1px solid rgb(200,200,200);"><b style="color:{$series.line_color};">{$series.label}</b></td>
 	{/foreach}
-	<td></td>
+	
+	{foreach from=$x_subtotals.data item=data key=func}
+	<td align="center"><b>{$func}</b></td>
+	{/foreach}
 </tr>
 </thead>
+
 <tbody>
-{$col_sum = []}
 {foreach from=$widget->params.series.0.data item=data key=idx}
 	<tr>
 		<td align="right">{$data.x_label}</td>
-		{$sum = 0}
 		{foreach from=$widget->params.series item=series key=series_idx}
 		{if $series.data}
 		<td align="center"><span style="color:{$series.line_color};{if $series.data.$idx.y_label}font-weight:bold;{else}opacity:0.5;{/if}">{$series.data.$idx.y_label}</span></td>
-		{$sum = $sum + $series.data.$idx.y}
-		{$col_sum.$series_idx = $col_sum.$series_idx + $series.data.$idx.y}
 		{/if}
 		{/foreach}
-		<td style="padding-left:5px;border-left:1px solid rgb(200,200,200);" align="center"><b>{$sum}</b></td>
-		{$col_sum.total = $col_sum.total + $sum}
+		
+		{foreach from=$x_subtotals.data item=subtotals key=func}
+		<td style="padding-left:5px;border-left:1px solid rgb(200,200,200);" align="center">
+			{if $x_subtotals.format}
+			{DevblocksPlatform::formatNumberAs($subtotals[$data.x]['value'], $x_subtotals.format)}
+			{else}
+			{$subtotals[$data.x]['value']}
+			{/if}
+		</td>
+		{/foreach}
 	</tr>
 {/foreach}
 
