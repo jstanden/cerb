@@ -474,7 +474,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 							$yaxis_label = DevblocksPlatform::formatNumberAs($yaxis_label, @$params['yaxis_format']);
 						}
 						
-						$data[] = array(
+						$data[$histo] = array(
 							'x' => $histo,
 							'y' => (float)$value,
 							'x_label' => strftime($date_label, $current_tick),
@@ -610,7 +610,7 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 						$xaxis_label = DevblocksPlatform::formatNumberAs((float)$result['xaxis'], @$params['xaxis_format']);
 						$yaxis_label = DevblocksPlatform::formatNumberAs((float)$result['yaxis'], @$params['yaxis_format']);
 						
-						$data[] = array(
+						$data[$x] = array(
 							'x' => $x,
 							'y' => (float)$result['yaxis'],
 							'x_label' => $xaxis_label,

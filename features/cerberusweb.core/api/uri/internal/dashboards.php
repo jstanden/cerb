@@ -1313,6 +1313,8 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 			return false;
 		}
 		
+		$xaxis_keys = [];
+		
 		// Multiple datasources
 		if(is_array($series))
 		foreach($series as $series_idx => $series_params) {
@@ -1334,8 +1336,47 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 			
 			if(!empty($data)) {
 				$widget->params['series'][$series_idx] = $data;
+				
+				$xaxis_keys = array_merge(
+					$xaxis_keys,
+					array_column($data['data'], 'x_label', 'x')
+				);
+				
 			} else {
 				unset($widget->params['series'][$series_idx]);
+			}
+		}
+		
+		// Normalize the series x-axes
+		
+		if('bar' == $widget->params['chart_type']) {
+			ksort($xaxis_keys);
+			
+			foreach($widget->params['series'] as $series_idx => &$series_params) {
+				$data = $series_params['data'];
+				$xaxis_diff = array_diff_key($xaxis_keys, $data);
+				
+				if($xaxis_diff) {
+					foreach($xaxis_diff as $x => $x_label) {
+						$data[$x] = [
+							'x' => $x,
+							'y' => 0,
+							'x_label' => $x_label,
+							'y_label' => DevblocksPlatform::formatNumberAs(0, $series_params['yaxis_format']),
+						];
+					}
+					
+					ksort($data);
+				}
+				
+				$series_params['data'] = array_values($data);
+			}
+			
+			$widget->params['xaxis_keys'] = $xaxis_keys;
+			
+		} else {
+			foreach($widget->params['series'] as $series_idx => &$series_params) {
+				$series_params['data'] = array_values($series_params['data']);
 			}
 		}
 		
