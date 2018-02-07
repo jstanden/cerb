@@ -1426,6 +1426,103 @@ class CerberusMail {
 		return true;
 	}
 	
+	// [TODO] Encryption?
+	static function resend(Model_Message $message, &$error=null, $only_return_source=false) {
+		try {
+			$mail_service = DevblocksPlatform::services()->mail();
+			
+			$mail = $mail_service->createMessage();
+			$mail_headers = $mail->getHeaders();
+			
+			$headers = $message->getHeaders();
+			$content = $message->getContent();
+			$attachments = $message->getAttachments();
+			
+			$from = CerberusMail::parseRfcAddresses($headers['from']);
+			$from = array_shift($from);
+			$mail->setFrom($from['email'], $from['personal']);
+			
+			$tos = CerberusMail::parseRfcAddresses($headers['to']);
+			foreach($tos as $to => $to_data)
+				$mail->addTo($to, $to_data['personal']);
+			
+			if(isset($headers['cc'])) {
+				$ccs = CerberusMail::parseRfcAddresses($headers['cc']);
+				foreach($ccs as $cc => $cc_data)
+					$mail->addCc($cc, $cc_data['personal']);
+			}
+			
+			if(isset($headers['bcc'])) {
+				$bccs = CerberusMail::parseRfcAddresses($headers['bcc']);
+				foreach($bccs as $bcc => $bcc_data)
+					$mail->addBcc($bcc, $bcc_data['personal']);
+			}
+			
+			$mail->setDate(time());
+			$mail->setSubject($headers['subject']);
+			
+			// Message-ID
+			$mail->generateId();
+			
+			// Reuse message-id ?
+			//if(isset($headers['message-id']))
+			//	$mail_headers->get('message-id')->setFieldBodyModel(trim($headers['message-id'],'<>'));
+			
+			// Add some headers
+			
+			if(isset($headers['in-reply-to']))
+				$mail_headers->addTextHeader('In-Reply-To',$headers['in-reply-to']);
+			
+			if(isset($headers['references']))
+				$mail_headers->addTextHeader('References', $headers['references'] . ' ' . $headers['message-id']);
+			
+			if(isset($headers['x-mailer']))
+				$mail_headers->addTextHeader('X-Mailer', $headers['x-mailer']);
+			
+			$mail_headers->addTextHeader('X-Cerb-Resend','true');
+			
+			// Set the plaintext body
+
+			$mail->setBody($content);
+			
+			// Attachments
+			
+			if(is_array($attachments))
+			foreach($attachments as $file_id => $file) { /* @var $file Model_Attachment */
+				
+				// If HTML, include as a text/html part
+				if($file->name == 'original_message.html') {
+					$mail->addPart($file->getFileContents(), 'text/html');
+					
+				} else {
+					$fp = DevblocksPlatform::getTempFile();
+					$fp_path = DevblocksPlatform::getTempFileInfo($fp);
+					$file->getFileContents($fp);
+					$mail->attach(Swift_Attachment::fromPath($fp_path)->setFilename($file->name)->setContentType($file->mime_type));
+				}
+			}
+			
+			if($only_return_source) {
+				$mime = $mail->toString();
+				return $mime;
+				
+			} else {
+				$result = $mail_service->send($mail);
+				
+				if(!$result) {
+					return false;
+				}
+				
+				return true;
+			}
+			
+		} catch (Exception $e) {
+			$error = $e->getMessage();
+			error_log($error);
+			return false;
+		}
+	}
+	
 	static function reflect(CerberusParserModel $model, $to) {
 		try {
 			$message = $model->getMessage(); /* @var $message CerberusParserMessage */

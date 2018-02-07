@@ -171,6 +171,10 @@
 					<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doSplitMessage');$frm.submit();" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
 					{/if}
 					
+					{if $message->is_outgoing}
+					<button type="button" onclick="genericAjaxPopup('message_resend','c=profiles&a=handleSectionAction&section=ticket&action=showResendMessagePopup&id={$message->id}');"><span class="glyphicons glyphicons-share"></span> Send Again</button>
+					{/if}
+					
 					<button type="button" onclick="genericAjaxPopup('message_headers','c=profiles&a=handleSectionAction&section=ticket&action=showMessageFullHeadersPopup&id={$message->id}');"><span class="glyphicons glyphicons-envelope"></span> {'display.convo.full_headers'|devblocks_translate|capitalize}</button>
 					
 					{* Plugin Toolbar *}
