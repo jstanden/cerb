@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerb.bots.portal.widget</id>
-	<name>Conversational Bot Portal for Public Websites</name>
+	<name>Conversational Bots for Websites</name>
 	<description>Embed conversational bots on any website</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>8.2.11</version>
@@ -39,7 +39,7 @@
 		
 		<extension point="cerb.portal">
 			<id>cerb.bots.portal</id>
-			<name>Conversational Bot Portal Widget</name>
+			<name>Conversational Bot</name>
 			<class>
 				<file>api/App.php</file>
 				<name>Portal_ConvoBotWidget</name>
