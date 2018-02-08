@@ -2710,6 +2710,10 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 		$cache->remove(self::CACHE_PREFIX.$worker_id);
 	}
 	
+	static function setAsJson($worker_id, $key, $value) {
+		self::set($worker_id, $key, json_encode($value));
+	}
+	
 	static function get($worker_id, $key, $default=null) {
 		$value = null;
 		
@@ -2724,6 +2728,11 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 		}
 		
 		return $value;
+	}
+	
+	static function getAsJson($worker_id, $key, $default=null) {
+		$value = self::get($worker_id, $key, $default);
+		return json_decode($value, true);
 	}
 
 	static function getByKey($key) {
