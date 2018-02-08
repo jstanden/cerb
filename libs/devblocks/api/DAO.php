@@ -727,15 +727,15 @@ class DAO_Platform extends DevblocksORMHelper {
 	
 	static function getClassLoaderMap() {
 		if(null == ($db = DevblocksPlatform::services()->database()))
-			return array();
+			return [];
 
 		if(DevblocksPlatform::isDatabaseEmpty())
-			return array();
+			return [];
 		
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-		$class_loader_map = array();
+		$class_loader_map = [];
 		
 		$sql = sprintf("SELECT class, plugin_id, rel_path FROM %sclass_loader ORDER BY plugin_id", $prefix);
 		$results = $db->GetArrayMaster($sql);
@@ -752,7 +752,7 @@ class DAO_Platform extends DevblocksORMHelper {
 				
 				// Init the array
 				if(!isset($class_loader_map[$path]))
-					$class_loader_map[$path] = array();
+					$class_loader_map[$path] = [];
 				
 				$class_loader_map[$path][] = $class;
 			}

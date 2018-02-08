@@ -233,7 +233,7 @@ abstract class DevblocksEngine {
 				}
 			}
 		}
-
+		
 		// ACL
 		if(isset($plugin->acl->priv)) {
 			foreach($plugin->acl->priv as $ePriv) {
@@ -297,6 +297,11 @@ abstract class DevblocksEngine {
 			$extension->name = $sName;
 			$extension->file = (string) $eExtension->class->file;
 			$extension->class = (string) $eExtension->class->name;
+			
+			if(!isset($manifest->class_loader[$extension->file]))
+				$manifest->class_loader[$extension->file] = [];
+			
+			$manifest->class_loader[$extension->file][] = $extension->class;
 
 			if(isset($eExtension->params->param))
 			foreach($eExtension->params->param as $eParam) {

@@ -124,7 +124,7 @@ class _DevblocksClassLoadManager {
 		}
 	}
 	
-	public function registerClasses($file, $classes=array()) {
+	public function registerClasses($file, $classes=[]) {
 		if(is_array($classes))
 		foreach($classes as $class) {
 			$this->classMap[$class] = $file;
@@ -250,6 +250,7 @@ class _DevblocksClassLoadManager {
 	private function _initPlugins() {
 		// Load all the exported classes defined by plugin manifests
 		$class_map = DAO_Platform::getClassLoaderMap();
+		
 		if(is_array($class_map) && !empty($class_map))
 		foreach($class_map as $path => $classes) {
 			$this->registerClasses($path, $classes);
