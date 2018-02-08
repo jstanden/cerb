@@ -1319,6 +1319,8 @@ DIV.cerb-popupmenu {
 		padding:2px;
 		font-weight:normal;
 		cursor:pointer;
+		break-inside: avoid-column;
+		page-break-inside: avoid;
 
 		A {
 			text-decoration:none;
@@ -1360,6 +1362,8 @@ UL.cerb-popupmenu {
 		padding:2px;
 		font-weight:normal;
 		cursor:pointer;
+		break-inside: avoid-column;
+		page-break-inside: avoid;
 
 		A {
 			text-decoration:none;
