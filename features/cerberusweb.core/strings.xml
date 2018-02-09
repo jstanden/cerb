@@ -732,6 +732,11 @@
 				<seg>delete</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.deploy">
+			<tuv xml:lang="en_US">
+				<seg>deploy</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.description">
 			<tuv xml:lang="en_US">
 				<seg>Description</seg>
@@ -2828,20 +2833,9 @@
 				<seg>Are you sure you want to permanently delete this community portal?</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.htaccess_hint">
-			<tuv xml:lang="en_US">
-				<seg>(optional, friendly URLs for Apache Web Server users)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.installation">
 			<tuv xml:lang="en_US">
 				<seg>Installation</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.installation_instructions">
-			<tuv xml:lang="en_US">
-				<seg>Place the index.php file in a new directory on the appropriate public website.  This directory can be named anything but will usually describe the portal.
-For example: http://www.cerbweb.com/support/</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.cfg.profile_id">

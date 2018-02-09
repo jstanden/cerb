@@ -57,6 +57,9 @@ class ExCommunityPortal extends Extension_CommunityPortal {
 				$this->configure($portal);
 				break;
 				
+			case 'deploy':
+				$this->_profileRenderConfigTabDeploy($tab_id, $portal);
+				break;
 		}
 	}
 }

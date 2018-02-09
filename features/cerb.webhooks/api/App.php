@@ -343,6 +343,7 @@ class Portal_Webhook extends Extension_CommunityPortal {
 		if(Context_CommunityTool::isWriteableByActor($portal, $active_worker))
 			$tabs['configuration'] = DevblocksPlatform::translateCapitalized('common.configure');
 		
+		$tabs['deploy'] = DevblocksPlatform::translateCapitalized('common.deploy');
 		
 		return $tabs;
 	}
@@ -353,6 +354,10 @@ class Portal_Webhook extends Extension_CommunityPortal {
 				$this->configure($portal);
 				break;
 				
+			case 'deploy':
+				$this->_profileRenderConfigTabDeploy($tab_id, $portal);
+				break;
+		}
 	}
 	
 	public function saveConfigTabJsonAction() {

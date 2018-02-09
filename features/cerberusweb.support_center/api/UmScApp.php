@@ -344,6 +344,8 @@ class UmScApp extends Extension_CommunityPortal {
 		if(Context_CommunityTool::isWriteableByActor($portal, $active_worker))
 			$tabs['configuration'] = DevblocksPlatform::translateCapitalized('common.configure');
 		
+		$tabs['deploy'] = DevblocksPlatform::translateCapitalized('common.deploy');
+		
 		return $tabs;
 	}
 	
@@ -353,6 +355,10 @@ class UmScApp extends Extension_CommunityPortal {
 				$this->_profileRenderConfigTabConfiguration($tab_id, $portal);
 				break;
 				
+			case 'deploy':
+				$this->_profileRenderConfigTabDeploy($tab_id, $portal);
+				break;
+		}
 	}
 	
 	private function _profileRenderConfigTabConfiguration($tab_id, Model_CommunityTool $portal) {
