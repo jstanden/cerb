@@ -20,6 +20,8 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const NAME = 'name';
+	const UPDATED_AT = 'updated_at';
+	const URI = 'uri';
 	
 	const _CACHE_ALL = 'dao_communitytool_all';
 	
@@ -32,7 +34,6 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			->addField(self::CODE)
 			->string()
 			->setMaxLength(8)
-			->setRequired(true)
 			;
 		$validation
 			->addField(self::EXTENSION_ID)
@@ -50,6 +51,34 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(128)
 			->setRequired(true)
+			;
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		$validation
+			->addField(self::URI)
+			->string()
+			->setMaxLength(32)
+			->setRequired(true)
+			->setUnique(get_class())
+			->addFormatter(function(&$value, &$error=null) {
+				$value = DevblocksPlatform::strLower($value);
+				return true;
+			})
+			->addValidator(function($string, &$error=null) {
+				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '_'))) {
+					$error = "may only contain lowercase letters, numbers, and underscores";
+					return false;
+				}
+					
+				if(strlen($string) > 32) {
+					$error = "must be shorter than 32 characters.";
+					return false;
+				}
+				
+				return true;
+			})
 			;
 		$validation
 			->addField('_links')
@@ -70,6 +99,9 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		
 		if(!isset($fields[self::CODE]))
 			$fields[self::CODE] = self::generateUniqueCode();
+		
+		if(!isset($fields[self::URI]))
+			$fields[self::URI] = $fields[self::CODE];
 		
 		$sql = sprintf("INSERT INTO community_tool () ".
 			"VALUES ()"
@@ -97,29 +129,84 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		return $code;
 	}
 	
-	public static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
+		if(!is_array($ids))
+			$ids = array($ids);
+			
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+			
 		$context = CerberusContexts::CONTEXT_PORTAL;
 		self::_updateAbstract($context, $ids, $fields);
 		
-		self::_update($ids, 'community_tool', $fields);
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+				
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges($context, $batch_ids);
+			}
+			
+			// Make changes
+			parent::_update($batch_ids, 'community_tool', $fields);
+			
+			// Send events
+			if($check_deltas) {
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::services()->event();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.community_tool.update',
+						array(
+							'fields' => $fields,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
+			}
+		}
+		
 		self::clearCache();
 	}
 	
-	/**
-	 *
-	 * @param integer $id
-	 * @return Model_CommunityTool
-	 */
-	public static function get($id) {
-		if(empty($id))
-			return null;
+	static function updateWhere($fields, $where) {
+		parent::_updateWhere('community_tool', $fields, $where);
+	}
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_PORTAL;
 		
-		$portals = self::getAll();
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
 		
-		if(isset($portals[$id]))
-			return $portals[$id];
+		return true;
+	}
+	
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
+		$db = DevblocksPlatform::services()->database();
 		
-		return NULL;
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		$sql = "SELECT id, name, code, extension_id, updated_at, uri ".
+			"FROM community_tool ".
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
+		
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
+		
+		return self::_createObjectsFromResultSet($rs);
 	}
 	
 	public static function getAll($nocache=false) {
@@ -139,19 +226,17 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	
 	/**
 	 *
-	 * @param string $code
+	 * @param integer $id
 	 * @return Model_CommunityTool
 	 */
-	public static function getByCode($code) {
-		if(empty($code))
-			return NULL;
+	public static function get($id) {
+		if(empty($id))
+			return null;
 		
-		$portals = DAO_CommunityTool::getAll();
+		$portals = self::getAll();
 		
-		foreach($portals as $portal) {
-			if($portal->code == $code)
-				return $portal;
-		}
+		if(isset($portals[$id]))
+			return $portals[$id];
 		
 		return NULL;
 	}
@@ -178,25 +263,47 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		return $portals;
 	}
 	
-	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
-		$db = DevblocksPlatform::services()->database();
+	/**
+	 *
+	 * @param string $code
+	 * @return Model_CommunityTool
+	 */
+	public static function getByCode($code, $check_aliases=true) {
+		if(empty($code))
+			return NULL;
 		
-		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		$portals = DAO_CommunityTool::getAll();
 		
-		$sql = "SELECT id, name, code, extension_id ".
-			"FROM community_tool ".
-			$where_sql.
-			$sort_sql.
-			$limit_sql
-		;
+		$codes = array_column(DevblocksPlatform::objectsToArrays($portals), 'code', 'id');
 		
-		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
-			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
-		} else {
-			$rs = $db->ExecuteSlave($sql);
+		if(false !== ($portal_id = array_search($code, $codes)))
+			return $portals[$portal_id];
+		
+		if($check_aliases) {
+			if(false != ($portal = DAO_CommunityTool::getByPath($code)))
+				return $portal;
 		}
 		
-		return self::_createObjectsFromResultSet($rs);
+		return NULL;
+	}
+	
+	/**
+	 *
+	 * @param string $path
+	 * @return Model_CommunityTool
+	 */
+	public static function getByPath($path) {
+		if(empty($path))
+			return NULL;
+		
+		$portals = DAO_CommunityTool::getAll();
+		
+		$paths = array_column(DevblocksPlatform::objectsToArrays($portals), 'uri', 'id');
+		
+		if(false !== ($portal_id = array_search($path, $paths)))
+			return $portals[$portal_id];
+		
+		return NULL;
 	}
 	
 	static private function _createObjectsFromResultSet($rs) {
@@ -211,12 +318,18 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->code = $row['code'];
 			$object->extension_id = $row['extension_id'];
+			$object->updated_at = intval($row['updated_at']);
+			$object->uri = $row['uri'];
 			$objects[$object->id] = $object;
 		}
 		
 		mysqli_free_result($rs);
 		
 		return $objects;
+	}
+	
+	static function random() {
+		return self::_getRandom('community_tool');
 	}
 	
 	public static function count() {
@@ -247,7 +360,20 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 		
+		// Fire event
+		$eventMgr = DevblocksPlatform::services()->event();
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'context.delete',
+				array(
+					'context' => CerberusContexts::CONTEXT_PORTAL,
+					'context_ids' => $ids
+				)
+			)
+		);
+		
 		self::clearCache();
+		return true;
 	}
 
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -259,11 +385,15 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			"ct.id as %s, ".
 			"ct.name as %s, ".
 			"ct.code as %s, ".
-			"ct.extension_id as %s ",
+			"ct.extension_id as %s, ".
+			"ct.updated_at as %s, ".
+			"ct.uri as %s ",
 				SearchFields_CommunityTool::ID,
 				SearchFields_CommunityTool::NAME,
 				SearchFields_CommunityTool::CODE,
-				SearchFields_CommunityTool::EXTENSION_ID
+				SearchFields_CommunityTool::EXTENSION_ID,
+				SearchFields_CommunityTool::UPDATED_AT,
+				SearchFields_CommunityTool::URI
 			);
 		
 		$join_sql = "FROM community_tool ct ";
@@ -356,6 +486,11 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 	const NAME = 'ct_name';
 	const CODE = 'ct_code';
 	const EXTENSION_ID = 'ct_extension_id';
+	const UPDATED_AT = 'ct_updated_at';
+	const URI = 'ct_uri';
+	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	
 	static private $_fields = null;
 	
@@ -370,13 +505,21 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		if('cf_' == substr($param->field, 0, 3)) {
-			return self::_getWhereSQLFromCustomFields($param);
-		} else {
-			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		switch($param->field) {
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_PORTAL, self::getPrimaryKey());
+				break;
+				
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
 		}
 	}
-		
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -394,10 +537,15 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			SearchFields_CommunityTool::ID => new DevblocksSearchField(SearchFields_CommunityTool::ID, 'ct', 'id', $translate->_('common.id'), null, true),
-			SearchFields_CommunityTool::NAME => new DevblocksSearchField(SearchFields_CommunityTool::NAME, 'ct', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			SearchFields_CommunityTool::CODE => new DevblocksSearchField(SearchFields_CommunityTool::CODE, 'ct', 'code', $translate->_('community_portal.code'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			SearchFields_CommunityTool::EXTENSION_ID => new DevblocksSearchField(SearchFields_CommunityTool::EXTENSION_ID, 'ct', 'extension_id', $translate->_('common.extension'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'ct', 'id', $translate->_('common.id'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'ct', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::CODE => new DevblocksSearchField(self::CODE, 'ct', 'code', $translate->_('community_portal.code'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'ct', 'extension_id', $translate->_('common.extension'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'ct', 'updated_at', $translate->_('common.updated'), null, true),
+			self::URI => new DevblocksSearchField(self::URI, 'ct', 'uri', $translate->_('common.path'), null, true),
+			
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 		);
 		
 		// Custom fields with fieldsets
@@ -647,6 +795,12 @@ class Model_CommunityTool {
 	public $name = '';
 	public $code = '';
 	public $extension_id = '';
+	public $updated_at = 0;
+	public $uri = '';
+	
+	function getExtension() {
+		return Extension_CommunityPortal::get($this->extension_id);
+	}
 };
 
 class Model_CommunitySession {
@@ -713,19 +867,21 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 
 		$this->view_columns = array(
 			SearchFields_CommunityTool::NAME,
-			SearchFields_CommunityTool::CODE,
 			SearchFields_CommunityTool::EXTENSION_ID,
+			SearchFields_CommunityTool::URI,
+			SearchFields_CommunityTool::CODE,
+			SearchFields_CommunityTool::UPDATED_AT,
 		);
 		
 		$this->addColumnsHidden(array(
-			SearchFields_CommunityTool::ID,
+			SearchFields_CommunityTool::VIRTUAL_CONTEXT_LINK,
+			SearchFields_CommunityTool::VIRTUAL_HAS_FIELDSET,
 		));
 		
 		$this->addParamsHidden(array(
-			SearchFields_CommunityTool::ID,
 		));
+		
 		$this->addParamsDefault(array(
-			//SearchFields_CommunityTool::IS_DISABLED => new DevblocksSearchCriteria(SearchFields_CommunityTool::IS_DISABLED,'=',0),
 		));
 		
 		$this->doResetCriteria();
@@ -747,8 +903,84 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		return $objects;
 	}
 	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_CommunityTool', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_CommunityTool', $size);
+	}
+	
+		function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable(true);
+		
+		$fields = [];
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Fields
+//				case SearchFields_CommunityTool::EXAMPLE:
+//					$pass = true;
+//					break;
+					
+				// Virtuals
+				case SearchFields_CommunityTool::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_CommunityTool::VIRTUAL_HAS_FIELDSET:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = [];
+		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_PORTAL;
+
+		if(!isset($fields[$column]))
+			return [];
+		
+		switch($column) {
+//			case SearchFields_CommunityTool::EXAMPLE_BOOL:
+//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
+//				break;
+
+//			case SearchFields_CommunityTool::EXAMPLE_STRING:
+//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+//				break;
+				
+			case SearchFields_CommunityTool::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
+				break;
+
+			case SearchFields_CommunityTool::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
+				break;
+				
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				}
+				
+				break;
+		}
+		
+		return $counts;
 	}
 	
 	function getQuickSearchFields() {
@@ -760,15 +992,33 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CommunityTool::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'code' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CommunityTool::CODE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_CommunityTool::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_PORTAL, 'q' => ''],
+					]
+				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CommunityTool::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'code' => 
+			'path' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_CommunityTool::CODE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_CommunityTool::URI, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_CommunityTool::UPDATED_AT),
 				),
 		);
 		
@@ -809,7 +1059,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_PORTAL);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/portals/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/community_portal/view.tpl');
 	}
 
 	function renderCriteria($field) {
@@ -817,9 +1067,14 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		$tpl->assign('id', $this->id);
 		
 		switch($field) {
-			case SearchFields_CommunityTool::NAME:
 			case SearchFields_CommunityTool::CODE:
+			case SearchFields_CommunityTool::NAME:
+			case SearchFields_CommunityTool::URI:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
+				break;
+				
+			case SearchFields_CommunityTool::UPDATED_AT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
 			case SearchFields_CommunityTool::EXTENSION_ID:
@@ -878,14 +1133,19 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_CommunityTool::NAME:
 			case SearchFields_CommunityTool::CODE:
+			case SearchFields_CommunityTool::NAME:
+			case SearchFields_CommunityTool::URI:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_CommunityTool::EXTENSION_ID:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
+				break;
+				
+			case SearchFields_CommunityTool::UPDATED_AT:
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			default:
@@ -899,6 +1159,323 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		if(!empty($criteria)) {
 			$this->addParam($criteria);
 			$this->renderPage = 0;
+		}
+	}
+};
+
+class Context_CommunityTool extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = 'cerberusweb.contexts.portal';
+	
+	static function isReadableByActor($models, $actor) {
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Everyone can modify
+		return CerberusContexts::allowEverything($models);
+	}
+
+	function getViewClass() {
+		return 'View_CommunityPortal';
+	}
+	
+	function getRandom() {
+		return DAO_CommunityTool::random();
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::services()->url();
+		$url = $url_writer->writeNoProxy('c=profiles&type=community_portal&id='.$context_id, true);
+		return $url;
+	}
+	
+	function getMeta($context_id) {
+		$community_tool = DAO_CommunityTool::get($context_id);
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		$url = $this->profileGetUrl($context_id);
+		$friendly = DevblocksPlatform::strToPermalink($community_tool->name);
+		
+		if(!empty($friendly))
+			$url .= '-' . $friendly;
+		
+		return array(
+			'id' => $community_tool->id,
+			'name' => $community_tool->name,
+			'permalink' => $url,
+			'updated' => $community_tool->updated_at,
+		);
+	}
+	
+	function getDefaultProperties() {
+		return array(
+			'extension_id',
+			'code',
+			'uri',
+			'updated_at',
+		);
+	}
+	
+	function getContext($community_tool, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Community Portal:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.portal');
+
+		// Polymorph
+		if(is_numeric($community_tool)) {
+			$community_tool = DAO_CommunityTool::get($community_tool);
+		} elseif($community_tool instanceof Model_CommunityTool) {
+			// It's what we want already.
+		} elseif(is_array($community_tool)) {
+			$community_tool = Cerb_ORMHelper::recastArrayToModel($community_tool, 'Model_CommunityTool');
+		} else {
+			$community_tool = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'_label' => $prefix,
+			'code' => $prefix.$translate->_('community_portal.code'),
+			'extension_id' => $prefix.$translate->_('common.extension'),
+			'id' => $prefix.$translate->_('common.id'),
+			'name' => $prefix.$translate->_('common.name'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
+			'uri' => $prefix.$translate->_('common.path'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'code' => Model_CustomField::TYPE_SINGLE_LINE,
+			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated_at' => Model_CustomField::TYPE_DATE,
+			'uri' => Model_CustomField::TYPE_SINGLE_LINE,
+			'record_url' => Model_CustomField::TYPE_URL,
+		);
+		
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
+		// Custom field/fieldset token types
+		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_types))
+			$token_types = array_merge($token_types, $custom_field_types);
+		
+		// Token values
+		$token_values = [];
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_PORTAL;
+		$token_values['_types'] = $token_types;
+		
+		if($community_tool) {
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $community_tool->name;
+			$token_values['code'] = $community_tool->code;
+			$token_values['extension_id'] = $community_tool->extension_id;
+			$token_values['id'] = $community_tool->id;
+			$token_values['name'] = $community_tool->name;
+			$token_values['uri'] = $community_tool->uri;
+			$token_values['updated_at'] = $community_tool->updated_at;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($community_tool, $token_values);
+			
+			// URL
+			$url_writer = DevblocksPlatform::services()->url();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=community_portal&id=%d-%s",$community_tool->id, DevblocksPlatform::strToPermalink($community_tool->name)), true);
+		}
+		
+		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'code' => DAO_CommunityTool::CODE,
+			'extension_id' => DAO_CommunityTool::EXTENSION_ID,
+			'id' => DAO_CommunityTool::ID,
+			'links' => '_links',
+			'name' => DAO_CommunityTool::NAME,
+			'uri' => DAO_CommunityTool::URI,
+			'updated_at' => DAO_CommunityTool::UPDATED_AT,
+		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
+		
+		return true;
+	}
+
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_PORTAL;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = [];
+		
+		if(!$is_loaded) {
+			$labels = [];
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
+		}
+		
+		switch($token) {
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $links);
+				break;
+		
+			default:
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}
+	
+	function getChooserView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+	
+		// View
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Community Portal';
+		/*
+		$view->addParams(array(
+			SearchFields_CommunityTool::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_CommunityTool::UPDATED_AT,'=',0),
+		), true);
+		*/
+		$view->renderSortBy = SearchFields_CommunityTool::UPDATED_AT;
+		$view->renderSortAsc = false;
+		$view->renderLimit = 10;
+		$view->renderFilters = false;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
+		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
+		
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Community Portal';
+		
+		$params_req = [];
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_CommunityTool::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
+		
+		$context = CerberusContexts::CONTEXT_PORTAL;
+		
+		if(!empty($context_id)) {
+			$model = DAO_CommunityTool::get($context_id);
+		}
+		
+		if(empty($context_id) || $edit) {
+			if(isset($model))
+				$tpl->assign('model', $model);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			$tool_manifests = DevblocksPlatform::getExtensions('cerb.portal', false);
+			$tpl->assign('tool_manifests', $tool_manifests);
+
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/community_portal/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = [];
+			$values = [];
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/community_portal/peek.tpl');
 		}
 	}
 };

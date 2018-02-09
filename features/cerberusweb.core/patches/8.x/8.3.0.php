@@ -142,6 +142,30 @@ if(@$columns['field_value'] && 0 == strcasecmp($columns['field_value']['type'], 
 }
 
 // ===========================================================================
+// Add `updated_at` and `uri` field to the `community_tool` table
+
+if(!isset($tables['community_tool'])) {
+	$logger->error("The 'community_tool' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('community_tool');
+
+if(!isset($columns['uri'])) {
+	$sql = "ALTER TABLE community_tool ADD COLUMN uri varchar(32) NOT NULL DEFAULT ''";
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster("UPDATE community_tool SET uri = code");
+}
+
+if(!isset($columns['updated_at'])) {
+	$sql = 'ALTER TABLE community_tool ADD COLUMN updated_at int(10) unsigned NOT NULL DEFAULT 0';
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster(sprintf("UPDATE community_tool SET updated_at = %d", time()));
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

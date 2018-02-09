@@ -1560,6 +1560,11 @@
 				<seg>Password Salt</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.path">
+			<tuv xml:lang="en_US">
+				<seg>path</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.permalink">
 			<tuv xml:lang="en_US">
 				<seg>permalink</seg>

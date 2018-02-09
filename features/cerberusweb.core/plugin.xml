@@ -64,7 +64,7 @@
 		<patch version="8.0.0" revision="1206" file="patches/8.x/8.0.0.php" />
 		<patch version="8.1.0" revision="1227" file="patches/8.x/8.1.0.php" />
 		<patch version="8.2.0" revision="1250" file="patches/8.x/8.2.0.php" />
-		<patch version="8.3.0" revision="1263" file="patches/8.x/8.3.0.php" />
+		<patch version="8.3.0" revision="1264" file="patches/8.x/8.3.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -235,6 +235,7 @@
 		</file>
 		
 		<file path="api/dao/community_portal.php">
+			<class name="Context_CommunityTool" />
 			<class name="DAO_CommunitySession" />
 			<class name="DAO_CommunityTool" />
 			<class name="DAO_CommunityToolProperty" />
@@ -1181,6 +1182,50 @@
 						<data key="create" />
 						<data key="delete" />
 						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.portal</id>
+			<name>Community Portal</name>
+			<class>
+				<file>api/dao/community_portal.php</file>
+				<name>Context_CommunityTool</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="community portal" value="singular" />
+						<data key="community portals" value="plural" />
+						<data key="portal" value="singular short" />
+						<data key="portals" value="plural short" />
+					</value>
+				</param>
+				<param key="alias" value="community_portal" />
+				<param key="dao_class" value="DAO_CommunityTool" />
+				<param key="view_class" value="View_CommunityTool" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
 						<data key="update" />
 					</value>
 				</param>
