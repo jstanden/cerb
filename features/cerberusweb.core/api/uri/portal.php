@@ -24,9 +24,11 @@ class Controller_Portal extends DevblocksControllerExtension {
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
-
+		
 		$tpl = DevblocksPlatform::services()->template();
-
+		$umsession = ChPortalHelper::getSession();
+		$url_writer = DevblocksPlatform::services()->url();
+		
 		// Globals for Community Tool template scope
 		$translate = DevblocksPlatform::getTranslationService();
 		$tpl->assign('translate', $translate);
@@ -35,27 +37,42 @@ class Controller_Portal extends DevblocksControllerExtension {
 		$code = array_shift($stack); // xxxxxxxx
 		ChPortalHelper::setCode($code);
 		
-		$umsession = ChPortalHelper::getSession();
+		// Resource proxy
+		if(current($stack) == 'resource') {
+			$resource_request = new DevblocksHttpRequest($stack);
+			$controller = new Controller_Resource();
+			$controller->handleRequest($resource_request);
+		}
+		
+		// Allow direct use of /portal URLs
+		
+		if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYHOST'])) {
+			$_SERVER['HTTP_DEVBLOCKSPROXYHOST'] = DevblocksPlatform::getHostname();
+			
+			if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYSSL'])) {
+				$_SERVER['HTTP_DEVBLOCKSPROXYSSL'] = $url_writer->isSSL() ? 1 : 0;
+			}
+			
+			if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYBASE'])) {
+				$_SERVER['HTTP_DEVBLOCKSPROXYBASE'] = rtrim($url_writer->writeNoProxy('c=portal&code=' . $tool->uri), '/');
+			}
+		}
 		
 		// Routing
 
-		if(null != (@$tool = DAO_CommunityTool::getByCode($code))) {
-			if(false == ($manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true)))
-				DevblocksPlatform::dieWithHttpError("Portal extension not found.", 404);
-			
-			if(DEVELOPMENT_MODE) {
-				$tool = $manifest->createInstance();
-			} else {
-				@$tool = $manifest->createInstance();
-			}
-			
-			if(!is_null($tool)) { /* @var $app Extension_CommunityPortal */
-				$delegate_request = new DevblocksHttpRequest($stack);
-				$delegate_request->csrf_token = $request->csrf_token;
-				return $tool->handleRequest($delegate_request);
-			}
+		if(false == ($manifest = DevblocksPlatform::getExtension($tool->extension_id,false,true)))
+			DevblocksPlatform::dieWithHttpError("Portal extension not found.", 404);
+		
+		if(DEVELOPMENT_MODE) {
+			$tool = $manifest->createInstance();
 		} else {
-			DevblocksPlatform::dieWithHttpError("Portal not found.", 404);
+			@$tool = $manifest->createInstance();
+		}
+		
+		if(!is_null($tool)) { /* @var $app Extension_CommunityPortal */
+			$delegate_request = new DevblocksHttpRequest($stack);
+			$delegate_request->csrf_token = $request->csrf_token;
+			return $tool->handleRequest($delegate_request);
 		}
 	}
 	
