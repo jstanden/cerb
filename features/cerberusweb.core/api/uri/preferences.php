@@ -407,7 +407,7 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$worker = CerberusApplication::getActiveWorker();
 		$tpl->assign('worker', $worker);
 
-		$prefs = array();
+		$prefs = [];
 		$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 		$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
 		$prefs['availability_calendar_id'] = intval($worker->calendar_id);
@@ -541,14 +541,14 @@ class ChPreferencesPage extends CerberusPageExtension {
 		@$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'],'string');
 		@$lang_code = DevblocksPlatform::importGPC($_REQUEST['lang_code'],'string','en_US');
 		@$mail_signature_pos = DevblocksPlatform::importGPC($_REQUEST['mail_signature_pos'],'integer',0);
-
+		
 		$worker = CerberusApplication::getActiveWorker();
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$tpl = DevblocksPlatform::services()->template();
-		$pref_errors = array();
+		$pref_errors = [];
 
-		$worker_fields = array();
+		$worker_fields = [];
 		
 		$dob_ts = null;
 		
