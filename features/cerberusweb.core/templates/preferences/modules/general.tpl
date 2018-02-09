@@ -29,11 +29,11 @@
 	<div style="margin-bottom:5px;">
 		<b>{'common.gender'|devblocks_translate|capitalize}</b>:<br>
 		<label><input type="radio" name="gender" value="M" {if $worker->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
-		 &nbsp; 
-		 &nbsp; 
+		&nbsp; 
+		&nbsp; 
 		<label><input type="radio" name="gender" value="F" {if $worker->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
-		 &nbsp; 
-		 &nbsp; 
+		&nbsp; 
+		&nbsp; 
 		<label><input type="radio" name="gender" value="" {if empty($worker->gender)}checked="checked"{/if}>  Not specified</label>
 	</div>
 	
@@ -134,6 +134,24 @@
 	<div style="margin-bottom:5px;">
 		<b>{'preferences.account.keyboard.shortcuts'|devblocks_translate|capitalize}</b><br>
 		<label><input type="checkbox" name="keyboard_shortcuts" value="1" {if $prefs.keyboard_shortcuts eq 1}checked{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
+	</div>
+</fieldset>
+
+<fieldset class="peek">
+	<legend>{'common.search'|devblocks_translate|capitalize}</legend>
+	
+	<b>Always show these record types in the search menu:</b>
+	(<a href="javascript:;" onclick="checkAll('prefsSearchFavorites');">{'common.all'|devblocks_translate|lower}</a>)
+	
+	<div id="prefsSearchFavorites" style="column-width:225px;column-count:auto;">
+		{foreach from=$search_contexts item=search_context}
+		<div style="break-inside: avoid-column;page-break-inside: avoid;">
+			<label>
+				<input type="checkbox" name="search_favorites[]" value="{$search_context->id}" {if array_key_exists($search_context->id, $search_favorites)}checked="checked"{/if}> 
+				{$search_context->name}
+			</label>
+		</div>
+		{/foreach}
 	</div>
 </fieldset>
 

@@ -442,6 +442,15 @@ class ChPreferencesPage extends CerberusPageExtension {
 		$calendars = DAO_Calendar::getAll();
 		$tpl->assign('calendars', $calendars);
 		
+		// Search
+		
+		$search_contexts = Extension_DevblocksContext::getAll(false, ['search']);
+		$tpl->assign('search_contexts', $search_contexts);
+		
+		$search_favorites = DAO_WorkerPref::getAsJson($worker->id, 'search_favorites_json', '[]');
+		$search_favorites = array_flip($search_favorites);
+		$tpl->assign('search_favorites', $search_favorites);
+		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::preferences/modules/general.tpl');
 	}
@@ -586,6 +595,11 @@ class ChPreferencesPage extends CerberusPageExtension {
 		
 		if(!empty($worker_fields))
 			DAO_Worker::update($worker->id, $worker_fields);
+		
+		// Search menu
+		
+		@$search_favorites = DevblocksPlatform::importGPC($_REQUEST['search_favorites'],'array',[]);
+		DAO_WorkerPref::setAsJson($worker->id, 'search_favorites_json', $search_favorites);
 		
 		// Prefs
 		

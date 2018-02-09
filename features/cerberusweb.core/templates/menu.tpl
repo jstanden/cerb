@@ -30,10 +30,16 @@
 
 	<li class="tour-navmenu-search{if $page->id=='core.page.search'} selected{/if}" style="float:right;">
 		<a href="javascript:;" class="submenu"><span class="glyphicons glyphicons-search"></span> <span class="glyphicons glyphicons-chevron-down" style="{if $page->id=='core.page.search'}color:white;{else}{/if}"></span></a>
-		<ul class="cerb-popupmenu cerb-float" style="min-width:80%;margin-top:-2px;column-width:175px;column-count:auto;column-gap:10px;">
-			{foreach from=$search_menu item=label key=context_id}
-				<li><a href="javascript:;" data-context="{$context_id}">{$label|capitalize}</a></li>
+		<ul class="cerb-popupmenu cerb-float">
+			{$is_search_collapsed = false}
+			{foreach from=$search_menu item=search_item}
+				<li style="{if !$search_item.visible}display:none;{$is_search_collapsed=true}{/if}"><a href="javascript:;" data-context="{$search_item.context}">{$search_item.label|capitalize}</a></li>
 			{/foreach}
+			{if $is_search_collapsed}
+			<li>
+				<a href="javascript:;" class="cerb-show-all" style="font-weight:normal;">show all &raquo;</a>
+			</li>
+			{/if}
 		</ul>
 	</li>
 </ul>
@@ -83,7 +89,11 @@ $(function() {
 		return true;
 	});
 	
-	$menu.find('> LI A.submenu')
+	var $search_button = $menu.find('> LI A.submenu');
+	var $search_menu = $search_button.next('ul.cerb-popupmenu');
+	var $show_all = $search_menu.find('a.cerb-show-all');
+	
+	$search_button
 		.closest('li')
 		.hoverIntent({
 			sensitivity:10,
@@ -92,7 +102,7 @@ $(function() {
 				$menu = $(this).find('ul:first');
 				$menu
 					.show()
-					.position({ my: "right top", at: "right bottom", of: $(this), collision: "fit" })
+					.trigger('cerb-refresh')
 				;
 			},
 			timeout:500,
@@ -104,13 +114,17 @@ $(function() {
 			$menu = $(this).find('ul:first');
 			$menu
 				.show()
-				.position({ my: "right top", at: "right bottom", of: $(this), collision: "fit" })
+				.trigger('cerb-refresh')
 			;
 			$menu.find('li:first a')
 				.focus()
 				;
 		})
-		.find('.cerb-popupmenu > li')
+	;
+	
+	$search_menu
+		.css('margin-top', '-2px')
+		.find('> li')
 			.click(function(e) {
 				e.stopPropagation();
 
@@ -123,7 +137,7 @@ $(function() {
 				
 				var search_context = $link.attr('data-context');
 				
-				if(search_context.length == 0)
+				if(!search_context || search_context.length == 0)
 					return;
 				
 				var $window = genericAjaxPopup('search' + Devblocks.uniqueId(),'c=search&a=openSearchPopup&context=' + encodeURIComponent(search_context), null, false, '90%');
@@ -131,6 +145,46 @@ $(function() {
 				$search_menu.hide();
 			})
 		;
+	
+	$search_menu
+		.on('cerb-refresh', function(e) {
+			var items = $search_menu.find('a[data-context]:visible').length;
+			
+			if(items > 20) {
+				var cols = Math.min(Math.floor(items / 20) + 1, 4);
+				
+				$search_menu
+					.css('width', '' + (185 * cols) + 'px')
+					.css('column-width', '175px')
+					.css('column-count', 'auto')
+					.css('column-gap', '10px')
+					;
+			} else {
+				$search_menu
+					.css('width', null)
+					.css('column-width', null)
+					.css('column-count', null)
+					.css('column-gap', null)
+					;
+			}
+			
+			$search_menu.position({ my: "right top", at: "right bottom", of: $search_button, collision: "fit" })
+		})
+		.trigger('cerb-refresh')
+	;
+	
+	$show_all.closest('li').on('click', function(e) {
+		e.preventDefault();
+		
+		var $a = $(this);
+		
+		$search_menu.find('> li').show();
+		
+		$a.hide();
+		
+		$search_menu.trigger('cerb-refresh');
+	});
+	
 });
 </script>
 {/if}
