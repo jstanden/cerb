@@ -411,7 +411,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 				
 			}
 			
-			$hash_key = sprintf("devblocks:%s:%s:%s", $template->plugin_id, $template->tag, $template->path);
+			$hash_key = sprintf("devblocks:%s:%s:%s", $plugin_id, $tag, $path);
 			$tpl->clearCompiledTemplate($hash_key, APP_BUILD);
 			$tpl_sandbox->clearCompiledTemplate($hash_key, null);
 		}
