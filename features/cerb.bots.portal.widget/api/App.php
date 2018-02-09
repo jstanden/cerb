@@ -512,11 +512,11 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 	/**
 	 * @param Model_CommunityTool $instance
 	 */
-	public function configure(Model_CommunityTool $instance) {
+	public function configure(Model_CommunityTool $portal) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('instance', $instance);
+		$tpl->assign('portal', $portal);
 		
-		$params = DAO_CommunityToolProperty::getAllByTool($instance->code);
+		$params = DAO_CommunityToolProperty::getAllByTool($portal->code);
 		$tpl->assign('params', $params);
 		
 		$tpl->display('devblocks:cerb.bots.portal.widget::portal/config.tpl');
@@ -560,5 +560,39 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 			$value = strval($params[self::PARAM_PAGE_TITLE]);
 			DAO_CommunityToolProperty::set($instance->code, self::PARAM_PAGE_TITLE, $value);
 		}
+	}
+	
+	public function profileGetTabs(Model_CommunityTool $portal) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tabs = [];
+		
+		if(Context_CommunityTool::isWriteableByActor($portal, $active_worker))
+			$tabs['configuration'] = DevblocksPlatform::translateCapitalized('common.configure');
+		
+		return $tabs;
+	}
+	
+	public function profileRenderTab($tab_id, Model_CommunityTool $portal) {
+		switch($tab_id) {
+			case 'configuration':
+				$this->configure($portal);
+				break;
+				
+	}
+	
+	public function saveConfigTabJsonAction() {
+		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
+		
+		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
+			return;
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$this->saveConfiguration($portal);
+		
+		echo json_encode([
+			'message' => 'Saved!',
+		]);
 	}
 }

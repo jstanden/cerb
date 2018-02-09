@@ -7,47 +7,19 @@
 <input type="hidden" name="tab_id" value="{$tab_id}">
 <input type="hidden" name="tab_action" value="saveConfigTabJson">
 <input type="hidden" name="portal_id" value="{$portal->id}">
-<input type="hidden" name="config_tab" value="kb">
+<input type="hidden" name="config_tab" value="history">
 
-<div style="margin-left:10px;">
-	{'portal.sc.cfg.choose_kb_topics'|devblocks_translate}<br>
-
-	<div style="margin-left:10px;font-weight:bold;">
-		{assign var=root_id value="0"}
-		{foreach from=$tree_map.$root_id item=category key=category_id}
-			<label><input type="checkbox" name="category_ids[]" value="{$category_id}" {if isset($kb_roots.$category_id)}checked="checked"{/if}> {$categories.$category_id->name}</label><br>
-		{/foreach}
-	</div>
-</div>
-<br>
-
-<div style="margin-left:10px;">
-	By default, display this many knowledgebase articles per page in a list:
-	
-	<div style="margin-left:10px;">
-		{$opts = [5,10,15,20,25,50,100]}
-		<select name="kb_view_numrows">
-			{foreach from=$opts item=opt}
-			<option value="{$opt}" {if $kb_view_numrows==$opt}selected="selected"{/if}>{$opt}</option>
-			{/foreach}
-		</select>
-	</div>
-</div>
-<br>
-
-{$uniq_id = uniqid()}
-
-<div class="cerb-worklist-columns" style="margin-left:10px;">
+<div class="cerb-worklist-columns">
 	<div>
 		<b>Worklist columns:</b> (leave blank for default)
 	</div>
 	
-	{foreach from=$kb_columns item=column key=token}
-	{$selected = in_array($token, $kb_params.columns)}
+	{foreach from=$history_columns item=column key=token}
+	{$selected = in_array($token, $history_params.columns)}
 	<div style="margin:3px;" class="column">
 		<label>
 			<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span>
-			<input type="checkbox" name="kb_columns[]" value="{$token}" {if $selected}checked="checked"{/if}>
+			<input type="checkbox" name="history_columns[]" value="{$token}" {if $selected}checked="checked"{/if}>
 			{if $selected}
 			<b>{$column->db_label|capitalize}</b>
 			{else}
@@ -67,6 +39,15 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $status = $frm.find('div.status');
+	var $container = $frm.find('div.cerb-worklist-columns');
+		
+	$container
+		.sortable({
+			items: 'DIV.column',
+			placeholder:'ui-state-highlight'
+		})
+		;
+	;
 	
 	$frm.find('button.submit').on('click', function(e) {
 		genericAjaxPost($frm, '', null, function(json) {
@@ -81,14 +62,5 @@ $(function() {
 			}
 		});
 	});
-	
-	var $container = $frm.find('div.cerb-worklist-columns');
-		
-	$container
-		.sortable({
-			items: 'DIV.column',
-			placeholder:'ui-state-highlight'
-		})
-		;
 });
 </script>

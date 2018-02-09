@@ -308,6 +308,11 @@
 			<params>
 				<param key="uri" value="kb" />
 				<param key="menu_title" value="common.knowledgebase" />
+				<param key="options">
+					<value>
+						<data key="configurable" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		

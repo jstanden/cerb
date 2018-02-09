@@ -28,17 +28,18 @@ class UmScAnnouncementsController extends Extension_UmScController {
 		$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/announcements/index.tpl");
 	}
 	
-	function configure(Model_CommunityTool $instance) {
+	function configure(Model_CommunityTool $portal) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
+		$tpl->assign('portal', $portal);
 
-		$sNewsRss = DAO_CommunityToolProperty::get($instance->code,self::PARAM_NEWS_RSS, '');
+		$sNewsRss = DAO_CommunityToolProperty::get($portal->code,self::PARAM_NEWS_RSS, '');
 		$news_rss = !empty($sNewsRss) ? unserialize($sNewsRss) : array();
 		$tpl->assign('news_rss', $news_rss);
 		
-		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/announcements.tpl");
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/announcements.tpl");
 	}
 	
-	function saveConfiguration(Model_CommunityTool $instance) {
+	function saveConfiguration(Model_CommunityTool $portal) {
 		// RSS Feeds
 		@$aNewsRssTitles = DevblocksPlatform::importGPC($_POST['news_rss_title'],'array',array());
 		@$aNewsRssUrls = DevblocksPlatform::importGPC($_POST['news_rss_url'],'array',array());
@@ -53,7 +54,7 @@ class UmScAnnouncementsController extends Extension_UmScController {
 			$aNewsRss[$aNewsRssTitles[$idx]] = $rss;
 		}
 		
-		DAO_CommunityToolProperty::set($instance->code, self::PARAM_NEWS_RSS, serialize($aNewsRss));
+		DAO_CommunityToolProperty::set($portal->code, self::PARAM_NEWS_RSS, serialize($aNewsRss));
 	}
 	
 };

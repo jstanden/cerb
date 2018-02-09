@@ -83,9 +83,10 @@ class UmScLoginController extends Extension_UmScController {
 		}
 	}
 	
-	function configure(Model_CommunityTool $instance) {
+	function configure(Model_CommunityTool $portal) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
-
+		$tpl->assign('portal', $portal);
+		
 		// Login extensions
 		$login_extensions = DevblocksPlatform::getExtensions('usermeet.login.authenticator', true);
 		if(!empty($login_extensions)) {
@@ -94,10 +95,10 @@ class UmScLoginController extends Extension_UmScController {
 		}
 
 		// Enabled login extensions
-		$login_extensions_enabled = UmScApp::getLoginExtensionsEnabled($instance->code, true);
+		$login_extensions_enabled = UmScApp::getLoginExtensionsEnabled($portal->code, true);
 		$tpl->assign('login_extensions_enabled', $login_extensions_enabled);
 		
-		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/login.tpl");
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/login.tpl");
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {

@@ -37,5 +37,27 @@ class ExCommunityPortal extends Extension_CommunityPortal {
 		@$property = DevblocksPlatform::importGPC($_POST['property'],'string','');
 		DAO_CommunityToolProperty::set($portal_id, 'property', $property);
 	}
+	
+	public function profileGetTabs(Model_CommunityTool $portal) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$tabs = [];
+		
+		if(Context_CommunityTool::isWriteableByActor($portal, $active_worker))
+			$tabs['configuration'] = DevblocksPlatform::translateCapitalized('common.configure');
+		
+		$tabs['deploy'] = DevblocksPlatform::translateCapitalized('common.deploy');
+		
+		return $tabs;
+	}
+	
+	public function profileRenderTab($tab_id, Model_CommunityTool $portal) {
+		switch($tab_id) {
+			case 'configuration':
+				$this->configure($portal);
+				break;
+				
+		}
+	}
 }
 endif;

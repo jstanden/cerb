@@ -7,25 +7,25 @@
 <input type="hidden" name="tab_id" value="{$tab_id}">
 <input type="hidden" name="tab_action" value="saveConfigTabJson">
 <input type="hidden" name="portal_id" value="{$portal->id}">
+<input type="hidden" name="config_tab" value="account">
+
+{$account_fields = [contact_first_name,contact_last_name,contact_title,contact_username,contact_gender,contact_location,contact_dob,contact_phone,contact_mobile,contact_photo]}
+{$account_labels = ['First Name','Last Name','Title','Username','Gender','Location','Date of Birth','Phone','Mobile','Photo']}
 
 <fieldset class="peek">
-	<legend>Webhook</legend>
-	
-	<div class="cerb-form">
-		<div>
-			<label><b>Use this behavior to respond to webhook requests:</b></label>
-			<button type="button" class="chooser-behavior" data-field-name="params[webhook_behavior_id]" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true" data-query="disabled:n" data-query-required="event:&quot;event.webhook.received&quot;"><span class="glyphicons glyphicons-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
-				{if $params.webhook_behavior_id}
-					{$behavior = DAO_TriggerEvent::get($params.webhook_behavior_id)}
-					{if $behavior}
-						<li><input type="hidden" name="params[webhook_behavior_id]" value="{$behavior->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></li>
-					{/if}
-				{/if}
-			</ul>
-		</div>
+	<legend>{'common.contact'|devblocks_translate|capitalize}</legend>
+
+	{foreach from=$account_fields item=field name=fields}
+	<div>
+		<input type="hidden" name="fields[]" value="{$field}">
+		<select name="fields_visible[]">
+			<option value="0">Hidden</option>
+			<option value="1" {if 1==$show_fields.{$field}}selected="selected"{/if}>Read Only</option>
+			<option value="2" {if 2==$show_fields.{$field}}selected="selected"{/if}>Editable</option>
+		</select>
+		{$account_labels.{$smarty.foreach.fields.index}|capitalize}
 	</div>
+	{/foreach}
 </fieldset>
 
 <div class="status"></div>
@@ -51,15 +51,5 @@ $(function() {
 			}
 		});
 	});
-
-	$frm.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-	;
-	
-	$frm.find('.chooser-behavior')
-		.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-			})
-	;
 });
 </script>

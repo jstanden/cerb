@@ -27,10 +27,10 @@
 	<b>{'portal.cfg.followup_questions'|devblocks_translate}</b> {'portal.sc.cfg.followup_questions_hint'|devblocks_translate}
 	<div class="container">
 		<div class="template" style="display:none;">
-			{include file="devblocks:cerberusweb.support_center::portal/sc/config/module/contact/situation_followups.tpl" q=null field_id=null uniq_id=$uniq_id}
+			{include file="devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/contact/situation_followups.tpl" q=null field_id=null uniq_id=$uniq_id}
 		</div>
 		{foreach from=$params.followups key=q item=field_id name=followups}
-			{include file="devblocks:cerberusweb.support_center::portal/sc/config/module/contact/situation_followups.tpl" field_id=$field_id uniq_id=$uniq_id}
+			{include file="devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/contact/situation_followups.tpl" field_id=$field_id uniq_id=$uniq_id}
 		{/foreach}
 	</div>
 	<button type="button" class="add"><span class="glyphicons glyphicons-circle-plus"></span></button>

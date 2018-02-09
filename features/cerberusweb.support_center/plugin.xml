@@ -7,13 +7,13 @@
 	<version>8.2.11</version>
 	<link>http://wiki.cerbweb.com/Support_Center</link>
 	<image>plugin.png</image>
- 
+
 	<!-- Requirements -->
 
 	<requires>
 		<app_version min="8.2" max="8.2.99" />
 	</requires>
- 
+
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
@@ -87,7 +87,7 @@
 	</templates>
 	
 	<!-- Extensions -->
- 
+
 	<extensions>
 
 		<!-- Event Listeners -->
@@ -148,6 +148,10 @@
 			</class>
 			<params>
 				<param key="uri" value="ajax" />
+				<param key="options">
+					<value>
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -160,6 +164,10 @@
 			</class>
 			<params>
 				<param key="uri" value="avatar" />
+				<param key="options">
+					<value>
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -173,6 +181,11 @@
 			<params>
 				<param key="uri" value="home" />
 				<param key="menu_title" value="portal.sc.public.home" />
+				<param key="options">
+					<value>
+						<data key="configurable" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -186,6 +199,11 @@
 			<params>
 				<param key="uri" value="announcements" />
 				<param key="menu_title" value="portal.sc.public.announcements" />
+				<param key="options">
+					<value>
+						<data key="configurable" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -199,6 +217,11 @@
 			<params>
 				<param key="uri" value="contact" />
 				<param key="menu_title" value="portal.common.open_ticket" />
+				<param key="options">
+					<value>
+						<data key="configurable" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		
@@ -212,6 +235,11 @@
 			<params>
 				<param key="uri" value="history" />
 				<param key="menu_title" value="portal.sc.public.history.ticket_history" />
+				<param key="options">
+					<value>
+						<data key="configurable" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -225,6 +253,11 @@
 			<params>
 				<param key="uri" value="account" />
 				<param key="menu_title" value="portal.sc.public.my_account" />
+				<param key="options">
+					<value>
+						<data key="configurable" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -238,6 +271,11 @@
 			<params>
 				<param key="uri" value="login" />
 				<param key="menu_title" value="portal.sc.public.themes.sign_in" />
+				<param key="options">
+					<value>
+						<data key="configurable" />
+					</value>
+				</param>
 			</params>
 		</extension>
 		

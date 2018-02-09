@@ -3068,17 +3068,7 @@
 				<seg>Follow-up Questions:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.htaccess_hint">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.installation">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.installation_instructions">
 			<tuv xml:lang="ru_RU">
 				<seg/>
 			</tuv>

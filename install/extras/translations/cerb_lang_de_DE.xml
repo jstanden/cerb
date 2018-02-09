@@ -3068,19 +3068,9 @@
 				<seg>Follow-up Fragen:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.htaccess_hint">
-			<tuv xml:lang="de_DE">
-				<seg>(optional, bekannte URLs für ApacheWebServer-Nutzer)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.installation">
 			<tuv xml:lang="de_DE">
 				<seg>Installation</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.installation_instructions">
-			<tuv xml:lang="de_DE">
-				<seg>Legen Sie die "index.php"-Datei in ein neues Verzeichnis auf der entsprechenden öffentlichen Webseite. Dieses Verzeichnis kann wahlweise benannt werden, beschreibt jedoch im Regelfall das Portal (z.B.: https://cerb.ai/contact/).</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.cfg.language">

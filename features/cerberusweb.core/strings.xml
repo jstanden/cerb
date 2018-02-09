@@ -247,6 +247,11 @@
 				<seg>Activity Log</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.activity_logs">
+			<tuv xml:lang="en_US">
+				<seg>activity logs</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.actor">
 			<tuv xml:lang="en_US">
 				<seg>Actor</seg>
@@ -2807,7 +2812,7 @@
 		
 		<tu tuid="community_portal.code">
 			<tuv xml:lang="en_US">
-				<seg>Profile ID</seg>
+				<seg>Code</seg>
 			</tuv>
 		</tu>
 
@@ -2841,7 +2846,7 @@ For example: http://www.cerbweb.com/support/</seg>
 		</tu>
 		<tu tuid="portal.cfg.profile_id">
 			<tuv xml:lang="en_US">
-				<seg>Profile ID:</seg>
+				<seg>Code:</seg>
 			</tuv>
 		</tu>
 

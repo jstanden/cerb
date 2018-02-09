@@ -4809,32 +4809,6 @@
 			</extension>
 		
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.portal</id>
-				<name>Portal Section</name>
-				<class>
-					<file>api/uri/config/portal.php</file>
-					<name>PageSection_SetupPortal</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="portal" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.portals</id>
-				<name>Portals Section</name>
-				<class>
-					<file>api/uri/config/portals.php</file>
-					<name>PageSection_SetupPortals</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="portals" />
-				</params>
-			</extension>
-		
-			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.scheduler</id>
 				<name>Scheduler Section</name>
 				<class>
@@ -5147,7 +5121,20 @@
 					<param key="uri" value="comment" />
 				</params>
 			</extension>
-
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.community_tool</id>
+				<name>Community Portal Section</name>
+				<class>
+					<file>api/uri/profiles/community_portal.php</file>
+					<name>PageSection_ProfilesCommunityPortal</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="community_portal" />
+				</params>
+			</extension>
+			
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.connected_account</id>
 				<name>Connected Account Section</name>

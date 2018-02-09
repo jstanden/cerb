@@ -7,7 +7,6 @@
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
-			<a href="javascript:;" title="{'common.import'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showImportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}',null,false,'50%');"><span class="glyphicons glyphicons-file-import"></span></a>
 			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
 			<input type="checkbox" class="select-all">
 		</td>
@@ -22,12 +21,11 @@
 <input type="hidden" name="a" value="">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
+<table cellpadding="4" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
 	<thead>
 	<tr>
-		<th style="text-align:center"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th class="{if $view->options.disable_sorting}no-sort{/if}">
@@ -56,11 +54,9 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
-				<input type="checkbox" name="row_id[]" value="{$result.d_id}" style="display:none;">
-			</td>
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
-				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=getTemplatePeek&portal={$tool->code}&view_id={$view->id}&id={$result.d_id}',null,false,'50%');" class="subject">{$result.d_path}</a>
+				<input type="checkbox" name="row_id[]" value="{$result.d_id}" style="display:none;">
+				<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showTemplatePeek&view_id={$view->id}&id={$result.d_id}',null,false,'80%');" class="subject">{$result.d_path}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -106,7 +102,7 @@
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		{if $active_worker && $active_worker->is_superuser}
-			<button type="button" class="action-always-show" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=portal&action=showExportTemplatesPeek&portal={$tool->code}&view_id={$view->id|escape:'url'}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-file-export"></span></a> {'common.export'|devblocks_translate|lower}</button>
+			<button type="button" class="action-always-show" onclick="genericAjaxPopup('peek','c=internal&a=showExportTemplatesPeek&view_id={$view->id|escape:'url'}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-file-export"></span></a> {'common.export'|devblocks_translate|lower}</button>
 		{/if}
 	</div>
 	{/if}

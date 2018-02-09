@@ -93,13 +93,15 @@ class UmScHistoryController extends Extension_UmScController {
 		}
 	}
 	
-	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::services()->templateSandbox();
+	function configure(Model_CommunityTool $portal) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('portal', $portal);
 
 		$params = array(
-			'columns' => DAO_CommunityToolProperty::get($instance->code, self::PARAM_WORKLIST_COLUMNS_JSON, '[]', true),
+			'columns' => DAO_CommunityToolProperty::get($portal->code, self::PARAM_WORKLIST_COLUMNS_JSON, '[]', true),
 		);
 		$tpl->assign('history_params', $params);
+		
 		
 		$view = new View_Ticket();
 		$view->id = View_Ticket::DEFAULT_ID;
@@ -111,21 +113,27 @@ class UmScHistoryController extends Extension_UmScController {
 			}
 		);
 		
-		DevblocksPlatform::sortObjects($columns, 'db_label');
+		$columns_selected = [];
+		if(is_array($params['columns']))
+		foreach($params['columns'] as $column_key)
+			$columns_selected[$column_key] = $columns[$column_key];
 		
-		$tpl->assign('history_columns', $columns);
+		$columns_available = array_diff_key($columns, $columns_selected);
+		DevblocksPlatform::sortObjects($columns_available, 'db_label');
 		
-		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/history.tpl");
+		$tpl->assign('history_columns', array_merge($columns_selected, $columns_available));
+		
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/history.tpl");
 	}
 	
-	function saveConfiguration(Model_CommunityTool $instance) {
+	function saveConfiguration(Model_CommunityTool $portal) {
 		@$columns = DevblocksPlatform::importGPC($_POST['history_columns'],'array',array());
 
 		$columns = array_filter($columns, function($column) {
 			return !empty($column);
 		});
 		
-		DAO_CommunityToolProperty::set($instance->code, self::PARAM_WORKLIST_COLUMNS_JSON, $columns, true);
+		DAO_CommunityToolProperty::set($portal->code, self::PARAM_WORKLIST_COLUMNS_JSON, $columns, true);
 	}
 	
 	// [TODO] JSON

@@ -3568,20 +3568,9 @@
 				<seg>Follow-up Questions:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.htaccess_hint">
-			<tuv xml:lang="en_GB">
-				<seg>(optional, friendly URLs for Apache Web Server users)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.installation">
 			<tuv xml:lang="en_GB">
 				<seg>Installation</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.installation_instructions">
-			<tuv xml:lang="en_GB">
-				<seg>Place the index.php file in a new directory on the appropriate public website.	This directory can be named anything but will usually describe the portal.
-For example: http://www.cerbweb.com/support/</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.cfg.language">

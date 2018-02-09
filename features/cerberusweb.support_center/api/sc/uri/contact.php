@@ -110,22 +110,23 @@ class UmScContactController extends Extension_UmScController {
 			
 	}
 
-	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::services()->templateSandbox();
+	function configure(Model_CommunityTool $portal) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('portal', $portal);
 
-		$captcha_enabled = DAO_CommunityToolProperty::get($instance->code, self::PARAM_CAPTCHA_ENABLED, 1);
+		$captcha_enabled = DAO_CommunityToolProperty::get($portal->code, self::PARAM_CAPTCHA_ENABLED, 1);
 		$tpl->assign('captcha_enabled', $captcha_enabled);
 
-		$allow_cc = DAO_CommunityToolProperty::get($instance->code, self::PARAM_ALLOW_CC, 0);
+		$allow_cc = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ALLOW_CC, 0);
 		$tpl->assign('allow_cc', $allow_cc);
 
-		$allow_subjects = DAO_CommunityToolProperty::get($instance->code, self::PARAM_ALLOW_SUBJECTS, 0);
+		$allow_subjects = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ALLOW_SUBJECTS, 0);
 		$tpl->assign('allow_subjects', $allow_subjects);
 
-		$attachments_mode = DAO_CommunityToolProperty::get($instance->code, self::PARAM_ATTACHMENTS_MODE, 0);
+		$attachments_mode = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ATTACHMENTS_MODE, 0);
 		$tpl->assign('attachments_mode', $attachments_mode);
 
-		$sDispatch = DAO_CommunityToolProperty::get($instance->code,self::PARAM_SITUATIONS, '');
+		$sDispatch = DAO_CommunityToolProperty::get($portal->code,self::PARAM_SITUATIONS, '');
 		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
 		$tpl->assign('dispatch', $dispatch);
 		
@@ -144,7 +145,7 @@ class UmScContactController extends Extension_UmScController {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('field_types', $types);
 		
-		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/contact.tpl");
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/contact.tpl");
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {

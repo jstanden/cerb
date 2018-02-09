@@ -47,7 +47,66 @@ abstract class Extension_UmScRssController extends DevblocksExtension {
 };
 
 abstract class Extension_UmScController extends DevblocksExtension implements DevblocksHttpRequestHandler {
+	const POINT = 'usermeet.sc.controller';
+	
 	private $portal = '';
+	
+	public static function getAll($as_instances=false, $with_options=null) {
+		$controllers = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+		
+		if($as_instances)
+			DevblocksPlatform::sortObjects($controllers, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($controllers, 'name');
+		
+		if(!empty($with_options)) {
+			if(!is_array($with_options))
+				$with_options = array($with_options);
+
+			foreach($controllers as $k => $controller) {
+				@$options = $controller->params['options'][0];
+
+				if(!is_array($options) || empty($options)) {
+					unset($controllers[$k]);
+					continue;
+				}
+
+				if(count(array_intersect(array_keys($options), $with_options)) != count($with_options))
+					unset($controller[$k]);
+			}
+		}
+		
+		return $controllers;
+	}
+
+	public static function get($id, $as_instance=true) {
+		$controllers = self::getAll(false);
+		
+		if(!isset($controllers[$id]))
+			return null;
+		
+		$manifest = $controllers[$id]; /* @var $manifest DevblocksExtensionManifest */
+
+		if($as_instance) {
+			return $manifest->createInstance();
+		} else {
+			return $controllers[$id];
+		}
+		
+		return null;
+	}
+	
+	public static function getByUri($uri, $as_instance=true) {
+		$controllers = self::getAll(false);
+		
+		foreach($controllers as $controller) {
+			if(0==strcasecmp($controller->params['uri'], $uri)) {
+				return DevblocksPlatform::getExtension($controller->id, $as_instance);
+			}
+		}
+		
+		return null;
+	}
 	
 	/*
 	 * Site Key

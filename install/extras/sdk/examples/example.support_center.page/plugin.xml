@@ -7,14 +7,14 @@
 	<version>0.0.1</version>
 	<link>https://cerb.ai</link>
 	<!--<image>plugin.png</image>-->
- 
- 	<!-- Requirements -->
+
+	<!-- Requirements -->
 
 	<requires>
 		<app_version min="8.2" max="8.2.99" />
 		<!--<php_extension name="curl" />-->
 	</requires>
- 
+
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
@@ -32,23 +32,28 @@
 	</class_loader>
 
 	<!-- Extensions -->
- 
+
 	<extensions>
 
 		<!-- Support Center Controller -->
 		
 		<extension point="usermeet.sc.controller">
-		    <id>example.support_center.page.controller</id>
-		    <name>Example Page</name>
-		    <class>
-		        <file>api/App.php</file>
-		        <name>ExampleScController</name>
-		    </class>
-		    <params>
-		        <param key="uri" value="example" />
-		        <param key="menu_title" value="example.menu.label" />
-		    </params>
+			<id>example.support_center.page.controller</id>
+			<name>Example Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ExampleScController</name>
+			</class>
+			<params>
+				<param key="uri" value="example" />
+				<param key="menu_title" value="example.menu.label" />
+				<param key="options">
+					<value>
+						<data key="configurable" />
+					</value>
+				</param>
+			</params>
 		</extension>
 		
-    </extensions> 
+	</extensions> 
 </plugin>

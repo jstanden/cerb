@@ -640,10 +640,11 @@ class UmScAccountController extends Extension_UmScController {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','delete')));
 	}
 	
-	function configure(Model_CommunityTool $instance) {
-		$tpl = DevblocksPlatform::services()->templateSandbox();
+	function configure(Model_CommunityTool $portal) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('portal', $portal);
 
-		if(null != ($show_fields = DAO_CommunityToolProperty::get($instance->code, 'account.fields', null))) {
+		if(null != ($show_fields = DAO_CommunityToolProperty::get($portal->code, 'account.fields', null))) {
 			$tpl->assign('show_fields', @json_decode($show_fields, true));
 		}
 		
@@ -656,10 +657,10 @@ class UmScAccountController extends Extension_UmScController {
 		$types = Model_CustomField::getTypes();
 		$tpl->assign('field_types', $types);
 		
-		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/config/module/account.tpl");
+		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/account.tpl");
 	}
 	
-	function saveConfiguration(Model_CommunityTool $instance) {
+	function saveConfiguration(Model_CommunityTool $portal) {
 		@$aFields = DevblocksPlatform::importGPC($_POST['fields'],'array',array());
 		@$aFieldsVisible = DevblocksPlatform::importGPC($_POST['fields_visible'],'array',array());
 
@@ -672,6 +673,6 @@ class UmScAccountController extends Extension_UmScController {
 				$fields[$field] = intval($mode);
 		}
 		
-		DAO_CommunityToolProperty::set($instance->code, 'account.fields', json_encode($fields));
+		DAO_CommunityToolProperty::set($portal->code, 'account.fields', json_encode($fields));
 	}
 };

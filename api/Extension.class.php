@@ -776,11 +776,21 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 abstract class Extension_CommunityPortal extends DevblocksExtension implements DevblocksHttpRequestHandler {
 	private $portal = '';
 	
-	/*
-	 * Site Key
-	 * Site Name
-	 * Site URL
-	 */
+	static $_registry = [];
+	
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_CommunityPortal) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
 	
 	/**
 	 * @param DevblocksHttpRequest
@@ -822,6 +832,9 @@ abstract class Extension_CommunityPortal extends DevblocksExtension implements D
 	
 	public function saveConfiguration(Model_CommunityTool $instance) {
 	}
+	
+	abstract public function profileGetTabs(Model_CommunityTool $portal);
+	abstract public function profileRenderTab($tab_id, Model_CommunityTool $portal);
 	
 };
 

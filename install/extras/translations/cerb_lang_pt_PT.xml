@@ -3078,19 +3078,9 @@
 				<seg>Questões para dar Seguimento:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="portal.cfg.htaccess_hint">
-			<tuv xml:lang="pt_PT">
-				<seg>(opcional, URLs amigáveis para utilizadores do Web Servidor Apache)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="portal.cfg.installation">
 			<tuv xml:lang="pt_PT">
 				<seg>Instalação</seg>
-			</tuv>
-		</tu>
-		<tu tuid="portal.cfg.installation_instructions">
-			<tuv xml:lang="pt_PT">
-				<seg>Coloque o ficheiro index.php numa nova directoria dentro do "public website". Esta directoria poderá ter o nome que desejar mas irá normalmente descrever o portal. Por exemplo: https://cerb.ai/contact/</seg>
 			</tuv>
 		</tu>
 		<tu tuid="portal.cfg.language">
