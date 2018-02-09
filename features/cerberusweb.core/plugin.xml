@@ -845,6 +845,10 @@
 			<class name="Page_Profiles" />
 		</file>
 		
+		<file path="api/uri/resource.php">
+			<class name="Controller_Resource" />
+		</file>
+		
 		<file path="api/uri/profiles/abstract_custom_record.php">
 			<class name="PageSection_ProfilesAbstractCustomRecord" />
 		</file>
@@ -4386,6 +4390,18 @@
 				<name>ChPageController</name>
 			</class>
 			<params>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.controller">
+			<id>core.controller.resource</id>
+			<name>Resource Controller</name>
+			<class>
+				<file>api/uri/resource.php</file>
+				<name>Controller_Resource</name>
+			</class>
+			<params>
+				<param key="uri" value="resource" />
 			</params>
 		</extension>
 

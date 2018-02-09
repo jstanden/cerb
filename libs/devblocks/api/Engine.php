@@ -550,85 +550,12 @@ abstract class DevblocksEngine {
 		 * [TODO] Run this code through another audit.  Is it worth a tiny hit per resource
 		 * to verify the plugin matches exactly in the DB?  If so, make sure we cache the
 		 * resulting file.
-		 *
-		 * [TODO] Make this a controller
 		 */
-		$path = $parts;
-		switch(array_shift($path)) {
-			case "resource":
-				$plugin_id = array_shift($path);
-				if(null == ($plugin = DevblocksPlatform::getPlugin($plugin_id)))
-					break;
-
-				$file = implode(DIRECTORY_SEPARATOR, $path); // combine path
-				$dir = $plugin->getStoragePath() . '/' . 'resources';
-				if(!is_dir($dir)) DevblocksPlatform::dieWithHttpError(null, 403); // basedir security
-				$resource = $dir . '/' . $file;
-				if(0 != strstr($dir,$resource)) DevblocksPlatform::dieWithHttpError(null, 403);
-				$ext = @array_pop(explode('.', $resource));
-				if(!is_file($resource) || 'php' == $ext) DevblocksPlatform::dieWithHttpError(null, 403); // extension security
-
-				// Caching
-				switch($ext) {
-					case 'css':
-					case 'gif':
-					case 'jpg':
-					case 'js':
-					case 'png':
-					case 'ttf':
-					case 'woff':
-					case 'woff2':
-						header('Cache-control: max-age=604800', true); // 1 wk // , must-revalidate
-						header('Expires: ' . gmdate('D, d M Y H:i:s',time()+604800) . ' GMT'); // 1 wk
-						break;
-				}
-
-				switch($ext) {
-					case 'css':
-						header('Content-type: text/css');
-						break;
-					case 'gif':
-						header('Content-type: image/gif');
-						break;
-					case 'jpeg':
-					case 'jpg':
-						header('Content-type: image/jpeg');
-						break;
-					case 'js':
-						header('Content-type: text/javascript');
-						break;
-					case 'pdf':
-						header('Content-type: application/pdf');
-						break;
-					case 'png':
-						header('Content-type: image/png');
-						break;
-					case 'ttf':
-						header('Content-type: application/x-font-ttf');
-						break;
-					case 'woff':
-						header('Content-type: application/font-woff');
-						break;
-					case 'woff2':
-						header('Content-type: font/woff2');
-						break;
-					case 'xml':
-						header('Content-type: text/xml');
-						break;
-				}
-
-				$out = file_get_contents($resource, false);
-
-				// Pass through
-				if($out) {
-					header('Content-Length: '. strlen($out));
-					echo $out;
-				}
-
-				exit;
-				break;
-
-			default:
+		switch(current($parts)) {
+			case 'resource':
+				$resource_request = new DevblocksHttpRequest($parts);
+				$controller = new Controller_Resource();
+				$controller->handleRequest($resource_request);
 				break;
 		}
 
