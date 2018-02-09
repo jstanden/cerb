@@ -34,7 +34,16 @@ class Controller_Portal extends DevblocksControllerExtension {
 		$tpl->assign('translate', $translate);
 		
 		array_shift($stack); // portal
-		$code = array_shift($stack); // xxxxxxxx
+		$uri = array_shift($stack); // xxxxxxxx
+		
+		// Allow portal aliases
+		
+		if(false == ($tool = DAO_CommunityTool::getByCode($uri)))
+			DevblocksPlatform::dieWithHttpError("Portal not found.", 404);
+		
+		$code = $tool->code;
+		$request->path[1] = $code;
+		
 		ChPortalHelper::setCode($code);
 		
 		// Resource proxy
