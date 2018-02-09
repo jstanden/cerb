@@ -7,7 +7,7 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <b>{$template->path}:</b><br>
-<textarea name="content" wrap="off" style="height:300px;width:98%;">{$template->content}</textarea><br>
+<textarea name="content" data-editor-mode="ace/mode/smarty">{$template->content}</textarea><br>
 <br>
 
 {if $active_worker->is_superuser}
@@ -28,6 +28,8 @@ $(function() {
 	
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"Edit Custom Template");
+		
+		$popup.find('textarea[name=content]').cerbCodeEditor();
 		
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '', function() {
