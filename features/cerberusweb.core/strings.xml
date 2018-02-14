@@ -2336,6 +2336,26 @@
 				<seg>Workspace</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.workspace.page">
+			<tuv xml:lang="en_US">
+				<seg>workspace page</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.pages">
+			<tuv xml:lang="en_US">
+				<seg>workspace pages</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.tab">
+			<tuv xml:lang="en_US">
+				<seg>workspace tab</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.tabs">
+			<tuv xml:lang="en_US">
+				<seg>workspace tabs</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.workspaces">
 			<tuv xml:lang="en_US">
 				<seg>Workspaces</seg>

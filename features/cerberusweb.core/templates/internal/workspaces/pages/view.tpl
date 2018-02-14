@@ -10,9 +10,10 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id=0&view_id={$view->id}',null,true,'500');"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
+			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
+			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
 			<a href="javascript:;" title="{'common.copy'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-duplicate"></span></a>
 			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
 			<input type="checkbox" class="select-all">
@@ -72,7 +73,7 @@
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
 			<td data-column="button" align="center" nowrap="nowrap" style="padding:5px;">
-				<button class="add" type="button" page_id="{$result.w_id}" page_label="{$result.w_name|lower}" page_url="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span>{else}<span class="glyphicons glyphicons-circle-ok" style="color:rgb(150,150,150);">{/if}</button>
+				<button class="add" type="button" page_id="{$result.w_id}" page_label="{$result.w_name|lower}" page_url="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-minus" style="color:rgb(180,0,0);"></span>{else}<span class="glyphicons glyphicons-circle-plus" style="color:rgb(150,150,150);">{/if}</button>
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
 			</td>
 		{foreach from=$view->view_columns item=column name=columns}
@@ -81,7 +82,7 @@
 			{elseif $column=="w_name"}
 			<td data-column="{$column}">
 				<a href="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.w_name)}{$result.w_name}{else}New Page{/if}</a>
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$result.w_id}&view_id={$view->id}',null,true,'550');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.w_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif in_array($column,["w_updated_at"])}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
@@ -166,7 +167,7 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 				$(this).remove();
 			});
 			
-			$this.html('<span class="glyphicons glyphicons-circle-ok" style="color:rgb(150,150,150);">');
+			$this.html('<span class="glyphicons glyphicons-circle-plus" style="color:rgb(150,150,150);">');
 		}
 		
 		genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=0');
@@ -191,7 +192,7 @@ $('#viewForm{$view->id}').find('button.add').click(function(e) {
 			$li.css('visibility','visible');
 		});
 		
-		$this.html('<span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);">');
+		$this.html('<span class="glyphicons glyphicons-circle-minus" style="color:rgb(180,0,0);">');
 
 		genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=1');
 	}

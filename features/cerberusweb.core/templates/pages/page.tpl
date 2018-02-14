@@ -19,7 +19,7 @@
 			--><button class="config-page split-right" type="button"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 			<ul class="cerb-popupmenu cerb-float">
 				{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
-					{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.update")}<li><a href="javascript:;" class="edit-page">Edit Page</a></li>{/if}
+					{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.update")}<li><a href="javascript:;" class="edit-page" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}" data-edit="true">Edit Page</a></li>{/if}
 					{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.update")}<li><a href="javascript:;" class="edit-tab">Edit Tab</a></li>{/if}
 				{/if}
 				{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.export")}<li><a href="javascript:;" class="export-page">Export Page</a></li>{/if}
@@ -77,17 +77,15 @@
 		
 		{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
 			// Edit page
-			$workspace.find('a.edit-page').click(function(e) {
-				e.stopPropagation();
-				
-				$popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspacePage&id={$page->id}',null,true,'600');
-				$popup.one('workspace_save',function(e) {
+			$workspace.find('a.edit-page')
+				.cerbPeekTrigger()
+				.on('cerb-peek-saved', function() {
 					window.location.href = '{devblocks_url}c=pages&id={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}';
-				});
-				$popup.one('workspace_delete',function(e) {
+				})
+				.on('cerb-peek-deleted', function() {
 					window.location.href = '{devblocks_url}c=pages{/devblocks_url}';
-				});
-			});
+				})
+				;
 			
 			// Edit tab
 			$workspace.find('a.edit-tab').click(function(e) {
