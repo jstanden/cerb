@@ -1339,7 +1339,7 @@ class Model_WorkspaceListView {
 	public $subtotals = '';
 };
 
-class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickSearch {
+class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickSearch, IAbstractView_Subtotals {
 	const DEFAULT_ID = 'workspace_page';
 
 	function __construct() {
@@ -1361,6 +1361,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 			SearchFields_WorkspacePage::ID,
 			SearchFields_WorkspacePage::OWNER_CONTEXT,
 			SearchFields_WorkspacePage::OWNER_CONTEXT_ID,
+			SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK,
 		));
 
 		$this->addParamsHidden(array(
@@ -1390,6 +1391,82 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_WorkspacePage', $size);
+	}
+	
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable(true);
+		
+		$fields = array();
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				case SearchFields_WorkspacePage::EXTENSION_ID:
+					$pass = true;
+					break;
+					
+				// Virtuals
+				case SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_WorkspacePage::VIRTUAL_OWNER:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = array();
+		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
+
+		if(!isset($fields[$column]))
+			return array();
+		
+		switch($column) {
+			case SearchFields_WorkspacePage::EXTENSION_ID:
+				$page_extensions = Extension_WorkspacePage::getAll(false);
+				
+				$label_map = array_map(
+					function($manifest) {
+						return DevblocksPlatform::translateCapitalized($manifest->params['label']);
+					},
+					$page_extensions
+				);
+				
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
+				break;
+				
+			case SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
+				break;
+				
+			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
+				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_WorkspacePage::OWNER_CONTEXT, DAO_WorkspacePage::OWNER_CONTEXT_ID, 'owner_context[]');
+				break;
+				
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				}
+				
+				break;
+		}
+		
+		return $counts;
 	}
 	
 	function getQuickSearchFields() {
@@ -1460,8 +1537,12 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
-
-		$tpl->display('devblocks:cerberusweb.core::pages/view.tpl');
+		
+		$page_extensions = Extension_WorkspacePage::getAll(false);
+		$tpl->assign('page_extensions', $page_extensions);
+		
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/workspaces/pages/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderCriteria($field) {
