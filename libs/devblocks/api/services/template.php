@@ -51,6 +51,7 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('block','devblocks_url', array('_DevblocksTemplateManager', 'block_devblocks_url'));
 			$instance->registerPlugin('block','php', array('_DevblocksTemplateManager', 'block_void'));
 			$instance->registerPlugin('modifier','devblocks_date', array('_DevblocksTemplateManager', 'modifier_devblocks_date'));
+			$instance->registerPlugin('modifier','devblocks_decimal', array('_DevblocksTemplateManager', 'modifier_devblocks_decimal'));
 			$instance->registerPlugin('modifier','devblocks_email_quotes_cull', array('_DevblocksTemplateManager', 'modifier_devblocks_email_quotes_cull'));
 			$instance->registerPlugin('modifier','devblocks_email_quote', array('_DevblocksTemplateManager', 'modifier_devblocks_email_quote'));
 			$instance->registerPlugin('modifier','devblocks_hyperlinks', array('_DevblocksTemplateManager', 'modifier_devblocks_hyperlinks'));
@@ -190,6 +191,13 @@ class _DevblocksTemplateManager {
 	
 		$date = DevblocksPlatform::services()->date();
 		return $date->formatTime($format, $string, $gmt);
+	}
+	
+	static function modifier_devblocks_decimal($string, $decimal_places=2) {
+		if(empty($string))
+			return '';
+	
+		return DevblocksPlatform::strFormatDecimal($string, $decimal_places);
 	}
 	
 	static function modifier_devblocks_permalink($string) {

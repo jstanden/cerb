@@ -408,6 +408,9 @@ class UmSc_KbArticleView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		$currencies = DAO_Currency::getAll();
+		$tpl->assign('currencies', $currencies);
+		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		

@@ -98,6 +98,17 @@
 						<input type="file" name="followup_a_{$idx}[]" multiple="multiple">
 					{elseif $field->type==Model_CustomField::TYPE_LINK}
 						{* N/A *}
+					{elseif $field->type==Model_CustomField::TYPE_DECIMAL}
+						<input type="text" name="followup_a_{$idx}" size="24" maxlength="64" value="" class="decimal">
+					{elseif $field->type==Model_CustomField::TYPE_CURRENCY}
+						{$currency = $currencies[$field->params.currency_id]}
+						{if $currency}
+							{$currency->symbol}
+							<input type="text" name="followup_a_{$idx}" size="24" maxlength="64" value="" class="currency">
+							{$currency->code}
+						{else}
+							<input type="text" name="followup_a_{$idx}" size="24" maxlength="64" value="" class="currency">
+						{/if}
 					{/if}
 					
 				{else}

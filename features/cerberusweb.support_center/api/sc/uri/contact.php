@@ -100,6 +100,9 @@ class UmScContactController extends Extension_UmScController {
 						$workers = DAO_Worker::getAllActive();
 						$tpl->assign('workers', $workers);
 						
+						$currencies = DAO_Currency::getAll();
+						$tpl->assign('currencies', $currencies);
+						
 						$tpl->assign('client_ip', DevblocksPlatform::getClientIp());
 						
 						$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/contact/step2.tpl");

@@ -342,6 +342,9 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		$custom_fields = DAO_CustomField::getAll();
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		$currencies = DAO_Currency::getAll();
+		$tpl->assign('currencies', $currencies);
+		
 		$results = $this->getData();
 		$tpl->assign('results', $results);
 		$tpl->assign('total', $results[1]);

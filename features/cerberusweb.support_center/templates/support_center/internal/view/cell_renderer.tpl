@@ -7,9 +7,24 @@
 {elseif $col->type==Model_CustomField::TYPE_URL}
 	<td data-column="{$column}">{if !empty($result.$column)}<a href="{$result.$column}" target="_blank">{$result.$column}</a>{/if}</td>
 {elseif $col->type==Model_CustomField::TYPE_CURRENCY}
-	<td data-column="{$column}">{DevblocksPlatform::strFormatDecimal($result.$column)}</td>
+	<td data-column="{$column}">
+		{$currency_id = $col->params.currency_id}
+		{$currency = $currencies.$currency_id}
+		{if $currency}
+			{if $result.$column}
+				{$currency->symbol}
+				{$result.$column|devblocks_decimal:$currency->decimal_at}
+				{$currency->code}
+			{/if}
+		{else}
+			{$result.$column|devblocks_decimal:2}
+		{/if}
+	</td>
 {elseif $col->type==Model_CustomField::TYPE_DECIMAL}
-	<td data-column="{$column}">{DevblocksPlatform::strFormatDecimal($result.$column)}</td>
+	<td data-column="{$column}">
+		{$decimal_at = $col->params.decimal_at}
+		{$result.$column|devblocks_decimal:$decimal_at}
+	</td>
 {elseif $col->type==Model_CustomField::TYPE_NUMBER}
 	<td data-column="{$column}">{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_MULTI_LINE}
