@@ -961,7 +961,7 @@ class SearchFields_WorkspacePage extends DevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'workspace_page', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'workspace_page', 'owner_context', null, null, false),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'workspace_page', 'owner_context_id', null, null, false),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_page', 'extension_id', null, null, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_page', 'extension_id', $translate->_('common.type'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_page', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -1469,6 +1469,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
+			case SearchFields_WorkspacePage::EXTENSION_ID:
 			case SearchFields_WorkspacePage::NAME:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
@@ -1525,6 +1526,18 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_WorkspacePage::EXTENSION_ID:
+				$page_extensions = Extension_WorkspacePage::getAll(false);
+				
+				$label_map = array_map(
+					function($manifest) {
+						return DevblocksPlatform::translateCapitalized($manifest->params['label']);
+					},
+					$page_extensions
+				);
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1539,6 +1552,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$criteria = null;
 
 		switch($field) {
+			case SearchFields_WorkspacePage::EXTENSION_ID:
 			case SearchFields_WorkspacePage::NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;

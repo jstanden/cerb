@@ -84,6 +84,11 @@
 				<a href="{devblocks_url}c=pages&page={$result.w_id}-{$result.w_name|devblocks_permalink}{/devblocks_url}" class="subject">{if !empty($result.w_name)}{$result.w_name}{else}New Page{/if}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.w_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
+			{elseif in_array($column,["w_extension_id"])}
+				<td data-column="{$column}">
+					{$page_extension = $page_extensions[$result.$column]}
+					{$page_extension->params.label|devblocks_translate|capitalize}
+				</td>
 			{elseif in_array($column,["w_updated_at"])}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
