@@ -452,7 +452,7 @@ if(!isset($columns['is_default'])) {
 	// Migrate workspace_list filters
 	
 	require_once(APP_PATH . '/features/cerberusweb.core/api/dao/abstract_view.php');
-	require_once(APP_PATH . '/features/cerberusweb.core/api/dao/workspace.php');
+	require_once(APP_PATH . '/features/cerberusweb.core/api/dao/workspace_worklist.php');
 	
 	$lists = $db->GetArrayMaster("SELECT id, list_view FROM workspace_list WHERE context = 'cerberusweb.contexts.ticket' and list_view like '%t_bucket_id%'");
 	

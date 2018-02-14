@@ -574,20 +574,19 @@
 			<class name="View_Notification" />
 		</file>
 		
-		<file path="api/dao/workspace.php">
+		<file path="api/dao/workspace_page.php">
 			<class name="Context_WorkspacePage" />
-			<class name="Context_WorkspaceTab" />
-			<class name="Context_WorkspaceWorklist" />
-			<class name="DAO_WorkspaceList" />
 			<class name="DAO_WorkspacePage" />
-			<class name="DAO_WorkspaceTab" />
-			<class name="Model_WorkspaceList" />
-			<class name="Model_WorkspaceListView" />
 			<class name="Model_WorkspacePage" />
-			<class name="Model_WorkspaceTab" />
 			<class name="SearchFields_WorkspacePage" />
-			<class name="SearchFields_WorkspaceTab" />
 			<class name="View_WorkspacePage" />
+		</file>
+		
+		<file path="api/dao/workspace_tab.php">
+			<class name="Context_WorkspaceTab" />
+			<class name="DAO_WorkspaceTab" />
+			<class name="Model_WorkspaceTab" />
+			<class name="SearchFields_WorkspaceTab" />
 		</file>
 		
 		<file path="api/dao/workspace_widget.php">
@@ -595,6 +594,13 @@
 			<class name="DAO_WorkspaceWidget" />
 			<class name="Model_WorkspaceWidget" />
 			<class name="SearchFields_WorkspaceWidget" />
+		</file>
+		
+		<file path="api/dao/workspace_worklist.php">
+			<class name="Context_WorkspaceWorklist" />
+			<class name="DAO_WorkspaceList" />
+			<class name="Model_WorkspaceList" />
+			<class name="Model_WorkspaceListView" />
 		</file>
 		
 		<file path="api/events/abstract/abstract_event_abstract_custom_record.php">
