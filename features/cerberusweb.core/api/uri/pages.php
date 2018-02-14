@@ -100,6 +100,7 @@ class Page_Custom extends CerberusPageExtension {
 		// View
 		$view_id = 'pages';
 		$defaults = C4_AbstractViewModel::loadFromClass('View_WorkspacePage');
+		$defaults->id = $view_id;
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id, $defaults))) {
 			if(!$active_worker->is_superuser) {
