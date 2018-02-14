@@ -29,9 +29,13 @@
 		{$workers.{$v.value}->getName()}
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_LIST}
-	{$v.value|implode:', '}
+	{if is_array($v.value)}
+		{$v.value|implode:', '}
+	{/if}
 {elseif $v.type == Model_CustomField::TYPE_MULTI_CHECKBOX}
-	{$v.value|implode:', '}
+	{if is_array($v.value)}
+		{$v.value|implode:', '}
+	{/if}
 {elseif $v.type == Model_CustomField::TYPE_LINK}
 	{$link_context_ext = Extension_DevblocksContext::get($v.params.context)}
 	{if $link_context_ext}
@@ -71,11 +75,15 @@
 {elseif $v.type == Model_CustomField::TYPE_FILE}
 	{$file_id = $v.value}
 	{$file = DAO_Attachment::get($file_id)}
+	{if $file}
 	<a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes})
+	{/if}
 {elseif $v.type == Model_CustomField::TYPE_FILES}
 	{foreach from=$v.value item=file_id name=files}
 		{$file = DAO_Attachment::get($file_id)}
+		{if $file}
 		<a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}){if !$smarty.foreach.files.last}, {/if}
+		{/if}
 	{/foreach}
 {else}
 	{$v.value}
