@@ -413,6 +413,34 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		}
 	}
 	
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$ids = array();
+		
+		$results = $db->GetArraySlave(sprintf("SELECT id ".
+			"FROM calendar ".
+			"WHERE ".
+			"name LIKE %s ".
+			"",
+			$db->qstr($term.'%')
+		));
+		
+		if(is_array($results))
+		foreach($results as $row) {
+			$ids[] = $row['id'];
+		}
+		
+		switch($as) {
+			case 'ids':
+				return $ids;
+				break;
+				
+			default:
+				return DAO_Calendar::getIds($ids);
+				break;
+		}
+	}
+	
 	/**
 	 *
 	 * @param array $columns
@@ -1283,13 +1311,43 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 	}
 };
 
-class Context_Calendar extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_Calendar extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR, $models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR, $models);
+	}
+	
+	function autocomplete($term, $query=null) {
+		$url_writer = DevblocksPlatform::services()->url();
+		$list = array();
+		
+		$models = DAO_Calendar::autocomplete($term);
+		
+		if(stristr('none',$term) || stristr('empty',$term) || stristr('no calendar',$term)) {
+			$empty = new stdClass();
+			$empty->label = '(no calendar)';
+			$empty->value = '0';
+			$empty->meta = array('desc' => 'Clear the calendar');
+			$list[] = $empty;
+		}
+		
+		if(is_array($models))
+		foreach($models as $calendar_id => $calendar) {
+			$entry = new stdClass();
+			$entry->label = $calendar->name;
+			$entry->value = sprintf("%d", $calendar_id);
+			$entry->icon = null;
+			
+			$meta = [];
+			$entry->meta = $meta;
+			
+			$list[] = $entry;
+		}
+		
+		return $list;
 	}
 	
 	function getRandom() {
