@@ -1112,22 +1112,23 @@ var ajax = new cAjaxCalls();
 	$.fn.cerbPeekTrigger = function(options) {
 		return this.each(function() {
 			var $trigger = $(this);
-			var context = $trigger.attr('data-context');
-			var context_id = $trigger.attr('data-context-id');
-			var layer = $trigger.attr('data-layer');
-			var width = $trigger.attr('data-width');
-			var edit_mode = $trigger.attr('data-edit') ? true : false;
-			
-			// Context
-			if(!(typeof context == "string") || 0 == context.length)
-				return;
-			
-			// Layer
-			if(!(typeof layer == "string") || 0 == layer.length)
-				//layer = "peek" + Devblocks.uniqueId();
-				layer = $.md5(context + ':' + context_id + ':' + (edit_mode ? 'true' : 'false'));
 			
 			$trigger.click(function(evt) {
+				var context = $trigger.attr('data-context');
+				var context_id = $trigger.attr('data-context-id');
+				var layer = $trigger.attr('data-layer');
+				var width = $trigger.attr('data-width');
+				var edit_mode = $trigger.attr('data-edit') ? true : false;
+				
+				// Context
+				if(!(typeof context == "string") || 0 == context.length)
+					return;
+				
+				// Layer
+				if(!(typeof layer == "string") || 0 == layer.length)
+					//layer = "peek" + Devblocks.uniqueId();
+					layer = $.md5(context + ':' + context_id + ':' + (edit_mode ? 'true' : 'false'));
+				
 				var profile_url = $trigger.attr('data-profile-url');
 				
 				// Are they also holding SHIFT or CMD?
