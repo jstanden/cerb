@@ -659,7 +659,7 @@ TABLE.worklist TD SPAN.title {
 }
 TABLE.worklist TD.title-toolbar {
   font-size: 14px;
-  text-shadow: 0 1px 0 rgba(74, 110, 170, 0.9);
+  text-shadow: 0 1px 0 rgba(116, 116, 116, 0.9);
 }
 
 TABLE.worklistBody th {
