@@ -1,5 +1,5 @@
 <fieldset id="tabConfig{$workspace_tab->id}" class="peek">
-<legend>Board</legend>
+<legend>Display project board:</legend>
 
 <button type="button" class="chooser-abstract" data-field-name="params[board_id]" data-context="{Context_ProjectBoard::ID}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 
@@ -15,15 +15,5 @@
 <script type="text/javascript">
 $(function() {
 	var $fieldset = $('#tabConfig{$workspace_tab->id}');
-	
-	$fieldset
-		.find('.chooser-abstract')
-		.cerbChooserTrigger()
-	;
-	
-	$fieldset
-		.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-	;
 });
 </script>
