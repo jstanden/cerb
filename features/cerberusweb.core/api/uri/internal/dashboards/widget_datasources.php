@@ -1,7 +1,5 @@
 <?php
-// [TODO] This could split up into two worklist datasources (metric, series).
-//		This would allow reuse without having to know about the caller at all.
-class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDatasource {
+class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidgetDatasource {
 	private function _getSeriesIdxFromPrefix($params_prefix) {
 		if(!empty($params_prefix) && preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
 			return $matches[1];
@@ -35,33 +33,11 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		switch($widget->extension_id) {
-			case 'core.workspace.widget.chart':
-			case 'core.workspace.widget.pie_chart':
-			case 'core.workspace.widget.scatterplot':
-				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_worklist_series.tpl');
-				break;
-				
-			case 'core.workspace.widget.counter':
-			case 'core.workspace.widget.gauge':
-				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_worklist_metric.tpl');
-				break;
-		}
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_worklist_metric.tpl');
 	}
 	
 	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
-		switch($widget->extension_id) {
-			case 'core.workspace.widget.chart':
-			case 'core.workspace.widget.scatterplot':
-				return $this->_getDataSeries($widget, $params, $params_prefix);
-				break;
-				
-			case 'core.workspace.widget.counter':
-			case 'core.workspace.widget.gauge':
-			case 'core.workspace.widget.pie_chart':
-				return $this->_getDataSingle($widget, $params, $params_prefix);
-				break;
-		}
+		return $this->_getDataSingle($widget, $params, $params_prefix);
 	}
 	
 	private function _getDataSingle(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
@@ -193,14 +169,51 @@ class WorkspaceWidgetDatasource_Worklist extends Extension_WorkspaceWidgetDataso
 		if(empty($sql))
 			return false;
 		
-		switch($widget->extension_id) {
-			case 'core.workspace.widget.counter':
-			case 'core.workspace.widget.gauge':
-				$params['metric_value'] = $db->GetOneSlave($sql);
-				break;
-		}
+		$params['metric_value'] = $db->GetOneSlave($sql);
 		
 		return $params;
+	}
+};
+
+class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidgetDatasource {
+	private function _getSeriesIdxFromPrefix($params_prefix) {
+		if(!empty($params_prefix) && preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
+			return $matches[1];
+		}
+		
+		return null;
+	}
+	
+	function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('widget', $widget);
+		$tpl->assign('params', $params);
+		$tpl->assign('params_prefix', $params_prefix);
+		
+		if(null !== ($series_idx = $this->_getSeriesIdxFromPrefix($params_prefix)))
+			$tpl->assign('series_idx', $series_idx);
+		
+		// Prime the worklist
+		
+		$view_id = sprintf(
+			"widget%d_worklist%s",
+			$widget->id,
+			(!is_null($series_idx) ? intval($series_idx) : '')
+		);
+		
+		$view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id);
+		
+		// Worklists
+		
+		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
+		$tpl->assign('context_mfts', $context_mfts);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_worklist_series.tpl');
+	}
+	
+	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
+		return $this->_getDataSeries($widget, $params, $params_prefix);
 	}
 	
 	private function _getDataSeries(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {

@@ -236,6 +236,13 @@ if(isset($columns['list_view'])) {
 }
 
 // ===========================================================================
+// Migrate dashboard widgets using 'core.workspace.widget.datasource.worklist' to metric/series
+
+$db->ExecuteMaster("UPDATE workspace_widget SET params_json = REPLACE(params_json,'\"core.workspace.widget.datasource.worklist\"','\"core.workspace.widget.datasource.worklist.series\"') WHERE params_json LIKE '%\"core.workspace.widget.datasource.worklist\"%' AND extension_id IN ('core.workspace.widget.chart', 'core.workspace.widget.pie_chart', 'core.workspace.widget.scatterplot')");
+
+$db->ExecuteMaster("UPDATE workspace_widget SET params_json = REPLACE(params_json,'\"core.workspace.widget.datasource.worklist\"','\"core.workspace.widget.datasource.worklist.metric\"') WHERE params_json LIKE '%\"core.workspace.widget.datasource.worklist\"%' AND extension_id IN ('core.workspace.widget.counter', 'core.workspace.widget.gauge')");
+
+// ===========================================================================
 // Add `currency`
 
 if(!isset($tables['currency'])) {
