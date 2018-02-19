@@ -2088,12 +2088,22 @@
 		</tu>
 		<tu tuid="common.tag">
 			<tuv xml:lang="en_US">
-				<seg>Tag</seg>
+				<seg>tag</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.tags">
+			<tuv xml:lang="en_US">
+				<seg>tags</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.target">
 			<tuv xml:lang="en_US">
 				<seg>Target</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.targets">
+			<tuv xml:lang="en_US">
+				<seg>targets</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.task">

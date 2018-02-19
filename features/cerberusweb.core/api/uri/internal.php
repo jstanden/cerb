@@ -2569,7 +2569,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'], 'string', null);
 		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
 		@$replace = DevblocksPlatform::importGPC($_REQUEST['replace'], 'integer', 0);
-		@$field_deletes = DevblocksPlatform::importGPC($_REQUEST['field_deletes'],'array',array());
+		@$field_deletes = DevblocksPlatform::importGPC($_REQUEST['field_deletes'],'array',[]);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
 			return;
@@ -3431,17 +3431,18 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'string');
-		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', array());
+		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', []);
 		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
-		@$options = DevblocksPlatform::importGPC($_REQUEST['view_options'],'array', array());
+		@$options = DevblocksPlatform::importGPC($_REQUEST['view_options'],'array', []);
+		@$field_deletes = DevblocksPlatform::importGPC($_REQUEST['field_deletes'],'array',[]);
 		
 		// Sanitize
 		$num_rows = DevblocksPlatform::intClamp($num_rows, 1, 500);
-
+		
 		// [Security] Filter custom fields
 		$custom_fields = DAO_CustomField::getAll();
 		foreach($columns as $idx => $column) {
-			if(substr($column, 0, 3)=="cf_") {
+			if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 				$field_id = intval(substr($column, 3));
 				@$field = $custom_fields[$field_id]; /* @var $field Model_CustomField */
 
@@ -3466,7 +3467,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view->doCustomize($columns, $num_rows, $options);
 
 		$is_custom = $view->isCustom();
-		$is_trigger = substr($id,0,9)=='_trigger_';
+		$is_trigger = DevblocksPlatform::strStartsWith($id, '_trigger_');
 		
 		if($is_custom || $is_trigger) {
 			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', $translate->_('views.new_list'));
@@ -3479,7 +3480,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Handle worklists specially
 		if($is_custom) { // custom workspace
 			// Check the custom workspace
-
 			try {
 				$list_view_id = intval(substr($id,5));
 				

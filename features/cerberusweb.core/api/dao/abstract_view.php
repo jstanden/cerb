@@ -237,7 +237,7 @@ abstract class C4_AbstractView {
 	}
 	
 	function isCustom() {
-		return 'cust_' == substr($this->id, 0, 5);
+		return DevblocksPlatform::strStartsWith($this->id, 'cust_');
 	}
 
 	function getColumnsAvailable() {

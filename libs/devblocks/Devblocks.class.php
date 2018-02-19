@@ -2927,7 +2927,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 */
 	static function sanitizeArray($array, $type, $options=array()) {
 		if(!is_array($array))
-			return array();
+			return [];
 		
 		switch($type) {
 			case 'bit':

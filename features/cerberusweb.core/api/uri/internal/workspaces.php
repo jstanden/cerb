@@ -120,8 +120,8 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 	}
 	
 	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array', array());
-		@$names = DevblocksPlatform::importGPC($_POST['names'],'array', array());
+		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array', []);
+		@$names = DevblocksPlatform::importGPC($_POST['names'],'array', []);
 		
 		// Create any new worklists
 		if(is_array($ids) && !empty($ids))
