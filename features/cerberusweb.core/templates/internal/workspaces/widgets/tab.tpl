@@ -26,7 +26,7 @@
 {if Context_WorkspacePage::isWriteableByActor($page, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}
 <form id="frmAddWidget{$workspace_tab->id}" action="#">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-<button type="button" class="add_widget"><span class="glyphicons glyphicons-circle-plus"></span> Add Widget</button>
+<button type="button" class="add_widget" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab.id:{$workspace_tab->id}"><span class="glyphicons glyphicons-circle-plus"></span> Add Widget</button>
 </form>
 {/if}
 
@@ -108,13 +108,13 @@
 	} catch(e) {
 	}
 
-	var $frm = $('#frmAddWidget{$workspace_tab->id} button.add_widget').click(function(e) {
-		var $popup = genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id=0&workspace_tab_id={$workspace_tab->id}',null,false,'50%');
-		$popup.one('new_widget', function(e) {
-			if(null == e.widget_id)
+	$('#frmAddWidget{$workspace_tab->id} button.add_widget')
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function(e) {
+			if(null == e.id)
 				return;
 			
-			var widget_id = e.widget_id;
+			var widget_id = e.id;
 			
 			// Create the widget DOM
 			var $new_widget = $('<div class="dashboard-widget"></div>').attr('id','widget' + widget_id);
@@ -126,12 +126,11 @@
 			
 			// Redraw
 			genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id);
-			genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id=' + widget_id,null,false,'50%');
 			
 			// Save new order
 			$dashboard.trigger('reorder');
-		});
-	});
+		})
+	;
 	
 	var $dashboard = $('#dashboard{$workspace_tab->id}');
 	

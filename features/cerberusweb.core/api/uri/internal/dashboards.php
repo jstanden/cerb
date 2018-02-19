@@ -25,171 +25,6 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 		Extension_WorkspaceWidget::renderWidgetFromCache($widget_id, true, $nocache);
 	}
 	
-	function showWidgetPopupAction() {
-		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
-		
-		$tpl = DevblocksPlatform::services()->template();
-
-		if(empty($widget_id)) {
-			// [TODO] Verify this ID
-			@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
-			$tpl->assign('workspace_tab_id', $workspace_tab_id);
-			
-			$widget_extensions = Extension_WorkspaceWidget::getAll(false);
-			$tpl->assign('widget_extensions', $widget_extensions);
-			
-			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/add.tpl');
-			
-		} else {
-			if(null != ($widget = DAO_WorkspaceWidget::get($widget_id))) {
-				$tpl->assign('widget', $widget);
-				
-				if(null != ($extension = Extension_WorkspaceWidget::get($widget->extension_id))) {
-					$tpl->assign('extension', $extension);
-					$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/peek.tpl');
-				}
-			}
-		}
-	}
-	
-	function saveWidgetPopupAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$label = DevblocksPlatform::importGPC($_REQUEST['label'], 'string', 'Widget');
-		@$cache_ttl = DevblocksPlatform::importGPC($_REQUEST['cache_ttl'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'integer', 0);
-
-		if(!empty($id) && !empty($do_delete)) {
-			DAO_WorkspaceWidget::delete($id);
-			
-		} else {
-			$fields = array(
-				DAO_WorkspaceWidget::LABEL => $label,
-				DAO_WorkspaceWidget::CACHE_TTL => DevblocksPlatform::intClamp($cache_ttl, 0, 604800),
-			);
-			
-			if(null != ($widget = DAO_WorkspaceWidget::get($id))) {
-				DAO_WorkspaceWidget::update($widget->id, $fields);
-				
-				if(null != ($widget_extension = Extension_WorkspaceWidget::get($widget->extension_id))) {
-					$widget_extension->saveConfig($widget);
-				}
-			}
-		}
-	}
-	
-	function addWidgetPopupJsonAction() {
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', null);
-		@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
-		
-		header('Content-Type: application/json');
-		
-		if(empty($extension_id) || null == ($extension = Extension_WorkspaceWidget::get($extension_id))) {
-			echo json_encode(false);
-			return;
-		}
-		
-		if(empty($workspace_tab_id)) {
-			echo json_encode(false);
-			return;
-		}
-		
-		$widget_id = DAO_WorkspaceWidget::create(array(
-			DAO_WorkspaceWidget::LABEL => 'New widget',
-			DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
-			DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
-			DAO_WorkspaceWidget::POS => '0000',
-			DAO_WorkspaceWidget::CACHE_TTL => 60,
-		));
-		
-		echo json_encode(array(
-			'widget_id' => $widget_id,
-			'widget_extension_id' => $extension_id,
-			'widget_tab_id' => $workspace_tab_id,
-		));
-	}
-	
-	function addWidgetImportJsonAction() {
-		@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', null);
-		@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
-		@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', array());
-		
-		header('Content-Type: application/json');
-
-		try {
-		
-			if(empty($workspace_tab_id))
-				throw new Exception("Invalid workspace tab target");
-			
-			if(false == ($widget_json = json_decode($import_json, true)))
-				throw new Exception("Invalid JSON");
-			
-			if(!isset($widget_json['widget']['extension_id']))
-				throw new Exception("JSON doesn't contain widget extension info");
-			
-			if(!isset($widget_json['widget']['params']))
-				throw new Exception("JSON doesn't contain widget params");
-				
-			@$extension_id = $widget_json['widget']['extension_id'];
-			
-			if(empty($extension_id) || null == ($extension = Extension_WorkspaceWidget::get($extension_id)))
-				throw new Exception("Invalid widget extension");
-
-			// [TODO] Do more error checking on acceptable params
-			
-			// Allow prompted configuration of the widget import
-			
-			@$configure_fields = $widget_json['widget']['configure'];
-			
-			// Are there configurable fields in this import file?
-			if(is_array($configure_fields) && !empty($configure_fields)) {
-				// If the worker has provided the configuration, make the changes to JSON array
-				if(!empty($configure)) {
-					foreach($configure_fields as $config_field_idx => $config_field) {
-						if(!isset($config_field['path']))
-							continue;
-						
-						if(!isset($configure[$config_field_idx]))
-							continue;
-						
-						$ptr =& DevblocksPlatform::jsonGetPointerFromPath($widget_json, $config_field['path']);
-						$ptr = $configure[$config_field_idx];
-					}
-					
-				// If the worker hasn't been prompted, do that now
-				} else {
-					$tpl = DevblocksPlatform::services()->template();
-					$tpl->assign('import_json', $import_json);
-					$tpl->assign('import_fields', $configure_fields);
-					$config_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/prompted/configure_json_import.tpl');
-					
-					echo json_encode(array(
-						'config_html' => $config_html,
-					));
-					return;
-				}
-			}
-			
-			$widget_id = DAO_WorkspaceWidget::create(array(
-				DAO_WorkspaceWidget::LABEL => @$widget_json['widget']['label'] ?: 'New widget',
-				DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
-				DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
-				DAO_WorkspaceWidget::POS => '0000',
-				DAO_WorkspaceWidget::CACHE_TTL => @$widget_json['widget']['cache_ttl'] ?: 60,
-				DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget_json['widget']['params'])
-			));
-			
-			echo json_encode(array(
-				'widget_id' => $widget_id,
-				'widget_extension_id' => $extension_id,
-				'widget_tab_id' => $workspace_tab_id,
-			));
-			
-		} catch (Exception $e) {
-			echo json_encode(array(false, $e->getMessage()));
-			return;
-		}
-	}
-	
 	function showWidgetExportPopupAction() {
 		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
 
@@ -321,25 +156,13 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 			// [TODO] Kill cache on dashboard
 		}
 	}
-	
-	function getWidgetDatasourceConfigAction() {
-		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'string', '');
-		@$params_prefix = DevblocksPlatform::importGPC($_REQUEST['params_prefix'], 'string', null);
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'], 'string', '');
-
-		if(null == ($widget = DAO_WorkspaceWidget::get($widget_id)))
-			return;
-		
-		if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($ext_id)))
-			return;
-		
-		$datasource_ext->renderConfig($widget, $widget->params, $params_prefix);
-	}
 }
 endif;
 
 if(class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
+	const ID = 'core.workspace.tab';
+	
 	public function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -399,8 +222,8 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 			DAO_WorkspaceWidget::POS,
 			true
 		);
-
-		$columns = array();
+		
+		$columns = [];
 
 		// [TODO] If the col_idx is greater than the number of cols on this dashboard,
 		//   move widget to first col
@@ -409,14 +232,13 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		foreach($widgets as $widget) { /* @var $widget Model_WorkspaceWidget */
 			$pos = !empty($widget->pos) ? $widget->pos : '0000';
 			$col_idx = substr($pos,0,1);
-			$n = substr($pos,1);
 			
 			if(!isset($columns[$col_idx]))
-				$columns[$col_idx] = array();
+				$columns[$col_idx] = [];
 			
 			$columns[$col_idx][$widget->id] = $widget;
 		}
-
+		
 		unset($widgets);
 		
 		$tpl->assign('columns', $columns);
@@ -753,7 +575,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 	function render(Model_WorkspaceWidget $widget) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
-
+		
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'], 'integer', null);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'], 'integer', null);
 		
@@ -1953,6 +1775,8 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 };
 
 class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
+	const ID = 'core.workspace.widget.worklist';
+	
 	public function getView(Model_WorkspaceWidget $widget) {
 		$view_id = sprintf("widget%d_worklist", $widget->id);
 		

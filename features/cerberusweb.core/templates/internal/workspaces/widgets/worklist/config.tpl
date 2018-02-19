@@ -19,7 +19,7 @@
 				{/foreach}
 			</select>
 			
-			 data using 
+			data using 
 			
 			<div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
 			
@@ -32,41 +32,39 @@
 			<div style="margin-left:20px;">
 				<input type="text" name="params[quick_search]" value="{$widget->params.quick_search}" class="quicksearch" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
 			</div>
-			
-			<script type="text/javascript">
-				var $fieldset = $('fieldset#widget{$widget->id}Datasource');
-				
-				$('#popup{$div_popup_worklist}').click(function(e) {
-					var $select = $(this).siblings('select.context');
-					var context = $select.val();
-					var $mode = $fieldset.find('input.mode');
-					var q = '';
-					
-					if($mode.is(':checked')) {
-						q = $fieldset.find('input.quicksearch').val();
-					}
-					
-					if(context.length == 0) {
-						$select.effect('highlight','slow');
-						return;
-					}
-					
-					var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist_config"}&q=' + encodeURIComponent(q),null,true,'750');
-					
-					$chooser.on('chooser_save',function(event) {
-						if(null != event.worklist_model) {
-							$fieldset.find('input:hidden.model').val(event.worklist_model);
-							$fieldset.find('input.quicksearch').val(event.worklist_quicksearch);
-						}
-					});
-				});
-			</script>
 		</fieldset>
-
 	</div>
-	
 </div>
 
 <script type="text/javascript">
+$(function() {
+	var $fieldset = $('fieldset#widget{$widget->id}Datasource');
+	
 	$('#widget{$widget->id}ConfigTabs').tabs();
+	
+	$('#popup{$div_popup_worklist}').click(function(e) {
+		var $select = $(this).siblings('select.context');
+		var context = $select.val();
+		var $mode = $fieldset.find('input.mode');
+		var q = '';
+		
+		if($mode.is(':checked')) {
+			q = $fieldset.find('input.quicksearch').val();
+		}
+		
+		if(context.length == 0) {
+			$select.effect('highlight','slow');
+			return;
+		}
+		
+		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist_config"}&q=' + encodeURIComponent(q),null,true,'750');
+		
+		$chooser.on('chooser_save',function(event) {
+			if(null != event.worklist_model) {
+				$fieldset.find('input:hidden.model').val(event.worklist_model);
+				$fieldset.find('input.quicksearch').val(event.worklist_quicksearch);
+			}
+		});
+	});
+});
 </script>

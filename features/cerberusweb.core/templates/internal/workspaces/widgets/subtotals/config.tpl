@@ -17,7 +17,7 @@
 			{/foreach}
 		</select>
 		
-		 subtotals using 
+		subtotals using 
 		
 		<div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
 	
@@ -31,29 +31,28 @@
 	<input type="text" name="params[limit_to]" size="4" value="{$limit_to}" placeholder="20">
 	
 	subtotals
-	
-	<br>
-
-	<script type="text/javascript">
-		$fieldset = $('fieldset#widget{$widget->id}Datasource');
-
-		$('#popup{$div_popup_worklist}').click(function(e) {
-			var $select =  $(this).siblings('select.context');
-			var context = $select.val();
-			
-			if(context.length == 0) {
-				$select.effect('highlight','slow');
-				return;
-			}
-			
-			$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}',null,true,'750');
-			$chooser.bind('chooser_save',function(event) {
-				if(null != event.worklist_model) {
-					$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.worklist_model);
-				}
-			});
-		});
-	</script>
 	</fieldset>
-
 </div>
+
+<script type="text/javascript">
+$(function() {
+	var $fieldset = $('fieldset#widget{$widget->id}Datasource');
+
+	$('#popup{$div_popup_worklist}').click(function(e) {
+		var $select =  $(this).siblings('select.context');
+		var context = $select.val();
+		
+		if(context.length == 0) {
+			$select.effect('highlight','slow');
+			return;
+		}
+		
+		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}',null,true,'750');
+		$chooser.bind('chooser_save',function(event) {
+			if(null != event.worklist_model) {
+				$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.worklist_model);
+			}
+		});
+	});
+});
+</script>

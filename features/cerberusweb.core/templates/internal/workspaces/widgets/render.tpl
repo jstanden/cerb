@@ -7,7 +7,7 @@
 		
 		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;margin-left:-180px;">
 			{if Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.update")}
-			<li><a href="javascript:;" class="dashboard-widget-edit" onclick="genericAjaxPopup('widget_edit','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetPopup&widget_id={$widget->id}',null,false,'50%');">Configure</a></li>
+			<li><a href="javascript:;" class="dashboard-widget-edit" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="{$widget->id}" data-edit="true">Configure</a></li>
 			{/if}
 			<li><a href="javascript:;" class="dashboard-widget-refresh" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1');">Refresh</a></li>
 			
@@ -23,26 +23,44 @@
 </div>
 
 <script type="text/javascript">
-$('#widget{$widget->id}')
-	.find('div.dashboard-widget-title > div.toolbar > a.dashboard-widget-menu')
-	.click(function() {
-		$(this).next('ul.cerb-popupmenu').toggle();
-	})
-	.next('ul.cerb-popupmenu')
-	.hover(
-		function(e) { }, 
-		function(e) { $(this).hide(); }
-	)
-	.find('> li')
-	.click(function(e) {
-		$(this).closest('ul.cerb-popupmenu').hide();
-		
-		e.stopPropagation();
-		if(!$(e.target).is('li'))
-			return;
-		
-		$(this).find('a').trigger('click');
-	});
+$(function() {
+	var $widget = $('#widget{$widget->id}');
+	
+	$widget
+		.find('div.dashboard-widget-title > div.toolbar > a.dashboard-widget-menu')
+		.click(function() {
+			$(this).next('ul.cerb-popupmenu').toggle();
+		})
+		.next('ul.cerb-popupmenu')
+		.hover(
+			function(e) { }, 
+			function(e) { $(this).hide(); }
+		)
+		.find('> li')
+		.click(function(e) {
+			$(this).closest('ul.cerb-popupmenu').hide();
+			
+			e.stopPropagation();
+			if(!$(e.target).is('li'))
+				return;
+			
+			$(this).find('a').trigger('click');
+		})
+	;
+	
+	$widget
+		.find('a.dashboard-widget-edit')
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function(e) {
+			var widget_id = e.id;
+			genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id + '&nocache=1');
+		})
+		.on('cerb-peek-deleted', function(e) {
+			// Nuke the widget DOM
+			$('#widget' + e.id).remove();
+		})
+	;
+});
 </script>
 
 <input type="hidden" name="widget_pos[]" value="{$widget->id}">

@@ -21,10 +21,6 @@ $(function() {
 	var $div = $('#{$div_id}');
 	var $bubbles = $div.find('ul.chooser-container');
 	
-	$div.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-		;
-	
 	$div.find('.chooser-behavior')
 		.cerbChooserTrigger()
 		;

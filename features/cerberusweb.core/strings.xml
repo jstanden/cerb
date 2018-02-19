@@ -2351,6 +2351,16 @@
 				<seg>when</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.widget">
+			<tuv xml:lang="en_US">
+				<seg>widget</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.widgets">
+			<tuv xml:lang="en_US">
+				<seg>widgets</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.worker">
 			<tuv xml:lang="en_US">
 				<seg>worker</seg>
@@ -2394,6 +2404,16 @@
 		<tu tuid="common.workspace.tabs">
 			<tuv xml:lang="en_US">
 				<seg>workspace tabs</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.widget">
+			<tuv xml:lang="en_US">
+				<seg>workspace widget</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.widgets">
+			<tuv xml:lang="en_US">
+				<seg>workspace widgets</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.workspace.worklist">

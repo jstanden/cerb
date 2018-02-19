@@ -14,5 +14,7 @@
 </div>
 
 <script type="text/javascript">
-	$fieldset = $('fieldset#widget{$widget->id}Datasource');
+$(function() {
+	var $fieldset = $('fieldset#widget{$widget->id}Datasource');
+});
 </script>

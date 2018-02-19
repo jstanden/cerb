@@ -6,9 +6,9 @@
 	
 	<select name="params[datasource]" class="datasource-selector">
 		<option value=""></option>
-	{foreach from=$datasource_mfts item=datasource_mft}
+		{foreach from=$datasource_mfts item=datasource_mft}
 		<option value="{$datasource_mft->id}" {if $source==$datasource_mft->id}selected="selected"{/if}>{$datasource_mft->name}</option>
-	{/foreach}
+		{/foreach}
 	</select>
 	
 	<div class="datasource-params" style="margin-left:10px;">
@@ -66,13 +66,14 @@ $(function() {
 	});
 	
 	$config.find('select.datasource-selector').change(function() {
-		var datasource=$(this).val();
-		var $div_params=$(this).next('DIV.datasource-params');
+		var $this = $(this);
+		var datasource = $this.val();
+		var $div_params = $this.next('DIV.datasource-params');
 		
 		if(datasource.length==0) { 
 			$div_params.html(''); 
 		} else { 
-			genericAjaxGet($div_params, 'c=internal&a=handleSectionAction&section=dashboards&action=getWidgetDatasourceConfig&widget_id={$widget->id}&ext_id=' + datasource);
+			genericAjaxGet($div_params, 'c=profiles&a=handleSectionAction&section=workspace_widget&action=getWidgetDatasourceConfig&widget_id={$widget->id}&ext_id=' + datasource);
 		}
 	});
 });

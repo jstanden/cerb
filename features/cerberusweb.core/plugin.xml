@@ -595,6 +595,7 @@
 			<class name="DAO_WorkspaceWidget" />
 			<class name="Model_WorkspaceWidget" />
 			<class name="SearchFields_WorkspaceWidget" />
+			<class name="View_WorkspaceWidget" />
 		</file>
 		
 		<file path="api/dao/workspace_list.php">
@@ -3027,7 +3028,13 @@
 				<param key="view_class" value="View_WorkspaceWidget" />
 				<param key="options">
 					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
 						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="acl">
@@ -5555,6 +5562,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="worker" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.workspace_widget</id>
+				<name>Workspace Widget Section</name>
+				<class>
+					<file>api/uri/profiles/workspace_widget.php</file>
+					<name>PageSection_ProfilesWorkspaceWidget</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="workspace_widget" />
 				</params>
 			</extension>
 			
