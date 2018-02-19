@@ -56,13 +56,13 @@ class WorkspaceTab_Calendar extends Extension_WorkspaceTab {
 			$tpl->assign('calendar', $calendar);
 			$tpl->assign('calendar_events', $calendar_events);
 			
+			$tpl->assign('calendar_properties', $calendar_properties);
+			$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
+			
 		} else {
-			$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year);
+			$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab_empty.tpl');
 		}
 
-		$tpl->assign('calendar_properties', $calendar_properties);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
 	}
 	
 	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
