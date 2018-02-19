@@ -227,14 +227,16 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 				$view->options = $list_view->options;
 			}
 			
+			$sorts = $view->getSorts();
+			
 			$model = array(
 				'options' => json_decode(json_encode($view->options), true),
 				'columns' => $view->view_columns,
 				'params' => json_decode(json_encode($view->getEditableParams()), true),
 				'params_required' => json_decode(json_encode($view->getParamsRequired()), true),
 				'limit' => $view->renderLimit,
-				'sort_by' => @$view->renderSortBy,
-				'sort_asc' => !empty(@$view->renderSortAsc),
+				'sort_by' => array_keys($sorts),
+				'sort_asc' => array_values($sorts),
 				'subtotals' => $view->renderSubtotals,
 				'context' => $worklist->context,
 			);

@@ -454,6 +454,18 @@ abstract class C4_AbstractView {
 		$this->addParams($fields, $replace);
 	}
 	
+	function getSorts() {
+		$render_sort = null;
+		
+		if(is_array($this->renderSortBy) && is_array($this->renderSortAsc) && count($this->renderSortBy) == count($this->renderSortAsc)) {
+			$render_sort = array_combine($this->renderSortBy, $this->renderSortAsc);
+		} else if(!is_array($this->renderSortBy) && !is_array($this->renderSortAsc)) {
+			$render_sort = [$this->renderSortBy => ($this->renderSortAsc ? true : false) ];
+		}
+		
+		return $render_sort;
+	}
+	
 	function _getSortFromQuickSearchQuery($sort_query) {
 		$sort_results = [
 			'sort_by' => [],
@@ -4000,11 +4012,7 @@ class C4_AbstractViewLoader {
 		$model->renderLimit = intval($view->renderLimit);
 		$model->renderTotal = intval($view->renderTotal);
 		
-		if(!is_array($view->renderSortBy)) {
-			$model->renderSort = [$view->renderSortBy => ($view->renderSortAsc ? true : false)];
-		} else {
-			$model->renderSort = @array_combine($view->renderSortBy, $view->renderSortAsc);
-		}
+		$model->renderSort = $view->getSorts();
 		
 		$model->renderFilters = $view->renderFilters ? true : false;
 		$model->renderSubtotals = $view->renderSubtotals;
