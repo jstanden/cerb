@@ -2,6 +2,8 @@
 {$view_fields = $view->getColumnsAvailable()}
 {$total = $results[1]}
 {$data = $results[0]}
+{$are_rows_two_lines = !in_array('t_subject', $view->view_columns)}
+
 <div id="{$view->id}_output_container">
 	{include file="devblocks:cerberusweb.core::tickets/rpc/ticket_view_output.tpl"}
 </div>
@@ -120,10 +122,9 @@
 
 	<tbody style="cursor:pointer;" data-status-id="{$result.t_status_id}" data-status="{if $result.t_status_id == Model_Ticket::STATUS_WAITING}waiting{elseif $result.t_status_id == Model_Ticket::STATUS_CLOSED}closed{elseif $result.t_status_id == Model_Ticket::STATUS_DELETED}deleted{else}open{/if}" data-num-messages="{$result.t_num_messages}">
 	
-	{if !$view->options.disable_watchers || !in_array('t_subject',$view->view_columns)}
 	<tr class="{$tableRowClass}">
 		{if !$view->options.disable_watchers}
-		<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding-right:0;">
+		<td data-column="*_watchers" align="center" {if $are_rows_two_lines}rowspan="2"{/if} nowrap="nowrap" style="padding-right:0;">
 			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.t_id watchers_group_id=$result.t_group_id watchers_bucket_id=$result.t_bucket_id}
 		</td>
 		{/if}
@@ -133,10 +134,12 @@
 			{$smarty.capture.ticket_subject_content nofilter}
 		</td>
 		{/if}
+		
+	{if $are_rows_two_lines}
 	</tr>
+	<tr class="{$tableRowClass}">
 	{/if}
 	
-	<tr class="{$tableRowClass}">
 	{foreach from=$view->view_columns item=column name=columns}
 		{if substr($column,0,3)=="cf_"}
 			{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}

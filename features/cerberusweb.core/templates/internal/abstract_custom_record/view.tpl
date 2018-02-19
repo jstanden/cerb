@@ -2,6 +2,7 @@
 {$results = $view->getData()}
 {$total = $results[1]}
 {$data = $results[0]}
+{$are_rows_two_lines = !in_array('a_name', $view->view_columns)}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -35,7 +36,6 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
-
 	{* Column Headers *}
 	<thead>
 	<tr>
@@ -50,7 +50,7 @@
 			<span class="glyphicons glyphicons-camera" style="color:rgb(80,80,80);"></span>
 		</th>
 		{/if}
-	
+		
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th class="{if $view->options.disable_sorting}no-sort{/if}">
@@ -87,31 +87,32 @@
 	{/capture}
 	
 	<tbody style="cursor:pointer;">
-		{if !$view->options.disable_watchers || !in_array('a_name', $view->view_columns)}
 		<tr class="{$tableRowClass}">
 			{if !$view->options.disable_watchers}
-			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_watchers" align="center" {if $are_rows_two_lines}rowspan="2"{/if} nowrap="nowrap" style="padding:5px;">
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.a_id}
 			</td>
 			{/if}
 			
 			{if $custom_record->hasOption('avatars')}
-			<td data-column="*_image" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
+			<td data-column="*_image" align="center" {if $are_rows_two_lines}rowspan="2"{/if} nowrap="nowrap" style="padding:5px;">
 				<div style="position:relative;">
 					<img src="{devblocks_url}c=avatars&context={$view_context}&context_id={$result.a_id}{/devblocks_url}?v={$result.a_updated_at}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
 				</div>
 			</td>
 			{/if}
 			
-			{if !in_array('a_name', $view->view_columns)}
+			{if $are_rows_two_lines}
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				{$smarty.capture.record_label nofilter}
 			</td>
 			{/if}
+			
+		{if $are_rows_two_lines}
 		</tr>
-		{/if}
-	
 		<tr class="{$tableRowClass}">
+		{/if}
+		
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
