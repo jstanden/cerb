@@ -14,7 +14,11 @@ class _DevblocksSanitizationManager {
 				
 			case 'bool':
 			case 'boolean':
-				$value = $value ? true : false;
+				if(is_string($value) && 0 == strcasecmp($value, 'false')) {
+					$value = false;
+				} else {
+					$value = $value ? true : false;
+				}
 				break;
 				
 			case 'str':
