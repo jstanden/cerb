@@ -1697,7 +1697,7 @@ abstract class C4_AbstractView {
 		$this->removeParam($key);
 		$this->renderPage = 0;
 	}
-
+	
 	function doResetCriteria() {
 		$this->addParams($this->_paramsDefault, true);
 		$this->renderPage = 0;
@@ -4125,6 +4125,34 @@ class C4_AbstractViewLoader {
 		return json_encode($model);
 	}
 	
+	static function convertParamsJsonToObject($params_json) {
+		// Convert JSON params back to objects
+		$func = function(&$e) use (&$func) {
+			if(is_array($e) && isset($e['field']) && isset($e['operator'])) {
+				$e = new DevblocksSearchCriteria($e['field'], $e['operator'], $e['value']);
+				
+			} elseif(is_array($e)) {
+				array_walk(
+					$e,
+					$func
+				);
+			} else {
+				// Trim?
+			}
+		};
+		
+		if(isset($params_json) && is_array($params_json)) {
+			array_walk(
+				$params_json,
+				$func
+			);
+			
+			return $params_json;
+		}
+		
+		return [];
+	}
+	
 	static function unserializeViewFromAbstractJson($view_model, $view_id) {
 		@$view_context = $view_model['context'];
 		
@@ -4146,39 +4174,16 @@ class C4_AbstractViewLoader {
 		$view->renderSortAsc = $view_model['sort_asc'];
 		$view->renderSubtotals = $view_model['subtotals'];
 		
-		// Convert JSON params back to objects
-		$func = function(&$e) use (&$func) {
-			if(is_array($e) && isset($e['field']) && isset($e['operator'])) {
-				$e = new DevblocksSearchCriteria($e['field'], $e['operator'], $e['value']);
-				
-			} elseif(is_array($e)) {
-				array_walk(
-					$e,
-					$func
-				);
-			} else {
-				// Trim?
-			}
-		};
-		
 		if(isset($view_model['params']) && is_array($view_model['params'])) {
-			array_walk(
-				$view_model['params'],
-				$func
-			);
-			
-			$view->addParams($view_model['params'], true);
+			$params = self::convertParamsJsonToObject($view_model['params']);
+			$view->addParams($params, true);
 		}
 		
 		if(isset($view_model['params_required']) && is_array($view_model['params_required'])) {
-			array_walk(
-				$view_model['params_required'],
-				$func
-			);
-			
-			$view->addParamsRequired($view_model['params_required'], true);
+			$params = self::convertParamsJsonToObject($view_model['params_required']);
+			$view->addParamsRequired($params, true);
 		}
-
+		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$labels = [];
