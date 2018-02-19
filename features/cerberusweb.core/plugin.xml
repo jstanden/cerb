@@ -602,7 +602,6 @@
 			<class name="Context_WorkspaceList" />
 			<class name="DAO_WorkspaceList" />
 			<class name="Model_WorkspaceList" />
-			<class name="Model_WorkspaceListView" />
 			<class name="SearchFields_WorkspaceList" />
 			<class name="View_WorkspaceList" />
 		</file>

@@ -17,7 +17,7 @@
 {foreach from=$worklists item=worklist key=worklist_id}
 	<div id="worklistPlaceholder{$worklist_id}" style="margin-bottom:10px;">
 		<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;">
-			Loading: {$worklist->list_view->title}<br>
+			Loading: {$worklist->name}<br>
 			<span class="cerb-ajax-spinner"></span>
 		</div>
 	</div>

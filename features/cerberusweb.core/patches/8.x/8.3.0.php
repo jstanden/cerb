@@ -91,6 +91,151 @@ if(!isset($columns['updated_at'])) {
 }
 
 // ===========================================================================
+// Migrate `workspace_list` serialized content to field values
+
+if(!isset($tables['workspace_list'])) {
+	$logger->error("The 'workspace_list' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('workspace_list');
+
+if(!isset($columns['updated_at'])) {
+	$sql = 'ALTER TABLE workspace_list ADD COLUMN updated_at int(10) unsigned NOT NULL DEFAULT 0';
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster(sprintf("UPDATE workspace_list SET updated_at = %d", time()));
+}
+
+if(!isset($columns['workspace_tab_pos']) && isset($columns['list_pos'])) {
+	$sql = 'ALTER TABLE workspace_list CHANGE COLUMN list_pos workspace_tab_pos smallint(5) unsigned NOT NULL DEFAULT 0';
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster(sprintf("UPDATE workspace_list SET updated_at = %d", time()));
+}
+
+$changes = [];
+
+if(!isset($columns['name'])) {
+	$changes[] = "ADD COLUMN name varchar(255) NOT NULL DEFAULT '' AFTER id";
+	$changes[] = "ADD INDEX name (name(4))";
+}
+
+if(!isset($columns['options_json'])) {
+	$changes[] = "ADD COLUMN options_json text";
+}
+
+if(!isset($columns['columns_json'])) {
+	$changes[] = "ADD COLUMN columns_json text";
+}
+
+if(!isset($columns['params_editable_json'])) {
+	$changes[] = "ADD COLUMN params_editable_json text";
+}
+
+if(!isset($columns['params_required_json'])) {
+	$changes[] = "ADD COLUMN params_required_json text";
+}
+
+if(!isset($columns['render_limit'])) {
+	$changes[] = "ADD COLUMN render_limit smallint(5) unsigned not null default 0";
+}
+
+if(!isset($columns['render_subtotals'])) {
+	$changes[] = "ADD COLUMN render_subtotals varchar(255) not null default ''";
+}
+
+if(!isset($columns['render_sort_json'])) {
+	$changes[] = "ADD COLUMN render_sort_json varchar(255) not null default ''";
+}
+
+if(!empty($changes)) {
+	$sql = "ALTER TABLE workspace_list " . implode(', ', $changes);
+	if(!$db->ExecuteMaster($sql)) {
+		echo $db->ErrorMsg();
+		return false;
+	}
+}
+
+if(isset($columns['list_view'])) {
+	if(!class_exists('Model_WorkspaceListView', false)) {
+		class Model_WorkspaceListView {
+			public $title = 'New List';
+			public $options = [];
+			public $columns = [];
+			public $num_rows = 10;
+			public $params = [];
+			public $params_required = [];
+			public $sort_by = null;
+			public $sort_asc = 1;
+			public $subtotals = '';
+		};
+	}
+	
+	$sql = "SELECT id, list_view, context FROM workspace_list";
+	$rs = $db->ExecuteMaster($sql);
+	
+	while($result = mysqli_fetch_assoc($rs)) {
+		$list_view = unserialize($result['list_view']); /* @var $list_view Model_WorkspaceListView */
+		
+		$view_id = 'cust_' . $result['id'];
+		
+		if(null == ($ext = Extension_DevblocksContext::get($result['context'])))
+			continue;
+		
+		$view = $ext->getChooserView($view_id);  /* @var $view C4_AbstractView */
+		
+		if(empty($view))
+			continue;
+		
+		$view->name = $list_view->title;
+		$view->renderLimit = $list_view->num_rows;
+		$view->renderPage = 0;
+		$view->is_ephemeral = 0;
+		$view->view_columns = $list_view->columns;
+		if(property_exists($list_view, 'columns_hidden'))
+			$view->addColumnsHidden($list_view->columns_hidden, true);
+		$view->addParams($list_view->params, true);
+		if(property_exists($list_view, 'params_required'))
+			$view->addParamsRequired($list_view->params_required, true);
+		if(property_exists($list_view, 'params_default'))
+			$view->addParamsDefault($list_view->params_default, true);
+		if(property_exists($list_view, 'params_hidden'))
+			$view->addParamsHidden($list_view->params_hidden, true);
+		$view->renderSortBy = $list_view->sort_by;
+		$view->renderSortAsc = $list_view->sort_asc;
+		$view->options = $list_view->options;
+		
+		$sort_json = $view->getSorts();
+		
+		$sql = sprintf("UPDATE workspace_list SET ".
+			"name = %s, ".
+			"options_json = %s, ".
+			"columns_json = %s, ".
+			"params_editable_json = %s, ".
+			"params_required_json = %s, ".
+			"render_limit = %d, ".
+			"render_subtotals = %s, ".
+			"render_sort_json = %s ".
+			"WHERE id = %d",
+			$db->qstr($view->name),
+			$db->qstr(json_encode($view->options)),
+			$db->qstr(json_encode($view->view_columns)),
+			$db->qstr(json_encode($view->getParams(false))),
+			$db->qstr(json_encode($view->getParamsRequired())),
+			$view->renderLimit,
+			$db->qstr($view->renderSubtotals),
+			$db->qstr(json_encode($sort_json)),
+			$result['id']
+		);
+		
+		$db->ExecuteMaster($sql);
+	}
+	
+	$db->ExecuteMaster("ALTER TABLE workspace_list DROP COLUMN list_view");
+}
+
+// ===========================================================================
 // Add `currency`
 
 if(!isset($tables['currency'])) {

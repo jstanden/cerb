@@ -2741,25 +2741,20 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(empty($workspace_context))
 			return;
 
-		// View params inside the list for quick render overload
-		$list_view = new Model_WorkspaceListView();
-		$list_view->title = $list_title;
-		$list_view->options = $view->options;
-		$list_view->num_rows = $view->renderLimit;
-		$list_view->columns = $view->view_columns;
-		$list_view->params = $view->getEditableParams();
-		$list_view->params_required = $view->getParamsRequired();
-		$list_view->sort_by = $view->renderSortBy;
-		$list_view->sort_asc = $view->renderSortAsc;
-		$list_view->subtotals = $view->renderSubtotals;
-
 		// Save the new worklist
-		$fields = array(
-			DAO_WorkspaceList::WORKSPACE_TAB_ID => $workspace_tab_id,
+		$fields = [
+			DAO_WorkspaceList::COLUMNS_JSON => json_encode($view->view_columns),
 			DAO_WorkspaceList::CONTEXT => $workspace_context,
-			DAO_WorkspaceList::LIST_VIEW => serialize($list_view),
-			DAO_WorkspaceList::LIST_POS => 99,
-		);
+			DAO_WorkspaceList::NAME => $list_title,
+			DAO_WorkspaceList::OPTIONS_JSON => json_encode($view->options),
+			DAO_WorkspaceList::PARAMS_EDITABLE_JSON => json_encode($view->getEditableParams()),
+			DAO_WorkspaceList::PARAMS_REQUIRED_JSON => json_encode($view->getParamsRequired()),
+			DAO_WorkspaceList::RENDER_LIMIT => $view->renderLimit,
+			DAO_WorkspaceList::RENDER_SORT_JSON => json_encode($view->getSorts()),
+			DAO_WorkspaceList::RENDER_SUBTOTALS => $view->renderSubtotals,
+			DAO_WorkspaceList::WORKSPACE_TAB_ID => $workspace_tab_id,
+			DAO_WorkspaceList::WORKSPACE_TAB_POS => 99,
+		];
 		$list_id = DAO_WorkspaceList::create($fields);
 
 		$view->render();
@@ -3478,15 +3473,15 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view->renderPage = 0;
 		
 		// Handle worklists specially
-		if($is_custom) { // custom workspace
+		if($is_custom) {
 			// Check the custom workspace
 			try {
-				$list_view_id = intval(substr($id,5));
+				$worklist_id = intval(substr($id,5));
 				
-				if(empty($list_view_id))
+				if(empty($worklist_id))
 					throw new Exception("Invalid worklist ID.");
 				
-				if(null == ($list_model = DAO_WorkspaceList::get($list_view_id)))
+				if(null == ($list_model = DAO_WorkspaceList::get($worklist_id)))
 					throw new Exception("Can't load worklist.");
 				
 				if(null == ($workspace_tab = DAO_WorkspaceTab::get($list_model->workspace_tab_id)))
@@ -3499,37 +3494,43 @@ class ChInternalController extends DevblocksControllerExtension {
 					throw new Exception("Permission denied to edit workspace.");
 				}
 				
+				// Nuke legacy required criteria on custom views
+				if(is_array($field_deletes) && !empty($field_deletes)) {
+					foreach($field_deletes as $field_delete) {
+						unset($list_model->params_required[$field_delete]);
+					}
+				}
+				
 			} catch(Exception $e) {
 				// [TODO] Logger
 				$view->render();
 				return;
 			}
 			
-			// Persist Object
-			$list_view = new Model_WorkspaceListView();
-			$list_view->title = $title;
-			$list_view->options = $options;
-			$list_view->columns = $view->view_columns;
-			$list_view->num_rows = $view->renderLimit;
-			$list_view->params = array();
-			$list_view->params_required = $view->getParamsRequired();
-			$list_view->sort_by = $view->renderSortBy;
-			$list_view->sort_asc = $view->renderSortAsc;
-			$list_view->subtotals = $view->renderSubtotals;
-
-			DAO_WorkspaceList::update($list_view_id, array(
-				DAO_WorkspaceList::LIST_VIEW => serialize($list_view)
-			));
-
+			// Persist
+			
+			DAO_WorkspaceList::update($worklist_id, [
+				DAO_WorkspaceList::NAME => $title,
+				DAO_WorkspaceList::OPTIONS_JSON => json_encode($options),
+				DAO_WorkspaceList::COLUMNS_JSON => json_encode($view->view_columns),
+				DAO_WorkspaceList::RENDER_LIMIT => $view->renderLimit,
+				DAO_WorkspaceList::PARAMS_EDITABLE_JSON => json_encode([]),
+				DAO_WorkspaceList::PARAMS_REQUIRED_JSON => json_encode($list_model->params_required),
+				DAO_WorkspaceList::RENDER_SORT_JSON => json_encode($view->getSorts()),
+				DAO_WorkspaceList::RENDER_SUBTOTALS => $view->renderSubtotals,
+			]);
+			
 			// Syndicate
 			$worker_views = DAO_WorkerViewModel::getWhere(sprintf("view_id = %s", Cerb_ORMHelper::qstr($id)));
-
+			$params_required = $list_model->getParamsRequired();
+			
 			// Update any instances of this view with the new required columns + params
 			foreach($worker_views as $worker_view) { /* @var $worker_view C4_AbstractViewModel */
 				$worker_view->name = $view->name;
 				$worker_view->options = $view->options;
 				$worker_view->view_columns = $view->view_columns;
-				$worker_view->paramsRequired = $view->getParamsRequired();
+				$worker_view->paramsDefault = $view->getParamsDefault();
+				$worker_view->paramsRequired = $params_required;
 				$worker_view->renderLimit = $view->renderLimit;
 				DAO_WorkerViewModel::setView($worker_view->worker_id, $worker_view->id, $worker_view);
 			}

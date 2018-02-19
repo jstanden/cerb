@@ -427,49 +427,39 @@ class Page_Custom extends CerberusPageExtension {
 		}
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
-			$list_view = $list->list_view; /* @var $list_view Model_WorkspaceListView */
-				
 			$view = $ext->getChooserView($view_id);  /* @var $view C4_AbstractView */
 				
 			if(empty($view))
 				return;
-				
-			$view->name = $list_view->title;
-			$view->options = $list_view->options;
-			$view->renderLimit = $list_view->num_rows;
+			
+			$view->name = $list->name;
+			$view->options = $list->options;
+			$view->renderLimit = $list->render_limit;
 			$view->renderPage = 0;
 			$view->is_ephemeral = 0;
-			$view->view_columns = $list_view->columns;
-			$view->addParams($list_view->params, true);
-			if(property_exists($list_view, 'params_required'))
-				$view->addParamsRequired($list_view->params_required, true);
-			$view->renderSortBy = $list_view->sort_by;
-			$view->renderSortAsc = $list_view->sort_asc;
-			$view->renderSubtotals = $list_view->subtotals;
-	
-			unset($ext);
-			unset($list_view);
-			unset($view_class);
+			$view->view_columns = $list->columns;
+			$view->addParams($list->getParamsEditable(), true);
+			$view->renderSortBy = array_keys($list->render_sort);
+			$view->renderSortAsc = array_values($list->render_sort);
+			$view->renderSubtotals = $list->render_subtotals;
 		}
-	
-		if(!empty($view)) {
-			if($active_worker) {
-				$labels = array();
-				$values = array();
-				$active_worker->getPlaceholderLabelsValues($labels, $values);
-				
-				$view->setPlaceholderLabels($labels);
-				$view->setPlaceholderValues($values);
-			}
-				
-			$tpl->assign('view', $view);
-			$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
-			$tpl->clearAssign('view');
+		
+		if(empty($view))
+			return;
+		
+		// Placeholders
+		
+		if($active_worker) {
+			$labels = [];
+			$values = [];
+			$active_worker->getPlaceholderLabelsValues($labels, $values);
+			
+			$view->setPlaceholderLabels($labels);
+			$view->setPlaceholderValues($values);
 		}
-	
-		unset($list);
-		unset($list_id);
-		unset($view_id);
+		
+		$tpl->assign('view', $view);
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
 	function saveWorkspacePagePeekJsonAction() {

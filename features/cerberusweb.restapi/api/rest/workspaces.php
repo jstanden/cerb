@@ -201,29 +201,25 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 			return;
 		}
 		
-		// [TODO] Convert this to the abstract worklist format
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
-			$list_view = $workspace_worklist->list_view; /* @var $list_view Model_WorkspaceListView */
-				
 			$view = $ext->getChooserView($view_id);  /* @var $view C4_AbstractView */
 				
 			if(empty($view))
 				return;
 				
-			$view->name = $list_view->title;
-			$view->options = $list_view->options;
-			$view->renderLimit = $list_view->num_rows;
+			$view->name = $workspace_worklist->name;
+			$view->options = $workspace_worklist->options;
+			$view->renderLimit = $workspace_worklist->render_limit;
 			$view->renderPage = 0;
 			$view->is_ephemeral = 0;
-			$view->view_columns = $list_view->columns;
-			$view->addParams($list_view->params, true);
-			if(property_exists($list_view, 'params_required'))
-				$view->addParamsRequired($list_view->params_required, true);
-			$view->renderSortBy = $list_view->sort_by;
-			$view->renderSortAsc = $list_view->sort_asc;
-			$view->renderSubtotals = $list_view->subtotals;
+			$view->view_columns = $workspace_worklist->columns;
+			$view->addParams($workspace_worklist->getParamsEditable(), true);
+			$view->addParamsRequired($workspace_worklist->getParamsRequired(), true);
+			$view->renderSortBy = array_keys($workspace_worklist->render_sort);
+			$view->renderSortAsc = array_values($workspace_worklist->render_sort);
+			$view->renderSubtotals = $workspace_worklist->render_subtotals;
 		}
-	
+		
 		if(!empty($view)) {
 			if($worker) {
 				$labels = [];
