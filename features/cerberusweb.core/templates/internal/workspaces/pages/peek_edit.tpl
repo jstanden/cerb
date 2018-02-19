@@ -12,7 +12,7 @@
 	{if !$model->id}
 	<tr>
 		<td width="100%" colspan="2">
-			<label><input type="radio" name="mode" value="build" checked="checked"> Build</label>
+			<label><input type="radio" name="mode" value="build" checked="checked"> {'common.build'|devblocks_translate|capitalize}</label>
 			<label><input type="radio" name="mode" value="import"> {'common.import'|devblocks_translate|capitalize}</label>
 		</td>
 	</tr>

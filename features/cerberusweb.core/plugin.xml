@@ -2921,7 +2921,7 @@
 			<id>cerberusweb.contexts.workspace.page</id>
 			<name>Workspace Page</name>
 			<class>
-				<file>api/dao/workspace.php</file>
+				<file>api/dao/workspace_page.php</file>
 				<name>Context_WorkspacePage</name>
 			</class>
 			<params>
@@ -2940,6 +2940,9 @@
 				<param key="view_class" value="View_WorkspacePage" />
 				<param key="options">
 					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
 						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />

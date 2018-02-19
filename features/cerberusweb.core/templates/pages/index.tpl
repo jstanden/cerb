@@ -7,7 +7,7 @@
 	<p>
 		Pages allow you to build a completely personalized interface based on your needs.
 		
-		Your most frequently used pages can be added to the menu above by clicking on the <button type="button"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span></button> button.
+		Your most frequently used pages can be added to the menu above by clicking on the <button type="button"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(150,150,150);"></span></button> button.
 	</p>
 
 	{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.create")}

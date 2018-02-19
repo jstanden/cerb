@@ -588,10 +588,10 @@ class Page_Custom extends CerberusPageExtension {
 		try {
 			if(!empty($id)) {
 				if(null == ($workspace_page = DAO_WorkspacePage::get($id)))
-					return;
+					throw new Exception_DevblocksAjaxValidationError("Invalid workspace page.");
 				
 				if(!Context_WorkspacePage::isWriteableByActor($workspace_page, $active_worker))
-					return;
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 			}
 		
 			if(!empty($id) && $do_delete) { // Delete

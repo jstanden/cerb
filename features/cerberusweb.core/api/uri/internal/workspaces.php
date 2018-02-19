@@ -23,6 +23,8 @@ endif;
 
 if(class_exists('Extension_WorkspacePage')):
 class WorkspacePage_Workspace extends Extension_WorkspacePage {
+	const ID = 'core.workspace.page.workspace';
+	
 	function renderPage(Model_WorkspacePage $page) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();

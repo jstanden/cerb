@@ -402,6 +402,11 @@
 				<seg>Buckets</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.build">
+			<tuv xml:lang="en_US">
+				<seg>build</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.builder">
 			<tuv xml:lang="en_US">
 				<seg>builder</seg>
@@ -1518,6 +1523,16 @@
 		<tu tuid="common.packages">
 			<tuv xml:lang="en_US">
 				<seg>packages</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.page">
+			<tuv xml:lang="en_US">
+				<seg>page</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.pages">
+			<tuv xml:lang="en_US">
+				<seg>pages</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.param">

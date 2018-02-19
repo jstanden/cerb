@@ -646,7 +646,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$this->id = self::DEFAULT_ID;
 		$this->name = $translate->_('Pages');
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_WorkspacePage::ID;
+		$this->renderSortBy = SearchFields_WorkspacePage::NAME;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
@@ -1231,7 +1231,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		
 		$view->addParamsRequired($params_req, true);
 		
-		$view->renderSortBy = SearchFields_WorkspacePage::ID;
+		$view->renderSortBy = SearchFields_WorkspacePage::NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderFilters = false;
