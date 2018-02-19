@@ -34,6 +34,23 @@ $(function() {
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('pageTabs{$page->id}');
 	
+	tabOptions.create = function(e, ui) {
+		var tab_id = $(ui.tab).attr('tab_id');
+		
+		var $frm = $('#frmWorkspacePage{$page->id}');
+		var $menu = $frm.find('ul.cerb-popupmenu');
+		
+		if(undefined == tab_id) {
+			$menu.find('a.edit-tab').attr('data-context-id', '');
+			$menu.find('a.edit-tab').parent().hide();
+			$menu.find('a.export-tab').parent().hide();
+		} else {
+			$menu.find('a.edit-tab').attr('data-context-id', tab_id);
+			$menu.find('a.edit-tab').parent().show();
+			$menu.find('a.export-tab').parent().show();
+		}
+	};
+	
 	var tabs = $tabs.tabs(tabOptions);
 	
 	$tabs.find('> ul').sortable({
@@ -52,15 +69,19 @@ $(function() {
 	});
 	
 	$tabs.on('tabsactivate', function(e, ui) {
-		var $tab_text = $.trim($(ui.newTab).find('a').text());
+		var tab_id = $(ui.newTab).attr('tab_id');
 		
 		var $frm = $('#frmWorkspacePage{$page->id}');
 		var $menu = $frm.find('ul.cerb-popupmenu');
 		
-		if($tab_text == '+') {
-			$menu.find('a.edit-tab, a.export-tab').parent().hide();
+		if(undefined == tab_id) {
+			$menu.find('a.edit-tab').attr('data-context-id', '');
+			$menu.find('a.edit-tab').parent().hide();
+			$menu.find('a.export-tab').parent().hide();
 		} else {
-			$menu.find('a.edit-tab, a.export-tab').parent().show();
+			$menu.find('a.edit-tab').attr('data-context-id', tab_id);
+			$menu.find('a.edit-tab').parent().show();
+			$menu.find('a.export-tab').parent().show();
 		}
 	});
 	

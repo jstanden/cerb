@@ -587,6 +587,7 @@
 			<class name="DAO_WorkspaceTab" />
 			<class name="Model_WorkspaceTab" />
 			<class name="SearchFields_WorkspaceTab" />
+			<class name="View_WorkspaceTab" />
 		</file>
 		
 		<file path="api/dao/workspace_widget.php">
@@ -2967,7 +2968,7 @@
 			<id>cerberusweb.contexts.workspace.tab</id>
 			<name>Workspace Tab</name>
 			<class>
-				<file>api/dao/workspace.php</file>
+				<file>api/dao/workspace_tab.php</file>
 				<name>Context_WorkspaceTab</name>
 			</class>
 			<params>
@@ -2984,7 +2985,13 @@
 				<param key="view_class" value="View_WorkspaceTab" />
 				<param key="options">
 					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
 						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="acl">

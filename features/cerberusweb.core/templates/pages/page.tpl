@@ -21,7 +21,7 @@
 			<ul class="cerb-popupmenu cerb-float">
 				{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
 					{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.update")}<li><a href="javascript:;" class="edit-page" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}" data-edit="true">Edit Page</a></li>{/if}
-					{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.update")}<li><a href="javascript:;" class="edit-tab">Edit Tab</a></li>{/if}
+					{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.update")}<li><a href="javascript:;" class="edit-tab" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="" data-edit="true">Edit Tab</a></li>{/if}
 				{/if}
 				{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.export")}<li><a href="javascript:;" class="export-page">Export Page</a></li>{/if}
 				{if $page->extension_id == 'core.workspace.page.workspace' && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.export")}<li><a href="javascript:;" class="export-tab">Export Tab</a></li>{/if}
@@ -90,43 +90,58 @@
 				;
 			
 			// Edit tab
-			$workspace.find('a.edit-tab').click(function(e) {
-				e.stopPropagation();
-				
-				var $tabs = $("#pageTabs{$page->id}");
-				var $selected_tab = $tabs.find('li.ui-tabs-active').first();
-				
-				if(0 == $selected_tab.length)
-					return;
-				
-				var tab_id = $selected_tab.attr('tab_id');
-				
-				if(null == tab_id)
-					return;
-				
-				var $popup = genericAjaxPopup('peek','c=pages&a=showEditWorkspaceTab&id=' + tab_id,null,true,'600');
-				
-				$popup.one('workspace_save',function(json) {
-					if(0 != $tabs) {
-						var selected_idx = $tabs.tabs('option','active');
-						$tabs.tabs('load', selected_idx);
-						
-						if(null != json.name) {
-							var $selected_tab = $tabs.find('> ul > li.ui-tabs-active');
-							$selected_tab.find('a').text(json.name);
+			$workspace.find('a.edit-tab')
+				.cerbPeekTrigger()
+				.on('cerb-peek-saved', function(e) {
+					e.stopPropagation();
+					
+					var $tabs = $("#pageTabs{$page->id}");
+					var $selected_tab = $tabs.find('li.ui-tabs-active').first();
+					
+					if(0 == $selected_tab.length)
+						return;
+					
+					var tab_id = $selected_tab.attr('tab_id');
+					
+					// On this page
+					if(e.page_id == {$page->id}) {
+						if(0 != $tabs) {
+							var selected_idx = $tabs.tabs('option','active');
+							$tabs.tabs('load', selected_idx);
+							
+							if(null != json.name) {
+								var $selected_tab = $tabs.find('> ul > li.ui-tabs-active');
+								$selected_tab.find('a').text(json.name);
+							}
 						}
+						
+					} else { // If moved to another page, remove the tab
+						var evt = jQuery.Event('cerb-peek-deleted');
+						evt.id = e.id;
+						evt.label = e.label;
+						$(this).trigger(evt);
 					}
-				});
-				
-				$popup.one('workspace_delete',function(e) {
+					
+				})
+				.on('cerb-peek-deleted', function(e) {
+					e.stopPropagation();
+					
+					var $tabs = $("#pageTabs{$page->id}");
+					var $selected_tab = $tabs.find('li.ui-tabs-active').first();
+					
+					if(0 == $selected_tab.length)
+						return;
+					
+					var tab_id = $selected_tab.attr('tab_id');
+					
 					if(0 != $tabs.length) {
 						var tab = $tabs.find('.ui-tabs-nav li:eq(' + $tabs.tabs('option','active') + ')').remove();
 						var panelId = tab.attr('aria-controls');
 						$('#' + panelId).remove();
 						$tabs.tabs('refresh');
 					}
-				});
-			});
+				})
+				;
 		{/if}
 		
 		// Export page

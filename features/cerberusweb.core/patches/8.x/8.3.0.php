@@ -57,6 +57,23 @@ if(!isset($columns['updated_at'])) {
 }
 
 // ===========================================================================
+// Add `updated_at` field to the `workspace_tab` table
+
+if(!isset($tables['workspace_tab'])) {
+	$logger->error("The 'workspace_tab' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('workspace_tab');
+
+if(!isset($columns['updated_at'])) {
+	$sql = 'ALTER TABLE workspace_tab ADD COLUMN updated_at int(10) unsigned NOT NULL DEFAULT 0';
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster(sprintf("UPDATE workspace_tab SET updated_at = %d", time()));
+}
+
+// ===========================================================================
 // Add `currency`
 
 if(!isset($tables['currency'])) {

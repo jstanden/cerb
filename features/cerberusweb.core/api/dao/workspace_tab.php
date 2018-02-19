@@ -5,6 +5,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const PARAMS_JSON = 'params_json';
 	const POS = 'pos';
+	const UPDATED_AT = 'updated_at';
 	const WORKSPACE_PAGE_ID = 'workspace_page_id';
 	
 	const _CACHE_ALL = 'ch_workspace_tabs';
@@ -55,6 +56,11 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			;
 		// int(10) unsigned
 		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
 			->addField(self::WORKSPACE_PAGE_ID)
 			->id()
 			->setRequired(true)
@@ -81,11 +87,49 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
+		if(!is_array($ids))
+			$ids = [$ids];
+		
 		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
 		self::_updateAbstract($context, $ids, $fields);
 		
-		parent::_update($ids, 'workspace_tab', $fields);
+		if(!isset($fields[self::UPDATED_AT]))
+			$fields[self::UPDATED_AT] = time();
+		
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+				
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges($context, $batch_ids);
+			}
+			
+			// Make changes
+			parent::_update($batch_ids, 'workspace_tab', $fields);
+			
+			// Send events
+			if($check_deltas) {
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::services()->event();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.workspace_tab.update',
+						array(
+							'fields' => $fields,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
+			}
+		}
+		
 		self::clearCache();
 	}
 	
@@ -156,7 +200,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, workspace_page_id, pos, extension_id, params_json ".
+		$sql = "SELECT id, name, workspace_page_id, pos, extension_id, params_json, updated_at ".
 			"FROM workspace_tab ".
 			$where_sql.
 			$sort_sql.
@@ -200,6 +244,34 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		return $tabs;
 	}
 	
+	static function countByPageId($page_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT count(workspace_page_id) FROM workspace_tab WHERE workspace_page_id = %d",
+			$page_id
+		);
+		return intval($db->GetOneSlave($sql));
+	}
+	
+	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_WorkspaceTab[]
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+
+		if(empty($ids))
+			return [];
+
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+
+		$results = self::getAll();
+		
+		return array_intersect_key($results, array_flip($ids));
+	}
+	
 	/**
 	 * @param resource $rs
 	 * @return Model_WorkspaceTab[]
@@ -212,11 +284,12 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_WorkspaceTab();
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->name = $row['name'];
-			$object->workspace_page_id = $row['workspace_page_id'];
-			$object->pos = $row['pos'];
+			$object->workspace_page_id = intval($row['workspace_page_id']);
+			$object->pos = intval($row['pos']);
 			$object->extension_id = $row['extension_id'];
+			$object->updated_at = intval($row['updated_at']);
 			
 			if(!empty($row['params_json']) && false !== ($params = json_decode($row['params_json'], true)))
 				@$object->params = $params;
@@ -280,18 +353,20 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WorkspaceTab::getFields();
 		
-		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Workspace', $sortBy);
+		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkspaceTab', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"workspace_tab.id as %s, ".
 			"workspace_tab.name as %s, ".
 			"workspace_tab.workspace_page_id as %s, ".
 			"workspace_tab.pos as %s, ".
+			"workspace_tab.updated_at as %s, ".
 			"workspace_tab.extension_id as %s ",
 				SearchFields_WorkspaceTab::ID,
 				SearchFields_WorkspaceTab::NAME,
 				SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID,
 				SearchFields_WorkspaceTab::POS,
+				SearchFields_WorkspaceTab::UPDATED_AT,
 				SearchFields_WorkspaceTab::EXTENSION_ID
 			);
 			
@@ -302,13 +377,15 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_WorkspaceTab');
 	
-		return array(
+		$query_parts = [
 			'primary_table' => 'workspace_tab',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
+		];
+		
+		return $query_parts;
 	}
 	
 	/**
@@ -397,6 +474,9 @@ class SearchFields_WorkspaceTab extends DevblocksSearchFields {
 	const WORKSPACE_PAGE_ID = 'w_workspace_page_id';
 	const POS = 'w_pos';
 	const EXTENSION_ID = 'w_extension_id';
+	const UPDATED_AT = 'w_updated_at';
+	
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	
 	static private $_fields = null;
 	
@@ -412,10 +492,18 @@ class SearchFields_WorkspaceTab extends DevblocksSearchFields {
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
-		if('cf_' == substr($param->field, 0, 3)) {
-			return self::_getWhereSQLFromCustomFields($param);
-		} else {
-			return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+		switch($param->field) {
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKSPACE_TAB, self::getPrimaryKey());
+				break;
+				
+			default:
+				if('cf_' == substr($param->field, 0, 3)) {
+					return self::_getWhereSQLFromCustomFields($param);
+				} else {
+					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
+				}
+				break;
 		}
 	}
 	
@@ -436,12 +524,21 @@ class SearchFields_WorkspaceTab extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'workspace_tab', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'workspace_tab', 'name', $translate->_('common.name'), null, true),
-			self::WORKSPACE_PAGE_ID => new DevblocksSearchField(self::WORKSPACE_PAGE_ID, 'workspace_tab', 'workspace_page_id', null, null, true),
-			self::POS => new DevblocksSearchField(self::POS, 'workspace_tab', 'pos', null, null, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_tab', 'extension_id', null, null, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_tab', 'extension_id', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ID => new DevblocksSearchField(self::ID, 'workspace_tab', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'workspace_tab', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::POS => new DevblocksSearchField(self::POS, 'workspace_tab', 'pos', $translate->_('common.order'), Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_tab', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
+			self::WORKSPACE_PAGE_ID => new DevblocksSearchField(self::WORKSPACE_PAGE_ID, 'workspace_tab', 'workspace_page_id', $translate->_('common.workspace.page'), Model_CustomField::TYPE_NUMBER, true),
+			
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 		);
+		
+		// Custom Fields
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
+		
+		if(!empty($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
 		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
@@ -456,7 +553,8 @@ class Model_WorkspaceTab {
 	public $workspace_page_id;
 	public $pos;
 	public $extension_id;
-	public $params=array();
+	public $params=[];
+	public $updated_at;
 	
 	/**
 	 * @return Model_WorkspacePage
@@ -479,6 +577,16 @@ class Model_WorkspaceTab {
 	}
 	
 	/**
+	 * @return string
+	 */
+	function getExtensionName() {
+		if(false == ($extension = $this->getExtension()))
+			return null;
+		
+		return DevblocksPlatform::translateCapitalized($extension->manifest->params['label']);
+	}
+	
+	/**
 	 * @return Model_WorkspaceList[]
 	 */
 	function getWorklists() {
@@ -486,13 +594,383 @@ class Model_WorkspaceTab {
 	}
 };
 
-class Context_WorkspaceTab extends Extension_DevblocksContext {
+class View_WorkspaceTab extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
+	const DEFAULT_ID = 'workspacetab';
+
+	function __construct() {
+		$this->id = self::DEFAULT_ID;
+		$this->name = DevblocksPlatform::translateCapitalized('common.workspace.tabs');
+		$this->renderLimit = 25;
+		$this->renderSortBy = SearchFields_WorkspaceTab::NAME;
+		$this->renderSortAsc = true;
+
+		$this->view_columns = array(
+			SearchFields_WorkspaceTab::NAME,
+			SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID,
+			SearchFields_WorkspaceTab::EXTENSION_ID,
+			SearchFields_WorkspaceTab::POS,
+			SearchFields_WorkspaceTab::UPDATED_AT,
+		);
+		$this->addColumnsHidden(array(
+			SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK,
+		));
+		
+		$this->addParamsHidden(array(
+		));
+		
+		$this->doResetCriteria();
+	}
+
+	function getData() {
+		$objects = DAO_WorkspaceTab::search(
+			$this->view_columns,
+			$this->getParams(),
+			$this->renderLimit,
+			$this->renderPage,
+			$this->renderSortBy,
+			$this->renderSortAsc,
+			$this->renderTotal
+		);
+		
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_WorkspaceTab');
+		
+		return $objects;
+	}
+	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_WorkspaceTab', $ids);
+	}
+	
+	function getDataSample($size) {
+		return $this->_doGetDataSample('DAO_WorkspaceTab', $size);
+	}
+
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable(true);
+		
+		$fields = [];
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Fields
+				case SearchFields_WorkspaceTab::EXTENSION_ID:
+				case SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID:
+					$pass = true;
+					break;
+					
+				// Virtuals
+				case SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = [];
+		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
+
+		if(!isset($fields[$column]))
+			return [];
+		
+		switch($column) {
+			case SearchFields_WorkspaceTab::EXTENSION_ID:
+				$tab_extensions = Extension_WorkspaceTab::getAll(false);
+				
+				$label_map = array_map(
+					function($manifest) {
+						return DevblocksPlatform::translateCapitalized($manifest->params['label']);
+					},
+					$tab_extensions
+				);
+				
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
+				break;
+				
+			case SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID:
+				$label_func = function($ids) {
+					$pages = DAO_WorkspacePage::getIds($ids);
+					return array_column($pages, 'name', 'id');
+				};
+				
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_func, '=', 'value');
+				break;
+
+			case SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
+				break;
+
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				}
+				
+				break;
+		}
+		
+		return $counts;
+	}
+	
+	function getQuickSearchFields() {
+		$search_fields = SearchFields_WorkspaceTab::getFields();
+	
+		$fields = array(
+			'text' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_WorkspaceTab::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_WorkspaceTab::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKSPACE_TAB, 'q' => ''],
+					]
+				),
+			'name' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_WorkspaceTab::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'page.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => 'cerberusweb.contexts.workspace.page', 'q' => ''],
+					]
+				),
+			'pos' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_WorkspaceTab::POS),
+				),
+			'type' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_WorkspaceTab::EXTENSION_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+				),
+			'updated' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_WorkspaceTab::UPDATED_AT),
+				),
+		);
+		
+		// Add quick search links
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		
+		// Add searchable custom fields
+		
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_WORKSPACE_TAB, $fields, null);
+		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+		
+		// Sort by keys
+		ksort($fields);
+		
+		return $fields;
+	}	
+	
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			default:
+				if($field == 'links' || substr($field, 0, 6) == 'links.')
+					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
+				
+				$search_fields = $this->getQuickSearchFields();
+				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
+				break;
+		}
+		
+		return false;
+	}
+	
+	function render() {
+		$this->_sanitize();
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('id', $this->id);
+		$tpl->assign('view', $this);
+
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKSPACE_TAB);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		// Extensions
+		$tab_extensions = Extension_WorkspaceTab::getAll(false);
+		$tpl->assign('tab_extensions', $tab_extensions);
+
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/workspaces/tabs/view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
+	}
+
+	function renderCriteria($field) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('id', $this->id);
+
+		switch($field) {
+			case SearchFields_WorkspaceTab::NAME:
+			case SearchFields_WorkspaceTab::EXTENSION_ID:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
+				break;
+				
+			case SearchFields_WorkspaceTab::ID:
+			case SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID:
+			case SearchFields_WorkspaceTab::POS:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
+				break;
+				
+			case 'placeholder_bool':
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
+				break;
+				
+			case SearchFields_WorkspaceTab::UPDATED_AT:
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
+				break;
+				
+			case SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+				
+			default:
+				// Custom Fields
+				if('cf_' == substr($field,0,3)) {
+					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+				} else {
+					echo ' ';
+				}
+				break;
+		}
+	}
+
+	function renderCriteriaParam($param) {
+		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
+
+		switch($field) {
+			case SearchFields_WorkspaceTab::EXTENSION_ID:
+				$tab_extensions = Extension_WorkspaceTab::getAll(false);
+				$label_map = array_map(function($manifest) {
+					return DevblocksPlatform::translateCapitalized(@$manifest->params['label']);
+				}, $tab_extensions);
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
+			case SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID:
+				$label_map = function($ids) {
+					$pages = DAO_WorkspacePage::getIds($ids);
+					return array_column($pages, 'name', 'id');
+				};
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+			
+			default:
+				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		switch($key) {
+			case SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+		}
+	}
+
+	function getFields() {
+		return SearchFields_WorkspaceTab::getFields();
+	}
+
+	function doSetCriteria($field, $oper, $value) {
+		$criteria = null;
+
+		switch($field) {
+			case SearchFields_WorkspaceTab::NAME:
+			case SearchFields_WorkspaceTab::EXTENSION_ID:
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
+				break;
+				
+			case SearchFields_WorkspaceTab::ID:
+			case SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID:
+			case SearchFields_WorkspaceTab::POS:
+				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+				break;
+				
+			case SearchFields_WorkspaceTab::UPDATED_AT:
+				$criteria = $this->_doSetCriteriaDate($field, $oper);
+				break;
+				
+			case 'placeholder_bool':
+				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+				break;
+				
+			case SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				}
+				break;
+		}
+
+		if(!empty($criteria)) {
+			$this->addParam($criteria, $field);
+			$this->renderPage = 0;
+		}
+	}
+};
+
+class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
+	const ID = CerberusContexts::CONTEXT_WORKSPACE_TAB;
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_TAB, $models, 'page_owner_');
 	}
 	
 	static function isWriteableByActor($models, $actor) {
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_TAB, $models, 'page_owner_');
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::services()->url();
+		$url = $url_writer->writeNoProxy('c=profiles&type=workspace_tab&id='.$context_id, true);
+		return $url;
 	}
 	
 	function getRandom() {
@@ -505,15 +983,20 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		if(null == ($workspace_tab = DAO_WorkspaceTab::get($context_id)))
 			return array();
 		
-		$url = $url_writer(sprintf("c=pages&id=%d",
-			$workspace_tab->workspace_page_id
-		));
-		
 		return array(
 			'id' => $workspace_tab->id,
 			'name' => $workspace_tab->name,
-			'permalink' => $url,
-			'updated' => 0, // [TODO]
+			'permalink' => $this->profileGetUrl($context_id),
+			'updated' => $workspace_tab->updated_at,
+		);
+	}
+	
+	function getDefaultProperties() {
+		return array(
+			'extension__label',
+			'page__label',
+			'order',
+			'updated_at',
 		);
 	}
 	
@@ -538,25 +1021,35 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'extension_id' => $prefix.$translate->_('common.extension'),
+			'extension__label' => $prefix.$translate->_('common.type'),
+			'extension_id' => $prefix.$translate->_('Extension ID'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'order' => $prefix.$translate->_('common.order'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'extension__label' => Model_CustomField::TYPE_SINGLE_LINE,
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'order' => Model_CustomField::TYPE_NUMBER,
+			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
 		// Custom field/fieldset token labels
 		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
 			$token_labels = array_merge($token_labels, $custom_field_labels);
 		
+		// Custom field/fieldset token types
+		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_types))
+			$token_types = array_merge($token_types, $custom_field_types);
+		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_WORKSPACE_TAB;
 		$token_values['_types'] = $token_types;
@@ -565,13 +1058,23 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		if(null != $tab) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $tab->name;
+			$token_values['extension_id'] = $tab->extension_id;
 			$token_values['id'] = $tab->id;
 			$token_values['name'] = $tab->name;
-			$token_values['extension_id'] = $tab->extension_id;
+			$token_values['order'] = $tab->pos;
 			$token_values['page_id'] = $tab->workspace_page_id;
+			$token_values['updated_at'] = $tab->updated_at;
+			
+			if(false != ($tab_extension = $tab->getExtension())) {
+				$token_values['extension__label'] = DevblocksPlatform::translateCapitalized($tab_extension->manifest->params['label']);
+			}
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($tab, $token_values);
+			
+			// URL
+			$url_writer = DevblocksPlatform::services()->url();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=workspace_tab&id=%d-%s",$tab->id, DevblocksPlatform::strToPermalink($tab->name)), true);
 		}
 		
 		// Page
@@ -599,6 +1102,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 			'name' => DAO_WorkspaceTab::NAME,
 			'page_id' => DAO_WorkspaceTab::WORKSPACE_PAGE_ID,
 			'pos' => DAO_WorkspaceTab::POS,
+			'updated_at' => DAO_WorkspaceTab::UPDATED_AT,
 		];
 	}
 	
@@ -713,14 +1217,12 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 
 				if(is_array($worklists))
 				foreach($worklists as $worklist) { /* @var $worklist Model_WorkspaceList */
-					if(empty($worklist->list_view))
-						continue;
-					
-					$values['worklists'][] = array(
+					// [TODO] Use dictionaries here
+					$values['worklists'][] = [
 						'id' => $worklist->id,
-						'title' => $worklist->list_view->title,
+						'title' => $worklist->name,
 						'context' => $worklist->context,
-					);
+					];
 				}
 				break;
 			
@@ -734,23 +1236,26 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		
 		return $values;
 	}
-
+	
 	function getChooserView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
-		
+	
 		// View
-		if(false != ($defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass()))) {
-			$defaults->id = $view_id;
-			$defaults->is_ephemeral = true;
-		}
-		
-		if(false == ($view = C4_AbstractViewLoader::getView($view_id, $defaults ?: null)))
-			return false;
-		
-		$view->name = 'Tabs';
-		
-		$view->renderSortBy = SearchFields_WorkspaceTab::ID;
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Workspace Tab';
+		/*
+		$view->addParams(array(
+			SearchFields_WorkspaceTab::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_WorkspaceTab::UPDATED_AT,'=',0),
+		), true);
+		*/
+		$view->renderSortBy = SearchFields_WorkspaceTab::NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderFilters = false;
@@ -759,29 +1264,123 @@ class Context_WorkspaceTab extends Extension_DevblocksContext {
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Tabs';
+		$view->name = 'Workspace Tab';
 		
-		$params_req = array();
+		$params_req = [];
 		
-		/*
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_WorkspacePage::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_WorkspacePage::CONTEXT_LINK_ID,'=',$context_id),
+				new DevblocksSearchCriteria(SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		
 		$view->addParamsRequired($params_req, true);
-		*/
 		
 		$view->renderTemplate = 'context';
 		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
+		
+		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
+		
+		$model = new Model_WorkspaceTab();
+		
+		if(!empty($context_id)) {
+			$model = DAO_WorkspaceTab::get($context_id);
+			
+		} else {
+			if(!empty($edit)) {
+				$tokens = explode(' ', trim($edit));
+				
+				foreach($tokens as $token) {
+					@list($k,$v) = explode(':', $token);
+					
+					if($v)
+					switch($k) {
+						case 'page.id':
+							$model->workspace_page_id = intval($v);
+							break;
+					}
+				}
+			}
+		}
+		
+		if(empty($context_id) || $edit) {
+			if(isset($model))
+				$tpl->assign('model', $model);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// Tab extensions
+			$tab_extensions = Extension_WorkspaceTab::getAll(false);
+			// [TODO] Translate first
+			DevblocksPlatform::sortObjects($tab_extensions, 'params->[label]');
+			$tpl->assign('tab_extensions', $tab_extensions);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = [];
+			$values = [];
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/peek.tpl');
+		}
 	}
 };

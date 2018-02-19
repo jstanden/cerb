@@ -2101,6 +2101,16 @@
 				<seg>Synchronize</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.tab">
+			<tuv xml:lang="en_US">
+				<seg>tab</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.tabs">
+			<tuv xml:lang="en_US">
+				<seg>tabs</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.tag">
 			<tuv xml:lang="en_US">
 				<seg>tag</seg>
