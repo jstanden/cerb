@@ -239,6 +239,14 @@ abstract class C4_AbstractView {
 	function isCustom() {
 		return DevblocksPlatform::strStartsWith($this->id, 'cust_');
 	}
+	
+	function getCustomWorklistModel() {
+		if(!$this->isCustom())
+			return false;
+		
+		$id = substr($this->id, 5);
+		return DAO_WorkspaceList::get($id);
+	}
 
 	function getColumnsAvailable() {
 		$columns = $this->getFields();
