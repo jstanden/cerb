@@ -13,12 +13,11 @@
 	</select>
 	
 	{foreach from=$worklists item=worklist name=worklists key=worklist_id}
-	{assign var=worklist_view value=$worklist->list_view}
 	<div class="column">
 		<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span><!--
 		--><a href="javascript:;" onclick="if(confirm('Are you sure you want to delete this worklist?')) { $(this).closest('div').remove(); }"><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;"></span></a><!--
 		--><input type="hidden" name="ids[]" value="{$worklist->id}"><!--
-		--><input type="text" name="names[]" value="{$worklist_view->title}" size="45"><!--
+		--><input type="text" name="names[]" value="{$worklist->name}" size="45"><!--
 		--><span>{if isset($contexts.{$worklist->context})}{$contexts.{$worklist->context}->name}{/if}</span>	
 	</div>
 	{/foreach}
@@ -26,27 +25,31 @@
 </fieldset>
 
 <script type="text/javascript">
-var $fieldset = $('fieldset#fieldset{$uniqid}');
-
-$fieldset.find('select[name=add_context]').change(function() {
-	var $select = $(this);
+$(function() {
+	var $fieldset = $('fieldset#fieldset{$uniqid}');
 	
-	if($select.val() == '')
-		return;
+	$fieldset.sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
 	
-	var $columns = $(this.form).find('fieldset').first();
-	var $new_column = $('<div class="column"></div>');
+	$fieldset.find('select[name=add_context]').change(function() {
+		var $select = $(this);
+		
+		if($select.val() == '')
+			return;
+		
+		var $columns = $(this.form).find('fieldset').first();
+		var $new_column = $('<div class="column"></div>');
+		
+		$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>').appendTo($new_column);
+		$('<a href="javascript:;" onclick="if(confirm(\'Are you sure you want to delete this worklist?\')) { $(this).closest(\'div\').remove(); }"><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;"></span></a>').appendTo($new_column);
+		$('<input type="hidden" name="ids[]">').attr('value',$select.val()).appendTo($new_column);
+		$('<input type="text" name="names[]" size="45">').attr('value',$select.find(':selected').text()).appendTo($new_column);
+		$('<span/>').text($select.find(':selected').text()).appendTo($new_column);
+		
+		$select.val('');
 	
-	$('<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;"></span>').appendTo($new_column);
-	$('<a href="javascript:;" onclick="if(confirm(\'Are you sure you want to delete this worklist?\')) { $(this).closest(\'div\').remove(); }"><span class="ui-icon ui-icon-trash" style="display:inline-block;vertical-align:middle;"></span></a>').appendTo($new_column);
-	$('<input type="hidden" name="ids[]">').attr('value',$select.val()).appendTo($new_column);
-	$('<input type="text" name="names[]" size="45">').attr('value',$select.find(':selected').text()).appendTo($new_column);
-	$('<span/>').text($select.find(':selected').text()).appendTo($new_column);
-	
-	$select.val('');
-
-	$new_column.appendTo($columns);
-	
-	$new_column.find('input:text:first').select().focus();
+		$new_column.appendTo($columns);
+		
+		$new_column.find('input:text:first').select().focus();
+	});
 });
 </script>

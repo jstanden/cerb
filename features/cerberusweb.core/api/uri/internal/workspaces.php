@@ -120,6 +120,13 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 	
 	function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$tpl = DevblocksPlatform::services()->template();
+		
+		$worklists = $tab->getWorklists();
+		$tpl->assign('worklists', $worklists);
+		
+		$contexts = Extension_DevblocksContext::getAll(false, ['workspace']);
+		$tpl->assign('contexts', $contexts);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/worklists/config.tpl');
 	}
 	
