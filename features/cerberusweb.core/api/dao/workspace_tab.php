@@ -1344,6 +1344,9 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		} else {
 			// Counts
 			$activity_counts = array(
+				'widgets' => DAO_WorkspaceWidget::countByWorkspaceTabId($context_id),
+				'worklists' => DAO_WorkspaceList::countByWorkspaceTabId($context_id),
+				//'comments' => DAO_Comment::count($context, $context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			
