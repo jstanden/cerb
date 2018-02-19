@@ -1994,7 +1994,10 @@ abstract class C4_AbstractView {
 			).
 			$join_sql.
 			$where_sql.
-			"GROUP BY label ".
+			sprintf("GROUP BY %s.%s ",
+				$fields[$field_key]->db_table,
+				$fields[$field_key]->db_column
+			).
 			"ORDER BY hits DESC ".
 			"LIMIT 0,250 "
 		;
@@ -2046,7 +2049,10 @@ abstract class C4_AbstractView {
 			).
 			$join_sql.
 			$where_sql.
-			"GROUP BY label ".
+			sprintf("GROUP BY %s.%s ",
+				$fields[$field_key]->db_table,
+				$fields[$field_key]->db_column
+			).
 			"ORDER BY hits DESC ".
 			"LIMIT 0,250 "
 		;
