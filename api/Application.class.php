@@ -1039,7 +1039,7 @@ class CerberusContexts {
 	const CONTEXT_WORKSPACE_PAGE = 'cerberusweb.contexts.workspace.page';
 	const CONTEXT_WORKSPACE_TAB = 'cerberusweb.contexts.workspace.tab';
 	const CONTEXT_WORKSPACE_WIDGET = 'cerberusweb.contexts.workspace.widget';
-	const CONTEXT_WORKSPACE_WORKLIST = 'cerberusweb.contexts.workspace.worklist';
+	const CONTEXT_WORKSPACE_WORKLIST = 'cerberusweb.contexts.workspace.list';
 
 	public static function setCacheLoads($state) {
 		self::$_is_caching_loads = ($state ? true : false);

@@ -596,11 +596,13 @@
 			<class name="SearchFields_WorkspaceWidget" />
 		</file>
 		
-		<file path="api/dao/workspace_worklist.php">
-			<class name="Context_WorkspaceWorklist" />
+		<file path="api/dao/workspace_list.php">
+			<class name="Context_WorkspaceList" />
 			<class name="DAO_WorkspaceList" />
 			<class name="Model_WorkspaceList" />
 			<class name="Model_WorkspaceListView" />
+			<class name="SearchFields_WorkspaceList" />
+			<class name="View_WorkspaceList" />
 		</file>
 		
 		<file path="api/events/abstract/abstract_event_abstract_custom_record.php">
@@ -3034,11 +3036,11 @@
 		</extension>
 		
 		<extension point="devblocks.context">
-			<id>cerberusweb.contexts.workspace.worklist</id>
+			<id>cerberusweb.contexts.workspace.list</id>
 			<name>Workspace Worklist</name>
 			<class>
-				<file>api/dao/workspace.php</file>
-				<name>Context_WorkspaceWorklist</name>
+				<file>api/dao/workspace_list.php</file>
+				<name>Context_WorkspaceList</name>
 			</class>
 			<params>
 				<param key="names">
@@ -3054,7 +3056,13 @@
 				<param key="view_class" value="View_WorkspaceList" />
 				<param key="options">
 					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
 						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
 					</value>
 				</param>
 				<param key="acl">
@@ -5540,6 +5548,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="worker" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.workspace_list</id>
+				<name>Workspace List Section</name>
+				<class>
+					<file>api/uri/profiles/workspace_list.php</file>
+					<name>PageSection_ProfilesWorkspaceList</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="workspace_list" />
 				</params>
 			</extension>
 			

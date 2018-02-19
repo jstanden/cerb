@@ -2356,6 +2356,11 @@
 				<seg>worklist</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.worklists">
+			<tuv xml:lang="en_US">
+				<seg>worklists</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.workspace">
 			<tuv xml:lang="en_US">
 				<seg>Workspace</seg>
@@ -2379,6 +2384,16 @@
 		<tu tuid="common.workspace.tabs">
 			<tuv xml:lang="en_US">
 				<seg>workspace tabs</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.worklist">
+			<tuv xml:lang="en_US">
+				<seg>workspace worklist</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.worklists">
+			<tuv xml:lang="en_US">
+				<seg>workspace worklists</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.workspaces">

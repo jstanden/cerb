@@ -104,6 +104,8 @@ endif;
 
 if(class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
+	const ID = 'core.workspace.tab.worklists';
+	
 	public function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$tpl = DevblocksPlatform::services()->template();
 		
