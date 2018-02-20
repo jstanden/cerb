@@ -614,7 +614,7 @@ class SearchFields_WorkspaceList extends DevblocksSearchFields {
 		
 		$columns = array(
 			self::COLUMNS_HIDDEN_JSON => new DevblocksSearchField(self::COLUMNS_HIDDEN_JSON, 'workspace_list', 'columns_hidden_json', $translate->_(''), null, true),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'workspace_list', 'context', $translate->_('common.context'), null, true),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'workspace_list', 'context', $translate->_('common.type'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'workspace_list', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'workspace_list', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::OPTIONS_JSON => new DevblocksSearchField(self::OPTIONS_JSON, 'workspace_list', 'options_json', $translate->_(''), null, true),
@@ -744,9 +744,10 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_WorkspaceList::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_WorkspaceList::CONTEXT:
+				case SearchFields_WorkspaceList::WORKSPACE_TAB_ID:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_WorkspaceList::VIRTUAL_CONTEXT_LINK:
@@ -777,13 +778,37 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 			return [];
 		
 		switch($column) {
-//			case SearchFields_WorkspaceList::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
-//				break;
-
-//			case SearchFields_WorkspaceList::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-//				break;
+			case SearchFields_WorkspaceList::CONTEXT:
+				$label_map = function($values) {
+					$contexts = Extension_DevblocksContext::getAll(false);
+					$labels = array_column(
+						DevblocksPlatform::objectsToArrays(array_intersect_key($contexts, array_flip($values))),
+						'name',
+						'id'
+					);
+					return $labels;
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+				
+			case SearchFields_WorkspaceList::WORKSPACE_TAB_ID:
+				$label_map = function($values) {
+					$labels = [];
+					$tabs = DAO_WorkspaceTab::getIds($values);
+					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($tabs, CerberusContexts::CONTEXT_WORKSPACE_TAB);
+					DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'page_');
+					
+					foreach($dicts as $dict_id => $dict) {
+						$labels[$dict_id] = sprintf("%s / %s",
+							$dict->page_name,
+							$dict->name
+						);
+					}
+					
+					return $labels;
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
 				
 			case SearchFields_WorkspaceList::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
@@ -902,23 +927,20 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 		switch($field) {
 			case SearchFields_WorkspaceList::COLUMNS_HIDDEN_JSON:
 			case SearchFields_WorkspaceList::CONTEXT:
-			case SearchFields_WorkspaceList::ID:
 			case SearchFields_WorkspaceList::NAME:
 			case SearchFields_WorkspaceList::OPTIONS_JSON:
 			case SearchFields_WorkspaceList::PARAMS_EDITABLE_JSON:
 			case SearchFields_WorkspaceList::PARAMS_REQUIRED_JSON:
 			case SearchFields_WorkspaceList::PARAMS_REQUIRED_QUERY:
-			case SearchFields_WorkspaceList::RENDER_LIMIT:
 			case SearchFields_WorkspaceList::RENDER_SORT_JSON:
 			case SearchFields_WorkspaceList::RENDER_SUBTOTALS:
-			case SearchFields_WorkspaceList::UPDATED_AT:
-			case SearchFields_WorkspaceList::WORKSPACE_TAB_ID:
-			case SearchFields_WorkspaceList::WORKSPACE_TAB_POS:
-			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
-			case 'placeholder_number':
+			case SearchFields_WorkspaceList::ID:
+			case SearchFields_WorkspaceList::RENDER_LIMIT:
+			case SearchFields_WorkspaceList::WORKSPACE_TAB_ID:
+			case SearchFields_WorkspaceList::WORKSPACE_TAB_POS:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -926,7 +948,7 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_WorkspaceList::UPDATED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
@@ -956,6 +978,38 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_WorkspaceList::CONTEXT:
+				$label_map = function($values) {
+					$contexts = Extension_DevblocksContext::getAll(false);
+					$labels = array_column(
+						DevblocksPlatform::objectsToArrays(array_intersect_key($contexts, array_flip($values))),
+						'name',
+						'id'
+					);
+					return $labels;
+				};
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
+			case SearchFields_WorkspaceList::WORKSPACE_TAB_ID:
+				$label_map = function($values) {
+					$labels = [];
+					$tabs = DAO_WorkspaceTab::getIds($values);
+					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($tabs, CerberusContexts::CONTEXT_WORKSPACE_TAB);
+					DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'page_');
+					
+					foreach($dicts as $dict_id => $dict) {
+						$labels[$dict_id] = sprintf("%s / %s",
+							$dict->page_name,
+							$dict->name
+						);
+					}
+					
+					return $labels;
+				};
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
