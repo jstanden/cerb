@@ -4574,6 +4574,24 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 	}
 	
+	static function updateFromWorkspaceList($worklist_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("UPDATE worker_view_model ".
+			"INNER JOIN workspace_list ON (workspace_list.id=%d) SET ".
+			"worker_view_model.title = workspace_list.name, ".
+			"worker_view_model.options_json = workspace_list.options_json, ".
+			"worker_view_model.columns_json = workspace_list.columns_json, ".
+			"worker_view_model.render_limit = workspace_list.render_limit, ".
+			"worker_view_model.params_required_json = workspace_list.params_required_json, ".
+			"worker_view_model.params_required_query = workspace_list.params_required_query ".
+			"WHERE worker_view_model.view_id = 'cust_%d'",
+			$worklist_id,
+			$worklist_id
+		);
+		return $db->ExecuteMaster($sql);
+	}
+	
 	static public function deleteView($worker_id, $view_id) {
 		$db = DevblocksPlatform::services()->database();
 		

@@ -3524,20 +3524,9 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_WorkspaceList::RENDER_SUBTOTALS => $view->renderSubtotals,
 			];
 			
-			// Syndicate
-			$worker_views = DAO_WorkerViewModel::getWhere(sprintf("view_id = %s", Cerb_ORMHelper::qstr($id)));
-			$params_required = $list_model->getParamsRequired();
+			DAO_WorkspaceList::update($worklist_id, $fields);
 			
-			// Update any instances of this view with the new required columns + params
-			foreach($worker_views as $worker_view) { /* @var $worker_view C4_AbstractViewModel */
-				$worker_view->name = $view->name;
-				$worker_view->options = $view->options;
-				$worker_view->view_columns = $view->view_columns;
-				$worker_view->paramsDefault = $view->getParamsDefault();
-				$worker_view->paramsRequired = $params_required;
-				$worker_view->renderLimit = $view->renderLimit;
-				DAO_WorkerViewModel::setView($worker_view->worker_id, $worker_view->id, $worker_view);
-			}
+			DAO_WorkspaceList::onUpdateByActor($active_worker, $fields, $worklist_id);
 		}
 	}
 
