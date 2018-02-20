@@ -376,6 +376,15 @@ if(isset($columns['render_filters'])) {
 }
 
 // ===========================================================================
+// Remove unused worker view models
+
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id like '%_attendants'");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id like '%_cfield_sets'");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id like '%_snippets'");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id = 'group_buckets'");
+$db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id = 'group_members'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

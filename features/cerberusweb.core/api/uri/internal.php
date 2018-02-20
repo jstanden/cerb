@@ -2158,41 +2158,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/snippets/help_popup.tpl');
 	}
 
-	function showTabSnippetsAction() {
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',null);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::services()->template();
-
-		$tpl->assign('owner_context', $context);
-		$tpl->assign('owner_context_id', $context_id);
-		
-		$view_id = str_replace('.','_',$point) . '_snippets';
-		
-		$view = C4_AbstractViewLoader::getView($view_id);
-		
-		if(null == $view) {
-			$view = new View_Snippet();
-			$view->id = $view_id;
-			$view->name = 'Snippets';
-		}
-		
-		if($active_worker->is_superuser && 0 == strcasecmp($context, 'all')) {
-			$view->addParamsRequired(array(), true);
-		} else {
-			$view->addParamsRequired(array(
-				SearchFields_Snippet::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
-				SearchFields_Snippet::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Snippet::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
-			), true);
-		}
-		
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
-	}
-	
 	function snippetPasteAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$context_ids = DevblocksPlatform::importGPC($_REQUEST['context_ids'],'array',[]);
@@ -3856,45 +3821,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 		
 		exit;
-	}
-	
-	function showAttendantsTabAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::services()->template();
-		
-		if(empty($context))
-			return;
-
-		$tpl->assign('owner_context', $context);
-		$tpl->assign('owner_context_id', $context_id);
-		
-		$view_id = str_replace('.','_',$point) . '_attendants';
-		
-		$view = C4_AbstractViewLoader::getView($view_id);
-		
-		if(null == $view) {
-			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BOT);
-			$view = $ctx->getChooserView($view_id);
-		}
-		
-		if($active_worker->is_superuser && 0 == strcasecmp($context, 'all')) {
-			$view->addParamsRequired(array(), true);
-			
-		} else {
-			$view->addParamsRequired(array(
-				SearchFields_Bot::OWNER_CONTEXT => new DevblocksSearchCriteria(SearchFields_Bot::OWNER_CONTEXT, DevblocksSearchCriteria::OPER_EQ, $context),
-				SearchFields_Bot::OWNER_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_Bot::OWNER_CONTEXT_ID, DevblocksSearchCriteria::OPER_EQ, $context_id),
-			), true);
-		}
-		
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
 	function reparentNodeAction() {

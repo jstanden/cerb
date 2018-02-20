@@ -61,6 +61,13 @@
 	<br clear="all">
 	{/if}
 	</div>
+	
+	<div style="margin-top:5px;">
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="group:(id:{$page_context_id})"><div class="badge-count">{$profile_counts.members|default:0}</div> {'common.members'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-query="group.id:{$page_context_id}"><div class="badge-count">{$profile_counts.buckets|default:0}</div> {'common.buckets'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BOT}" data-query="owner.group:(id:{$page_context_id})"><div class="badge-count">{$profile_counts.bots|default:0}</div> {'common.bots'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-query="owner.group:(id:{$page_context_id})"><div class="badge-count">{$profile_counts.custom_fieldsets|default:0}</div> {'common.custom_fieldsets'|devblocks_translate|capitalize}</button>
+	</div>
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
@@ -80,12 +87,6 @@
 		{$tabs = []}
 		{$point = "cerberusweb.profiles.group.{$group->id}"}
 		
-		{$tabs[] = 'members'}
-		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=group&action=showMembersTab&point={$point}&id={$page_context_id}{/devblocks_url}">{'common.members'|devblocks_translate|capitalize} <div class="tab-badge">{$members|count}</div></a></li>
-
-		{$tabs[] = 'buckets'}
-		<li><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=group&action=showBucketsTab&point={$point}&id={$page_context_id}{/devblocks_url}">{'common.buckets'|devblocks_translate|capitalize} <div class="tab-badge">{$buckets|count}</div></a></li>
-		
 		{$tabs[] = 'responsibilities'}
 		<li data-alias="responsibilities"><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=responsibilities&action=showResponsibilitiesTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.responsibilities'|devblocks_translate|capitalize}</a></li>
 
@@ -95,21 +96,6 @@
 		{$tabs[] = 'comments'}
 		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize}</a></li>
 		
-		{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
-		{$tabs[] = 'attendants'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showAttendantsTab&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.bots'|devblocks_translate|capitalize}</a></li>
-		{/if}
-
-		{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
-		{$tabs[] = 'custom_fieldsets'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=handleSectionAction&section=custom_fieldsets&action=showTabCustomFieldsets&context={$page_context}&context_id={$page_context_id}&point={$point}{/devblocks_url}">{'common.custom_fieldsets'|devblocks_translate|capitalize}</a></li>
-		{/if}
-
-		{if $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
-		{$tabs[] = 'snippets'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabSnippets&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.snippets'|devblocks_translate|capitalize}</a></li>
-		{/if}
-
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
 			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}"><i>{$tab_manifest->params.title|devblocks_translate}</i></a></li>

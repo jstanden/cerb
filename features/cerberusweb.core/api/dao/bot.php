@@ -342,6 +342,15 @@ class DAO_Bot extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	static public function count($owner_context, $owner_context_id) {
+		$db = DevblocksPlatform::services()->database();
+		return $db->GetOneSlave(sprintf("SELECT count(*) FROM bot ".
+			"WHERE owner_context = %s AND owner_context_id = %d",
+			$db->qstr($owner_context),
+			$owner_context_id
+		));
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();
