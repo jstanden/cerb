@@ -1362,8 +1362,9 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 				$out_fields[DAO_WorkspaceList::NAME] = $value['title'];
 				$out_fields[DAO_WorkspaceList::OPTIONS_JSON] = json_encode($view->options);
 				$out_fields[DAO_WorkspaceList::COLUMNS_JSON] = json_encode($view->view_columns);
-				$out_fields[DAO_WorkspaceList::PARAMS_EDITABLE_JSON] = json_encode($view->getParamsEditable());
+				$out_fields[DAO_WorkspaceList::PARAMS_EDITABLE_JSON] = json_encode($view->getEditableParams());
 				$out_fields[DAO_WorkspaceList::PARAMS_REQUIRED_JSON] = json_encode($view->getParamsRequired());
+				$out_fields[DAO_WorkspaceList::PARAMS_REQUIRED_QUERY] = $view->getParamsRequiredQuery();
 				$out_fields[DAO_WorkspaceList::RENDER_LIMIT] = $view->renderLimit;
 				$out_fields[DAO_WorkspaceList::RENDER_SORT_JSON] = json_encode($view->getSorts());
 				$out_fields[DAO_WorkspaceList::RENDER_SUBTOTALS] = $view->renderSubtotals;

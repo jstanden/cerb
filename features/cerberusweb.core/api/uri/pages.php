@@ -158,7 +158,6 @@ class Page_Custom extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::pages/wizard_popup.tpl');
 	}
 	
-	// [TODO] This should convert to the new JSON import format
 	function savePageWizardPopupAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string',null);
 		@$page_type = DevblocksPlatform::importGPC($_REQUEST['page_type'],'string',null);

@@ -88,20 +88,7 @@
 					"params": [
 
 					],
-					"params_required": {
-						"596574e22d032": {
-							"field": "*_status",
-							"operator": "in",
-							"value": [
-								"open"
-							]
-						},
-						"596574e22d033": {
-							"field": "*_groups_of_worker",
-							"operator": "=",
-							"value": "{{current_worker_id}}"
-						}
-					},
+					"params_required_query": "status:[o] inGroupsOf:me",
 					"limit": 10,
 					"sort_by": "t_updated_date",
 					"sort_asc": false,
@@ -131,20 +118,7 @@
 					"params": [
 
 					],
-					"params_required": {
-						"593b4626df0c1": {
-							"field": "m_worker_id",
-							"operator": "in",
-							"value": [
-								"{{current_worker_id}}"
-							]
-						},
-						"593b4626df0ca": {
-							"field": "m_is_outgoing",
-							"operator": "=",
-							"value": 1
-						}
-					},
+					"params_required_query": "worker.id:me isOutgoing:y",
 					"limit": 10,
 					"sort_by": "m_created_date",
 					"sort_asc": false,
@@ -174,15 +148,7 @@
 					"params": [
 
 					],
-					"params_required": {
-						"593b4626dfc4e": {
-							"field": "m_worker_id",
-							"operator": "in",
-							"value": [
-								"{{current_worker_id}}"
-							]
-						}
-					},
+					"params_required_query": "worker.id:{{current_worker_id}}",
 					"limit": 10,
 					"sort_by": "m_updated",
 					"sort_asc": false,

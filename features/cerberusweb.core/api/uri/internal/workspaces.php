@@ -152,6 +152,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 					DAO_WorkspaceList::OPTIONS_JSON => json_encode($view->options),
 					DAO_WorkspaceList::PARAMS_EDITABLE_JSON => json_encode($view->getParams()),
 					DAO_WorkspaceList::PARAMS_REQUIRED_JSON => json_encode($view->getParamsRequired()),
+					DAO_WorkspaceList::PARAMS_REQUIRED_QUERY => $view->getParamsRequiredQuery(),
 					DAO_WorkspaceList::RENDER_LIMIT => $view->renderLimit,
 					DAO_WorkspaceList::RENDER_SORT_JSON => json_encode($view->getSorts()),
 					DAO_WorkspaceList::RENDER_SUBTOTALS => $view->renderSubtotals ?: '',
