@@ -146,6 +146,13 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $dict->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
+		// Profile counts
+		$profile_counts = array(
+			'bots' => DAO_Bot::count($context, $dict->id),
+			'groups' => DAO_Group::countByMemberId($dict->id),
+		);
+		$tpl->assign('profile_counts', $profile_counts);
+		
 		// Link counts
 		
 		$properties_links = array(
