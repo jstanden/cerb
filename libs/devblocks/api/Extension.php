@@ -799,7 +799,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		}
 		
 		$view->name = 'Search Results';
-		$view->renderFilters = false;
 		$view->is_ephemeral = false;
 
 		return $view;

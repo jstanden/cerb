@@ -1779,7 +1779,6 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$view->renderSortBy = SearchFields_ContactOrg::NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

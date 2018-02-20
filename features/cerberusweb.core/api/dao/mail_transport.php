@@ -1130,7 +1130,6 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		$view->renderSortBy = SearchFields_MailTransport::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

@@ -1853,7 +1853,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		$view->renderSortBy = SearchFields_Attachment::UPDATED;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		return $view;
 	}

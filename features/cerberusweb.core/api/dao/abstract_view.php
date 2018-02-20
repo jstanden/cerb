@@ -36,7 +36,6 @@ abstract class C4_AbstractView {
 	public $renderSortBy = '';
 	public $renderSortAsc = 1;
 
-	public $renderFilters = null;
 	public $renderSubtotals = null;
 	
 	public $renderTemplate = null;
@@ -3918,7 +3917,6 @@ class C4_AbstractViewModel {
 	public $renderTotal = true;
 	public $renderSort = '';
 	
-	public $renderFilters = null;
 	public $renderSubtotals = null;
 	
 	public $renderTemplate = null;
@@ -4048,7 +4046,6 @@ class C4_AbstractViewLoader {
 		
 		$model->renderSort = $view->getSorts();
 		
-		$model->renderFilters = $view->renderFilters ? true : false;
 		$model->renderSubtotals = $view->renderSubtotals;
 		
 		$model->renderTemplate = $view->renderTemplate;
@@ -4112,7 +4109,6 @@ class C4_AbstractViewLoader {
 			}
 		}
 		
-		$inst->renderFilters = $model->renderFilters ? true : false;
 		$inst->renderSubtotals = $model->renderSubtotals;
 		
 		$inst->renderTemplate = $model->renderTemplate;
@@ -4259,7 +4255,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	const PARAMS_REQUIRED_JSON = 'params_required_json';
 	const PLACEHOLDER_LABELS_JSON = 'placeholder_labels_json';
 	const PLACEHOLDER_VALUES_JSON = 'placeholder_values_json';
-	const RENDER_FILTERS = 'render_filters';
 	const RENDER_LIMIT = 'render_limit';
 	const RENDER_PAGE = 'render_page';
 	const RENDER_SORT_JSON = 'render_sort_json';
@@ -4339,11 +4334,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			->addField(self::PLACEHOLDER_VALUES_JSON)
 			->string()
 			->setMaxLength(16777215)
-			;
-		// tinyint(1)
-		$validation
-			->addField(self::RENDER_FILTERS)
-			->uint(1)
 			;
 		// smallint(5) unsigned
 		$validation
@@ -4427,7 +4417,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'render_total',
 			'render_limit',
 			'render_sort_json',
-			'render_filters',
 			'render_subtotals',
 			'render_template',
 			'placeholder_labels_json',
@@ -4453,7 +4442,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			$model->renderPage = $row['render_page'];
 			$model->renderTotal = $row['render_total'];
 			$model->renderLimit = $row['render_limit'];
-			$model->renderFilters = $row['render_filters'];
 			$model->renderSubtotals = $row['render_subtotals'];
 			$model->renderTemplate = $row['render_template'];
 			
@@ -4558,7 +4546,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'render_total' => !empty($model->renderTotal) ? 1 : 0,
 			'render_limit' => max(intval($model->renderLimit),0),
 			'render_sort_json' => $db->qstr(json_encode($render_sort)),
-			'render_filters' => !empty($model->renderFilters) ? 1 : 0,
 			'render_subtotals' => $db->qstr($model->renderSubtotals),
 			'render_template' => $db->qstr($model->renderTemplate),
 			'placeholder_labels_json' => $db->qstr(json_encode($model->placeholderLabels)),

@@ -1192,7 +1192,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$view->renderSortBy = SearchFields_<?php echo $class_name; ?>::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

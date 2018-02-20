@@ -1082,7 +1082,6 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 		$view->renderSortBy = SearchFields_ClassifierEntity::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

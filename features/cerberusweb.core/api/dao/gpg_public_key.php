@@ -1068,7 +1068,6 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 		$view->renderSortBy = SearchFields_GpgPublicKey::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

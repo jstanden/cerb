@@ -1107,7 +1107,6 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		$view->renderSortBy = SearchFields_ContextSavedSearch::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

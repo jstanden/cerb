@@ -1137,7 +1137,6 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		$view->renderSortBy = SearchFields_WebhookListener::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

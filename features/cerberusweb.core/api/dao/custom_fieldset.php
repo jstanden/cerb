@@ -1230,7 +1230,6 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
-		$view->renderFilters = false;
 		return $view;
 	}
 	

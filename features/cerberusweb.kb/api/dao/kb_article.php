@@ -1180,7 +1180,6 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$view->renderSortBy = SearchFields_KbArticle::UPDATED;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

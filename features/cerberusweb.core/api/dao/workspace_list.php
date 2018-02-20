@@ -1376,7 +1376,6 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		$view->renderSortBy = SearchFields_WorkspaceList::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

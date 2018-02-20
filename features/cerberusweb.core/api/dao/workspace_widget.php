@@ -1191,7 +1191,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		$view->renderSortBy = SearchFields_WorkspaceWidget::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

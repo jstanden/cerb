@@ -1463,7 +1463,6 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		$view->renderSortBy = SearchFields_Comment::CREATED;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

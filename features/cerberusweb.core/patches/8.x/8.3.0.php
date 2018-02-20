@@ -356,7 +356,7 @@ if(!isset($columns['updated_at'])) {
 }
 
 // ===========================================================================
-// Add `params_required_query` to `worker_view_model`
+// Add `params_required_query` and remove `render_filters` on `worker_view_model`
 
 if(!isset($tables['worker_view_model'])) {
 	$logger->error("The 'worker_view_model' table does not exist.");
@@ -367,6 +367,11 @@ list($columns, $indexes) = $db->metaTable('worker_view_model');
 
 if(!isset($columns['params_required_query'])) {
 	$sql = "ALTER TABLE worker_view_model ADD COLUMN params_required_query TEXT AFTER params_required_json";
+	$db->ExecuteMaster($sql);
+}
+
+if(isset($columns['render_filters'])) {
+	$sql = "ALTER TABLE worker_view_model DROP COLUMN render_filters";
 	$db->ExecuteMaster($sql);
 }
 

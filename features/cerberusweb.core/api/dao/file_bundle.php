@@ -1256,7 +1256,6 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		$view->renderSortBy = SearchFields_FileBundle::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

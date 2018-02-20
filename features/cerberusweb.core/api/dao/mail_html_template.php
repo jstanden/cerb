@@ -1184,7 +1184,6 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		$view->renderSortBy = SearchFields_MailHtmlTemplate::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

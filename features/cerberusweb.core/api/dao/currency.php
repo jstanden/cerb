@@ -1164,7 +1164,6 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 		$view->renderSortBy = SearchFields_Currency::NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

@@ -1258,7 +1258,6 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		$view->renderSortBy = SearchFields_WorkspaceTab::NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

@@ -1059,7 +1059,6 @@ class Context_Skillset extends Extension_DevblocksContext implements IDevblocksC
 		$view->renderSortBy = SearchFields_Skillset::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

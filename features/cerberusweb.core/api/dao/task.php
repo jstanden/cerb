@@ -1605,7 +1605,6 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$view->renderSortBy = SearchFields_Task::UPDATED_DATE;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		return $view;
 	}

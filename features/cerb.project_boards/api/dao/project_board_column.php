@@ -1252,7 +1252,6 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		$view->renderSortBy = SearchFields_ProjectBoardColumn::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

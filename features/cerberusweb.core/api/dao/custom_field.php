@@ -2200,7 +2200,6 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		$view->renderSortBy = SearchFields_CustomField::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

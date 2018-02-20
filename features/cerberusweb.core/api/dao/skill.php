@@ -1155,7 +1155,6 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 		$view->renderSortBy = SearchFields_Skill::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

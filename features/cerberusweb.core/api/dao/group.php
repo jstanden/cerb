@@ -2162,7 +2162,6 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 //		$view->renderSortBy = SearchFields_Group::NAME;
 //		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 
 		return $view;

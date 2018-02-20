@@ -1656,7 +1656,6 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
-		$view->renderFilters = false;
 		return $view;
 	}
 	

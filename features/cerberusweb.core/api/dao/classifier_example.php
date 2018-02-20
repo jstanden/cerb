@@ -1145,7 +1145,6 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 		$view->renderSortBy = SearchFields_ClassifierExample::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

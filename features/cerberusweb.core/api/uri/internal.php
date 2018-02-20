@@ -2547,17 +2547,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl');
 	}
 
-	// Ajax
-	
-	function viewToggleFiltersAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
-		@$show = DevblocksPlatform::importGPC($_REQUEST['show'],'integer',0);
-		
-		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
-			$view->renderFilters = !empty($show) ? 1 : 0;
-		}
-	}
-	
 	function viewAddFilterAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
 		@$is_custom = DevblocksPlatform::importGPC($_REQUEST['is_custom'],'integer',0);

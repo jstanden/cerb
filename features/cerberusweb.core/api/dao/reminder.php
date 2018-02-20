@@ -1210,7 +1210,6 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		$view->renderSortBy = SearchFields_Reminder::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;

@@ -1428,7 +1428,6 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		$view->renderSortBy = SearchFields_CalendarRecurringProfile::EVENT_NAME;
 		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;
