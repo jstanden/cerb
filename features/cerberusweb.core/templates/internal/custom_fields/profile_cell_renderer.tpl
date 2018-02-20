@@ -40,7 +40,11 @@
 {elseif $v.type == Model_CustomField::TYPE_WORKER}
 	{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
 	{if isset($workers.{$v.value})}
-		{$workers.{$v.value}->getName()}
+		<ul class="bubbles">
+			<li>
+				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v.value}">{$workers.{$v.value}->getName()}</a>
+			</li>
+		</ul>
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_LIST}
 	{if is_array($v.value)}
