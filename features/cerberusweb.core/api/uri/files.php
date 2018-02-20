@@ -121,6 +121,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		switch($mime_type) {
 			case 'application/json':
 			case 'application/pgp-signature':
+			case 'image/svg+xml':
 			case 'message/feedback-report':
 			case 'message/rfc822':
 			case 'multipart/encrypted':
