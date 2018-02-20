@@ -3469,6 +3469,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			$view->name = $title;
 		}
 		
+		if($is_custom) {
+			@$params_required_query = DevblocksPlatform::importGPC($_REQUEST['params_required_query'],'string', '');
+			$view->setParamsRequiredQuery($params_required_query);
+		}
+		
 		// Reset the paging
 		$view->renderPage = 0;
 		
@@ -3502,23 +3507,22 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 				
 			} catch(Exception $e) {
-				// [TODO] Logger
-				$view->render();
 				return;
 			}
 			
 			// Persist
 			
-			DAO_WorkspaceList::update($worklist_id, [
+			$fields = [
 				DAO_WorkspaceList::NAME => $title,
 				DAO_WorkspaceList::OPTIONS_JSON => json_encode($options),
 				DAO_WorkspaceList::COLUMNS_JSON => json_encode($view->view_columns),
 				DAO_WorkspaceList::RENDER_LIMIT => $view->renderLimit,
 				DAO_WorkspaceList::PARAMS_EDITABLE_JSON => json_encode([]),
 				DAO_WorkspaceList::PARAMS_REQUIRED_JSON => json_encode($list_model->params_required),
+				DAO_WorkspaceList::PARAMS_REQUIRED_QUERY => $params_required_query,
 				DAO_WorkspaceList::RENDER_SORT_JSON => json_encode($view->getSorts()),
 				DAO_WorkspaceList::RENDER_SUBTOTALS => $view->renderSubtotals,
-			]);
+			];
 			
 			// Syndicate
 			$worker_views = DAO_WorkerViewModel::getWhere(sprintf("view_id = %s", Cerb_ORMHelper::qstr($id)));
@@ -3535,8 +3539,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				DAO_WorkerViewModel::setView($worker_view->worker_id, $worker_view->id, $worker_view);
 			}
 		}
-
-		$view->render();
 	}
 
 	function viewShowQuickSearchPopupAction() {

@@ -137,6 +137,10 @@ if(!isset($columns['params_required_json'])) {
 	$changes[] = "ADD COLUMN params_required_json text";
 }
 
+if(!isset($columns['params_required_query'])) {
+	$changes[] = "ADD COLUMN params_required_query text";
+}
+
 if(!isset($columns['render_limit'])) {
 	$changes[] = "ADD COLUMN render_limit smallint(5) unsigned not null default 0";
 }
@@ -349,6 +353,21 @@ if(!isset($columns['updated_at'])) {
 	$db->ExecuteMaster($sql);
 	
 	$db->ExecuteMaster(sprintf("UPDATE community_tool SET updated_at = %d", time()));
+}
+
+// ===========================================================================
+// Add `params_required_query` to `worker_view_model`
+
+if(!isset($tables['worker_view_model'])) {
+	$logger->error("The 'worker_view_model' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_view_model');
+
+if(!isset($columns['params_required_query'])) {
+	$sql = "ALTER TABLE worker_view_model ADD COLUMN params_required_query TEXT AFTER params_required_json";
+	$db->ExecuteMaster($sql);
 }
 
 // ===========================================================================

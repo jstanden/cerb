@@ -439,6 +439,8 @@ class Page_Custom extends CerberusPageExtension {
 			$view->is_ephemeral = 0;
 			$view->view_columns = $list->columns;
 			$view->addParams($list->getParamsEditable(), true);
+			$view->addParamsRequired($list->getParamsRequired(), true);
+			$view->setParamsRequiredQuery($list->params_required_query);
 			$view->renderSortBy = array_keys($list->render_sort);
 			$view->renderSortAsc = array_values($list->render_sort);
 			$view->renderSubtotals = $list->render_subtotals;

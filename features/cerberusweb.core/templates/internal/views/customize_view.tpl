@@ -14,11 +14,25 @@
 	{$is_trigger = false}
 {/if}
 
+{if $is_custom}
+{$workspace_list = $view->getCustomWorklistModel()}
+{/if}
+
 {if $is_custom || $is_trigger}
 <fieldset class="peek peek-noborder black">
 	<legend>{'common.title'|devblocks_translate|capitalize}</legend>
 	
 	<input type="text" name="title" value="{$view->name}" size="64" autocomplete="off"><br>
+</fieldset>
+{/if}
+
+{if $is_custom}
+<fieldset class="peek peek-noborder black" style="margin-bottom:0;">
+	<legend>Restrict the worklist results using this quick search:</legend>
+	
+	<div id="viewCustomReqQuickSearch{$view->id}" style="margin:5px 0px 0px 0px;">
+		<input type="text" name="params_required_query" value="{$workspace_list->params_required_query}" style="width:100%;padding:5px;" class="cerb-query-trigger" data-context="{$workspace_list->context}">
+	</div>
 </fieldset>
 {/if}
 
@@ -45,7 +59,7 @@
 	{if $is_custom}
 	<div>
 		{'common.color'|devblocks_translate|capitalize}: 
-		<input type="text" name="view_options[header_color]" value="{$view->options.header_color|default:'#6A87DB'}" class="color-picker">
+		<input type="text" name="view_options[header_color]" value="{$workspace_list->options.header_color|default:'#6A87DB'}" class="color-picker">
 	</div>
 	<div style="margin-top:1em;">
 		<label><input type="checkbox" name="view_options[disable_sorting]" value="1" {if $view->options.disable_sorting}checked="checked"{/if}> Prevent workers from changing the sort column</label>
@@ -58,27 +72,46 @@
 </fieldset>
 
 {if $is_custom}
-<fieldset class="peek peek-noborder black" style="margin-bottom:0;">
-	<legend>Require these filters on the worklist:</legend>
-	
-	<div id="viewCustom{if $is_custom}Req{/if}Filters{$view->id}" style="margin-top:5px;">
-	{include file="devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl" is_custom=true}
-	</div>
-</fieldset>
+	{if $workspace_list}
+		{$view_params = $workspace_list->getParamsRequired()}
+		{if $view_params}
+		<fieldset class="peek peek-noborder black" style="margin-bottom:0;">
+			<legend>(Deprecated) Require these filters on the worklist:</legend>
+			
+			<div id="viewCustomReqFilters{$view->id}" style="margin:5px 0px 0px 10px;">
+			{include file="devblocks:cerberusweb.core::internal/views/customize_view_criteria.tpl" is_custom=true}
+			</div>
+		</fieldset>
+		{/if}
+	{/if}
 {/if}
 
-<button type="button" onclick="genericAjaxPost('customize{$view->id}','view{$view->id}','c=internal&a=viewSaveCustomize');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-<button type="button" onclick="toggleDiv('customize{$view->id}','none');"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="cancel" onclick="toggleDiv('customize{$view->id}','none');"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 
 </div>
 
 <script type="text/javascript">
 $(function() {
-	var $container =$('#customize{$view->id}'); 
+	var $container =$('#customize{$view->id}');
+	
 	$container.sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
+	
 	$container.find('input:text.color-picker').minicolors({
 		swatches: ['#6A87DB','#CF2C1D','#FEAF03','#57970A','#9669DB','#ADADAD','#34434E']
 	});
 
+	$container.find('.cerb-query-trigger')
+		.cerbQueryTrigger()
+			.on('cerb-query-saved', function(e) {
+			})
+		;
+	;
+	
+	$container.find('button.save').on('click', function(e) {
+		genericAjaxPost('customize{$view->id}','','c=internal&a=viewSaveCustomize', function(e) {
+			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
+		});
+	})
 });
 </script>

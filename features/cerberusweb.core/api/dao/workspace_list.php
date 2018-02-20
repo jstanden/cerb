@@ -7,6 +7,7 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 	const OPTIONS_JSON = 'options_json';
 	const PARAMS_EDITABLE_JSON = 'params_editable_json';
 	const PARAMS_REQUIRED_JSON = 'params_required_json';
+	const PARAMS_REQUIRED_QUERY = 'params_required_query';
 	const RENDER_LIMIT = 'render_limit';
 	const RENDER_SUBTOTALS = 'render_subtotals';
 	const RENDER_SORT_JSON = 'render_sort_json';
@@ -60,6 +61,12 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 			->addField(self::PARAMS_REQUIRED_JSON)
 			->string()
 			->setMaxLength(16777215)
+			;
+		// text
+		$validation
+			->addField(self::PARAMS_REQUIRED_QUERY)
+			->string()
+			->setMaxLength(65536)
 			;
 		// smallint(5) unsigned
 		$validation
@@ -198,6 +205,7 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 	}
 	
 	static function onUpdateByActor($actor, $fields, $id) {
+		DAO_WorkerViewModel::updateFromWorkspaceList($id);
 	}
 	
 	/**
@@ -233,7 +241,7 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, workspace_tab_pos, workspace_tab_id, context, options_json, columns_json, params_editable_json, params_required_json, render_limit, render_subtotals, render_sort_json, updated_at ".
+		$sql = "SELECT id, name, workspace_tab_pos, workspace_tab_id, context, options_json, columns_json, params_editable_json, params_required_json, params_required_query, render_limit, render_subtotals, render_sort_json, updated_at ".
 			"FROM workspace_list ".
 			$where_sql.
 			$sort_sql.
@@ -315,6 +323,7 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 			$object->options = [];
 			$object->params_editable = [];
 			$object->params_required = [];
+			$object->params_required_query = $row['params_required_query'];
 			$object->render_limit = intval($row['render_limit']) ?: 10;
 			$object->render_sort = [];
 			$object->render_subtotals = $row['render_subtotals'];
@@ -401,6 +410,7 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 			"workspace_list.columns_json as %s, ".
 			"workspace_list.params_editable_json as %s, ".
 			"workspace_list.params_required_json as %s, ".
+			"workspace_list.params_required_query as %s, ".
 			"workspace_list.render_limit as %s, ".
 			"workspace_list.render_subtotals as %s, ".
 			"workspace_list.render_sort_json as %s, ".
@@ -414,6 +424,7 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 				SearchFields_WorkspaceList::COLUMNS_JSON,
 				SearchFields_WorkspaceList::PARAMS_EDITABLE_JSON,
 				SearchFields_WorkspaceList::PARAMS_REQUIRED_JSON,
+				SearchFields_WorkspaceList::PARAMS_REQUIRED_QUERY,
 				SearchFields_WorkspaceList::RENDER_LIMIT,
 				SearchFields_WorkspaceList::RENDER_SUBTOTALS,
 				SearchFields_WorkspaceList::RENDER_SORT_JSON,
@@ -545,6 +556,7 @@ class SearchFields_WorkspaceList extends DevblocksSearchFields {
 	const COLUMNS_JSON = 'w_columns_json';
 	const PARAMS_EDITABLE_JSON = 'w_params_editable_json';
 	const PARAMS_REQUIRED_JSON = 'w_params_required_json';
+	const PARAMS_REQUIRED_QUERY = 'w_params_required_query';
 	const RENDER_LIMIT = 'w_render_limit';
 	const RENDER_SUBTOTALS = 'w_render_subtotals';
 	const RENDER_SORT_JSON = 'w_render_sort_json';
@@ -608,6 +620,7 @@ class SearchFields_WorkspaceList extends DevblocksSearchFields {
 			self::OPTIONS_JSON => new DevblocksSearchField(self::OPTIONS_JSON, 'workspace_list', 'options_json', $translate->_(''), null, true),
 			self::PARAMS_EDITABLE_JSON => new DevblocksSearchField(self::PARAMS_EDITABLE_JSON, 'workspace_list', 'params_editable_json', $translate->_(''), null, true),
 			self::PARAMS_REQUIRED_JSON => new DevblocksSearchField(self::PARAMS_REQUIRED_JSON, 'workspace_list', 'params_required_json', $translate->_(''), null, true),
+			self::PARAMS_REQUIRED_QUERY => new DevblocksSearchField(self::PARAMS_REQUIRED_QUERY, 'workspace_list', 'params_required_query', $translate->_(''), null, true),
 			self::RENDER_LIMIT => new DevblocksSearchField(self::RENDER_LIMIT, 'workspace_list', 'render_limit', $translate->_(''), Model_CustomField::TYPE_NUMBER, true),
 			self::RENDER_SORT_JSON => new DevblocksSearchField(self::RENDER_SORT_JSON, 'workspace_list', 'render_sort_json', $translate->_(''), null, true),
 			self::RENDER_SUBTOTALS => new DevblocksSearchField(self::RENDER_SUBTOTALS, 'workspace_list', 'render_subtotals', $translate->_(''), Model_CustomField::TYPE_NUMBER, true),
@@ -640,6 +653,7 @@ class Model_WorkspaceList {
 	public $options = [];
 	public $params_editable = [];
 	public $params_required = [];
+	public $params_required_query = '';
 	public $render_limit = 0;
 	public $render_sort = [];
 	public $render_subtotals = '';
@@ -893,6 +907,7 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_WorkspaceList::OPTIONS_JSON:
 			case SearchFields_WorkspaceList::PARAMS_EDITABLE_JSON:
 			case SearchFields_WorkspaceList::PARAMS_REQUIRED_JSON:
+			case SearchFields_WorkspaceList::PARAMS_REQUIRED_QUERY:
 			case SearchFields_WorkspaceList::RENDER_LIMIT:
 			case SearchFields_WorkspaceList::RENDER_SORT_JSON:
 			case SearchFields_WorkspaceList::RENDER_SUBTOTALS:
@@ -978,6 +993,7 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_WorkspaceList::OPTIONS_JSON:
 			case SearchFields_WorkspaceList::PARAMS_EDITABLE_JSON:
 			case SearchFields_WorkspaceList::PARAMS_REQUIRED_JSON:
+			case SearchFields_WorkspaceList::PARAMS_REQUIRED_QUERY:
 			case SearchFields_WorkspaceList::RENDER_LIMIT:
 			case SearchFields_WorkspaceList::RENDER_SORT_JSON:
 			case SearchFields_WorkspaceList::RENDER_SUBTOTALS:
@@ -1200,6 +1216,7 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 			'options' => DAO_WorkspaceList::OPTIONS_JSON,
 			'params' => DAO_WorkspaceList::PARAMS_EDITABLE_JSON,
 			'params_required' => DAO_WorkspaceList::PARAMS_REQUIRED_JSON,
+			'params_required_query' => DAO_WorkspaceList::PARAMS_REQUIRED_QUERY,
 			'pos' => DAO_WorkspaceList::WORKSPACE_TAB_POS,
 			'render_limit' => DAO_WorkspaceList::RENDER_LIMIT,
 			'render_sort' => DAO_WorkspaceList::RENDER_SORT_JSON,

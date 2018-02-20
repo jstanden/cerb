@@ -18,7 +18,7 @@
 abstract class C4_AbstractView {
 	public $id = null;
 	public $is_ephemeral = 0;
-	public $name = "";
+	public $name = '';
 	public $options = [];
 	
 	public $view_columns = [];
@@ -27,6 +27,7 @@ abstract class C4_AbstractView {
 	private $_paramsEditable = [];
 	private $_paramsDefault = [];
 	private $_paramsRequired = [];
+	private $_paramsRequiredQuery = null;
 	private $_paramsHidden = [];
 	
 	public $renderPage = 0;
@@ -333,16 +334,25 @@ abstract class C4_AbstractView {
 			foreach($params_required as $key => $param) {
 				$params['req_'.$key] = $param;
 			}
+			
+			// Quick search
+			if($this->_paramsRequiredQuery) {
+				if(false != ($params_required = $this->getParamsFromQuickSearch($this->_paramsRequiredQuery))) {
+					foreach($params_required as $key => $param) {
+						$params['req_'.$key] = $param;
+					}
+				}
+			}
 		}
 		
 		if($parse_placeholders) {
 			// Translate snippets in filters
 			array_walk_recursive(
 				$params,
-				array('C4_AbstractView', '_translatePlaceholders'),
-				array(
+				['C4_AbstractView', '_translatePlaceholders'],
+				[
 					'placeholder_values' => $this->getPlaceholderValues(),
-				)
+				]
 			);
 		}
 		
@@ -460,6 +470,11 @@ abstract class C4_AbstractView {
 	function addParamsWithQuickSearch($query, $replace=true) {
 		$fields = $this->getParamsFromQuickSearch($query);
 		$this->addParams($fields, $replace);
+	}
+	
+	function addParamsRequiredWithQuickSearch($query, $replace=true) {
+		$fields = $this->getParamsFromQuickSearch($query);
+		$this->addParamsRequired($fields, $replace);
 	}
 	
 	function getSorts() {
@@ -602,6 +617,14 @@ abstract class C4_AbstractView {
 	
 	function getParamsRequired() {
 		return $this->_paramsRequired;
+	}
+	
+	function getParamsRequiredQuery() {
+		return $this->_paramsRequiredQuery;
+	}
+	
+	function setParamsRequiredQuery($query) {
+		$this->_paramsRequiredQuery = $query;
 	}
 	
 	// Params Hidden
@@ -3887,6 +3910,7 @@ class C4_AbstractViewModel {
 	public $paramsEditable = [];
 	public $paramsDefault = [];
 	public $paramsRequired = [];
+	public $paramsRequiredQuery = '';
 	public $paramsHidden = [];
 
 	public $renderPage = 0;
@@ -3937,7 +3961,8 @@ class C4_AbstractViewLoader {
 
 		// Check if we've ever persisted this view
 		if(false !== ($model = DAO_WorkerViewModel::getView($worker_id, $view_id))) {
-			return self::unserializeAbstractView($model);
+			$view = self::unserializeAbstractView($model);
+			return $view;
 			
 		} elseif(!empty($defaults) && $defaults instanceof C4_AbstractViewModel) {
 			// Load defaults if they were provided
@@ -4013,6 +4038,7 @@ class C4_AbstractViewLoader {
 		$model->paramsEditable = $view->getEditableParams();
 		$model->paramsDefault = $view->getParamsDefault();
 		$model->paramsRequired = $view->getParamsRequired();
+		$model->paramsRequiredQuery = $view->getParamsRequiredQuery();
 		// Only persist hidden params that are distinct from the parent (so we can inherit parent changes)
 		$model->paramsHidden = array_diff($view->getParamsHidden(), $parent->getParamsHidden());
 		
@@ -4063,6 +4089,8 @@ class C4_AbstractViewLoader {
 			$inst->addParamsDefault($model->paramsDefault, true);
 		if(is_array($model->paramsRequired))
 			$inst->addParamsRequired($model->paramsRequired, true);
+		if($model->paramsRequiredQuery)
+			$inst->setParamsRequiredQuery($model->paramsRequiredQuery);
 		if(is_array($model->paramsHidden))
 			$inst->addParamsHidden($model->paramsHidden, false);
 
@@ -4190,6 +4218,10 @@ class C4_AbstractViewLoader {
 		if(isset($view_model['params_required']) && is_array($view_model['params_required'])) {
 			$params = self::convertParamsJsonToObject($view_model['params_required']);
 			$view->addParamsRequired($params, true);
+		}
+		
+		if(isset($view_model['params_required_query'])) {
+			$view->setParamsRequiredQuery($view_model['params_required_query']);
 		}
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -4388,6 +4420,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'columns_hidden_json',
 			'params_editable_json',
 			'params_required_json',
+			'params_required_query',
 			'params_default_json',
 			'params_hidden_json',
 			'render_page',
@@ -4413,9 +4446,10 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			$model = new C4_AbstractViewModel();
 			$model->id = $row['view_id'];
 			$model->worker_id = $row['worker_id'];
-			$model->is_ephemeral = $row['is_ephemeral'];
+			$model->is_ephemeral = $row['is_ephemeral'] ? true : false;
 			$model->class_name = $row['class_name'];
 			$model->name = $row['title'];
+			$model->paramsRequiredQuery = $row['params_required_query'];
 			$model->renderPage = $row['render_page'];
 			$model->renderTotal = $row['render_total'];
 			$model->renderLimit = $row['render_limit'];
@@ -4517,6 +4551,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'columns_hidden_json' => $db->qstr(json_encode($model->columnsHidden)),
 			'params_editable_json' => $db->qstr(json_encode($model->paramsEditable)),
 			'params_required_json' => $db->qstr(json_encode($model->paramsRequired)),
+			'params_required_query' => $db->qstr($model->paramsRequiredQuery),
 			'params_default_json' => $db->qstr(json_encode($model->paramsDefault)),
 			'params_hidden_json' => $db->qstr(json_encode($model->paramsHidden)),
 			'render_page' => abs(intval($model->renderPage)),
@@ -4542,7 +4577,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	static public function deleteView($worker_id, $view_id) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d AND view_id = %s",
+		return $db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE worker_id = %d AND view_id = %s",
 			$worker_id,
 			$db->qstr($view_id)
 		));

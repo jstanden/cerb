@@ -1,5 +1,10 @@
+{$view_params = []}
 {if $is_custom}
-	{$view_params = $view->getParamsRequired()}
+	{* Get required params only from parent worklist *}
+	{$workspace_list = $view->getCustomWorklistModel()}
+	{if $workspace_list}
+	{$view_params = $workspace_list->getParamsRequired()}
+	{/if}
 {else}
 	{$view_params = $view->getEditableParams()}
 	{$presets = $view->getPresets()}
@@ -59,7 +64,8 @@
 			{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_params}
 		</div>
 		{/if}
-	
+
+		{if !$is_custom}
 		<fieldset class="black">
 			<legend>Add Filters</legend>
 			
@@ -110,6 +116,7 @@
 		</fieldset>
 		
 		<button type="button" onclick="$form_id = $(this).closest('form').attr('id'); if(0==$form_id.length)return;genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewAddFilter&replace=1{if $is_custom}&is_custom=1{/if}');"><span class="glyphicons glyphicons-circle-plus"></span> Update Filters</button>
+		{/if}
 	</td>
 </tr>
 </tbody>
