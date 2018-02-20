@@ -945,6 +945,14 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
 					]
 				),
+			'worker.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_MailQueue::WORKER_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => 'isDisabled:n'],
+					]
+				),
 		);
 		
 		// Add searchable custom fields
