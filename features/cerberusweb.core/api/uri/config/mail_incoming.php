@@ -499,23 +499,22 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			$message = '';
 			
 			if(is_object($dict) && !empty($dict->id)) {
-				$message = sprintf('<b>Ticket updated:</b> <a href="%s">%s</a>',
-					$dict->url,
-					DevblocksPlatform::strEscapeHtml($dict->_label)
-				);
+				$json = json_encode(array(
+					'status' => true,
+					'ticket_url' => $dict->url, 
+					'ticket_label' => $dict->_label, 
+				));
 				
 			} elseif(null === $dict) {
 				$log = ob_get_contents();
 				
-				$message = sprintf('<b>Rejected:</b> %s',
-					DevblocksPlatform::strEscapeHtml($log)
-				);
+				$json = json_encode(array(
+					'status' => true,
+					'error' => sprintf('Rejected: %s',
+						trim($log)
+					)
+				));
 			}
-			
-			$json = json_encode(array(
-				'status' => true,
-				'message' => $message,
-			));
 			
 			ob_end_clean();
 			
@@ -523,11 +522,12 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			
 		} catch (Exception $e) {
 			$log = ob_get_contents();
+			$log = str_replace('<BR>', ' ', $log);
 			
 			$json = json_encode(array(
 				'status' => false,
-				'message' => $e->getMessage(),
-				'log' => $log,
+				'error' => trim($e->getMessage()),
+				'log' => trim($log),
 			));
 			
 			ob_end_clean();

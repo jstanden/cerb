@@ -75,7 +75,7 @@ function DevblocksClass() {
 			.append(
 				$('<div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;"/>')
 				.append(
-					$('<p/>').html(message)
+					$('<p/>').text(message)
 						.prepend($('<span class="glyphicons glyphicons-circle-exclamation-mark" style="margin-right:5px;"></span>'))
 				)
 			)
@@ -95,7 +95,7 @@ function DevblocksClass() {
 			.append(
 				$('<div class="ui-state-highlight ui-corner-all" style="padding:0 0.5em;margin:0.5em;"/>')
 				.append(
-					$('<p/>').html(message)
+					$('<p/>').text(message)
 						.prepend($('<span class="glyphicons glyphicons-circle-ok" style="margin-right:5px;"></span>'))
 				)
 			)

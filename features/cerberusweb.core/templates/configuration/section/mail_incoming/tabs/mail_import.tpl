@@ -33,9 +33,20 @@ $(function() {
 			// If successful, display a link to the new ticket
 			if(undefined != json.status && true == json.status) {
 				$txt.val('');
+				$output.html('');
 				
-				if(json.message)
-					Devblocks.showSuccess($output, json.message, false, true);
+				if(undefined != json.ticket_label && undefined != json.ticket_url) {
+					var $b = $('<b>Created: </b>');
+					
+					var $a = $('<a/>')
+						.attr('href', json.ticket_url)
+						.attr('target', '_blank')
+						.text(json.ticket_label)
+					;
+
+					Devblocks.showSuccess($output, '', false, true);
+					$output.find('p').append($b).append($a);
+				}
 				
 			// If an error, display it
 			} else if(undefined != json.status && false == json.status) {

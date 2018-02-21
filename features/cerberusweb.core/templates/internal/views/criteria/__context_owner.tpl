@@ -70,8 +70,8 @@
 <br>
 
 <script type="text/javascript">
-$menu = $('#{$menu_divid}');
-$input = $menu.prevAll('input.filter');
+var $menu = $('#{$menu_divid}');
+var $input = $menu.prevAll('input.filter');
 $input.focus();
 
 $input.keypress(
@@ -109,27 +109,27 @@ $menu.find('> li').click(function(e) {
 });
 
 $menu.find('> li > div.item a').click(function() {
-	$li = $(this).closest('li');
-	$frm = $(this).closest('form');
+	var $li = $(this).closest('li');
+	var $frm = $(this).closest('form');
 	
-	$ul = $li.closest('ul');
-	$bubbles = $ul.nextAll('ul.bubbles');
+	var $ul = $li.closest('ul');
+	var $bubbles = $ul.nextAll('ul.bubbles');
 	
-	context = $li.attr('context');
-	context_id = $li.attr('context_id');
-	label = $li.attr('label');
+	var context = $li.attr('context');
+	var context_id = $li.attr('context_id');
+	var context_pair = context+':'+context_id;
 
-	context_pair = context+':'+context_id;
+	var label = $li.attr('label');
 
 	// Check for dupe context pair
 	if($bubbles.find('li input:hidden[value="'+context_pair+'"]').length > 0)
 		return;
 	
-	$bubble = $('<li></li>');
+	var $bubble = $('<li></li>');
 	$bubble.append($('<input type="hidden" name="owner_context[]">').attr('value',context_pair));
-	$bubble.append(label);
+	$bubble.append(document.createTextNode(label));
 	$bubble.append('<a href="javascript:;" onclick="$li=$(this).closest(\'li\');$li.remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 	
 	$bubbles.append($bubble);
-});	
+});
 </script>
