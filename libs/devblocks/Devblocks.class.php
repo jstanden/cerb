@@ -2464,12 +2464,12 @@ class DevblocksPlatform extends DevblocksEngine {
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		
 		if(empty($plugins))
-			return array();
+			return [];
 			
 		if(null !== ($activities = $cache->load(self::CACHE_ACTIVITY_POINTS)))
 			return $activities;
 			
-		$activities = array();
+		$activities = [];
 			
 		foreach($plugins as $plugin) { /* @var $plugin DevblocksPluginManifest */
 			if($plugin->enabled)
@@ -2478,7 +2478,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			}
 		}
 		
-		ksort($activities);
+		DevblocksPlatform::sortObjects($activities, '[params]->[label_key]');
 		
 		$cache->save($activities, self::CACHE_ACTIVITY_POINTS);
 		return $activities;
