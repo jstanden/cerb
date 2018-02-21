@@ -488,6 +488,17 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$tpl->display('devblocks:cerberusweb.core::internal/workers/profile/tabs/profile.tpl');
 				break;
 				
+			case 'pages':
+				$page_ids = DAO_WorkerPref::getAsJson($worker->id, 'menu_json', '[]');
+				
+				if($page_ids) {
+					$pages = DAO_WorkspacePage::getIds($page_ids);
+					$tpl->assign('pages', $pages);
+				}
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/workers/profile/tabs/pages.tpl');
+				break;
+				
 			case 'availability':
 				$prefs = [];
 				$prefs['availability_calendar_id'] = intval($worker->calendar_id);
@@ -669,6 +680,26 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_WorkerPref::set($worker->id, 'keyboard_shortcuts', $keyboard_shortcuts);
 					
 					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $worker->id, $avatar_image);
+					
+					echo json_encode([
+						'status' => true,
+					]);
+					return;
+					break;
+					
+				case 'pages':
+					@$page_ids = DevblocksPlatform::importGPC($_REQUEST['pages'],'array:integer',[]);
+					
+					$pages = DAO_WorkspacePage::getIds($page_ids);
+					
+					if(!Context_WorkspacePage::isReadableByActor($pages, $worker))
+						throw new Exception_DevblocksAjaxValidationError(
+							sprintf("%s can't view a selected workspace page.",
+								$worker->getName()
+							)
+						);
+					
+					DAO_WorkerPref::setAsJson($worker->id, 'menu_json', $page_ids);
 					
 					echo json_encode([
 						'status' => true,

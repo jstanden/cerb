@@ -316,10 +316,17 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			return [];
 
 		$objects = self::getAll();
+		$results = [];
 		
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 		
-		return array_intersect_key($objects, array_flip($ids));
+		// Preserve ID order
+		foreach($ids as $id) {
+			if(isset($objects[$id]))
+				$results[$id] = $objects[$id];
+		}
+		
+		return $results;
 	}
 
 	/**
