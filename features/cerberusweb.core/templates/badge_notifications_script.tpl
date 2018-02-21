@@ -12,9 +12,10 @@ $().ready(function() {
 	$a.html('').append($count).append($txt);
 	$badge.fadeIn('slow');
 	
-	$a.click(function() {
-		var $window = genericAjaxPopup('notifications','c=internal&a=openNotificationsPopup', null, false, '90%');
-	});
+	$a.attr('data-context', '{CerberusContexts::CONTEXT_NOTIFICATION}');
+	$a.attr('data-query', 'isRead:n');
+	$a.attr('data-query-required', 'worker.id:{$active_worker->id}');
+	$a.cerbSearchTrigger();
 });
 </script>
 {/if}
