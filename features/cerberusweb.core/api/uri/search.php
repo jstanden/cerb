@@ -92,6 +92,7 @@ class Page_Search extends CerberusPageExtension {
 	function openSearchPopupAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
+		@$query_required = DevblocksPlatform::importGPC($_REQUEST['qr'],'string','');
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string',null);
 
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
@@ -106,6 +107,10 @@ class Page_Search extends CerberusPageExtension {
 		
 		if($id)
 			$view->is_ephemeral = true;
+		
+		if(isset($_REQUEST['qr'])) {
+			$view->setParamsRequiredQuery($query_required);
+		}
 		
 		if(isset($_REQUEST['q'])) {
 			$view->addParamsWithQuickSearch($query, true);
