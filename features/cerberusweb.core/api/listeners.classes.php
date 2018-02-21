@@ -214,13 +214,6 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 					);
 					break;
 				
-			case 'preferences':
-				$tour = array(
-						'title' => 'Preferences',
-					'body' => 'Use this page to configure your account preferences.',
-				);
-				break;
-
 			case 'groups':
 				$tour = array(
 						'title' => 'Group Setup',

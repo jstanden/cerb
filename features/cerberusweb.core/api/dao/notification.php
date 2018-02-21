@@ -1020,7 +1020,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$tpl->assign('view_template', 'devblocks:cerberusweb.core::preferences/tabs/notifications/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/notifications/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
@@ -1200,7 +1200,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(false == ($url = $notification->getURL())) {
-			$url = $url_writer->writeNoProxy('c=preferences&action=redirectRead&id='.$context_id, true);
+			$url = $url_writer->writeNoProxy('c=internal&action=redirectRead&id='.$context_id, true);
 		}
 		
 		return array(
@@ -1324,7 +1324,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			$token_values = $this->_importModelCustomFieldsAsValues($notification, $token_values);
 			
 			// Url
-			$redirect_url = $url_writer->writeNoProxy(sprintf("c=preferences&a=redirectRead&id=%d", $notification->id), true);
+			$redirect_url = $url_writer->writeNoProxy(sprintf("c=internal&a=redirectRead&id=%d", $notification->id), true);
 			$token_values['url_markread'] = $redirect_url;
 			
 			// Assignee

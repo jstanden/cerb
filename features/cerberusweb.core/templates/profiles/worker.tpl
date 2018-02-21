@@ -44,8 +44,6 @@
 			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 			<button type="button" id="btnProfileWorkerEdit" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$dict->id}" data-edit="true" title="{'common.edit'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
-			
-			{if !$active_worker->is_superuser && $dict->id == $active_worker->id}<button type="button" id="btnProfileWorkerSettings" title="{'common.settings'|devblocks_translate|capitalize}" onclick="document.location='{devblocks_url}c=preferences{/devblocks_url}';"><span class="glyphicons glyphicons-cogwheel"></span></button>{/if}
 		</form>
 		
 		{if $pref_keyboard_shortcuts}
@@ -105,7 +103,7 @@
 		
 		{if $active_worker->is_superuser || $dict->id == $active_worker->id}
 		{$tabs[] = 'settings'}
-		<li data-alias="settings"><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=worker&action=showSettingsTab&point={$point}&id={$page_context_id}{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
+		<li data-alias="settings"><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=worker&action=showSettingsTab&worker_id={$page_context_id}{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
 		{/if}
 		
 		{if !$dict->is_disabled}

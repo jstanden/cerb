@@ -547,8 +547,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	function doStopTourAction() {
 		$worker = CerberusApplication::getActiveWorker();
 		DAO_WorkerPref::set($worker->id, 'assist_mode', 0);
-
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('preferences')));
 	}
 
 	// Imposter mode
@@ -2002,44 +2000,259 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	// Notifications
 	
-	function openNotificationsPopupAction() {
-		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
-			return;
-		
-		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_NOTIFICATION)))
-			return;
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		$view_id = 'my_notifications';
-		
-		$defaults = C4_AbstractViewModel::loadFromClass('View_Notification');
-		$defaults->id = $view_id;
-		$defaults->name = vsprintf($translate->_('home.my_notifications.view.title'), $active_worker->getName());
-		$defaults->view_columns = array(
-			SearchFields_Notification::CREATED_DATE,
-			SearchFields_Notification::IS_READ,
-		);
-		$defaults->renderSubtotals = SearchFields_Notification::ACTIVITY_POINT;
-		$defaults->renderSortBy = SearchFields_Notification::CREATED_DATE;
-		$defaults->renderSortAsc = false;
-		$defaults->renderLimit = 10;
-		$defaults->is_ephemeral = false;
-		$defaults->paramsEditable = array(
-			new DevblocksSearchCriteria(SearchFields_Notification::IS_READ, DevblocksSearchCriteria::OPER_EQ, 0),
-		);
-		
-		if(false == ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults)))
-			return;
-		
-		$view->addParamsRequired(array(
-			SearchFields_Notification::WORKER_ID => new DevblocksSearchCriteria(SearchFields_Notification::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
-		), true);
-		
+	/**
+	 * Open an event, mark it read, and redirect to its URL.
+	 * Used by Home->Notifications view.
+	 *
+	 */
+	function redirectReadAction() {
+		$worker = CerberusApplication::getActiveWorker();
+
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+
+		array_shift($stack); // internal
+		array_shift($stack); // redirectRead
+		@$id = array_shift($stack); // id
+
+		if(null != ($notification = DAO_Notification::get($id))) {
+			switch($notification->context) {
+				case '':
+				case CerberusContexts::CONTEXT_APPLICATION:
+				case CerberusContexts::CONTEXT_CUSTOM_FIELD:
+				case CerberusContexts::CONTEXT_CUSTOM_FIELDSET:
+				case CerberusContexts::CONTEXT_MESSAGE:
+				case CerberusContexts::CONTEXT_WORKSPACE_PAGE:
+				case CerberusContexts::CONTEXT_WORKSPACE_TAB:
+				case CerberusContexts::CONTEXT_WORKSPACE_WIDGET:
+				case CerberusContexts::CONTEXT_WORKSPACE_WORKLIST:
+					// Mark as read before we redirect
+					if(empty($notification->is_read)) {
+						DAO_Notification::update($id, array(
+							DAO_Notification::IS_READ => 1
+						));
+					
+						DAO_Notification::clearCountCache($worker->id);
+					}
+					break;
+			}
+
+			session_write_close();
+			header("Location: " . $notification->getURL());
+		}
+		exit;
+	}
+	
+	function showNotificationsBulkPanelAction() {
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('popup_title', DevblocksPlatform::translateCapitalized('common.notifications'));
-		$tpl->assign('view', $view);
+		$tpl->assign('view_id', $view_id);
+
+		if(!empty($ids)) {
+			$id_list = DevblocksPlatform::parseCsvString($ids);
+			$tpl->assign('ids', implode(',', $id_list));
+		}
+
+		// Custom Fields
+		//$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_NOTIFICATION, false);
+		//$tpl->assign('custom_fields', $custom_fields);
+
+		$tpl->display('devblocks:cerberusweb.core::internal/notifications/bulk.tpl');
+	}
+
+	function startNotificationsBulkUpdateJsonAction() {
+		// Filter: whole list or check
+		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		$ids = array();
+
+		// View
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
+
+		// Task fields
+		$is_read = trim(DevblocksPlatform::importGPC($_POST['is_read'],'string',''));
+
+		$do = array();
+
+		// Do: Mark Read
+		if(0 != strlen($is_read))
+			$do['is_read'] = $is_read;
+
+		switch($filter) {
+			// Checked rows
+			case 'checks':
+				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				$ids = DevblocksPlatform::parseCsvString($ids_str);
+				break;
+				
+			case 'sample':
+				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				$filter = 'checks';
+				$ids = $view->getDataSample($sample_size);
+				break;
+			default:
+				break;
+		}
 		
-		$tpl->display('devblocks:cerberusweb.core::search/popup.tpl');
+		// If we have specific IDs, add a filter for those too
+		if(!empty($ids)) {
+			$view->addParam(new DevblocksSearchCriteria(SearchFields_Notification::ID, 'in', $ids));
+		}
+		
+		// Create batches
+		$batch_key = DAO_ContextBulkUpdate::createFromView($view, $do);
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		echo json_encode(array(
+			'cursor' => $batch_key,
+		));
+		
+		return;
+	}
+
+	function viewNotificationsMarkReadAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+
+		try {
+			if(is_array($row_ids))
+			foreach($row_ids as $row_id) {
+				$row_id = intval($row_id);
+				
+				// Only close notifications if the current worker owns them
+				if(null != ($notification = DAO_Notification::get($row_id))) {
+					if($notification->worker_id == $active_worker->id) {
+						
+						DAO_Notification::update($notification->id, array(
+							DAO_Notification::IS_READ => 1,
+						));
+					}
+				}
+				
+			}
+			
+			DAO_Notification::clearCountCache($active_worker->id);
+			
+		} catch (Exception $e) {
+			//
+		}
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->render();
+		
+		exit;
+	}
+	
+	function viewNotificationsExploreAction() {
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::services()->url();
+
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time());
+
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
+
+		// Page start
+		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
+		if(empty($explore_from)) {
+			$orig_pos = 1+($view->renderPage * $view->renderLimit);
+		} else {
+			$orig_pos = 1;
+		}
+
+		$view->renderPage = 0;
+		$view->renderLimit = 250;
+		$pos = 0;
+		$keys = array();
+		$contexts = array();
+		
+		$view->renderTotal = false;
+		
+		do {
+			$models = array();
+			list($results, $total) = $view->getData();
+
+			if(is_array($results))
+			foreach($results as $event_id => $row) {
+				if($event_id==$explore_from)
+					$orig_pos = $pos;
+
+				$entry = json_decode($row[SearchFields_Notification::ENTRY_JSON], true);
+				
+				$content = CerberusContexts::formatActivityLogEntry($entry, 'text');
+				$context = $row[SearchFields_Notification::CONTEXT];
+				$context_id = $row[SearchFields_Notification::CONTEXT_ID];
+				
+				// Composite key
+				$key = $row[SearchFields_Notification::WORKER_ID]
+					. '_' . $context
+					. '_' . $context_id
+					;
+					
+				$url = $url_writer->write(sprintf("c=internal&a=redirectRead&id=%d", $row[SearchFields_Notification::ID]));
+				
+				if(empty($url))
+					continue;
+				
+				if(!empty($context) && !empty($context_id)) {
+					// Is this a dupe?
+					if(isset($keys[$key])) {
+						continue;
+					} else {
+						$keys[$key] = ++$pos;
+					}
+				} else {
+					++$pos;
+				}
+				
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos;
+				$model->params = array(
+					'id' => $row[SearchFields_Notification::ID],
+					'content' => $content,
+					'url' => $url,
+				);
+				$models[] = $model;
+			}
+			
+			if(!empty($models))
+				DAO_ExplorerSet::createFromModels($models);
+
+			$view->renderPage++;
+
+		} while(!empty($results));
+
+		// Add the manifest row
+		
+		DAO_ExplorerSet::set(
+			$hash,
+			array(
+				'title' => $view->name,
+				'created' => time(),
+				'worker_id' => $active_worker->id,
+				'total' => $pos,
+				'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=profiles&k=worker&id=me&tab=notifications', true),
+				//'toolbar_extension_id' => '',
+			),
+			0
+		);
+		
+		// Clamp the starting position based on dupe key folding
+		$orig_pos = DevblocksPlatform::intClamp($orig_pos, 1, count($keys));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 
 	// Context Activity Log

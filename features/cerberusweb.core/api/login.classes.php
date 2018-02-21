@@ -72,14 +72,18 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		
 		$session = DevblocksPlatform::services()->session();
 		$visit = CerberusApplication::getVisit();
-		$worker = CerberusApplication::getActiveWorker();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!($active_worker->is_superuser || $active_worker->id == $worker->id))
+			return false;
 		
 		if($reset_login) {
 			$this->resetCredentials($worker);
 			
-			// If we're not an imposter, go to the login form
-			if(!$visit->isImposter()) {
+			// Redirect if we're the current worker
+			if(!$visit->isImposter() && $worker->id == $active_worker->id) {
 				$session->clear();
+				
 				$query = array(
 					'email' => $worker->getEmailString(),
 				);

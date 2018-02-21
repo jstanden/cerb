@@ -42,5 +42,5 @@
 </fieldset>
 
 <form>
-	<button type="button" onclick="document.location.href='{devblocks_url}c=preferences{/devblocks_url}';"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Let's set up your account!</button>
+	<button type="button" onclick="document.location.href='{devblocks_url}c=profiles&what=worker&who=me{/devblocks_url}';"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Let's set up your account!</button>
 </form>

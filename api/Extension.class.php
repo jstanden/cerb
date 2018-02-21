@@ -204,13 +204,6 @@ abstract class Extension_PageMenuItem extends DevblocksExtension {
 	abstract function render();
 };
 
-abstract class Extension_PreferenceTab extends DevblocksExtension {
-	const POINT = 'cerberusweb.preferences.tab';
-	
-	function showTab() {}
-	function saveTab() {}
-};
-
 abstract class Extension_SendMailToolbarItem extends DevblocksExtension {
 	function render() { }
 };

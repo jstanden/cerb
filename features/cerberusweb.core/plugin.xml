@@ -5030,19 +5030,6 @@
 			</extension>
 		
 		<extension point="cerberusweb.page">
-			<id>core.page.preferences</id>
-			<name>Preferences Page</name>
-			<class>
-				<file>api/uri/preferences.php</file>
-				<name>ChPreferencesPage</name>
-			</class>
-			<params>
-				<param key="uri" value="preferences" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.page">
 			<id>core.page.profiles</id>
 			<name>Profiles Pages</name>
 			<class>
