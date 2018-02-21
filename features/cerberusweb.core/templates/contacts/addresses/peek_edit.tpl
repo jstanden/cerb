@@ -14,67 +14,78 @@
 	{$org = DAO_ContactOrg::get($address->contact_org_id)}
 {/if}
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<table cellpadding="0" cellspacing="2" border="0" width="98%">
+
+	{if !$address}
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
+		<td width="100%">
+			{if !empty($email)}
+				<input type="hidden" name="email" value="{$email}">
+				{$email}
+			{else}
+				<input type="text" name="email" style="width:98%;" value="{$email}" class="required email" autocomplete="off" spellcheck="false">
+			{/if}
+		</td>
+	</tr>
+	{else}
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
+		<td width="100%">
+			{$address->email}
+		</td>
+	</tr>
+	{/if}
 	
-	<table cellpadding="0" cellspacing="2" border="0" width="98%">
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="middle" align="right"><b>{'common.organization'|devblocks_translate|capitalize}:</b> </td>
+		<td width="99%" valign="top">
+				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				
+				<ul class="bubbles chooser-container">
+					{if $org}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}"><input type="hidden" name="org_id" value="{$org->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a></li>
+					{/if}
+				</ul>
+		</td>
+	</tr>
 	
-		{if !$address}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
-			<td width="100%">
-				{if !empty($email)}
-					<input type="hidden" name="email" value="{$email}">
-					{$email}
-				{else}
-					<input type="text" name="email" style="width:98%;" value="{$email}" class="required email" autocomplete="off" spellcheck="false">
-				{/if}
-			</td>
-		</tr>
-		{else}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.email'|devblocks_translate|capitalize}:</b> </td>
-			<td width="100%">
-				{$address->email}
-			</td>
-		</tr>
-		{/if}
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="middle" align="right"><b>{'common.contact'|devblocks_translate|capitalize}:</b> </td>
+		<td width="99%" valign="top">
+				<button type="button" class="chooser-abstract" data-field-name="contact_id" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-single="true" {if $org}data-query="org.id:{$org->id}"{/if} data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null" data-create-defaults="email:{if $address}{$address->id}{elseif $email}{$email}{/if} {if $org}org:{$org->id}{/if}"><span class="glyphicons glyphicons-search"></span></button>
+				
+				<ul class="bubbles chooser-container">
+					{if $contact}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$contact->id}{/devblocks_url}?v={$contact->updated_at}"><input type="hidden" name="contact_id" value="{$contact->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}">{$contact->getName()}</a></li>
+					{/if}
+				</ul>
+				
+		</td>
+	</tr>
+	
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	{/if}
+</table>
+
+<fieldset class="peek" style="margin-top:10px;">
+	<legend>{'common.mail.filtering'|devblocks_translate|mb_ucfirst}</legend>
+	
+	<div style="margin-left:10px;">
+		<label>
+			<input type="checkbox" name="is_banned" value="1" {if $address->is_banned}checked="checked"{/if}>
+			Reject incoming mail from this address
+			({'address.is_banned'|devblocks_translate|lower})
+		</label>
+		<br>
 		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="middle" align="right"><b>{'common.organization'|devblocks_translate|capitalize}:</b> </td>
-			<td width="99%" valign="top">
-					<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
-					
-					<ul class="bubbles chooser-container">
-						{if $org}
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}"><input type="hidden" name="org_id" value="{$org->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a></li>
-						{/if}
-					</ul>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="middle" align="right"><b>{'common.contact'|devblocks_translate|capitalize}:</b> </td>
-			<td width="99%" valign="top">
-					<button type="button" class="chooser-abstract" data-field-name="contact_id" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-single="true" {if $org}data-query="org.id:{$org->id}"{/if} data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null" data-create-defaults="email:{if $address}{$address->id}{elseif $email}{$email}{/if} {if $org}org:{$org->id}{/if}"><span class="glyphicons glyphicons-search"></span></button>
-					
-					<ul class="bubbles chooser-container">
-						{if $contact}
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$contact->id}{/devblocks_url}?v={$contact->updated_at}"><input type="hidden" name="contact_id" value="{$contact->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$contact->id}">{$contact->getName()}</a></li>
-						{/if}
-					</ul>
-					
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'common.options'|devblocks_translate|capitalize}:</b> </td>
-			<td width="100%">
-				<label><input type="checkbox" name="is_banned" value="1" title="Check this box if new messages from this email address should be rejected." {if $address->is_banned}checked="checked"{/if}> {'address.is_banned'|devblocks_translate|capitalize}</label>
-				<label><input type="checkbox" name="is_defunct" value="1" title="Check this box if the email address is no longer active." {if $address->is_defunct}checked="checked"{/if}> {'address.is_defunct'|devblocks_translate|capitalize}</label>
-			</td>
-		</tr>
-	</table>
+		<label>
+			<input type="checkbox" name="is_defunct" value="1" {if $address->is_defunct}checked="checked"{/if}>
+			Reject outgoing mail to this address
+			({'address.is_defunct'|devblocks_translate|lower})
+		</label>
+	</div>
 </fieldset>
 
 <fieldset class="peek">
@@ -105,13 +116,6 @@
 	Only <a href="javascript:;" style="font-weight:bold;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isAdmin:y">administrators</a> can configure outgoing mail.
 	{/if}
 </fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$address->id}
 
