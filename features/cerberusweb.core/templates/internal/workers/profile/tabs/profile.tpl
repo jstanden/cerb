@@ -11,26 +11,6 @@
 	<legend>{'preferences.account.settings'|devblocks_translate|capitalize}</legend>
 	
 	<div style="margin-bottom:5px;">
-		<table cellspacing="0" cellpadding="0" border="0">
-			<tr>
-				<td style="padding-right:5px;">
-					<b>{'common.name.first'|devblocks_translate|capitalize}</b>:<br>
-					<input type="text" name="first_name" size="20" value="{$worker->first_name}" placeholder="Kina"><br>
-				</td>
-				<td>
-					<b>{'common.name.last'|devblocks_translate|capitalize}</b>:<br>
-					<input type="text" name="last_name" size="35" value="{$worker->last_name}" placeholder="Halpue"><br>
-				</td>
-			</tr>
-		</table>
-	</div>
-	
-	<div style="margin-bottom:5px;">
-		<b>{'common.title'|devblocks_translate|capitalize}</b>:<br>
-		<input type="text" name="title" size="64" value="{$worker->title}" placeholder="e.g. Customer Service Manager"><br>
-	</div>
-	
-	<div style="margin-bottom:5px;">
 		<b>{'common.gender'|devblocks_translate|capitalize}</b>:<br>
 		<label><input type="radio" name="gender" value="M" {if $worker->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
 		&nbsp; 
@@ -59,11 +39,6 @@
 	<div style="margin-bottom:5px;">
 		<b>{'common.dob'|devblocks_translate|capitalize}</b>: <i>(YYYY-MM-DD)</i><br>
 		<input type="text" name="dob" value="{if $worker->dob}{$worker->dob}{/if}" size="32" autocomplete="off" spellcheck="false" placeholder="1970-01-15">
-	</div>
-	
-	<div style="margin-bottom:5px;">
-		<b>{'worker.at_mention_name'|devblocks_translate|capitalize}</b>:<br>
-		<input type="text" name="at_mention_name" value="{$worker->at_mention_name}" size="32" autocomplete="off" spellcheck="false" placeholder="UserName">
 	</div>
 	
 	<div style="margin-bottom:5px;">

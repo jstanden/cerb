@@ -53,42 +53,6 @@
 	<label><input type="radio" name="mail_status_reply" value="closed" {if 'closed'==$prefs.mail_status_reply}checked="checked"{/if}> {'status.closed'|devblocks_translate}</label>
 </div>
 
-<fieldset class="peek">
-	<legend>{'common.email_addresses'|devblocks_translate|capitalize}</legend>
-
-	{'preferences.account.email.associated'|devblocks_translate}<br>
-
-	<ul id="listWorkerEmailAddresses" style="padding:0px;margin:5px 0px 0px 10px;list-style:none;">
-		{foreach from=$addresses item=address}
-		<li style="padding-bottom:10px;">
-			<input type="hidden" name="worker_email_ids[]" value="{$address->address_id}">
-
-			{if $address->address_id == $active_worker->email_id}
-			<button type="button"><span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span></button>
-			{else}
-			<button type="button" onclick="if(confirm('Are you sure you want to delete this email address?')) { $(this).closest('li').remove(); }" class="delete"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
-			{/if}
-
-			<b>{$address->getEmailAsString()}</b>
-
-			{if $address->is_confirmed}
-				{if $address->address_id == $active_worker->email_id}
-				(Primary)
-				{/if}
-			{else}
-			<i>(Pending Verification:</i> <a href="javascript:;" style="font-style:italic;" onclick="document.resendConfirmationForm.email.value='{$address->getEmailAsString()}';document.resendConfirmationForm.submit();">{'preferences.account.email.address.resend.confirm'|devblocks_translate}</a>)
-			{/if}
-		</li>
-		{/foreach}
-		<li>
-			{'preferences.account.email.address.add'|devblocks_translate}<br>
-			<div style="padding:5px;">
-				<input type="text" name="new_email" size="45" value="" class="input_email">
-			</div>
-		</li>
-	</ul>
-</fieldset>
-
 <div class="status"></div>
 
 <button type="button" class="submit" style="margin-top:10px;"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>

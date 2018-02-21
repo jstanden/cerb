@@ -631,15 +631,11 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			
 			switch($tab) {
 				case 'profile':
-					@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'],'string');
-					@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'],'string');
-					@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string');
 					@$gender = DevblocksPlatform::importGPC($_REQUEST['gender'],'string');
 					@$location = DevblocksPlatform::importGPC($_REQUEST['location'],'string');
 					@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string');
 					@$mobile = DevblocksPlatform::importGPC($_REQUEST['mobile'],'string');
 					@$dob = DevblocksPlatform::importGPC($_REQUEST['dob'],'string');
-					@$at_mention_name = DevblocksPlatform::importGPC($_REQUEST['at_mention_name'],'string');
 					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'],'string');
 					
 					$worker_fields = [];
@@ -648,18 +644,12 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					
 					if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
 						$dob_ts = null;
-						
+					
 					// Account info
 					
-					if(!empty($first_name))
-						$worker_fields[DAO_Worker::FIRST_NAME] = $first_name;
-					
-					$worker_fields[DAO_Worker::LAST_NAME] = $last_name;
-					$worker_fields[DAO_Worker::TITLE] = $title;
 					$worker_fields[DAO_Worker::LOCATION] = $location;
 					$worker_fields[DAO_Worker::PHONE] = $phone;
 					$worker_fields[DAO_Worker::MOBILE] = $mobile;
-					$worker_fields[DAO_Worker::AT_MENTION_NAME] = $at_mention_name;
 					$worker_fields[DAO_Worker::DOB] = (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts);
 					
 					if(in_array($gender, array('M','F','')))
