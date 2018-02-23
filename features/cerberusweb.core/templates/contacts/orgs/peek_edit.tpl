@@ -14,87 +14,79 @@
 	{$addy = $org->getEmail()}
 {/if}
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<table cellpadding="0" cellspacing="2" border="0" width="98%" style="margin-bottom:10px;">
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right">{'common.name'|devblocks_translate|capitalize}: </td>
+		<td width="100%"><input type="text" name="org_name" value="{$org->name}" style="width:98%;"></td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top" align="right" title="(one per line)">
+			{'common.aliases'|devblocks_translate|capitalize}:
+		</td>
+		<td width="99%" valign="top">
+			<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{$aliases|implode:"\n"}</textarea>
+		</td>
+	</tr>
+	<tr>
+		<td align="right" valign="top">{'contact_org.street'|devblocks_translate|capitalize}: </td>
+		<td><textarea name="street" style="width:98%;height:50px;">{$org->street}</textarea></td>
+	</tr>
+	<tr>
+		<td align="right">{'contact_org.city'|devblocks_translate|capitalize}: </td>
+		<td><input type="text" name="city" value="{$org->city}" style="width:98%;"></td>
+	</tr>
+	<tr>
+		<td align="right">{'contact_org.province'|devblocks_translate|capitalize}.: </td>
+		<td><input type="text" name="province" value="{$org->province}" style="width:98%;"></td>
+	</tr>
+	<tr>
+		<td align="right">{'contact_org.postal'|devblocks_translate|capitalize}: </td>
+		<td><input type="text" name="postal" value="{$org->postal}" style="width:98%;"></td>
+	</tr>
+	<tr>
+		<td align="right">{'contact_org.country'|devblocks_translate|capitalize}: </td>
+		<td>
+			<input type="text" name="country" value="{$org->country}" style="width:98%;">
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap" align="right" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
+		<td width="99%" valign="top">
+				<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="org.id:{$org->id}" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				
+				<ul class="bubbles chooser-container">
+					{if $addy}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="email_id" value="{$addy->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a></li>
+					{/if}
+				</ul>
+		</td>
+	</tr>
+	<tr>
+		<td align="right">{'common.phone'|devblocks_translate|capitalize}: </td>
+		<td><input type="text" name="phone" value="{$org->phone}" style="width:98%;"></td>
+	</tr>
+	<tr>
+		<td align="right">{'common.website'|devblocks_translate|capitalize}: </td>
+		<td><input type="text" name="website" value="{$org->website}" style="width:98%;" class="url"></td>
+	</tr>
 	
-	<table cellpadding="0" cellspacing="2" border="0" width="98%">
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'common.name'|devblocks_translate|capitalize}: </td>
-			<td width="100%"><input type="text" name="org_name" value="{$org->name}" style="width:98%;"></td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top" align="right" title="(one per line)">
-				{'common.aliases'|devblocks_translate|capitalize}:
-			</td>
-			<td width="99%" valign="top">
-				<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{$aliases|implode:"\n"}</textarea>
-			</td>
-		</tr>
-		<tr>
-			<td align="right" valign="top">{'contact_org.street'|devblocks_translate|capitalize}: </td>
-			<td><textarea name="street" style="width:98%;height:50px;">{$org->street}</textarea></td>
-		</tr>
-		<tr>
-			<td align="right">{'contact_org.city'|devblocks_translate|capitalize}: </td>
-			<td><input type="text" name="city" value="{$org->city}" style="width:98%;"></td>
-		</tr>
-		<tr>
-			<td align="right">{'contact_org.province'|devblocks_translate|capitalize}.: </td>
-			<td><input type="text" name="province" value="{$org->province}" style="width:98%;"></td>
-		</tr>
-		<tr>
-			<td align="right">{'contact_org.postal'|devblocks_translate|capitalize}: </td>
-			<td><input type="text" name="postal" value="{$org->postal}" style="width:98%;"></td>
-		</tr>
-		<tr>
-			<td align="right">{'contact_org.country'|devblocks_translate|capitalize}: </td>
-			<td>
-				<input type="text" name="country" value="{$org->country}" style="width:98%;">
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap" align="right" valign="middle">{'common.email'|devblocks_translate|capitalize}:</td>
-			<td width="99%" valign="top">
-					<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="org.id:{$org->id}" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
-					
-					<ul class="bubbles chooser-container">
-						{if $addy}
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="email_id" value="{$addy->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a></li>
-						{/if}
-					</ul>
-			</td>
-		</tr>
-		<tr>
-			<td align="right">{'common.phone'|devblocks_translate|capitalize}: </td>
-			<td><input type="text" name="phone" value="{$org->phone}" style="width:98%;"></td>
-		</tr>
-		<tr>
-			<td align="right">{if !empty($org->website)}<a href="{$org->website}" target="_blank">{'common.website'|devblocks_translate|capitalize}</a>{else}{'common.website'|devblocks_translate|capitalize}{/if}: </td>
-			<td><input type="text" name="website" value="{$org->website}" style="width:98%;" class="url"></td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.image'|devblocks_translate|capitalize}:</td>
-			<td width="99%" valign="top">
-				<div style="float:left;margin-right:5px;">
-					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}" style="height:50px;width:50px;">
-				</div>
-				<div style="float:left;">
-					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{'common.edit'|devblocks_translate|capitalize}</button>
-					<input type="hidden" name="avatar_image">
-				</div>
-			</td>
-		</tr>
-		
-	</table>
-</fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top" align="right">{'common.image'|devblocks_translate|capitalize}:</td>
+		<td width="99%" valign="top">
+			<div style="float:left;margin-right:5px;">
+				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}" style="height:50px;width:50px;">
+			</div>
+			<div style="float:left;">
+				<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{'common.edit'|devblocks_translate|capitalize}</button>
+				<input type="hidden" name="avatar_image">
+			</div>
+		</td>
+	</tr>
+	
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	{/if}
+</table>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ORG context_id=$org->id}
 

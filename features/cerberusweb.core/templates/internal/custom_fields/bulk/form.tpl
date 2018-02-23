@@ -18,11 +18,7 @@
 				<label><input type="checkbox" name="field_ids[]" value="{$f_id}"> {$f->name}:</label>
 				{else}
 					<input type="hidden" name="field_ids[]" value="{$f_id}">
-					{if $f->type=='U'}
-						{if !empty($custom_field_values.$f_id)}<a href="{$custom_field_values.$f_id}" target="_blank">{$f->name}</a>{else}{$f->name}{/if}:
-					{else}
-						{$f->name}:
-					{/if}
+					{$f->name}:
 				{/if}
 			</td>
 			<td width="99%">

@@ -134,6 +134,20 @@ class _DevblocksValidationField {
 			->setMax('32 bits')
 			;
 	}
+	
+	/**
+	 * 
+	 * @return _DevblocksValidationTypeString
+	 */
+	function url() {
+		$validation = DevblocksPlatform::services()->validation();
+		$this->_type = new _DevblocksValidationTypeString();
+		
+		return $this->_type
+			->setMaxLength(255)
+			->addValidator($validation->validators()->url())
+			;
+	}
 }
 
 class _DevblocksFormatters {
@@ -378,6 +392,41 @@ class _DevblocksValidators {
 				$error = sprintf("(%s) is not a valid timezone. Format like: America/Los_Angeles",
 					$value
 				);
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
+	function url() {
+		return function($value, &$error=null) {
+			if(!is_string($value)) {
+				$error = "must be a string.";
+				return false;
+			}
+			
+			// Empty strings are fine
+			if(0 == strlen($value))
+				return true;
+			
+			if(false == filter_var($value, FILTER_VALIDATE_URL)) {
+				$error = "is not a valid URL. It must start with http:// or https://";
+				return false;
+			}
+			
+			if(false == ($url_parts = parse_url($value))) {
+				$error = "is not a valid URL.";
+				return false;
+			}
+			
+			if(!isset($url_parts['scheme'])) {
+				$error = "must start with http:// or https://";
+				return false;
+			}
+			
+			if(!in_array(strtolower($url_parts['scheme']), ['http','https'])) {
+				$error = "is invalid. The URL must start with http:// or https://";
 				return false;
 			}
 			
