@@ -16,11 +16,10 @@
 	
 	{if is_array($show) && in_array('workers', $show)}
 	{foreach from=$addresses item=address key=address_key}
-	{$address_email = $address->getEmailAsString()}
 	<li>
 		<label>
-		<input type="checkbox" name="{$namePrefix}[to][]" value="{$address_email}" {if is_array($params.to) && in_array($address_email, $params.to)}checked="checked"{/if}>
-		<b>{$address_email}</b> ({$workers.{$address->worker_id}->getName()})
+		<input type="checkbox" name="{$namePrefix}[to][]" value="{$address->email}" {if is_array($params.to) && in_array($address->email, $params.to)}checked="checked"{/if}>
+		<b>{$address->email}</b> ({$workers.{$address->worker_id}->getName()})
 		</label>
 	</li>
 	{/foreach}

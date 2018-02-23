@@ -64,7 +64,7 @@
 		<patch version="8.0.0" revision="1206" file="patches/8.x/8.0.0.php" />
 		<patch version="8.1.0" revision="1227" file="patches/8.x/8.1.0.php" />
 		<patch version="8.2.0" revision="1250" file="patches/8.x/8.2.0.php" />
-		<patch version="8.3.0" revision="1270" file="patches/8.x/8.3.0.php" />
+		<patch version="8.3.0" revision="1271" file="patches/8.x/8.3.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -118,11 +118,6 @@
 			<class name="Search_Address" />
 			<class name="SearchFields_Address" />
 			<class name="View_Address" />
-		</file>
-		
-		<file path="api/dao/address_to_worker.php">
-			<class name="DAO_AddressToWorker" />
-			<class name="Model_AddressToWorker" />
 		</file>
 		
 		<file path="api/dao/attachment.php">

@@ -1157,7 +1157,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		$tpl->assign('sender', $sender);
 		
-		$workers_with_relays = DAO_AddressToWorker::getByWorkers();
+		$workers_with_relays = DAO_Address::getByWorkers();
 		$tpl->assign('workers_with_relays', $workers_with_relays);
 		
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/relay_message.tpl');

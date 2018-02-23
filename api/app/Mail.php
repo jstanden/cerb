@@ -1340,7 +1340,7 @@ class CerberusMail {
 		if(is_array($emails))
 		foreach($emails as $to) {
 			try {
-				if(false == ($to_model = DAO_AddressToWorker::getByEmail($to)))
+				if(false == ($to_model = DAO_Address::getByEmail($to)))
 					continue;
 				
 				if(false == ($worker = $to_model->getWorker()))

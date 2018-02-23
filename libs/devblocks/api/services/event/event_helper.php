@@ -4797,7 +4797,7 @@ class DevblocksEventHelper {
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
-		$addresses = DAO_AddressToWorker::getAll();
+		$addresses = DAO_Address::getAllWithWorker();
 
 		// Filter?
 		if(!empty($filter_to_worker_ids)) {
@@ -4873,13 +4873,13 @@ class DevblocksEventHelper {
 				
 			// Email address strings
 			} elseif (is_string($to)) {
-				if(null == ($worker_address = DAO_AddressToWorker::getByEmail($to)))
+				if(null == ($worker_address = DAO_Address::getByEmail($to)))
 					continue;
 					
 				if(null == ($worker = $worker_address->getWorker()))
 					continue;
 				
-				$to_list[$worker_address->getEmailAsString()] = $worker;
+				$to_list[$worker_address->email] = $worker;
 			}
 		}
 		

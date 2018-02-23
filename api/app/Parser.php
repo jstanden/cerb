@@ -168,8 +168,8 @@ class CerberusParserModel {
 				if(null != ($fromInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
 					$this->_sender_address_model = $fromInst;
 					
-					if(null != ($fromWorkerAuth = DAO_AddressToWorker::getByEmail($fromAddress))) {
-						if($fromWorkerAuth->is_confirmed && null != ($fromWorker = DAO_Worker::get($fromWorkerAuth->worker_id)))
+					if(null != ($fromWorkerAuth = DAO_Address::getByEmail($fromAddress))) {
+						if(null != ($fromWorker = $fromWorkerAuth->getWorker()))
 							$this->setSenderWorkerModel($fromWorker);
 					}
 					

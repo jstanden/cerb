@@ -376,6 +376,29 @@ if(isset($columns['render_filters'])) {
 }
 
 // ===========================================================================
+// Add `worker_id` field to the `address` table and drop `address_to_worker`
+
+if(!isset($tables['address'])) {
+	$logger->error("The 'address' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('address');
+
+if(!isset($columns['worker_id'])) {
+	$sql = 'ALTER TABLE address ADD COLUMN worker_id int(10) unsigned NOT NULL DEFAULT 0, ADD INDEX (worker_id)';
+	$db->ExecuteMaster($sql);
+	
+	// Associate all worker primary email addresses with a worker
+	$db->ExecuteMaster("UPDATE address INNER JOIN worker ON (address.id=worker.email_id) SET address.mail_transport_id=0, address.worker_id=worker.id");
+}
+
+if(isset($tables['address_to_worker'])) {
+	$db->ExecuteMaster("UPDATE address INNER JOIN address_to_worker ON (address.id=address_to_worker.address_id) SET address.mail_transport_id=0, address.worker_id=address_to_worker.worker_id WHERE address_to_worker.is_confirmed = 1");
+	$db->ExecuteMaster('DROP TABLE address_to_worker');
+}
+
+// ===========================================================================
 // Remove unused worker view models
 
 $db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id like '%_attendants'");

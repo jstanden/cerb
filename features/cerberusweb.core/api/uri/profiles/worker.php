@@ -546,10 +546,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				$prefs['mail_signature_pos'] = DAO_WorkerPref::get($worker->id,'mail_signature_pos',2);
 				$tpl->assign('prefs', $prefs);
 				
-				// Alternate addresses
-				$addresses = DAO_AddressToWorker::getByWorker($worker->id);
-				$tpl->assign('addresses', $addresses);
-				
 				$tpl->display('devblocks:cerberusweb.core::internal/workers/profile/tabs/mail.tpl');
 				break;
 				

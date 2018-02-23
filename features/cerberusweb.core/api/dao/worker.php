@@ -862,7 +862,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 				unset($change_fields[DAO_Worker::EMAIL_ID]);
 			
 			if(isset($change_fields[DAO_Worker::EMAIL_ID]) && $email_id) {
-				DAO_AddressToWorker::assign($email_id, $id, true);
+				DAO_Address::update($email_id, [
+					DAO_Address::MAIL_TRANSPORT_ID => 0,
+					DAO_Address::WORKER_ID => $id,
+				]);
 			}
 			
 			/*
@@ -959,7 +962,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 		
-		DAO_AddressToWorker::unassignAll($id);
+		// Clear worker addresses
+		$sql = sprintf("UPDATE address SET worker_id = 0 WHERE owner_id = %d", $id);
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
 		
 		$sql = sprintf("DELETE FROM webapi_credentials WHERE worker_id = %d", $id);
 		$db->ExecuteMaster($sql);

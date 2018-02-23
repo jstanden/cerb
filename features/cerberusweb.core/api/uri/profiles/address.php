@@ -157,18 +157,17 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 	
 	function savePeekJsonAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$db = DevblocksPlatform::services()->database();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
 			@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 			@$email = mb_convert_case(trim(DevblocksPlatform::importGPC($_REQUEST['email'],'string','')), MB_CASE_LOWER);
 			@$contact_id = DevblocksPlatform::importGPC($_REQUEST['contact_id'],'integer',0);
 			@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
 			@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'bit',0);
 			@$is_defunct = DevblocksPlatform::importGPC($_REQUEST['is_defunct'],'bit',0);
-			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
 			
 			// Common fields
 			$fields = [
@@ -179,8 +178,26 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			];
 			
 			if($active_worker->is_superuser) {
-				@$mail_transport_id = DevblocksPlatform::importGPC($_REQUEST['mail_transport_id'],'integer',0);
-				$fields[DAO_Address::MAIL_TRANSPORT_ID] = $mail_transport_id;
+				@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
+				
+				$fields[DAO_Address::MAIL_TRANSPORT_ID] = 0;
+				$fields[DAO_Address::WORKER_ID] = 0;
+				
+				switch($type) {
+					case 'transport':
+						@$mail_transport_id = DevblocksPlatform::importGPC($_REQUEST['mail_transport_id'],'integer',0);
+						$fields[DAO_Address::MAIL_TRANSPORT_ID] = $mail_transport_id;
+						break;
+						
+					case 'worker':
+						@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+						$fields[DAO_Address::WORKER_ID] = $worker_id;
+						break;
+						
+					default:
+						break;
+				}
+				
 				DAO_Address::clearCache();
 			}
 			

@@ -215,7 +215,7 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 				if(false == ($va = $trigger->getBot()))
 					break;
 				
-				$addresses = DAO_AddressToWorker::getByWorker($va->owner_context_id);
+				$addresses = DAO_Address::getByWorkerId($va->owner_context_id);
 				$tpl->assign('addresses', $addresses);
 				
 				$tpl->display('devblocks:cerberusweb.core::events/notification_received_by_owner/action_send_email_owner.tpl');
