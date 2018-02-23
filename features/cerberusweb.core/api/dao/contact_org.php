@@ -83,7 +83,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::WEBSITE)
-			->string()
+			->url()
 			;
 		$validation
 			->addField('_links')
