@@ -865,6 +865,11 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKSPACE_TAB, 'q' => 'type:"core.workspace.tab.worklists"'],
 					]
 				),
+			'type' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_WorkspaceList::CONTEXT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
