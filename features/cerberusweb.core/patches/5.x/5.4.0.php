@@ -578,7 +578,7 @@ if(isset($tables['group_inbox_filter'])) {
 	// Look up custom fields for types
 	$sql = "SELECT id, name, context, type FROM custom_field";
 	$results = $db->GetArrayMaster($sql);
-	$custom_fields = array();
+	$custom_fields = [];
 	
 	if(!empty($results))
 	foreach($results as $result) {

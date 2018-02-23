@@ -162,7 +162,7 @@ abstract class DevblocksORMHelper {
 					$validation
 						->addField($field_id)
 						->idArray()
-						->addFormatter($validation->validators()->contextIds(CerberusContexts::CONTEXT_ATTACHMENT, true))
+						->addValidator($validation->validators()->contextIds(CerberusContexts::CONTEXT_ATTACHMENT, true))
 					;
 					break;
 				case Model_CustomField::TYPE_LINK:
@@ -171,7 +171,7 @@ abstract class DevblocksORMHelper {
 					$validation
 						->addField($field_id)
 						->id()
-						->addFormatter($validation->validators()->contextId($link_context, true))
+						->addValidator($validation->validators()->contextId($link_context, true))
 					;
 					break;
 				case Model_CustomField::TYPE_LIST:
@@ -237,9 +237,8 @@ abstract class DevblocksORMHelper {
 				case Model_CustomField::TYPE_WORKER:
 					$validation
 						->addField($field_id)
-						->number()
-						->setMin(0)
-						->setMax('32 bits') // [TODO] Check ref against 0|worker.id
+						->id()
+						->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER, true))
 					;
 					break;
 			}

@@ -179,7 +179,7 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 			}
 				
 			// Custom field saves
-			//@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+			//@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
 			//DAO_CustomFieldValue::handleFormPost(PsCustomFieldSource_Sensor::ID, $id, $field_ids);
 		}
 		

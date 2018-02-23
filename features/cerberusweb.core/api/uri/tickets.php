@@ -633,7 +633,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		// Custom fields
 		
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
 		$field_values = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TICKET, $field_ids);
 		if(!empty($field_values)) {
 			$properties['custom_fields'] = $field_values;

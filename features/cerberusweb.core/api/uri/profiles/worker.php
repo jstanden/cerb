@@ -402,7 +402,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_ContextAlias::set(CerberusContexts::CONTEXT_WORKER, $id, DevblocksPlatform::parseCrlfString(sprintf("%s%s", $first_name, $last_name ? (' '.$last_name) : '') . "\n" . $aliases));
 					
 					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
 					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $id, $field_ids);
 					
 					// Avatar image

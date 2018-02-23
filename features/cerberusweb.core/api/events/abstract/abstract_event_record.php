@@ -26,7 +26,7 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger, $context_id=null) {
 		@$context = $trigger->event_params['context'];
-		$change_fields = array();
+		$change_fields = [];
 
 		$old_model = null;
 		$new_model = null;

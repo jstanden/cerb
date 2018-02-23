@@ -1294,7 +1294,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			);
 			
 			$fields = array();
-			$custom_fields = array();
+			$custom_fields = [];
 			$sync_fields = array();
 			
 			foreach($field as $idx => $key) {

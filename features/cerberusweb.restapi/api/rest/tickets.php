@@ -148,7 +148,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 //			DAO_Ticket::UPDATED_DATE => time(),
 		);
 		
-		$custom_fields = array(); // [TODO]
+		$custom_fields = []; // [TODO]
 		
 		if(0 != strlen($subject))
 			$fields[DAO_Ticket::SUBJECT] = $subject;

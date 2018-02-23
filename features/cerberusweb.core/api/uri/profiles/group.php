@@ -263,7 +263,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					
 					// Custom field saves
 					
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
+					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
 					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $group_id, $field_ids);
 					
 					// Avatar image
