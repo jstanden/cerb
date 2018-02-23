@@ -1201,8 +1201,15 @@ var ajax = new cAjaxCalls();
 			$trigger.click(function() {
 				var query = $trigger.attr('data-query');
 				var query_req = $trigger.attr('data-query-required');
+				var search_url = 'c=search&a=openSearchPopup&context=' + encodeURIComponent(context) + '&id=' + layer;
 				
-				var search_url = 'c=search&a=openSearchPopup&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(query) + '&qr=' + encodeURIComponent(query_req) + '&id=' + layer;
+				if(typeof query == 'string' && query.length > 0) {
+					search_url = search_url + '&q=' + encodeURIComponent(query);
+				}
+				
+				if(typeof query_req == 'string' && query_req.length > 0) {
+					search_url = search_url + '&qr=' + encodeURIComponent(query_req);
+				}
 				
 				// Open search
 				var $peek = genericAjaxPopup(layer,search_url,null,false,'90%');
