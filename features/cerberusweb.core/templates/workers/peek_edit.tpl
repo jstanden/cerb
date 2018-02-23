@@ -225,7 +225,7 @@
 
 <fieldset class="peek cerb-worker-group-memberships">
 	<legend>
-		<a href="javascript:;">{'common.groups'|devblocks_translate|capitalize}</a>
+		{'common.groups'|devblocks_translate|capitalize}
 	</legend>
 	
 	{if $worker->id}

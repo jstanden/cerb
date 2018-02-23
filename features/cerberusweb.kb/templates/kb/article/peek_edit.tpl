@@ -1,4 +1,4 @@
-{$peek_context = 'cerberusweb.contexts.kb_article'}
+{$peek_context = CerberusContexts::CONTEXT_KB_ARTICLE}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">

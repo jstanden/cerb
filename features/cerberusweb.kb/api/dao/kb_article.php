@@ -1211,7 +1211,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		$context = 'cerberusweb.contexts.kb_article';
+		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
 		
 		if(!empty($context_id)) {
 			$model = DAO_KbArticle::get($context_id);

@@ -134,7 +134,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", 'cerberusweb.contexts.kb_article')))
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_KB_ARTICLE)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_KbArticle::delete($id);
@@ -171,7 +171,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 					DAO_KbArticle::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.kb_article', $id);
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_KB_ARTICLE, $id);
 					
 				} else { // Edit
 					$fields = array(

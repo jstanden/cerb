@@ -135,7 +135,7 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$event_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string', '');
 		@$date_start = DevblocksPlatform::importGPC($_REQUEST['date_start'],'string', '');
 		@$date_end = DevblocksPlatform::importGPC($_REQUEST['date_end'],'string', '');
@@ -152,16 +152,16 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		
 		try {
 			// Delete
-			if(!empty($do_delete) && !empty($event_id)) {
+			if(!empty($do_delete) && !empty($id)) {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CALENDAR_EVENT)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				DAO_CalendarEvent::delete($event_id);
+				DAO_CalendarEvent::delete($id);
 				
 				echo json_encode(array(
 					'status' => true,
-					'id' => intval($event_id),
-					'event_id' => intval($event_id),
+					'id' => intval($id),
+					'event_id' => intval($id),
 					'view_id' => $view_id,
 					'action' => 'delete',
 				));
@@ -194,36 +194,36 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 				DAO_CalendarEvent::CALENDAR_ID => $calendar_id,
 			);
 			
-			if(empty($event_id)) {
+			if(empty($id)) {
 				if(!DAO_CalendarEvent::validate($fields, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				if(!DAO_CalendarEvent::onBeforeUpdateByActor($active_worker, $fields, null, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
-				$event_id = DAO_CalendarEvent::create($fields);
-				DAO_CalendarEvent::onUpdateByActor($active_worker, $fields, $event_id);
+				$id = DAO_CalendarEvent::create($fields);
+				DAO_CalendarEvent::onUpdateByActor($active_worker, $fields, $id);
 				
 				// View marquee
-				if(!empty($event_id) && !empty($view_id)) {
-					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR_EVENT, $event_id);
+				if(!empty($id) && !empty($view_id)) {
+					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR_EVENT, $id);
 				}
 				
 			} else {
-				if(false == ($calendar_event = DAO_CalendarEvent::get($event_id)))
+				if(false == ($calendar_event = DAO_CalendarEvent::get($id)))
 					return;
 				
 				$changed_fields = Cerb_ORMHelper::uniqueFields($fields, $calendar_event);
 				
-				if(!DAO_CalendarEvent::validate($changed_fields, $error, $event_id))
+				if(!DAO_CalendarEvent::validate($changed_fields, $error, $id))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
-				if(!DAO_CalendarEvent::onBeforeUpdateByActor($active_worker, $fields, $event_id, $error))
+				if(!DAO_CalendarEvent::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				if(!empty($changed_fields)) {
-					DAO_CalendarEvent::update($event_id, $changed_fields);
-					DAO_CalendarEvent::onUpdateByActor($active_worker, $fields, $event_id);
+					DAO_CalendarEvent::update($id, $changed_fields);
+					DAO_CalendarEvent::onUpdateByActor($active_worker, $fields, $id);
 				}
 			}
 			
@@ -234,10 +234,10 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 			
 			echo json_encode(array(
 				'status' => true,
-				'id' => intval($event_id),
+				'id' => intval($id),
 				'label' => $name,
 				'view_id' => $view_id,
-				'event_id' => intval($event_id),
+				'event_id' => intval($id),
 				'action' => 'modify',
 				'month' => intval(date('m', $timestamp_start)),
 				'year' => intval(date('Y', $timestamp_start)),
