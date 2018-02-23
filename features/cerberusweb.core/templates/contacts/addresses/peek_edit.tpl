@@ -88,11 +88,12 @@
 	</div>
 </fieldset>
 
-<fieldset class="peek">
-	<legend><label>{if $active_worker->is_superuser}<input type="checkbox" name="outgoing_enabled" value="1" {if $address->mail_transport_id}checked="checked"{/if} onclick="$(this).parent().parent().next('div').toggle();">{/if} Enable as a sender address for outgoing mail</label></legend>
+{if $active_worker->is_superuser}
+<fieldset class="peek black cerb-email-type">
+	<legend><label><input type="radio" name="type" value="transport" {if $address->mail_transport_id}checked="checked"{/if}> We send email from this address</label></legend>
 	
-	{if $active_worker->is_superuser}
-	<div style="{if !$address->mail_transport_id}display:none;{/if}">
+	{if $active_worker->is_superuser}{/if}
+	<div style="margin-left:20px;{if !$address->mail_transport_id}display:none;{/if}">
 		<table cellpadding="0" cellspacing="2" border="0" width="98%">
 			<tr>
 				<td align="right" valign="middle" width="0%" nowrap="nowrap">
@@ -112,10 +113,37 @@
 			</tr>
 		</table>
 	</div>
-	{else}
-	Only <a href="javascript:;" style="font-weight:bold;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isAdmin:y">administrators</a> can configure outgoing mail.
-	{/if}
 </fieldset>
+
+<fieldset class="peek black cerb-email-type">
+	<legend><label><input type="radio" name="type" value="worker" {if $address->worker_id}checked="checked"{/if}> This is a worker's personal email address</label></legend>
+	
+	<div style="margin-left:20px;{if !$address->worker_id}display:none;{/if}">
+		<table cellpadding="0" cellspacing="2" border="0" width="98%">
+			<tr>
+				<td align="right" valign="middle" width="0%" nowrap="nowrap">
+					<b>{'common.worker'|devblocks_translate|capitalize}: </b>
+				</td>
+				<td valign="middle" width="100%">
+					<button type="button" class="chooser-abstract" data-field-name="worker_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+					
+					{$worker = DAO_Worker::get($address->worker_id)}
+					
+					<ul class="bubbles chooser-container">
+					{if $worker}
+						<li><input type="hidden" name="worker_id" value="{$worker->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a></li>
+					{/if}
+					</ul>
+				</td>
+			</tr>
+		</table>
+	</div>
+</fieldset>
+
+<fieldset class="peek black cerb-email-type">
+	<legend><label><input type="radio" name="type" value="" {if !$address->mail_transport_id && !$address->worker_id}checked="checked"{/if}> None of the above</label></legend>
+</fieldset>
+{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$address->id}
 
@@ -142,6 +170,17 @@ $(function() {
 		
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		
+		var $fieldsets_email_types = $popup.find('fieldset.cerb-email-type');
+		
+		// Radios
+		{if $active_worker->is_superuser}
+		$popup.find('input:radio[name=type]').on('change', function(e) {
+			e.preventDefault();
+			$fieldsets_email_types.find('> div').hide();
+			$(this).closest('fieldset').find('> div').fadeIn();
+		});
+		{/if}
 		
 		// Abstract choosers
 		$popup.find('button.chooser-abstract')
