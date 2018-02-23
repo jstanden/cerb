@@ -3,8 +3,14 @@
 
 <div class="help-box">
 	<h1>Recover account</h1>
+
+	<p>
+		You are in the process of recovering your account's login information.  In this step you will need to confirm your identity based on your previously established settings.
+	</p>
 	
-	You are in the process of recovering your account's login information.  In this step you will need to confirm your identity based on your previously established settings.
+	<p>
+		<b>Note:</b> Only one recovery code will be sent per 30 minutes.
+	</p>
 </div>
 
 <fieldset>

@@ -108,6 +108,9 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 	private function _renderLoginSetupForm($worker) {
 		$tpl = DevblocksPlatform::services()->template();
 		
+		if(!$worker)
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login']));
+		
 		$tpl->assign('worker', $worker);
 		
 		@$code = DevblocksPlatform::importGPC($_REQUEST['code'], 'string', '');

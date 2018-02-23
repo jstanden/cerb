@@ -35,11 +35,13 @@ class ChSignInPage extends CerberusPageExtension {
 		array_shift($stack); // login
 		$section = array_shift($stack);
 		
+		$cache = DevblocksPlatform::services()->cache();
+		
 		switch($section) {
 			case "recover":
 				$tpl = DevblocksPlatform::services()->template();
 				$tpl->assign('email', $email);
-
+				
 				if(!empty($email)
 						&& null != $worker
 						&& !$worker->is_disabled) {
@@ -69,6 +71,10 @@ class ChSignInPage extends CerberusPageExtension {
 							}
 							
 							if($pass && null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
+								// Clear the recovery rate-limit on success
+								$cache_key = sprintf('recover:worker:%d', $worker->id);
+								$cache->remove($cache_key);
+								
 								/* @var $ext Extension_LoginAuthenticator */
 								$ext->resetCredentials($worker);
 								
@@ -79,35 +85,41 @@ class ChSignInPage extends CerberusPageExtension {
 								DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login',$ext->manifest->params['uri']), $query));
 								
 							} else {
-								$tpl->display('devblocks:cerberusweb.core::login/recover/recover2.tpl');
+								$tpl->display('devblocks:cerberusweb.core::login/recover/recover.tpl');
 								
 							}
 							
 						} else {
 							$tpl->assign('code', $confirm_code);
-							$tpl->display('devblocks:cerberusweb.core::login/recover/recover2.tpl');
+							$tpl->display('devblocks:cerberusweb.core::login/recover/recover.tpl');
 							
 						}
 						
 					} else {
-						// [TODO] This needs to be rate-limited to only recovering once per hour unless successful
+						// This is rate-limited
+						$cache_key = sprintf('recover:worker:%d', $worker->id);
 						
-						$labels = $values = [];
-						CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $worker_labels, $worker_values, '', true, true);
-						CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
+						if(false == $cache->load($cache_key)) {
+							$labels = $values = [];
+							CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $worker_labels, $worker_values, '', true, true);
+							CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
+							
+							$values['code'] = CerberusApplication::generatePassword(8);
+							$values['ip'] = DevblocksPlatform::getClientIp();
+							
+							$_SESSION['recovery_code'] = $worker->getEmailString() . ':' . $values['code'];
+							
+							CerberusApplication::sendEmailTemplate($worker->getEmailString(), 'worker_recover', $values);
+							
+							$cache->save(time(), $cache_key, [], 1800);
+						}
 						
-						$values['code'] = CerberusApplication::generatePassword(8);
-						$values['ip'] = DevblocksPlatform::getClientIp();
-						
-						$_SESSION['recovery_code'] = $worker->getEmailString() . ':' . $values['code'];
-						
-						CerberusApplication::sendEmailTemplate($worker->getEmailString(), 'worker_recover', $values);
-						
-						$tpl->display('devblocks:cerberusweb.core::login/recover/recover2.tpl');
+						$tpl->display('devblocks:cerberusweb.core::login/recover/recover.tpl');
 					}
 					
 				} else {
-					$tpl->display('devblocks:cerberusweb.core::login/recover/recover1.tpl');
+					// Pretend we sent a recovery code for invalid email addresses
+					$tpl->display('devblocks:cerberusweb.core::login/recover/recover.tpl');
 				}
 				
 				break;
