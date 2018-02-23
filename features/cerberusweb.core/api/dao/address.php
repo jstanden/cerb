@@ -205,6 +205,27 @@ class DAO_Address extends Cerb_ORMHelper {
 		self::clearCache();
 	}
 	
+	static function updateForWorkerId($worker_id, array $email_ids=[]) {
+		$db = DevblocksPlatform::services()->database();
+		
+		// Clear existing email IDs
+		$db->ExecuteMaster(sprintf(
+			"UPDATE address SET worker_id = 0 WHERE worker_id = %d",
+			$worker_id
+		));
+		
+		// Insert new email IDs
+		if(false != ($email_ids = DevblocksPlatform::sanitizeArray($email_ids, 'int'))) {
+			$db->ExecuteMaster(sprintf(
+				"UPDATE address SET worker_id = %d, mail_transport_id = 0 WHERE id IN (%s)",
+				$worker_id,
+				implode(',', $email_ids)
+			));
+		}
+		
+		return true;
+	}
+	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('address', $fields, $where);
 	}
@@ -576,7 +597,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT count(id) FROM address WHERE worker_id = %d",
-			$transport_id
+			$worker_id
 		);
 		return intval($db->GetOneSlave($sql));
 	}

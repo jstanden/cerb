@@ -36,6 +36,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const TITLE = 'title';
 	const UPDATED = 'updated';
 	
+	const _EMAIL_IDS = '_email_ids';
 	const _IMAGE = '_image';
 	const _PASSWORD = '_password';
 	
@@ -183,6 +184,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$validation
 			->addField(self::UPDATED)
 			->timestamp()
+			;
+		// array
+		$validation
+			->addField(self::_EMAIL_IDS)
+			->idArray()
+			->addValidator($validation->validators()->contextIds(CerberusContexts::CONTEXT_ADDRESS, true))
 			;
 		// base64 blob png
 		$validation
@@ -682,6 +689,15 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$context = CerberusContexts::CONTEXT_WORKER;
 		self::_updateAbstract($context, $ids, $fields);
+		
+		// Handle alternate email addresses
+		if(isset($fields[self::_EMAIL_IDS])) {
+			foreach($ids as $id) {
+				if(is_array($fields[self::_EMAIL_IDS]))
+					DAO_Address::updateForWorkerId($id, $fields[self::_EMAIL_IDS]);
+			}
+			unset($fields[self::_EMAIL_IDS]);
+		}
 		
 		// Handle avatar images
 		if(isset($fields[self::_IMAGE])) {
@@ -1768,6 +1784,10 @@ class Model_Worker {
 			return null;
 		
 		return $model->email;
+	}
+	
+	function getEmailModels() {
+		return DAO_Address::getByWorkerId($this->id);
 	}
 	
 	function getInitials() {
@@ -3092,6 +3112,10 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 				$out_fields[DAO_Worker::EMAIL_ID] = $address->id;
 				break;
 				
+			case 'email_ids':
+				$out_fields[DAO_Worker::_EMAIL_IDS] = $value;
+				break;
+				
 			case 'image':
 				$out_fields[DAO_Worker::_IMAGE] = $value;
 				break;
@@ -3255,8 +3279,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$activity_counts = array(
 				'groups' => DAO_Group::countByMemberId($context_id),
 				'tickets' => DAO_Ticket::countsByOwnerId($context_id),
-				'comments' => DAO_Comment::count($context, $context_id),
-				//'emails' => DAO_Address::countByContactId($context_id),
+				'emails' => DAO_Address::countByWorkerId($context_id),
 			);
 			$tpl->assign('activity_counts', $activity_counts);
 			

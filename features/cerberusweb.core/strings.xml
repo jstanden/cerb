@@ -802,6 +802,16 @@
 				<seg>Email</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.emails">
+			<tuv xml:lang="en_US">
+				<seg>emails</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.emails.alternate">
+			<tuv xml:lang="en_US">
+				<seg>alternate emails</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.email_address">
 			<tuv xml:lang="en_US">
 				<seg>Email Address</seg>

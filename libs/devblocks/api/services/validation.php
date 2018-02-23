@@ -714,19 +714,17 @@ class _DevblocksValidationService {
 				break;
 				
 			case '_DevblocksValidationTypeIdArray':
+				
 				if(!is_array($value)) {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' must be an array of IDs (%s).", $field_name, gettype($value)));
 				}
 				
 				$values = $value;
 				
-				foreach($values as $value) {
-					if(!is_numeric($value)) {
-						throw new Exception_DevblocksValidationError(sprintf("Value '%s' must be a number (%s: %s).", $field_name, gettype($value), $value));
+				foreach($values as $id) {
+					if(!is_numeric($id)) {
+						throw new Exception_DevblocksValidationError(sprintf("Value '%s' must be a number (%s: %s).", $field_name, gettype($id), $id));
 					}
-				}
-				
-				if($data) {
 				}
 				break;
 				
@@ -758,12 +756,12 @@ class _DevblocksValidationService {
 				}
 				
 				if($data) {
-					foreach($values as $value) {
-						if(isset($data['length']) && strlen($value) > $data['length']) {
+					foreach($values as $v) {
+						if(isset($data['length']) && strlen($v) > $data['length']) {
 							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_name, $data['length']));
 						}
 						
-						if(isset($data['possible_values']) && !in_array($value, $data['possible_values'])) {
+						if(isset($data['possible_values']) && !in_array($v, $data['possible_values'])) {
 							throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_name, implode(', ', $data['possible_values'])));
 						}
 					}

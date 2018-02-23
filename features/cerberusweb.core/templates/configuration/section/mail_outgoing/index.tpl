@@ -86,48 +86,6 @@
 			</div>
 		</fieldset>
 		
-		{$template_placeholders = ['code' => 'Confirmation code', 'email' => 'Email address', 'url' => 'Confirmation URL']|json_encode}
-		{$default_template = $default_templates.worker_confirm_email}
-	
-		<fieldset>
-			<legend>Worker confirm new email address</legend>
-			
-			<b>{'common.send.from'|devblocks_translate}:</b>
-			<br>
-			
-			<div style="margin-left:10px;padding:5px;">
-				<button type="button" class="chooser-abstract" data-field-name="templates[worker_confirm_email][send_from_id]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete="mailTransport.id:>0 isBanned:n isDefunct:n" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
-				
-				{$send_from_id = $templates.worker_confirm_email.send_from_id|default:$default_template.send_from_id}
-				{$send_from = DAO_Address::get($send_from_id)}
-				
-				<ul class="bubbles chooser-container">
-					{if $send_from}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$send_from->id}{/devblocks_url}?v={$send_from->updated_at}"><input type="hidden" name="templates[worker_confirm_email][send_from_id]" value="{$send_from->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$send_from->id}">{$send_from->getNameWithEmail()}</a></li>
-					{/if}
-				</ul>
-			</div>
-			
-			<b>{'common.send.as'|devblocks_translate}:</b>
-			
-			<div style="margin-left:10px;padding:5px;">
-				<textarea name="templates[worker_confirm_email][send_as]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" placeholder="(e.g. Company Support)" style="width:100%;height:3em;">{$templates.worker_confirm_email.send_as|default:$default_template.send_as}</textarea>
-			</div>
-			
-			<b>{'message.header.subject'|devblocks_translate}:</b>
-			
-			<div style="margin-left:10px;padding:5px;">
-				<textarea name="templates[worker_confirm_email][subject]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" placeholder="(e.g. &quot;Your account recovery confirmation code&quot;)" style="width:100%;height:3em;">{$templates.worker_confirm_email.subject|default:$default_template.subject}</textarea>
-			</div>
-			
-			<b>{'common.message'|devblocks_translate}:</b>
-			
-			<div style="margin-left:10px;padding:5px;">
-				<textarea name="templates[worker_confirm_email][body]" class="cerb-template-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-key-prefix="worker_" data-placeholders-json="{$template_placeholders}" style="width:100%;height:10em;">{$templates.worker_confirm_email.body|default:$default_template.body}</textarea>
-			</div>
-		</fieldset>
-		
-		
 		{$template_placeholders = ['code' => 'Confirmation code', 'ip' => 'Client IP']|json_encode}
 		{$default_template = $default_templates.worker_recover}
 	

@@ -150,6 +150,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$profile_counts = array(
 			'bots' => DAO_Bot::count($context, $dict->id),
 			'groups' => DAO_Group::countByMemberId($dict->id),
+			'emails' => DAO_Address::countByWorkerId($dict->id),
 		);
 		$tpl->assign('profile_counts', $profile_counts);
 		
@@ -228,6 +229,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$aliases = DevblocksPlatform::importGPC($_POST['aliases'],'string','');
 				@$title = DevblocksPlatform::importGPC($_POST['title'],'string');
 				@$email_id = DevblocksPlatform::importGPC($_POST['email_id'],'integer', 0);
+				@$email_ids = DevblocksPlatform::importGPC($_POST['email_ids'],'array:int', []);
 				@$dob = DevblocksPlatform::importGPC($_POST['dob'],'string', '');
 				@$location = DevblocksPlatform::importGPC($_POST['location'],'string', '');
 				@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string', '');
@@ -263,7 +265,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError("The given passwords do not match.", 'password_new');
 				
 				if(empty($id)) {
-					$fields = array(
+					$fields = [
 						DAO_Worker::FIRST_NAME => $first_name,
 						DAO_Worker::LAST_NAME => $last_name,
 						DAO_Worker::TITLE => $title,
@@ -280,7 +282,10 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
 						DAO_Worker::MOBILE => $mobile,
 						DAO_Worker::PHONE => $phone,
-					);
+					];
+					
+					// Update alternate email addresses
+					$fields[DAO_Worker::_EMAIL_IDS] = array_unique(array_merge($email_ids, [$email_id]));
 					
 					if(!DAO_Worker::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -348,7 +353,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				}
 				
 				// Update
-				$fields = array(
+				$fields = [
 					DAO_Worker::FIRST_NAME => $first_name,
 					DAO_Worker::LAST_NAME => $last_name,
 					DAO_Worker::TITLE => $title,
@@ -366,7 +371,10 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_Worker::MOBILE => $mobile,
 					DAO_Worker::PHONE => $phone,
 					DAO_Worker::CALENDAR_ID => $calendar_id,
-				);
+				];
+				
+				// Update alternate email addresses
+				$fields[DAO_Worker::_EMAIL_IDS] = array_unique(array_merge($email_ids, [$email_id]));
 				
 				if(!DAO_Worker::validate($fields, $error, $id))
 					throw new Exception_DevblocksAjaxValidationError($error);
@@ -398,12 +406,13 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				}
 				
 				if($id) {
-					// Aliases
-					DAO_ContextAlias::set(CerberusContexts::CONTEXT_WORKER, $id, DevblocksPlatform::parseCrlfString(sprintf("%s%s", $first_name, $last_name ? (' '.$last_name) : '') . "\n" . $aliases));
-					
 					// Custom field saves
 					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $id, $field_ids);
+					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $id, $field_ids, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					// Aliases
+					DAO_ContextAlias::set(CerberusContexts::CONTEXT_WORKER, $id, DevblocksPlatform::parseCrlfString(sprintf("%s%s", $first_name, $last_name ? (' '.$last_name) : '') . "\n" . $aliases));
 					
 					// Avatar image
 					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');

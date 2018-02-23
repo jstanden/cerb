@@ -58,12 +58,38 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="middle"><b>{'common.email'|devblocks_translate}</b>: </td>
 		<td width="100%">
-			<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="mailTransport.id:0 worker.id:0 " data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{$addy = $worker->getEmailModel()}
 				{if $addy}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="email_id" value="{$addy->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a></li>
+				<li>
+					<input type="hidden" name="email_id" value="{$addy->id}">
+					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}">
+					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
+				</li>
+				{/if}
+			</ul>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top">{'common.emails.alternate'|devblocks_translate|capitalize}: </td>
+		<td width="100%">
+			<button type="button" class="chooser-abstract" data-field-name="email_ids[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="mailTransport.id:0 worker.id:0 " data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+			
+			<ul class="bubbles chooser-container">
+				{$addys = $worker->getEmailModels()}
+				{if is_array($addys)}
+				{foreach from=$addys item=addy}
+					{if $addy->id != $worker->email_id}
+					<li>
+						<input type="hidden" name="email_ids[]" value="{$addy->id}">
+						<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}">
+						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
+					</li>
+					{/if}
+				{/foreach}
 				{/if}
 			</ul>
 		</td>
