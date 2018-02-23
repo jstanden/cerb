@@ -1183,8 +1183,21 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		return $results;
 	}
 	
-	public static function handleFormPost($context, $context_id, $field_ids) {
+	public static function handleFormPost($context, $context_id, $field_ids, &$error) {
 		$field_values = self::parseFormPost($context, $field_ids);
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return false;
+		
+		// This will have to change when we require fields
+		$field_values_to_validate = array_filter($field_values, function($value) {
+			// Only return non-empty values
+			return (is_array($value) || 0 != strlen($value));
+		});
+		
+		if(!DevblocksORMHelper::validateCustomFields($field_values_to_validate, $context, $error, $context_id))
+			return false;
+		
 		self::formatAndSetFieldValues($context, $context_id, $field_values);
 		return true;
 	}

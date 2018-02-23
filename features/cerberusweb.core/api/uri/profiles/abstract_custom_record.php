@@ -210,9 +210,10 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 					$dao_class::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
-				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
-				DAO_CustomFieldValue::handleFormPost($context, $id, $field_ids);
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				if(!DAO_CustomFieldValue::handleFormPost($context, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				// Avatar image
 				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');

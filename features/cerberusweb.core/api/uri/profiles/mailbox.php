@@ -281,10 +281,11 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 					DAO_Mailbox::update($id, $fields);
 					DAO_Mailbox::onUpdateByActor($active_worker, $fields, $id);
 				}
-	
-				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.mailbox', $id, $field_ids);
+				
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MAILBOX, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				echo json_encode(array(
 					'status' => true,

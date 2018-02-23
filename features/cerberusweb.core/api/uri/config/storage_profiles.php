@@ -172,15 +172,11 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 			if(!empty($extension_id)) {
 				if(null != ($ext = DevblocksPlatform::getExtension($extension_id, true))) {
 					if(null != ($profile = DAO_DevblocksStorageProfile::get($id))
-					 && $ext instanceof Extension_DevblocksStorageEngine) {
+					&& $ext instanceof Extension_DevblocksStorageEngine) {
 						$ext->saveConfig($profile);
 					}
 				}
 			}
-				
-			// Custom field saves
-			//@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-			//DAO_CustomFieldValue::handleFormPost(PsCustomFieldSource_Sensor::ID, $id, $field_ids);
 		}
 		
 		if(!empty($view_id)) {

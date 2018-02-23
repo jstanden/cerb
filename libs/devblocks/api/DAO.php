@@ -230,8 +230,7 @@ abstract class DevblocksORMHelper {
 				case Model_CustomField::TYPE_URL:
 					$validation
 						->addField($field_id)
-						->string()
-						->setMaxLength(255)
+						->url()
 					;
 					break;
 				case Model_CustomField::TYPE_WORKER:

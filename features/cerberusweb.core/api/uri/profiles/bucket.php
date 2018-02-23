@@ -226,11 +226,11 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 					DAO_Bucket::update($id, $fields);
 					DAO_Bucket::onUpdateByActor($active_worker, $fields, $id);
 				}
-	
-				// Custom fields
 				
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BUCKET, $id, $field_ids);
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BUCKET, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 			}
 			
 			echo json_encode(array(

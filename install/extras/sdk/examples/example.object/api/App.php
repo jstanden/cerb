@@ -119,9 +119,10 @@ class Page_ExampleObjects extends CerberusPageExtension {
 			$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 		}
 		
-		// Custom fields
-		@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-		DAO_CustomFieldValue::handleFormPost(Context_ExampleObject::ID, $id, $field_ids);
+		// Custom field saves
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+		if(!DAO_CustomFieldValue::handleFormPost(Context_ExampleObject::ID, $id, $field_ids, $error))
+			throw new Exception_DevblocksAjaxValidationError($error);
 	}
 	
 	function showBulkUpdatePopupAction() {

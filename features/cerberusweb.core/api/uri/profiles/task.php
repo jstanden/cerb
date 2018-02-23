@@ -229,7 +229,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 					DAO_Task::update($id, $fields);
 					DAO_Task::onUpdateByActor($active_worker, $fields, $id);
 					
-					
 				} else {
 					if(!DAO_Task::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -268,9 +267,10 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
 				}
 				
-				// Custom Fields
+				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids);
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				echo json_encode(array(
 					'status' => true,

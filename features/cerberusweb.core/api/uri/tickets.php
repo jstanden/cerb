@@ -352,11 +352,10 @@ class ChTicketsPage extends CerberusPageExtension {
 			DAO_Ticket::onUpdateByActor($active_worker, $fields, $id);
 			
 			// Custom field saves
-			// [TODO] Log these to the context_changeset table
-			// [TODO] Bundle with the DAO::update() call?
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id, $field_ids);
-	
+			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+			if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id, $field_ids, $error))
+				throw new Exception_DevblocksAjaxValidationError($error);
+			
 			// Comments
 			if($id && !empty($comment)) {
 				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));

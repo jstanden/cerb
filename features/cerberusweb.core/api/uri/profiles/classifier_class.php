@@ -195,11 +195,12 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 					DAO_ClassifierClass::update($id, $fields);
 					DAO_ClassifierClass::onUpdateByActor($active_worker, $fields, $id);
 				}
-	
-				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $id, $field_ids);
 				
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+					
 				echo json_encode(array(
 					'status' => true,
 					'id' => $id,

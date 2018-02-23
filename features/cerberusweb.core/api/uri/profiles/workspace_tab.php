@@ -283,10 +283,11 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 						
 						$tab_url = $url_writer->write(sprintf('ajax.php?c=pages&a=showWorkspaceTab&id=%d&_csrf_token=%s', $id, $_SESSION['csrf_token']));
 						
-						// Custom fields
-						@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
-						DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKSPACE_TAB, $id, $field_ids);
-						
+						// Custom field saves
+						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKSPACE_TAB, $id, $field_ids, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+				
 						// Tab extensions
 						if(false == ($tab = DAO_WorkspaceTab::get($id)))
 							throw new Exception_DevblocksAjaxValidationError("Failed to load tab.");

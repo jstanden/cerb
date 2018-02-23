@@ -262,9 +262,9 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
 					
 					// Custom field saves
-					
 					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-					DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $group_id, $field_ids);
+					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_GROUP, $group_id, $field_ids, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					// Avatar image
 					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');

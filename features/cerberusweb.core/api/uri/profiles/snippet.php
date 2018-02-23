@@ -352,7 +352,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 				
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids);
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SNIPPET, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 			
 				echo json_encode(array(
 					'status' => true,

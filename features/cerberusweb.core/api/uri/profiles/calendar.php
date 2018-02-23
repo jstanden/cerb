@@ -233,10 +233,11 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 					DAO_Calendar::update($id, $change_fields);
 					DAO_Calendar::onUpdateByActor($active_worker, $change_fields, $id);
 				}
-	
-				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR, $id, $field_ids);
+				
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 			}
 			
 			echo json_encode(array(

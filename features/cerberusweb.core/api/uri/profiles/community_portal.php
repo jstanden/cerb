@@ -194,10 +194,11 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 					DAO_CommunityTool::onUpdateByActor($active_worker, $id, $fields);
 					
 				}
-	
-				// Custom fields
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', []);
-				DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PORTAL, $id, $field_ids);
+				
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PORTAL, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				echo json_encode(array(
 					'status' => true,
