@@ -127,13 +127,21 @@ class ChSignInPage extends CerberusPageExtension {
 				break;
 
 			case 'authenticate':
-				// Always wait a little while
-				sleep(1);
+				// Prevent brute force logins
+				$recent_failed_logins = DAO_ContextActivityLog::getLatestEntriesByTarget(CerberusContexts::CONTEXT_WORKER, $unauthenticated_worker->id, 5, ['worker.login.failed'], time()-900);
 				
+				if(is_array($recent_failed_logins) && count($recent_failed_logins) >= 5) {
 					$query = array(
 						'email' => $email,
-						'error' => 'Invalid password.',
+						'error' => 'Your account has been temporarily locked after too many failed login attempts. Please wait a few minutes and try again.',
+					);
+					DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'), $query));
+				}
+				
 				if(empty($unauthenticated_worker)) {
+					$query = array(
+						'email' => $email,
+						'error' => 'Authentication failed.',
 					);
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','password'), $query));
 				}
