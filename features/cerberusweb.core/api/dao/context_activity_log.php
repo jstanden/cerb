@@ -205,7 +205,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	 * @param integer $actor_context_id
 	 * @return Model_ContextActivityLog|NULL
 	 */
-	static function getLatestEntriesByActor($actor_context, $actor_context_id, $limit = 1, $only_activities = array()) {
+	static function getLatestEntriesByActor($actor_context, $actor_context_id, $limit = 1, $only_activities = [], $since = 0) {
 		// Filter to only this worker
 		$sql = sprintf("%s = %s AND %s = %d",
 			self::escape(DAO_ContextActivityLog::ACTOR_CONTEXT),
@@ -216,13 +216,20 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		
 		// Are we're limiting our search to only some activities?
 		if(is_array($only_activities) && !empty($only_activities)) {
-			array_walk($only_activities, function($k, &$v) {
-				$v = self::qstr($v);
-			});
+			$filter_activities = array_map(function($v) {
+				return Cerb_ORMHelper::qstr($v);
+			}, $only_activities);
 			
 			$sql .= sprintf(" AND %s IN (%s)",
 				self::escape(DAO_ContextActivityLog::ACTIVITY_POINT),
-				implode(',', $only_activities)
+				implode(',', $filter_activities)
+			);
+		}
+		
+		if($since) {
+			$sql .= sprintf(" AND %s >= %d",
+				self::escape(DAO_ContextActivityLog::CREATED),
+				$since
 			);
 		}
 		
@@ -234,10 +241,68 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 			max(1, intval($limit))
 		);
 		
-		if(is_array($results) && !empty($results))
-			return array_shift($results);
+		if(is_array($results) && $results) {
+			if(1 == $limit) {
+				return array_shift($results);
+			} else {
+				return $results;
+			}
+		}
 		
-		return NULL;
+		return [];
+	}
+	
+	/**
+	 * 
+	 * @param string $target_context
+	 * @param integer $target_context_id
+	 * @return Model_ContextActivityLog|NULL
+	 */
+	static function getLatestEntriesByTarget($target_context, $target_context_id, $limit = 1, $only_activities = [], $since = 0) {
+		// Filter to only this worker
+		$sql = sprintf("%s = %s AND %s = %d",
+			self::escape(DAO_ContextActivityLog::TARGET_CONTEXT),
+			self::qstr($target_context),
+			self::escape(DAO_ContextActivityLog::TARGET_CONTEXT_ID),
+			$target_context_id
+		);
+		
+		// Are we're limiting our search to only some activities?
+		if(is_array($only_activities) && !empty($only_activities)) {
+			$filter_activities = array_map(function($v) {
+				return Cerb_ORMHelper::qstr($v);
+			}, $only_activities);
+			
+			$sql .= sprintf(" AND %s IN (%s)",
+				self::escape(DAO_ContextActivityLog::ACTIVITY_POINT),
+				implode(',', $filter_activities)
+			);
+		}
+		
+		if($since) {
+			$sql .= sprintf(" AND %s >= %d",
+				self::escape(DAO_ContextActivityLog::CREATED),
+				$since
+			);
+		}
+		
+		// Grab the entries
+		$results = self::getWhere(
+			$sql,
+			DAO_ContextActivityLog::CREATED,
+			false,
+			max(1, intval($limit))
+		);
+		
+		if(is_array($results) && $results) {
+			if(1 == $limit) {
+				return array_shift($results);
+			} else {
+				return $results;
+			}
+		}
+		
+		return [];
 	}
 	
 	/**
@@ -245,7 +310,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	 * @return Model_ContextActivityLog[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
