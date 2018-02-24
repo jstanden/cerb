@@ -143,19 +143,19 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		try {
 			// Compare the confirmation code
 			if(!isset($_SESSION['recovery_code'])) {
-				throw new CerbException("Invalid confirmation code.");
+				throw new CerbException("confirm.invalid");
 			}
 			
 			@$session_confirm_code = DevblocksPlatform::importGPC($_SESSION['recovery_code']);
 			@$confirm_code = DevblocksPlatform::importGPC($_REQUEST['confirm_code']);
 			
 			if(empty($session_confirm_code) || empty($confirm_code)) {
-				throw new CerbException("Invalid confirmation code.");
+				throw new CerbException("confirm.invalid");
 			}
 			
 			if($session_confirm_code != $worker->getEmailString().':'.$confirm_code) {
 				unset($_SESSION['recovery_code']);
-				throw new CerbException("The given confirmation code doesn't match the one on file.");
+				throw new CerbException("confirm.failed");
 			}
 			
 			@$password = DevblocksPlatform::importGPC($_REQUEST['password']);
@@ -165,11 +165,11 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 			if(!DAO_Worker::hasAuth($worker->id)) {
 				
 				if(empty($password) || empty($password_confirm)) {
-					throw new CerbException("Passwords cannot be blank.");
+					throw new CerbException("password.invalid");
 				}
 				
 				if($password != $password_confirm) {
-					throw new CerbException("The given passwords don't match.");
+					throw new CerbException("password.mismatch");
 				}
 				
 				DAO_Worker::setAuth($worker->id, $password);

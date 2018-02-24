@@ -1,7 +1,7 @@
 {if !empty($error)}
 <div class="error-box">
 	<h1>Error</h1>
-	<p>{$error}</p>
+	<p>{ChSignInPage::getErrorMessage($error)}</p>
 </div>
 {/if}
 

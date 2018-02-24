@@ -20,6 +20,54 @@ class ChSignInPage extends CerberusPageExtension {
 		return true;
 	}
 	
+	static function getErrorMessage($code) {
+		$error = "An unexpected error occurred. Please try again.";
+		
+		switch($code) {
+			case 'account.disabled':
+				$error = "Your account is disabled.";
+				break;
+				
+			case 'account.locked':
+				$error = "Your account has been temporarily locked after too many failed login attempts. Please wait a few minutes and try again.";
+				break;
+				
+			case 'auth.failed':
+				$error = "Authentication failed.";
+				break;
+				
+			case 'auth.invalid':
+				$error = "Invalid authentication method.";
+				break;
+				
+			case 'confim.failed':
+				$error = "The given confirmation code doesn't match the one on file.";
+				break;
+				
+			case 'confirm.invalid':
+				$error = "The given confirmation code is invalid.";
+				break;
+				
+			case 'email.unavailable':
+				$error = "The provided email address is not available.";
+				break;
+				
+			case 'password.invalid':
+				$error = "The given password is invalid.";
+				break;
+				
+			case 'password.mismatch':
+				$error = "The given passwords do not match.";
+				break;
+				
+			case 'seats.limit':
+				$error = "The maximum number of simultaneous workers are currently active. Please try again later, or ask an administrator to increase the seat count in your license.";
+				break;
+		}
+		
+		return $error;
+	}
+	
 	function render() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'], 'string', '');
 		@$remember_email = DevblocksPlatform::importGPC($_COOKIE['cerb_login_email'], 'string', '');
@@ -133,7 +181,7 @@ class ChSignInPage extends CerberusPageExtension {
 				if(is_array($recent_failed_logins) && count($recent_failed_logins) >= 5) {
 					$query = array(
 						'email' => $email,
-						'error' => 'Your account has been temporarily locked after too many failed login attempts. Please wait a few minutes and try again.',
+						'error' => 'account.locked',
 					);
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'), $query));
 				}
@@ -141,7 +189,7 @@ class ChSignInPage extends CerberusPageExtension {
 				if(empty($unauthenticated_worker)) {
 					$query = array(
 						'email' => $email,
-						'error' => 'Authentication failed.',
+						'error' => 'auth.failed',
 					);
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','password'), $query));
 				}
@@ -190,7 +238,7 @@ class ChSignInPage extends CerberusPageExtension {
 						if(isset($_POST['email']))
 							$query['email'] = $_POST['email'];
 						
-						$query['error'] = 'Authentication failed.';
+						$query['error'] = 'auth.failed';
 						
 						DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login', $ext->manifest->params['uri']), $query), 1);
 					}
@@ -216,8 +264,7 @@ class ChSignInPage extends CerberusPageExtension {
 				
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login')));
 				break;
-				
-			case 'failed':
+			
 			case NULL:
 				@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', '');
 				@$error = DevblocksPlatform::importGPC($_REQUEST['error'], 'string', '');
@@ -249,12 +296,6 @@ class ChSignInPage extends CerberusPageExtension {
 				
 				if(!empty($error))
 					$tpl->assign('error', $error);
-				
-				switch($section) {
-					case 'failed':
-						$tpl->assign('error', 'Login failed.');
-						break;
-				}
 				
 				$tpl->display('devblocks:cerberusweb.core::login/login_router.tpl');
 				break;
@@ -294,14 +335,14 @@ class ChSignInPage extends CerberusPageExtension {
 			// [TODO] Check the worker's allowed IPs
 			
 			// Check if worker is disabled, fail early
-				$query = array('error' => 'Your account is disabled.');
 			if($unauthenticated_worker->is_disabled) {
+				$query = array('error' => 'account.disabled');
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'), $query));
 			}
 			
 			// Load the worker's auth extension
-				$query = array('error' => 'Invalid authentication method.');
 			if(null == ($auth_ext = Extension_LoginAuthenticator::get($unauthenticated_worker->auth_extension_id)) || !isset($auth_ext->params['uri'])) {
+				$query = array('error' => 'auth.invalid');
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'), $query));
 			}
 			
@@ -335,8 +376,8 @@ class ChSignInPage extends CerberusPageExtension {
 				$session->clear();
 				
 				$query = array(
-					'error' => sprintf("The maximum number of simultaneous workers are currently active. Please try again later, or ask an administrator to increase the seat count in your license."),
 					'email' => $current_worker->getEmailString(),
+					'error' => 'seats.limit',
 				);
 				
 				if(null == ($ext = Extension_LoginAuthenticator::get($current_worker->auth_extension_id, false)))

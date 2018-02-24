@@ -1,7 +1,7 @@
 {if !empty($error)}
 <div class="error-box">
-	<h1>Error</h1>
-	<p>{$error}</p>
+	<h1>{'common.error'|devblocks_translate|capitalize}</h1>
+	<p>{ChSignInPage::getErrorMessage($error)}</p>
 </div>
 {/if}
 
@@ -43,11 +43,11 @@
 </form>
 
 <script type="text/javascript">
-	$(function() {
-		{if !empty($email)}
-			$('#loginForm input[name=password]').focus().select();
-		{else}
-			$('#loginForm input[name=email]').focus().select();
-		{/if}
-	} );
+$(function() {
+{if !empty($email)}
+	$('#loginForm input[name=password]').focus().select();
+{else}
+	$('#loginForm input[name=email]').focus().select();
+{/if}
+});
 </script>
