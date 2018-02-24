@@ -4,7 +4,7 @@
 	<name>Cerb Core</name>
 	<description>The core functionality of Cerb.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>8.2.11</version>
+	<version>8.3.0</version>
 	<link>https://cerb.ai</link>
 	
 	<!-- Plugin Dependencies -->

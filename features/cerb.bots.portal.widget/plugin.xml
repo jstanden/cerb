@@ -4,14 +4,14 @@
 	<name>Conversational Bots for Websites</name>
 	<description>Embed conversational bots on any website</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>8.2.11</version>
+	<version>8.3.0</version>
 	<link>https://cerb.ai/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="8.2" max="8.2.99" />
+		<app_version min="8.3" max="8.3.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
