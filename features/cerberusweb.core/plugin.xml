@@ -1009,6 +1009,11 @@
 			<param key="string_key" value="activities.worker.logged_out" />
 			<param key="options" value="" />
 		</activity>
+		<activity point="worker.login.failed">
+			<param key="label_key" value="Worker Login Failed" />
+			<param key="string_key" value="activities.worker.login.failed" />
+			<param key="options" value="" />
+		</activity>
 		<activity point="worker.seat_expired">
 			<param key="label_key" value="Worker Seat Expired" />
 			<param key="string_key" value="activities.worker.seat_expired" />

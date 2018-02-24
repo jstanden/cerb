@@ -150,6 +150,33 @@ class ChSignInPage extends CerberusPageExtension {
 						DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','authenticated')), 1);
 						
 					} else {
+						/*
+						 * Log activity (worker.login.failed)
+						 */
+						$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
+						$user_agent = DevblocksPlatform::getClientUserAgent();
+						$user_agent_string = sprintf("%s%s%s",
+							$user_agent['browser'],
+							!empty($user_agent['version']) ? (' ' . $user_agent['version']) : '',
+							!empty($user_agent['platform']) ? (' for ' . $user_agent['platform']) : ''
+						);
+						
+						$entry = array(
+							//{{ip}} failed to log in as {{target}} using {{user_agent}}
+							'message' => 'activities.worker.login.failed',
+							'variables' => array(
+								'ip' => $ip_address,
+								'user_agent' => $user_agent_string,
+								'target' => sprintf($unauthenticated_worker->getName()),
+								),
+							'urls' => array(
+								'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $unauthenticated_worker->id),
+								)
+						);
+						CerberusContexts::logActivity('worker.login.failed', CerberusContexts::CONTEXT_WORKER, $unauthenticated_worker->id, $entry);
+						
+						// Redirect
+						
 						$query = [];
 						
 						if(isset($_POST['email']))

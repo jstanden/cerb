@@ -194,6 +194,11 @@
 				<seg>{{actor}} logged out from {{ip}}</seg>
 			</tuv>
 		</tu>
+		<tu tuid="activities.worker.login.failed">
+			<tuv xml:lang="en_US">
+				<seg>{{ip}} failed to log in as {{target}} using {{user_agent}}</seg>
+			</tuv>
+		</tu>
 		<tu tuid="activities.worker.seat_expired">
 			<tuv xml:lang="en_US">
 				<seg>{{actor}} logged {{target}} out to free up a license seat.</seg>
