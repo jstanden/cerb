@@ -24,11 +24,13 @@ class ChSignInPage extends CerberusPageExtension {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'], 'string', '');
 		@$remember_email = DevblocksPlatform::importGPC($_COOKIE['cerb_login_email'], 'string', '');
 		
+		$unauthenticated_worker = null;
+		
 		if(empty($email) && !empty($remember_email))
 			$email = $remember_email;
 		
 		if(!empty($email))
-			$worker = DAO_Worker::getByEmail($email);
+			$unauthenticated_worker = DAO_Worker::getByEmail($email);
 		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
@@ -43,18 +45,18 @@ class ChSignInPage extends CerberusPageExtension {
 				$tpl->assign('email', $email);
 				
 				if(!empty($email)
-						&& null != $worker
-						&& !$worker->is_disabled) {
+						&& null != $unauthenticated_worker
+						&& !$unauthenticated_worker->is_disabled) {
 					
 					@$confirm_code = DevblocksPlatform::importGPC($_REQUEST['confirm_code'], 'string', '');
 					
 					// Secret questions
-					if(false !== ($secret_questions = @json_decode(DAO_WorkerPref::get($worker->id, 'login.recover.secret_questions', ''), true)) && is_array($secret_questions)) {
+					if(false !== ($secret_questions = @json_decode(DAO_WorkerPref::get($unauthenticated_worker->id, 'login.recover.secret_questions', ''), true)) && is_array($secret_questions)) {
 						$tpl->assign('secret_questions', $secret_questions);
 					}
 					
 					if(!empty($confirm_code) && isset($_SESSION['recovery_code']) && !empty($_SESSION['recovery_code'])) {
-						if($worker->getEmailString().':'.$confirm_code == $_SESSION['recovery_code']) {
+						if($unauthenticated_worker->getEmailString().':'.$confirm_code == $_SESSION['recovery_code']) {
 							$pass = true;
 							
 							// Compare secret questions
@@ -70,16 +72,16 @@ class ChSignInPage extends CerberusPageExtension {
 								}
 							}
 							
-							if($pass && null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
+							if($pass && null != ($ext = Extension_LoginAuthenticator::get($unauthenticated_worker->auth_extension_id, true))) {
 								// Clear the recovery rate-limit on success
-								$cache_key = sprintf('recover:worker:%d', $worker->id);
+								$cache_key = sprintf('recover:worker:%d', $unauthenticated_worker->id);
 								$cache->remove($cache_key);
 								
 								/* @var $ext Extension_LoginAuthenticator */
-								$ext->resetCredentials($worker);
+								$ext->resetCredentials($unauthenticated_worker);
 								
 								$query = array(
-									'email' => $worker->getEmailString(),
+									'email' => $unauthenticated_worker->getEmailString(),
 									'code' => $confirm_code,
 								);
 								DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login',$ext->manifest->params['uri']), $query));
@@ -97,19 +99,19 @@ class ChSignInPage extends CerberusPageExtension {
 						
 					} else {
 						// This is rate-limited
-						$cache_key = sprintf('recover:worker:%d', $worker->id);
+						$cache_key = sprintf('recover:worker:%d', $unauthenticated_worker->id);
 						
 						if(false == $cache->load($cache_key)) {
 							$labels = $values = [];
-							CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $worker_labels, $worker_values, '', true, true);
+							CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $unauthenticated_worker, $worker_labels, $worker_values, '', true, true);
 							CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
 							
 							$values['code'] = CerberusApplication::generatePassword(8);
 							$values['ip'] = DevblocksPlatform::getClientIp();
 							
-							$_SESSION['recovery_code'] = $worker->getEmailString() . ':' . $values['code'];
+							$_SESSION['recovery_code'] = $unauthenticated_worker->getEmailString() . ':' . $values['code'];
 							
-							CerberusApplication::sendEmailTemplate($worker->getEmailString(), 'worker_recover', $values);
+							CerberusApplication::sendEmailTemplate($unauthenticated_worker->getEmailString(), 'worker_recover', $values);
 							
 							$cache->save(time(), $cache_key, [], 1800);
 						}
@@ -128,48 +130,47 @@ class ChSignInPage extends CerberusPageExtension {
 				// Always wait a little while
 				sleep(1);
 				
-				if(empty($worker)) {
 					$query = array(
 						'email' => $email,
 						'error' => 'Invalid password.',
+				if(empty($unauthenticated_worker)) {
 					);
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','password'), $query));
 				}
 				
 				// Look up the URI as an extension
-				if(null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
+				if(null != ($ext = Extension_LoginAuthenticator::get($unauthenticated_worker->auth_extension_id, true))) {
 					/* @var $ext Extension_LoginAuthenticator */
 					
-					if(false != ($worker = $ext->authenticate()) && $worker instanceof Model_Worker) {
-						$this->_checkSeats($worker);
+					if(false != ($authenticated_worker = $ext->authenticate()) && $authenticated_worker instanceof Model_Worker) {
+						$this->_checkSeats($authenticated_worker);
 						
-						$_SESSION['login_authenticated_worker'] = $worker;
+						$_SESSION['login_authenticated_worker'] = $authenticated_worker;
 						
 						DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','authenticated')), 1);
 						
 					} else {
-						$query = array();
-			
+						$query = [];
+						
 						if(isset($_POST['email']))
 							$query['email'] = $_POST['email'];
 						
 						$query['error'] = 'Authentication failed.';
 						
-						$devblocks_response = new DevblocksHttpResponse(array('login', $ext->manifest->params['uri']), $query);
-						DevblocksPlatform::redirect($devblocks_response, 1);
+						DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login', $ext->manifest->params['uri']), $query), 1);
 					}
 					break;
 				}
 				break;
 				
 			case 'authenticated':
-				@$worker = $_SESSION['login_authenticated_worker'];
+				@$authenticated_worker = $_SESSION['login_authenticated_worker'];
 				unset($_SESSION['login_authenticated_worker']);
 				
-				if(empty($worker))
+				if(empty($authenticated_worker))
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login')), 1);
 					
-				$this->_processAuthenticated($worker);
+				$this->_processAuthenticated($authenticated_worker);
 				break;
 			
 			case 'reset':
@@ -191,8 +192,8 @@ class ChSignInPage extends CerberusPageExtension {
 				
 				// If we have a cookie remembering the worker, redirect to login form
 				if(empty($section) && empty($stack) && !empty($remember_email)
-						&& !empty($worker)
-						&& null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, false))
+						&& !empty($unauthenticated_worker)
+						&& null != ($ext = Extension_LoginAuthenticator::get($unauthenticated_worker->auth_extension_id, false))
 					) {
 					$query = array(
 						'email' => $remember_email,
@@ -227,14 +228,14 @@ class ChSignInPage extends CerberusPageExtension {
 				// Look up the URI as an extension
 				if(null != ($ext = Extension_LoginAuthenticator::getByUri($section, true))) {
 					// Confirm the tentative worker can access this auth extension
-					if(!empty($worker) && $worker->auth_extension_id != $ext->id)
+					if(!empty($unauthenticated_worker) && $unauthenticated_worker->auth_extension_id != $ext->id)
 						return;
 					
 					/* @var $ext Extension_LoginAuthenticator */
 					$ext->render();
-					break;
+					return;
 				}
-
+				
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login')));
 				break;
 		}
@@ -248,7 +249,7 @@ class ChSignInPage extends CerberusPageExtension {
 		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
 		@$remember_me = DevblocksPlatform::importGPC($_POST['remember_me'],'integer', 0);
 		
-		if(null == ($worker = DAO_Worker::getByEmail($email))) {
+		if(null == ($unauthenticated_worker = DAO_Worker::getByEmail($email))) {
 			sleep(2); // nag brute force attempts
 			// Deceptively send invalid logins to the password page anyway, if shaped like an email
 			$query = array('email' => $email);
@@ -258,14 +259,14 @@ class ChSignInPage extends CerberusPageExtension {
 			// [TODO] Check the worker's allowed IPs
 			
 			// Check if worker is disabled, fail early
-			if($worker->is_disabled) {
 				$query = array('error' => 'Your account is disabled.');
+			if($unauthenticated_worker->is_disabled) {
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'), $query));
 			}
 			
 			// Load the worker's auth extension
-			if(null == ($auth_ext = Extension_LoginAuthenticator::get($worker->auth_extension_id)) || !isset($auth_ext->params['uri'])) {
 				$query = array('error' => 'Invalid authentication method.');
+			if(null == ($auth_ext = Extension_LoginAuthenticator::get($unauthenticated_worker->auth_extension_id)) || !isset($auth_ext->params['uri'])) {
 				DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'), $query));
 			}
 			
@@ -283,7 +284,7 @@ class ChSignInPage extends CerberusPageExtension {
 	}
 	
 	// Please be honest
-	private function _checkSeats($worker) {
+	private function _checkSeats($current_worker) {
 		$honesty = CerberusLicense::getInstance();
 		$session = DevblocksPlatform::services()->session();
 		
@@ -295,15 +296,15 @@ class ChSignInPage extends CerberusPageExtension {
 			$online_workers = DAO_Worker::getAllOnline(600, count($online_workers) - $max + 1);
 			
 			// If we failed to open up a seat
-			if($max <= count($online_workers) && !isset($online_workers[$worker->id])) {
+			if($max <= count($online_workers) && !isset($online_workers[$current_worker->id])) {
 				$session->clear();
 				
 				$query = array(
-					'email' => $worker->getEmailString(),
 					'error' => sprintf("The maximum number of simultaneous workers are currently active. Please try again later, or ask an administrator to increase the seat count in your license."),
+					'email' => $current_worker->getEmailString(),
 				);
 				
-				if(null == ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, false)))
+				if(null == ($ext = Extension_LoginAuthenticator::get($current_worker->auth_extension_id, false)))
 					return;
 				
 				DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login', $ext->params['uri']), $query), 1);
@@ -311,11 +312,11 @@ class ChSignInPage extends CerberusPageExtension {
 		}
 	}
 	
-	private function _processAuthenticated($worker) { /* @var $worker Model_Worker */
+	private function _processAuthenticated($authenticated_worker) { /* @var $authenticated_worker Model_Worker */
 		$session = DevblocksPlatform::services()->session();
 
 		$visit = new CerberusVisit();
-		$visit->setWorker($worker);
+		$visit->setWorker($authenticated_worker);
 
 		$session->setVisit($visit);
 		
@@ -337,13 +338,13 @@ class ChSignInPage extends CerberusPageExtension {
 		$devblocks_response = new DevblocksHttpResponse($redirect_path);
 		
 		// Flush views
-		DAO_WorkerViewModel::flush($worker->id);
+		DAO_WorkerViewModel::flush($authenticated_worker->id);
 		
 		// Flush caches
-		DAO_WorkerRole::clearWorkerCache($worker->id);
+		DAO_WorkerRole::clearWorkerCache($authenticated_worker->id);
 		
 		if(empty($devblocks_response->path)) {
-			$tour_enabled = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
+			$tour_enabled = intval(DAO_WorkerPref::get($authenticated_worker->id, 'assist_mode', 1));
 			$next_page = ($tour_enabled) ?  array('welcome') : array('profiles','worker','me');
 			$devblocks_response = new DevblocksHttpResponse($next_page);
 		}
