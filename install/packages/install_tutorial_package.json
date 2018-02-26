@@ -2047,7 +2047,7 @@
 					"workspace": "Tutorial"
 				},
 				"urls": {
-					"workspace": "{{{default.base_url}}}preferences/redirectRead/{{{uid.notification_new_workspace}}}"
+					"workspace": "{{{default.base_url}}}internal/redirectRead/{{{uid.notification_new_workspace}}}"
 				}
 			},
 			"is_read": 0,
