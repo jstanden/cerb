@@ -2354,7 +2354,7 @@
 							"extension_id": "core.workspace.widget.counter",
 							"pos": "0002",
 							"params": {
-								"datasource": "core.workspace.widget.datasource.worklist",
+								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.contact",
 								"search_mode": "quick_search",
 								"quick_search": "netPromoter.rating:!null",
@@ -2401,7 +2401,7 @@
 							"extension_id": "core.workspace.widget.counter",
 							"pos": "0003",
 							"params": {
-								"datasource": "core.workspace.widget.datasource.worklist",
+								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.contact",
 								"search_mode": "quick_search",
 								"quick_search": "netPromoter.rating:>8",
@@ -2448,7 +2448,7 @@
 							"extension_id": "core.workspace.widget.counter",
 							"pos": "0004",
 							"params": {
-								"datasource": "core.workspace.widget.datasource.worklist",
+								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.contact",
 								"search_mode": "quick_search",
 								"quick_search": "netPromoter.rating:<7",
@@ -2508,7 +2508,7 @@
 								"chart_display": "",
 								"series": [
 									{
-										"datasource": "core.workspace.widget.datasource.worklist",
+										"datasource": "core.workspace.widget.datasource.worklist.series",
 										"label": "Detractors",
 										"context": "cerberusweb.contexts.contact",
 										"search_mode": "quick_search",
@@ -2553,7 +2553,7 @@
 										"fill_color": "rgba(207,44,29,0.15)"
 									},
 									{
-										"datasource": "core.workspace.widget.datasource.worklist",
+										"datasource": "core.workspace.widget.datasource.worklist.series",
 										"label": "Passives",
 										"context": "cerberusweb.contexts.contact",
 										"search_mode": "quick_search",
@@ -2602,7 +2602,7 @@
 										"fill_color": "rgba(254,175,3,0.15)"
 									},
 									{
-										"datasource": "core.workspace.widget.datasource.worklist",
+										"datasource": "core.workspace.widget.datasource.worklist.series",
 										"label": "Promoters",
 										"context": "cerberusweb.contexts.contact",
 										"search_mode": "quick_search",
@@ -2694,7 +2694,7 @@
 									"#FEAF03",
 									"#57970A"
 								],
-								"datasource": "core.workspace.widget.datasource.worklist",
+								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.message",
 								"search_mode": "quick_search",
 								"quick_search": "customerSatisfaction.rating:!null",
@@ -2735,7 +2735,7 @@
 							"extension_id": "core.workspace.widget.counter",
 							"pos": "0001",
 							"params": {
-								"datasource": "core.workspace.widget.datasource.worklist",
+								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.message",
 								"search_mode": "quick_search",
 								"quick_search": "customerSatisfaction.rating:!null",
@@ -2780,7 +2780,7 @@
 								"chart_display": "",
 								"series": [
 									{
-										"datasource": "core.workspace.widget.datasource.worklist",
+										"datasource": "core.workspace.widget.datasource.worklist.series",
 										"label": "Positive",
 										"context": "cerberusweb.contexts.message",
 										"search_mode": "quick_search",
@@ -2821,7 +2821,7 @@
 										"fill_color": "rgba(87,151,10,0.15)"
 									},
 									{
-										"datasource": "core.workspace.widget.datasource.worklist",
+										"datasource": "core.workspace.widget.datasource.worklist.series",
 										"label": "Neutral",
 										"context": "cerberusweb.contexts.message",
 										"search_mode": "quick_search",
@@ -2855,7 +2855,7 @@
 										"fill_color": "rgba(254,175,3,0.15)"
 									},
 									{
-										"datasource": "core.workspace.widget.datasource.worklist",
+										"datasource": "core.workspace.widget.datasource.worklist.series",
 										"label": "Negative",
 										"context": "cerberusweb.contexts.message",
 										"search_mode": "quick_search",
@@ -2956,7 +2956,7 @@
 									"#98AD0C",
 									"#66AD11"
 								],
-								"datasource": "core.workspace.widget.datasource.worklist",
+								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.ticket",
 								"search_mode": "quick_search",
 								"quick_search": "customerEffort.rating:!null",
@@ -2997,7 +2997,7 @@
 							"extension_id": "core.workspace.widget.counter",
 							"pos": "0001",
 							"params": {
-								"datasource": "core.workspace.widget.datasource.worklist",
+								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.ticket",
 								"search_mode": "quick_search",
 								"quick_search": "customerEffort.rating:!null",
@@ -3051,7 +3051,7 @@
 								"chart_display": "",
 								"series": [
 									{
-										"datasource": "core.workspace.widget.datasource.worklist",
+										"datasource": "core.workspace.widget.datasource.worklist.series",
 										"label": "Agree",
 										"context": "cerberusweb.contexts.ticket",
 										"search_mode": "quick_search",
@@ -3098,7 +3098,7 @@
 										"fill_color": "rgba(87,151,10,0.15)"
 									},
 									{
-										"datasource": "core.workspace.widget.datasource.worklist",
+										"datasource": "core.workspace.widget.datasource.worklist.series",
 										"label": "Undecided",
 										"context": "cerberusweb.contexts.ticket",
 										"search_mode": "quick_search",
@@ -3145,7 +3145,7 @@
 										"fill_color": "rgba(254,175,3,0.15)"
 									},
 									{
-										"datasource": "core.workspace.widget.datasource.worklist",
+										"datasource": "core.workspace.widget.datasource.worklist.series",
 										"label": "Disagree",
 										"context": "cerberusweb.contexts.ticket",
 										"search_mode": "quick_search",

@@ -2683,7 +2683,7 @@
 					"#FEAF03",
 					"#CF2C1D"
 				],
-				"datasource": "core.workspace.widget.datasource.worklist",
+				"datasource": "core.workspace.widget.datasource.worklist.metric",
 				"context": "cerberusweb.contexts.message",
 				"search_mode": "quick_search",
 				"quick_search": "responseTime:>0 isOutgoing:y created:\"-1 month 00:00:00 to now\"",
@@ -2740,7 +2740,7 @@
 			"pos": "0002",
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
-				"datasource": "core.workspace.widget.datasource.worklist",
+				"datasource": "core.workspace.widget.datasource.worklist.metric",
 				"context": "cerberusweb.contexts.ticket",
 				"search_mode": "quick_search",
 				"quick_search": "status:o",
@@ -2785,7 +2785,7 @@
 				"chart_display": "",
 				"series": [
 					{
-						"datasource": "core.workspace.widget.datasource.worklist",
+						"datasource": "core.workspace.widget.datasource.worklist.series",
 						"label": "New tickets",
 						"context": "cerberusweb.contexts.ticket",
 						"search_mode": "quick_search",
@@ -2856,7 +2856,7 @@
 				"axes_independent": "0",
 				"series": [
 					{
-						"datasource": "core.workspace.widget.datasource.worklist",
+						"datasource": "core.workspace.widget.datasource.worklist.series",
 						"label": "First Resolution vs # Messages",
 						"context": "cerberusweb.contexts.ticket",
 						"search_mode": "quick_search",
