@@ -769,7 +769,7 @@ CREATE TABLE `devblocks_session` (
   `updated` int(10) unsigned NOT NULL DEFAULT '0',
   `session_data` mediumtext,
   `user_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `user_ip` varchar(32) NOT NULL DEFAULT '',
+  `user_ip` varchar(39) NOT NULL DEFAULT '',
   `user_agent` varchar(255) NOT NULL DEFAULT '',
   `refreshed_at` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`session_key`),
