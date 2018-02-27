@@ -1303,7 +1303,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		$results = array();
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$results = [];
 
 		// File uploads
 		
