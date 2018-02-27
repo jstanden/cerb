@@ -1195,6 +1195,10 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			return (is_array($value) || 0 != strlen($value));
 		});
 		
+		// Format values before validation
+		$field_values_to_validate = self::formatFieldValues($field_values_to_validate);
+		
+		// Validate
 		if(!DevblocksORMHelper::validateCustomFields($field_values_to_validate, $context, $error, $context_id))
 			return false;
 		
