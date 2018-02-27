@@ -567,13 +567,12 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 							$select_func = 'COUNT(*)';
 							break;
 					}
-						
-					// Scatterplots ignore histograms
-					if(isset($widget->params['chart_type']))
-					switch($widget->params['chart_type']) {
-						case 'scatterplot':
+					
+					// Scatterplots ignore histograms if not aggregate
+					if($widget->extension_id == 'core.workspace.widget.scatterplot') {
+						if(false === strpos($select_func, '(')) {
 							$group_by = null;
-							break;
+						}
 					}
 					
 					// INNER JOIN the x-axis cfield
@@ -613,13 +612,13 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 					);
 					
 					$results = $db->GetArraySlave($sql);
-					$data = array();
-
+					$data = [];
+					
 					$counter = 0;
-						
+					
 					foreach($results as $result) {
 						$x = ($params['xaxis_field'] == '_id') ? $counter++ : (float)$result['xaxis'];
-
+						
 						$xaxis_label = DevblocksPlatform::formatNumberAs((float)$result['xaxis'], @$params['xaxis_format']);
 						$yaxis_label = DevblocksPlatform::formatNumberAs((float)$result['yaxis'], @$params['yaxis_format']);
 						
