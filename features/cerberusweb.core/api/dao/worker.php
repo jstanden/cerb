@@ -222,6 +222,14 @@ class DAO_Worker extends Cerb_ORMHelper {
 
 		self::update($id, $fields);
 		
+		DAO_WorkerPref::setAsJson($id, 'search_favorites_json', [
+			"cerberusweb.contexts.contact",
+			"cerberusweb.contexts.address",
+			"cerberusweb.contexts.org",
+			"cerberusweb.contexts.task",
+			"cerberusweb.contexts.ticket", 
+		]);
+		
 		self::clearCache();
 		
 		return $id;

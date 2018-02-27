@@ -399,6 +399,13 @@ if(isset($tables['address_to_worker'])) {
 }
 
 // ===========================================================================
+// Default worker search menus
+
+if(0 == $db->GetOne("SELECT COUNT(*) FROM worker_pref WHERE setting = 'search_favorites_json'")) {
+	$db->ExecuteMaster("INSERT IGNORE INTO worker_pref (worker_id, setting, value) SELECT id, 'search_favorites_json', '[\"cerberusweb.contexts.contact\",\"cerberusweb.contexts.address\",\"cerberusweb.contexts.org\",\"cerberusweb.contexts.task\",\"cerberusweb.contexts.ticket\"]' from worker");
+}
+
+// ===========================================================================
 // Remove unused worker view models
 
 $db->ExecuteMaster("DELETE FROM worker_view_model WHERE view_id like '%_attendants'");
