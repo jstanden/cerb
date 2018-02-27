@@ -4,7 +4,7 @@
 	<name>[Devblocks] Core</name>
 	<description>Devblocks: PHP Application Framework</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>2.3.3</version>
+	<version>2.3.4</version>
 	<link>http://wiki.devblocks.com/</link>
 	
 	<!-- Patches -->
@@ -19,6 +19,7 @@
 		<patch version="2.1.2" revision="311" file="patches/2.1.2.php" />
 		<patch version="2.3.0" revision="322" file="patches/2.3.0.php" />
 		<patch version="2.3.3" revision="324" file="patches/2.3.3.php" />
+		<patch version="2.3.4" revision="330" file="patches/2.3.4.php" />
 	</patches>
 	
 	<!-- Exported Classes -->

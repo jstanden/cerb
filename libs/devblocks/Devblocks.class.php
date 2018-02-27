@@ -6,7 +6,7 @@ include_once(DEVBLOCKS_PATH . "api/services/bootstrap/cache.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/database.php");
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/classloader.php");
 
-define('PLATFORM_BUILD', 2016122701);
+define('PLATFORM_BUILD', 2018022601);
 
 class _DevblocksServices {
 	private static $_instance = null;
