@@ -38,7 +38,7 @@
 	
 	<div style="margin-bottom:5px;">
 		<b>{'common.dob'|devblocks_translate|capitalize}</b>: <i>(YYYY-MM-DD)</i><br>
-		<input type="text" name="dob" value="{if $worker->dob}{$worker->dob}{/if}" size="32" autocomplete="off" spellcheck="false" placeholder="1970-01-15">
+		<input type="text" name="dob" value="{if $worker->dob}{$worker->dob}{/if}" size="32" autocomplete="off" spellcheck="false" placeholder="1980-06-15">
 	</div>
 	
 	<div style="margin-bottom:5px;">

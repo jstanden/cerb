@@ -133,6 +133,14 @@ abstract class DevblocksORMHelper {
 						->setMax(1)
 						;
 					break;
+				case Model_CustomField::TYPE_CURRENCY:
+					$validation
+						->addField($field_id)
+						->number()
+						->setMin(0)
+						->setMax('64 bits')
+					;
+					break;
 				case Model_CustomField::TYPE_DATE:
 					$validation
 						->addField($field_id)
@@ -140,6 +148,14 @@ abstract class DevblocksORMHelper {
 						->setMin(0)
 						->setMax('32 bits')
 						;
+					break;
+				case Model_CustomField::TYPE_DECIMAL:
+					$validation
+						->addField($field_id)
+						->number()
+						->setMin(0)
+						->setMax('64 bits')
+					;
 					break;
 				case Model_CustomField::TYPE_DROPDOWN:
 					$options = $custom_field->params['options'];
@@ -194,22 +210,6 @@ abstract class DevblocksORMHelper {
 						->addField($field_id)
 						->string()
 						->setMaxLength(16777215)
-					;
-					break;
-				case Model_CustomField::TYPE_CURRENCY:
-					$validation
-						->addField($field_id)
-						->number()
-						->setMin(0)
-						->setMax('64 bits')
-					;
-					break;
-				case Model_CustomField::TYPE_DECIMAL:
-					$validation
-						->addField($field_id)
-						->number()
-						->setMin(0)
-						->setMax('64 bits')
 					;
 					break;
 				case Model_CustomField::TYPE_NUMBER:
