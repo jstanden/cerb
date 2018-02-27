@@ -3237,6 +3237,24 @@ class DevblocksPlatform extends DevblocksEngine {
 			self::$start_memory = memory_get_usage();
 			self::$start_peak_memory = memory_get_peak_usage();
 		}
+
+		// Security
+		@$app_security_frameoptions = strtolower(APP_SECURITY_FRAMEOPTIONS);
+		switch($app_security_frameoptions) {
+			case 'none':
+				break;
+				
+			case 'deny':
+				header("Content-Security-Policy: frame-ancestors 'none'");
+				header("X-Frame-Options: DENY");
+				break;
+				
+			default:
+			case 'self':
+				header("Content-Security-Policy: frame-ancestors 'self'");
+				header("X-Frame-Options: SAMEORIGIN");
+				break;
+		}
 		
 		// Encoding (mbstring)
 		mb_internal_encoding(LANG_CHARSET_CODE);

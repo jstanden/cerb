@@ -10,7 +10,7 @@
 <b>storage/mail/fail/{$filename}:</b>
 <div>
 	<input type="hidden" name="file" value="{$filename}">
-	<iframe src="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=mail_incoming&action=getRawMessageSource&file={$filename}{/devblocks_url}" style="width:100%;height:250px;margin:0;padding:0;border:1px solid rgb(150,150,150);"></iframe>
+	<iframe sandbox src="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=mail_incoming&action=getRawMessageSource&file={$filename}{/devblocks_url}" style="width:100%;height:250px;margin:0;padding:0;border:1px solid rgb(150,150,150);"></iframe>
 </div>
 
 <div class="output" style="display:none;"></div>

@@ -62,7 +62,7 @@
 {if $dict->content}
 <fieldset class="peek">
 	<legend>{'common.content'|devblocks_translate|capitalize}</legend>
-	<iframe src="{devblocks_url full=true}ajax.php?c=kb.ajax&a=getArticleContent&id={$dict->id}{/devblocks_url}" style="height:400px;width:98%;border:0px;" frameborder="0"></iframe>
+	<iframe sandbox src="{devblocks_url full=true}ajax.php?c=kb.ajax&a=getArticleContent&id={$dict->id}{/devblocks_url}" style="height:400px;width:98%;border:0px;" frameborder="0"></iframe>
 </fieldset>
 {/if}
 

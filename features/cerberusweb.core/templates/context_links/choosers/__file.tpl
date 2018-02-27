@@ -18,7 +18,7 @@
 <button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);vertical-align:middle;"></span> {'common.ok'|devblocks_translate|upper}</button>
 </form>
 
-<iframe name="iframe_file_post" style="visibility:hidden;display:none;width:0px;height:0px;background-color:#ffffff;"></iframe>
+<iframe name="iframe_file_post" sandbox="allow-same-origin allow-scripts" style="visibility:hidden;display:none;width:0px;height:0px;background-color:#ffffff;"></iframe>
 <br>
 
 <script type="text/javascript">
