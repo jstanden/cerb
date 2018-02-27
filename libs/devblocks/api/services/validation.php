@@ -3,10 +3,12 @@ class Exception_DevblocksValidationError extends Exception_Devblocks {};
 
 class _DevblocksValidationField {
 	public $_name = null;
+	public $_label = null;
 	public $_type = null;
 	
-	function __construct($name) {
+	function __construct($name, $label=null) {
 		$this->_name = $name;
+		$this->_label = $label ?: $name;
 	}
 	
 	/**
@@ -604,8 +606,8 @@ class _DevblocksValidationService {
 	 * @param string $name
 	 * @return _DevblocksValidationField
 	 */
-	function addField($name) {
-		$this->_fields[$name] = new _DevblocksValidationField($name);
+	function addField($name, $label=null) {
+		$this->_fields[$name] = new _DevblocksValidationField($name, $label);
 		return $this->_fields[$name];
 	}
 	
@@ -633,40 +635,41 @@ class _DevblocksValidationService {
 	// (ip, email, phone, etc)
 	function validate(_DevblocksValidationField $field, &$value, $scope=[]) {
 		$field_name = $field->_name;
+		$field_label = $field->_label;
 		
 		if(false == ($class_name = get_class($field->_type)))
-			throw new Exception_DevblocksValidationError("'%s' has an invalid type.", $field_name);
+			throw new Exception_DevblocksValidationError("'%s' has an invalid type.", $field_label);
 		
 		$data = $field->_type->_data;
 		
 		if(isset($data['editable'])) {
 			if(!$data['editable'])
-				throw new Exception_DevblocksValidationError(sprintf("'%s' is not editable.", $field_name));
+				throw new Exception_DevblocksValidationError(sprintf("'%s' is not editable.", $field_label));
 		}
 		
 		if(isset($data['not_empty']) && $data['not_empty'] && 0 == strlen($value)) {
-			throw new Exception_DevblocksValidationError(sprintf("'%s' must not be blank.", $field_name));
+			throw new Exception_DevblocksValidationError(sprintf("'%s' must not be blank.", $field_label));
 		}
 		
 		if(isset($data['formatters']) && is_array($data['formatters']))
 		foreach($data['formatters'] as $formatter) {
 			if(!is_callable($formatter)) {
-				throw new Exception_DevblocksValidationError(sprintf("'%s' has an invalid formatter.", $field_name));
+				throw new Exception_DevblocksValidationError(sprintf("'%s' has an invalid formatter.", $field_label));
 			}
 			
 			if(!$formatter($value, $error)) {
-				throw new Exception_DevblocksValidationError(sprintf("'%s' %s", $field_name, $error));
+				throw new Exception_DevblocksValidationError(sprintf("'%s' %s", $field_label, $error));
 			}
 		}
 		
 		if(isset($data['validators']) && is_array($data['validators']))
 		foreach($data['validators'] as $validator) {
 			if(!is_callable($validator)) {
-				throw new Exception_DevblocksValidationError(sprintf("'%s' has an invalid validator.", $field_name));
+				throw new Exception_DevblocksValidationError(sprintf("'%s' has an invalid validator.", $field_label));
 			}
 			
 			if(!$validator($value, $error)) {
-				throw new Exception_DevblocksValidationError(sprintf("'%s' %s", $field_name, $error));
+				throw new Exception_DevblocksValidationError(sprintf("'%s' %s", $field_label, $error));
 			}
 		}
 		
@@ -675,7 +678,7 @@ class _DevblocksValidationService {
 			@$dao_class = $data['dao_class'];
 			
 			if(empty($dao_class))
-				throw new Exception_DevblocksValidationError("'%s' has an invalid unique constraint.", $field_name);
+				throw new Exception_DevblocksValidationError("'%s' has an invalid unique constraint.", $field_label);
 			
 			if(isset($scope['id'])) {
 				$results = $dao_class::getWhere(sprintf("%s = %s AND id != %d", $dao_class::escape($field_name), $dao_class::qstr($value), $scope['id']), null, null, 1);
@@ -684,14 +687,14 @@ class _DevblocksValidationService {
 			}
 			
 			if(!empty($results)) {
-				throw new Exception_DevblocksValidationError(sprintf("A record already exists with this '%s' (%s). It must be unique.", $field_name, $value));
+				throw new Exception_DevblocksValidationError(sprintf("A record already exists with this '%s' (%s). It must be unique.", $field_label, $value));
 			}
 		}
 		
 		switch($class_name) {
 			case '_DevblocksValidationTypeContext':
 				if(!is_string($value) || false == ($context_ext = Extension_DevblocksContext::getByAlias($value, false))) {
-					throw new Exception_DevblocksValidationError(sprintf("'%s' is not a valid context (%s).", $field_name, $value));
+					throw new Exception_DevblocksValidationError(sprintf("'%s' is not a valid context (%s).", $field_label, $value));
 				}
 				// [TODO] Filter to specific contexts for certain fields
 				break;
@@ -699,16 +702,16 @@ class _DevblocksValidationService {
 			case '_DevblocksValidationTypeId':
 			case '_DevblocksValidationTypeNumber':
 				if(!is_numeric($value)) {
-					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a number (%s: %s).", $field_name, gettype($value), $value));
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a number (%s: %s).", $field_label, gettype($value), $value));
 				}
 				
 				if($data) {
 					if(isset($data['min']) && $value < $data['min']) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be >= %u (%u)", $field_name, $data['min'], $value));
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be >= %u (%u)", $field_label, $data['min'], $value));
 					}
 					
 					if(isset($data['max']) && $value > $data['max']) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be <= %u (%u)", $field_name, $data['max'], $value));
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be <= %u (%u)", $field_label, $data['max'], $value));
 					}
 				}
 				break;
@@ -716,37 +719,37 @@ class _DevblocksValidationService {
 			case '_DevblocksValidationTypeIdArray':
 				
 				if(!is_array($value)) {
-					throw new Exception_DevblocksValidationError(sprintf("'%s' must be an array of IDs (%s).", $field_name, gettype($value)));
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be an array of IDs (%s).", $field_label, gettype($value)));
 				}
 				
 				$values = $value;
 				
 				foreach($values as $id) {
 					if(!is_numeric($id)) {
-						throw new Exception_DevblocksValidationError(sprintf("Value '%s' must be a number (%s: %s).", $field_name, gettype($id), $id));
+						throw new Exception_DevblocksValidationError(sprintf("Value '%s' must be a number (%s: %s).", $field_label, gettype($id), $id));
 					}
 				}
 				break;
 				
 			case '_DevblocksValidationTypeString':
 				if(!is_null($value) && !is_string($value)) {
-					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a string (%s).", $field_name, gettype($value)));
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a string (%s).", $field_label, gettype($value)));
 				}
 				
 				if($data) {
 					if(isset($data['length']) && strlen($value) > $data['length']) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_name, $data['length']));
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length']));
 					}
 					
 					if(isset($data['possible_values']) && !in_array($value, $data['possible_values'])) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_name, implode(', ', $data['possible_values'])));
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_label, implode(', ', $data['possible_values'])));
 					}
 				}
 				break;
 				
 			case '_DevblocksValidationTypeStringOrArray':
 				if(!is_null($value) && !is_string($value) && !is_array($value)) {
-					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a string or array (%s).", $field_name, gettype($value)));
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a string or array (%s).", $field_label, gettype($value)));
 				}
 				
 				if(!is_array($value)) {
@@ -758,11 +761,11 @@ class _DevblocksValidationService {
 				if($data) {
 					foreach($values as $v) {
 						if(isset($data['length']) && strlen($v) > $data['length']) {
-							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_name, $data['length']));
+							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length']));
 						}
 						
 						if(isset($data['possible_values']) && !in_array($v, $data['possible_values'])) {
-							throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_name, implode(', ', $data['possible_values'])));
+							throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_label, implode(', ', $data['possible_values'])));
 						}
 					}
 				}

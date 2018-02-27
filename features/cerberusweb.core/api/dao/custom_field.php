@@ -1473,6 +1473,17 @@ class Model_CustomField {
 		return in_array($type, $multiple_types);
 	}
 	
+	function getName() {
+		$label = '';
+		
+		if(false != ($fieldset = self::getFieldset()))
+			$label = $fieldset->name . ' ';
+		
+		$label .= $this->name;
+		
+		return $label;
+	}
+	
 	function getFieldset() {
 		if(empty($this->custom_fieldset_id))
 			return null;

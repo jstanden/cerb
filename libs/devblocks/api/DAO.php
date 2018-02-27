@@ -124,10 +124,12 @@ abstract class DevblocksORMHelper {
 		
 		if(is_array($custom_fields))
 		foreach($custom_fields as $field_id => $custom_field) {
+			$custom_field_label = $custom_field->getName();
+			
 			switch($custom_field->type) {
 				case Model_CustomField::TYPE_CHECKBOX:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->number()
 						->setMin(0)
 						->setMax(1)
@@ -135,7 +137,7 @@ abstract class DevblocksORMHelper {
 					break;
 				case Model_CustomField::TYPE_CURRENCY:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->number()
 						->setMin(0)
 						->setMax('64 bits')
@@ -143,7 +145,7 @@ abstract class DevblocksORMHelper {
 					break;
 				case Model_CustomField::TYPE_DATE:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->timestamp()
 						->setMin(0)
 						->setMax('32 bits')
@@ -151,7 +153,7 @@ abstract class DevblocksORMHelper {
 					break;
 				case Model_CustomField::TYPE_DECIMAL:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->number()
 						->setMin(0)
 						->setMax('64 bits')
@@ -160,7 +162,7 @@ abstract class DevblocksORMHelper {
 				case Model_CustomField::TYPE_DROPDOWN:
 					$options = $custom_field->params['options'];
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->string()
 						->setMaxLength(255)
 						->setPossibleValues(is_array($options) ? $options : [])
@@ -168,7 +170,7 @@ abstract class DevblocksORMHelper {
 					break;
 				case Model_CustomField::TYPE_FILE:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->number()
 						->setMin(0)
 						->setMax('32 bits')
@@ -176,7 +178,7 @@ abstract class DevblocksORMHelper {
 					break;
 				case Model_CustomField::TYPE_FILES:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->idArray()
 						->addValidator($validation->validators()->contextIds(CerberusContexts::CONTEXT_ATTACHMENT, true))
 					;
@@ -185,14 +187,14 @@ abstract class DevblocksORMHelper {
 					@$link_context = $custom_field->params['context'];
 					
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->id()
 						->addValidator($validation->validators()->contextId($link_context, true))
 					;
 					break;
 				case Model_CustomField::TYPE_LIST:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->stringOrArray()
 						->setMaxLength(255)
 						;
@@ -200,21 +202,21 @@ abstract class DevblocksORMHelper {
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 					$options = $custom_field->params['options'];
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->stringOrArray()
 						->setPossibleValues(is_array($options) ? $options : [])
 						;
 					break;
 				case Model_CustomField::TYPE_MULTI_LINE:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->string()
 						->setMaxLength(16777215)
 					;
 					break;
 				case Model_CustomField::TYPE_NUMBER:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->number()
 						->setMin(0)
 						->setMax('32 bits')
@@ -222,20 +224,20 @@ abstract class DevblocksORMHelper {
 					break;
 				case Model_CustomField::TYPE_SINGLE_LINE:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->string()
 						->setMaxLength(255)
 					;
 					break;
 				case Model_CustomField::TYPE_URL:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->url()
 					;
 					break;
 				case Model_CustomField::TYPE_WORKER:
 					$validation
-						->addField($field_id)
+						->addField($field_id, $custom_field_label)
 						->id()
 						->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER, true))
 					;
