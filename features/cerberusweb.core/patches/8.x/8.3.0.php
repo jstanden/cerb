@@ -327,8 +327,8 @@ if(!isset($tables['custom_field_numbervalue'])) {
 
 list($columns, $indexes) = $db->metaTable('custom_field_numbervalue');
 
-if(@$columns['field_value'] && 0 == strcasecmp($columns['field_value']['type'], 'int(10) unsigned')) {
-	$db->ExecuteMaster("ALTER TABLE custom_field_numbervalue MODIFY COLUMN field_value BIGINT UNSIGNED NOT NULL DEFAULT 0");
+if(@$columns['field_value'] && 0 != strcasecmp($columns['field_value']['type'], 'bigint(20)')) {
+	$db->ExecuteMaster("ALTER TABLE custom_field_numbervalue MODIFY COLUMN field_value BIGINT NOT NULL DEFAULT 0");
 }
 
 // ===========================================================================
