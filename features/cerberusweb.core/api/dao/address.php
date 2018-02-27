@@ -546,6 +546,9 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 	
 	static function getByWorkerId($worker_id) {
+		if(empty($worker_id))
+			return [];
+		
 		$results = self::getWhere(
 			sprintf("%s = %d",
 				self::WORKER_ID,

@@ -780,6 +780,15 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * @abstract
+	 * @param array $fields
+	 * @param integer $id
+	 */
+	static public function onUpdateByActor($actor, $fields, $id) {
+		return;
+	}
+	
+	/**
 	 * @param Model_ContextBulkUpdate $update
 	 * @return boolean
 	 */
@@ -1783,6 +1792,13 @@ class Model_Worker {
 		return $this->_email_model;
 	}
 	
+	function getEmailModels() {
+		if(!$this->id)
+			return [];
+		
+		return DAO_Address::getByWorkerId($this->id);
+	}
+	
 	/**
 	 * 
 	 * @return NULL|string
@@ -1792,10 +1808,6 @@ class Model_Worker {
 			return null;
 		
 		return $model->email;
-	}
-	
-	function getEmailModels() {
-		return DAO_Address::getByWorkerId($this->id);
 	}
 	
 	function getInitials() {
