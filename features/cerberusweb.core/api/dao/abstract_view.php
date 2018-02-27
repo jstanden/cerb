@@ -3958,7 +3958,7 @@ class C4_AbstractViewLoader {
 			$worker_id = $active_worker->id;
 
 		// Check if we've ever persisted this view
-		if(false !== ($model = DAO_WorkerViewModel::getView($worker_id, $view_id))) {
+		if($worker_id && false !== ($model = DAO_WorkerViewModel::getView($worker_id, $view_id))) {
 			$view = self::unserializeAbstractView($model);
 			return $view;
 			
