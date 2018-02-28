@@ -41,7 +41,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$add_page = $driver->findElement(WebDriverBy::cssSelector('BODY > ul.navmenu > li.add'));
 		$add_page->click();
 		
-		$by = WebDriverBy::linkText('Help me create a page!');
+		$by = WebDriverBy::cssSelector('div.help-box p:nth-of-type(3) button');
 		
 		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfAllElementsLocatedBy($by)
@@ -126,7 +126,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$popup->findElement(WebDriverBy::name('email'))
 			->sendKeys('support@cerb.example');
 		
-		$popup->findElement(WebDriverBy::name('outgoing_enabled'))
+		$popup->findElement(WebDriverBy::cssSelector('input[type=radio][name=type][value=transport]'))
 			->click();
 		
 		$transport_autocomplete = $popup->findElement(WebDriverBy::cssSelector("button[data-field-name=mail_transport_id] + input[type=search]"));
@@ -491,22 +491,18 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			$sender_autocomplete->sendKeys(WebDriverKeys::ARROW_DOWN);
 			$sender_autocomplete->sendKeys(WebDriverKeys::ENTER);
 			
-			$tabs = $popup->findElement(WebDriverBy::cssSelector('div.ui-tabs'));
+			$members = $popup->findElement(WebDriverBy::cssSelector('fieldset.cerb-worker-group-memberships'));
 			
-			// Click the 'Members' tab
-			$tabs->findElement(WebDriverBy::linkText('Members'))
-				->click();
+			$tbodys = $members->findElements(WebDriverBy::cssSelector('table > tbody'));
+			$this->assertEquals(6, count($tbodys), "There aren't six workers in the members fieldset.");
 			
-			$selects = $popup->findElements(WebDriverBy::cssSelector('div.ui-tabs div:nth-child(3) select'));
-			
-			$this->assertEquals(6, count($selects), "There aren't six workers in the group edit popup.");
-			
-			foreach($selects as $idx => &$select) {
+			foreach($tbodys as $idx => &$tbody) {
 				$worker_id = $worker_ids[$idx];
+				
 				if(in_array($worker_id, $group['managers'])) {
-					$select->sendKeys('ma');
+					$tbody->findElement(WebDriverBy::cssSelector('input[type="radio"][value="2"]'))->click();
 				} else if(in_array($worker_id, $group['members'])) {
-					$select->sendKeys('me');
+					$tbody->findElement(WebDriverBy::cssSelector('input[type="radio"][value="1"]'))->click();
 				}
 			}
 			
@@ -563,7 +559,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$form->findElement(WebDriverBy::cssSelector('button.submit'))
 			->click();
 		
-		usleep(250000);
+		usleep(100000);
 		
 		$this->assertTrue(true);
 	}
@@ -793,15 +789,17 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		// Scroll into view
 		$driver->executeScript("arguments[0].scrollIntoView(true);", [$scheduler_bot]);
-		usleep(250000);
+		usleep(100000);
 		
 		$form = $driver->findElement(WebDriverBy::id('frmJobcron_bot_scheduled_behavior'));
 		
 		$form->findElement(WebDriverBy::name('enabled'))
 			->click();
 		
+		$submit = $form->findElement(WebDriverBy::cssSelector('button.submit'));
+		
 		$driver->executeScript("arguments[0].scrollIntoView(true);", [$submit]);
-		usleep(250000);
+		usleep(100000);
 		
 		$driver->action()->moveToElement($submit)->perform();
 		
@@ -817,7 +815,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 			function() use (&$driver) {
 				try {
 					$icons = $driver->findElements(WebDriverBy::cssSelector('div.cerb-subpage > div > div > span.glyphicons-circle-ok'));
-					return(8 == count($icons));
+					return(9 == count($icons));
 					
 				} catch (NoSuchElementException $nse) {
 					return null;

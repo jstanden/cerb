@@ -161,7 +161,7 @@ class CerbTestHelper {
 		
 		$worker_menu->click();
 		
-		$by = WebDriverBy::cssSelector('#menuSignedIn li:nth-child(7) a');
+		$by = WebDriverBy::cssSelector('#menuSignedIn li:nth-child(6) a');
 		
 		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated($by)
@@ -218,7 +218,9 @@ class CerbTestHelper {
 		$textarea->sendKeys($reply_text);
 		
 		$send_button = $reply_form->findElement(WebDriverBy::cssSelector('button.send'));
-		$send_button->getLocationOnScreenOnceScrolledIntoView();
+		
+		$driver->executeScript("arguments[0].scrollIntoView(true);", [$send_button]);
+		usleep(100000);
 		
 		$driver->wait()->until(
 			WebDriverExpectedCondition::visibilityOf($send_button)

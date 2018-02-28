@@ -64,7 +64,7 @@ class CerbEval_UI_SimulateDay1 extends CerbTestBase {
 				->click();
 			
 			$driver->wait(10)->until(
-				WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('div.output'), 'Ticket updated:')
+				WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('div.output'), 'Created:')
 			);
 		}
 		
@@ -235,7 +235,7 @@ class CerbEval_UI_SimulateDay1 extends CerbTestBase {
 				->click();
 			
 			$driver->wait(10)->until(
-				WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('div.output'), 'Ticket updated:')
+				WebDriverExpectedCondition::elementTextContains(WebDriverBy::cssSelector('div.output'), 'Created:')
 			);
 		}
 		

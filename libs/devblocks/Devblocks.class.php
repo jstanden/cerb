@@ -3298,6 +3298,8 @@ class DevblocksPlatform extends DevblocksEngine {
 
 		// Security
 		@$app_security_frameoptions = strtolower(APP_SECURITY_FRAMEOPTIONS);
+		
+		if(php_sapi_name() != 'cli')
 		switch($app_security_frameoptions) {
 			case 'none':
 				break;

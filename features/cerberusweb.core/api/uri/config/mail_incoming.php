@@ -649,7 +649,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			// If successful, delete the referenced file and update marquee
 			
 			if(is_object($dict) && !empty($dict->id)) {
-				C4_AbstractView::setMarquee($view_id, sprintf('<b>Ticket updated:</b> <a href="%s">%s</a>',
+				C4_AbstractView::setMarquee($view_id, sprintf('<b>Created:</b> <a href="%s">%s</a>',
 					$dict->url,
 					$dict->_label
 				));
