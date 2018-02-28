@@ -109,8 +109,13 @@ class Page_Search extends CerberusPageExtension {
 			$view->is_ephemeral = true;
 		
 		$view->setParamsRequiredQuery($query_required);
-		$view->addParamsWithQuickSearch($query, true);
-		$view->renderPage = 0;
+		
+		if('*' == $query) {
+			$query = null;
+		} else {
+			$view->addParamsWithQuickSearch($query, true);
+			$view->renderPage = 0;
+		}
 		
 		$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
 		$label = @$aliases['plural'] ?: $context_ext->manifest->name;

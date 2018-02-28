@@ -140,7 +140,7 @@ $(function() {
 				if(!search_context || search_context.length == 0)
 					return;
 				
-				var $window = genericAjaxPopup('search' + Devblocks.uniqueId(),'c=search&a=openSearchPopup&context=' + encodeURIComponent(search_context), null, false, '90%');
+				var $window = genericAjaxPopup('search' + Devblocks.uniqueId(),'c=search&a=openSearchPopup&context=' + encodeURIComponent(search_context) + '&q=*&qr=', null, false, '90%');
 				
 				$search_menu.hide();
 			})
