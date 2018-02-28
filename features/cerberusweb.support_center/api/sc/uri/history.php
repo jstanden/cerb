@@ -116,7 +116,8 @@ class UmScHistoryController extends Extension_UmScController {
 		$columns_selected = [];
 		if(is_array($params['columns']))
 		foreach($params['columns'] as $column_key)
-			$columns_selected[$column_key] = $columns[$column_key];
+			if(isset($columns[$column_key]))
+				$columns_selected[$column_key] = $columns[$column_key];
 		
 		$columns_available = array_diff_key($columns, $columns_selected);
 		DevblocksPlatform::sortObjects($columns_available, 'db_label');
