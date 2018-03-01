@@ -1514,7 +1514,11 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Address::WORKER_ID:
-				$label_map = [];
+				$label_map = function($ids) {
+					return array_map(function($worker) {
+						return $worker->getName();
+					}, DAO_Worker::getIds($ids));
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, SearchFields_Address::WORKER_ID, $label_map, '=', 'value');
 				break;
 				
@@ -1949,6 +1953,15 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
+			case SearchFields_Address::WORKER_ID:
+				$label_map = function($ids) {
+					return array_map(function($worker) {
+						return $worker->getName();
+					}, DAO_Worker::getIds($ids));
+				};
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -2125,6 +2138,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'num_nonspam',
 			'num_spam',
 			'mail_transport__label',
+			'worker__label',
 			'updated',
 		];
 	}
@@ -2330,7 +2344,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		// Worker
-		// Only link org placeholders if the org isn't nested under a contact already
+		// Only link worker placeholders if the worker isn't nested under an address already
 		if(1 == count($context_stack) || !in_array(CerberusContexts::CONTEXT_ADDRESS, $context_stack)) {
 			$merge_token_labels = [];
 			$merge_token_values = [];
