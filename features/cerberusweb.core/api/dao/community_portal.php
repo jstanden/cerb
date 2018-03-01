@@ -23,6 +23,8 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	const UPDATED_AT = 'updated_at';
 	const URI = 'uri';
 	
+	const _PARAMS_JSON = '_params_json';
+	
 	const _CACHE_ALL = 'dao_communitytool_all';
 	
 	private function __construct() {}
@@ -51,6 +53,11 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(128)
 			->setRequired(true)
+			;
+		$validation
+			->addField(self::_PARAMS_JSON)
+			->string()
+			->setMaxLength(65535)
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -132,10 +139,13 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
-			
+		
+		@$params_json = $fields[self::_PARAMS_JSON];
+		unset($fields[self::_PARAMS_JSON]);
+		
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
-			
+		
 		$context = CerberusContexts::CONTEXT_PORTAL;
 		self::_updateAbstract($context, $ids, $fields);
 		
@@ -153,6 +163,17 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			
 			// Make changes
 			parent::_update($batch_ids, 'community_tool', $fields);
+			
+			if(false !== (@$params = json_decode($params_json, true))) {
+				$portals = DAO_CommunityTool::getIds($ids);
+				
+				if(is_array($portals) && is_array($params))
+				foreach($portals as $portal) {
+					foreach($params as $k => $v) {
+						DAO_CommunityToolProperty::set($portal->code, $k, $v);
+					}
+				}
+			}
 			
 			// Send events
 			if($check_deltas) {
@@ -1304,6 +1325,7 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 			'id' => DAO_CommunityTool::ID,
 			'links' => '_links',
 			'name' => DAO_CommunityTool::NAME,
+			'params' => DAO_CommunityTool::_PARAMS_JSON,
 			'uri' => DAO_CommunityTool::URI,
 			'updated_at' => DAO_CommunityTool::UPDATED_AT,
 		];
@@ -1314,6 +1336,19 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
+				
+			case 'params':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_CommunityTool::_PARAMS_JSON] = $json;
 		}
 		
 		return true;
