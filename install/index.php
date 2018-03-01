@@ -865,7 +865,6 @@ switch($step) {
 						case 'customer_satisfaction':
 							$prompts = [
 								'product_name' => $setup_defaults['org_name'],
-								'portal_url' => 'https://portal.example/',
 							];
 							$json = file_get_contents(APP_PATH . '/install/packages/customer_satisfaction_package.json');
 							$results = [];

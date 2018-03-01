@@ -1,9 +1,10 @@
 {
 	"package": {
 		"name": "Customer Satisfaction Workflow",
+		"cerb_version": "8.3.0",
 		"revision": 1,
 		"requires": {
-			"cerb_version": "8.2.4",
+			"cerb_version": "8.3.0",
 			"plugins": [
 				"cerb.bots.portal.widget"
 			]
@@ -16,14 +17,6 @@
 					"key": "product_name",
 					"params": {
 						"placeholder": "Cerb"
-					}
-				},
-				{
-					"type": "text",
-					"label": "Portal URL:",
-					"key": "portal_url",
-					"params": {
-						"placeholder": "https://cerb.portal/"
 					}
 				}
 			],
@@ -182,7 +175,7 @@
 			"params": {
 				"config": {
 					"hmac_secret": "{{{hmac_secret}}}",
-					"portal_url": "{{{portal_url}}}"
+					"portal_url": "{{{default.base_url}}}portal/satisfaction/"
 				},
 				"events": {
 					"mode": "allow",
@@ -3220,14 +3213,16 @@
 			]
 		}
 	],
-	"portals": [
+	"records": [
 		{
 			"uid": "portal_surveys",
+			"_context": "community_portal",
 			"name": "Satisfaction Survey Bot",
 			"extension_id": "cerb.bots.portal",
+			"uri": "satisfaction",
 			"params": {
 				"bot_name": "Survey Bot",
-				"cors_allow_origin": "{{{portal_url}}}",
+				"cors_allow_origin": "{{{default.base_url}}}",
 				"interaction_behavior_id": "{{{uid.behavior_309}}}",
 				"page_title": "Survey Bot",
 				"page_hide_icon": "1",

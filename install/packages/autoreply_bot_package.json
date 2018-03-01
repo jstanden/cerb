@@ -1,9 +1,10 @@
 {
 	"package": {
 		"name": "Auto-Reply Bot",
+		"cerb_version": "8.0.1",
 		"revision": 1,
 		"requires": {
-			"cerb_version": "8.2.4",
+			"cerb_version": "8.0.0",
 			"plugins": [
 
 			]
@@ -192,6 +193,45 @@
 							"title": "Does the message have auto-reply characteristics?",
 							"status": "live",
 							"nodes": [
+								{
+									"type": "outcome",
+									"title": "Yes, it's a bounce",
+									"status": "live",
+									"params": {
+										"groups": [
+											{
+												"any": 1,
+												"conditions": [
+													{
+														"condition": "sender_address",
+														"oper": "like",
+														"value": "postmaster@*"
+													},
+													{
+														"condition": "sender_address",
+														"oper": "like",
+														"value": "mailer-daemon@*"
+													}
+												]
+											}
+										]
+									},
+									"nodes": [
+										{
+											"type": "action",
+											"title": "true()",
+											"status": "live",
+											"params": {
+												"actions": [
+													{
+														"action": "_run_subroutine",
+														"subroutine": "true()"
+													}
+												]
+											}
+										}
+									]
+								},
 								{
 									"type": "outcome",
 									"title": "Yes, it has an Auto-Submitted header",
