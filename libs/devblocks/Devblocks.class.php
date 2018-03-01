@@ -2030,6 +2030,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		$decimal = DevblocksPlatform::strNum($parts[1]);
 		$decimal = str_pad($decimal, $decimal_places, '0', STR_PAD_RIGHT);
 		
+		// If the given number has too much precision, truncate it
+		if(strlen($decimal) > $decimal_places)
+			$decimal = substr($decimal, 0, $decimal_places);
+		
 		$number =  $whole . $decimal;
 		
 		if(0 == $number)

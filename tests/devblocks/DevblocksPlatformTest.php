@@ -1155,6 +1155,12 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$actual = DevblocksPlatform::strParseDecimal($string, 2, ',');
 		$this->assertSame($expected, $actual);
 		
+		// Overflow decimal places
+		$string = '1.234';
+		$expected = '123';
+		$actual = DevblocksPlatform::strParseDecimal($string, 2);
+		$this->assertSame($expected, $actual);
+		
 		// Invalid number
 		$string = 'abcd';
 		$expected = '0';
