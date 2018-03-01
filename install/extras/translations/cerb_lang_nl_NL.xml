@@ -298,11 +298,6 @@
 				<seg>Mensen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="addy_book.peek.compose">
-			<tuv xml:lang="nl_NL">
-				<seg>opstellen</seg>
-			</tuv>
-		</tu>
 		<tu tuid="addy_book.peek.count.closed_tickets">
 			<tuv xml:lang="nl_NL">
 				<seg>%s gesloten ticket(s)</seg>
@@ -631,6 +626,11 @@
 		<tu tuid="common.comments">
 			<tuv xml:lang="nl_NL">
 				<seg>commentaar</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.compose">
+			<tuv xml:lang="nl_NL">
+				<seg>opstellen</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.content">

@@ -909,7 +909,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 	protected function _lazyLoadCustomFields($token, $context, $context_id, $field_values=null) {
 		$fields = DAO_CustomField::getByContext($context);
-		$token_values['custom'] = array();
+		$token_values['custom'] = [];
 
 		// If (0 == $context_id), we need to null out all the fields and return w/o queries
 		if(empty($context_id))

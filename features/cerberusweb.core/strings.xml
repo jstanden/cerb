@@ -572,6 +572,11 @@
 				<seg>comments</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.compose">
+			<tuv xml:lang="en_US">
+				<seg>compose</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.condition">
 			<tuv xml:lang="en_US">
 				<seg>condition</seg>
@@ -2852,11 +2857,6 @@
 		<tu tuid="addy_book.org.tabs.people">
 			<tuv xml:lang="en_US">
 				<seg>People</seg>
-			</tuv>
-		</tu>
-		<tu tuid="addy_book.peek.compose">
-			<tuv xml:lang="en_US">
-				<seg>compose</seg>
 			</tuv>
 		</tu>
 		<tu tuid="addy_book.peek.count.open_tickets">

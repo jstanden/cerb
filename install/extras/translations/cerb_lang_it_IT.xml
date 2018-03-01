@@ -293,11 +293,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="addy_book.peek.compose">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="addy_book.peek.count.closed_tickets">
 			<tuv xml:lang="it_IT">
 				<seg/>
@@ -624,6 +619,11 @@
 			</tuv>
 		</tu>
 		<tu tuid="common.comments">
+			<tuv xml:lang="it_IT">
+				<seg/>
+			</tuv>
+		</tu>
+		<tu tuid="common.compose">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

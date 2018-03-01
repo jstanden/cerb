@@ -298,11 +298,6 @@
 				<seg>Люди</seg>
 			</tuv>
 		</tu>
-		<tu tuid="addy_book.peek.compose">
-			<tuv xml:lang="ru_RU">
-				<seg>создать</seg>
-			</tuv>
-		</tu>
 		<tu tuid="addy_book.peek.count.closed_tickets">
 			<tuv xml:lang="ru_RU">
 				<seg>% закрыл заявку</seg>
@@ -631,6 +626,11 @@
 		<tu tuid="common.comments">
 			<tuv xml:lang="ru_RU">
 				<seg>комментарии</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.compose">
+			<tuv xml:lang="ru_RU">
+				<seg>создать</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.content">

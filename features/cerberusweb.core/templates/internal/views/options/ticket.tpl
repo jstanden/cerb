@@ -3,7 +3,7 @@
 </div>
 
 <fieldset class="peek peek-noborder black" style="margin-top:10px;">
-	<legend>{'addy_book.peek.compose'|devblocks_translate|capitalize}</legend>
+	<legend>{'common.compose'|devblocks_translate|capitalize}</legend>
 	
 	When composing mail from this worklist, set the sender to:
 	<div style="margin-left:10px;">

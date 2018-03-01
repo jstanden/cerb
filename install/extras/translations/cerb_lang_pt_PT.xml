@@ -298,11 +298,6 @@
 				<seg>Pessoas(%s)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="addy_book.peek.compose">
-			<tuv xml:lang="pt_PT">
-				<seg>compor</seg>
-			</tuv>
-		</tu>
 		<tu tuid="addy_book.peek.count.closed_tickets">
 			<tuv xml:lang="pt_PT">
 				<seg>%s ticket(s) fechado(s)</seg>
@@ -636,6 +631,11 @@
 		<tu tuid="common.comments">
 			<tuv xml:lang="pt_PT">
 				<seg>comentários</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.compose">
+			<tuv xml:lang="pt_PT">
+				<seg>compor</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.content">
