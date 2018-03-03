@@ -14,7 +14,7 @@
 <button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.upload'|devblocks_translate|capitalize}</button>
 </form>
 
-<iframe sandbox id="iframe_file_post" name="iframe_file_post" style="visibility:hidden;display:none;width:0px;height:0px;background-color:#ffffff;"></iframe>
+<iframe id="iframe_file_post" name="iframe_file_post" sandbox="allow-same-origin allow-scripts" style="visibility:hidden;display:none;width:0px;height:0px;background-color:#ffffff;"></iframe>
 <br>
 
 <script type="text/javascript">
