@@ -4,7 +4,7 @@
 <input type="hidden" name="section" value="opportunity">
 <input type="hidden" name="action" value="startBulkUpdateJson">
 <input type="hidden" name="view_id" value="{$view_id}">
-<input type="hidden" name="opp_ids" value="{$opp_ids}">
+<input type="hidden" name="ids" value="{$opp_ids}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <fieldset class="peek">

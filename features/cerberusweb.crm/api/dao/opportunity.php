@@ -247,7 +247,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			
 			// Broadcast
 			if(isset($do['broadcast']))
-				C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_OPPORTUNITY, $do['broadcast'], $ids, 'email_address');
+				C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_OPPORTUNITY, $do['broadcast'], $ids);
 			
 		} else {
 			DAO_CrmOpportunity::delete($ids);
@@ -1204,7 +1204,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	}
 };
 
-class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge {
+class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextBroadcast {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1291,7 +1291,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		);
 	}
 	
-	function getContext($opp, &$token_labels, &$token_values, $prefix=null) {
+	function getContext($id_map, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Opportunity:';
 		
@@ -1299,12 +1299,14 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_OPPORTUNITY);
 
 		// Polymorph
-		if(is_numeric($opp)) {
-			$opp = DAO_CrmOpportunity::get($opp);
-		} elseif($opp instanceof Model_CrmOpportunity) {
-			// It's what we want already.
-		} elseif(is_array($opp)) {
-			$opp = Cerb_ORMHelper::recastArrayToModel($opp, 'Model_CrmOpportunity');
+		if(is_numeric($id_map)) {
+			$opp = DAO_CrmOpportunity::get($id_map);
+		} elseif(is_array($id_map) && isset($id_map['name'])) {
+			$opp = Cerb_ORMHelper::recastArrayToModel($id_map, 'Model_CrmOpportunity');
+		} elseif(is_array($id_map) && isset($id_map['id'])) {
+			$opp = DAO_CrmOpportunity::get($id_map['id']);
+		} elseif($id_map instanceof Model_CrmOpportunity) {
+			$opp = $id_map;
 		} else {
 			$opp = null;
 		}
@@ -1315,6 +1317,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			'id' => $prefix.$translate->_('common.id'),
 			'created' => $prefix.$translate->_('common.created'),
 			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
+			'amount__label' => $prefix.$translate->_('crm.opportunity.amount') . ' ' . $translate->_('common.label'),
 			'status' => $prefix.$translate->_('common.status'),
 			'title' => $prefix.$translate->_('common.title'),
 			'updated' => $prefix.$translate->_('common.updated'),
@@ -1327,6 +1330,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'created' => Model_CustomField::TYPE_DATE,
 			'amount' => Model_CustomField::TYPE_CURRENCY,
+			'amount__label' => Model_CustomField::TYPE_SINGLE_LINE,
 			'status' => Model_CustomField::TYPE_SINGLE_LINE,
 			'title' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated' => Model_CustomField::TYPE_DATE,
@@ -1630,6 +1634,22 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		];
 		
 		return $keys;
+	}
+	
+	function broadcastRecipientFieldsGet() {
+		$results = $this->_broadcastRecipientFieldsGet(CerberusContexts::CONTEXT_OPPORTUNITY, 'Opportunity');
+		asort($results);
+		return $results;
+	}
+	
+	function broadcastPlaceholdersGet() {
+		$token_values = $this->_broadcastPlaceholdersGet(CerberusContexts::CONTEXT_DOMAIN);
+		return $token_values;
+	}
+	
+	function broadcastRecipientFieldsToEmails(array $fields, DevblocksDictionaryDelegate $dict) {
+		$emails = $this->_broadcastRecipientFieldsToEmails($fields, $dict);
+		return $emails;
 	}
 	
 	function importGetKeys() {
