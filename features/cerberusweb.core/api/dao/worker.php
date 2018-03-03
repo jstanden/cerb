@@ -858,7 +858,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		// Broadcast
 		if(isset($do['broadcast']))
-			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_WORKER, $do['broadcast'], $ids, 'address_address');
+			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_WORKER, $do['broadcast'], $ids);
 		
 		$update->markCompleted();
 		return true;
@@ -2825,7 +2825,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 	}
 };
 
-class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextBroadcast, IDevblocksContextAutocomplete {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -3227,6 +3227,24 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		return $view;
 	}
 	
+	function broadcastRecipientFieldsGet() {
+		$results = $this->_broadcastRecipientFieldsGet(CerberusContexts::CONTEXT_WORKER, 'Worker', [
+			'address_address',
+		]);
+		
+		asort($results);
+		return $results;
+	}
+	
+	function broadcastPlaceholdersGet() {
+		$token_values = $this->_broadcastPlaceholdersGet(CerberusContexts::CONTEXT_WORKER);
+		return $token_values;
+	}
+	
+	function broadcastRecipientFieldsToEmails(array $fields, DevblocksDictionaryDelegate $dict) {
+		$emails = $this->_broadcastRecipientFieldsToEmails($fields, $dict);
+		return $emails;
+	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$date = DevblocksPlatform::services()->date();
