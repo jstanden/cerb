@@ -289,7 +289,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		
 		// Broadcast
 		if(isset($do['broadcast']))
-			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_ADDRESS, $do['broadcast'], $ids, 'address');
+			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_ADDRESS, $do['broadcast'], $ids);
 		
 		$update->markCompleted();
 		return true;
@@ -525,6 +525,24 @@ class DAO_Address extends Cerb_ORMHelper {
 			return array_shift($results);
 			
 		return NULL;
+	}
+	
+	/**
+	 * @return Model_Address[]
+	 */
+	static function getByEmails(array $emails) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$in_emails = implode(',', $db->qstrArray(array_map(function($email) {
+			return DevblocksPlatform::strLower($email);
+		}, $emails)));
+		
+		$results = self::getWhere(sprintf("%s IN (%s)",
+			self::EMAIL,
+			$in_emails
+		));
+		
+		return $results;
 	}
 	
 	static function getAllWithWorker() {
@@ -2038,7 +2056,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete {
+class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextBroadcast, IDevblocksContextMerge, IDevblocksContextAutocomplete {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -2616,6 +2634,29 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		];
 		
 		return $keys;
+	}
+	
+	function broadcastRecipientFieldsGet() {
+		$token_labels = $token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $token_labels, $token_labels, $token_values, null, true);
+		
+		$results = $this->_broadcastRecipientFieldsGet(CerberusContexts::CONTEXT_ADDRESS, 'Email', [
+			'address',
+			'org_email_address',
+		]);
+		
+		asort($results);
+		return $results;
+	}
+	
+	function broadcastPlaceholdersGet() {
+		$token_values = $this->_broadcastPlaceholdersGet(CerberusContexts::CONTEXT_ADDRESS);
+		return $token_values;
+	}
+	
+	function broadcastRecipientFieldsToEmails(array $fields, DevblocksDictionaryDelegate $dict) {
+		$emails = $this->_broadcastRecipientFieldsToEmails($fields, $dict);
+		return $emails;
 	}
 	
 	function importGetKeys() {
