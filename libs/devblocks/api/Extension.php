@@ -175,6 +175,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			) {
 			foreach($custom_records as $custom_record) {
 				$options = [
+					'autocomplete' => '',
 					'cards' => '',
 					'custom_fields' => '',
 					'links' => '',
@@ -188,6 +189,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				
 				if(is_array(@$custom_record->params['options']) && in_array('hide_search', $custom_record->params['options']))
 					unset($options['search']);
+				
+				if(is_array(@$custom_record->params['options']) && in_array('avatars', $custom_record->params['options']))
+					$options['avatars'] = '';
 				
 				$context_id = sprintf('contexts.custom_record.%d', $custom_record->id);
 				$manifest = new DevblocksExtensionManifest();
@@ -204,6 +208,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					'view_class' => 'View_AbstractCustomRecord_' . $custom_record->id,
 					'acl' => [
 						0 => [
+							'broadcast' => '',
 							'comment' => '',
 							'create' => '',
 							'delete' => '',
@@ -211,6 +216,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 							'import' => '',
 							'merge' => '',
 							'update' => '',
+							'update.bulk' => '',
 						],
 					],
 					'options' => [
