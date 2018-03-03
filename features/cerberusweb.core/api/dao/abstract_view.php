@@ -3182,7 +3182,7 @@ abstract class C4_AbstractView {
 		}
 	}
 	
-	public static function _doBulkBroadcast($context, array $params, array $ids, $to_key, array $options=[]) {
+	public static function _doBulkBroadcast($context, array $params, array $ids) {
 		if(empty($params) || empty($ids))
 			return false;
 		
@@ -3190,7 +3190,9 @@ abstract class C4_AbstractView {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			if(
-				!isset($params['worker_id'])
+				!isset($params['to'])
+				|| empty($params['to'])
+				|| !isset($params['worker_id'])
 				|| empty($params['worker_id'])
 				|| !isset($params['subject'])
 				|| empty($params['subject'])
@@ -3205,35 +3207,46 @@ abstract class C4_AbstractView {
 			$models = CerberusContexts::getModels($context, $ids);
 			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context, array('custom_'));
 			
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			/* @var $context_ext IDevblocksContextBroadcast */
+			if(!($context_ext instanceof IDevblocksContextBroadcast))
+				return;
+			
 			if(is_array($dicts))
 			foreach($dicts as $id => $dict) {
 				try {
-					if(false == ($recipients = CerberusMail::parseRfcAddresses($dict->$to_key)))
+					if(false == ($recipients = $context_ext->broadcastRecipientFieldsToEmails($params['to'], $dict)))
 						continue;
 					
-					foreach($recipients as $to) {
-						@$callback_recipient_reject = $options['callback_recipient_reject'];
-						@$callback_recipient_expand = $options['callback_recipient_expand'];
+					$recipients = CerberusApplication::hashLookupAddresses($recipients, true);
+					
+					foreach($recipients as $model) {
+						// Skip banned or defuct recipients
+						if($model->is_banned || $model->is_defunct)
+							continue;
 						
-						if(is_callable($callback_recipient_expand))
-							$callback_recipient_expand($to, $dict);
+						// Remove an existing contact
+						$dict->scrubKeys('broadcast_email_');
 						
-						// Are we skipping this recipient?
-						if(is_callable($callback_recipient_reject))
-							if($callback_recipient_reject($dict))
-								continue;
+						// Prime the new contact
+						$dict->broadcast_email__context = CerberusContexts::CONTEXT_ADDRESS;
+						$dict->broadcast_email_id = $model->id;
+						$dict->broadcast_email_;
 						
+						// Templates
 						$subject = $tpl_builder->build($params['subject'], $dict);
 						$body = $tpl_builder->build($params['message'], $dict);
 						
 						$json_params = array(
-							'to' => $to['full_email'],
+							'to' => $dict->broadcast_email__label,
 							'group_id' => $params['group_id'],
 							'status_id' => $status_id,
 							'is_broadcast' => 1,
-							'context_links' => array(
-								array($context, $id),
-							),
+							'context_links' => [
+								[$context, $id],
+							],
 						);
 						
 						if(isset($params['format']))
@@ -3250,7 +3263,7 @@ abstract class C4_AbstractView {
 							DAO_MailQueue::TICKET_ID => 0,
 							DAO_MailQueue::WORKER_ID => $params['worker_id'],
 							DAO_MailQueue::UPDATED => time(),
-							DAO_MailQueue::HINT_TO => $to['full_email'],
+							DAO_MailQueue::HINT_TO => $dict->broadcast_email__label,
 							DAO_MailQueue::SUBJECT => $subject,
 							DAO_MailQueue::BODY => $body,
 							DAO_MailQueue::PARAMS_JSON => json_encode($json_params),

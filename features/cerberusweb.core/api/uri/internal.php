@@ -2992,13 +2992,18 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(false == ($context_ext = Extension_DevblocksContext::getByViewClass($view_class, true)))
 			return;
 		
+		/* @var $context_ext IDevblocksContextBroadcast */
+		if(!($context_ext instanceof IDevblocksContextBroadcast)) {
+			echo "ERROR: This record type does not support broadcasts."; 
+			return;
+		}
+		
 		$dao_class = $context_ext->getDaoClass();
 		$search_class = $context_ext->getSearchClass();
 		
-		$pkey = $search_class::getPrimaryKey();
-
 		$tpl = DevblocksPlatform::services()->template();
 		
+		@$broadcast_to = DevblocksPlatform::importGPC($_REQUEST['broadcast_to'],'array',[]);
 		@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
 		@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
 		@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
@@ -3010,14 +3015,14 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		// Filter to checked
 		if('checks' == $filter && !empty($ids)) {
-			$view->addParam(new DevblocksSearchCriteria($pkey,'in',explode(',', $ids)));
+			$view->addParam(new DevblocksSearchCriteria($search_class::ID, 'in', explode(',', $ids)));
 		}
 		
 		$results = $view->getDataSample(1);
 		
 		if(empty($results)) {
 			$success = false;
-			$output = "There aren't any rows in this view!";
+			$output = "ERROR: This worklist is empty.";
 			
 		} else {
 			@$model = $dao_class::get(current($results));
@@ -3026,25 +3031,23 @@ class ChInternalController extends DevblocksControllerExtension {
 			CerberusContexts::getContext($context_ext->id, $model, $token_labels, $token_values);
 			$dict = DevblocksDictionaryDelegate::instance($token_values);
 			
-			// [TODO] Hack!!!
-			switch($context_ext->id) {
-				case CerberusContexts::CONTEXT_DOMAIN:
-					// Load the contacts from a CSV placeholder
-					$contacts = CerberusMail::parseRfcAddresses($dict->contacts_list);
-					
-					if(empty($contacts))
-						break;
-					
-					shuffle($contacts);
-					
-					// Randomize the address
-					$contact = DAO_Address::lookupAddress($contacts[0]['email'], true);
-					
-					$dict->contact__context = CerberusContexts::CONTEXT_ADDRESS;
-					$dict->contact_id = $contact->id;
-					break;
+			if(false == ($recipients = $context_ext->broadcastRecipientFieldsToEmails($broadcast_to, $dict))) {
+				echo DevblocksPlatform::strEscapeHtml(sprintf("ERROR: This record doesn't contain any recipients: %s", $dict->_label));
+				return;
 			}
-
+			
+			shuffle($recipients);
+			
+			if(false == ($email = DAO_Address::lookupAddress($recipients[0], true)))
+				return;
+			
+			// Load recipient placeholders
+			$dict->broadcast_email__context = CerberusContexts::CONTEXT_ADDRESS;
+			$dict->broadcast_email_id = $email->id;
+			$dict->broadcast_email_;
+			
+			// Templates
+			
 			if(!empty($broadcast_subject)) {
 				$template = "Subject: $broadcast_subject\n\n$broadcast_message";
 			} else {

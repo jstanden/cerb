@@ -1,32 +1,40 @@
 <fieldset class="peek">
-	<legend>Send Broadcast</legend>
-	<label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkBroadcastContainer').toggle();"> {'common.enabled'|devblocks_translate|capitalize}</label>
+	<legend><label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkBroadcastContainer').toggle();"> Send Broadcast</label></legend>
 	<input type="hidden" name="broadcast_format" value="">
 
-	<blockquote id="bulkBroadcastContainer" style="display:none;margin:10px;">
-		<b>From:</b>
+	<blockquote id="bulkBroadcastContainer" style="display:none;margin:0px 10px 10px 10px;">
+		<b>{'message.header.from'|devblocks_translate|capitalize}:</b>
 		
 		<div style="margin:0px 0px 5px 10px;">
-			<select name="broadcast_group_id">
-				{foreach from=$groups item=group key=group_id}
-				{if $active_worker_memberships.$group_id}
-				<option value="{$group->id}">{$group->name}</option>
-				{/if}
-				{/foreach}
-			</select>
+			<button type="button" class="chooser-broadcast-group" data-field-name="broadcast_group_id" data-context="{CerberusContexts::CONTEXT_GROUP}" data-single="true" data-query="" data-query-required="member:(id:{$active_worker->id})" data-autocomplete="member:(id:{$active_worker->id})" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+			
+			<ul class="bubbles chooser-container">
+			</ul>
 		</div>
 		
+		{if $broadcast_recipient_fields}
+		<b>{'message.header.to'|devblocks_translate|capitalize}:</b>
+		
+		<div style="margin:0px 0px 5px 10px;">
+			{foreach from=$broadcast_recipient_fields item=recipient_label key=recipient_field}
+			<div>
+				<label><input type="checkbox" name="broadcast_to[]" value="{$recipient_field}"> {$recipient_label}</label>
+			</div>
+			{/foreach}
+		</div>
+		{/if}
+		
 		{if $is_reply}
-			<b>Reply:</b>
+			<b>{'common.reply'|devblocks_translate|capitalize}:</b>
 			
 		{else}
-			<b>Subject:</b>
+			<b>{'message.header.subject'|devblocks_translate|capitalize}:</b>
 			
 			<div style="margin:0px 0px 5px 10px;">
 				<input type="text" name="broadcast_subject" value="" style="width:100%;">
 			</div>
 			
-			<b>Compose:</b>
+			<b>{'common.compose'|devblocks_translate|capitalize}:</b>
 		{/if}
 		
 		<div style="margin:0px 0px 5px 10px;">

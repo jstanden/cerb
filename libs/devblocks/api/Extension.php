@@ -100,6 +100,12 @@ interface IDevblocksContextMerge {
 	function mergeGetKeys();
 }
 
+interface IDevblocksContextBroadcast {
+	function broadcastPlaceholdersGet();
+	function broadcastRecipientFieldsGet();
+	function broadcastRecipientFieldsToEmails(array $fields, DevblocksDictionaryDelegate $dict);
+}
+
 interface IDevblocksContextProfile {
 	function profileGetUrl($context_id);
 }
@@ -814,6 +820,194 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 	function lazyLoadContextValues($token, $dictionary) { return array(); }
 
+	protected function _broadcastRecipientFieldsGet($context, $context_label, array $use=[]) {
+		$token_labels = $token_values = [];
+		CerberusContexts::getContext($context, $context_label, $token_labels, $token_values, null, true);
+		
+		$labels = $token_values['_labels'];
+		
+		$custom_fields = DAO_CustomField::getAll();
+		
+		// Include any known email addresses or workers
+		$results = [
+			'links.address' => $context_label . ' linked email addresses',
+			'links.contacts' => $context_label . ' linked contacts',
+			'links.orgs' => $context_label . ' linked organizations',
+			'links.worker' => $context_label . ' watchers',
+		];
+		
+		// Append specified keys
+		foreach($use as $k)
+			if(isset($labels[$k]))
+				$results[$k] = $labels[$k];
+		
+		array_walk($labels, function($label, $key) use ($custom_fields, $labels, &$results) {
+			if(preg_match('#^(.*?)\_*custom\_(\d+)$#', $key, $matches)) {
+				$field_id = $matches[2];
+				
+				if(false == (@$field = $custom_fields[$field_id]))
+					return;
+				
+				switch($field->type) {
+					case Model_CustomField::TYPE_LINK:
+						switch($field->params['context']) {
+							case CerberusContexts::CONTEXT_ADDRESS:
+							case CerberusContexts::CONTEXT_CONTACT:
+							case CerberusContexts::CONTEXT_ORG:
+							case CerberusContexts::CONTEXT_WORKER:
+								$results[$key] = $labels[$key . '__label'];
+								break;
+						}
+						break;
+						
+					case Model_CustomField::TYPE_WORKER:
+						$results[$key] = $label;
+						break;
+				}
+			}
+		});
+		
+		return $results;
+	}
+	
+	protected function _broadcastPlaceholdersGet($context) {
+		$token_labels = $token_values = [];
+		CerberusContexts::getContext($context, null, $token_labels, $token_values, null, true);
+		
+		$merge_token_labels = $merge_token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, null, true);
+
+		CerberusContexts::merge(
+			'broadcast_email_',
+			'Broadcast ',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		return $token_values;
+	}
+	
+	protected function _broadcastRecipientFieldsToEmails(array $fields, DevblocksDictionaryDelegate $dict) {
+		$emails = [];
+		$custom_fields = DAO_CustomField::getAll();
+		
+		foreach($fields as $field) {
+			switch($field) {
+				case 'links.address':
+					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_ADDRESS));
+					$results = [];
+					
+					if(is_array($links) && !empty($links)) {
+						$addresses = DAO_Address::getIds(array_keys($links));
+						$addresses = array_column(DevblocksPlatform::objectsToArrays($addresses), 'email', 'id');
+						$emails = array_merge($emails, array_values($addresses));
+					}
+					break;
+					
+				case 'links.contacts':
+					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_CONTACT));
+					$results = [];
+					
+					if(is_array($links) && !empty($links)) {
+						$contacts = DAO_Contact::getIds(array_keys($links));
+						$address_ids = array_column(DevblocksPlatform::objectsToArrays($contacts), 'primary_email_id', 'id');
+						$addresses = DAO_Address::getIds($address_ids);
+						$addresses = array_column(DevblocksPlatform::objectsToArrays($addresses), 'email', 'id');
+						$emails = array_merge($emails, array_values($addresses));
+					}
+					break;
+					
+				case 'links.orgs':
+					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_ORG));
+					$results = [];
+					
+					if(is_array($links) && !empty($links)) {
+						$orgs = DAO_ContactOrg::getIds(array_keys($links));
+						$address_ids = array_column(DevblocksPlatform::objectsToArrays($orgs), 'email_id', 'id');
+						$addresses = DAO_Address::getIds($address_ids);
+						$addresses = array_column(DevblocksPlatform::objectsToArrays($addresses), 'email', 'id');
+						$emails = array_merge($emails, array_values($addresses));
+					}
+					break;
+					
+				case 'links.worker':
+					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_WORKER));
+					$results = [];
+					
+					if(is_array($links) && !empty($links)) {
+						$workers = DAO_Worker::getIds(array_keys($links));
+						$address_ids = array_column(DevblocksPlatform::objectsToArrays($workers), 'email_id', 'id');
+						$addresses = DAO_Address::getIds($address_ids);
+						$addresses = array_column(DevblocksPlatform::objectsToArrays($addresses), 'email', 'id');
+						$emails = array_merge($emails, array_values($addresses));
+					}
+					break;
+					
+				default:
+					if(preg_match('#^(.*?)\_*custom\_(\d+)$#', $field, $matches)) {
+						$field_id = $matches[2];
+						
+						if(false == ($custom_field = $custom_fields[$field_id]))
+							break;
+						
+						switch($custom_field->type) {
+							case Model_CustomField::TYPE_LINK:
+								switch($custom_field->params['context']) {
+									case CerberusContexts::CONTEXT_ADDRESS:
+										if(false != ($email = $dict->get($field . '__label')))
+											$emails[] = $email;
+										break;
+										
+									case CerberusContexts::CONTEXT_CONTACT:
+										$field_key = $field . '_email_address_id';
+										$dict->$field_key;
+										
+										if(false != ($email = $dict->get($field . '_email_address')))
+											$emails[] = $email;
+										break;
+										
+									case CerberusContexts::CONTEXT_ORG:
+										$field_key = $field . '_email_address_id';
+										$dict->$field_key;
+										
+										if(false != ($email = $dict->get($field . '_email_address')))
+											$emails[] = $email;
+										break;
+										
+									case CerberusContexts::CONTEXT_WORKER:
+										$field_key = $field . '_address_id';
+										$dict->$field_key;
+										
+										if(false != ($email = $dict->get($field . '_address_address')))
+											$emails[] = $email;
+										break;
+								}
+								break;
+								
+							case Model_CustomField::TYPE_WORKER:
+								$field_key = $field . '_address_id';
+								$dict->$field_key;
+						
+								$email = $dict->get($field . '_address_address');
+								if($email)
+									$emails[] = $email;
+								break;
+						}
+						
+					} else {
+						if(isset($dict->$field) && !empty($dict->$field)) {
+							$emails[] = $dict->$field;
+						}
+					}
+					break;
+			}
+		}
+		
+		return $emails;
+	}
+	
 	protected function _getDaoCustomFieldsFromKeysAndValues($context, array &$data, &$out_custom_fields, &$error=null) {
 		$error = null;
 		$custom_fields = null;

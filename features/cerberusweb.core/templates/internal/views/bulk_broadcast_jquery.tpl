@@ -1,5 +1,9 @@
 var $content = $popup.find('textarea[name=broadcast_message]');
 
+$popup.find('button.chooser-broadcast-group')
+	.cerbChooserTrigger()
+	;
+
 // Broadcast
 
 var $placeholder_menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
