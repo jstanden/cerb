@@ -1029,7 +1029,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function filter_secs_pretty($string, $precision=0) {
-		if(!is_string($string))
+		if(!is_numeric($string))
 			return '';
 		
 		return DevblocksPlatform::strSecsToString($string, $precision);
