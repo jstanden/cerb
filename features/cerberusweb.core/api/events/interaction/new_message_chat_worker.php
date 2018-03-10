@@ -540,12 +540,21 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$actions =& $dict->_actions;
 
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$options = $tpl_builder->build($params['options'], $dict);
-				$style = $tpl_builder->build(@$params['style'], $dict);
-
+				
+				@$options = $tpl_builder->build($params['options'], $dict);
+				@$style = $tpl_builder->build($params['style'], $dict);
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
+				
 				$actions[] = array(
 					'_action' => 'prompt.buttons',
 					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
 					'options' => DevblocksPlatform::parseCrlfString($options),
 					'style' => $style,
 				);
@@ -557,14 +566,23 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$actions =& $dict->_actions;
 
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
 				@$context = $params['context'];
 				@$query = $tpl_builder->build($params['query'], $dict);
 				@$selection = $params['selection'];
 				@$autocomplete = !empty($params['autocomplete']);
-
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
+				
 				$actions[] = array(
 					'_action' => 'prompt.chooser',
 					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
 					'context' => $context,
 					'query' => $query,
 					'selection' => $selection,
@@ -578,11 +596,20 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$actions =& $dict->_actions;
 
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
 				$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
 
 				$actions[] = array(
 					'_action' => 'prompt.date',
 					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
 					'placeholder' => $placeholder,
 				);
 
@@ -591,7 +618,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 
 			case 'prompt_file':
 				$actions =& $dict->_actions;
-
+				
 				$actions[] = array(
 					'_action' => 'prompt.file',
 					'_trigger_id' => $trigger->id,
@@ -604,11 +631,21 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$actions =& $dict->_actions;
 
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
 				$images = $params['images'];
 				$labels = $params['labels'];
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
+				
 				$actions[] = array(
 					'_action' => 'prompt.images',
 					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
 					'images' => $images,
 					'labels' => $labels,
 				);
@@ -624,10 +661,18 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
 				@$default = $tpl_builder->build($params['default'], $dict);
 				@$mode = $params['mode'];
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
 
 				$actions[] = array(
 					'_action' => 'prompt.text',
 					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
 					'placeholder' => $placeholder,
 					'default' => $default,
 					'mode' => $mode,

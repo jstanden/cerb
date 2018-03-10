@@ -2311,6 +2311,16 @@
 				<seg>Record URL</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.validate">
+			<tuv xml:lang="en_US">
+				<seg>validate</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.validation">
+			<tuv xml:lang="en_US">
+				<seg>validation</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.value">
 			<tuv xml:lang="en_US">
 				<seg>value</seg>

@@ -495,8 +495,12 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				$actions =& $dict->_actions;
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$options = $tpl_builder->build(@$params['options'], $dict);
-				$style = $tpl_builder->build(@$params['style'], $dict);
+				
+				@$options = $tpl_builder->build($params['options'], $dict);
+				@$style = $tpl_builder->build($params['style'], $dict);
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
 				
 				@$color_from = $params['color_from'];
 				@$color_to = $params['color_to'];
@@ -517,6 +521,11 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				$actions[] = array(
 					'_action' => 'prompt.buttons',
 					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
 					'options' => DevblocksPlatform::parseCrlfString($options),
 					'style' => $style,
 					'color_from' => $color_from,
@@ -531,11 +540,21 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				$actions =& $dict->_actions;
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$images = $params['images'];
-				$labels = $params['labels'];
+				
+				@$images = $params['images'];
+				@$labels = $params['labels'];
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
+				
 				$actions[] = array(
 					'_action' => 'prompt.images',
 					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
 					'images' => $images,
 					'labels' => $labels,
 				);
@@ -545,6 +564,10 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				
 			case 'prompt_rating_number':
 				$actions =& $dict->_actions;
+				
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
 				
 				$options = [
 					'range_from' => @$params['range_from'] ?: 0,
@@ -559,12 +582,17 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				$actions[] = array(
 					'_action' => 'prompt.rating.number',
 					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
 					'options' => $options,
 				);
 				
 				$dict->__exit = 'suspend';
 				break;
-				
+			
 			case 'prompt_text':
 				$actions =& $dict->_actions;
 				
@@ -573,10 +601,18 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
 				@$default = $tpl_builder->build($params['default'], $dict);
 				@$mode = $params['mode'];
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
 				
 				$actions[] = array(
 					'_action' => 'prompt.text',
 					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
 					'placeholder' => $placeholder,
 					'default' => $default,
 					'mode' => $mode,

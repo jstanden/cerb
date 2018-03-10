@@ -191,7 +191,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			
 			$node_id = DAO_DecisionNode::create($fields);
 			
-			if(isset($node['nodes']) && is_array($node['nodes']))
+			if(isset($node['nodes']) && is_array($node['nodes']) && !empty($node['nodes']))
 				if(false == ($result = self::recursiveImportDecisionNodes($node['nodes'], $behavior_id, $node_id)))
 					return false;
 		}
@@ -332,7 +332,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	
 	static function getByEvent($event_id, $with_disabled=false) {
 		$vas = DAO_Bot::getAll();
-		$behaviors = array();
+		$behaviors = [];
 
 		foreach($vas as $va) { /* @var $va Model_Bot */
 			$va_behaviors = $va->getBehaviors($event_id, $with_disabled, 'priority');
@@ -1308,6 +1308,21 @@ class Model_TriggerEvent {
 		} while($loop);
 		
 		return $pass;
+	}
+	
+	function prepareResumeDecisionTree($message, &$interaction, &$actions, &$dict, &$resume_path) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		// Do we have special prompt handling instructions?
+		if(isset($interaction->session_data['_prompt'])) {
+			// Are we saving a copy of the latest message into a placeholder?
+			if(false != (@$var = $interaction->session_data['_prompt']['var'])) {
+					$dict->set($var, $message);
+			}
+			unset($interaction->session_data['_prompt']);
+		}
+		
+		return true;
 	}
 	
 	function logUsage($runtime_ms) {

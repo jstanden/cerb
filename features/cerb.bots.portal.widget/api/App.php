@@ -223,7 +223,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						if(false == (@$bot_name = $interaction->session_data['bot_name']))
 							$bot_name = 'Cerb';
 						
-						$actions = array();
+						$actions = [];
 						
 						if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 							return;
@@ -272,7 +272,10 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						$dict = new DevblocksDictionaryDelegate($values);
 							
 						$resume_path = @$interaction->session_data['behaviors'][$behavior->id]['path'];
+						
 						if($resume_path) {
+							$behavior->prepareResumeDecisionTree($message, $interaction, $actions, $dict, $resume_path);
+							
 							if(false == ($result = $behavior->resumeDecisionTree($dict, false, $event, $resume_path)))
 								return;
 							
@@ -319,6 +322,11 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						$tpl->assign('bot_name', $bot_name);
 						
 						foreach($actions as $params) {
+							// Are we handling the next response message in a special way?
+							if(isset($params['_prompt']) && is_array($params['_prompt'])) {
+								$interaction->session_data['_prompt'] = $params['_prompt'];
+							}
+							
 							switch(@$params['_action']) {
 								case 'behavior.switch':
 									@$variables = $params['behavior_variables'];
