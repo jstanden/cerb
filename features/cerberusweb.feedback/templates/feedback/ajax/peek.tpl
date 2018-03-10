@@ -6,12 +6,10 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>Properties</legend>
-	
+<div>
 	<b>{'feedback_entry.quote_address'|devblocks_translate|capitalize}:</b> ({'feedback.peek.quote.tooltip'|devblocks_translate})<br>
 	
-	<button type="button" class="chooser-abstract" data-field-name="quote_address_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-abstract" data-field-name="quote_address_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 	
 	<ul class="bubbles chooser-container">
 		{if $address}
@@ -34,7 +32,7 @@
 	
 	<b>{'feedback_entry.source_url'|devblocks_translate|capitalize}:</b> ({'common.optional'|devblocks_translate|lower})<br>
 	<input type="text" name="url" size="45" maxlength="255" style="width:98%;" value="{$model->source_url}"><br>
-</fieldset>
+</div>
 
 {if !empty($custom_fields)}
 <fieldset class="peek">
