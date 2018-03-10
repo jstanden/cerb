@@ -758,6 +758,8 @@ var ajax = new cAjaxCalls();
 			});
 			
 			$editor.on('cerb.insertAtCursor', function(e) {
+				if(e.replace)
+					editor.session.setValue('');
 				editor.insertSnippet(e.content);
 				editor.focus();
 			});
