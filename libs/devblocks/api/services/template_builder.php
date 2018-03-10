@@ -376,6 +376,10 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		return $this->$name;
 	}
 	
+	public function set($name, $value) {
+		return $this->$name = $value;
+	}
+	
 	public function &__get($name) {
 		if($this->exists($name))
 			return $this->_dictionary[$name];
