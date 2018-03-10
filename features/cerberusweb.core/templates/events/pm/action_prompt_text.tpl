@@ -27,6 +27,11 @@
 	<textarea name="{$namePrefix}[var_format]" class="placeholders">{$params.var_format|default:'{{message}}'}</textarea>
 </div>
 
+<b>Validate the placeholder with this template:</b>
+<div style="margin-left:10px;margin-bottom:0.5em;">
+	<textarea name="{$namePrefix}[var_validate]" class="placeholders">{$params.var_validate}</textarea>
+</div>
+
 <script type="text/javascript">
 $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');

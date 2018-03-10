@@ -1323,6 +1323,23 @@ class Model_TriggerEvent {
 				} else {
 					$dict->set($var, $message);
 				}
+				
+				if(false != (@$validate_tpl = $interaction->session_data['_prompt']['validate'])) {
+					$validation_result = trim($tpl_builder->build($validate_tpl, $dict));
+					
+					if(!empty($validation_result)) {
+						// Synthesize a response
+						$actions[] = [
+							'_action' => 'message.send',
+							'message' => $validation_result,
+							'format' => '',
+							'delay_ms' => '1000',
+						];
+						
+						// Replay the last action node containing the prompt
+						array_splice($resume_path,-1,1);
+					}
+				}
 			}
 			unset($interaction->session_data['_prompt']);
 		}
