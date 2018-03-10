@@ -7,6 +7,8 @@
 	{$event_point = $context_to_macros.{$context_data.context}}
 	{if $event_point && !$context_data.is_polymorphic}
 	<option value="{$val_key}" data-event="{$event_point}" {if $params.on==$val_key}{$selected_event = $event_point}selected="selected"{/if}>{$context_data.label}</option>
+	{elseif $context_data.is_polymorphic}
+	<option value="{$val_key}" data-event="event.macro.*" {if $params.on==$val_key}{$selected_event = $event_point}selected="selected"{/if}>{$context_data.label}</option>
 	{/if}
 	{/foreach}
 </select>
