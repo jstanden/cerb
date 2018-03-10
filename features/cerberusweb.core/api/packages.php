@@ -275,6 +275,16 @@ class Cerb_Packages {
 			}
 		}
 		
+		@$behaviors = $json['behaviors'];
+		
+		if(is_array($behaviors))
+		foreach($behaviors as $behavior) {
+			$keys_to_require = ['uid','bot_id','title','is_disabled','is_private','priority','event','nodes'];
+			$diff = array_diff_key(array_flip($keys_to_require), $behavior);
+			if(count($diff))
+				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: behavior is missing properties (%s)", implode(', ', array_keys($diff))));
+		}
+		
 		@$workspaces = $json['workspaces'];
 		
 		if(is_array($workspaces))
@@ -531,6 +541,20 @@ class Cerb_Packages {
 				
 				$uids[$uid] = $behavior_id;
 			}
+		}
+		
+		@$behaviors = $json['behaviors'];
+		
+		if(is_array($behaviors))
+		foreach($behaviors as $behavior) {
+			$uid = $behavior['uid'];
+			
+			$behavior_id = DAO_TriggerEvent::create([
+				DAO_TriggerEvent::TITLE => $behavior['title'],
+				DAO_TriggerEvent::BOT_ID => $behavior['bot_id'],
+			]);
+			
+			$uids[$uid] = $behavior_id;
 		}
 		
 		@$workspaces = $json['workspaces'];
@@ -934,7 +958,7 @@ class Cerb_Packages {
 				DAO_TriggerEvent::update($id, [
 					DAO_TriggerEvent::EVENT_POINT => $behavior['event']['key'],
 					DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
-					DAO_TriggerEvent::IS_DISABLED => 1, // @$behavior['is_disabled'] ? 1 : 0, // until successfully imported
+					DAO_TriggerEvent::IS_DISABLED => 1, // until successfully imported
 					DAO_TriggerEvent::IS_PRIVATE => @$behavior['is_private'] ? 1 : 0,
 					DAO_TriggerEvent::PRIORITY => @$behavior['priority'],
 					DAO_TriggerEvent::TITLE => $behavior['title'],
@@ -963,6 +987,51 @@ class Cerb_Packages {
 					'label' => $behavior['title'],
 				];
 			}
+		}
+		
+		@$behaviors = $json['behaviors'];
+		
+		if(is_array($behaviors))
+		foreach($behaviors as $behavior) {
+			$uid = $behavior['uid'];
+			$id = $uids[$uid];
+			
+			@$event_params = isset($behavior['event']['params']) ? $behavior['event']['params'] : '';
+			$error = null;
+
+			if(false != (@$event = Extension_DevblocksEvent::get($behavior['event']['key'], true)))
+				$event->prepareEventParams(null, $event_params, $error);
+			
+			DAO_TriggerEvent::update($id, [
+				DAO_TriggerEvent::EVENT_POINT => $behavior['event']['key'],
+				DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
+				DAO_TriggerEvent::IS_DISABLED => 1, // until successfully imported
+				DAO_TriggerEvent::IS_PRIVATE => @$behavior['is_private'] ? 1 : 0,
+				DAO_TriggerEvent::PRIORITY => @$behavior['priority'],
+				DAO_TriggerEvent::TITLE => $behavior['title'],
+				DAO_TriggerEvent::UPDATED_AT => time(),
+				DAO_TriggerEvent::VARIABLES_JSON => isset($behavior['variables']) ? json_encode($behavior['variables']) : '',
+			]);
+			
+			// Create records for all child nodes and link them to the proper parents
+			
+			if(isset($behavior['nodes']) && !empty($behavior['nodes']))
+			if(false == DAO_TriggerEvent::recursiveImportDecisionNodes($behavior['nodes'], $id, 0))
+				throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
+			
+			// Enable the new behavior since we've succeeded
+			
+			DAO_TriggerEvent::update($id, array(
+				DAO_TriggerEvent::IS_DISABLED => @$behavior['is_disabled'] ? 1 : 0,
+			));
+			
+			if(!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR]))
+				$records_created[CerberusContexts::CONTEXT_BEHAVIOR] = [];
+			
+			$records_created[CerberusContexts::CONTEXT_BEHAVIOR][$uid] = [
+				'id' => $id,
+				'label' => $behavior['title'],
+			];
 		}
 		
 		@$workspaces = $json['workspaces'];
