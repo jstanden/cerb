@@ -9,102 +9,100 @@
 <input type="hidden" name="id" value="{$model->id|default:0}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
+	{if !$model->id}
+	<tr>
+		<td width="100%" colspan="2">
+			<label><input type="radio" name="mode" value="build" checked="checked"> Build</label>
+			<label><input type="radio" name="mode" value="import"> {'common.import'|devblocks_translate|capitalize}</label>
+		</td>
+	</tr>
+	{/if}
 	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		{if !$model->id}
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.bot'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			{if !$model->id}
+				<button type="button" class="chooser-abstract" data-field-name="bot_id" data-context="{CerberusContexts::CONTEXT_BOT}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+				
+				<ul class="bubbles chooser-container">
+					{if $bot}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
+					{/if}
+				</ul>
+			{else}
+				{if $bot}
+					<ul class="bubbles chooser-container">
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
+					</ul>
+				{/if}
+			{/if}
+		</td>
+	</tr>
+	
+	<tbody class="behavior-import" style="display:none;">
 		<tr>
 			<td width="100%" colspan="2">
-				<label><input type="radio" name="mode" value="build" checked="checked"> Build</label>
-				<label><input type="radio" name="mode" value="import"> {'common.import'|devblocks_translate|capitalize}</label>
+				<textarea name="import_json" style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false" placeholder="Paste a behavior in JSON format"></textarea>
 			</td>
 		</tr>
-		{/if}
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.bot'|devblocks_translate|capitalize}:</b></td>
+	</tbody>
+	
+	<tbody class="behavior-build">
+		<tr class="behavior-event">
+			<td width="1%" nowrap="nowrap" valign="top">
+				<b>{'common.event'|devblocks_translate|capitalize}:</b>
+			</td>
 			<td width="99%">
-				{if !$model->id}
-					<button type="button" class="chooser-abstract" data-field-name="bot_id" data-context="{CerberusContexts::CONTEXT_BOT}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
-					
-					<ul class="bubbles chooser-container">
-						{if $bot}
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
-						{/if}
+				{if $ext}
+					<ul class="bubbles">
+						<li>{$ext->manifest->name}</li>
 					</ul>
 				{else}
-					{if $bot}
-						<ul class="bubbles chooser-container">
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$bot->id}{/devblocks_url}?v={$bot->updated_at}"><input type="hidden" name="bot_id" value="{$bot->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$bot->id}">{$bot->name}</a></li>
-						</ul>
+				<div class="events-widget" style="display:none;">
+					{if $events_menu}
+						{include file="devblocks:cerberusweb.core::internal/peek/menu_behavior_event.tpl"}
+					{else}
+						(choose a bot to see available events)
 					{/if}
+				</div>
 				{/if}
+				
+				<div class="event-params">
+				{if $ext && method_exists($ext,'renderEventParams')}
+				{$ext->renderEventParams($model)}
+				{/if}
+				</div>
 			</td>
 		</tr>
 		
-		<tbody class="behavior-import" style="display:none;">
-			<tr>
-				<td width="100%" colspan="2">
-					<textarea name="import_json" style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false" placeholder="Paste a behavior in JSON format"></textarea>
-				</td>
-			</tr>
-		</tbody>
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="title" value="{$model->title}" style="width:100%;" autocomplete="off" spellcheck="false" autofocus="autofocus"><br>
+			</td>
+		</tr>
 		
-		<tbody class="behavior-build">
-			<tr class="behavior-event">
-				<td width="1%" nowrap="nowrap" valign="top">
-					<b>{'common.event'|devblocks_translate|capitalize}:</b>
-				</td>
-				<td width="99%">
-					{if $ext}
-						<ul class="bubbles">
-							<li>{$ext->manifest->name}</li>
-						</ul>
-					{else}
-					<div class="events-widget" style="display:none;">
-						{if $events_menu}
-							{include file="devblocks:cerberusweb.core::internal/peek/menu_behavior_event.tpl"}
-						{else}
-							(choose a bot to see available events)
-						{/if}
-					</div>
-					{/if}
-					
-					<div class="event-params">
-					{if $ext && method_exists($ext,'renderEventParams')}
-					{$ext->renderEventParams($model)}
-					{/if}
-					</div>
-				</td>
-			</tr>
-			
-			<tr>
-				<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-				<td width="99%">
-					<input type="text" name="title" value="{$model->title}" style="width:100%;" autocomplete="off" spellcheck="false" autofocus="autofocus"><br>
-				</td>
-			</tr>
-			
-			<tr>
-				<td width="1%" nowrap="nowrap"><b>{'common.priority'|devblocks_translate|capitalize}:</b></td>
-				<td width="99%">
-					<input type="text" name="priority" value="{$model->priority|default:50}" placeholder="50" maxlength="2" style="width:50px" autocomplete="off" spellcheck="false">
-				</td>
-			</tr>
-			
-			<tr>
-				<td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate|capitalize}:</b></td>
-				<td width="99%">
-					<label><input type="radio" name="is_disabled" value="0" {if empty($model->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
-					<label><input type="radio" name="is_disabled" value="1" {if !empty($model->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
-				</td>
-			</tr>
-			
-		</tbody>
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.priority'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<input type="text" name="priority" value="{$model->priority|default:50}" placeholder="50" maxlength="2" style="width:50px" autocomplete="off" spellcheck="false">
+			</td>
+		</tr>
 		
-	</table>
-</fieldset>
+		<tr>
+			<td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<label><input type="radio" name="is_disabled" value="0" {if empty($model->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="is_disabled" value="1" {if !empty($model->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
+			</td>
+		</tr>
+		
+		{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+		{/if}
+	</tbody>
+</table>
 
 <fieldset class="peek behavior-variables">
 	<legend style="color:inherit;">{'common.variables'|devblocks_translate|capitalize}</legend>
@@ -150,13 +148,6 @@
 		</ul>
 	</div>
 </fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_BEHAVIOR context_id=$model->id}
 

@@ -176,7 +176,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				if($id && false == ($task = DAO_Task::get($id)))
 					throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
 				
-				$fields = array();
+				$fields = [];
 	
 				// Title
 				@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');

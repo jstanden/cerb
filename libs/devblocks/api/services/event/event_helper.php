@@ -2136,7 +2136,7 @@ class DevblocksEventHelper {
 		
 		$values_to_contexts = $event->getValuesContexts($trigger);
 		$tpl->assign('values_to_contexts', $values_to_contexts);
-
+		
 		$context_to_macros = DevblocksEventHelper::getContextToMacroMap();
 		$tpl->assign('context_to_macros', $context_to_macros);
 		$tpl->assign('events_to_contexts', array_flip($context_to_macros));
@@ -2174,7 +2174,7 @@ class DevblocksEventHelper {
 		
 		// Variables as parameters
 		
-		$vars = array();
+		$vars = [];
 		
 		if(is_array($params))
 		foreach($params as $k => $v) {
@@ -2351,11 +2351,10 @@ class DevblocksEventHelper {
 					if(null != (@$runner = $runners[$behavior->id])) {
 						$dict->$var = $runner;
 					}
-					
 				}
 			}
 		}
-
+		
 		return;
 	}
 	
