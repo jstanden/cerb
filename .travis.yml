@@ -8,6 +8,7 @@ services:
 php:
   - 7.0
   - 7.1
+  - 7.2
   
 before_script:
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then pecl install mailparse; fi
