@@ -89,8 +89,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 		// varchar(255)
 		$validation
 			->addField(self::SOURCE_URL)
-			->string()
-			->setMaxLength(255)
+			->url()
 			;
 		// int(10) unsigned
 		$validation
@@ -1094,91 +1093,128 @@ class ChFeedbackController extends DevblocksControllerExtension {
 	function saveEntryAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// Make sure we're an active worker
-		if(empty($active_worker) || empty($active_worker->id))
-			return;
-		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		try {
+			// Make sure we're an active worker
+			if(empty($active_worker) || empty($active_worker->id))
+				return;
 			
-		@$quote_address_id = DevblocksPlatform::importGPC($_POST['quote_address_id'],'integer',0);
-		@$mood = DevblocksPlatform::importGPC($_POST['mood'],'integer',0);
-		@$quote = DevblocksPlatform::importGPC($_POST['quote'],'string','');
-		@$url = DevblocksPlatform::importGPC($_POST['url'],'string','');
-		@$source_extension_id = DevblocksPlatform::importGPC($_POST['source_extension_id'],'string','');
-		@$source_id = DevblocksPlatform::importGPC($_POST['source_id'],'integer',0);
-		
-		// Translate email string into addy id, if exists
-		if($quote_address_id && null != ($author_address = DAO_Address::get($quote_address_id)))
-			$address_id = $author_address->id;
-
-		// Sanitize mood
-		if(!in_array($mood, array(0,1,2)))
-			$mood = 0;
-		
-		// Delete entries
-		if(!empty($id) && !empty($do_delete)) {
-			if(null != ($entry = DAO_FeedbackEntry::get($id))) {
-				// Only superusers and owners can delete entries
-				if($active_worker->is_superuser || $active_worker->id == $entry->worker_id) {
+			@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+			@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+				
+			@$quote_address_id = DevblocksPlatform::importGPC($_POST['quote_address_id'],'integer',0);
+			@$mood = DevblocksPlatform::importGPC($_POST['mood'],'integer',0);
+			@$quote = DevblocksPlatform::importGPC($_POST['quote'],'string','');
+			@$url = DevblocksPlatform::importGPC($_POST['url'],'string','');
+			@$source_extension_id = DevblocksPlatform::importGPC($_POST['source_extension_id'],'string','');
+			@$source_id = DevblocksPlatform::importGPC($_POST['source_id'],'integer',0);
+			
+			// Translate email string into addy id, if exists
+			if($quote_address_id && null != ($author_address = DAO_Address::get($quote_address_id)))
+				$address_id = $author_address->id;
+			
+			// Sanitize mood
+			if(!in_array($mood, array(0,1,2)))
+				$mood = 0;
+			
+			// Delete entries
+			if(!empty($id) && !empty($do_delete)) {
+				if(null != ($entry = DAO_FeedbackEntry::get($id))) {
+					if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_FEEDBACK)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+					
 					DAO_FeedbackEntry::delete($id);
 				}
+				return;
 			}
 			
+			// New or modify
+			$fields = array(
+				DAO_FeedbackEntry::QUOTE_MOOD => intval($mood),
+				DAO_FeedbackEntry::QUOTE_TEXT => $quote,
+				DAO_FeedbackEntry::QUOTE_ADDRESS_ID => @intval($address_id),
+				DAO_FeedbackEntry::SOURCE_URL => $url,
+			);
+	
+			// Only on new
+			if(empty($id)) {
+				$fields[DAO_FeedbackEntry::LOG_DATE] = time();
+				$fields[DAO_FeedbackEntry::WORKER_ID] = $active_worker->id;
+			}
+			
+			
+			if(empty($id)) { // create
+				if(!DAO_FeedbackEntry::validate($fields, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				if(!DAO_FeedbackEntry::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				$id = DAO_FeedbackEntry::create($fields);
+				DAO_FeedbackEntry::onUpdateByActor($active_worker, $fields, $id);
+				
+				// Post-create actions
+				if(!empty($source_extension_id) && !empty($source_id))
+				switch($source_extension_id) {
+					case 'feedback.source.ticket':
+						$comment_text = sprintf(
+							"== Capture Feedback ==\n".
+							"Author: %s\n".
+							"Mood: %s\n".
+							"\n".
+							"%s\n",
+							(!empty($author_address) ? $author_address->email : 'Anonymous'),
+							(empty($mood) ? 'Neutral' : (1==$mood ? 'Praise' : 'Criticism')),
+							$quote
+						);
+						$fields = array(
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+							DAO_Comment::COMMENT => $comment_text,
+							DAO_Comment::CREATED => time(),
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+							DAO_Comment::CONTEXT_ID => intval($source_id),
+						);
+						DAO_Comment::create($fields);
+						break;
+				}
+				
+			} else { // modify
+				if(!DAO_FeedbackEntry::validate($fields, $error, $id))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				if(!DAO_FeedbackEntry::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				DAO_FeedbackEntry::update($id, $fields);
+				
+				DAO_Task::onUpdateByActor($active_worker, $fields, $id);
+			}
+			
+			// Custom field saves
+			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+			if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_FEEDBACK, $id, $field_ids, $error))
+				throw new Exception_DevblocksAjaxValidationError($error);
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			/*
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			*/
 			return;
-		}
-		
-		// New or modify
-		$fields = array(
-			DAO_FeedbackEntry::QUOTE_MOOD => intval($mood),
-			DAO_FeedbackEntry::QUOTE_TEXT => $quote,
-			DAO_FeedbackEntry::QUOTE_ADDRESS_ID => @intval($address_id),
-			DAO_FeedbackEntry::SOURCE_URL => $url,
-		);
-
-		// Only on new
-		if(empty($id)) {
-			$fields[DAO_FeedbackEntry::LOG_DATE] = time();
-			$fields[DAO_FeedbackEntry::WORKER_ID] = $active_worker->id;
-		}
-		
-		if(empty($id)) { // create
-			$id = DAO_FeedbackEntry::create($fields);
 			
-			// Post-create actions
-			if(!empty($source_extension_id) && !empty($source_id))
-			switch($source_extension_id) {
-				case 'feedback.source.ticket':
-					$comment_text = sprintf(
-						"== Capture Feedback ==\n".
-						"Author: %s\n".
-						"Mood: %s\n".
-						"\n".
-						"%s\n",
-						(!empty($author_address) ? $author_address->email : 'Anonymous'),
-						(empty($mood) ? 'Neutral' : (1==$mood ? 'Praise' : 'Criticism')),
-						$quote
-					);
-					$fields = array(
-						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-						DAO_Comment::COMMENT => $comment_text,
-						DAO_Comment::CREATED => time(),
-						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-						DAO_Comment::CONTEXT_ID => intval($source_id),
-					);
-					DAO_Comment::create($fields);
-					break;
-			}
+		} catch (Exception $e) {
+			/*
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			*/
+			return;
 			
-		} else { // modify
-			DAO_FeedbackEntry::update($id, $fields);
 		}
-		
-		// Custom field saves
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-		if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_FEEDBACK, $id, $field_ids, $error))
-			throw new Exception_DevblocksAjaxValidationError($error);
 	}
 	
 	function showBulkPanelAction() {
