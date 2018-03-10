@@ -1317,7 +1317,12 @@ class Model_TriggerEvent {
 		if(isset($interaction->session_data['_prompt'])) {
 			// Are we saving a copy of the latest message into a placeholder?
 			if(false != (@$var = $interaction->session_data['_prompt']['var'])) {
+				if(false != (@$format_tpl = $interaction->session_data['_prompt']['format'])) {
+					$var_message = $tpl_builder->build($format_tpl, $dict);
+					$dict->set($var, $var_message);
+				} else {
 					$dict->set($var, $message);
+				}
 			}
 			unset($interaction->session_data['_prompt']);
 		}
