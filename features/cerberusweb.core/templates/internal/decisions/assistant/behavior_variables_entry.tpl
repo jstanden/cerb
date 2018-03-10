@@ -14,36 +14,49 @@
 			<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" class="{if $with_placeholders}placeholders {/if}{if $var.params.mentions}cerb-mentions {/if}">
 			{/if}
 		{elseif $var.type == Model_CustomField::TYPE_DROPDOWN}
-		<select name="{$field_name}[{$var.key}]">
 			{$options = DevblocksPlatform::parseCrlfString($var.params.options, true)}
-			{if is_array($options)}
-			{foreach from=$options item=option}
-			<option value="{$option}" {if $variable_values.$var_key==$option}selected="selected"{/if}>{$option}</option>
-			{/foreach}
+			{if $with_placeholders}
+				<textarea name="{$field_name}[{$var.key}]" style="height:50px;width:98%;" class="{if $with_placeholders}placeholders {/if}">{$variable_values.$var_key}</textarea>
+				{if is_array($options)}
+				<div>
+					<small><b>Options:</b> {$options|implode:', '}</small>
+				</div>
+				{/if}
+			{else}
+				<select name="{$field_name}[{$var.key}]">
+				{foreach from=$options item=option}
+				<option value="{$option}" {if $variable_values.$var_key==$option}selected="selected"{/if}>{$option}</option>
+				{/foreach}
+				</select>
 			{/if}
-		</select>
 		{elseif $var.type == Model_CustomField::TYPE_NUMBER}
 		<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" {if $with_placeholders}class="placeholders"{/if}>
 		{elseif $var.type == Model_CustomField::TYPE_CHECKBOX}
-		<label><input type="radio" name="{$field_name}[{$var.key}]" value="1" {if (!is_null($variable_values.$var_key) && $variable_values.$var_key) || (is_null($variable_values.$var_key) && $var.params.checkbox_default_on)}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label> 
-		<label><input type="radio" name="{$field_name}[{$var.key}]" value="0" {if (!is_null($variable_values.$var_key) && !$variable_values.$var_key) || (is_null($variable_values.$var_key) && empty($var.params.checkbox_default_on))}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label> 
+			{if $with_placeholders}
+				<textarea name="{$field_name}[{$var.key}]" style="height:50px;width:98%;" class="{if $with_placeholders}placeholders {/if}">{$variable_values.$var_key}</textarea>
+				<div>
+					<small><b>Options:</b> 0, 1</small>
+				</div>
+			{else}
+				<label><input type="radio" name="{$field_name}[{$var.key}]" value="1" {if (!is_null($variable_values.$var_key) && $variable_values.$var_key) || (is_null($variable_values.$var_key) && $var.params.checkbox_default_on)}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label> 
+				<label><input type="radio" name="{$field_name}[{$var.key}]" value="0" {if (!is_null($variable_values.$var_key) && !$variable_values.$var_key) || (is_null($variable_values.$var_key) && empty($var.params.checkbox_default_on))}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label> 			
+			{/if}
 		{elseif $var.type == Model_CustomField::TYPE_DATE}
 		<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" {if $with_placeholders}class="placeholders"{/if}>
 		{elseif $var.type == Model_CustomField::TYPE_WORKER}
-		{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
-		<select name="{$field_name}[{$var.key}]">
-			<option value=""></option>
-			{if $with_placeholders && $trigger}
-			{foreach from=$trigger->variables item=var_data}
-				{if in_array($var_data.type, ['W', 'ctx_cerberusweb.contexts.worker'])}
-				<option value="{$var_data.key}" {if $variable_values.{$var.key}==$var_data.key}selected="selected"{/if}>(variable) {$var_data.label}</option>
-				{/if}
-			{/foreach}
+			{if $with_placeholders}
+			<textarea name="{$field_name}[{$var.key}]" style="height:50px;width:98%;" class="{if $with_placeholders}placeholders {/if}">{$variable_values.$var_key}</textarea>
+			<div>
+				<small>Enter a <a href="javascript:;" class="cerb-worker-chooser-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-single="true">worker ID</a></small>
+			</div>
+			{else}
+			{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
+			<select name="{$field_name}[{$var.key}]">
+				{foreach from=$workers item=worker}
+				<option value="{$worker->id}" {if $variable_values.{$var.key}==$worker->id}selected="selected"{/if}>{$worker->getName()}</option>
+				{/foreach}
+			</select>
 			{/if}
-			{foreach from=$workers item=worker}
-			<option value="{$worker->id}" {if $variable_values.{$var.key}==$worker->id}selected="selected"{/if}>{$worker->getName()}</option>
-			{/foreach}
-		</select>
 		{elseif substr($var.type,0,4) == 'ctx_'}
 			{$context = substr($var.type,4)}
 			<button type="button" class="cerb-chooser-trigger" data-context="{$context}" data-field-name="{$field_name}[{$var.key}][]"><span class="glyphicons glyphicons-search"></span></button>
@@ -69,6 +82,23 @@ $(function() {
 	// Choosers
 	$container.find('button.cerb-chooser-trigger')
 		.cerbChooserTrigger()
+		;
+	
+	// Worker chooser
+	$container.find('a.cerb-worker-chooser-trigger')
+		.cerbChooserTrigger()
+		.on('cerb-chooser-selected', function(event) {
+			var $trigger = $(this);
+			
+			if(typeof event.values == "object" && event.values.length > 0) {
+				var $textarea = $trigger.closest('div').prevAll('pre.ace_editor')
+				
+				var evt = new jQuery.Event('cerb.insertAtCursor');
+				evt.replace = true;
+				{literal}evt.content = '' + event.values[0] + '{# ' + event.labels[0] + ' #}';{/literal}
+				$textarea.trigger(evt);
+			}
+		})
 		;
 });
 </script>
