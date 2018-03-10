@@ -1345,7 +1345,11 @@ var ajax = new cAjaxCalls();
 				// [TODO] Bind close event (if defined)
 				
 				$chooser.one('chooser_save', function(event) {
-					// [TODO] Trigger choose event (if defined)
+					// Trigger a selected event
+					var evt = jQuery.Event('cerb-chooser-selected');
+					evt.labels = event.labels;
+					evt.values = event.values;
+					$trigger.trigger(evt);
 					
 					if(typeof event.values == "object" && event.values.length > 0) {
 						// Clear previous selections
