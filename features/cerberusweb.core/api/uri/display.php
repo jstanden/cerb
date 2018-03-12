@@ -443,15 +443,22 @@ class ChDisplayPage extends CerberusPageExtension {
 		$ticket = DAO_Ticket::get($message->ticket_id);
 		$tpl->assign('ticket',$ticket);
 		
+		if(false == ($bucket = $ticket->getBucket()))
+			return;
+		
+		$tpl->assign('bucket', $bucket);
 		
 		// Transport
 		
-		$reply_from = $ticket->getBucket()->getReplyTo();
-		$reply_as = $ticket->getBucket()->getReplyPersonal($active_worker);
-		$reply_transport = $reply_from->getMailTransport();
-		$tpl->assign('reply_from', $reply_from);
+		if(false != ($reply_from = $bucket->getReplyTo())) {
+			$reply_transport = $reply_from->getMailTransport();
+			
+			$tpl->assign('reply_from', $reply_from);
+			$tpl->assign('reply_transport', $reply_transport);
+		}
+		
+		$reply_as = $bucket->getReplyPersonal($active_worker);
 		$tpl->assign('reply_as', $reply_as);
-		$tpl->assign('reply_transport', $reply_transport);
 
 		// Requesters
 		

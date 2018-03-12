@@ -8,17 +8,32 @@
 	</tr>
 	<tr>
 		<td width="100%">
-			{if 'core.mail.transport.null' == $reply_transport->extension_id}
-			<div class="help-box">
-				<h1>Your message will not be delivered.</h1>
-				<p>
-					This bucket is configured to discard outgoing messages. 
-					To send live email, change the mail transport on the <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
-				</p>
-			</div>
+			{if !$reply_transport}
+				<div class="help-box">
+					<h1>Your message will not be delivered.</h1>
+					<p>
+						{$sender_address = DAO_Address::get($bucket->getReplyFrom())}
+						{if $sender_address}
+							<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_address->id}">{$sender_address->email}</a> 
+							is not configured as a sender address. To send live mail, edit the email address and select <b>"We send email from this address"</b>.
+						{else}
+							The sender address for this bucket does not have a mail transport configured. 
+							To send live email, an administrator must assign a mail transport to the <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
+						{/if}
+					</p>
+				</div>
+			{elseif 'core.mail.transport.null' == $reply_transport->extension_id}
+				<div class="help-box">
+					<h1>Your message will not be delivered.</h1>
+					<p>
+						This bucket is configured to discard outgoing messages. 
+						To send live email, change the mail transport on the <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
+					</p>
+				</div>
 			{/if}
 			
 			<table cellpadding="1" cellspacing="0" border="0" width="100%">
+				{if $reply_from && $reply_transport}
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
@@ -26,6 +41,7 @@
 						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$reply_transport->id}">{$reply_transport->name}</a>
 					</td>
 				</tr>
+				{/if}
 				
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query=""><b>{'message.header.to'|devblocks_translate|capitalize}</b></a>:&nbsp;</td>

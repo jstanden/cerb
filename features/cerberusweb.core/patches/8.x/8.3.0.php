@@ -390,11 +390,11 @@ if(!isset($columns['worker_id'])) {
 	$db->ExecuteMaster($sql);
 	
 	// Associate all worker primary email addresses with a worker
-	$db->ExecuteMaster("UPDATE address INNER JOIN worker ON (address.id=worker.email_id) SET address.mail_transport_id=0, address.worker_id=worker.id");
+	$db->ExecuteMaster("UPDATE address INNER JOIN worker ON (address.id=worker.email_id) SET address.worker_id=worker.id WHERE address.mail_transport_id=0");
 }
 
 if(isset($tables['address_to_worker'])) {
-	$db->ExecuteMaster("UPDATE address INNER JOIN address_to_worker ON (address.id=address_to_worker.address_id) SET address.mail_transport_id=0, address.worker_id=address_to_worker.worker_id WHERE address_to_worker.is_confirmed = 1");
+	$db->ExecuteMaster("UPDATE address INNER JOIN address_to_worker ON (address.id=address_to_worker.address_id) SET address.worker_id=address_to_worker.worker_id WHERE address_to_worker.is_confirmed = 1 AND address.mail_transport_id=0");
 	$db->ExecuteMaster('DROP TABLE address_to_worker');
 }
 

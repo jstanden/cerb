@@ -817,10 +817,10 @@ class Model_Bucket {
 		
 		// Cascade to global
 		if(empty($from_id) || !isset($froms[$from_id])) {
-			$from = DAO_Address::getDefaultLocalAddress();
-			$from_id = $from->id;
+			if(false != ($from = DAO_Address::getDefaultLocalAddress()))
+				$from_id = $from->id;
 		}
-			
+		
 		// Last check
 		if(!isset($froms[$from_id]))
 			return null;
@@ -835,11 +835,11 @@ class Model_Bucket {
 		$from_id = $this->reply_address_id;
 
 		// Cascade to group
-		if(!$from_id = false != ($group = $this->getGroup())) {
+		if(!$from_id && false != ($group = $this->getGroup())) {
 			$from_id = $group->getReplyFrom(0);
 		}
 		
-		if($from_id && isset($froms[$from_id]))
+		if($from_id)
 			return $from_id;
 		
 		// Default
