@@ -33,11 +33,11 @@
 
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
 
-{if $active_worker->hasPriv('contexts.{$bulk_context}.broadcast')}
+{if $active_worker->hasPriv("contexts.{$bulk_context}.broadcast")}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=$bulk_context}
 {/if}
 
-{if $active_worker->hasPriv('contexts.{$bulk_context}.update')}
+{if $active_worker->hasPriv("contexts.{$bulk_context}.update")}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 {/if}
 <br>
