@@ -51,7 +51,7 @@
 		{if $dict->size < 1000000}
 		<iframe sandbox src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px;border:1px solid rgb(200,200,200);"></iframe>
 		{/if}
-	{elseif in_array($dict->mime_type, [ 'text/html' ])}
+	{elseif in_array($dict->mime_type, [ 'application/xhtml+xml', 'text/html' ])}
 		{if $dict->size < 1000000}
 		<iframe sandbox src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px;border:1px solid rgb(200,200,200);"></iframe>
 		{/if}

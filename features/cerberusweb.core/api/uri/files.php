@@ -119,22 +119,38 @@ class ChFilesController extends DevblocksControllerExtension {
 		}
 		
 		switch($mime_type) {
+			case 'application/pdf':
+			case 'audio/mpeg':
+			case 'audio/ogg':
+			case 'audio/wav':
+			case 'audio/x-wav':
+			case 'image/gif':
+			case 'image/jpeg':
+			case 'image/png':
+			case 'video/mp4':
+			case 'video/mpeg':
+			case 'video/quicktime':
+				break;
+			
 			case 'application/json':
 			case 'application/pgp-signature':
+			case 'application/xml':
 			case 'image/svg+xml':
 			case 'message/feedback-report':
 			case 'message/rfc822':
 			case 'multipart/encrypted':
 			case 'multipart/signed':
+			case 'text/css':
 			case 'text/csv':
 			case 'text/javascript':
-			case 'text/css':
+			case 'text/plain':
 			case 'text/xml':
 				// Render to the browser as text
 				if(!$is_download)
 					$mime_type = 'text/plain';
 				break;
-			
+				
+			case 'application/xhtml+xml':
 			case 'text/html':
 				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
 				
@@ -183,6 +199,10 @@ class ChFilesController extends DevblocksControllerExtension {
 				$handled = true;
 				fclose($fp);
 				break;
+				
+			default:
+				$mime_type = 'application/octet-stream';
+				break;
 		}
 		
 		if(!$handled) {
@@ -191,7 +211,6 @@ class ChFilesController extends DevblocksControllerExtension {
 			fpassthru($fp);
 			fclose($fp);
 		}
-		
 		exit;
 	}
 };
