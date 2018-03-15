@@ -16,7 +16,7 @@
 					</ul>
 				</li>
 			{elseif !is_null($data->key)}
-				<li class="cerb-bot-trigger" data-interaction="{$data->interaction}" data-behavior-id="{$data->key}"{foreach from=$data->params item=param_value key=param_key} data-interaction-param-{$param_key}="{$param_value}"{/foreach}>
+				<li class="cerb-bot-trigger" data-behavior-id="{$data->key}" data-interaction="{$data->interaction}" data-interaction-params="{http_build_query($data->params)}">
 					<div style="font-weight:bold;">
 						{$data->label}
 					</div>

@@ -980,6 +980,7 @@ var ajax = new cAjaxCalls();
 				e.stopPropagation();
 				
 				var interaction = $trigger.attr('data-interaction');
+				var interaction_params = $trigger.attr('data-interaction-params');
 				var behavior_id = $trigger.attr('data-behavior-id');
 				
 				var data = {
@@ -987,22 +988,27 @@ var ajax = new cAjaxCalls();
 					"browser": {
 						"url": window.location.href,
 					},
-					"params": interaction_params
+					"params": {}
 				};
+				
+				if(interaction_params && interaction_params.length > 0) {
+					var parts = interaction_params.split('&');
+					for(var idx in parts) {
+						var keyval = parts[idx].split('=');
+						data.params[keyval[0]] = decodeURIComponent(keyval[1]);
+					}
+				}
 				
 				if(null != behavior_id) {
 					data.behavior_id = behavior_id;
 				}
 				
-				var interaction_params = {};
-				
+				// @deprecated
 				$.each(this.attributes, function() {
 					if('data-interaction-param-' == this.name.substring(0,23)) {
-						interaction_params[this.name.substring(23)] = this.value;
+						data.params[this.name.substring(23)] = this.value;
 					}
 				});
-				
-				data.params = interaction_params;
 				
 				var layer = Devblocks.uniqueId();
 				genericAjaxPopup(layer,'c=internal&a=startBotInteraction&' + $.param(data), null, false, '300');
