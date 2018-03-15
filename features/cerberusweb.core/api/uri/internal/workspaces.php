@@ -242,6 +242,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 				'columns' => $view->view_columns,
 				'params' => json_decode(json_encode($view->getEditableParams()), true),
 				'params_required' => json_decode(json_encode($view->getParamsRequired()), true),
+				'params_required_query' => $view->getParamsRequiredQuery(),
 				'limit' => $view->renderLimit,
 				'sort_by' => array_keys($sorts),
 				'sort_asc' => array_values($sorts),
