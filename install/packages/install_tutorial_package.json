@@ -1937,7 +1937,7 @@
 			"title": "Add your license",
 			"importance": "50",
 			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"https://cerb.ai/try/#bot/license.free\" target=\"_blank\"><b>Request a free 3-seat license</b></a> if you haven't already.</li>\n<li>Install your license in <b>Setup &raquo; Configure &raquo; License</b>.</li>\n</ol>"
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"https://cerb.ai/pricing/#bot/license.free\" target=\"_blank\"><b>Request a free 3-seat license</b></a> if you haven't already.</li>\n<li>Install your license in <b>Setup &raquo; Configure &raquo; License</b>.</li>\n</ol>"
 		},
 		{
 			"uid": "card_task_011",
