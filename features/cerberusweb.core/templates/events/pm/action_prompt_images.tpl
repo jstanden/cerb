@@ -43,6 +43,9 @@
 
 <button type="button" class="cerb-prompt-image-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
 
+<br>
+<br>
+
 <b>Save the response to a placeholder named:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	&#123;&#123;<input type="text" name="{$namePrefix}[var]" size="32" value="{if !empty($params.var)}{$params.var}{else}placeholder{/if}" required="required" spellcheck="false">&#125;&#125;
