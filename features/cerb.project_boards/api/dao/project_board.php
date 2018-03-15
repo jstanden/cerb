@@ -566,6 +566,7 @@ class Model_ProjectBoard {
 		if(!$html && !empty($card_template)) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			$html = $tpl_builder->build($card_template, $card);
+			$html = DevblocksPlatform::purifyHTML($html, false, [], true);
 		}
 			
 		if(!$html) {
@@ -580,8 +581,6 @@ class Model_ProjectBoard {
 		}
 		
 		echo $html;
-		// [TODO]
-		//echo DevblocksPlatform::purifyHTML($html);
 	}
 };
 
