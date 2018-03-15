@@ -1509,7 +1509,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function purifyHTML($dirty_html, $inline_css=false, $options=array()) {
+	static function purifyHTML($dirty_html, $inline_css=false, $options=[], $allow_cerb_markup=false) {
 		require_once(DEVBLOCKS_PATH . 'libs/htmlpurifier/HTMLPurifier.standalone.php');
 		
 		// If we're passed a file pointer, load the literal string
@@ -1568,6 +1568,32 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(is_array($options) && !empty($options))
 		foreach($options as $k => $v) {
 			$config->set($k, $v);
+		}
+		
+		if($allow_cerb_markup) {
+			$def = $config->getHTMLDefinition(true);
+			
+			// Allow Cerb data-* markup
+			$def->info_global_attr['data-autocomplete'] = new HTMLPurifier_AttrDef_Integer();
+			$def->info_global_attr['data-behavior-id'] = new HTMLPurifier_AttrDef_Integer();
+			$def->info_global_attr['data-context'] = new HTMLPurifier_AttrDef_Text();
+			$def->info_global_attr['data-context-id'] = new HTMLPurifier_AttrDef_Integer();
+			$def->info_global_attr['data-interaction'] = new HTMLPurifier_AttrDef_Text();
+			$def->info_global_attr['data-interaction-params'] = new HTMLPurifier_AttrDef_Text();
+			$def->info_global_attr['data-query'] = new HTMLPurifier_AttrDef_Text();
+			$def->info_global_attr['data-query-required'] = new HTMLPurifier_AttrDef_Text();
+			
+			// Allow basic buttons
+			$html_button = $def->addElement(
+				'button',
+				'Inline',
+				'Flow',
+				'Common',
+				[
+					'type' => 'Enum#button'
+				]
+			);
+			$html_button->excludes = ['a','Formctrl','form','isindex','fieldset','iframe'];
 		}
 		
 		$purifier = new HTMLPurifier($config);
