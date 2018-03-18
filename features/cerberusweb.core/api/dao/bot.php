@@ -719,7 +719,7 @@ class Model_Bot {
 	}
 	
 	function exportToJson() {
-		$bot_data = array(
+		$bot_data = [
 			'uid' => 'bot_'.$this->id,
 			'name' => $this->name,
 			'owner' => [
@@ -730,7 +730,7 @@ class Model_Bot {
 			'params' => $this->params,
 			'image' => null,
 			'behaviors' => [],
-		);
+		];
 		
 		if(false != ($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_BOT, $this->id))) {
 			if(false != ($image = Storage_ContextAvatar::get($avatar)))
@@ -741,7 +741,7 @@ class Model_Bot {
 		
 		foreach($behaviors as $behavior) {
 			if(null == ($event = $behavior->getEvent()))
-				return;
+				continue;
 			
 			$behavior_json = $behavior->exportToJson(0);
 			$behavior_data = json_decode($behavior_json, true);
