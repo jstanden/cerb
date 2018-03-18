@@ -131,10 +131,11 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	
 	static function getByPointAndWorker($point, Model_Worker $worker) {
 		$behaviors = Event_GetInteractionsForWorker::getByPoint($point);
-		
+
+		// Don't show worker-owned bots to admins
 		$behaviors = array_intersect_key(
 			$behaviors,
-			array_flip(array_keys(Context_TriggerEvent::isReadableByActor($behaviors, $worker), true))
+			array_flip(array_keys(Context_TriggerEvent::isReadableByActor($behaviors, $worker, true), true))
 		);
 		
 		return $behaviors;
