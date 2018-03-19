@@ -38,15 +38,15 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		
 		/**
 		 * Behavior
 		 */
 		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge

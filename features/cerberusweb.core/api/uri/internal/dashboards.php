@@ -156,6 +156,27 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 			// [TODO] Kill cache on dashboard
 		}
 	}
+	
+	function handleWidgetActionAction() {
+		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'string', '');
+		@$widget_action = DevblocksPlatform::importGPC($_REQUEST['widget_action'], 'string', '');
+		
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			return;
+		
+		if(false == ($widget = DAO_WorkspaceWidget::get($widget_id)))
+			return;
+		
+		if(!Context_WorkspaceWidget::isReadableByActor($widget, $active_worker))
+			return;
+		
+		if(false == ($widget_extension = $widget->getExtension()))
+			return;
+		
+		if($widget_extension instanceof Extension_WorkspaceWidget && method_exists($widget_extension, $widget_action.'Action')) {
+			call_user_func([$widget_extension, $widget_action.'Action']);
+		}
+	}
 }
 endif;
 
@@ -503,6 +524,7 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 		$tpl = DevblocksPlatform::services()->template();
 
 		@$behavior_id = $widget->params['behavior_id'];
+		@$behavior_vars = DevblocksPlatform::importVar(@$widget->params['behavior_vars'], 'array', []);
 		
 		if(!$behavior_id 
 			|| false == ($widget_behavior = DAO_TriggerEvent::get($behavior_id))
@@ -512,14 +534,17 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 			return;
 		}
 		
+		// Event model
+		
 		$actions = [];
 		
 		$event_model = new Model_DevblocksEvent(
 			Event_DashboardWidgetRender::ID,
-			array(
+			[
 				'widget' => $widget,
+				'_variables' => $behavior_vars,
 				'actions' => &$actions,
-			)
+			]
 		);
 		
 		if(false == ($event = $widget_behavior->getEvent()))
@@ -530,6 +555,21 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 		$values = $event->getValues();
 		
 		$dict = DevblocksDictionaryDelegate::instance($values);
+		
+		// Format behavior vars
+		
+		if(is_array($behavior_vars))
+		foreach($behavior_vars as $k => &$v) {
+			if(DevblocksPlatform::strStartsWith($k, 'var_')) {
+				if(!isset($widget_behavior->variables[$k]))
+					continue;
+				
+				$value = $widget_behavior->formatVariable($behavior->variables[$k], $v);
+				$dict->set($k, $value);
+			}
+		}
+		
+		// Run tree
 		
 		$result = $widget_behavior->runDecisionTree($dict, false, $event);
 		

@@ -2305,7 +2305,7 @@ class DevblocksEventHelper {
 		
 		// Variables as parameters
 		
-		$vars = array();
+		$vars = [];
 		
 		if(is_array($params))
 		foreach($params as $k => $v) {
