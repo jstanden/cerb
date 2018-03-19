@@ -2026,7 +2026,6 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		
-		
 		$tpl->assign('widget', $widget);
 		
 		$html = $this->_getHtml($widget);
