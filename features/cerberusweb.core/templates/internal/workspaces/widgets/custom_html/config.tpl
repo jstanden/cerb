@@ -1,6 +1,7 @@
 <fieldset class="peek" style="margin-top:10px;" id="widget{$widget->id}Config">
 	<legend>Custom HTML</legend>
 	
+	<b>Display</b> content using this template: 
 	<div>
 		<textarea name="params[content]" style="width:100%;height:150px;">{$widget->params.content}</textarea>
 	</div>
@@ -15,6 +16,7 @@
 		<li data-value="{literal}{{{/literal}{$k}{literal}}}{/literal}"><b>{$label.label}</b></li>
 		{/foreach}
 	</ul>
+	<br>
 </fieldset>
 
 <script type="text/javascript">

@@ -1981,27 +1981,18 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 
 class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
-		$this->_renderHtml($widget);
-	}
-	
-	private function _renderHtml(Model_WorkspaceWidget $widget) {
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(empty($active_worker))
+		if(false == ($page = $widget->getWorkspacePage()))
 			return;
 		
-		@$content = $widget->params['content'];
+		$tpl = DevblocksPlatform::services()->template();
 		
-		$labels = array();
-		$values = array();
 		
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $worker_labels, $worker_values, null, true, true);
-		CerberusContexts::merge('current_worker_', null, $worker_labels, $worker_values, $labels, $values);
+		$tpl->assign('widget', $widget);
 		
-		$dict = new DevblocksDictionaryDelegate($values);
+		$html = $this->_getHtml($widget);
+		$tpl->assign('html', $html);
 		
-		echo $tpl_builder->build($content, $dict);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/custom_html/render.tpl');
 	}
 	
 	// Config
@@ -2018,8 +2009,8 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		
 		// Placeholders
 		
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		
 		if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
 			$active_worker->getPlaceholderLabelsValues($labels, $values);
@@ -2041,6 +2032,27 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		// Clear caches
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(sprintf("widget%d_datasource", $widget->id));
+	}
+	
+	private function _getHtml($widget) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		if(empty($active_worker) || !Context_WorkspaceWidget::isReadableByActor($widget, $active_worker))
+			return;
+		
+		@$content = $widget->params['content'];
+		
+		$labels = [];
+		$values = [];
+		
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $worker_labels, $worker_values, null, true, true);
+		CerberusContexts::merge('current_worker_', null, $worker_labels, $worker_values, $labels, $values);
+		
+		$dict = new DevblocksDictionaryDelegate($values);
+		
+		$html = $tpl_builder->build($content, $dict);
+		return DevblocksPlatform::purifyHTML($html, false, [], true);
 	}
 };
 
