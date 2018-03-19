@@ -1,3 +1,20 @@
+<h1 style="margin-bottom:10px;color:inherit;">Cerb Documentation</h1>
+
+<fieldset class="peek">
+	<legend>Reference</legend>
+	
+	<ul style="margin:5px 0 0 0;padding:0;list-style-type:none;">
+		<li>
+			<a href="https://cerb.ai/docs/building-bots/scripting/" target="_blank" style="font-weight:bold;">Bot Scripting</a>
+			<ul>
+				<li><a href="https://cerb.ai/docs/building-bots/scripting/#commands" target="_blank">Commands</a></li>
+				<li><a href="https://cerb.ai/docs/building-bots/scripting/#functions" target="_blank">Functions</a></li>
+				<li><a href="https://cerb.ai/docs/building-bots/scripting/#filters" target="_blank">Filters</a></li>
+			</ul>
+		</li>
+	</ul>
+</fieldset>
+
 <h1 style="margin-bottom:10px;color:inherit;">Placeholders</h1>
 
 <fieldset class="peek">
@@ -344,8 +361,8 @@ Tracking #: {{json.status.tracking_id}}
 	<pre style="margin:0.5em 1em;">
 {% set string_of_xml = 
 "&lt;response&gt;
-  &lt;client_id&gt;1&lt;/client_id&gt;
-  &lt;invoice_id&gt;123&lt;/invoice_id&gt;
+	&lt;client_id&gt;1&lt;/client_id&gt;
+	&lt;invoice_id&gt;123&lt;/invoice_id&gt;
 &lt;/response&gt;"
 -%}
 {% set xml = <b>xml_decode</b>(string_of_xml) %}
@@ -364,8 +381,8 @@ Invoice ID: {{invoice_id}}
 	<pre style="margin:0.5em 1em;">
 {% set string_of_xml = 
 "&lt;response xmlns=\"http://www.example.com/api/\"&gt;
-  &lt;client_id&gt;1&lt;/client_id&gt;
-  &lt;invoice_id&gt;123&lt;/invoice_id&gt;
+	&lt;client_id&gt;1&lt;/client_id&gt;
+	&lt;invoice_id&gt;123&lt;/invoice_id&gt;
 &lt;/response&gt;"
 -%}
 {% set xml = xml_decode(string_of_xml) %}
@@ -381,8 +398,8 @@ Invoice ID: {{invoice_id}}
 	<pre style="margin:0.5em 1em;">
 {% set string_of_xml = 
 "&lt;response xmlns=\"http://www.example.com/api/\"&gt;
-  &lt;client_id&gt;1&lt;/client_id&gt;
-  &lt;invoice_id&gt;123&lt;/invoice_id&gt;
+	&lt;client_id&gt;1&lt;/client_id&gt;
+	&lt;invoice_id&gt;123&lt;/invoice_id&gt;
 &lt;/response&gt;"
 -%}
 {% set xml = xml_decode(string_of_xml) %}
