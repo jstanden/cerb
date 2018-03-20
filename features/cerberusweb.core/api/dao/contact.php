@@ -1776,7 +1776,9 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getMeta($context_id) {
-		$contact = DAO_Contact::get($context_id);
+		if(false == ($contact = DAO_Contact::get($context_id)))
+			return [];
+		
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);

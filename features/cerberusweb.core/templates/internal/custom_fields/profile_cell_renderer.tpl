@@ -56,7 +56,7 @@
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_LINK}
 	{$link_context_ext = Extension_DevblocksContext::get($v.params.context)}
-	{if $link_context_ext}
+	{if $link_context_ext && $v.value}
 		{$link_meta = $link_context_ext->getMeta($v.value)}
 		{if $link_meta && ($link_context_ext->id == CerberusContexts::CONTEXT_APPLICATION || $v.value)}
 			<ul class="bubbles">
