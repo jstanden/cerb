@@ -3108,11 +3108,13 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 };
 
 class _CerbApplication_Packages {
-	function prompts($json) {
+	function prompts($json_string) {
+		$json = Cerb_Packages::loadPackageFromJson($json_string);
 		return Cerb_Packages::getPromptsFromjson($json);
 	}
 	
-	function import($json, array $prompts=[], &$records_created=null) {
+	function import($json_string, array $prompts=[], &$records_created=null) {
+		$json = Cerb_Packages::loadPackageFromJson($json_string);
 		return Cerb_Packages::importFromJson($json, $prompts, $records_created);
 	}
 };

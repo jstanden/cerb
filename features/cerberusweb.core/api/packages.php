@@ -42,7 +42,7 @@
 class Cerb_Packages {
 	private function __construct() {}
 	
-	static function _loadPackageFromJson($json_string) {
+	static function loadPackageFromJson(&$json_string) {
 		if(!is_array($json_string) && false == (@$json = json_decode($json_string, true)))
 			throw new Exception_DevblocksValidationError("Invalid JSON");
 		
@@ -52,7 +52,7 @@ class Cerb_Packages {
 		$package = $json['package'];
 		
 		// Requirements
-		$requires = $package['requires'];
+		@$requires = $package['requires'];
 		
 		if(is_array($requires)) {
 			@$target_version = $requires['cerb_version'];
@@ -73,8 +73,9 @@ class Cerb_Packages {
 		return $json;
 	}
 	
-	static function getPromptsFromJson($json_string) {
-		$json = self::_loadPackageFromJson($json_string);
+	static function getPromptsFromJson($json) {
+		if(!is_array($json))
+			throw new Exception_DevblocksValidationError("Invalid package JSON");
 		
 		@$configure = $json['package']['configure'];
 		@$config_prompts = $configure['prompts'];
@@ -85,8 +86,9 @@ class Cerb_Packages {
 		return [];
 	}
 	
-	static function importFromJson($json_string, array $prompts=[], &$records_created=null) {
-		$json = self::_loadPackageFromJson($json_string);
+	static function importFromJson($json, array $prompts=[], &$records_created=null) {
+		if(!is_array($json))
+			throw new Exception_DevblocksValidationError("Invalid package JSON");
 		
 		$placeholders = [];
 		
@@ -735,7 +737,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		$new_json_string = json_encode(array_diff_key($json, ['package'=>true]));
+		// Prepare the template builder
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$lexer = array(
@@ -761,10 +763,36 @@ class Cerb_Packages {
 			'replyto_email' => $default_replyto ? $default_replyto->email : 0,
 		];
 		
-		// Build
+		// Recursively rebuild the package and run the template builder when necessary for a key/value.
+		// This is memory efficient. Running Twig on a large package will OOM
 		
-		$new_json_string = $tpl_builder->build($new_json_string, $placeholders, $lexer);
-		$json = json_decode($new_json_string, true);
+		unset($json['package']);
+		
+		$findTemplates = function($array) use (&$findTemplates, $tpl_builder, $placeholders, $lexer) {
+			$result = [];
+			
+			foreach($array as $key => $val) {
+				if(is_array($val)) {
+					if(preg_match('#\{\{[\#\%\{]#', $key))
+						$key = $tpl_builder->build($key, $placeholders, $lexer);
+					
+					$result[$key] = $findTemplates($val);
+					
+				} else {
+					if(preg_match('#\{\{[\#\%\{]#', $key))
+						$key = $tpl_builder->build($key, $placeholders, $lexer);
+						
+					if(preg_match('#\{\{[\#\%\{]#', $val))
+						$val = $tpl_builder->build($val, $placeholders, $lexer);
+						
+					$result[$key] = $val;
+				}
+			}
+			
+			return $result;
+		};
+		
+		$json = $findTemplates($json);
 	}
 
 	private static function _packageImport(&$json, &$uids, &$records_created) {

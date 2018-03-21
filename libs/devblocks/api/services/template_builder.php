@@ -274,7 +274,7 @@ class _DevblocksTemplateBuilder {
 		try {
 			$template = $this->_twig->loadTemplate($template); /* @var $template Twig_Template */
 			$this->_twig->registerUndefinedVariableCallback(array($dict, 'delegateUndefinedVariable'), true);
-			$out = $template->render(array());
+			$out = $template->render([]);
 			
 		} catch(Exception $e) {
 			$this->_errors[] = $e->getMessage();
