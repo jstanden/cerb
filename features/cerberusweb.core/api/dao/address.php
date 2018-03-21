@@ -557,7 +557,7 @@ class DAO_Address extends Cerb_ORMHelper {
 				true
 			);
 			
-			$cache->save($sender_addresses, self::_CACHE_WORKER_ADDRESSES);
+			$cache->save($results, self::_CACHE_WORKER_ADDRESSES);
 		}
 		
 		return $results;
