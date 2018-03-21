@@ -1865,7 +1865,7 @@
 			"title": "Welcome to Cerb!",
 			"importance": "50",
 			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<p>This project board provides a quick checklist for getting Cerb up and running.</p>\n\n<p>Drag cards from the top of the <b>TODO</b> backlog into the <b>In Progress</b> column to work on them. You should limit the in progress cards to only a few at a time.</p>\n\n<p>When you finish a card, drag it from <b>In Progress</b> to <b>Completed!</b>. You'll notice that a bot automatically marks the task completed for you.</p>\n\n<p>This on-boarding workflow was built entirely with Cerb's tools in the browser. You can <a href=\"javascript:;\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.project.board\" data-context-id=\"{{{uid.project_board_checklist}}}\"><b>edit the project board</b></a>, <a href=\"javascript:;\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.bot\" data-context-id=\"{{{uid.bot_tutorial}}}\"><b>bot</b></a>, and <a href=\"javascript:;\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.custom_fieldset\" data-context-id=\"{{{uid.fieldset_getting_started}}}\"><b>custom fieldset</b></a> to see how it works (or even make changes).</p>\n\n<p>Drag this card to <b>Completed!</b> <span class=\"glyphicons glyphicons-right-arrow\" style=\"margin-left:5px;\"></span></p>"
+			"custom_{{{uid.field_getting_started_notes}}}": "<p>This project board provides a quick checklist for getting Cerb up and running.</p>\n\n<p>Drag cards from the top of the <b>TODO</b> backlog into the <b>In Progress</b> column to work on them. You should limit the in progress cards to only a few at a time.</p>\n\n<p>When you finish a card, drag it from <b>In Progress</b> to <b>Completed!</b>. You'll notice that a bot automatically marks the task completed for you.</p>\n\n<p>This on-boarding workflow was built entirely with Cerb's tools in the browser. You can <button type=\"button\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.project.board\" data-context-id=\"{{{uid.project_board_checklist}}}\">edit the project board</button>, <button type=\"button\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.bot\" data-context-id=\"{{{uid.bot_tutorial}}}\">bot</button>, and <button type=\"button\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.custom_fieldset\" data-context-id=\"{{{uid.fieldset_getting_started}}}\">custom fieldset</button> to see how it works (or even make changes).</p>\n\n<p>Drag this card to <b>Completed!</b> <span class=\"glyphicons glyphicons-right-arrow\" style=\"margin-left:5px;\"></span></p>"
 		},
 		{
 			"uid": "card_task_002",
@@ -1881,7 +1881,7 @@
 			"title": "Configure sender addresses",
 			"importance": "50",
 			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.address\" data-query=\"mailTransport.id:>0\"><b>List sender addresses</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new email addresses.</li>\n<li>Add a <a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mail.transport\" data-query=\"\"><b>mail transport</b></a> to an address to enable it as a outgoing sender.</li>\n</ol>"
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.address\" data-query=\"mailTransport.id:>0\">List sender addresses</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new email addresses.</li>\n<li>Add a <button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mail.transport\" data-query=\"\">mail transport</button> to an address to enable it as a outgoing sender.</li>\n</ol>"
 		},
 		{
 			"uid": "card_task_004",
@@ -1889,7 +1889,7 @@
 			"title": "Configure email signatures",
 			"importance": "50",
 			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.email.signature\" data-query=\"\"><b>List email signatures</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new signatures.</li>\n<li>Modify signatures to meet your needs.</li>\n</ol>"
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.email.signature\" data-query=\"\">List email signatures</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new signatures.</li>\n<li>Modify signatures to meet your needs.</li>\n</ol>"
 		},
 		{
 			"uid": "card_task_005",
@@ -1897,7 +1897,7 @@
 			"title": "Configure mailboxes",
 			"importance": "50",
 			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mailbox\" data-query=\"\"><b>List mailboxes</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new mailboxes.</li>\n</ol>"
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mailbox\" data-query=\"\">List mailboxes</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new mailboxes.</li>\n</ol>"
 		},
 		{
 			"uid": "card_task_006",
@@ -1905,7 +1905,7 @@
 			"title": "Review groups",
 			"importance": "50",
 			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.group\" data-query=\"\"><b>List groups</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new groups.</li>\n<li>Review the mail settings for each group.</li>\n</ol>"
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.group\" data-query=\"\">List groups</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new groups.</li>\n<li>Review the mail settings for each group.</li>\n</ol>"
 		},
 		{
 			"uid": "card_task_007",
@@ -1913,7 +1913,7 @@
 			"title": "Invite other team members",
 			"importance": "50",
 			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.worker\" data-query=\"\"><b>List workers</b></a>.</li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to create new workers.</li>\n</ol>"
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.worker\" data-query=\"\">List workers</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to create new workers.</li>\n</ol>"
 		},
 		{
 			"uid": "card_task_008",
@@ -1921,7 +1921,7 @@
 			"title": "Configure roles",
 			"importance": "50",
 			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"javascript:;\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.role\" data-query=\"\"><b>List roles</b></a>.</li>\n<li>Determine the permissions for each role.</li>\n<li>Assign the roles to workers and groups.</li>\n</ol>"
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.role\" data-query=\"\">List roles</button></li>\n<li>Determine the permissions for each role.</li>\n<li>Assign the roles to workers and groups.</li>\n</ol>"
 		},
 		{
 			"uid": "card_task_009",
@@ -2009,7 +2009,7 @@
 			"params": {
 				"behaviors": {
 					"{{{uid.behavior_mark_task_completed}}}": [
-
+					
 					]
 				}
 			},
