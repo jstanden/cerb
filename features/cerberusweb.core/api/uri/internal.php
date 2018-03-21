@@ -691,7 +691,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			if(!$active_worker->hasPriv(sprintf('contexts.%s.merge', $context_ext->id)))
 				throw new Exception_DevblocksValidationError("You do not have permission to merge these records.");
-
+			
 			if($ids) {
 				$ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($ids), 'int');
 				
@@ -703,7 +703,6 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->assign('dicts', $dicts);
 				}
 			}
-	
 			$tpl->assign('aliases', $context_ext->getAliasesForContext($context_ext->manifest));
 			$tpl->assign('context_ext', $context_ext);
 			$tpl->assign('view_id', $view_id);

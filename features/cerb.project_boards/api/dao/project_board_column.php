@@ -1027,7 +1027,9 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 	}
 	
 	function getMeta($context_id) {
-		$project_board_column = DAO_ProjectBoardColumn::get($context_id);
+		if(false == ($project_board_column = DAO_ProjectBoardColumn::get($context_id)))
+			return [];
+		
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
