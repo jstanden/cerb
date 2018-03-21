@@ -3688,6 +3688,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				return;
 			}
 			
+			// Don't auto-persist this worklist
+			$view->setAutoPersist(false);
+			$view->persist();
+			
 			// Persist
 			
 			$fields = [
