@@ -608,7 +608,9 @@ abstract class DevblocksEngine {
 				
 				// Normalize the scheme and host (e.g. ignore /index.php/)
 				$base_url_parts = parse_url($url_writer->write('', true));
-				$base_url = DevblocksPlatform::strLower(sprintf("%s://%s/", $base_url_parts['scheme'], $base_url_parts['host']));
+				$base_url_port = isset($base_url_parts['port']) ? (':' . $base_url_parts['port']) : ''; 
+				
+				$base_url = DevblocksPlatform::strLower(sprintf("%s://%s%s/", $base_url_parts['scheme'], $base_url_parts['host'], $base_url_port));
 				
 				if($origin) {
 					// If origin doesn't match, freak out
