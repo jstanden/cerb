@@ -1296,7 +1296,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					return false;
 				
 				@$href_link = $dom['href'];
-				@$href_label = (string) $dom;
+				@$href_label = trim(dom_import_simplexml($dom)->textContent);
 				
 				// Skip if there is no label text (images, etc)
 				if(empty($href_label)) {
