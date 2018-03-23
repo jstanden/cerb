@@ -1992,9 +1992,19 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param, $options=array()) {
 		if(!is_array($options))
-			$options = array();
+			$options = [];
 		
 		switch($param->field) {
+			case self::BUCKET_RESPONSIBILITY:
+				$level = DevblocksPlatform::intClamp($param->value, 0, 100);
+				$oper = DevblocksSearchCriteria::sanitizeOperator($param->operator);
+				
+				return sprintf("wtb.responsibility_level %s %d",
+					$oper,
+					$level
+				);
+				break;
+				
 			case self::FULLTEXT_MESSAGE_CONTENT:
 				if(false == ($search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID)))
 					return null;
@@ -3157,6 +3167,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST),
 				),
+			'responsibility' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Ticket::BUCKET_RESPONSIBILITY),
+				),
 			'spam.score' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -3534,6 +3549,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 
+			case SearchFields_Ticket::BUCKET_RESPONSIBILITY:
 			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_IMPORTANCE:
 			case SearchFields_Ticket::TICKET_NUM_MESSAGES:
@@ -3974,6 +3990,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 
+			case SearchFields_Ticket::BUCKET_RESPONSIBILITY:
 			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_IMPORTANCE:
 			case SearchFields_Ticket::TICKET_NUM_MESSAGES:

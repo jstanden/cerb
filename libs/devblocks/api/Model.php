@@ -729,6 +729,36 @@ class DevblocksSearchCriteria {
 		$this->value = $value;
 	}
 	
+	public static function getOperators() {
+		return [
+			self::OPER_BETWEEN,
+			self::OPER_CUSTOM,
+			self::OPER_EQ,
+			self::OPER_EQ_OR_NULL,
+			self::OPER_FALSE,
+			self::OPER_FULLTEXT,
+			self::OPER_GT,
+			self::OPER_GTE,
+			self::OPER_IN,
+			self::OPER_IN_OR_NULL,
+			self::OPER_IS_NOT_NULL,
+			self::OPER_IS_NULL,
+			self::OPER_LIKE,
+			self::OPER_LT,
+			self::OPER_LTE,
+			self::OPER_NEQ,
+			self::OPER_NIN,
+			self::OPER_NIN_OR_NULL,
+			self::OPER_NOT_BETWEEN,
+			self::OPER_NOT_LIKE,
+			self::OPER_TRUE,
+		];
+	}
+	
+	public static function sanitizeOperator($operator) {
+		return in_array($operator, self::getOperators()) ? $operator : self::OPER_EQ;
+	}
+	
 	public static function getParamFromQueryFieldTokens($field, $tokens, $meta) {
 		$search_fields = $meta;
 		@$search_field = $search_fields[$field];
