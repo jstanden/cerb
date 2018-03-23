@@ -2335,6 +2335,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'html_attachment_id' => $prefix.'HTML Attachment ID', // [TODO] Translate
 			'id' => $prefix.$translate->_('common.id'),
 			'content' => $prefix.$translate->_('common.content'),
+			'content_html' => $prefix.$translate->_('Content HTML'),
 			'created' => $prefix.$translate->_('common.created'),
 			'is_broadcast' => $prefix.$translate->_('message.is_broadcast'),
 			'is_not_sent' => $prefix.$translate->_('message.is_not_sent'),
@@ -2355,6 +2356,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'html_attachment_id' => Model_CustomField::TYPE_NUMBER,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
+			'content_html' => Model_CustomField::TYPE_MULTI_LINE,
 			'created' => Model_CustomField::TYPE_DATE,
 			'is_broadcast' => Model_CustomField::TYPE_CHECKBOX,
 			'is_not_sent' => Model_CustomField::TYPE_CHECKBOX,
@@ -2554,6 +2556,16 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			case 'content':
 				// [TODO] Allow an array with storage meta here?  It removes an extra (n) SELECT in dictionaries for content
 				$values['content'] = Storage_MessageContent::get($context_id);
+				break;
+				
+			case 'content_html':
+				if(
+					!@$dictionary['html_attachment_id'] 
+					|| false == ($html_part =DAO_Attachment::get($dictionary['html_attachment_id']))
+					)
+					break;
+				
+				$values['content_html'] = $html_part->getFileContents();
 				break;
 				
 			case 'headers':
