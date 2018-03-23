@@ -735,8 +735,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 	}
 
 	protected function _getSearchView($context, $params=array(), $limit=10, $page=0, $sort_by=null, $sort_asc=null) {
-		$context_ext = Extension_DevblocksContext::get($context);
+		$active_worker = CerberusApplication::getActiveWorker();
 
+		$context_ext = Extension_DevblocksContext::get($context);
 		$view_id = DevblocksPlatform::strAlphaNum('api_search_'.$context, '_', '_');
 
 		if(false == ($view = $context_ext->getSearchView($view_id))) /* @var $view C4_AbstractView */
@@ -757,6 +758,16 @@ abstract class Extension_RestController extends DevblocksExtension {
 		foreach(array_keys($params) as $k) {
 			if(!in_array($k, $view->view_columns))
 				$view->view_columns[] = $k;
+		}
+		
+		// Placeholders
+		
+		if($active_worker) {
+			$labels = $values = [];
+			$active_worker->getPlaceholderLabelsValues($labels, $values);
+			
+			$view->setPlaceholderLabels($labels);
+			$view->setPlaceholderValues($values);
 		}
 
 		// [TODO] Cursors? (ephemeral view id, paging, sort, etc)
