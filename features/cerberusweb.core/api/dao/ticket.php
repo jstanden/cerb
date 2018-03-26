@@ -5217,6 +5217,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'reopen_date',
 			'status',
 			'subject',
+			'updated',
 		];
 		
 		return $keys;
