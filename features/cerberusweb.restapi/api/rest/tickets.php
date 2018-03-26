@@ -631,7 +631,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		@$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'],'integer',0);
 		
-		$properties = array();
+		$properties = [];
 
 		if(empty($content))
 			$this->error(self::ERRNO_CUSTOM, "The 'content' parameter is required");
@@ -641,8 +641,11 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		
 		if(false == ($message = DAO_Message::get($message_id)))
 			$this->error(self::ERRNO_CUSTOM, "The given 'message_id' is invalid");
-
-		if(false === Context_Ticket::isWriteableByActor($message->ticket_id, $worker))
+		
+		if(false == ($ticket = $message->getTicket()))
+			$this->error(self::ERRNO_CUSTOM, "The given 'ticket_id' is invalid");
+		
+		if(false === Context_Ticket::isWriteableByActor($ticket, $worker))
 			$this->error(self::ERRNO_CUSTOM, "You do not have write access to this ticket");
 		
 		if(!empty($file_ids))
@@ -667,20 +670,24 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$properties['worker_id'] = $worker->id;
 		
 		// Bucket
-		if(strlen($bucket_id) > 0 && (empty($bucket_id) || false != ($bucket = DAO_Bucket::get($bucket_id)))) {
-			$properties['bucket_id'] = $bucket_id;
+		if(!$bucket_id && !$group_id)
+			$bucket_id = $ticket->bucket_id;
+			
+		if($bucket_id && false != ($bucket = DAO_Bucket::get($bucket_id))) {
+			$bucket_id = $bucket->id;
+			$properties['bucket_id'] = $bucket->id;
 			
 			// Always set the group_id in unison with the bucket_id
-			if(isset($bucket))
-				$properties['group_id'] = $bucket->group_id;
+			$group_id = $bucket->group_id;
+			$properties['group_id'] = $group_id;
 		}
 		
-		// Group
-		if(!isset($properties['group_id']) && !empty($group_id) && false != ($group = DAO_Group::get($group_id))) {
+		// Group inbox
+		if(!isset($properties['group_id']) && $ticket->group_id && false != ($group = $ticket->getGroup())) {
 			$properties['group_id'] = $group->id;
-			$properties['bucket_id'] = 0;
+			$properties['bucket_id'] = $group->getDefaultBucket()->id;
 		}
-
+		
 		// Owner
 		if(strlen($owner_id) > 0 && (empty($owner_id) || false != ($owner = DAO_Worker::get($owner_id)))) {
 			if(isset($owner))
