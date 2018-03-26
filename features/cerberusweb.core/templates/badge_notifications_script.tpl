@@ -13,6 +13,7 @@ $().ready(function() {
 	$badge.fadeIn('slow');
 	
 	$a.attr('data-context', '{CerberusContexts::CONTEXT_NOTIFICATION}');
+	$a.attr('data-layer', 'notifications_me');
 	$a.attr('data-query', 'isRead:n');
 	$a.attr('data-query-required', 'worker.id:{$active_worker->id}');
 	$a.cerbSearchTrigger();
