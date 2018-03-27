@@ -112,6 +112,15 @@ class Cerb_Packages {
 				switch($config_prompt['type']) {
 					case 'chooser':
 						$placeholders[$key] = $value;
+						
+						// If the key ends with '_id', allow lazy loading of all context placeholders
+						if(DevblocksPlatform::strEndsWith($key, '_id')
+							&& isset($config_prompt['params']['context'])
+							&& @$config_prompt['params']['single']) {
+								$context_key = substr($key, 0, -3);
+								$placeholders[$context_key . '__context'] = $config_prompt['params']['context'];
+						}
+						
 						break;
 						
 					case 'text':
