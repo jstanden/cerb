@@ -198,7 +198,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		/**
 		 * Group
 		 */
-		@$group_id = $properties['group_id'];
+		@$group_id = $properties['group_id'] ?: $event_model->params['group_id'];
 		$group_labels = [];
 		$group_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
