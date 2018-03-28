@@ -9,7 +9,7 @@
 		{if $owner_meta.context && $owner_meta.context_ext instanceof IDevblocksContextPeek}
 		<a href="javascript:;" class="cerb-peek-trigger" data-context="{$owner_meta.context}" data-context-id="{$owner_meta.id}">{$owner_meta.name}</a>
 		{elseif !empty($owner_meta.permalink)} 
-		<a href="{$owner_meta.permalink}" target="_blank">{$owner_meta.name}</a>
+		<a href="{$owner_meta.permalink}" target="_blank" rel="noopener">{$owner_meta.name}</a>
 		{else}
 		{$owner_meta.name}
 		{/if}

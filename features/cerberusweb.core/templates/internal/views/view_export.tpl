@@ -144,7 +144,7 @@ $(function() {
 				var $html = $('<div><a href="javascript:;" class="close"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);font-size:16px;position:relative;float:right;"></span></a></div>')
 					.append(
 						$('<div style="font-size:18px;font-weight:bold;text-align:center;"/>')
-							.append($('<a target="_blank"/>').attr('href',json.attachment_url).text(json.attachment_name).prepend('Download: '))
+							.append($('<a target="_blank" rel="noopener"/>').attr('href',json.attachment_url).text(json.attachment_name).prepend('Download: '))
 					);
 					
 				$status.html($html).fadeIn();

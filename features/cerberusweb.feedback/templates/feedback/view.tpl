@@ -101,7 +101,7 @@
 						{/if}
 					</td>
 				{elseif $column=="f_source_url"}
-					<td data-column="{$column}"><a href="{$result.f_source_url}" target="_blank" title="{$result.f_source_url}">{$result.f_source_url|truncate:35:'...':true:false}</a>&nbsp;</td>
+					<td data-column="{$column}"><a href="{$result.f_source_url}" target="_blank" rel="noopener" title="{$result.f_source_url}">{$result.f_source_url|truncate:35:'...':true:false}</a>&nbsp;</td>
 				{else}
 					<td data-column="{$column}">{$result.$column}</td>
 				{/if}

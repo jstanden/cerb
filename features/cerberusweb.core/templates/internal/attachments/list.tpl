@@ -64,7 +64,7 @@ $(function() {
 				break;
 			case 'browser':
 				var url = $target.find('a').attr('data-profile-url');
-				window.open(url, '_blank');
+				window.open(url, '_blank', 'noopener');
 				break;
 			case 'download':
 				var url = $target.find('a').attr('data-profile-url') + '?download=';

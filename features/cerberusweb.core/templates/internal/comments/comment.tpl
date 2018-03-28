@@ -11,7 +11,7 @@
 			{if $owner_meta.context_ext instanceof IDevblocksContextPeek} 
 			<a href="javascript:;" class="cerb-peek-trigger" data-context="{$comment->owner_context}" data-context-id="{$comment->owner_context_id}">{$owner_meta.name}</a>
 			{elseif !empty($owner_meta.permalink)} 
-			<a href="{$owner_meta.permalink}" target="_blank">{$owner_meta.name}</a>
+			<a href="{$owner_meta.permalink}" target="_blank" rel="noopener">{$owner_meta.name}</a>
 			{else}
 			{$owner_meta.name}
 			{/if}

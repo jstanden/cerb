@@ -1,8 +1,8 @@
 <div style="padding:5px 10px;">
-	Objects are cached in <a href="http://memcached.org" target="_blank">Memcached</a>, an open source, 
+	Objects are cached in <a href="http://memcached.org" target="_blank" rel="noopener noreferrer">Memcached</a>, an open source, 
 	memory-based caching server designed to optimize dynamic web applications.  Each object is stored with 
 	a unique "key", and these keys can be distributed between multiple instances of Memcached by using a 
-	consistent hashing proxy like <a href="https://github.com/twitter/twemproxy" target="_blank">Twemproxy</a>.
+	consistent hashing proxy like <a href="https://github.com/twitter/twemproxy" target="_blank" rel="noopener noreferrer">Twemproxy</a>.
 </div>
 
 <div style="padding:5px 10px;">

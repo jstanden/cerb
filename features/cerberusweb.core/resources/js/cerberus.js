@@ -1143,7 +1143,7 @@ var ajax = new cAjaxCalls();
 				if((evt.shiftKey || evt.metaKey) && profile_url) {
 					evt.preventDefault();
 					evt.stopPropagation();
-					window.open(profile_url, '_blank');
+					window.open(profile_url, '_blank', 'noopener');
 					return;
 				}
 				

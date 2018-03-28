@@ -90,7 +90,7 @@
 			{if $owner_meta.context_ext instanceof IDevblocksContextPeek} 
 			<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$comment->owner_context}&context_id={$comment->owner_context_id}', null, false, '50%');">{$owner_meta.name}</a>
 			{elseif !empty($owner_meta.permalink)} 
-			<a href="{$owner_meta.permalink}" target="_blank">{$owner_meta.name}</a>
+			<a href="{$owner_meta.permalink}" target="_blank" rel="noopener">{$owner_meta.name}</a>
 			{else}
 			{$owner_meta.name}
 			{/if}

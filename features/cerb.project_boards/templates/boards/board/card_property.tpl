@@ -5,7 +5,7 @@
 	{$dict->$k}
 {elseif $types.$k == Model_CustomField::TYPE_URL}
 	{$url = $dict->$k|replace:'http://':''|replace:'https://':''|replace:'www.':''|trim:'/'}
-	<a href="{$dict->$k}" target="_blank">{$url|truncate:45}</a>
+	<a href="{$dict->$k}" target="_blank" rel="noopener">{$url|truncate:45}</a>
 {elseif $types.$k == Model_CustomField::TYPE_CHECKBOX}
 	{if $dict->$k}<span class="glyphicons glyphicons-check"></span>{else}<span class="glyphicons glyphicons-unchecked"></span>{/if}
 {elseif $types.$k == Model_CustomField::TYPE_DATE}

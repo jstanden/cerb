@@ -34,7 +34,7 @@
 {if $is_writeable && !$activity_counts.behaviors}
 <div class="help-box">
 <h1>Add a behavior</h1>
-Click on the <div class="badge badge-lightgray" style="color:black;font-weight:bold;">Behaviors</div> button below to start building your <a href="https://cerb.ai/docs/bots/" target="_blank">bot</a>.
+Click on the <div class="badge badge-lightgray" style="color:black;font-weight:bold;">Behaviors</div> button below to start building your <a href="https://cerb.ai/docs/bots/" target="_blank" rel="noopener">bot</a>.
 </div>
 {/if}
 
@@ -125,7 +125,7 @@ $(function() {
 		// View profile
 		$popup.find('.cerb-peek-profile').click(function(e) {
 			if(e.shiftKey || e.metaKey) {
-				window.open('{devblocks_url}c=profiles&type=bot&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				window.open('{devblocks_url}c=profiles&type=bot&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank', 'noopener');
 				
 			} else {
 				document.location='{devblocks_url}c=profiles&type=bot&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';

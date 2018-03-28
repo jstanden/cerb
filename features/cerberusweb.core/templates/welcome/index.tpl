@@ -30,13 +30,13 @@
 
 	<ul style="list-style:none;margin:5px;padding-left:10px;line-height:2em;font-weight:bold;">
 		<li>
-			<a href="https://cerb.ai/docs/" target="_blank">Read the user's guide</a>
+			<a href="https://cerb.ai/docs/" target="_blank" rel="noopener">Read the user's guide</a>
 		</li>
 		<li>
-			<a href="http://www.facebook.com/cerbapp" target="_blank">Like us on Facebook</a>
+			<a href="http://www.facebook.com/cerbapp" target="_blank" rel="noopener noreferrer">Like us on Facebook</a>
 		</li>
 		<li>
-			<a href="http://twitter.com/cerb_ai" target="_blank">Follow us on Twitter</a>
+			<a href="http://twitter.com/cerb_ai" target="_blank" rel="noopener noreferrer">Follow us on Twitter</a>
 		</li>
 	</ul>
 </fieldset>

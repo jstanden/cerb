@@ -115,7 +115,7 @@
 				{/if}
 			</td>
 			{elseif $column=="c_website"}
-			<td data-column="{$column}"><a href="{$result.c_website}" target="_blank">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
+			<td data-column="{$column}"><a href="{$result.c_website}" target="_blank" rel="noopener noreferrer">{$result.c_website|truncate:45:'...':true}</a>&nbsp;</td>
 			{elseif in_array($column, ["c_created", "c_updated"])}
 			<td data-column="{$column}" title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}&nbsp;</td>
 			{else}

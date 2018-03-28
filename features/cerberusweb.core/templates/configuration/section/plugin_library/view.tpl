@@ -99,12 +99,12 @@
 				</td>
 			{elseif $column=="p_link"}
 				<td data-column="{$column}">
-					<a href="{$result.$column}" target="_blank">{$result.$column}</a>
+					<a href="{$result.$column}" target="_blank" rel="noopener noreferrer">{$result.$column}</a>
 				</td>
 			{elseif $column=="p_author"}
 				<td data-column="{$column}">
 					{if !empty($column.p_link)}
-						<a href="{$result.p_link}" target="_blank">{$result.$column}</a>
+						<a href="{$result.p_link}" target="_blank" rel="noopener noreferrer">{$result.$column}</a>
 					{else}
 						{$result.$column}
 					{/if}

@@ -8,7 +8,7 @@
 		<span style="color:rgb(200,0,0);">No License (Evaluation Edition)</span><br>
 		<ul style="margin-top:0px;">
 			<li>Limited to 1 simultaneous worker.</li>
-			<li><a href="https://cerb.ai/pricing" target="_blank">Purchase a Cerb license</a></li>
+			<li><a href="https://cerb.ai/pricing" target="_blank" rel="noopener">Purchase a Cerb license</a></li>
 		</ul> 
 	{else}
 		<b>Serial #:</b> {$we_trust_you->key}<br>

@@ -103,7 +103,7 @@
 				</td>
 			{elseif $column=="c_link"}
 				<td data-column="{$column}">
-					<a href="{$result.$column}" target="_blank">{$result.$column}</a>
+					<a href="{$result.$column}" target="_blank" rel="noopener noreferrer">{$result.$column}</a>
 				</td>
 			{elseif $column=="c_enabled"}
 				<td data-column="{$column}">
@@ -116,7 +116,7 @@
 			{elseif $column=="c_author"}
 				<td data-column="{$column}">
 					{if !empty($column.c_link)}
-						<a href="{$result.c_link}" target="_blank">{$result.$column}</a>
+						<a href="{$result.c_link}" target="_blank" rel="noopener noreferrer">{$result.$column}</a>
 					{else}
 						{$result.$column}
 					{/if}

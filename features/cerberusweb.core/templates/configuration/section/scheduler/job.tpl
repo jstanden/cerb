@@ -29,7 +29,7 @@
 	
 	Last run: {if $lastrun}{$lastrun|devblocks_date}{else}Never{/if}
 	{if $enabled && !$locked}
-	 - <a href="{devblocks_url}c=cron&id={$job->id}{/devblocks_url}?ignore_wait=1&loglevel=6" target="_blank">run now</a>
+	- <a href="{devblocks_url}c=cron&id={$job->id}{/devblocks_url}?ignore_wait=1&loglevel=6" target="_blank" rel="noopener">run now</a>
 	{/if}
 	<br>
 	

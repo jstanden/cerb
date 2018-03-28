@@ -7,7 +7,7 @@
 {if !$total}
 <div class="help-box">
 <h1>Add a new behavior</h1>
-Click on the <span class="glyphicons glyphicons-circle-plus"></span> icon below to add a new <a href="https://cerb.ai/docs/bots/" target="_blank">behavior</a> to the worklist.
+Click on the <span class="glyphicons glyphicons-circle-plus"></span> icon below to add a new <a href="https://cerb.ai/docs/bots/" target="_blank" rel="noopener">behavior</a> to the worklist.
 </div>
 {/if}
 

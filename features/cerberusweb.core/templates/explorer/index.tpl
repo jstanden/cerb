@@ -45,9 +45,9 @@
 							<td align="left" width="98%;" valign="top">
 								<h2>{$title}</h2> &nbsp;
 								{if !empty($content)}
-									<a href="{$url}" target="_blank">{$content}</a>
+									<a href="{$url}" target="_blank" rel="noopener">{$content}</a>
 								{else} 
-									<a href="{$url}" target="_blank">{$url|truncate:100}</a>
+									<a href="{$url}" target="_blank" rel="noopener">{$url|truncate:100}</a>
 								{/if} 
 								<div style="margin-top:5px;">
 								{if !empty($toolbar_extension) && !empty($item) && method_exists($toolbar_extension, 'render')}

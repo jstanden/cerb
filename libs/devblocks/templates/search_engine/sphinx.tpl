@@ -1,5 +1,5 @@
 <div style="padding:5px 10px;">
-	Records are fulltext indexed in <a href="http://sphinxsearch.com/" target="_blank">Sphinx</a>, 
+	Records are fulltext indexed in <a href="http://sphinxsearch.com/" target="_blank" rel="noopener noreferrer">Sphinx</a>, 
 	an open source search server built for speed, scalability, and simple integration.
 	This option requires Sphinx to be installed and configured separately, but you can expect 
 	searches to perform several times faster than MySQL Fulltext.  Additionally, after switching to 

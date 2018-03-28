@@ -40,7 +40,7 @@
 	<div id="qrcode"></div>
 	
 	<p style="margin-top:10px;">
-		If you haven't already, visit <a href="http://m.google.com/authenticator" target="_blank" tabindex="-1">http://m.google.com/authenticator</a> from your iOS, Android, or Blackberry mobile device to install the Google Authenticator app.
+		If you haven't already, visit <a href="http://m.google.com/authenticator" target="_blank" rel="noopener noreferrer" tabindex="-1">http://m.google.com/authenticator</a> from your iOS, Android, or Blackberry mobile device to install the Google Authenticator app.
 	</p>
 </fieldset>
 

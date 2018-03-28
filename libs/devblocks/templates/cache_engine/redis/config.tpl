@@ -1,8 +1,8 @@
 <div style="padding:5px 10px;">
-	(Recommended) Objects are cached in <a href="http://redis.io/" target="_blank">Redis</a>, an open source 
+	(Recommended) Objects are cached in <a href="http://redis.io/" target="_blank" rel="noopener noreferrer">Redis</a>, an open source 
 	key-value datastore designed for incredibly fast performance by storing data exclusively in memory (RAM).
 	Each object is stored in Redis with a unique "key", and these keys can be distributed between multiple 
-	instances of Redis by using a consistent hashing proxy like <a href="https://github.com/twitter/twemproxy" target="_blank">Twemproxy</a>.
+	instances of Redis by using a consistent hashing proxy like <a href="https://github.com/twitter/twemproxy" target="_blank" rel="noopener noreferrer">Twemproxy</a>.
 	It is also quick and easy to implement master-slave replication in Redis for high availability.
 </div>
 

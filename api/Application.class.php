@@ -1817,7 +1817,7 @@ class CerberusContexts {
 						}
 					} elseif(0 == strcasecmp('http',substr($url,0,4))) {
 						if(isset($vars[$token])) {
-							$vars[$token] = '<a href="'.$url.'" target="_blank" style="font-weight:bold;">'.$vars[$token].'</a>';
+							$vars[$token] = '<a href="'.$url.'" target="_blank" rel="noopener" style="font-weight:bold;">'.$vars[$token].'</a>';
 						}
 					} else {
 						$url = $url_writer->writeNoProxy($url, true);
@@ -1847,7 +1847,7 @@ class CerberusContexts {
 							);
 						}
 					} elseif(0 == strcasecmp('http',substr($url,0,4))) {
-						$vars[$token] = '<a href="'.$url.'" target="_blank" style="font-weight:bold;">'.$vars[$token].'</a>';
+						$vars[$token] = '<a href="'.$url.'" target="_blank" rel="noopener" style="font-weight:bold;">'.$vars[$token].'</a>';
 
 					} else {
 						$url = $url_writer->writeNoProxy($url, true);

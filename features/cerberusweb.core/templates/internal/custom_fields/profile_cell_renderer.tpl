@@ -36,7 +36,7 @@
 		{/if}
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_URL}
-	<a href="{$v.value}" target="_blank">{$v.value}</a>
+	<a href="{$v.value}" target="_blank" rel="noopener">{$v.value}</a>
 {elseif $v.type == Model_CustomField::TYPE_WORKER}
 	{if !isset($workers)}{$workers = DAO_Worker::getAll()}{/if}
 	{if isset($workers.{$v.value})}
@@ -104,7 +104,7 @@
 	{foreach from=$v.value item=file_id name=files}
 		{$file = DAO_Attachment::get($file_id)}
 		{if $file}
-		<a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}){if !$smarty.foreach.files.last}, {/if}
+		<a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}){if !$smarty.foreach.files.last}, {/if}
 		{/if}
 	{/foreach}
 {else}

@@ -31,7 +31,7 @@
 				<ul class="bubbles chooser-container"></ul>
 			</div>
 			&nbsp; 
-			<label><input type="radio" name="format" value="2" {if 2==$model->format || empty($model->format)}checked{/if}> <b>Markdown</b> (recommended)</label> [<a href="http://en.wikipedia.org/wiki/Markdown" target="_blank">?</a>] 
+			<label><input type="radio" name="format" value="2" {if 2==$model->format || empty($model->format)}checked{/if}> <b>Markdown</b> (recommended)</label> [<a href="http://en.wikipedia.org/wiki/Markdown" target="_blank" rel="noopener">?</a>] 
 			<label><input type="radio" name="format" value="1" {if 1==$model->format}checked{/if}> <b>HTML</b></label> 
 		</div>
 	</div>

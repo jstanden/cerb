@@ -5,7 +5,7 @@
 {if $col->type==Model_CustomField::TYPE_SINGLE_LINE}
 	<td data-column="{$column}">{$result.$column}</td>
 {elseif $col->type==Model_CustomField::TYPE_URL}
-	<td data-column="{$column}">{if !empty($result.$column)}<a href="{$result.$column}" target="_blank">{$result.$column}</a>{/if}</td>
+	<td data-column="{$column}">{if !empty($result.$column)}<a href="{$result.$column}" target="_blank" rel="noopener noreferrer">{$result.$column}</a>{/if}</td>
 {elseif $col->type==Model_CustomField::TYPE_CURRENCY}
 	<td data-column="{$column}">
 		{$currency_id = $col->params.currency_id}
@@ -58,7 +58,7 @@
 		{*
 		{$file_id = $result.$column}
 		{$file = DAO_Attachment::get($file_id)}
-		<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$file->storage_sha1hash}&name={$file->name|escape:'url'}{/devblocks_url}" target="_blank">{$file->name}</a>
+		<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$file->storage_sha1hash}&name={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a>
 		*}
 	</td>
 {elseif $col->type==Model_CustomField::TYPE_FILES}
@@ -68,7 +68,7 @@
 
 		{foreach from=$file_ids item=file_id name=files}
 			{$file = DAO_Attachment::get($file_id)}
-			<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$file->storage_sha1hash}&name={$file->name|escape:'url'}{/devblocks_url}" target="_blank">{$file->name}</a>
+			<a href="{devblocks_url}c=ajax&a=downloadFile&guid={$file->storage_sha1hash}&name={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a>
 		{/foreach}
 		*}
 	</td>

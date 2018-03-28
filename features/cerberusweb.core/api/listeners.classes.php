@@ -281,7 +281,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 					case 'license':
 						$tour = array(
 							'title' => 'License',
-							'body' => "This setup page manages your Cerb license.  If you don't have a license, one can be <a href='https://cerb.ai/pricing' target='_blank'>purchased from the project website</a>.",
+							'body' => "This setup page manages your Cerb license.  If you don't have a license, one can be <a href='https://cerb.ai/pricing/' target='_blank' rel='noopener'>purchased from the project website</a>.",
 						);
 						break;
 						

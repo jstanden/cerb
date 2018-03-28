@@ -5,11 +5,11 @@
 	
 	<ul style="margin:5px 0 0 0;padding:0;list-style-type:none;">
 		<li>
-			<a href="https://cerb.ai/docs/building-bots/scripting/" target="_blank" style="font-weight:bold;">Bot Scripting</a>
+			<a href="https://cerb.ai/docs/building-bots/scripting/" target="_blank" rel="noopener" style="font-weight:bold;">Bot Scripting</a>
 			<ul>
-				<li><a href="https://cerb.ai/docs/building-bots/scripting/#commands" target="_blank">Commands</a></li>
-				<li><a href="https://cerb.ai/docs/building-bots/scripting/#functions" target="_blank">Functions</a></li>
-				<li><a href="https://cerb.ai/docs/building-bots/scripting/#filters" target="_blank">Filters</a></li>
+				<li><a href="https://cerb.ai/docs/building-bots/scripting/#commands" target="_blank" rel="noopener">Commands</a></li>
+				<li><a href="https://cerb.ai/docs/building-bots/scripting/#functions" target="_blank" rel="noopener">Functions</a></li>
+				<li><a href="https://cerb.ai/docs/building-bots/scripting/#filters" target="_blank" rel="noopener">Filters</a></li>
 			</ul>
 		</li>
 	</ul>

@@ -1836,7 +1836,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					break;
 			}
 			
-			return sprintf('%s<a href="%s" target="_blank">%s</a>%s',
+			return sprintf('%s<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>%s',
 				$prefix,
 				$url,
 				$url,

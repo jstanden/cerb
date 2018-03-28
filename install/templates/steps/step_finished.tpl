@@ -14,7 +14,7 @@
 	<b>Cerb</b> is the result of over 16 years of research &amp; development.  
 	The software will likely introduce some concepts that are completely new to you and your team.  
 	<br>
-	The best place to become familiar with Cerb is the <a href="https://cerb.ai/docs/home/" target="_blank"><b>online documentation</b></a>.<br>
+	The best place to become familiar with Cerb is the <a href="https://cerb.ai/docs/home/" target="_blank" rel="noopener"><b>online documentation</b></a>.<br>
 </div>
 
 <h3>Your new copy of Cerb is ready for business!</h3>

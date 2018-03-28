@@ -114,7 +114,7 @@ $(function() {
 	{if $is_downloadable}
 	$('#btnDisplayAttachmentDownload')
 		.on('click', function(e) {
-			window.open('{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}', '_blank');
+			window.open('{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}', '_blank', 'noopener');
 		});
 	{/if}
 });

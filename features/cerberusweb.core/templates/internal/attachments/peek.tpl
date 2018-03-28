@@ -127,7 +127,7 @@ $(function() {
 		{if $is_downloadable}
 		$popup.find('button.cerb-peek-download')
 			.on('click', function(e) {
-				window.open('{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}?download=', '_blank');
+				window.open('{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}?download=', '_blank', 'noopener');
 			});
 		{/if}
 		
@@ -168,7 +168,7 @@ $(function() {
 		// View profile
 		$popup.find('.cerb-peek-profile').click(function(e) {
 			if(e.shiftKey || e.metaKey) {
-				window.open('{devblocks_url}c=profiles&type=attachment&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				window.open('{devblocks_url}c=profiles&type=attachment&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank', 'noopener');
 				
 			} else {
 				document.location='{devblocks_url}c=profiles&type=attachment&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';

@@ -1394,7 +1394,7 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testStrToHyperlinks() {
-		$expected = '<a href="http://www.example.com" target="_blank">http://www.example.com</a>';
+		$expected = '<a href="http://www.example.com" target="_blank" rel="noopener noreferrer">http://www.example.com</a>';
 		$actual = DevblocksPlatform::strToHyperlinks('http://www.example.com');
 		$this->assertEquals($expected, $actual);
 	}

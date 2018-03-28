@@ -5,7 +5,7 @@
 		<p>
 			The easiest way to access your portal is to use the built-in URL:
 			<br>
-			<a href="{$url}" target="_blank">{$url}</a>
+			<a href="{$url}" target="_blank" rel="noopener">{$url}</a>
 		</p>
 		
 		<p>
@@ -28,7 +28,7 @@
 		</p>
 		
 		<p>
-			<a href="https://cerb.ai/try/" target="_blank">https://cerb.ai/try/</a>
+			<a href="https://cerb.ai/try/" target="_blank" rel="noopener">https://cerb.ai/try/</a>
 		</p>
 	</div>
 </fieldset>
@@ -42,7 +42,7 @@
 		</p>
 		
 		<p>
-			See: <a href="https://cerb.ai/guides/portals/nginx-proxy/" target="_blank">Host community portals using Nginx</a>
+			See: <a href="https://cerb.ai/guides/portals/nginx-proxy/" target="_blank" rel="noopener">Host community portals using Nginx</a>
 		</p>
 	</div>
 </fieldset>

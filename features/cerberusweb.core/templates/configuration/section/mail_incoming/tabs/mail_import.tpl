@@ -41,6 +41,7 @@ $(function() {
 					var $a = $('<a/>')
 						.attr('href', json.ticket_url)
 						.attr('target', '_blank')
+						.attr('rel', 'noopener')
 						.text(json.ticket_label)
 					;
 

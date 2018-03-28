@@ -15,8 +15,8 @@
 		<fieldset class="peek">
 			<legend>Get image from a URL:</legend>
 			<div>
-			  <input type="text" class="cerb-avatar-img-url" size="64" placeholder="http://example.com/image.png" />
-			  <button type="button" class="cerb-avatar-img-fetch">Fetch</button>
+				<input type="text" class="cerb-avatar-img-url" size="64" placeholder="http://example.com/image.png" />
+				<button type="button" class="cerb-avatar-img-fetch">Fetch</button>
 			</div>
 			{if is_array($suggested_photos) && !empty($suggested_photos)}
 			<div class="cerb-avatar-suggested-photos"></div>
@@ -25,16 +25,16 @@
 	
 		<fieldset class="peek">
 			<legend>Upload an image:</legend>
-	  	<input type="file" class="cerb-avatar-img-upload" />
-  	</fieldset>
-  	
+			<input type="file" class="cerb-avatar-img-upload" />
+		</fieldset>
+		
 		<fieldset class="peek cerb-avatar-monogram">
 			<legend>Create an image:</legend>
 			{'common.label'|devblocks_translate|capitalize}: <input type="text" name="initials" size="5" placeholder="RS" autocomplete="off" spellcheck="false">
-			(<a href="https://en.wikipedia.org/wiki/Emoji#Unicode_Blocks" target="_blank">emoji</a>)
-			 &nbsp; 
+			(<a href="https://en.wikipedia.org/wiki/Emoji#Unicode_Blocks" target="_blank" rel="noopener noreferrer">emoji</a>)
+			&nbsp; 
 			<button type="button">Generate</button>
-  	</fieldset>
+		</fieldset>
 	</div>
 	
 	<div style="clear:both;"></div>

@@ -2,7 +2,7 @@
 	{$values.{$field->id}}
 {elseif $field->type==Model_CustomField::TYPE_URL}
 	{$url = $values.{$field->id}}
-	<a href="{$url}" target="_blank">{$url}</a>
+	<a href="{$url}" target="_blank" rel="noopener noreferrer">{$url}</a>
 {elseif $field->type==Model_CustomField::TYPE_NUMBER}
 	{$values.{$field->id}}
 {elseif $field->type==Model_CustomField::TYPE_MULTI_LINE}

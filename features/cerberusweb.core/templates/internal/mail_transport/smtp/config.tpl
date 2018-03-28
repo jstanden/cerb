@@ -3,7 +3,7 @@
 
 <legend>SMTP</legend>
 
-This mail transport delivers mail to an <a href="http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol" target="_blank">SMTP</a> server.
+This mail transport delivers mail to an <a href="http://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol" target="_blank" rel="noopener noreferrer">SMTP</a> server.
 <br>
 <br>
 

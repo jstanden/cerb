@@ -3,7 +3,7 @@
 <fieldset>
 	<legend>
 		{if !empty($feed.url)}
-			<span class="glyphicons glyphicons-wifi-alt" style="color:rgb(249,154,56);"></span> <a href="{$feed.url}" target="_blank">{$feed.title}</a>
+			<span class="glyphicons glyphicons-wifi-alt" style="color:rgb(249,154,56);"></span> <a href="{$feed.url}" target="_blank" rel="noopener noreferrer">{$feed.title}</a>
 		{else}
 			{$feed.title}
 		{/if}
@@ -16,7 +16,7 @@
 			{$item_guid = ''|cat:$item.title|cat:'_'|cat:$item.link|md5}
 			
 			<span class="glyphicons glyphicons-file" style="color:rgb(100,100,100);"></span>
-			<a href="{$item.link}" target="_blank" style="font-weight:bold;text-decoration:none;">{$item.title}</a> 
+			<a href="{$item.link}" target="_blank" rel="noopener noreferrer" style="font-weight:bold;text-decoration:none;">{$item.title}</a> 
 			<br>
 			{if !empty($item.content)}
 			<div style="margin:5px 0px 5px 25px;">

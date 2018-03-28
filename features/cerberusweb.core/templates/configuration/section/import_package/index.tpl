@@ -8,7 +8,7 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <p>
-	View the <a href="https://cerb.ai/resources/packages/" target="_blank">library of pre-built workflow packages</a>.
+	View the <a href="https://cerb.ai/resources/packages/" target="_blank" rel="noopener">library of pre-built workflow packages</a>.
 </p>
 
 <fieldset>
