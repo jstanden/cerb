@@ -470,6 +470,10 @@ class _DevblocksValidationType {
 		return $this;
 	}
 	
+	function canBeEmpty() {
+		return @$this->_data['not_empty'] ? false : true;
+	}
+	
 	function setNotEmpty($bool) {
 		$this->_data['not_empty'] = $bool ? true : false;
 		return $this;

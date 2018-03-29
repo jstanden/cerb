@@ -142,6 +142,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(16777215)
 			->setRequired(true)
+			->setNotEmpty(false)
 			;
 		// text
 		$validation
@@ -186,13 +187,13 @@ class DAO_Message extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_MESSAGE;
 		self::_updateAbstract($context, $ids, $fields);
 		
-		if(isset($fields[self::_CONTENT])) {
+		if(array_key_exists(self::_CONTENT, $fields)) {
 			foreach($ids as $id)
 				Storage_MessageContent::put($id, $fields[self::_CONTENT]);
 			unset($fields[self::_CONTENT]);
 		}
 		
-		if(isset($fields[self::_HEADERS])) {
+		if(array_key_exists(self::_HEADERS, $fields)) {
 			foreach($ids as $id)
 				DAO_MessageHeaders::upsert($id, $fields[self::_HEADERS]);
 			unset($fields[self::_HEADERS]);
