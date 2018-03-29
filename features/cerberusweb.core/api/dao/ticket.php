@@ -180,7 +180,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(65535)
 			// [TODO] Formatter -> RFC emails
-			->addValidator($validation->validators()->emails())
+			->addValidator($validation->validators()->emails(true))
 			;
 		$validation
 			->addField('_links')
@@ -847,7 +847,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_TICKET;
 		self::_updateAbstract($context, $ids, $fields);
 		
-		if(isset($fields[self::_PARTICIPANTS])) {
+		if(array_key_exists(self::_PARTICIPANTS, $fields)) {
 			$participant_emails = CerberusMail::parseRfcAddresses($fields[self::_PARTICIPANTS]);
 			$participant_models = DAO_Address::lookupAddresses(array_keys($participant_emails), true);
 			unset($fields[self::_PARTICIPANTS]);

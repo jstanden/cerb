@@ -246,8 +246,11 @@ class _DevblocksValidators {
 		};
 	}
 	
-	function email() {
-		return function($value, &$error=null) {
+	function email($allow_empty=false) {
+		return function($value, &$error=null) use ($allow_empty) {
+			if($allow_empty && 0 == strlen($value))
+				return true;
+			
 			if(!is_string($value)) {
 				$error = "must be a string.";
 				return false;
@@ -264,8 +267,11 @@ class _DevblocksValidators {
 		};
 	}
 	
-	function emails() {
-		return function($value, &$error=null) {
+	function emails($allow_empty=false) {
+		return function($value, &$error=null) use ($allow_empty) {
+			if($allow_empty && 0 == strlen($value))
+				return true;
+			
 			if(!is_string($value)) {
 				$error = "must be a comma-separated string.";
 				return false;
