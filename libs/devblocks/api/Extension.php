@@ -1597,6 +1597,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			'_calendar_availability' => array('label' => 'Calendar availability', 'type' => ''),
 			'_custom_script' => array('label' => 'Custom script', 'type' => ''),
 			'_day_of_week' => array('label' => 'Calendar day of week', 'type' => ''),
+			'_day_of_month' => array('label' => 'Calendar day of month', 'type' => ''),
 			'_month_of_year' => array('label' => 'Calendar month of year', 'type' => ''),
 			'_time_of_day' => array('label' => 'Calendar time of day', 'type' => ''),
 		);
@@ -1675,6 +1676,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_month_of_year.tpl');
 				break;
 
+			case '_day_of_month':
+				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_number.tpl');
+				break;
+				
 			case '_day_of_week':
 				return $tpl->display('devblocks:cerberusweb.core::internal/decisions/conditions/_day_of_week.tpl');
 				break;
@@ -1843,6 +1848,25 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					case 'is':
 						$month = date('n', $now);
 						$pass = in_array($month, $months);
+						break;
+				}
+				break;
+			case '_day_of_month':
+				$not = (substr($params['oper'],0,1) == '!');
+				$oper = ltrim($params['oper'],'!');
+
+				@$dom_expected = DevblocksPlatform::importVar($params['value'],'integer',0);
+				$dom_actual = date('d', $now);
+
+				switch($oper) {
+					case 'is':
+						$pass = $dom_expected == $dom_actual;
+						break;
+					case 'gt':
+						$pass = $dom_actual > $dom_expected;
+						break;
+					case 'lt':
+						$pass = $dom_actual < $dom_expected;
 						break;
 				}
 				break;
