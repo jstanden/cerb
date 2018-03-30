@@ -74,7 +74,7 @@ class Page_Profiles extends CerberusPageExtension {
 	
 	static function getProfilePropertiesCustomFields($context, $values) {
 		$custom_fields = DAO_CustomField::getByContext($context);
-		$properties = array();
+		$properties = [];
 		
 		foreach($custom_fields as $cf_id => $cfield) {
 			if($cfield->custom_fieldset_id != 0)
@@ -83,13 +83,13 @@ class Page_Profiles extends CerberusPageExtension {
 			if(!isset($values[$cf_id]))
 				continue;
 		
-			$properties['cf_' . $cf_id] = array(
+			$properties['cf_' . $cf_id] = [
 				'id' => $cf_id,
 				'label' => $cfield->name,
 				'type' => $cfield->type,
 				'value' => $values[$cf_id],
-				'params' => @$cfield->params ?: array(),
-			);
+				'params' => @$cfield->params ?: [],
+			];
 		}
 		
 		return $properties;
@@ -101,7 +101,7 @@ class Page_Profiles extends CerberusPageExtension {
 		$custom_fields = DAO_CustomField::getByContext($context);
 		$custom_fieldsets = DAO_CustomFieldset::getByContextLink($context, $context_id);
 		
-		$properties = array();
+		$properties = [];
 		
 		if(is_array($custom_fieldsets))
 		foreach($custom_fieldsets as $custom_fieldset) { /* @var $custom_fieldset Model_CustomFieldset */
@@ -109,29 +109,29 @@ class Page_Profiles extends CerberusPageExtension {
 				continue;
 		
 			$cf_group_fields = $custom_fieldset->getCustomFields();
-			$cf_group_props = array();
+			$cf_group_props = [];
 			
 			if(is_array($cf_group_fields))
 			foreach($cf_group_fields as $cf_group_field_id => $cf_group_field) {
 				if(!isset($custom_fields[$cf_group_field_id]))
 					continue;
 			
-				$cf_group_props['cf_' . $cf_group_field_id] = array(
+				$cf_group_props['cf_' . $cf_group_field_id] = [
 					'id' => $cf_group_field_id,
 					'label' => $cf_group_field->name,
 					'type' => $cf_group_field->type,
 					'value' => isset($values[$cf_group_field->id]) ? $values[$cf_group_field->id] : null,
-				);
+				];
 				
 				// Include parameters for abstract handling
 				if(!empty($cf_group_field->params))
 					$cf_group_props['cf_' . $cf_group_field_id]['params'] = $cf_group_field->params;
 			}
 			
-			$properties[$custom_fieldset->id] = array(
+			$properties[$custom_fieldset->id] = [
 				'model' => $custom_fieldset,
 				'properties' => $cf_group_props,
-			);
+			];
 			
 		}
 		

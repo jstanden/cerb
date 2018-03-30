@@ -551,6 +551,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					'_action' => 'prompt.buttons',
 					'_trigger_id' => $trigger->id,
 					'_prompt' => [
+						'action' => 'prompt.buttons',
 						'var' => $var,
 						'format' => $var_format,
 						'validate' => $var_validate,
@@ -608,6 +609,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					'_action' => 'prompt.date',
 					'_trigger_id' => $trigger->id,
 					'_prompt' => [
+						'action' => 'prompt.date',
 						'var' => $var,
 						'format' => $var_format,
 						'validate' => $var_validate,
@@ -656,6 +658,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					'_action' => 'prompt.images',
 					'_trigger_id' => $trigger->id,
 					'_prompt' => [
+						'action' => 'prompt.images',
 						'var' => $var,
 						'format' => $var_format,
 						'validate' => $var_validate,
@@ -683,6 +686,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					'_action' => 'prompt.text',
 					'_trigger_id' => $trigger->id,
 					'_prompt' => [
+						'action' => 'prompt.text',
 						'var' => $var,
 						'format' => $var_format,
 						'validate' => $var_validate,
