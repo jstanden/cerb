@@ -1310,7 +1310,7 @@ class Model_TriggerEvent {
 		return $pass;
 	}
 	
-	function prepareResumeDecisionTree($message, &$interaction, &$actions, &$dict, &$resume_path) {
+	function prepareResumeDecisionTree($message, &$interaction, &$actions, DevblocksDictionaryDelegate &$dict, &$resume_path) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		// Do we have special prompt handling instructions?
@@ -1319,6 +1319,9 @@ class Model_TriggerEvent {
 			
 			// Are we saving a copy of the latest message into a placeholder?
 			if(false != (@$var = $prompt['var'])) {
+				// If we lazy loaded a sub dictionary on the last attempt, clear it
+				if(DevblocksPlatform::strEndsWith($var, '_id'))
+					$dict->scrubKeys(substr($var, 0, -2));
 				
 				// Prompt-specific options
 				switch(@$prompt['action']) {
