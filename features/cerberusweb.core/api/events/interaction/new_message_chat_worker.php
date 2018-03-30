@@ -579,7 +579,9 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					'_action' => 'prompt.chooser',
 					'_trigger_id' => $trigger->id,
 					'_prompt' => [
+						'action' => 'prompt.chooser',
 						'var' => $var,
+						'context' => $context,
 						'format' => $var_format,
 						'validate' => $var_validate,
 					],
