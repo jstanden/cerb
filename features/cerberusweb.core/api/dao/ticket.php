@@ -1957,6 +1957,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	
 	// Virtuals
 	const VIRTUAL_BUCKET_SEARCH = '*_bucket_search';
+	const VIRTUAL_COMMENTS_SEARCH = '*_comments_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUP_SEARCH = '*_group_search';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
@@ -2080,6 +2081,10 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_BUCKET_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BUCKET, 't.bucket_id');
+				break;
+				
+			case self::VIRTUAL_COMMENTS_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET)), 't.id');
 				break;
 				
 			case self::VIRTUAL_GROUP_SEARCH:
@@ -2304,6 +2309,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::SENDER_ADDRESS => new DevblocksSearchField(SearchFields_Ticket::SENDER_ADDRESS, 'a1', 'email', null, null, true),
 
 			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH, '*', 'bucket_search', null, null, false),
+			SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH, '*', 'comments_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
@@ -2557,6 +2563,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::REQUESTER_ADDRESS,
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
+			SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH,
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
@@ -2579,6 +2586,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_STATUS_ID,
 			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH,
+			SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH,
 			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGE_LAST_SEARCH,
@@ -3017,10 +3025,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BUCKET, 'q' => ''],
 					]
 				),
-			'comments' => 
+			'comments' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT),
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => [],
+					'examples' => array(
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_COMMENT],
+					)
 				),
 			'closed' =>
 				array(
@@ -3238,7 +3249,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		// Engine/schema examples: Fulltext
 		
-		$ft_examples = array();
+		$ft_examples = [];
 		
 		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID))) {
 			if(false != ($engine = $schema->getEngine())) {
@@ -3248,20 +3259,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		if(!empty($ft_examples)) {
 			$fields['text']['examples'] = $ft_examples;
-		}
-		
-		// Engine/schema examples: Comments
-		
-		$ft_examples = array();
-		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
-				$ft_examples = $engine->getQuickSearchExamples($schema);
-			}
-		}
-		
-		if(!empty($ft_examples)) {
-			$fields['comments']['examples'] = $ft_examples;
 		}
 		
 		// Add is_sortable
@@ -3279,6 +3276,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		switch($field) {
 			case 'bucket':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH);
+				break;
+				
+			case 'comments':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH);
 				break;
 				
 			case 'group':
@@ -3680,6 +3681,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.bucket')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.comments')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
