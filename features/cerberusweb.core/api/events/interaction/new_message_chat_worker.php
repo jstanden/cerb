@@ -621,11 +621,20 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 			case 'prompt_file':
 				$actions =& $dict->_actions;
 				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
+				
 				$actions[] = array(
 					'_action' => 'prompt.file',
 					'_trigger_id' => $trigger->id,
 					'_prompt' => [
 						'action' => 'prompt.file',
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
 					],
 				);
 
