@@ -1328,6 +1328,13 @@ class Model_TriggerEvent {
 							
 						$dict->set(substr($var,0,-2) . '_context', $prompt['context']);
 						break;
+						
+					case 'prompt.file':
+						if(!DevblocksPlatform::strEndsWith($var, '_id'))
+							break;
+							
+						$dict->set(substr($var,0,-2) . '_context', CerberusContexts::CONTEXT_ATTACHMENT);
+						break;
 				}
 				
 				if(false != (@$format_tpl = $prompt['format'])) {

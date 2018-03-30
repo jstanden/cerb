@@ -624,6 +624,9 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				$actions[] = array(
 					'_action' => 'prompt.file',
 					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'action' => 'prompt.file',
+					],
 				);
 
 				$dict->__exit = 'suspend';
