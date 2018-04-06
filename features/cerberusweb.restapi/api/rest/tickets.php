@@ -67,6 +67,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				case 'search':
 					$this->postSearch();
 					break;
+					
+				case 'split':
+					$this->_postSplit();
+					break;
 			}
 		}
 		
@@ -803,4 +807,23 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		));
 	}
 	
+	private function _postSplit() {
+		$worker = CerberusApplication::getActiveWorker();
+		
+		@$message_id = DevblocksPlatform::importGPC($_POST['message_id'],'integer',0);
+		
+		if(!$message_id)
+			$this->error(self::ERRNO_PARAM_INVALID, "The 'message_id' is required.");
+		
+		if(false == ($message = DAO_Message::get($message_id)))
+			$this->error(self::ERRNO_PARAM_INVALID, "The given message ID was not found.");
+		
+		if(!Context_Message::isWriteableByActor($message, $worker))
+			$this->error(self::ERRNO_ACL, "You do not have permission to modify this message.");
+		
+		if(false == ($results = DAO_Ticket::split($message, $error)))
+			$this->error(self::ERRNO_PARAM_INVALID, $error);
+		
+		$this->getId($results['id']);
+	}
 };

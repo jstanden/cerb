@@ -1394,93 +1394,20 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 	
 	function doSplitMessageAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
-		if(null == ($orig_message = DAO_Message::get($id)))
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(false == ($message = DAO_Message::get($message_id)))
 			return;
 		
-		if(null == ($orig_headers = $orig_message->getHeaders()))
+		if(!Context_Message::isWriteableByActor($message, $active_worker))
 			return;
-			
-		if(null == ($orig_ticket = DAO_Ticket::get($orig_message->ticket_id)))
+		
+		if(false == ($results = DAO_Ticket::split($message, $error)))
 			return;
-
-		if(null == ($messages = DAO_Message::getMessagesByTicket($orig_message->ticket_id)))
-			return;
-			
-		// Create a new ticket
-		$new_ticket_mask = CerberusApplication::generateTicketMask();
 		
-		$fields = array(
-			DAO_Ticket::CREATED_DATE => $orig_message->created_date,
-			DAO_Ticket::UPDATED_DATE => $orig_message->created_date,
-			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
-			DAO_Ticket::MASK => $new_ticket_mask,
-			DAO_Ticket::SUBJECT => (isset($orig_headers['subject']) ? $orig_headers['subject'] : $orig_ticket->subject),
-			DAO_Ticket::GROUP_ID => $orig_ticket->group_id,
-			DAO_Ticket::BUCKET_ID => $orig_ticket->bucket_id,
-			DAO_Ticket::ORG_ID => $orig_ticket->org_id,
-			DAO_Ticket::IMPORTANCE => $orig_ticket->importance,
-		);
-
-		$new_ticket_id = DAO_Ticket::create($fields);
-
-		if(null == ($new_ticket = DAO_Ticket::get($new_ticket_id)))
-			return false;
-		
-		// Copy all the original tickets requesters
-		$orig_requesters = DAO_Ticket::getRequestersByTicket($orig_ticket->id);
-		foreach($orig_requesters as $orig_req_addy) {
-			DAO_Ticket::createRequester($orig_req_addy->email, $new_ticket_id);
-		}
-		
-		// Pull the message off the ticket (reparent)
-		unset($messages[$orig_message->id]);
-		
-		DAO_Message::update($orig_message->id,array(
-			DAO_Message::TICKET_ID => $new_ticket_id
-		));
-		
-		DAO_Ticket::rebuild($new_ticket_id);
-		DAO_Ticket::rebuild($orig_ticket->id);
-		
-		/*
-		 * Log activity (Ticket Split)
-		 */
-		
-		$entry = array(
-			//{{actor}} split from ticket {{target}} into ticket {{source}}
-			'message' => 'activities.ticket.split',
-			'variables' => array(
-				'target' => sprintf("[%s] %s", $orig_ticket->mask, $orig_ticket->subject),
-				'source' => sprintf("[%s] %s", $new_ticket->mask, $new_ticket->subject),
-				),
-			'urls' => array(
-				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $orig_ticket->mask),
-				'source' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $new_ticket->mask),
-				)
-		);
-		CerberusContexts::logActivity('ticket.split', CerberusContexts::CONTEXT_TICKET, $orig_ticket->id, $entry);
-		
-		/*
-		 * Log activity (Ticket Split From)
-		 */
-		
-		$entry = array(
-			//{{actor}} split into ticket {{target}} from ticket {{source}}
-			'message' => 'activities.ticket.split.from',
-			'variables' => array(
-				'target' => sprintf("[%s] %s", $new_ticket->mask, $new_ticket->subject),
-				'source' => sprintf("[%s] %s", $orig_ticket->mask, $orig_ticket->subject),
-				),
-			'urls' => array(
-				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $new_ticket->mask),
-				'source' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $orig_ticket->mask),
-				)
-		);
-		CerberusContexts::logActivity('ticket.split', CerberusContexts::CONTEXT_TICKET, $new_ticket->id, $entry);
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$new_ticket_mask)));
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$results['mask'])));
 	}
 	
 	function doTicketHistoryScopeAction() {

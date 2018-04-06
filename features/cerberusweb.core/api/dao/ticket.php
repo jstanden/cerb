@@ -1810,6 +1810,107 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function split(Model_Message $orig_message, &$error=null) {
+		if(null == ($orig_headers = $orig_message->getHeaders())) {
+			$error = "The given message lacked message headers.";
+			return false;
+		}
+		
+		if(null == ($orig_ticket = DAO_Ticket::get($orig_message->ticket_id))) {
+			$error = "The given message has an invalid parent ticket.";
+			return false;
+		}
+		
+		if(null == ($messages = DAO_Message::getMessagesByTicket($orig_message->ticket_id))) {
+			$error = "There are no messages on the parent ticket.";
+			return false;
+		}
+		
+		if(count($messages) < 2) {
+			$error = "There must be at least two messages on the parent ticket.";
+			return false;
+		}
+		
+		// Create a new ticket
+		$new_ticket_mask = CerberusApplication::generateTicketMask();
+		
+		$fields = [
+			DAO_Ticket::CREATED_DATE => $orig_message->created_date,
+			DAO_Ticket::UPDATED_DATE => $orig_message->created_date,
+			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_OPEN,
+			DAO_Ticket::MASK => $new_ticket_mask,
+			DAO_Ticket::SUBJECT => (is_array($orig_headers) && isset($orig_headers['subject']) ? $orig_headers['subject'] : $orig_ticket->subject),
+			DAO_Ticket::GROUP_ID => $orig_ticket->group_id,
+			DAO_Ticket::BUCKET_ID => $orig_ticket->bucket_id,
+			DAO_Ticket::ORG_ID => $orig_ticket->org_id,
+			DAO_Ticket::IMPORTANCE => $orig_ticket->importance,
+		];
+		
+		$new_ticket_id = DAO_Ticket::create($fields);
+		
+		if(null == ($new_ticket = DAO_Ticket::get($new_ticket_id))) {
+			$error = "Failed to create a new ticket for the given message.";
+			return false;
+		}
+		
+		// Copy all the original tickets requesters
+		$orig_requesters = DAO_Ticket::getRequestersByTicket($orig_ticket->id);
+		foreach($orig_requesters as $orig_req_addy) {
+			DAO_Ticket::createRequester($orig_req_addy->email, $new_ticket_id);
+		}
+		
+		// Pull the message off the ticket (reparent)
+		unset($messages[$orig_message->id]);
+		
+		DAO_Message::update($orig_message->id, [
+			DAO_Message::TICKET_ID => $new_ticket_id
+		]);
+		
+		DAO_Ticket::rebuild($new_ticket_id);
+		DAO_Ticket::rebuild($orig_ticket->id);
+		
+		/*
+		 * Log activity (Ticket Split)
+		 */
+		
+		$entry = [
+			//{{actor}} split from ticket {{target}} into ticket {{source}}
+			'message' => 'activities.ticket.split',
+			'variables' => [
+				'target' => sprintf("[%s] %s", $orig_ticket->mask, $orig_ticket->subject),
+				'source' => sprintf("[%s] %s", $new_ticket->mask, $new_ticket->subject),
+				],
+			'urls' => [
+				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $orig_ticket->mask),
+				'source' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $new_ticket->mask),
+				]
+		];
+		CerberusContexts::logActivity('ticket.split', CerberusContexts::CONTEXT_TICKET, $orig_ticket->id, $entry);
+		
+		/*
+		 * Log activity (Ticket Split From)
+		 */
+		
+		$entry = [
+			//{{actor}} split into ticket {{target}} from ticket {{source}}
+			'message' => 'activities.ticket.split.from',
+			'variables' => [
+				'target' => sprintf("[%s] %s", $new_ticket->mask, $new_ticket->subject),
+				'source' => sprintf("[%s] %s", $orig_ticket->mask, $orig_ticket->subject),
+				],
+			'urls' => [
+				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $new_ticket->mask),
+				'source' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $orig_ticket->mask),
+				]
+		];
+		CerberusContexts::logActivity('ticket.split', CerberusContexts::CONTEXT_TICKET, $new_ticket->id, $entry);
+		
+		return [
+			'id' => $new_ticket_id,
+			'mask' => $new_ticket_mask,
+		];
+	}
+	
 	/**
 	 *
 	 * @param array $ids
