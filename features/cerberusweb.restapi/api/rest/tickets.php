@@ -60,6 +60,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 					$this->postCompose();
 					break;
 					
+				case 'merge':
+					$this->_postMerge();
+					break;
+					
 				case 'reply':
 					$this->postReply();
 					break;
@@ -805,6 +809,65 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			'ticket_id' => $ticket->id,
 			'comment_id' => $comment_id,
 		));
+	}
+	
+	private function _postMerge() {
+		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_ids'],'array:int',[]);
+		
+		$worker = CerberusApplication::getActiveWorker();
+		$eventMgr = DevblocksPlatform::services()->event();
+		
+		if(false == ($tickets = DAO_Ticket::getIds($ticket_ids)))
+			$this->error(self::ERRNO_PARAM_INVALID, "Failed to load the given ticket IDs.");
+		
+		if(count($tickets) < 2)
+			$this->error(self::ERRNO_PARAM_INVALID, "At least two `ticket_ids[]` parameters are required.");
+		
+		if(!Context_Ticket::isWriteableByActor($tickets, $worker))
+			$this->error(self::ERRNO_ACL, "You do not have permission to modify these tickets.");
+		
+		$from_ids = array_keys($tickets);
+		sort($from_ids); // oldest first
+		$to_id = array_shift($from_ids); // merge into oldest
+		
+		if(false == DAO_Ticket::mergeIds($from_ids, $to_id))
+			$this->error(self::ERRNO_PARAM_INVALID, "Failed to merge tickets.");
+		
+		foreach($from_ids as $from_id) {
+			/*
+			 * Log activity (context.merge)
+			 */
+			$entry = [
+				//{{actor}} merged {{context_label}} {{source}} into {{context_label}} {{target}}
+				'message' => 'activities.record.merge',
+				'variables' => [
+					'context' => CerberusContexts::CONTEXT_TICKET,
+					'context_label' => 'ticket',
+					'source' => sprintf("[%s] %s", $tickets[$from_id]->mask, $tickets[$from_id]->subject),
+					'target' => sprintf("[%s] %s", $tickets[$to_id]->mask, $tickets[$to_id]->subject),
+					],
+				'urls' => [
+					'target' => sprintf("ctx://%s:%d/%s", CerberusContexts::CONTEXT_TICKET, $to_id, DevblocksPlatform::strToPermalink($tickets[$to_id]->subject)),
+					],
+			];
+			CerberusContexts::logActivity('record.merge', CerberusContexts::CONTEXT_TICKET, $to_id, $entry);
+		}
+		
+		// Fire a merge event for plugins
+		$eventMgr->trigger(
+			new Model_DevblocksEvent(
+				'record.merge',
+				array(
+					'context' => CerberusContexts::CONTEXT_TICKET,
+					'target_id' => $to_id,
+					'source_ids' => $from_ids,
+				)
+			)
+		);
+		
+		DAO_Ticket::delete($from_ids);
+		
+		$this->getId($to_id);
 	}
 	
 	private function _postSplit() {
