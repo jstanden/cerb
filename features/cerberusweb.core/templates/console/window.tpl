@@ -34,6 +34,10 @@ $(function() {
 			;
 		{/if}
 		
+		$popup.closest('.ui-dialog').find('.ui-dialog-titlebar-close')
+			.attr('tabindex', '-1')
+			;
+		
 		var $window = $popup.closest('div.ui-dialog');
 		var $chat_window_convo = $popup.find('div.bot-chat-window-convo');
 		var $chat_window_input_form = $('#{$layer} form.bot-chat-window-input-form');
