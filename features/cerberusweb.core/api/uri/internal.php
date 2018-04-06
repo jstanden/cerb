@@ -2014,7 +2014,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	 */
 	function redirectReadAction() {
 		$worker = CerberusApplication::getActiveWorker();
-
+		
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
 
@@ -2043,10 +2043,11 @@ class ChInternalController extends DevblocksControllerExtension {
 					}
 					break;
 			}
-
-			session_write_close();
-			header("Location: " . $notification->getURL());
+			
+			DevblocksPlatform::redirectURL($notification->getURL());
 		}
+		
+		DevblocksPlatform::redirectURL('');
 		exit;
 	}
 	
