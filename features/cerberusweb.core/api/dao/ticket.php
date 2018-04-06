@@ -1778,7 +1778,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		foreach($merged_tickets as $ticket_id => $ticket) {
 			// Clear old ticket meta
 			$fields = [
-				DAO_Ticket::MASK => $ticket->mask . '-MERGED',
+				DAO_Ticket::MASK => !DevblocksPlatform::strEndsWith($ticket->mask, '-MERGED') ? ($ticket->mask . '-MERGED') : $ticket->mask,
 				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
 				DAO_Ticket::REOPEN_AT => 0,
 				DAO_Ticket::FIRST_MESSAGE_ID => 0,
