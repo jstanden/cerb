@@ -1020,6 +1020,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 			case 'set_owner':
 				DevblocksEventHelper::runActionSetTicketOwner($params, $dict, 'ticket_id', 'ticket_owner_');
+				$dict->set('ticket_has_owner', !empty($dict->ticket_owner_id) ? 1 : 0);
 				break;
 				
 			case 'send_email':
