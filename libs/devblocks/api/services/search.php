@@ -319,6 +319,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				$headers[] = 'Content-Type: application/json';
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
 				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 				curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
 				break;
 		}
