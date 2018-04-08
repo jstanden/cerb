@@ -2164,9 +2164,16 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 				
 			case 'params':
 				if(!is_array($value)) {
-					$error = 'must be an object.';
-					return false;
-				}
+                                        if(is_string($value)) {
+                                                if(false == ($value = json_decode($value))) {
+                                                        $error = "string could not be JSON decoded";
+                                                        return false;
+                                                }
+                                        } else {
+                                                $error = "must be an object.";
+                                                return false;
+                                        }
+                                }
 				
 				if(false == ($json = json_encode($value))) {
 					$error = 'could not be JSON encoded.';
