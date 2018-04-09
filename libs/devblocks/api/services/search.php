@@ -303,10 +303,10 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	const READ_TIMEOUT_MS = 15000;
 	const WRITE_TIMEOUT_MS = 20000;
 	
-	private $_config = array();
+	private $_config = [];
 	
-	private function _execute($verb='GET', $url, $payload=array(), $timeout=20000) {
-		$headers = array();
+	private function _execute($verb='GET', $url, $payload=[], $timeout=20000) {
+		$headers = [];
 		
 		$ch = DevblocksPlatform::curlInit($url);
 		curl_setopt($ch, CURLOPT_TIMEOUT_MS, $timeout);
@@ -315,6 +315,14 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		
 		switch($verb) {
+			case 'POST':
+				$headers[] = 'Content-Type: application/json';
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+				break;
+			
 			case 'PUT':
 				$headers[] = 'Content-Type: application/json';
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
@@ -332,7 +340,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		curl_close($ch);
 		
 		if($status != 200 || false == (@$json = json_decode($out, true)))
-			return false; 
+			return false;
 		
 		return $json;
 	}
@@ -340,19 +348,34 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	private function _putRecord($type, $id, $doc) {
 		@$base_url = rtrim($this->_config['base_url'], '/');
 		@$index = trim($this->_config['index'], '/');
+		@$version = $this->_config['version'];
 		
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
 		
-		$url = sprintf("%s/%s/%s/%d",
-			$base_url,
-			urlencode($index),
-			urlencode($type),
-			$id
-		);
-		
-		if(false == ($json = $this->_execute('PUT', $url, $doc)))
-			return false;
+		if($version >= 6) {
+			// No types within indices
+			$url = sprintf("%s/%s_%s/_doc/%d",
+				$base_url,
+				urlencode($index),
+				urlencode($type),
+				$id
+			);
+			
+			if(false == ($json = $this->_execute('POST', $url, $doc)))
+				return false;
+			
+		} else {
+			$url = sprintf("%s/%s/%s/%d",
+				$base_url,
+				urlencode($index),
+				urlencode($type),
+				$id
+			);
+			
+			if(false == ($json = $this->_execute('PUT', $url, $doc)))
+				return false;
+		}
 		
 		return $json;
 	}
@@ -360,25 +383,34 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	private function _getSearch($type, $query, $limit=1000) {
 		@$base_url = rtrim($this->_config['base_url'], '/');
 		@$index = trim($this->_config['index'], '/');
-		@$df = $this->_config['default_query_field'];
-		
-		if(empty($df))
-			$df = '_all';
+		@$version = $this->_config['version'];
 		
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
 		
 		// [TODO] Paging
 		
-		$url = sprintf("%s/%s/%s/_search?q=%s&_source=false&size=%d&df=%s&default_operator=OR&filter_path=%s",
-			$base_url,
-			rawurlencode($index),
-			rawurlencode($type),
-			rawurlencode($query),
-			$limit,
-			rawurlencode($df),
-			rawurlencode('took,hits.total,hits.hits._id')
-		);
+		if($version >= 6) {
+			// [TODO] Phase out filter_path?
+			$url = sprintf("%s/%s_%s/_doc/_search?q=%s&_source=false&size=%d&default_operator=OR&filter_path=%s",
+				$base_url,
+				rawurlencode($index),
+				rawurlencode($type),
+				rawurlencode($query),
+				$limit,
+				rawurlencode('took,hits.total,hits.hits._id')
+			);
+			
+		} else {
+			$url = sprintf("%s/%s/%s/_search?q=%s&_source=false&size=%d&default_operator=OR&filter_path=%s",
+				$base_url,
+				rawurlencode($index),
+				rawurlencode($type),
+				rawurlencode($query),
+				$limit,
+				rawurlencode('took,hits.total,hits.hits._id')
+			);
+		}
 		
 		if(false == ($json = $this->_execute('GET', $url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))
 			return false;
@@ -389,15 +421,25 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	private function _getCount($type) {
 		@$base_url = rtrim($this->_config['base_url'], '/');
 		@$index = trim($this->_config['index'], '/');
+		@$version = $this->_config['version'];
 		
 		if(empty($base_url) || empty($index) || empty($type))
 			return false;
 		
-		$url = sprintf("%s/%s/%s/_count",
-			$base_url,
-			urlencode($index),
-			urlencode($type)
-		);
+		if($version >= 6) {
+			$url = sprintf("%s/%s_%s/_doc/_count",
+				$base_url,
+				urlencode($index),
+				urlencode($type)
+			);
+			
+		} else {
+			$url = sprintf("%s/%s/%s/_count",
+				$base_url,
+				urlencode($index),
+				urlencode($type)
+			);
+		}
 		
 		if(false == ($json = $this->_execute('GET', $url, array(), DevblocksSearchEngineElasticSearch::READ_TIMEOUT_MS)))
 			return false;
@@ -481,6 +523,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=null) {
 		@$type = $schema->getNamespace();
+		@$version = $this->_config['version'];
 		
 		if(empty($type))
 			return false;
@@ -557,7 +600,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				);
 				
 				if(false == ($results = $db->GetArraySlave($sql)))
-					$results = array();
+					$results = [];
 				
 				$db->ExecuteSlave(sprintf("DROP TABLE %s", $db->escape($temp_table)));
 					
@@ -582,10 +625,10 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			if($results_hits) {
 				$ids = array_column($json['hits']['hits'], '_id');
 			} else {
-				$ids = array();
+				$ids = [];
 			}
 			
-			$cache->save($ids, $cache_key, array(), $cache_ttl, $is_only_cached_for_request);
+			$cache->save($ids, $cache_key, [], $cache_ttl, $is_only_cached_for_request);
 		}
 		
 		$count = count($ids);
@@ -624,7 +667,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		return $ids;
 	}
 	
-	private function _index(Extension_DevblocksSearchSchema $schema, $id, array $doc, $attributes=array()) {
+	private function _index(Extension_DevblocksSearchSchema $schema, $id, array $doc, $attributes=[]) {
 		@$type = $schema->getNamespace();
 		
 		if(empty($type))
@@ -666,7 +709,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		return true;
 	}
 	
-	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=array()) {
+	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=[]) {
 		if(false === ($ids = $this->_index($schema, $id, $doc, $attributes)))
 			return false;
 		

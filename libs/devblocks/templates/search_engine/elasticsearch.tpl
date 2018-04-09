@@ -18,14 +18,15 @@
 		<input type="text" name="params[{$engine->id}][base_url]" value="{$engine_params.base_url}" size="45" style="width:100%;" placeholder="http://127.0.0.1:9200/">
 	</p>
 	
+	<b>Version:</b>
+	<p style="margin-left:5px;">
+		<label><input type="radio" name="params[{$engine->id}][version]" value="5" {if $engine_params.version != '6'}checked="checked"{/if}> 5.x or earlier</label>
+		<label><input type="radio" name="params[{$engine->id}][version]" value="6" {if $engine_params.version == '6'}checked="checked"{/if}> 6.x or later</label>
+	</p>
+	
 	<b>Search index:</b>
 	<p style="margin-left:5px;">
 		<input type="text" name="params[{$engine->id}][index]" value="{$engine_params.index}" size="45" style="width:100%;" placeholder="cerb">
-	</p>
-	
-	<b>Default query field:</b>
-	<p style="margin-left:5px;">
-		<input type="text" name="params[{$engine->id}][default_query_field]" value="{$engine_params.default_query_field}" size="45" style="width:100%;" placeholder="_all">
 	</p>
 	
 	<div style="padding:5px 10px;">
