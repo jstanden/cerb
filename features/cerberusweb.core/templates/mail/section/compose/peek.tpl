@@ -539,7 +539,7 @@
 		});
 		
 		$frm.find('input:text[name=org_name]').bind('autocompletechange',function(event, ui) {
-			genericAjaxGet('', 'c=contacts&a=getTopContactsByOrgJson&org_name=' + $(this).val(), function(json) {
+			genericAjaxGet('', 'c=contacts&a=getTopContactsByOrgJson&org_name=' + encodeURIComponent($(this).val()), function(json) {
 				var $sug = $('#compose_suggested{$popup_uniqid}');
 				
 				$sug.find('ul.bubbles li').remove();
