@@ -2554,6 +2554,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 					$object = [
 						'id' => $attachment_id,
 						'file_name' => $attachment->name,
+						'file_sha1hash' => $attachment->storage_sha1hash,
 						'file_size' => $attachment->storage_size,
 						'file_type' => $attachment->mime_type,
 					];
