@@ -531,12 +531,16 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(empty($response_placeholder))
 			return "[ERROR] No result placeholder given.";
 		
+		$finfo = finfo_open(FILEINFO_MIME);
+		$file_type = finfo_buffer($finfo, $http_body);
+		finfo_close($finfo);
+		
 		// Output
 		$out = sprintf(">>> Sending HTTP request:\n%s %s\n%s%s\n",
 			mb_convert_case($http_verb, MB_CASE_UPPER),
 			$http_url,
 			!empty($http_headers) ? (implode("\n", $http_headers)."\n") : '',
-			(in_array($http_verb, array('post','put')) ? ("\n" . $http_body. "\n") : "")
+			(in_array($http_verb, array('post','put')) ? ("\n" . (!$http_body || DevblocksPlatform::strStartsWith($file_type, 'text') ? $http_body : '[binary content]') . "\n") : "")
 		);
 		
 		switch($auth) {
@@ -578,7 +582,9 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 					$out .= sprintf(">>> Response headers:\n%s\n\n", DevblocksPlatform::strFormatJson(json_encode($response['headers'])));
 				
 				if(isset($response['body']))
-					$out .= sprintf(">>> Response body:\n%s\n", $response['body']);
+					$out .= sprintf(">>> Response body:\n%s\n",
+						is_array($response['body']) ? DevblocksPlatform::strFormatJson(json_encode($response['body'])) : $response['body']
+					);
 			}
 			
 		} else {
