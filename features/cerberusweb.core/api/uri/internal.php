@@ -765,6 +765,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				throw new Exception_DevblocksValidationError("This record type doesn't support merging.");
 			
 			$properties = $context_ext->mergeGetKeys();
+			$custom_fields = DAO_CustomField::getByContext($context);
 			
 			// Add custom fields
 			foreach($field_labels as $label_key => $label) {
@@ -787,6 +788,10 @@ class ChInternalController extends DevblocksControllerExtension {
 				$cfield_id = 0;
 				if(preg_match('#^custom_(\d+)$#', $k, $matches)) {
 					$cfield_id = $matches[1];
+					
+					// If the field doesn't exist anymore, skip
+					if(!isset($custom_fields[$cfield_id]))
+						continue;
 				}
 				
 				foreach($dicts as $dict) {
@@ -810,6 +815,15 @@ class ChInternalController extends DevblocksControllerExtension {
 							@$currency_id = $dict->get($k . '_currency_id');
 							if($currency_id && false != ($currency = DAO_Currency::get($currency_id))) {
 								$v = $currency->format($dict->$k);
+							}
+							break;
+							
+						case Model_CustomField::TYPE_DROPDOWN:
+							@$options = $custom_fields[$cfield_id]->params['options'];
+							
+							// Ignore invalid options
+							if(!in_array($v, $options)) {
+								$handled = true;
 							}
 							break;
 							
@@ -845,7 +859,6 @@ class ChInternalController extends DevblocksControllerExtension {
 							break;
 							
 						case Model_CustomField::TYPE_LIST:
-						case Model_CustomField::TYPE_MULTI_CHECKBOX:
 							@$values = $dict->custom[$cfield_id];
 							
 							if(!is_array($values))
@@ -853,6 +866,22 @@ class ChInternalController extends DevblocksControllerExtension {
 							
 							foreach($values as $v)
 								$field_values[$k]['values'][$v] = $v;
+							
+							asort($field_values[$k]['values']);
+							
+							$handled = true;
+							break;
+							
+						case Model_CustomField::TYPE_MULTI_CHECKBOX:
+							@$values = $dict->custom[$cfield_id];
+							@$options = $custom_fields[$cfield_id]->params['options'];
+							
+							if(!is_array($values))
+								break;
+							
+							foreach($values as $v)
+								if(in_array($v, $options))
+									$field_values[$k]['values'][$v] = $v;
 							
 							asort($field_values[$k]['values']);
 							
