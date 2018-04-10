@@ -330,7 +330,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-		$ids = array();
+		$ids = [];
 		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
@@ -340,13 +340,14 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
 		@$is_banned = DevblocksPlatform::importGPC($_POST['is_banned'],'integer',0);
 		@$is_defunct = DevblocksPlatform::importGPC($_POST['is_defunct'],'integer',0);
+		@$mail_transport_id = DevblocksPlatform::importGPC($_POST['mail_transport_id'],'string',null);
 
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
 		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
-		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
+		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',[]);
 		
-		$do = array();
+		$do = [];
 		
 		// Do: Organization
 		if(0 != strlen($org_id)) {
@@ -364,6 +365,12 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		// Do: Defunct
 		if(0 != strlen($is_defunct))
 			$do['defunct'] = $is_defunct;
+		
+		// Do: Mail Transport
+		if($active_worker->is_superuser 
+			&& 0 != strlen($mail_transport_id) 
+				&& false !== DAO_MailTransport::get($mail_transport_id))
+					$do['mail_transport_id'] = $mail_transport_id;
 		
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {

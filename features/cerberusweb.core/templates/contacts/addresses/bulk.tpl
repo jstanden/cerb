@@ -11,7 +11,7 @@
 	<legend>{'common.bulk_update.with'|devblocks_translate|capitalize}</legend>
 	<label><input type="radio" name="filter" value="" {if empty($ids)}checked{/if}> {'common.bulk_update.filter.all'|devblocks_translate}</label> 
 	
- 	{if !empty($ids)}
+	{if !empty($ids)}
 		<label><input type="radio" name="filter" value="checks" {if !empty($ids)}checked{/if}> {'common.bulk_update.filter.checked'|devblocks_translate}</label>
 	{else}
 		<label><input type="radio" name="filter" value="sample"> {'common.bulk_update.filter.random'|devblocks_translate} </label><input type="text" name="filter_sample_size" size="5" maxlength="4" value="100" class="input_number">
@@ -45,6 +45,15 @@
 				<option value="1">{'common.yes'|devblocks_translate|capitalize}</option>
 			</select></td>
 		</tr>
+		{if $active_worker->is_superuser}
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.email_transport'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<button type="button" class="chooser-abstract" data-field-name="mail_transport_id" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-single="true" data-query="" data-query-required="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="bubbles chooser-container"></ul>
+			</td>
+		</tr>
+		{/if}
 	</table>
 </fieldset>
 

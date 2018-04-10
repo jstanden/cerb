@@ -270,6 +270,10 @@ class DAO_Address extends Cerb_ORMHelper {
 				case 'defunct':
 					$change_fields[DAO_Address::IS_DEFUNCT] = intval($v);
 					break;
+				case 'mail_transport_id':
+					$change_fields[DAO_Address::WORKER_ID] = 0;
+					$change_fields[DAO_Address::MAIL_TRANSPORT_ID] = intval($v);
+					break;
 				default:
 					// Custom fields
 					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {
