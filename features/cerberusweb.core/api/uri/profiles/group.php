@@ -378,6 +378,9 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if(!$active_worker->is_superuser)
+			return;
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
@@ -389,15 +392,14 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_GROUP, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		// Broadcast
-		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_GROUP)))
-			return [];
-		
 		$tpl->display('devblocks:cerberusweb.core::groups/bulk.tpl');
 	}
 	
 	function startBulkUpdateJsonAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			return;
 		
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		$ids = [];
@@ -420,31 +422,27 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$do = [];
 		
 		// Do: Email template
-		if($active_worker->is_superuser 
-			&& 0 != strlen($email_template_id) 
-				&& false !== DAO_MailHtmlTemplate::get($email_template_id))
-					$do['email_template_id'] = $email_template_id;
+		if(0 != strlen($email_template_id) 
+			&& false !== DAO_MailHtmlTemplate::get($email_template_id))
+				$do['email_template_id'] = $email_template_id;
 		
 		// Do: Is Private
-		if($active_worker->is_superuser 
-			&& 0 != strlen($is_private)) 
-				$do['is_private'] = DevblocksPlatform::importVar($is_private, 'bit', 0);
+		if(0 != strlen($is_private)) 
+			$do['is_private'] = DevblocksPlatform::importVar($is_private, 'bit', 0);
 		
 		// Do: Send as
 		if(0 != strlen($send_as))
 			$do['send_as'] = $send_as;
 		
 		// Do: Send from
-		if($active_worker->is_superuser 
-			&& 0 != strlen($send_from_id) 
-				&& false !== DAO_Address::get($send_from_id))
-					$do['send_from_id'] = $send_from_id;
+		if(0 != strlen($send_from_id) 
+			&& false !== DAO_Address::get($send_from_id))
+				$do['send_from_id'] = $send_from_id;
 		
 		// Do: Signature
-		if($active_worker->is_superuser 
-			&& 0 != strlen($signature_id) 
-				&& false !== DAO_EmailSignature::get($signature_id))
-					$do['signature_id'] = $signature_id;
+		if(0 != strlen($signature_id) 
+			&& false !== DAO_EmailSignature::get($signature_id))
+				$do['signature_id'] = $signature_id;
 		
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {

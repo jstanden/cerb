@@ -326,7 +326,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 	function startBulkUpdateJsonAction() {
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-		$ids = array();
+		$ids = [];
 		
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');

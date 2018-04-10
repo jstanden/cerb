@@ -888,7 +888,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		// If we have a special email character then switch to literal email matching
 		if(preg_match('/[\.\@\_]/', $term)) {
 			// If a leading '@', then prefix/trailing wildcard
-			if(substr($term,0,1) == '@') {
+			if(DevblocksPlatform::strStartsWith($term, '@')) {
 				$q = '*' . $term . '*';
 			// Otherwise, only suffix wildcard
 			} else {
