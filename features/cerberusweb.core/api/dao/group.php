@@ -585,6 +585,9 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(is_array($do))
 		foreach($do as $k => $v) {
 			switch($k) {
+				case 'email_template_id':
+					$change_fields[DAO_Group::REPLY_HTML_TEMPLATE_ID] = intval($v);
+					break;
 				case 'send_as':
 					$change_fields[DAO_Group::REPLY_PERSONAL] = $v;
 					break;

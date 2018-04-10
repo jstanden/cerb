@@ -37,6 +37,13 @@
 			</td>
 		</tr>
 		<tr>
+			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.email_template'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<button type="button" class="chooser-abstract" data-field-name="email_template_id" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-single="true" data-query="" data-query-required="" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="bubbles chooser-container"></ul>
+			</td>
+		</tr>
+		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.send.as'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
 				<input type="text" name="send_as" value="" style="width:98%;">
