@@ -563,6 +563,52 @@ class DAO_Group extends Cerb_ORMHelper {
 		DAO_Bucket::clearCache();
 	}
 	
+	/**
+	 * @param Model_ContextBulkUpdate $update
+	 * @return boolean
+	 */
+	static function bulkUpdate(Model_ContextBulkUpdate $update) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		// Make sure we have actions
+		if(empty($ids) || empty($do))
+			return false;
+		
+		$update->markInProgress();
+		
+		$change_fields = [];
+		$custom_fields = [];
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'send_as':
+					$change_fields[DAO_Group::REPLY_PERSONAL] = $v;
+					break;
+				default:
+					// Custom fields
+					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {
+						$custom_fields[substr($k,3)] = $v;
+					}
+			}
+		}
+	
+		DAO_Group::update($ids, $change_fields);
+		
+		// Custom Fields
+		C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_GROUP, $custom_fields, $ids);
+		
+		// Scheduled behavior
+		if(isset($do['behavior']))
+			C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_GROUP, $do['behavior'], $ids);
+		
+		$update->markCompleted();
+		return true;
+	}
+	
 	static function maint() {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
