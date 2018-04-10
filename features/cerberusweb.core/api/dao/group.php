@@ -591,6 +591,9 @@ class DAO_Group extends Cerb_ORMHelper {
 				case 'send_from_id':
 					$change_fields[DAO_Group::REPLY_ADDRESS_ID] = intval($v);
 					break;
+				case 'signature_id':
+					$change_fields[DAO_Group::REPLY_SIGNATURE_ID] = intval($v);
+					break;
 				default:
 					// Custom fields
 					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {

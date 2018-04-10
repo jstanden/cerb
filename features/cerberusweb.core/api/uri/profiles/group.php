@@ -408,6 +408,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 
 		@$send_as = DevblocksPlatform::importGPC($_POST['send_as'],'string',null);
 		@$send_from_id = DevblocksPlatform::importGPC($_POST['send_from_id'],'string',null);
+		@$signature_id = DevblocksPlatform::importGPC($_POST['signature_id'],'string',null);
 
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
@@ -425,6 +426,12 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 			&& 0 != strlen($send_from_id) 
 				&& false !== DAO_Address::get($send_from_id))
 					$do['send_from_id'] = $send_from_id;
+		
+		// Do: Signature
+		if($active_worker->is_superuser 
+			&& 0 != strlen($signature_id) 
+				&& false !== DAO_EmailSignature::get($signature_id))
+					$do['signature_id'] = $signature_id;
 		
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {
