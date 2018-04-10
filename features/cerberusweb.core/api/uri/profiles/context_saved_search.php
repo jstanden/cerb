@@ -20,6 +20,8 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
+		
+		$context = CerberusContexts::CONTEXT_SAVED_SEARCH;
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$response = DevblocksPlatform::getHttpResponse();
@@ -47,7 +49,7 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 		
 		// Properties
 		
-		$properties = array();
+		$properties = [];
 		
 		if(!empty($context_saved_search->owner_context)) {
 			$properties['owner'] = array(
@@ -85,6 +87,36 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $context_saved_search->query,
 		);
+		
+		// Custom Fields
+
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $context_saved_search->id)) or [];
+		$tpl->assign('custom_field_values', $values);
+		
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
+		
+		if(!empty($properties_cfields))
+			$properties = array_merge($properties, $properties_cfields);
+		
+		// Custom Fieldsets
+
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $context_saved_search->id, $values);
+		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+		
+		// Link counts
+		
+		$properties_links = array(
+			$context => array(
+				$context_saved_search->id => 
+					DAO_ContextLink::getContextLinkCounts(
+						$context,
+						$context_saved_search->id,
+						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+					),
+			),
+		);
+		
+		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
 		
@@ -166,7 +198,7 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 					DAO_ContextSavedSearch::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.context.saved.search', $id);
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_SAVED_SEARCH, $id);
 					
 				} else { // Edit
 					$fields = array(
@@ -189,6 +221,11 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 					DAO_ContextSavedSearch::update($id, $fields);
 					DAO_ContextSavedSearch::onUpdateByActor($active_worker, $fields, $id);
 				}
+				
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_SAVED_SEARCH, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				echo json_encode(array(
 					'status' => true,

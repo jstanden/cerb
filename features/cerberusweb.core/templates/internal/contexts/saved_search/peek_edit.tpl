@@ -70,6 +70,8 @@
 </fieldset>
 {/if}
 
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+
 <div class="status"></div>
 
 <div class="buttons">

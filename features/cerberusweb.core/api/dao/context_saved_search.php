@@ -524,9 +524,8 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 	}
 	
 	static function getCustomFieldContextKeys() {
-		// [TODO] Context
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('context_saved_search.id', self::ID),
+			CerberusContexts::CONTEXT_SAVED_SEARCH => new DevblocksSearchFieldContextKeys('context_saved_search.id', self::ID),
 		);
 	}
 	
@@ -1136,7 +1135,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		$context = 'cerberusweb.contexts.context.saved.search';
+		$context = CerberusContexts::CONTEXT_SAVED_SEARCH;
 		
 		if(!empty($context_id)) {
 			$model = DAO_ContextSavedSearch::get($context_id);
@@ -1153,6 +1152,17 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 			// Contexts
 			$contexts = Extension_DevblocksContext::getAll(false, ['search']);
 			$tpl->assign('contexts', $contexts);
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+	
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
 			
 			// View
 			$tpl->assign('id', $context_id);
@@ -1171,8 +1181,8 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 				return;
 			
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
