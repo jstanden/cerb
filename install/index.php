@@ -881,6 +881,10 @@ switch($step) {
 				}
 			}
 			
+			// Index initial content
+			$search = DevblocksPlatform::getExtension('cron.search', true);
+			$search->run();
+			
 			$tpl->assign('step', STEP_REGISTER);
 			$tpl->display('steps/redirect.tpl');
 			exit;
