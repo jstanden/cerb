@@ -398,6 +398,63 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		return $db->GetOneSlave($sql);
 	}
 	
+	/**
+	 * @param Model_ContextBulkUpdate $update
+	 * @return boolean
+	 */
+	static function bulkUpdate(Model_ContextBulkUpdate $update) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+
+		$do = $update->actions;
+		$ids = $update->context_ids;
+
+		// Make sure we have actions
+		if(empty($ids) || empty($do))
+			return false;
+		
+		$update->markInProgress();
+		
+		$change_fields = [];
+		$custom_fields = [];
+		$deleted = false;
+
+		if(is_array($do))
+		foreach($do as $k => $v) {
+			switch($k) {
+				case 'mime_type':
+					$change_fields[DAO_Attachment::MIME_TYPE] = $v;
+					break;
+					
+				case 'delete':
+					$deleted = true;
+					break;
+					
+				default:
+					// Custom fields
+					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {
+						$custom_fields[substr($k,3)] = $v;
+					}
+			}
+		}
+	
+		if($deleted) {
+			DAO_Attachment::delete($ids);
+			
+		} else {
+			DAO_Attachment::update($ids, $change_fields);
+			
+			// Custom Fields
+			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ATTACHMENT, $custom_fields, $ids);
+			
+			// Scheduled behavior
+			if(isset($do['behavior']))
+				C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_ATTACHMENT, $do['behavior'], $ids);
+		}
+		
+		$update->markCompleted();
+		return true;
+	}
+	
 	static function maint() {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
