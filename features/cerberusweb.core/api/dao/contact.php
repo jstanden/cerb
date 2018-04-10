@@ -630,21 +630,32 @@ class DAO_Contact extends Cerb_ORMHelper {
 	
 	static function autocomplete($term, $as='models') {
 		$db = DevblocksPlatform::services()->database();
-		$ids = array();
+		$ids = [];
 		
-		$results = $db->GetArraySlave(sprintf("SELECT id ".
-			"FROM contact ".
-			"WHERE (".
-			"first_name LIKE %s ".
-			"OR last_name LIKE %s ".
-			"%s".
-			")",
-			$db->qstr($term.'%'),
-			$db->qstr($term.'%'),
-			(false != strpos($term,' ')
-				? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
-				: '')
-		));
+		if(DevblocksPlatform::strStartsWith($term, '@')) {
+			$results = $db->GetArraySlave(sprintf("SELECT id ".
+				"FROM contact ".
+				"WHERE primary_email_id IN (".
+					"SELECT id FROM address WHERE host LIKE %s ORDER BY num_nonspam DESC ".
+				")",
+				$db->qstr(substr($term, 1) . '%')
+			));
+			
+		} else {
+			$results = $db->GetArraySlave(sprintf("SELECT id ".
+				"FROM contact ".
+				"WHERE (".
+					"first_name LIKE %s ".
+					"OR last_name LIKE %s ".
+					"%s".
+				")",
+				$db->qstr($term.'%'),
+				$db->qstr($term.'%'),
+				(false != strpos($term,' ')
+					? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
+					: '')
+			));
+		}
 		
 		if(is_array($results))
 		foreach($results as $row) {
