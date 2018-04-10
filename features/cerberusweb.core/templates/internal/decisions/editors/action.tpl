@@ -85,7 +85,7 @@
 </form>
 
 <form id="frmDecisionActionAdd{$id}" action="javascript:;" onsubmit="return false;">
-<input type="hidden" name="seq" value="{$model->params.actions|count}">
+<input type="hidden" name="seq" value="{$model->params.actions|default:[]|count}">
 <input type="hidden" name="action" value="">
 <input type="hidden" name="nonce" value="{$nonce}">
 {if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
