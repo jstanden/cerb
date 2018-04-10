@@ -407,6 +407,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		@$send_as = DevblocksPlatform::importGPC($_POST['send_as'],'string',null);
+		@$send_from_id = DevblocksPlatform::importGPC($_POST['send_from_id'],'string',null);
 
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
@@ -418,6 +419,12 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		// Do: Send as
 		if(0 != strlen($send_as))
 			$do['send_as'] = $send_as;
+		
+		// Do: Send from
+		if($active_worker->is_superuser 
+			&& 0 != strlen($send_from_id) 
+				&& false !== DAO_Address::get($send_from_id))
+					$do['send_from_id'] = $send_from_id;
 		
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {

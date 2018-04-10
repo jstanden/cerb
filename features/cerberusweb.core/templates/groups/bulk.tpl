@@ -24,6 +24,11 @@
 	<table cellspacing="0" cellpadding="2" width="100%">
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.send.from'|devblocks_translate|capitalize}:</td>
+			<td width="100%">
+				<button type="button" class="chooser-abstract" data-field-name="send_from_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="" data-query-required="mailTransport.id:>0" data-autocomplete="mailTransport.id:>0" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				<ul class="bubbles chooser-container"></ul>
+			</td>
+		</tr>
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.send.as'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
