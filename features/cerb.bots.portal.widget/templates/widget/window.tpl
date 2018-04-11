@@ -61,6 +61,10 @@
 		$embed.trigger('cerb-bot-close');
 	});
 	
+	$(window).on('resize', function(e) {
+		$convo.trigger('update');
+	});
+	
 	$convo.on('update', function(e) {
 		e.stopPropagation();
 		$(this).scrollTop(this.scrollHeight);
