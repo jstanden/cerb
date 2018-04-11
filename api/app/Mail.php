@@ -1326,7 +1326,7 @@ class CerberusMail {
 		if(empty($content)) {
 			$content = sprintf("## Relayed from %s\r\n".
 				"## Your reply to this message will be sent to the requesters.\r\n".
-				"## Instructions: http://wiki.cerbweb.com/Email_Relay\r\n".
+				"## Instructions: https://cerb.ai/guides/mail/relaying/\r\n".
 				"##\r\n".
 				"## %s%s wrote:\r\n".
 				"%s",

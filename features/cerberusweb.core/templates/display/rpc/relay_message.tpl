@@ -18,7 +18,7 @@
 ## Relayed from {devblocks_url full=true}c=profiles&w=ticket&mask={$ticket->mask}{/devblocks_url}
 ## 
 ## Your reply to this message will be sent to the requesters.
-## Instructions: http://wiki.cerbweb.com/Email_Relay
+## Instructions: https://cerb.ai/guides/mail/relaying/
 ##
 ## {if !empty($sender_name)}{$sender->getName()} &lt;{$sender->email}&gt;{else}{$sender->email}{/if} wrote:
 {$message->getContent()}</textarea>

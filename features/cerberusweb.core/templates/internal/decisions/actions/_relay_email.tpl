@@ -39,5 +39,5 @@ Lines that begin with <code>##</code> will be ignored on reply.
 </div>
 <br>
 
-<b>{'common.attachments'|devblocks_translate}:</b><br>
+<b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
 <label><input type="checkbox" name="{$namePrefix}[include_attachments]" value="1" {if $params.include_attachments}checked="checked"{/if}> Include attachments</label><br>

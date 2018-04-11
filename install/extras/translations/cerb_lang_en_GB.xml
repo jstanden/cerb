@@ -5139,7 +5139,7 @@ For example: *receipt*</seg>
 			<tuv xml:lang="en_GB">
 				<seg>## Relayed from {{ticket_url}}
 ## Your reply to this message will be broadcast to the requesters. 
-## Instructions: http://wiki.cerbweb.com/Email_Relay
+## Instructions: https://cerb.ai/guides/mail/relaying/
 ##
 {{%s}}
 </seg>

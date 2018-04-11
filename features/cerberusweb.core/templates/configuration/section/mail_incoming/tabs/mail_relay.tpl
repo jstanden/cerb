@@ -32,7 +32,7 @@ This process protects the privacy of personal worker email addresses, while stil
 	</p>
 	
 	<p>
-	See the <a href="http://cerbweb.com/book/latest/cookbook" target="_blank">cookbook</a> for more information.
+	See the <a href="https://cerb.ai/guides/mail/relaying/" target="_blank" rel="noopener">documentation</a> for more information.
 	</p>
 	<br>
 	
