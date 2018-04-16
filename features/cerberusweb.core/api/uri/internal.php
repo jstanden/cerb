@@ -1733,84 +1733,92 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__file.tpl');
 	}
 
-	function chooserOpenFileUploadAction() {
-		@$files = $_FILES['file_data'];
-		@$bundle_ids = DevblocksPlatform::importGPC($_REQUEST['bundle_ids'], 'array:integer', array());
+	function chooserOpenFileAjaxUploadAction() {
+		@$file_name = $_SERVER['HTTP_X_FILE_NAME'];
+		@$file_type = $_SERVER['HTTP_X_FILE_TYPE'];
+		@$file_size = $_SERVER['HTTP_X_FILE_SIZE'];
+		
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(empty($file_name) || empty($file_size)) {
+			return;
+		}
+		
+		if(empty($file_type))
+			$file_type = 'application/octet-stream';
+		
+		// Copy the HTTP body into a temp file
+		
+		$fp = DevblocksPlatform::getTempFile();
+		$temp_name = DevblocksPlatform::getTempFileInfo($fp);
+		
+		$body_data = fopen("php://input" , "rb");
+		while(!feof($body_data))
+			fwrite($fp, fread($body_data, 8192));
+		fclose($body_data);
+		
+		// Reset the temp file pointer
+		fseek($fp, 0);
+		
+		// SHA-1 the temp file
+		@$sha1_hash = sha1_file($temp_name, false);
+		
+		if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_name, $file_size))) {
+			// Create a record w/ timestamp + ID
+			$fields = [
+				DAO_Attachment::NAME => $file_name,
+				DAO_Attachment::MIME_TYPE => $file_type,
+				DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
+			];
+			$file_id = DAO_Attachment::create($fields);
+			
+			// Save the file
+			Storage_Attachments::put($file_id, $fp);
+		}
+		
+		// Close the temp file
+		fclose($fp);
+		
+		if($file_id) {
+			echo json_encode([
+				'id' => intval($file_id),
+				'name' => $file_name,
+				'type' => $file_type,
+				'size' => intval($file_size),
+				'size_label' => DevblocksPlatform::strPrettyBytes($file_size),
+				'sha1_hash' => $sha1_hash,
+				'url' => $url_writer->write(sprintf("c=files&id=%d&name=%s", $file_id, urlencode($file_name)), true),
+			]);
+		}
+	}
+	
+	function chooserOpenFileLoadBundleAction() {
+		@$bundle_id = DevblocksPlatform::importGPC($_REQUEST['bundle_id'], 'integer', 0);
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		$results = [];
-
-		// File uploads
 		
-		if(is_array($files) && isset($files['tmp_name']))
-		foreach(array_keys($files['tmp_name']) as $file_idx) {
-			$file_name = $files['name'][$file_idx];
-			$file_type = $files['type'][$file_idx];
-			$file_size = $files['size'][$file_idx];
-			$file_tmp_name = $files['tmp_name'][$file_idx];
-		
-			if(empty($file_tmp_name) || empty($file_name))
-				continue;
-			
-			@$sha1_hash = sha1_file($file_tmp_name, false);
-			
-			if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_name, $file_size))) {
-				// Create a record w/ timestamp + ID
-				$fields = array(
-					DAO_Attachment::NAME => $file_name,
-					DAO_Attachment::MIME_TYPE => $file_type,
-					DAO_Attachment::STORAGE_SHA1HASH => $sha1_hash,
-				);
-				$file_id = DAO_Attachment::create($fields);
-				
-				// Save the file
-				if(null !== ($fp = fopen($file_tmp_name, 'rb'))) {
-					Storage_Attachments::put($file_id, $fp);
-					fclose($fp);
-				}
-			}
-			
-			if($file_id) {
-				$results[] = array(
-					'id' => $file_id,
-					'name' => $file_name,
-					'type' => $file_type,
-					'size' => $file_size,
-					'sha1_hash' => $sha1_hash,
-					'url' => $url_writer->write(sprintf("c=files&id=%d&name=%s", $file_id, urlencode($file_name)), true),
-				);
-			}
-			
-			@unlink($file_tmp_name);
+		if(false == ($bundle = DAO_FileBundle::get($bundle_id))) {
+			echo json_encode($results);
+			return;
 		}
 		
-		// Bundles
-		
-		if(is_array($bundle_ids) && !empty($bundle_ids)) {
-			$bundles = DAO_FileBundle::getIds($bundle_ids);
-
-			if(is_array($bundles))
-			foreach($bundles as $bundle) {
-				$attachments = $bundle->getAttachments();
-				
-				if(is_array($attachments))
-				foreach($attachments as $attachment) { /* @var $attachment Model_Attachment */
-					$results[] = array(
-						'id' => $attachment->id,
-						'name' => $attachment->name,
-						'type' => $attachment->mime_type,
-						'size' => $attachment->storage_size,
-						'sha1_hash' => $attachment->storage_sha1hash,
-						'url' => $url_writer->write(sprintf("c=files&id=%d&name=%s", $attachment->id, urlencode($attachment->name)), true),
-					);
-				}
-			}
+		foreach($bundle->getAttachments() as $attachment) {
+			$results[] = array(
+				'id' => $attachment->id,
+				'name' => $attachment->name,
+				'type' => $attachment->mime_type,
+				'size' => $attachment->storage_size,
+				'size_label' => DevblocksPlatform::strPrettyBytes($attachment->storage_size),
+				'sha1_hash' => $attachment->storage_sha1hash,
+				'url' => $url_writer->write(sprintf("c=files&id=%d&name=%s", $attachment->id, urlencode($attachment->name)), true),
+			);
 		}
-
-		// JSON
 		
 		echo json_encode($results);
 	}
