@@ -760,16 +760,6 @@ abstract class Extension_RestController extends DevblocksExtension {
 				$view->view_columns[] = $k;
 		}
 		
-		// Placeholders
-		
-		if($active_worker) {
-			$labels = $values = [];
-			$active_worker->getPlaceholderLabelsValues($labels, $values);
-			
-			$view->setPlaceholderLabels($labels);
-			$view->setPlaceholderValues($values);
-		}
-
 		// [TODO] Cursors? (ephemeral view id, paging, sort, etc)
 
 		return $view;

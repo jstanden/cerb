@@ -220,19 +220,6 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 			$view->renderSubtotals = $workspace_worklist->render_subtotals;
 		}
 		
-		if(!empty($view)) {
-			if($worker) {
-				$labels = [];
-				$values = [];
-				$worker->getPlaceholderLabelsValues($labels, $values);
-				
-				$view->setPlaceholderLabels($labels);
-				$view->setPlaceholderValues($values);
-			}
-			
-			$view->persist();
-		}
-		
 		$view->setAutoPersist(false);
 		
 		$view->renderPage = $param_page - 1;
