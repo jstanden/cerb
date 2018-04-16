@@ -1266,52 +1266,69 @@ var ajax = new cAjaxCalls();
 				
 				$attachments.css('border', '');
 				
-				var files = e.originalEvent.dataTransfer.files;
-				var formdata = new FormData();
+				// Uploads
 				
-				formdata.append('_csrf_token', $('meta[name="_csrf_token"]').attr('content'));
+				var jobs = [];
+				var labels = [];
+				var values = [];
 				
-				for(var i = 0; i < files.length; i++) {
-					formdata.append('file_data[]', files[i]);
-				}
-				
-				var xhr = new XMLHttpRequest();
-				
-				xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=chooserOpenFileUpload');
-				xhr.onload = function(e) {
-					var $ul = $attachments.find('ul.chooser-container');
+				var uploadFunc = function(f, labels, values, callback) {
+					var xhr = new XMLHttpRequest();
+					var file = f;
 					
-					$attachments.find('span.cerb-ajax-spinner').first().remove();
-					
-					if(200 == this.status) {
-						var json = JSON.parse(this.responseText);
+					if(xhr.upload) {
+						xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=chooserOpenFileAjaxUpload', true);
+						xhr.setRequestHeader('X-File-Name', f.name);
+						xhr.setRequestHeader('X-File-Type', f.type);
+						xhr.setRequestHeader('X-File-Size', f.size);
+						xhr.setRequestHeader('X-CSRF-Token', $('meta[name="_csrf_token"]').attr('content'));
 						
-						for(var i = 0; i < json.length; i++) {
-							// Only add unique files
-							if(0 == $ul.find('input:hidden[value="' + json[i].id + '"]').length) {
-								var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(json[i].id);
-								var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-								var $a = $('<a href="javascript:;"/>')
-									.attr('data-context', 'attachment')
-									.attr('data-context-id', json[i].id)
-									.text(json[i].name + ' (' + json[i].size + ' bytes)')
-									.cerbPeekTrigger()
-									;
-								var $li = $('<li/>').append($a).append($hidden).append($remove);
-								$ul.append($li);
+						xhr.onreadystatechange = function(e) {
+							if(xhr.readyState == 4) {
+								var json = {};
+								if(xhr.status == 200) {
+									json = JSON.parse(xhr.responseText);
+									labels.push(json.name + ' (' + json.size_label + ')');
+									values.push(json.id);
+									
+								} else {
+								}
+								
+								callback(null, json);
 							}
-						}
+						};
+						
+						xhr.send(f);
 					}
 				};
 				
-				xhr.upload.onprogress = function(event) {
-					if(!event.lengthComputable)
-						return;
-					
-					var complete = (event.loaded / event.total * 100 | 0);
-				};
+				var files = e.originalEvent.dataTransfer.files;
 				
-				xhr.send(formdata);
+				for(var i = 0, f; f = files[i]; i++) {
+					jobs.push(
+						async.apply(uploadFunc, f, labels, values)
+					);
+				}
+				
+				async.series(jobs, function(err, json) {
+					var $ul = $attachments.find('ul.chooser-container');
+					$attachments.find('span.cerb-ajax-spinner').first().remove();
+					
+					for(var i = 0; i < json.length; i++) {
+						if(0 == $ul.find('input:hidden[value="' + json[i].id + '"]').length) {
+							var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(json[i].id);
+							var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
+							var $a = $('<a href="javascript:;"/>')
+								.attr('data-context', 'attachment')
+								.attr('data-context-id', json[i].id)
+								.text(json[i].name + ' (' + json[i].size_label + ')')
+								.cerbPeekTrigger()
+								;
+							var $li = $('<li/>').append($a).append($hidden).append($remove);
+							$ul.append($li);
+						}
+					}
+				});
 			});
 		});
 	}

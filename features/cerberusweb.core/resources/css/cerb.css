@@ -1678,6 +1678,24 @@ DIV.emailBodyHtml DIV.block H1, DIV.emailBodyHtml DIV.block H2, DIV.emailBodyHtm
   background-color: #e9d9ff;
 }
 
+div.cerb-uploads p {
+  display: block;
+  width: 70%;
+  padding: 2px 5px;
+  margin: 2px 0;
+  border-radius: 5px;
+  background-color: #c8c8c8;
+  color: white;
+}
+div.cerb-uploads p.success {
+  background: #2882fa none 0 0 no-repeat;
+  font-weight: bold;
+}
+div.cerb-uploads p.failure {
+  background: #ff3c64 none 0 0 no-repeat;
+  font-weight: bold;
+}
+
 @keyframes cerb-badge-bounce {
   from {
     right: -15px;
