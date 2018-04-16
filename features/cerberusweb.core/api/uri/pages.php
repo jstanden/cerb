@@ -448,17 +448,6 @@ class Page_Custom extends CerberusPageExtension {
 		if(empty($view))
 			return;
 		
-		// Placeholders
-		
-		if($active_worker) {
-			$labels = [];
-			$values = [];
-			$active_worker->getPlaceholderLabelsValues($labels, $values);
-			
-			$view->setPlaceholderLabels($labels);
-			$view->setPlaceholderValues($values);
-		}
-		
 		$tpl->assign('view', $view);
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}

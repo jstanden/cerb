@@ -674,18 +674,30 @@ abstract class C4_AbstractView {
 	
 	// Placeholders
 	
-	function setPlaceholderLabels($labels) {
-		if(is_array($labels))
+	function setPlaceholderLabels($labels, $replace=true) {
+		if(!is_array($labels))
+			return false;
+		
+		if($replace) {
 			$this->_placeholderLabels = $labels;
+		} else {
+			$this->_placeholderLabels = array_merge($this->_placeholderLabels, $labels);
+		}
 	}
 	
 	function getPlaceholderLabels() {
 		return $this->_placeholderLabels;
 	}
 	
-	function setPlaceholderValues($values) {
-		if(is_array($values))
+	function setPlaceholderValues($values, $replace=true) {
+		if(!is_array($values))
+			return false;
+		
+		if($replace) {
 			$this->_placeholderValues = $values;
+		} else {
+			$this->_placeholderValues = array_merge($this->_placeholderValues, $values);
+		}
 	}
 	
 	function getPlaceholderValues() {
@@ -4063,9 +4075,6 @@ class C4_AbstractViewLoader {
 		
 		$model->renderTemplate = $view->renderTemplate;
 		
-		$model->placeholderLabels = $view->getPlaceholderLabels();
-		$model->placeholderValues = $view->getPlaceholderValues();
-		
 		return $model;
 	}
 
@@ -4126,10 +4135,12 @@ class C4_AbstractViewLoader {
 		
 		$inst->renderTemplate = $model->renderTemplate;
 		
-		if(is_array($model->placeholderLabels))
-			$inst->setPlaceholderLabels($model->placeholderLabels);
-		if(is_array($model->placeholderValues))
-			$inst->setPlaceholderValues($model->placeholderValues);
+		if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+			$labels = $values = [];
+			$active_worker->getPlaceholderLabelsValues($labels, $values);
+			$inst->setPlaceholderLabels($labels);
+			$inst->setPlaceholderValues($values);
+		}
 		
 		// Enforce class restrictions
 		$parent = new $model->class_name;
@@ -4233,15 +4244,12 @@ class C4_AbstractViewLoader {
 			$view->setParamsRequiredQuery($view_model['params_required_query']);
 		}
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$labels = [];
-		$values = [];
-		
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $worker_labels, $worker_values, null, true, true);
-		CerberusContexts::merge('current_worker_', null, $worker_labels, $worker_values, $labels, $values);
-		
-		$view->setPlaceholderValues($values);
+		if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+			$labels = $values = [];
+			$active_worker->getPlaceholderLabelsValues($labels, $values);
+			$view->setPlaceholderLabels($labels);
+			$view->setPlaceholderValues($values);
+		}
 		
 		// If the param keys changed during unserialization, then consider everything changed
 		$view_params = $view->getParams(false);
@@ -4266,8 +4274,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	const PARAMS_EDITABLE_JSON = 'params_editable_json';
 	const PARAMS_HIDDEN_JSON = 'params_hidden_json';
 	const PARAMS_REQUIRED_JSON = 'params_required_json';
-	const PLACEHOLDER_LABELS_JSON = 'placeholder_labels_json';
-	const PLACEHOLDER_VALUES_JSON = 'placeholder_values_json';
 	const RENDER_LIMIT = 'render_limit';
 	const RENDER_PAGE = 'render_page';
 	const RENDER_SORT_JSON = 'render_sort_json';
@@ -4335,18 +4341,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			->addField(self::PARAMS_REQUIRED_JSON)
 			->string()
 			->setMaxLength(65535)
-			;
-		// mediumtext
-		$validation
-			->addField(self::PLACEHOLDER_LABELS_JSON)
-			->string()
-			->setMaxLength(16777215)
-			;
-		// mediumtext
-		$validation
-			->addField(self::PLACEHOLDER_VALUES_JSON)
-			->string()
-			->setMaxLength(16777215)
 			;
 		// smallint(5) unsigned
 		$validation
@@ -4432,8 +4426,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'render_sort_json',
 			'render_subtotals',
 			'render_template',
-			'placeholder_labels_json',
-			'placeholder_values_json',
 		);
 		
 		$sql = sprintf("SELECT %s FROM worker_view_model %s",
@@ -4467,9 +4459,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			$model->paramsDefault = self::decodeParamsJson($row['params_default_json']);
 			$model->paramsHidden = json_decode($row['params_hidden_json'], true);
 			$model->renderSort = json_decode($row['render_sort_json'], true);
-			
-			$model->placeholderLabels = json_decode($row['placeholder_labels_json'], true);
-			$model->placeholderValues = json_decode($row['placeholder_values_json'], true);
 			
 			// Make sure it's a well-formed view
 			if(empty($model->class_name) || !class_exists($model->class_name, true))
@@ -4561,8 +4550,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'render_sort_json' => $db->qstr(json_encode($render_sort)),
 			'render_subtotals' => $db->qstr($model->renderSubtotals),
 			'render_template' => $db->qstr($model->renderTemplate),
-			'placeholder_labels_json' => $db->qstr(json_encode($model->placeholderLabels)),
-			'placeholder_values_json' => $db->qstr(json_encode($model->placeholderValues)),
 		);
 		
 		$sql = sprintf("REPLACE INTO worker_view_model (%s) ".

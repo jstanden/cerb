@@ -1651,40 +1651,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				return;
 		}
 		
-		// Add placeholders
-		
-		if(!empty($trigger_id) && null != ($trigger = DAO_TriggerEvent::get($trigger_id))) {
-			$event = $trigger->getEvent();
-			
-			if(method_exists($event,'generateSampleEventModel')) {
-				$event_model = $event->generateSampleEventModel($trigger);
-				$event->setEvent($event_model, $trigger);
-				$values = $event->getValues();
-				$view->setPlaceholderValues($values);
-			}
-			
-			$conditions = $event->getConditions($trigger);
-			$valctx = $event->getValuesContexts($trigger);
-			foreach($valctx as $token => $vtx) {
-				$conditions[$token] = $vtx;
-			}
-
-			foreach($conditions as $cond_id => $cond) {
-				if(substr($cond_id,0,1) == '_')
-					unset($conditions[$cond_id]);
-			}
-			
-			$view->setPlaceholderLabels($conditions);
-			
-		} elseif(null != $active_worker = CerberusApplication::getActiveWorker()) {
-			$labels = [];
-			$values = [];
-			$active_worker->getPlaceholderLabelsValues($labels, $values);
-			
-			$view->setPlaceholderLabels($labels);
-			$view->setPlaceholderValues($values);
-		}
-		
 		if(!empty($q)) {
 			$view->addParamsWithQuickSearch($q, true);
 			$view->renderPage = 0;

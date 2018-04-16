@@ -71,17 +71,6 @@ class Page_Search extends CerberusPageExtension {
 			$tpl->assign('quick_search_query', $query);
 		}
 		
-		// Placeholders
-		
-		if($active_worker) {
-			$labels = array();
-			$values = array();
-			$active_worker->getPlaceholderLabelsValues($labels, $values);
-			
-			$view->setPlaceholderLabels($labels);
-			$view->setPlaceholderValues($values);
-		}
-		
 		// Template
 		
 		$tpl->assign('view', $view);
@@ -94,7 +83,7 @@ class Page_Search extends CerberusPageExtension {
 		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
 		@$query_required = DevblocksPlatform::importGPC($_REQUEST['qr'],'string','');
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string',null);
-
+		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		

@@ -5220,10 +5220,6 @@ class DevblocksEventHelper {
 		if(null == ($view = DevblocksEventHelper::getViewFromAbstractJson($token, $params, $trigger, $context)))
 			return;
 		
-		// Load values and ignore _labels and _types
-		$view->setPlaceholderValues($dict->getDictionary(null, false));
-
-		$view->persist();
 		$view->setAutoPersist(false);
 		
 		// Save the generated view_id in the dictionary for reuse (paging, etc)
@@ -5240,7 +5236,9 @@ class DevblocksEventHelper {
 		if(isset($params['search_mode']) 
 				&& $params['search_mode'] == 'quick_search'
 				&& isset($params['quick_search'])) {
-			$view->addParamsWithQuickSearch($params['quick_search']);
+					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+					$query = $tpl_builder->build($params['quick_search'], $dict);
+					$view->addParamsWithQuickSearch($query);
 		}
 		
 		list($results) = $view->getData();
