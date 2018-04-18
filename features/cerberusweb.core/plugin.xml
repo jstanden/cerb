@@ -316,6 +316,7 @@
 		</file>
 		
 		<file path="api/dao/context_scheduled_behavior.php">
+			<class name="Context_ContextScheduledBehavior" />
 			<class name="DAO_ContextScheduledBehavior" />
 			<class name="Model_ContextScheduledBehavior" />
 			<class name="SearchFields_ContextScheduledBehavior" />
@@ -2738,6 +2739,52 @@
 		</extension>
 		
 		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.behavior.scheduled</id>
+			<name>Context Scheduled Behavior</name>
+			<class>
+				<file>api/dao/context_scheduled_behavior.php</file>
+				<name>Context_ContextScheduledBehavior</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="behavior scheduled" value="singular" />
+						<data key="behaviors scheduled" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="scheduled_behavior" />
+				<param key="dao_class" value="DAO_ContextScheduledBehavior" />
+				<param key="view_class" value="View_ContextScheduledBehavior" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.bot</id>
 			<name>Bot</name>
 			<class>
@@ -5086,6 +5133,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="bucket" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.scheduled_behavior</id>
+				<name>Scheduled Behavior Section</name>
+				<class>
+					<file>api/uri/profiles/context_scheduled_behavior.php</file>
+					<name>PageSection_ProfilesContextScheduledBehavior</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="scheduled_behavior" />
 				</params>
 			</extension>
 			

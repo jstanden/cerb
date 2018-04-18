@@ -1,3 +1,4 @@
+{$view_context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}
@@ -6,6 +7,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
+			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
@@ -46,7 +48,6 @@
 	</thead>
 
 	{* Column Data *}
-	{*$object_watchers = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_GROUP, array_keys($data), CerberusContexts::CONTEXT_WORKER)*}
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -62,7 +63,8 @@
 			{elseif $column=="b_behavior_name"}
 			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
-				<a href="javascript:;" onclick="$popup=genericAjaxPopup('peek','c=internal&a=showMacroSchedulerPopup&job_id={$result.c_id}&view_id={$view->id}',this,false,'550');$popup.one('behavior_save',function(e) { genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}'); });" class="subject">{$result.$column}</a>
+				<a href="{devblocks_url}c=profiles&what=scheduled_behavior&id={$result.c_id}&name={$result.$column|devblocks_permalink}{/devblocks_url}" class="subject">{$result.$column}</a>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED}" data-context-id="{$result.c_id}" data-profile-url="{devblocks_url}c=profiles&what=scheduled_behavior&id={$result.c_id}&name={$result.$column|devblocks_permalink}{/devblocks_url}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif $column=="c_run_date"}
 			<td data-column="{$column}" style="width:100px;">
