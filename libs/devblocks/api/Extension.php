@@ -376,6 +376,26 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 		return null;
 	}
+	
+	public static function getByMacros($as_instances=false) {
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$macro_contexts = Extension_DevblocksEvent::getWithMacroContexts();
+		$results = [];
+		
+		array_walk($macro_contexts, function($macro) use ($contexts, &$results, $as_instances) {
+			$macro_context = $macro->params['macro_context'];
+			
+			if(isset($contexts[$macro_context])) {
+				if($as_instances) {
+					$results[$macro->id] = $contexts[$macro_context]->createInstance();
+				} else {
+					$results[$macro->id] = $contexts[$macro_context];
+				}
+			}
+		});
+		
+		return $results;
+	}
 
 	/**
 	 * 
@@ -1417,6 +1437,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 
 		return $events;
+	}
+	
+	public static function getWithMacroContexts() {
+		$macros = Extension_DevblocksEvent::getAll();
+		
+		$macros = array_filter($macros, function($event) {
+			return array_key_exists('macro_context', $event->params);
+		});
+		
+		return $macros;
 	}
 
 	protected function _importLabelsTypesAsConditions($labels, $types) {

@@ -37,12 +37,12 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			->setRequired(true)
 			;
 		$validation
-			->addField(self::CONTEXT)
+			->addField(self::CONTEXT, 'target__context')
 			->context()
 			->setRequired(true)
 			;
 		$validation
-			->addField(self::CONTEXT_ID)
+			->addField(self::CONTEXT_ID, 'target_id')
 			->id()
 			->setRequired(true)
 			;
@@ -90,14 +90,60 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		return $id;
 	}
 
-	static function update($ids, $fields) {
-		parent::_update($ids, 'context_scheduled_behavior', $fields);
+	static function update($ids, $fields, $check_deltas=true) {
+		if(!is_array($ids))
+			$ids = array($ids);
+			
+		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
+		self::_updateAbstract($context, $ids, $fields);
+		
+		// Make a diff for the requested objects in batches
+		
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+				
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges($context, $batch_ids);
+			}
+			
+			// Make changes
+			parent::_update($batch_ids, 'context_scheduled_behavior', $fields);
+			
+			// Send events
+			if($check_deltas) {
+				// Trigger an event about the changes
+				$eventMgr = DevblocksPlatform::services()->event();
+				$eventMgr->trigger(
+					new Model_DevblocksEvent(
+						'dao.context_scheduled_behavior.update',
+						array(
+							'fields' => $fields,
+						)
+					)
+				);
+				
+				// Log the context update
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
+			}
+		}
 	}
-
+	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('context_scheduled_behavior', $fields, $where);
 	}
-
+	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		return true;
+	}
+	
 	static function updateRelativeSchedules($context, $context_ids) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -148,7 +194,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	 * @param integer $limit
 	 * @return Model_ContextScheduledBehavior[]
 	 */
-	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
@@ -160,14 +206,20 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 			;
-		$rs = $db->ExecuteSlave($sql);
-
+		
+		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
+			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
+		} else {
+			$rs = $db->ExecuteSlave($sql);
+		}
+		
 		return self::_getObjectsFromResult($rs);
 	}
 
 	/**
 	 * @param integer $id
-	 * @return Model_ContextScheduledBehavior	 */
+	 * @return Model_ContextScheduledBehavior
+	 */
 	static function get($id) {
 		if(empty($id))
 			return null;
@@ -183,6 +235,42 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param array $ids
+	 * @return Model_ContextScheduledBehavior[]
+	 */
+	static function getIds($ids) {
+		if(!is_array($ids))
+			$ids = array($ids);
+
+		if(empty($ids))
+			return [];
+
+		if(!method_exists(get_called_class(), 'getWhere'))
+			return [];
+
+		$db = DevblocksPlatform::services()->database();
+
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+
+		$models = [];
+
+		$results = static::getWhere(sprintf("id IN (%s)",
+			implode(',', $ids)
+		));
+
+		// Sort $models in the same order as $ids
+		foreach($ids as $id) {
+			if(isset($results[$id]))
+				$models[$id] = $results[$id];
+		}
+
+		unset($results);
+
+		return $models;
+	}
+	
 	/**
 	 *
 	 * Enter description here ...
@@ -210,7 +298,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	 * @return Model_ContextScheduledBehavior[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -234,6 +322,10 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		mysqli_free_result($rs);
 
 		return $objects;
+	}
+	
+	static function random() {
+		return self::_getRandom('context_scheduled_behavior');
 	}
 
 	static function delete($ids) {
@@ -393,7 +485,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -452,15 +544,15 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 };
 
 class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
-	const ID = 'c_id';
+	const BEHAVIOR_ID = 'c_behavior_id';
 	const CONTEXT = 'c_context';
 	const CONTEXT_ID = 'c_context_id';
-	const BEHAVIOR_ID = 'c_behavior_id';
-	const RUN_DATE = 'c_run_date';
-	const RUN_RELATIVE = 'c_run_relative';
-	const RUN_LITERAL = 'c_run_literal';
-	const VARIABLES_JSON = 'c_variables_json';
+	const ID = 'c_id';
 	const REPEAT_JSON = 'c_repeat_json';
+	const RUN_DATE = 'c_run_date';
+	const RUN_LITERAL = 'c_run_literal';
+	const RUN_RELATIVE = 'c_run_relative';
+	const VARIABLES_JSON = 'c_variables_json';
 	
 	const BEHAVIOR_NAME = 'b_behavior_name';
 	const BEHAVIOR_BOT_ID = 'b_behavior_bot_id';
@@ -477,7 +569,8 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('context_scheduled_behavior.id', self::ID),
+			CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED => new DevblocksSearchFieldContextKeys('context_scheduled_behavior.id', self::ID),
+			CerberusContexts::CONTEXT_BEHAVIOR => new DevblocksSearchFieldContextKeys('trigger_event.bot_id', self::BEHAVIOR_ID),
 			CerberusContexts::CONTEXT_BOT => new DevblocksSearchFieldContextKeys('trigger_event.bot_id', self::BEHAVIOR_BOT_ID),
 		);
 	}
@@ -521,43 +614,59 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	 */
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
-
+		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'context_scheduled_behavior', 'id', $translate->_('common.id'), null, true),
+			self::BEHAVIOR_ID => new DevblocksSearchField(self::BEHAVIOR_ID, 'context_scheduled_behavior', 'behavior_id', $translate->_('common.behavior'), null, true),
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_scheduled_behavior', 'context', $translate->_('common.context'), null, true),
 			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_scheduled_behavior', 'context_id', $translate->_('common.context_id'), null, true),
-			self::BEHAVIOR_ID => new DevblocksSearchField(self::BEHAVIOR_ID, 'context_scheduled_behavior', 'behavior_id', $translate->_('common.behavior'), null, true),
-			self::RUN_DATE => new DevblocksSearchField(self::RUN_DATE, 'context_scheduled_behavior', 'run_date', $translate->_('dao.context_scheduled_behavior.run_date'), Model_CustomField::TYPE_DATE, true),
-			self::RUN_RELATIVE => new DevblocksSearchField(self::RUN_RELATIVE, 'context_scheduled_behavior', 'run_relative', $translate->_('dao.context_scheduled_behavior.run_relative'), null, false),
-			self::RUN_LITERAL => new DevblocksSearchField(self::RUN_LITERAL, 'context_scheduled_behavior', 'run_literal', $translate->_('dao.context_scheduled_behavior.run_literal'), null, false),
-			self::VARIABLES_JSON => new DevblocksSearchField(self::VARIABLES_JSON, 'context_scheduled_behavior', 'variables_json', $translate->_('dao.context_scheduled_behavior.variables_json'), null, false),
+			self::ID => new DevblocksSearchField(self::ID, 'context_scheduled_behavior', 'id', $translate->_('common.id'), null, true),
 			self::REPEAT_JSON => new DevblocksSearchField(self::REPEAT_JSON, 'context_scheduled_behavior', 'repeat_json', $translate->_('dao.context_scheduled_behavior.repeat_json'), null, false),
+			self::RUN_DATE => new DevblocksSearchField(self::RUN_DATE, 'context_scheduled_behavior', 'run_date', $translate->_('dao.context_scheduled_behavior.run_date'), Model_CustomField::TYPE_DATE, true),
+			self::RUN_LITERAL => new DevblocksSearchField(self::RUN_LITERAL, 'context_scheduled_behavior', 'run_literal', $translate->_('dao.context_scheduled_behavior.run_literal'), null, false),
+			self::RUN_RELATIVE => new DevblocksSearchField(self::RUN_RELATIVE, 'context_scheduled_behavior', 'run_relative', $translate->_('dao.context_scheduled_behavior.run_relative'), null, false),
+			self::VARIABLES_JSON => new DevblocksSearchField(self::VARIABLES_JSON, 'context_scheduled_behavior', 'variables_json', $translate->_('dao.context_scheduled_behavior.variables_json'), null, false),
 			
 			self::BEHAVIOR_NAME => new DevblocksSearchField(self::BEHAVIOR_NAME, 'trigger_event', 'title', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::BEHAVIOR_BOT_ID => new DevblocksSearchField(self::BEHAVIOR_BOT_ID, 'trigger_event', 'bot_id', $translate->_('common.bot'), null, true),
-
+			
 			self::VIRTUAL_BEHAVIOR_SEARCH => new DevblocksSearchField(self::VIRTUAL_BEHAVIOR_SEARCH, '*', 'behavior_search', null, null, false),
 			self::VIRTUAL_BOT_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOT_SEARCH, '*', 'bot_search', null, null, false),
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.on'), null, false),
 		);
-
+		
+		// Custom Fields
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
+		
+		if(!empty($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
+		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
-
+		
 		return $columns;
 	}
 };
 
 class Model_ContextScheduledBehavior {
-	public $id;
+	public $behavior_id;
 	public $context;
 	public $context_id;
-	public $behavior_id;
+	public $id;
+	public $repeat = [];
 	public $run_date;
-	public $run_relative;
 	public $run_literal;
-	public $variables = array();
-	public $repeat = array();
+	public $run_relative;
+	public $variables = [];
+	
+	function getBehavior() {
+		return DAO_TriggerEvent::get($this->behavior_id);
+	}
+	
+	function getRecordDictionary() {
+		$labels = $values = [];
+		CerberusContexts::getContext($this->context, $this->context_id, $labels, $values, '', true, true);
+		return DevblocksDictionaryDelegate::instance($values);
+	}
 	
 	function run() {
 		try {
@@ -674,7 +783,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$this->id = self::DEFAULT_ID;
-		$this->name = $translate->_('Scheduled Behavior');
+		$this->name = $translate->_('Scheduled Behaviors');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_ContextScheduledBehavior::RUN_DATE;
 		$this->renderSortAsc = true;
@@ -730,9 +839,85 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		
 		return $objects;
 	}
-
+	
+	function getDataAsObjects($ids=null) {
+		return $this->_getDataAsObjects('DAO_ContextScheduledBehavior', $ids);
+	}
+	
 	function getDataSample($size) {
 		return $this->_doGetDataSample('DAO_ContextScheduledBehavior', $size);
+	}
+	
+	function getSubtotalFields() {
+		$all_fields = $this->getParamsAvailable(true);
+		
+		$fields = [];
+
+		if(is_array($all_fields))
+		foreach($all_fields as $field_key => $field_model) {
+			$pass = false;
+			
+			switch($field_key) {
+				// Fields
+//				case SearchFields_ContextScheduledBehavior::EXAMPLE:
+//					$pass = true;
+//					break;
+					
+				// Virtuals
+				case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_ContextScheduledBehavior::VIRTUAL_HAS_FIELDSET:
+					$pass = true;
+					break;
+					
+				// Valid custom fields
+				default:
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
+						$pass = $this->_canSubtotalCustomField($field_key);
+					break;
+			}
+			
+			if($pass)
+				$fields[$field_key] = $field_model;
+		}
+		
+		return $fields;
+	}
+	
+	function getSubtotalCounts($column) {
+		$counts = [];
+		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
+
+		if(!isset($fields[$column]))
+			return [];
+		
+		switch($column) {
+//			case SearchFields_ContextScheduledBehavior::EXAMPLE_BOOL:
+//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
+//				break;
+
+//			case SearchFields_ContextScheduledBehavior::EXAMPLE_STRING:
+//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+//				break;
+				
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
+				break;
+
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
+				break;
+				
+			default:
+				// Custom fields
+				if('cf_' == substr($column,0,3)) {
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
+				}
+				
+				break;
+		}
+		
+		return $counts;
 	}
 
 	function getQuickSearchFields() {
@@ -827,6 +1012,10 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 		
+		// Custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED);
+		$tpl->assign('custom_fields', $custom_fields);
+		
 		switch($this->renderTemplate) {
 			default:
 				$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/bot/scheduled_behavior/view.tpl');
@@ -851,6 +1040,19 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				break;
 			case SearchFields_ContextScheduledBehavior::RUN_DATE:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
+				break;
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
+				$contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('contexts', $contexts);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
+				break;
+			default:
+				// Custom Fields
+				if('cf_' == substr($field,0,3)) {
+					$this->_renderCriteriaCustomField($tpl, substr($field,3));
+				} else {
+					echo ' ';
+				}
 				break;
 		}
 	}
@@ -882,6 +1084,10 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.bot')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
+				break;
+				
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
 				break;
 			
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
@@ -915,14 +1121,368 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
 			// [TODO]
 			case SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID:
+				break;
+				
+			default:
+				// Custom Fields
+				if(substr($field,0,3)=='cf_') {
+					$criteria = $this->_doSetCriteriaCustomField($field, substr($field,3));
+				}
 				break;
 		}
 
 		if(!empty($criteria)) {
 			$this->addParam($criteria, $field);
 			$this->renderPage = 0;
+		}
+	}
+};
+
+class Context_ContextScheduledBehavior extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = 'cerberusweb.contexts.behavior.scheduled';
+	
+	static function isReadableByActor($models, $actor) {
+		// Everyone can read
+		return CerberusContexts::allowEverything($models);
+	}
+	
+	static function isWriteableByActor($models, $actor) {
+		// Admins can modify
+		if(false != ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			if(CerberusContexts::isActorAnAdmin($actor))
+				return CerberusContexts::allowEverything($models);
+		
+		return CerberusContexts::denyEverything($models);
+	}
+
+	function getRandom() {
+		return DAO_ContextScheduledBehavior::random();
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::services()->url();
+		$url = $url_writer->writeNoProxy('c=profiles&type=scheduled_behavior&id='.$context_id, true);
+		return $url;
+	}
+	
+	function getMeta($context_id) {
+		$context_scheduled_behavior = DAO_ContextScheduledBehavior::get($context_id);
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		$url = $this->profileGetUrl($context_id);
+		
+		return array(
+			'id' => $context_scheduled_behavior->id,
+			'name' => '', //$context_scheduled_behavior->name,
+			'permalink' => $url,
+			//'updated' => $context_scheduled_behavior->updated_at, // [TODO]
+		);
+	}
+	
+	function getDefaultProperties() {
+		return [
+			'run_date',
+			'behavior__label',
+			'target__label',
+		];
+	}
+	
+	function getContext($context_scheduled_behavior, &$token_labels, &$token_values, $prefix=null) {
+		if(is_null($prefix))
+			$prefix = 'Scheduled Behavior:';
+		
+		$translate = DevblocksPlatform::getTranslationService();
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED);
+
+		// Polymorph
+		if(is_numeric($context_scheduled_behavior)) {
+			$context_scheduled_behavior = DAO_ContextScheduledBehavior::get($context_scheduled_behavior);
+		} elseif($context_scheduled_behavior instanceof Model_ContextScheduledBehavior) {
+			// It's what we want already.
+		} elseif(is_array($context_scheduled_behavior)) {
+			$context_scheduled_behavior = Cerb_ORMHelper::recastArrayToModel($context_scheduled_behavior, 'Model_ContextScheduledBehavior');
+		} else {
+			$context_scheduled_behavior = null;
+		}
+		
+		// Token labels
+		$token_labels = array(
+			'_label' => $prefix,
+			'id' => $prefix.$translate->_('common.id'),
+			'name' => $prefix.$translate->_('common.name'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
+			'run_date' => $prefix.$translate->_('dao.context_scheduled_behavior.run_date'),
+			'target__label' => $prefix.$translate->_('common.target'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'record_url' => Model_CustomField::TYPE_URL,
+			'run_date' => Model_CustomField::TYPE_DATE,
+			'target__label' => 'context_url',
+		);
+		
+		// Custom field/fieldset token labels
+		if(false !== ($custom_field_labels = $this->_getTokenLabelsFromCustomFields($fields, $prefix)) && is_array($custom_field_labels))
+			$token_labels = array_merge($token_labels, $custom_field_labels);
+		
+		// Custom field/fieldset token types
+		if(false !== ($custom_field_types = $this->_getTokenTypesFromCustomFields($fields, $prefix)) && is_array($custom_field_types))
+			$token_types = array_merge($token_types, $custom_field_types);
+		
+		// Token values
+		$token_values = [];
+		
+		$token_values['_context'] = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
+		$token_values['_types'] = $token_types;
+		
+		if($context_scheduled_behavior) {
+			$behavior = $context_scheduled_behavior->getBehavior();
+			
+			$token_values['_loaded'] = true;
+			$token_values['_label'] = $behavior->title;
+			$token_values['id'] = $context_scheduled_behavior->id;
+			$token_values['behavior_id'] = $context_scheduled_behavior->behavior_id;
+			$token_values['run_date'] = $context_scheduled_behavior->run_date;
+			$token_values['target__context'] = $context_scheduled_behavior->context;
+			$token_values['target_id'] = $context_scheduled_behavior->context_id;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($context_scheduled_behavior, $token_values);
+			
+			// URL
+			$url_writer = DevblocksPlatform::services()->url();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=scheduled_behavior&id=%d", $context_scheduled_behavior->id), true);
+		}
+		
+		// Behavior
+		$merge_token_labels = $merge_token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'behavior_',
+			$prefix.'Behavior:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
+		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'behavior_id' => DAO_ContextScheduledBehavior::BEHAVIOR_ID,
+			'id' => DAO_ContextScheduledBehavior::ID,
+			'links' => '_links',
+			'run_date' => DAO_ContextScheduledBehavior::RUN_DATE,
+			'target__context' => DAO_ContextScheduledBehavior::CONTEXT,
+			'target_id' => DAO_ContextScheduledBehavior::CONTEXT_ID,
+		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
+		
+		return true;
+	}
+
+	function lazyLoadContextValues($token, $dictionary) {
+		if(!isset($dictionary['id']))
+			return;
+		
+		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
+		$context_id = $dictionary['id'];
+		
+		@$is_loaded = $dictionary['_loaded'];
+		$values = [];
+		
+		if(!$is_loaded) {
+			$labels = [];
+			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
+		}
+		
+		switch($token) {
+			case 'links':
+				$links = $this->_lazyLoadLinks($context, $context_id);
+				$values = array_merge($values, $links);
+				break;
+		
+			default:
+				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
+					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
+					$values = array_merge($values, $fields);
+				}
+				break;
+		}
+		
+		return $values;
+	}
+	
+	function getChooserView($view_id=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		if(empty($view_id))
+			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
+	
+		// View
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+		$defaults->is_ephemeral = true;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Context Scheduled Behavior';
+
+		$view->renderSortBy = SearchFields_ContextScheduledBehavior::RUN_DATE;
+		$view->renderSortAsc = true;
+		$view->renderLimit = 10;
+		$view->renderTemplate = 'contextlinks_chooser';
+		
+		return $view;
+	}
+	
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
+		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
+		
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id;
+
+		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
+		$view->name = 'Context Scheduled Behavior';
+		
+		$params_req = [];
+		
+		if(!empty($context) && !empty($context_id)) {
+			$params_req = array(
+				new DevblocksSearchCriteria(SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+			);
+		}
+		
+		$view->addParamsRequired($params_req, true);
+		
+		$view->renderTemplate = 'context';
+		return $view;
+	}
+	
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
+		
+		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
+		
+		if(!empty($context_id)) {
+			$model = DAO_ContextScheduledBehavior::get($context_id);
+			
+		} else {
+			$model = new Model_ContextScheduledBehavior();
+			
+			if(!empty($edit)) {
+				$tokens = explode(' ', trim($edit));
+				
+				foreach($tokens as $token) {
+					@list($k,$v) = explode(':', $token);
+					
+					if($v)
+					switch($k) {
+						/*
+						case 'email':
+							$model->primary_email_id = intval($v);
+							break;
+						*/
+					}
+				}
+			}
+		}
+		
+		if(empty($context_id) || $edit) {
+			// Contexts
+			$contexts = Extension_DevblocksContext::getByMacros(false);
+			$tpl->assign('contexts', $contexts);
+			
+			// Current event point
+			if($model->behavior_id && false != ($behavior = $model->getBehavior())) {
+				$tpl->assign('event_point', $behavior->event_point);
+			} else {
+				//$tpl->assign('event_point', key($contexts));
+			}
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+			
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// Model
+			$tpl->assign('model', $model);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/bot/scheduled_behavior/peek_edit.tpl');
+			
+		} else {
+			// Counts
+			$activity_counts = array(
+				//'comments' => DAO_Comment::count($context, $context_id),
+			);
+			$tpl->assign('activity_counts', $activity_counts);
+			
+			// Links
+			$links = array(
+				$context => array(
+					$context_id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+						),
+				),
+			);
+			$tpl->assign('links', $links);
+			
+			// Timeline
+			if($context_id) {
+				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
+				$tpl->assign('timeline_json', $timeline_json);
+			}
+
+			// Context
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+			
+			// Dictionary
+			$labels = [];
+			$values = [];
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			$tpl->assign('dict', $dict);
+			
+			$properties = $context_ext->getCardProperties();
+			$tpl->assign('properties', $properties);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/bot/scheduled_behavior/peek.tpl');
 		}
 	}
 };

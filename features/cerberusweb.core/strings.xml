@@ -312,6 +312,11 @@
 				<seg>Assigned</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.at">
+			<tuv xml:lang="en_US">
+				<seg>at</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.attachment">
 			<tuv xml:lang="en_US">
 				<seg>attachment</seg>
@@ -362,6 +367,16 @@
 				<seg>Bot Behavior</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.behavior.run">
+			<tuv xml:lang="en_US">
+				<seg>run behavior</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.behavior.scheduled">
+			<tuv xml:lang="en_US">
+				<seg>scheduled behavior</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.behaviors">
 			<tuv xml:lang="en_US">
 				<seg>Behaviors</seg>
@@ -370,6 +385,11 @@
 		<tu tuid="common.behaviors.bot">
 			<tuv xml:lang="en_US">
 				<seg>Bot Behaviors</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.behaviors.scheduled">
+			<tuv xml:lang="en_US">
+				<seg>scheduled behaviors</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.bot">
@@ -1785,6 +1805,11 @@
 				<seg>record</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.record.on">
+			<tuv xml:lang="en_US">
+				<seg>on record</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.records">
 			<tuv xml:lang="en_US">
 				<seg>records</seg>
@@ -1873,6 +1898,11 @@
 		<tu tuid="common.role">
 			<tuv xml:lang="en_US">
 				<seg>role</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.run">
+			<tuv xml:lang="en_US">
+				<seg>run</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.save">
