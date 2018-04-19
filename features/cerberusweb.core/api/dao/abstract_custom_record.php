@@ -1314,7 +1314,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			
 			// URL
 			$url_writer = DevblocksPlatform::services()->url();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=%s&id=%d-%s",$table_name,$abstract_custom_record->id, DevblocksPlatform::strToPermalink($abstract_custom_record->name)), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=%s&id=%d-%s",$custom_record->uri,$abstract_custom_record->id, DevblocksPlatform::strToPermalink($abstract_custom_record->name)), true);
 		}
 		
 		return true;
