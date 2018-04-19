@@ -1329,6 +1329,9 @@ var ajax = new cAjaxCalls();
 			// [TODO] If $ul is null, create it
 			
 			$trigger.click(function() {
+				var field_name = $trigger.attr('data-field-name');
+				var context = $trigger.attr('data-context');
+				
 				var query = $trigger.attr('data-query');
 				var query_req = $trigger.attr('data-query-required');
 				var chooser_url = 'c=internal&a=chooserOpen&context=' + encodeURIComponent(context);
@@ -1383,6 +1386,9 @@ var ajax = new cAjaxCalls();
 			
 			// Abstractly create new bubbles
 			$ul.on('bubble-create', function(e) {
+				var field_name = $trigger.attr('data-field-name');
+				var context = $trigger.attr('data-context');
+				
 				e.stopPropagation();
 				var $label = e.label;
 				var $value = e.value;
@@ -1421,6 +1427,8 @@ var ajax = new cAjaxCalls();
 			
 			// Create
 			if($trigger.attr('data-create')) {
+				var field_name = $trigger.attr('data-field-name');
+				var context = $trigger.attr('data-context');
 				var is_create_ifnull = $trigger.attr('data-create') == 'if-null';
 				
 				var $button = $('<button type="button"/>')
@@ -1464,6 +1472,8 @@ var ajax = new cAjaxCalls();
 			
 			// Autocomplete
 			if(undefined != $trigger.attr('data-autocomplete')) {
+				var field_name = $trigger.attr('data-field-name');
+				var context = $trigger.attr('data-context');
 				var is_single = $trigger.attr('data-single');
 				var placeholder = $trigger.attr('data-placeholder');
 				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete-if-empty');
