@@ -242,7 +242,6 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 		$actions =
 			[
 				'create_comment' => array('label' =>'Create comment'),
-				'create_task' => array('label' =>'Create task'),
 				'create_notification' => array('label' =>'Create notification'),
 				'create_task' => array('label' =>'Create task'),
 				'create_ticket' => array('label' =>'Create ticket'),
