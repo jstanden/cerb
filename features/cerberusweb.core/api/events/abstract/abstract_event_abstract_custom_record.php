@@ -249,6 +249,7 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 		$actions =
 			[
 				'create_comment' => array('label' =>'Create comment'),
+				'create_task' => array('label' =>'Create task'),
 				/*
 				'add_watchers' => array('label' =>'Add watchers'),
 				'create_notification' => array('label' =>'Create notification'),
@@ -282,6 +283,10 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 			case 'create_comment':
 				DevblocksEventHelper::renderActionCreateComment($trigger);
 				break;
+				
+			case 'create_task':
+				DevblocksEventHelper::renderActionCreateTask($trigger);
+				break;
 			
 			case 'set_name':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
@@ -311,6 +316,10 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'record_id');
 				break;
 			
+			case 'create_task':
+				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'record_id');
+				break;
+			
 			case 'set_name':
 				return DevblocksEventHelper::simulateActionSetAbstractField('name', Model_CustomField::TYPE_SINGLE_LINE, 'record_name', $params, $dict);
 				break;
@@ -332,6 +341,10 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 			case 'create_comment':
 				DevblocksEventHelper::runActionCreateComment($params, $dict, 'record_id');
 				break;
+			case 'create_task':
+				DevblocksEventHelper::runActionCreateTask($params, $dict, 'record_id');
+				break;
+				
 			
 			case 'set_name':
 				$context = $this->_getContext($trigger);
