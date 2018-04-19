@@ -36,6 +36,7 @@
 	<small>
 		{'common.keyboard'|devblocks_translate|lower}:
 		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+		(<b>i</b>) {'common.interactions'|devblocks_translate|lower}
 		(<b>1-9</b>) change tab
 	</small> 
 	{/if}
@@ -172,9 +173,9 @@ $(document).keypress(function(event) {
 				$('#btnDisplayTaskEdit').click();
 			} catch(ex) { } 
 			break;
-		case 109:  // (M) macros
+		case 105:  // (I) interactions
 			try {
-				$('#btnDisplayMacros').click();
+				$('#spanInteractions').find('> button').click();
 			} catch(ex) { } 
 			break;
 		default:
