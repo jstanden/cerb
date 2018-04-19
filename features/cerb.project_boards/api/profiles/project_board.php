@@ -250,7 +250,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 				if(@$event_ext->manifest->params['macro_context'] != $card_context)
 					continue;
 				
-				$runners = call_user_func(array($event_ext->manifest->class, 'trigger'), $behavior->id, $card_id, @$behavior_params[$behavior->id] ?: []);
+				$runners = call_user_func([$event_ext->manifest->class, 'trigger'], $behavior->id, $card_id, @$behavior_params[$behavior->id] ?: []);
 			}
 		}
 	}

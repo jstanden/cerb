@@ -20,21 +20,21 @@ class Event_AbstractCustomRecordMacro extends AbstractEvent_AbstractCustomRecord
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
-		$this->_event_id = self::ID;
+		$this->_event_id = static::ID;
 	}
 	
-	static function trigger($trigger_id, $context_id, $variables=array()) {
+	static function trigger($trigger_id, $context_id, $variables=[]) {
 		$events = DevblocksPlatform::services()->event();
 		return $events->trigger(
 			new Model_DevblocksEvent(
-				self::ID,
-				array(
+				static::ID,
+				[
 					'context_id' => $context_id,
 					'_variables' => $variables,
-					'_whisper' => array(
-						'_trigger_id' => array($trigger_id),
-					),
-				)
+					'_whisper' => [
+						'_trigger_id' => [$trigger_id],
+					],
+				]
 			)
 		);
 	}
