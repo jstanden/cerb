@@ -239,29 +239,16 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 	}
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
-		/*
-		$context_name = '';
-		$context = $this->_getContext($trigger);
-		$context_ext = Extension_DevblocksContext::get($context, false);
-		$context_name = DevblocksPlatform::strLower($context_ext->name);
-		*/
-		
 		$actions =
 			[
 				'create_comment' => array('label' =>'Create comment'),
 				'create_task' => array('label' =>'Create task'),
-				/*
-				'add_watchers' => array('label' =>'Add watchers'),
 				'create_notification' => array('label' =>'Create notification'),
 				'create_task' => array('label' =>'Create task'),
 				'create_ticket' => array('label' =>'Create ticket'),
 				'send_email' => array('label' => 'Send email'),
-				'set_is_banned' => array('label' => 'Set is banned'),
-				'set_is_defunct' => array('label' => 'Set is defunct'),
-				*/
 				'set_links' => ['label' => 'Set links'],
 				'set_name' => ['label' => 'Set name'],
-				//'set_name' => ['label' => sprintf('Set %s name', $context_name)],
 			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
