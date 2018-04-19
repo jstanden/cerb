@@ -271,6 +271,10 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 				DevblocksEventHelper::renderActionCreateComment($trigger);
 				break;
 				
+			case 'create_notification':
+				DevblocksEventHelper::renderActionCreateNotification($trigger);
+				break;
+			
 			case 'create_task':
 				DevblocksEventHelper::renderActionCreateTask($trigger);
 				break;
@@ -303,6 +307,10 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'record_id');
 				break;
 			
+			case 'create_notification':
+				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'record_id');
+				break;
+			
 			case 'create_task':
 				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'record_id');
 				break;
@@ -310,6 +318,7 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 			case 'set_name':
 				return DevblocksEventHelper::simulateActionSetAbstractField('name', Model_CustomField::TYPE_SINGLE_LINE, 'record_name', $params, $dict);
 				break;
+			
 			case 'set_links':
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 				break;
@@ -328,6 +337,11 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 			case 'create_comment':
 				DevblocksEventHelper::runActionCreateComment($params, $dict, 'record_id');
 				break;
+				
+			case 'create_notification':
+				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'record_id');
+				break;
+				
 			case 'create_task':
 				DevblocksEventHelper::runActionCreateTask($params, $dict, 'record_id');
 				break;
