@@ -282,6 +282,10 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 			case 'create_ticket':
 				DevblocksEventHelper::renderActionCreateTicket($trigger);
 				break;
+				
+			case 'send_email':
+				DevblocksEventHelper::renderActionSendEmail($trigger);
+				break;
 			
 			case 'set_name':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_string.tpl');
@@ -323,6 +327,10 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'record_id');
 				break;
 				
+			case 'send_email':
+				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
+				break;
+			
 			case 'set_name':
 				return DevblocksEventHelper::simulateActionSetAbstractField('name', Model_CustomField::TYPE_SINGLE_LINE, 'record_name', $params, $dict);
 				break;
@@ -358,6 +366,9 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 				DevblocksEventHelper::runActionCreateTicket($params, $dict, 'record_id');
 				break;
 				
+			case 'send_email':
+				DevblocksEventHelper::runActionSendEmail($params, $dict);
+				break;
 			
 			case 'set_name':
 				$context = $this->_getContext($trigger);
