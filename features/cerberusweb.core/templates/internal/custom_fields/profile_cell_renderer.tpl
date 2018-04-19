@@ -22,7 +22,7 @@
 	{$v.value|escape|devblocks_hyperlinks nofilter}
 {elseif $v.type == Model_CustomField::TYPE_MULTI_LINE}
 	{if $v.value}
-		{if count($v.value) > 128 || false != strpos($v.value,"\n")}
+		{if strlen($v.value) > 128 || false != strpos($v.value,"\n")}
 		<span>
 			{$v.value|truncate:128} [<a href="javascript:;" onclick="$(this).parent().next('div').fadeIn().end().hide();">expand</a>]
 		</span>

@@ -1051,7 +1051,7 @@ class DevblocksSearchCriteria {
 		$oper = self::OPER_IN;
 		$not = false;
 		$value = null;
-		$terms = null;
+		$terms = [];
 		
 		if(is_array($tokens))
 		foreach($tokens as $token) {
