@@ -622,6 +622,7 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 	const FULLTEXT_ORG = 'ft_org';
 
 	// Virtuals
+	const VIRTUAL_ALIAS = '*_alias';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -647,6 +648,10 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 				
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
+				break;
+			
+			case self::VIRTUAL_ALIAS:
+				return  self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
@@ -705,6 +710,7 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 			self::FULLTEXT_ORG => new DevblocksSearchField(self::FULLTEXT_ORG, 'ft', 'org', $translate->_('common.search.fulltext'), 'FT', false),
 
+			self::VIRTUAL_ALIAS => new DevblocksSearchField(self::VIRTUAL_ALIAS, '*', 'alias', $translate->_('common.aliases'), null, false),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -997,6 +1003,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->addColumnsHidden(array(
 			SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_ContactOrg::FULLTEXT_ORG,
+			SearchFields_ContactOrg::VIRTUAL_ALIAS,
 			SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK,
 			SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET,
@@ -1006,6 +1013,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->addParamsHidden(array(
 			SearchFields_ContactOrg::ID,
 			SearchFields_ContactOrg::EMAIL_ID,
+			SearchFields_ContactOrg::VIRTUAL_ALIAS,
 		));
 		
 		$this->doResetCriteria();
@@ -1121,6 +1129,11 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_ContactOrg::FULLTEXT_ORG),
 				),
+			'alias' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_ContactOrg::VIRTUAL_ALIAS),
+				),
 			'city' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -1217,7 +1230,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		// Engine/schema examples: Fulltext
 		
-		$ft_examples = array();
+		$ft_examples = [];
 		
 		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_Org::ID))) {
 			if(false != ($engine = $schema->getEngine())) {
@@ -1230,7 +1243,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		// Engine/schema examples: Comments
 		
-		$ft_examples = array();
+		$ft_examples = [];
 		
 		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
 			if(false != ($engine = $schema->getEngine())) {
@@ -1254,6 +1267,10 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'alias':
+				return DevblocksSearchCriteria::getContextAliasParamFromTokens(SearchFields_ContactOrg::VIRTUAL_ALIAS, $tokens);
+				break;
+				
 			case 'email':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH);
 				break;
@@ -1351,6 +1368,14 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_ContactOrg::VIRTUAL_ALIAS:
+				echo sprintf("%s %s <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.alias')),
+					DevblocksPlatform::strEscapeHtml($param->operator),
+					DevblocksPlatform::strEscapeHtml(json_encode($param->value))
+				);
+				break;
+				
 			case SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
