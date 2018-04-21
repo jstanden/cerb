@@ -380,7 +380,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	}
 	
 	static function _getWhereSQLFromContextLinksField(DevblocksSearchCriteria $param, $from_context, $pkey) {
-		
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 			@list($alias, $query) = explode(':', $param->value, 2);
@@ -435,7 +434,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
 		}
 		
-		$where_contexts = array();
+		$where_contexts = [];
 		
 		if(is_array($param->value))
 		foreach($param->value as $context_data) {
@@ -483,6 +482,37 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				
 				break;
 		}
+	}
+	
+	static function _getWhereSQLFromAliasesField(DevblocksSearchCriteria $param, $context, $pkey) {
+		$terms = DAO_ContextAlias::prepare($param->value);
+		
+		if(empty($terms))
+			return sprintf("0");
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_EQ:
+			case DevblocksSearchCriteria::OPER_NEQ:
+				return sprintf("%s %s (SELECT id FROM context_alias WHERE context = %s AND terms IN (%s))",
+					$pkey,
+					($param->operator == DevblocksSearchCriteria::OPER_NEQ) ? 'NOT IN ' : 'IN',
+					Cerb_ORMHelper::qstr($context),
+					implode(',', Cerb_ORMHelper::qstrArray($terms))
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_IN:
+			case DevblocksSearchCriteria::OPER_NIN:
+				return sprintf("%s %s (SELECT id FROM context_alias WHERE context = %s AND terms IN (%s))",
+					$pkey,
+					($param->operator == DevblocksSearchCriteria::OPER_NIN) ? 'NOT IN' : 'IN',
+					Cerb_ORMHelper::qstr($context),
+					implode(',', Cerb_ORMHelper::qstrArray($terms))
+				);
+				break;
+		}
+		
+		return null;
 	}
 	
 	static function _getWhereSQLFromWatchersField(DevblocksSearchCriteria $param, $from_context, $pkey) {
@@ -1287,6 +1317,39 @@ class DevblocksSearchCriteria {
 			$oper,
 			$value
 		);
+	}
+	
+	public static function getContextAliasParamFromTokens($field_key, $tokens) {
+		$oper = self::OPER_IN;
+		$not = false;
+		$value = null;
+		
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_NOT':
+					$not = !$not;
+					break;
+					
+				case 'T_ARRAY':
+					$oper = ($not) ? self::OPER_NIN : self::OPER_IN;
+					$value = $token->value;
+					break;
+					
+				case 'T_QUOTED_TEXT':
+				case 'T_TEXT':
+					$oper = ($not) ? self::OPER_NEQ : self::OPER_EQ;
+					$value = $token->value;
+					break;
+			}
+		}
+		
+		$param = new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$value
+		);
+		
+		return $param;
 	}
 
 	public static function getFulltextParamFromTokens($field_key, $tokens) {

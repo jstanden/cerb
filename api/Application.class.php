@@ -2923,6 +2923,11 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		return $db->qstr($str);
 	}
+	
+	static public function qstrArray(array $arr) {
+		$db = DevblocksPlatform::services()->database();
+		return $db->qstrArray($arr);
+	}
 
 	static function recastArrayToModel($array, $model_class) {
 		if(false == ($model = new $model_class))

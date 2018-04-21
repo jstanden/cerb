@@ -346,7 +346,7 @@ class _DevblocksDatabaseManager {
 	}
 	
 	function qstrArray($array) {
-		$results = array();
+		$results = [];
 
 		if(is_array($array))
 		foreach($array as $string) {
