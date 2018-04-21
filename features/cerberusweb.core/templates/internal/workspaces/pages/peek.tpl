@@ -44,9 +44,7 @@
 	
 	<div style="clear:both;"></div>
 	
-	<div style="margin-top:5px;">
-		{if $dict->extension_id == WorkspacePage_Workspace::ID}<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-query="page.id:{$dict->id} sort:pos"><div class="badge-count">{$activity_counts.tabs|default:0}</div> {'common.tabs'|devblocks_translate|capitalize}</button>{/if}
-	</div>
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 </fieldset>
 
 {if $dict->id}

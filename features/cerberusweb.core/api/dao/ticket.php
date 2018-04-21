@@ -5256,14 +5256,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
-			// Counts
-			$activity_counts = array(
-				'comments' => DAO_Comment::count($context, $context_id),
-				'participants' => DAO_Address::countByTicketId($context_id),
-				'messages' => DAO_Message::countByTicketId($context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -5296,6 +5288,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			// Timeline
 			if($is_readable && $model) {

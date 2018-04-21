@@ -49,10 +49,7 @@
 	
 	<div style="clear:both;"></div>
 	
-	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_KB_CATEGORY}" data-query="article.id:{$dict->id}"><div class="badge-count">{$activity_counts.categories|default:0}</div> {'common.categories'|devblocks_translate|capitalize}</button>
-	</div>
-	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}

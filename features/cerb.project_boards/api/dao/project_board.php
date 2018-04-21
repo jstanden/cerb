@@ -1270,19 +1270,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			$tpl->display('devblocks:cerb.project_boards::boards/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
-			// Counts
-			$activity_counts = array(
-				'board_columns' => DAO_ProjectBoardColumn::countByBoardId($context_id),
-				'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1307,8 +1294,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 				return;
 			
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = $values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
@@ -1316,63 +1302,11 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
 			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
+			
 			$tpl->display('devblocks:cerb.project_boards::boards/peek.tpl');
 		}
 	}
-	
-	/*
-	function importGetKeys() {
-		// [TODO] Translate
-	
-		$keys = array(
-			'name' => array(
-				'label' => 'Name',
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'param' => SearchFields_ProjectBoard::NAME,
-				'required' => true,
-			),
-			'updated_at' => array(
-				'label' => 'Updated Date',
-				'type' => Model_CustomField::TYPE_DATE,
-				'param' => SearchFields_ProjectBoard::UPDATED_AT,
-			),
-		);
-	
-		$fields = SearchFields_ProjectBoard::getFields();
-		self::_getImportCustomFields($fields, $keys);
-	
-		DevblocksPlatform::sortObjects($keys, '[label]', true);
-	
-		return $keys;
-	}
-	
-	function importKeyValue($key, $value) {
-		switch($key) {
-		}
-	
-		return $value;
-	}
-	
-	function importSaveObject(array $fields, array $custom_fields, array $meta) {
-		// If new...
-		if(!isset($meta['object_id']) || empty($meta['object_id'])) {
-			// Make sure we have a name
-			if(!isset($fields[DAO_ProjectBoard::NAME])) {
-				$fields[DAO_ProjectBoard::NAME] = 'New ' . $this->manifest->name;
-			}
-	
-			// Create
-			$meta['object_id'] = DAO_ProjectBoard::create($fields);
-	
-		} else {
-			// Update
-			DAO_ProjectBoard::update($meta['object_id'], $fields);
-		}
-	
-		// Custom fields
-		if(!empty($custom_fields) && !empty($meta['object_id'])) {
-			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
-		}
-	}
-	*/
 };

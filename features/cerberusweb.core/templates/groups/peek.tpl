@@ -23,7 +23,6 @@
 
 <div style="clear:both;padding-top:10px;"></div>
 
-{if !empty($properties)}
 <fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
@@ -44,25 +43,19 @@
 		{/if}
 		{/foreach}
 	</div>
+	
+	<div style="clear:both;"></div>
+	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 </fieldset>
-{/if}
 
 <fieldset class="peek">
 	<legend>{'common.tickets'|devblocks_translate|capitalize}</legend>
 	<div>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="group.id:{$group->id} status:[o,w,c]"><div class="badge-count">{$activity_counts.tickets.total|default:0}</div> {'common.all'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="group.id:{$group->id} status:o"><div class="badge-count">{$activity_counts.tickets.open|default:0}</div> {'status.open'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="group.id:{$group->id} status:w"><div class="badge-count">{$activity_counts.tickets.waiting|default:0}</div> {'status.waiting'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="group.id:{$group->id} status:c"><div class="badge-count">{$activity_counts.tickets.closed|default:0}</div> {'status.closed'|devblocks_translate|capitalize}</button>
-	</div>
-</fieldset>
-
-<fieldset class="peek">
-	<legend>{'common.activity'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="group:(id:{$group->id})"><div class="badge-count">{$activity_counts.members|default:0}</div> {'common.members'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-query="group:(id:{$group->id})"><div class="badge-count">{$activity_counts.buckets|default:0}</div> {'common.buckets'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="group.id:{$group->id} status:[o,w,c]"><div class="badge-count">{$counts_tickets.total|default:0}</div> {'common.all'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="group.id:{$group->id} status:o"><div class="badge-count">{$counts_tickets.open|default:0}</div> {'status.open'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="group.id:{$group->id} status:w"><div class="badge-count">{$counts_tickets.waiting|default:0}</div> {'status.waiting'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_TICKET}" data-query="group.id:{$group->id} status:c"><div class="badge-count">{$counts_tickets.closed|default:0}</div> {'status.closed'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
 

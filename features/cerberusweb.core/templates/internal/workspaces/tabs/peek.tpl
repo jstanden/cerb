@@ -44,11 +44,12 @@
 	
 	<div style="clear:both;"></div>
 	
-	<div style="margin-top:5px;">
-		{if $dict->extension_id == WorkspaceTab_Dashboards::ID}<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-query="tab.id:{$dict->id} sort:tab.pos"><div class="badge-count">{$activity_counts.widgets|default:0}</div> {'common.widgets'|devblocks_translate|capitalize}</button>{/if}
-		{if $dict->extension_id == WorkspaceTab_Worklists::ID}<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WORKLIST}" data-query="tab.id:{$dict->id} sort:tab.pos"><div class="badge-count">{$activity_counts.worklists|default:0}</div> {'common.worklists'|devblocks_translate|capitalize}</button>{/if}
-	</div>
+	{capture name="tab_search_buttons"}
+	{if $dict->extension_id == WorkspaceTab_Dashboards::ID}<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-query="tab.id:{$dict->id} sort:tab.pos"><div class="badge-count">{$tab_counts.widgets|default:0}</div> {'common.widgets'|devblocks_translate|capitalize}</button>{/if}
+	{if $dict->extension_id == WorkspaceTab_Worklists::ID}<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WORKLIST}" data-query="tab.id:{$dict->id} sort:tab.pos"><div class="badge-count">{$tab_counts.worklists|default:0}</div> {'common.worklists'|devblocks_translate|capitalize}</button>{/if}
+	{/capture}
 	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl" before=$smarty.capture.tab_search_buttons}
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}

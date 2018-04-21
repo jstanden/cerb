@@ -1320,12 +1320,6 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				'custom_fields' => DAO_CustomField::countByFieldsetId($context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1352,6 +1346,10 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/peek.tpl');
 		}

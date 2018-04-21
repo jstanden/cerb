@@ -40,6 +40,10 @@
 		{/if}
 		{/foreach}
 	</div>
+	
+	<div style="clear:both;"></div>
+	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 </fieldset>
 {/if}
 

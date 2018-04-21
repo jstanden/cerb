@@ -1766,19 +1766,10 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			
 		} else {
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = $values = [];
 			CerberusContexts::getContext($context, $calendar, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
-			
-			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-				'events' => DAO_CalendarEvent::countByCalendar($context_id),
-				'events_recurring' => DAO_CalendarRecurringProfile::countByCalendar($context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
 			
 			// Links
 			$links = array(
@@ -1810,7 +1801,11 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 			$tpl->assign('interactions_menu', $interactions_menu);
-	
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
+			
 			$tpl->display('devblocks:cerberusweb.core::internal/calendar/peek.tpl');
 		}
 	}

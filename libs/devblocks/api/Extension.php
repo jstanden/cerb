@@ -665,7 +665,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	function getDefaultProperties() {
-		return array();
+		return [];
 	}
 	
 	/**
@@ -673,7 +673,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 */
 	function getCardProperties() {
 		// Load cascading properties
-		$properties = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'card:' . $this->id, array(), true);
+		$properties = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'card:' . $this->id, [], true);
 		
 		if(empty($properties))
 			$properties = $this->getDefaultProperties();
@@ -681,6 +681,44 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $properties;
 	}
 
+	function getCardSearchButtons(DevblocksDictionaryDelegate $dict, array $search_buttons=[]) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		$search_buttons = array_merge(
+			$search_buttons,
+			DevblocksPlatform::getPluginSetting('cerberusweb.core', 'card:search:' . $this->id, [], true)
+		);
+		
+		$results = [];
+		
+		if(is_array($search_buttons))
+		foreach($search_buttons as $search_button) {
+			if(false == ($search_button_context = Extension_DevblocksContext::get($search_button['context'], true)))
+				continue;
+			
+			if(false == ($view = $search_button_context->getSearchView()))
+				continue;
+			
+			$label_aliases = Extension_DevblocksContext::getAliasesForContext($search_button_context->manifest);
+			$label_singular = @$search_button['label_singular'] ?: $label_aliases['singular'];
+			$label_plural = @$search_button['label_plural'] ?: $label_aliases['plural'];
+			
+			$search_button_query = $tpl_builder->build($search_button['query'], $dict);
+			$view->addParamsWithQuickSearch($search_button_query);
+			
+			$total = $view->getData()[1];
+			
+			$results[] = [
+				'label' => ($total == 1 ? $label_singular : $label_plural),
+				'context' => $search_button_context->id,
+				'count' => $total,
+				'query' => $search_button_query,
+			];
+		}
+		
+		return $results;
+	}
+	
 	/*
 	 * @return Cerb_ORMHelper
 	 */

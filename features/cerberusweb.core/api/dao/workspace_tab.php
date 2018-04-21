@@ -1341,14 +1341,6 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				'widgets' => DAO_WorkspaceWidget::countByWorkspaceTabId($context_id),
-				'worklists' => DAO_WorkspaceList::countByWorkspaceTabId($context_id),
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1381,6 +1373,16 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
+			
+			$tab_counts = array(
+				'widgets' => DAO_WorkspaceWidget::countByWorkspaceTabId($context_id),
+				'worklists' => DAO_WorkspaceList::countByWorkspaceTabId($context_id),
+			);
+			$tpl->assign('tab_counts', $tab_counts);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/peek.tpl');
 		}

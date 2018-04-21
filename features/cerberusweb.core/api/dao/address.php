@@ -2573,24 +2573,10 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			
 		} else {
 			// Dictionary
-			$labels = [];
-			$values = [];
+			$labels = $values = [];
 			CerberusContexts::getContext($context, $address, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
-			
-			// Counts
-			$activity_counts = [
-				'comments' => DAO_Comment::count($context, $context_id),
-				'tickets' => DAO_Ticket::countsByAddressId($context_id),
-			];
-			
-			if(isset($values['mail_transport_id']) && $values['mail_transport_id']) {
-				$activity_counts['groups'] = DAO_Group::countByEmailFromId($context_id);
-				$activity_counts['buckets'] = DAO_Bucket::countByEmailFromId($context_id);
-			}
-			
-			$tpl->assign('activity_counts', $activity_counts);
 			
 			// Links
 			$links = array(
@@ -2622,6 +2608,12 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
+			
+			$tpl->assign('counts_tickets', DAO_Ticket::countsByAddressId($context_id));
 			
 			$tpl->display('devblocks:cerberusweb.core::contacts/addresses/peek.tpl');
 		}

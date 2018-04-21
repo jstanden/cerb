@@ -23,7 +23,6 @@
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
 	<div class="cerb-properties-grid" data-column-width="100">
-	
 		{$labels = $dict->_labels}
 		{$types = $dict->_types}
 		{foreach from=$properties item=k name=props}
@@ -36,10 +35,11 @@
 			</div>
 			{/if}
 		{/foreach}
-		
 	</div>
 	
 	<div style="clear:both;"></div>
+	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}

@@ -1024,12 +1024,6 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 			$tpl->display('devblocks:cerberusweb.restapi::peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1072,6 +1066,10 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 			}
 			
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.restapi::peek.tpl');
 		}

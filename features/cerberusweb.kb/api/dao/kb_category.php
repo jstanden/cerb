@@ -886,13 +886,6 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 			$tpl->display('devblocks:cerberusweb.kb::kb/category/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				'articles' => DAO_KbArticle::countByCategoryId($context_id),
-				'subcategories' => DAO_KbCategory::countByParentId($context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -925,6 +918,10 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$ancestors = DAO_KbCategory::getAncestors($dict->id);
 			$tpl->assign('breadcrumbs', $ancestors);

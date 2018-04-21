@@ -1291,13 +1291,6 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		} else {
 			$dao_class = sprintf('DAO_AbstractCustomRecord_%d', $context_id);
 			
-			// Counts
-			$activity_counts = [
-				'fields' => DAO_CustomField::countByContextAndFieldset(sprintf('contexts.custom_record.%d', $context_id), 0),
-				'records' => $dao_class::count(),
-			];
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1322,14 +1315,20 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 				return;
 			
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = $values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
+			
+			$record_count = $dao_class::count();
+			$tpl->assign('counts_records', $record_count);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/custom_records/peek.tpl');
 		}

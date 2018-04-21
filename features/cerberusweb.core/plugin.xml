@@ -1394,7 +1394,7 @@
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
-						<!-- <data key="search" /> -->
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1475,7 +1475,7 @@
 						<data key="cards" />
 						<data key="links" />
 						<data key="records" />
-						<!-- <data key="search" /> -->
+						<data key="search" />
 						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
@@ -1819,6 +1819,7 @@
 				<param key="view_class" value="View_CalendarEvent" />
 				<param key="options">
 					<value>
+						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />

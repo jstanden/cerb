@@ -23,7 +23,7 @@
 				{$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full=true}
 			{/if}
-
+			
 			{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
 		</div>
 	</div>
@@ -31,11 +31,15 @@
 
 <div style="clear:both;padding-top:10px;"></div>
 
-{if $is_writeable && !$activity_counts.behaviors}
+{if $is_writeable}
+{foreach from=$search_buttons item=search_button}
+{if $search_button.context == CerberusContexts::CONTEXT_BEHAVIOR && 0 == $search_button.count}
 <div class="help-box">
 <h1>Add a behavior</h1>
 Click on the <div class="badge badge-lightgray" style="color:black;font-weight:bold;">Behaviors</div> button below to start building your <a href="https://cerb.ai/docs/bots/" target="_blank" rel="noopener">bot</a>.
 </div>
+{/if}
+{/foreach}
 {/if}
 
 <fieldset class="peek">
@@ -60,11 +64,7 @@ Click on the <div class="badge badge-lightgray" style="color:black;font-weight:b
 	
 	<div style="clear:both;"></div>
 	
-	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="bot.id:{$dict->id}"><div class="badge-count">{$activity_counts.behaviors|default:0}</div> {'common.behaviors'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-query="owner.bot:(id:{$dict->id})"><div class="badge-count">{$activity_counts.classifiers|default:0}</div> {'common.classifiers'|devblocks_translate|capitalize}</button>
-	</div>
-
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}

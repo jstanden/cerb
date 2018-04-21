@@ -1248,12 +1248,6 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			$tpl->display('devblocks:cerberusweb.kb::kb/article/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				'categories' => DAO_KbCategory::countByArticleId($context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1286,6 +1280,10 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.kb::kb/article/peek.tpl');
 		}

@@ -1192,13 +1192,6 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 			$tpl->display('devblocks:cerberusweb.core::internal/mail_transport/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				'addresses' => DAO_Address::countByTransportId($context_id),
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1231,6 +1224,10 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/mail_transport/peek.tpl');
 		}

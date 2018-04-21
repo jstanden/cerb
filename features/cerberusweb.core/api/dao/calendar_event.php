@@ -1065,25 +1065,26 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($calendar_event, $token_values);
 			
-			// Calendar
-			$merge_token_labels = array();
-			$merge_token_values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, null, $merge_token_labels, $merge_token_values, '', true);
-	
-			CerberusContexts::merge(
-				'calendar_',
-				$prefix.'Calendar:',
-				$merge_token_labels,
-				$merge_token_values,
-				$token_labels,
-				$token_values
-			);
 			
 			// URL
 			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=calendar_event&id=%d-%s",$calendar_event->id, DevblocksPlatform::strToPermalink($calendar_event->name)), true);
 		}
-
+		
+		// Calendar
+		$merge_token_labels = [];
+		$merge_token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, null, $merge_token_labels, $merge_token_values, '', true);
+		
+		CerberusContexts::merge(
+			'calendar_',
+			$prefix.'Calendar:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
 		return true;
 	}
 	
@@ -1270,17 +1271,10 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			
 		} else {
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = $values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
-			
-			// Counts
-			$activity_counts = array(
-				'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
 			
 			// Links
 			$links = array(
@@ -1312,6 +1306,10 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 			$tpl->assign('interactions_menu', $interactions_menu);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/calendar_event/peek.tpl');
 		}
