@@ -1223,12 +1223,6 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 			$tpl->display('devblocks:cerberusweb.core::internal/currency/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1261,6 +1255,10 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/currency/peek.tpl');
 		}

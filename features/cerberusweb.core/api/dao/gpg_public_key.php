@@ -1127,12 +1127,6 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 			$tpl->display('devblocks:cerberusweb.core::internal/gpg_public_key/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1165,6 +1159,10 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			if($model->fingerprint && false != ($gpg = DevblocksPlatform::services()->gpg())) {
 				$keyinfo = $gpg->keyinfo($model->fingerprint);

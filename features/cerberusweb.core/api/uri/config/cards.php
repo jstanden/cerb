@@ -28,16 +28,21 @@ class PageSection_SetupCards extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/cards/index.tpl');
 	}
 	
-	private function _getRecordType($ext_id) {
+	function showCardPopupAction() {
+		@$context_ext_id = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		$tpl->assign('ext_id', $ext_id);
-
-		//  Make sure the extension exists before continuing
-		if(false == ($context_ext = Extension_DevblocksContext::get($ext_id)))
+		if(!$context_ext_id || false == ($context_ext = Extension_DevblocksContext::get($context_ext_id, true)))
 			return;
 		
 		$tpl->assign('context_ext', $context_ext);
+		
+		// =================================================================
+		// Displayed fields
+		
+		$labels = $null = [];
 		
 		CerberusContexts::getContext($context_ext->id, null, $labels, $null, '', true, false);
 		$tpl->assign('labels', $labels);
@@ -45,47 +50,57 @@ class PageSection_SetupCards extends Extension_PageSection {
 		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
 		$tpl->assign('placeholders', $placeholders);
 		
-		$properties = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'card:' . $context_ext->id, array(), true);
+		$tokens = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'card:' . $context_ext->id, [], true);
 		
-		if(empty($properties))
-			$properties = $context_ext->getDefaultProperties();
+		if(empty($tokens))
+			$tokens = $context_ext->getDefaultProperties();
 		
-		$tpl->assign('tokens', $properties);
+		$tpl->assign('tokens', $tokens);
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/cards/edit_record.tpl');
+		// =================================================================
+		// Search buttons
+		
+		$search_contexts = Extension_DevblocksContext::getAll(false, ['search']);
+		$tpl->assign('search_contexts', $search_contexts);
+		
+		$search_buttons = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'card:search:' . $context_ext->id, [], true);
+		$tpl->assign('search_buttons', $search_buttons);
+		
+		
+		// Template
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/cards/edit_card_popup.tpl');
 	}
 	
-	// Ajax
-	function getRecordTypeAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
+	function saveCardPopupAction() {
+		@$context_mft_id = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$tokens = DevblocksPlatform::importGPC($_REQUEST['tokens'],'array',[]);
+		@$search = DevblocksPlatform::importGPC($_REQUEST['search'],'array',[]);
+		@$interactions = DevblocksPlatform::importGPC($_REQUEST['interactions'],'array',[]);
 		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id']);
-		$this->_getRecordType($ext_id);
-	}
-	
-	function saveRecordTypeAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-		
-		// Type of custom fields
-		@$ext_id = DevblocksPlatform::importGPC($_POST['ext_id'],'string','');
-		@$tokens = DevblocksPlatform::importGPC($_POST['tokens'],'array',array());
+		// Permissions
+		if(false == ($active_worker = CerberusApplication::getActiveWorker())
+			|| !$active_worker->is_superuser)
+				return;
 		
 		header('Content-Type: application/json');
 		
-		DevblocksPlatform::setPluginSetting('cerberusweb.core', 'card:' . $ext_id, $tokens, true);
+		if(!$context_mft_id || false == ($context_mft = Extension_DevblocksContext::get($context_mft_id, false)))
+			return;
+		
+		DevblocksPlatform::setPluginSetting('cerberusweb.core', 'card:' . $context_mft->id, $tokens, true);
+		
+		$search_buttons = [];
+		if(is_array($search) && array_key_exists('context', $search))
+		foreach(array_keys($search['context']) as $idx) {
+			$search_buttons[] = [
+				'context' => $search['context'][$idx],
+				'label_singular' => $search['label_singular'][$idx],
+				'label_plural' => $search['label_plural'][$idx],
+				'query' => $search['query'][$idx],
+			];
+		}
+		DevblocksPlatform::setPluginSetting('cerberusweb.core', 'card:search:' . $context_mft->id, $search_buttons, true);
+		
 		echo json_encode(true);
-		return;
 	}
 };

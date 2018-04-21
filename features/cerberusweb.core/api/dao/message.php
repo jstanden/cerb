@@ -2705,11 +2705,6 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			$tpl->display('devblocks:cerberusweb.core::internal/messages/peek_edit.tpl');
 			
 		} else {
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_CONTACT, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			$links = array(
 				CerberusContexts::CONTEXT_MESSAGE => array(
 					$context_id => 
@@ -2735,6 +2730,10 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$is_readable = Context_Message::isReadableByActor($dict, $active_worker);
 			$tpl->assign('is_readable', $is_readable);

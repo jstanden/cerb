@@ -67,7 +67,6 @@
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
 	<div class="cerb-properties-grid" data-column-width="100">
-	
 		{$labels = $dict->_labels}
 		{$types = $dict->_types}
 		{foreach from=$properties item=k name=props}
@@ -88,6 +87,8 @@
 	</div>
 	
 	<div style="clear:both;"></div>
+	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 	
 	{if $context_counts}
 	<div style="margin-top:5px;">

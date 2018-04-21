@@ -1669,12 +1669,6 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
-			// Counts
-			$activity_counts = array(
-				'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1705,6 +1699,10 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 			$tpl->assign('interactions_menu', $interactions_menu);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.core::tasks/rpc/peek.tpl');
 		}

@@ -1484,12 +1484,6 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			$tpl->display('devblocks:cerberusweb.core::internal/abstract_custom_record/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1528,6 +1522,11 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 			$tpl->assign('interactions_menu', $interactions_menu);
 			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
+			
+			// Template
 			$tpl->display('devblocks:cerberusweb.core::internal/abstract_custom_record/peek.tpl');
 		}
 	}

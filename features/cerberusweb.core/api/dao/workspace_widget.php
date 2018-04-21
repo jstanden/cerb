@@ -1273,12 +1273,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1311,6 +1305,10 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/peek.tpl');
 		}

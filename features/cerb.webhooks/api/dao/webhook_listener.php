@@ -1204,12 +1204,6 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			$tpl->display('devblocks:cerb.webhooks::webhook_listener/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1234,14 +1228,17 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 				return;
 			
 			// Dictionary
-			$labels = [];
-			$values = [];
+			$labels = $values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerb.webhooks::webhook_listener/peek.tpl');
 		}

@@ -1332,12 +1332,6 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
-			$activity_counts = [
-				'tickets' => DAO_Ticket::countsByBucketId($context_id),
-				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_BUCKET, $context_id),
-			];
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			$links = array(
 				CerberusContexts::CONTEXT_BUCKET => [
 					$context_id => 
@@ -1367,6 +1361,12 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 			$tpl->assign('interactions_menu', $interactions_menu);
+			
+			$tpl->assign('counts_tickets', DAO_Ticket::countsByBucketId($context_id));
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/bucket/peek.tpl');
 		}

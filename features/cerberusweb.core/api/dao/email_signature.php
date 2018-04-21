@@ -1206,14 +1206,6 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			$tpl->display('devblocks:cerberusweb.core::internal/email_signature/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-				'buckets' => DAO_Bucket::countByEmailSignatureId($context_id),
-				'groups' => DAO_Group::countByEmailSignatureId($context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1245,6 +1237,10 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/email_signature/peek.tpl');
 		}

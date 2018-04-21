@@ -493,9 +493,9 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 	}
 	
 	static function getCustomFieldContextKeys() {
-		// [TODO] Context
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('project_board_column.id', self::ID),
+			'cerberusweb.contexts.project.board.column' => new DevblocksSearchFieldContextKeys('project_board_column.id', self::ID),
+			'cerberusweb.contexts.project.board' => new DevblocksSearchFieldContextKeys('project_board_column.board_id', self::BOARD_ID),
 		);
 	}
 	
@@ -1048,6 +1048,7 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 	
 	function getDefaultProperties() {
 		return array(
+			'board__label',
 			'updated_at',
 		);
 	}
@@ -1079,12 +1080,14 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			'board__label' => $prefix.$translate->_('projects.common.board'),
 		);
 		
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
 			'board_id' => Model_CustomField::TYPE_NUMBER,
+			'board__label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
@@ -1100,10 +1103,11 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = Context_ProjectBoardColumn::ID;
 		$token_values['_types'] = $token_types;
+		$token_values['board__context'] = 'cerberusweb.contexts.project.board';
 		
 		if($project_board_column) {
 			$token_values['_loaded'] = true;
@@ -1337,12 +1341,6 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 			$tpl->display('devblocks:cerb.project_boards::project_board_column/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				//'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				$context => array(
@@ -1367,14 +1365,17 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 				return;
 			
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = $values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerb.project_boards::project_board_column/peek.tpl');
 		}

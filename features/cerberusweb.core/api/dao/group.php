@@ -2315,19 +2315,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			
 		} else {
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = $values = [];
 			CerberusContexts::getContext($context, $group, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
-			
-			$activity_counts = array(
-				'members' => DAO_Worker::countByGroupId($context_id),
-				'buckets' => DAO_Bucket::countByGroupId($context_id),
-				'tickets' => DAO_Ticket::countsByGroupId($context_id),
-				'comments' => DAO_Comment::count($context, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
 			
 			// Links
 			$links = array(
@@ -2359,6 +2350,12 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 			$tpl->assign('interactions_menu', $interactions_menu);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
+			
+			$tpl->assign('counts_tickets', DAO_Ticket::countsByGroupId($context_id));
 			
 			$tpl->display('devblocks:cerberusweb.core::groups/peek.tpl');
 		}

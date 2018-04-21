@@ -2277,12 +2277,6 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/peek_edit.tpl');
 			
 		} else {
-			// Counts
-			$activity_counts = array(
-				'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_BEHAVIOR, $context_id),
-			);
-			$tpl->assign('activity_counts', $activity_counts);
-			
 			// Links
 			$links = array(
 				CerberusContexts::CONTEXT_BEHAVIOR => array(
@@ -2325,6 +2319,10 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			
 			$properties = $context_ext->getCardProperties();
 			$tpl->assign('properties', $properties);
+			
+			// Card search buttons
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/peek.tpl');
 		}

@@ -39,15 +39,14 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$tpl->assign('contact', $org);
 		
 		// Dictionary
-		$labels = array();
-		$values = array();
+		$labels = $values = [];
 		CerberusContexts::getContext($context, $org, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
 		
 		// Properties
 		
-		$properties = array();
+		$properties = [];
 		
 		if(!empty($org->email_id))
 			$properties['email'] = array(
@@ -148,15 +147,13 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 		
-		// Counts
-		$activity_counts = array(
-			//'comments' => DAO_Comment::count($context, $org->id),
-			'contacts' => DAO_Contact::countByOrgId($org->id),
-			'emails' => DAO_Address::countByOrgId($org->id),
-			//'tickets' => DAO_Ticket::countsByOrgId($org->id),
-		);
-		$tpl->assign('activity_counts', $activity_counts);
-
+		// Profile search buttons
+		
+		if(false != ($context_ext = Extension_DevblocksContext::get($context, true))) {
+			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+			$tpl->assign('search_buttons', $search_buttons);
+		}
+		
 		// Tabs
 		
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);

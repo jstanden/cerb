@@ -55,12 +55,11 @@
 			<br clear="all">
 		{/if}
 	{/foreach}
-	<br clear="all">
+	</div>
 	
-	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-query="on.calendar_recurring_event:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.comments|default:0}</div> {'common.comments'|devblocks_translate|capitalize}</button>
-	</div>
-	</div>
+	<div style="clear:both;"></div>
+	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}

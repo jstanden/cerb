@@ -43,11 +43,11 @@
 	
 	<div style="clear:both;"></div>
 	
-	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELD}" data-query="context:&quot;contexts.custom_record.{$dict->id}&quot; fieldset.id:0 sort:pos,name"><div class="badge-count">{$activity_counts.fields|default:0}</div> {'common.fields'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="contexts.custom_record.{$dict->id}" data-query=""><div class="badge-count">{$activity_counts.records|default:0}</div> {'common.records'|devblocks_translate|capitalize}</button>
-	</div>
+	{capture name="record_search_button"}
+	<button type="button" class="cerb-search-trigger" data-context="contexts.custom_record.{$dict->id}" data-query=""><div class="badge-count">{$counts_records|default:0}</div> {'common.records'|devblocks_translate|capitalize}</button>
+	{/capture}
 	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl" before=$smarty.capture.record_search_button}
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}
