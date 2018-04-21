@@ -1366,6 +1366,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	
 	const FULLTEXT_WORKER = 'ft_worker';
 	
+	const VIRTUAL_ALIAS = '*_alias';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_GROUPS = '*_groups';
@@ -1392,6 +1393,10 @@ class SearchFields_Worker extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::FULLTEXT_WORKER:
 				return self::_getWhereSQLFromFulltextField($param, Search_Worker::ID, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_ALIAS:
+				return  self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
@@ -1540,9 +1545,10 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'w', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::EMAIL_ADDRESS => new DevblocksSearchField(self::EMAIL_ADDRESS, 'address', 'email', ucwords($translate->_('common.email_address')), Model_CustomField::TYPE_SINGLE_LINE, false),
-				
+			
 			self::FULLTEXT_WORKER => new DevblocksSearchField(self::FULLTEXT_WORKER, 'ft', 'content', $translate->_('common.content'), 'FT'),
-				
+			
+			self::VIRTUAL_ALIAS => new DevblocksSearchField(self::VIRTUAL_ALIAS, '*', 'alias', $translate->_('common.aliases'), null, false),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null),
 			self::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null),
@@ -2043,6 +2049,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$this->addColumnsHidden(array(
 			SearchFields_Worker::EMAIL_ID,
+			SearchFields_Worker::VIRTUAL_ALIAS,
 			SearchFields_Worker::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Worker::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Worker::VIRTUAL_HAS_FIELDSET,
@@ -2056,6 +2063,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::CALENDAR_ID,
 			SearchFields_Worker::EMAIL_ID,
 			SearchFields_Worker::ID,
+			SearchFields_Worker::VIRTUAL_ALIAS,
 			SearchFields_Worker::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
 			SearchFields_Worker::VIRTUAL_ROLE_SEARCH,
@@ -2195,6 +2203,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Worker::FULLTEXT_WORKER),
+				),
+			'alias' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_ALIAS),
 				),
 			'email.id' => 
 				array(
@@ -2363,6 +2376,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'alias':
+				return DevblocksSearchCriteria::getContextAliasParamFromTokens(SearchFields_Worker::VIRTUAL_ALIAS, $tokens);
+				break;
+			
 			case 'gender':
 				$field_key = SearchFields_Worker::GENDER;
 				$oper = null;
@@ -2458,6 +2475,14 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_Worker::VIRTUAL_ALIAS:
+				echo sprintf("%s %s <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.alias')),
+					DevblocksPlatform::strEscapeHtml($param->operator),
+					DevblocksPlatform::strEscapeHtml(json_encode($param->value))
+				);
+				break;
+			
 			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
