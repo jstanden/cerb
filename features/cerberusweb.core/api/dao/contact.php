@@ -768,6 +768,7 @@ class SearchFields_Contact extends DevblocksSearchFields {
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	const FULLTEXT_CONTACT = 'ft_contact';
 
+	const VIRTUAL_ALIAS = '*_alias';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_ORG_SEARCH = '*_org_search';
@@ -796,6 +797,10 @@ class SearchFields_Contact extends DevblocksSearchFields {
 				
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_CONTACT, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_ALIAS:
+				return  self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_CONTACT, self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
@@ -860,13 +865,14 @@ class SearchFields_Contact extends DevblocksSearchFields {
 			self::LAST_LOGIN_AT => new DevblocksSearchField(self::LAST_LOGIN_AT, 'contact', 'last_login_at', $translate->_('common.last_login'), Model_CustomField::TYPE_DATE, true),
 			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'contact', 'language', $translate->_('common.language'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::TIMEZONE => new DevblocksSearchField(self::TIMEZONE, 'contact', 'timezone', $translate->_('common.timezone'), Model_CustomField::TYPE_SINGLE_LINE, true),
-				
+			
 			self::PRIMARY_EMAIL_ADDRESS => new DevblocksSearchField(self::PRIMARY_EMAIL_ADDRESS, 'address', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, false), // [TODO]
 			self::ORG_NAME => new DevblocksSearchField(self::ORG_NAME, 'contact_org', 'name', $translate->_('common.organization'), Model_CustomField::TYPE_SINGLE_LINE, true),
-
+			
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 			self::FULLTEXT_CONTACT => new DevblocksSearchField(self::FULLTEXT_CONTACT, 'ft', 'contact', $translate->_('common.search.fulltext'), 'FT', false),
-				
+			
+			self::VIRTUAL_ALIAS => new DevblocksSearchField(self::VIRTUAL_ALIAS, '*', 'alias', $translate->_('common.aliases'), null, false),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
 			self::VIRTUAL_ORG_SEARCH => new DevblocksSearchField(self::VIRTUAL_ORG_SEARCH, '*', 'org_search', null, null, false),
@@ -1201,6 +1207,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Contact::PRIMARY_EMAIL_ADDRESS,
 			SearchFields_Contact::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Contact::FULLTEXT_CONTACT,
+			SearchFields_Contact::VIRTUAL_ALIAS,
 			SearchFields_Contact::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Contact::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Contact::VIRTUAL_ORG_SEARCH,
@@ -1210,6 +1217,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		$this->addParamsHidden(array(
 			SearchFields_Contact::ORG_ID,
+			SearchFields_Contact::VIRTUAL_ALIAS,
 			SearchFields_Contact::PRIMARY_EMAIL_ID,
 			SearchFields_Contact::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Contact::VIRTUAL_ORG_SEARCH,
@@ -1341,10 +1349,15 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_Contact::FULLTEXT_CONTACT),
 				),
+			'alias' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Contact::VIRTUAL_ALIAS),
+				),
 			'comments' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
-					'options' => array('param_key' => SearchFields_Address::FULLTEXT_COMMENT_CONTENT),
+					'options' => array('param_key' => SearchFields_Contact::FULLTEXT_COMMENT_CONTENT),
 				),
 			'created' => 
 				array(
@@ -1464,6 +1477,10 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'alias':
+				return DevblocksSearchCriteria::getContextAliasParamFromTokens(SearchFields_Contact::VIRTUAL_ALIAS, $tokens);
+				break;
+			
 			case 'email':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Contact::VIRTUAL_EMAIL_SEARCH);
 				break;
@@ -1655,6 +1672,14 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_Contact::VIRTUAL_ALIAS:
+				echo sprintf("%s %s <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.alias')),
+					DevblocksPlatform::strEscapeHtml($param->operator),
+					DevblocksPlatform::strEscapeHtml(json_encode($param->value))
+				);
+				break;
+			
 			case SearchFields_Contact::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
