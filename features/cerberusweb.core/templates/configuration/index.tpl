@@ -14,20 +14,31 @@
 					{if !$smarty.const.DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=search{/devblocks_url}">{'common.search'|devblocks_translate|capitalize}</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">Security</a></li>
 					<li><a href="{devblocks_url}c=config&a=sessions{/devblocks_url}">Sessions</a></li>
-					<li><hr></li>
-					<li><b>{'common.records'|devblocks_translate|capitalize}</b></li>
-					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
-					<li><a href="{devblocks_url}c=config&a=cards{/devblocks_url}">{'common.cards'|devblocks_translate|capitalize}</a></li>
-					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
-					{*<li><a href="{devblocks_url}c=config&a=records{/devblocks_url}">{'common.custom_records'|devblocks_translate|capitalize}</a></li>*}
-					<li><a href="{devblocks_url}c=config&a=skills{/devblocks_url}">{'common.skills'|devblocks_translate|capitalize}</a></li>
-					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">{'common.snippets'|devblocks_translate|capitalize}</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}
 					{if !empty($exts)}
 						<li><hr></li>
 						<li><b>{'common.plugins'|devblocks_translate|capitalize}</b></li>
 					{/if}
+					{foreach from=$exts item=menu_item}
+						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
+					{/foreach}
+				</ul>
+			</div>
+		</li>
+		<li>
+			<div>
+				<a href="javascript:;" class="menu">{'common.records'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<ul class="cerb-popupmenu cerb-float">
+					<li><a href="{devblocks_url}c=config&a=records{/devblocks_url}">{'common.configure'|devblocks_translate|capitalize}</a></li>
+					<li><hr></li>
+					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
+					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
+					<li><a href="{devblocks_url}c=config&a=skills{/devblocks_url}">{'common.skills'|devblocks_translate|capitalize}</a></li>
+					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">{'common.snippets'|devblocks_translate|capitalize}</a></li>
+					
+					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.records')}
+					{if !empty($exts)}<li><hr></li>{/if}
 					{foreach from=$exts item=menu_item}
 						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
 					{/foreach}
@@ -43,10 +54,7 @@
 					<li><a href="{devblocks_url}c=config&a=team&w=workers{/devblocks_url}">{'common.workers'|devblocks_translate|capitalize}</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.team')}
-					{if !empty($exts)}
-						<li><hr></li>
-						<li><b>Plugins</b></li>
-					{/if}
+					{if !empty($exts)}<li><hr></li>{/if}
 					{foreach from=$exts item=menu_item}
 						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
 					{/foreach}
@@ -61,10 +69,7 @@
 					<li><a href="{devblocks_url}c=config&a=mail_outgoing{/devblocks_url}">{'common.mail.outgoing'|devblocks_translate|capitalize}</a></li>
 					
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.mail')}
-					{if !empty($exts)}
-						<li><hr></li>
-						<li><b>Plugins</b></li>
-					{/if}
+					{if !empty($exts)}<li><hr></li>{/if}
 					{foreach from=$exts item=menu_item}
 						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
 					{/foreach}
