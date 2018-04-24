@@ -27,16 +27,23 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$stack = $request->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // opportunity
-		@$opp_id = intval(array_shift($stack));
+		@$id = intval(array_shift($stack));
 		
-		if(null == ($opp = DAO_CrmOpportunity::get($opp_id))) {
+		if(null == ($opp = DAO_CrmOpportunity::get($id))) {
 			return;
 		}
 		$tpl->assign('opp', $opp);	/* @var $opp Model_CrmOpportunity */
-		
+
+		// Context
+
+		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
 		// Dictionary
-		$labels = array();
-		$values = array();
+		
+		$labels = $values = [];
 		CerberusContexts::getContext($context, $opp, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
@@ -46,7 +53,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		
 		// Properties
 		
-		$properties = array();
+		$properties = [];
 		
 		$properties['status_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.status')),
@@ -83,7 +90,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $opp->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $opp->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
@@ -127,6 +134,10 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 		$tpl->assign('interactions_menu', $interactions_menu);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.crm::crm/opps/profile.tpl');

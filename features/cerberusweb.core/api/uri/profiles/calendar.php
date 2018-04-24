@@ -28,21 +28,27 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // calendar
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 
-		@$id = intval($id);
-		
-		if(null == ($calendar = DAO_Calendar::get($id))) { /* @var $calenar Model_Calendar */
+		if(null == ($calendar = DAO_Calendar::get($id))) { /* @var $calendar Model_Calendar */
 			return;
 		}
 		$tpl->assign('calendar', $calendar);
 		
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
 		// Dictionary
-		$labels = array();
-		$values = array();
+		
+		$labels = $values = [];
 		CerberusContexts::getContext($context, $calendar, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
+
+		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_CALENDAR, true)))
+			return;
 	
 		// Tab persistence
 		
@@ -56,7 +62,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 	
 		// Properties
 			
-		$properties = array();
+		$properties = [];
 			
 		$properties['owner'] = array(
 			'label' => mb_ucfirst($translate->_('common.owner')),
@@ -85,15 +91,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $calendar->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Counts
-		
-		$counts = array(
-			'events' => DAO_CalendarEvent::countByCalendar($calendar->id),
-			'events_recurring' => DAO_CalendarRecurringProfile::countByCalendar($calendar->id),
-		);
-		$tpl->assign('counts', $counts);
-		
+
 		// Link counts
 		
 		$properties_links = array(
@@ -121,6 +119,10 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 		$tpl->assign('interactions_menu', $interactions_menu);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/calendar.tpl');

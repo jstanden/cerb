@@ -62,7 +62,16 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 			$tab_selected = $visit->get($point, '');
 		}
 		$tpl->assign('tab_selected', $tab_selected);
-		
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		// Dictionary
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $abstract_record, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
+
 		// Properties
 		
 		$properties = [];
@@ -106,12 +115,14 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 					),
 			),
 		);
-		
 		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
-		
 		$tpl->assign('properties', $properties);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);

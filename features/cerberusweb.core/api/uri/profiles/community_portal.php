@@ -26,15 +26,25 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // community_tool 
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 		
-		@$id = intval($id);
+		$context = CerberusContexts::CONTEXT_PORTAL;
 		
 		if(null == ($community_tool = DAO_CommunityTool::get($id)))
 			return;
 			
 		$tpl->assign('community_tool', $community_tool);
+
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
 		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $community_tool, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
+
 		if(null == ($extension = $community_tool->getExtension()))
 			return;
 		
@@ -80,48 +90,43 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		
 		// Custom Fields
 		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_PORTAL, $community_tool->id)) or [];
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $community_tool->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_PORTAL, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_PORTAL, $community_tool->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $community_tool->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Profile counts
-		$profile_counts = array(
-			'comments' => DAO_Comment::count(CerberusContexts::CONTEXT_PORTAL, $community_tool->id),
-			'log' => DAO_ContextActivityLog::countByTarget(CerberusContexts::CONTEXT_PORTAL, $community_tool->id),
-		);
-		$tpl->assign('profile_counts', $profile_counts);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_PORTAL => array(
+			$context => array(
 				$community_tool->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_PORTAL,
+						$context,
 						$community_tool->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
 		);
-		
 		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
-		
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_PORTAL);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/community_portal.tpl');

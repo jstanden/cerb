@@ -21,7 +21,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
 		
-		$context = CerberusContexts::CONTEXT_ORG;
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		$stack = $response->path;
@@ -38,7 +37,15 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		$tpl->assign('contact', $org);
 		
+		// Context
+
+		$context = CerberusContexts::CONTEXT_ORG;
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
 		// Dictionary
+
 		$labels = $values = [];
 		CerberusContexts::getContext($context, $org, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
@@ -147,13 +154,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 		
-		// Profile search buttons
-		
-		if(false != ($context_ext = Extension_DevblocksContext::get($context, true))) {
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-		}
-		
 		// Tabs
 		
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
@@ -163,6 +163,10 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 		$tpl->assign('interactions_menu', $interactions_menu);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 	
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/organization.tpl');

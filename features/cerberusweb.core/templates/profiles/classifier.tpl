@@ -47,10 +47,7 @@
 		{/foreach}
 		<br clear="all">
 	
-		<div style="margin-top:5px;">
-			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_CLASS}" data-query="classifier.id:{$page_context_id}"><div class="badge-count">{$owner_counts.classes|default:0}</div> {'common.classifier.classifications'|devblocks_translate|capitalize}</button>
-			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}" data-query="classifier.id:{$page_context_id}"><div class="badge-count">{$owner_counts.examples|default:0}</div> {'common.examples'|devblocks_translate|capitalize}</button>
-		</div>
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 	</div>
 </fieldset>
 

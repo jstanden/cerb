@@ -48,6 +48,8 @@
 		{/if}
 	{/foreach}
 	<br clear="all">
+
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 	</div>
 </fieldset>
 

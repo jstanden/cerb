@@ -26,15 +26,25 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // classifier
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 
-		@$id = intval($id);
+		$context = CerberusContexts::CONTEXT_CLASSIFIER;
 		
 		if(null == ($classifier = DAO_Classifier::get($id))) {
 			return;
 		}
 		$tpl->assign('classifier', $classifier);
-	
+
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $classifier, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
+
 		// Tab persistence
 		
 		$point = 'profiles.classifier.tab';
@@ -47,7 +57,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 	
 		// Properties
 			
-		$properties = array();
+		$properties = [];
 			
 		$properties['owner'] = array(
 			'label' => mb_ucfirst($translate->_('common.owner')),
@@ -72,50 +82,43 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CLASSIFIER, $classifier->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $classifier->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_CLASSIFIER, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_CLASSIFIER, $classifier->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $classifier->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Counts
-		
-		$owner_counts = array(
-			'classes' => DAO_ClassifierClass::count($classifier->id),
-			'examples' => DAO_ClassifierExample::countByClassifier($classifier->id),
-			//'comments' => DAO_Comment::count($context, $classifier->id),
-		);
-		$tpl->assign('owner_counts', $owner_counts);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_CLASSIFIER => array(
+			$context => array(
 				$classifier->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_CLASSIFIER,
-						$classifier->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
+				DAO_ContextLink::getContextLinkCounts(
+					$context,
+					$classifier->id,
+					array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+				),
 			),
 		);
-		
 		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
-		
 		$tpl->assign('properties', $properties);
-			
+		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_CLASSIFIER);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/classifier.tpl');

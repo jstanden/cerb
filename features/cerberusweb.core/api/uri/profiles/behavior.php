@@ -26,15 +26,26 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // trigger_event 
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 
-		@$id = intval($id);
-		
+		$context = CerberusContexts::CONTEXT_BEHAVIOR;
+
 		if(null == ($trigger_event = DAO_TriggerEvent::get($id))) {
 			return;
 		}
-		
 		$tpl->assign('trigger_event', $trigger_event);
+
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $trigger_event, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 	
 		// Tab persistence
 		
@@ -48,7 +59,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		
 		// Properties
 		
-		$properties = array();
+		$properties = [];
 		
 		$properties['bot_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.bot')),
@@ -79,7 +90,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_BEHAVIOR, $trigger_event->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_BEHAVIOR, $trigger_event->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_BEHAVIOR, $values);
@@ -104,17 +115,19 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 					),
 			),
 		);
-		
 		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
-		
 		$tpl->assign('properties', $properties);
 			
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_BEHAVIOR);
 		$tpl->assign('tab_manifests', $tab_manifests);
-		
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
+				
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/behavior.tpl');
 	}
@@ -159,7 +172,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 					case 'import':
 						@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
 						@$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'],'integer', 0);
-						@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', array());
+						@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', []);
 						
 						if(empty($import_json))
 							throw new Exception_DevblocksAjaxValidationError("The JSON to import is required.", "import_json");

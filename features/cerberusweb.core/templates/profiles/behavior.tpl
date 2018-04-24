@@ -14,16 +14,19 @@
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			
 			<!-- Toolbar -->
-			
-			<span>
-			{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-			</span>
-			
+
+			<!-- Card -->
+			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+
 			<!-- Edit -->
 			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 			<button type="button" id="btnDisplayTriggerEventEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
+		
+			<span>
+			{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+			</span>
 		</form>
 		
 		{if $pref_keyboard_shortcuts}
@@ -56,6 +59,8 @@
 		{/if}
 	{/foreach}
 	<br clear="all">
+
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 	</div>
 </fieldset>
 
@@ -98,6 +103,8 @@ $(function() {
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('trigger_eventTabs');
 
 	var tabs = $("#trigger_eventTabs").tabs(tabOptions);
+
+	$('#btnProfileCard').cerbPeekTrigger();
 	
 	// Edit
 	

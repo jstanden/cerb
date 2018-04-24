@@ -26,10 +26,10 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // connected_account
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 
-		@$id = intval($id);
-		
+		$context = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
+
 		if(null == ($connected_account = DAO_ConnectedAccount::get($id))) {
 			return;
 		}
@@ -40,6 +40,18 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		}
 		
 		$tpl->assign('connected_account', $connected_account);
+
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $connected_account, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 	
 		// Tab persistence
 		
@@ -53,7 +65,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 	
 		// Properties
 			
-		$properties = array();
+		$properties = [];
 		
 		$properties['owner'] = array(
 			'label' => mb_ucfirst($translate->_('common.owner')),
@@ -81,30 +93,29 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $connected_account->updated_at,
 		);
-			
-	
+		
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $connected_account->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $connected_account->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $connected_account->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $connected_account->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_CONNECTED_ACCOUNT => array(
+			$context => array(
 				$connected_account->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_CONNECTED_ACCOUNT,
+						$context,
 						$connected_account->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -114,17 +125,21 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
-		
 		$tpl->assign('properties', $properties);
 			
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/connected_account.tpl');
 	}
 	
+	// [TODO] Is this used?
 	function showPeekPopupAction() {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');

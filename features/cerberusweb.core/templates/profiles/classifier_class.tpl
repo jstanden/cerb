@@ -10,15 +10,22 @@
 		
 		<!-- Toolbar -->
 		
-		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		<span id="spanInteractions">
+		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 		</span>
 		
+		<!-- Card -->
+		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+
 		<!-- Edit -->
 		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 		<button type="button" id="btnDisplayClassifierClassEdit" title="{'common.edit'|devblocks_translate|capitalize}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</button>
 		{/if}
+
+		<span>
+		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+		</span>
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -49,9 +56,7 @@
 		{/foreach}
 		<br clear="all">
 	
-		<div style="margin-top:5px;">
-			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}" data-query="class.id:{$page_context_id}"><div class="badge-count">{$owner_counts.examples|default:0}</div> {'common.examples'|devblocks_translate|capitalize}</button>
-		</div>
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 	</div>
 </fieldset>
 
@@ -88,6 +93,8 @@ $(function() {
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('classifier_classTabs');
 
 	var tabs = $("#classifier_classTabs").tabs(tabOptions);
+
+	$('#btnProfileCard').cerbPeekTrigger();
 	
 	$('#btnDisplayClassifierClassEdit').bind('click', function() {
 		var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');

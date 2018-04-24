@@ -34,10 +34,17 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 			return;
 		}
 		$tpl->assign('article', $article);	/* @var $article Model_KbArticle */
-		
+
+		// Context
+
+		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
 		// Dictionary
-		$labels = array();
-		$values = array();
+		
+		$labels = $values = [];
 		CerberusContexts::getContext($context, $article, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
@@ -55,7 +62,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 			
 		// Properties
 			
-		$properties = array();
+		$properties = [];
 			
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
@@ -77,7 +84,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 			
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $article->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $article->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
@@ -117,6 +124,10 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 		$tpl->assign('interactions_menu', $interactions_menu);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.kb::kb/article/profile.tpl');

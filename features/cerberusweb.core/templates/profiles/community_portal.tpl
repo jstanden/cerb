@@ -50,12 +50,8 @@
 		{/if}
 	{/foreach}
 	<br clear="all">
-	
-	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-query="on.community_portal:(id:{$page_context_id})"><div class="badge-count">{$profile_counts.comments|default:0}</div> {'common.comments'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ACTIVITY_LOG}" data-query="target.community_portal:(id:{$page_context_id})"><div class="badge-count">{$profile_counts.log|default:0}</div> {'common.activity_logs'|devblocks_translate|capitalize}</button>
-	</div>
-	
+
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 	</div>
 </fieldset>
 

@@ -26,14 +26,26 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // workspace_tab 
-		$id = array_shift($stack); // 123
-		
-		@$id = intval($id);
+		@$id = intval(array_shift($stack)); // 123
 		
 		if(null == ($workspace_tab = DAO_WorkspaceTab::get($id))) {
 			return;
 		}
 		$tpl->assign('workspace_tab', $workspace_tab);
+
+		// Context
+
+		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $workspace_tab, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 		
 		// Tab persistence
 		
@@ -72,26 +84,26 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 		
 		// Custom Fields
 		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_WORKSPACE_TAB, $workspace_tab->id)) or [];
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $workspace_tab->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_WORKSPACE_TAB, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_WORKSPACE_TAB, $workspace_tab->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $workspace_tab->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_WORKSPACE_TAB => array(
+			$context => array(
 				$workspace_tab->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_WORKSPACE_TAB,
+						$context,
 						$workspace_tab->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -105,8 +117,12 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_WORKSPACE_TAB);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/workspace_tab.tpl');

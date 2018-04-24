@@ -26,10 +26,8 @@ class PageSection_ProfilesSkillset extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // skillset
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 
-		@$id = intval($id);
-		
 		if(null == ($skillset = DAO_Skillset::get($id))) {
 			return;
 		}
@@ -47,7 +45,7 @@ class PageSection_ProfilesSkillset extends Extension_PageSection {
 	
 		// Properties
 			
-		$properties = array();
+		$properties = [];
 			
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -60,11 +58,10 @@ class PageSection_ProfilesSkillset extends Extension_PageSection {
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $skillset->updated_at,
 		);
-			
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SKILLSET, $skillset->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SKILLSET, $skillset->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_SKILLSET, $values);

@@ -33,6 +33,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		@array_shift($stack); // profiles
 		@array_shift($stack); // worker
+		@$id = array_shift($stack);
 		
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
@@ -40,8 +41,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$workers = DAO_Worker::getAllActive();
 		$tpl->assign('workers', $workers);
 		
-		@$id = array_shift($stack);
-
 		switch($id) {
 			case 'me':
 				$worker_id = $active_worker->id;
@@ -59,19 +58,24 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 
 		if(empty($worker_id) || null == ($worker = DAO_Worker::get($worker_id)))
 			return;
+		
+		// Context
 			
+		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER, true)))
+			return;
+
 		// Dictionary
-		$labels = array();
-		$values = array();
+
+		$labels = $values = [];
 		CerberusContexts::getContext($context, $worker, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
-		
+
 		// Properties
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$properties = array();
+		$properties = [];
 		
 		$properties['email'] = array(
 			'label' => mb_ucfirst($translate->_('common.email')),
@@ -146,14 +150,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $dict->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
-		// Profile counts
-		$profile_counts = array(
-			'bots' => DAO_Bot::count($context, $dict->id),
-			'groups' => DAO_Group::countByMemberId($dict->id),
-			'emails' => DAO_Address::countByWorkerId($dict->id),
-		);
-		$tpl->assign('profile_counts', $profile_counts);
-		
 		// Link counts
 		
 		$properties_links = array(
@@ -185,6 +181,10 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		// Prefs
 		$profile_worker_prefs = DAO_WorkerPref::getByWorker($dict->id);
 		$tpl->assign('profile_worker_prefs', $profile_worker_prefs);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/worker.tpl');

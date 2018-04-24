@@ -78,11 +78,7 @@
 	
 	<br clear="all">
 
-	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-query="member:(id:{$page_context_id})"><div class="badge-count">{$profile_counts.groups|default:0}</div> {'common.groups'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BOT}" data-query="owner.worker:(id:{$page_context_id})"><div class="badge-count">{$profile_counts.bots|default:0}</div> {'common.bots'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="worker.id:{$page_context_id}"><div class="badge-count">{$profile_counts.emails|default:0}</div> {'common.email_addresses'|devblocks_translate|capitalize}</button>
-	</div>
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}

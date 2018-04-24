@@ -46,6 +46,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		}
 		
 		// Dictionary
+
+		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET, true)))
+			return;
+
 		$labels = $values = [];
 		CerberusContexts::getContext($context, $ticket, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
@@ -190,15 +194,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$tpl->assign('properties', $properties);
 		
-		// Profile counts
-		$profile_counts = array(
-			'attachments' => DAO_Attachment::count($context, $dict->id),
-			'comments' => DAO_Comment::count($context, $dict->id),
-			//'participants' => DAO_Address::countByTicketId($dict->id),
-			'messages' => DAO_Message::countByTicketId($dict->id),
-		);
-		$tpl->assign('profile_counts', $profile_counts);
-		
 		// Link counts
 		
 		$properties_links = array(
@@ -262,6 +257,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/ticket.tpl');
