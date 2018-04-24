@@ -41,18 +41,21 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		
 		$tpl->assign('group', $group);
 		
-		// Dictionary
-		$labels = array();
-		$values = array();
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		$labels = $values = [];
 		CerberusContexts::getContext($context, $group, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
-		
+
 		// Properties
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$properties = array();
+		$properties = [];
 		
 		$reply_to = $group->getReplyTo();
 		
@@ -76,35 +79,26 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_GROUP, $group->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $group->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_GROUP, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_GROUP, $group->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $group->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Profile counts
-		$profile_counts = array(
-			'bots' => DAO_Bot::count($context, $dict->id),
-			'buckets' => DAO_Bucket::countByGroupId($dict->id),
-			'custom_fieldsets' => DAO_CustomFieldset::count($context, $dict->id),
-			'members' => DAO_Worker::countByGroupId($dict->id),
-		);
-		$tpl->assign('profile_counts', $profile_counts);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_GROUP => array(
+			$context => array(
 				$group->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_GROUP,
+						$context,
 						$group->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -118,13 +112,17 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_GROUP);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Interactions
 		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 		$tpl->assign('interactions_menu', $interactions_menu);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/group.tpl');

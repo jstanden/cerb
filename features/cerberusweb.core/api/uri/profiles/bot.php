@@ -26,10 +26,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // bot
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 
 		$context = CerberusContexts::CONTEXT_BOT;
-		@$id = intval($id);
 		
 		if(null == ($model = DAO_Bot::get($id))) {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('search','bot')));
@@ -38,12 +37,14 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$tpl->assign('model', $model);
 	
 		// Dictionary
-		$labels = array();
-		$values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_BOT, $model, $labels, $values, '', true, false);
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
-		
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
 		// Tab persistence
 		
 		$point = 'profiles.bot.tab';
@@ -56,7 +57,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	
 		// Properties
 			
-		$properties = array();
+		$properties = [];
 		
 		$properties['owner'] = array(
 			'label' => mb_ucfirst($translate->_('common.owner')),
@@ -93,7 +94,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $model->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $model->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
@@ -105,17 +106,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $model->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Counts
-		
-		$owner_counts = array(
-			'behaviors' => DAO_TriggerEvent::countByBot($model->id),
-			'calendars' => DAO_Calendar::count($context, $model->id),
-			'classifiers' => DAO_Classifier::countByBot($model->id),
-			'comments' => DAO_Comment::count($context, $model->id),
-			'custom_fieldsets' => DAO_CustomFieldset::count($context, $model->id),
-		);
-		$tpl->assign('owner_counts', $owner_counts);
 		
 		// Link counts
 		
@@ -129,22 +119,24 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					),
 			),
 		);
-		
 		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
-		
 		$tpl->assign('properties', $properties);
 			
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_BOT);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Interactions
 		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 		$tpl->assign('interactions_menu', $interactions_menu);
-	
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
+		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/bot.tpl');
 	}

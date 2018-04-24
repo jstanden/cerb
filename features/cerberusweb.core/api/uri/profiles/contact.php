@@ -28,18 +28,21 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // contact
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 
-		@$id = intval($id);
-		
 		if(null == ($contact = DAO_Contact::get($id))) {
 			return;
 		}
 		$tpl->assign('contact', $contact);
-		
+
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
 		// Dictionary
-		$labels = array();
-		$values = array();
+		
+		$labels = $values = [];
 		CerberusContexts::getContext($context, $contact, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
@@ -56,7 +59,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 	
 		// Properties
 			
-		$properties = array();
+		$properties = [];
 			
 		$properties['email'] = array(
 			'label' => mb_ucfirst($translate->_('common.email')),
@@ -135,7 +138,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $contact->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $contact->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
@@ -191,6 +194,10 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 		$tpl->assign('interactions_menu', $interactions_menu);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/contact.tpl');

@@ -26,10 +26,8 @@ class PageSection_ProfilesSkill extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // skill
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 
-		@$id = intval($id);
-		
 		if(null == ($skill = DAO_Skill::get($id))) {
 			return;
 		}
@@ -47,7 +45,7 @@ class PageSection_ProfilesSkill extends Extension_PageSection {
 	
 		// Properties
 			
-		$properties = array();
+		$properties = [];
 			
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -64,7 +62,7 @@ class PageSection_ProfilesSkill extends Extension_PageSection {
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SKILL, $skill->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SKILL, $skill->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_SKILL, $values);

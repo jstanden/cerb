@@ -48,6 +48,12 @@
 		{/if}
 	{/foreach}
 	<br clear="all">
+
+	{capture name="record_search_button"}
+	<button type="button" class="cerb-search-trigger" data-context="contexts.custom_record.{$dict->id}" data-query=""><div class="badge-count">{$counts_records|default:0}</div> {'common.records'|devblocks_translate|capitalize}</button>
+	{/capture}
+	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl" before=$smarty.capture.record_search_button}
 	</div>
 </fieldset>
 

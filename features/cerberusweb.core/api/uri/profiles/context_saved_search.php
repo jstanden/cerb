@@ -28,15 +28,25 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // saved_search 
-		$id = array_shift($stack); // 123
-		
-		@$id = intval($id);
-		
+		@$id = intval(array_shift($stack)); // 123
+
 		if(null == ($context_saved_search = DAO_ContextSavedSearch::get($id))) {
 			return;
 		}
 		$tpl->assign('context_saved_search', $context_saved_search);
 		
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $context_saved_search, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
+
 		// Tab persistence
 		
 		$point = 'profiles.context_saved_search.tab';
@@ -69,11 +79,11 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 		);
 		
 		
-		$context_ext = $context_saved_search->getContextExtension(false);
+		$search_context_ext = $context_saved_search->getContextExtension(false);
 		$properties['context'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.context'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $context_ext->name,
+			'value' => $search_context_ext->name,
 		);
 		
 		$properties['updated'] = array(
@@ -115,16 +125,18 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 					),
 			),
 		);
-		
 		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
-		
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, 'cerberusweb.contexts.context.saved.search');
 		$tpl->assign('tab_manifests', $tab_manifests);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/context_saved_search.tpl');

@@ -26,14 +26,26 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // role 
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 
-		@$id = intval($id);
-		
 		if(null == ($worker_role = DAO_WorkerRole::get($id))) {
 			return;
 		}
 		$tpl->assign('worker_role', $worker_role);
+
+		// Context
+
+		$context = CerberusContexts::CONTEXT_ROLE;
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $worker_role, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 	
 		// Tab persistence
 		
@@ -63,26 +75,26 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 		
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ROLE, $worker_role->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $worker_role->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_ROLE, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_ROLE, $worker_role->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $worker_role->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_ROLE => array(
+			$context => array(
 				$worker_role->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_ROLE,
+						$context,
 						$worker_role->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -96,9 +108,13 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 			
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ROLE);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
+
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/role.tpl');
 	}

@@ -64,7 +64,8 @@
 	</span>
 	<br clear="all">
 	{/if}
-	
+
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 	</div>
 </fieldset>
 

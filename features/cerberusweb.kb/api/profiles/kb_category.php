@@ -26,14 +26,26 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // kb_category 
-		$id = array_shift($stack); // 123
-		
-		@$id = intval($id);
+		@$id = intval(array_shift($stack)); // 123
 		
 		if(null == ($kb_category = DAO_KbCategory::get($id))) {
 			return;
 		}
 		$tpl->assign('kb_category', $kb_category);
+
+		// Context
+
+		$context = CerberusContexts::CONTEXT_KB_CATEGORY;
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $kb_category, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 		
 		// Tab persistence
 		
@@ -72,26 +84,26 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 		
 		// Custom Fields
 		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_KB_CATEGORY, $kb_category->id)) or [];
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $kb_category->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_KB_CATEGORY, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_KB_CATEGORY, $kb_category->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $kb_category->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_KB_CATEGORY => array(
+			$context => array(
 				$kb_category->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_KB_CATEGORY,
+						$context,
 						$kb_category->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -105,8 +117,12 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_KB_CATEGORY);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.kb::kb/category/profile.tpl');

@@ -2109,6 +2109,7 @@
 				<param key="options">
 					<value>
 						<data key="autocomplete" />
+						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2741,7 +2742,7 @@
 		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.behavior.scheduled</id>
-			<name>Context Scheduled Behavior</name>
+			<name>Behavior Scheduled</name>
 			<class>
 				<file>api/dao/context_scheduled_behavior.php</file>
 				<name>Context_ContextScheduledBehavior</name>

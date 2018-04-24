@@ -64,13 +64,7 @@
 		{/foreach}
 		<br clear="all">
 		
-		<div style="margin-top:5px;">
-			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="bot.id:{$page_context_id}"><div class="badge-count">{$owner_counts.behaviors|default:0}</div> {'common.behaviors'|devblocks_translate|capitalize}</button>
-			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-query="owner.bot:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.calendars|default:0}</div> {'common.calendars'|devblocks_translate|capitalize}</button>
-			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-query="owner.bot:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.classifiers|default:0}</div> {'common.classifiers'|devblocks_translate|capitalize}</button>
-			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-query="on.bot:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.comments|default:0}</div> {'common.comments'|devblocks_translate|capitalize}</button>
-			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-query="owner.bot:(id:{$page_context_id})"><div class="badge-count">{$owner_counts.custom_fieldsets|default:0}</div> {'common.custom_fieldsets'|devblocks_translate|capitalize}</button>
-		</div>
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 	</div>
 	
 </fieldset>

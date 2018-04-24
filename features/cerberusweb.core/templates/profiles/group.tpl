@@ -62,12 +62,7 @@
 	{/if}
 	</div>
 	
-	<div style="margin-top:5px;">
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="group:(id:{$page_context_id})"><div class="badge-count">{$profile_counts.members|default:0}</div> {'common.members'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-query="group.id:{$page_context_id}"><div class="badge-count">{$profile_counts.buckets|default:0}</div> {'common.buckets'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_BOT}" data-query="owner.group:(id:{$page_context_id})"><div class="badge-count">{$profile_counts.bots|default:0}</div> {'common.bots'|devblocks_translate|capitalize}</button>
-		<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_CUSTOM_FIELDSET}" data-query="owner.group:(id:{$page_context_id})"><div class="badge-count">{$profile_counts.custom_fieldsets|default:0}</div> {'common.custom_fieldsets'|devblocks_translate|capitalize}</button>
-	</div>
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}

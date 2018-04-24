@@ -28,18 +28,25 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		@array_shift($stack); // calendar_event
 		@$id = intval(array_shift($stack));
 		
+		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
+
 		if(null == ($event = DAO_CalendarEvent::get($id)))
 			return;
 		
 		$tpl->assign('event', $event);
-		
+
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
 		// Dictionary
-		$labels = array();
-		$values = array();
+		
+		$labels = $values = [];
 		CerberusContexts::getContext($context, $event, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
-
+	
 		// Remember the last tab/URL
 		
 		$point = sprintf("cerberusweb.profiles.calendar_event.%d", $event->id);
@@ -49,7 +56,7 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		
 		$translate = DevblocksPlatform::getTranslationService();
 
-		$properties = array();
+		$properties = [];
 
 		$properties['calendar_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.calendar')),
@@ -78,7 +85,7 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $event->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $event->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
@@ -118,7 +125,6 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		$tpl->assign('properties_links', $properties_links);
 		
 		// Properties
-		
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
@@ -129,6 +135,10 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 		$tpl->assign('interactions_menu', $interactions_menu);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/calendar_event.tpl');

@@ -26,14 +26,26 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // snippet 
-		$id = array_shift($stack); // 123
+		@$id = intval(array_shift($stack)); // 123
 
-		@$id = intval($id);
-		
 		if(null == ($snippet = DAO_Snippet::get($id)))
 			return;
 		
 		$tpl->assign('snippet', $snippet);
+
+		// Context
+
+		$context = CerberusContexts::CONTEXT_SNIPPET;
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $snippet, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 	
 		// Tab persistence
 		
@@ -47,7 +59,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	
 		// Properties
 			
-		$properties = array();
+		$properties = [];
 			
 		$properties['owner'] = array(
 			'label' => mb_ucfirst($translate->_('common.owner')),
@@ -78,26 +90,26 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SNIPPET, $snippet->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $snippet->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_SNIPPET, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_SNIPPET, $snippet->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $snippet->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_SNIPPET => array(
+			$context => array(
 				$snippet->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_SNIPPET,
+						$context,
 						$snippet->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -111,8 +123,12 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_SNIPPET);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::internal/snippets/profile.tpl');

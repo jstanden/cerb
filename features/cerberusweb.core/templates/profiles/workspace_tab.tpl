@@ -48,6 +48,13 @@
 		{/if}
 	{/foreach}
 	<br clear="all">
+
+	{capture name="tab_search_buttons"}
+	{if $dict->extension_id == WorkspaceTab_Dashboards::ID}<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-query="tab.id:{$dict->id} sort:tab.pos"><div class="badge-count">{$tab_counts.widgets|default:0}</div> {'common.widgets'|devblocks_translate|capitalize}</button>{/if}
+	{if $dict->extension_id == WorkspaceTab_Worklists::ID}<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WORKLIST}" data-query="tab.id:{$dict->id} sort:tab.pos"><div class="badge-count">{$tab_counts.worklists|default:0}</div> {'common.worklists'|devblocks_translate|capitalize}</button>{/if}
+	{/capture}
+	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl" before=$smarty.capture.tab_search_buttons}
 	</div>
 </fieldset>
 

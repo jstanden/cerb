@@ -26,14 +26,26 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // project_board 
-		$id = array_shift($stack); // 123
-		
-		@$id = intval($id);
-		
+		@$id = intval(array_shift($stack)); // 123
+
+		$context = Context_ProjectBoard::ID;
+
 		if(null == ($project_board = DAO_ProjectBoard::get($id))) {
 			return;
 		}
 		$tpl->assign('project_board', $project_board);
+
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $project_board, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 		
 		// Tab persistence
 		
@@ -47,7 +59,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		
 		// Properties
 		
-		$properties = array();
+		$properties = [];
 		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
@@ -57,40 +69,42 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		
 		// Custom Fields
 		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(Context_ProjectBoard::ID, $project_board->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $project_board->id)) or [];
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(Context_ProjectBoard::ID, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(Context_ProjectBoard::ID, $project_board->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $project_board->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			Context_ProjectBoard::ID => array(
+			$context => array(
 				$project_board->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						Context_ProjectBoard::ID,
+						$context,
 						$project_board->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
 			),
 		);
-		
 		$tpl->assign('properties_links', $properties_links);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Properties
-		
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, Context_ProjectBoard::ID);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
@@ -372,7 +386,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		$pos = 0;
 		
 		do {
-			$models = array();
+			$models = [];
 			list($results, $total) = $view->getData();
 
 			// Summary row

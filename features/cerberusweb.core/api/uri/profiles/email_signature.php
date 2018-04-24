@@ -26,14 +26,26 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // email_signature 
-		$id = array_shift($stack); // 123
-		
-		@$id = intval($id);
+		@$id = intval(array_shift($stack)); // 123
+
+		$context = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
 		
 		if(null == ($email_signature = DAO_EmailSignature::get($id))) {
 			return;
 		}
 		$tpl->assign('email_signature', $email_signature);
+
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $email_signature, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 		
 		// Tab persistence
 		
@@ -69,26 +81,26 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 		
 		// Custom Fields
 		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, $email_signature->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $email_signature->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, $email_signature->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $email_signature->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
 		
 		$properties_links = array(
-			CerberusContexts::CONTEXT_EMAIL_SIGNATURE => array(
+			$context => array(
 				$email_signature->id => 
 					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_EMAIL_SIGNATURE,
+						$context,
 						$email_signature->id,
 						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
 					),
@@ -102,8 +114,12 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 		
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_EMAIL_SIGNATURE);
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
 		$tpl->assign('tab_manifests', $tab_manifests);
+
+		// Card search buttons
+		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::profiles/email_signature.tpl');

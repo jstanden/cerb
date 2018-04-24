@@ -63,9 +63,9 @@
 	{/foreach}
 	
 	<br clear="all">
-	</div>
-	
+
 	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
+	</div>
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
