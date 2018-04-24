@@ -15,7 +15,7 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
-class PageSection_SetupCards extends Extension_PageSection {
+class PageSection_SetupRecords extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
@@ -25,10 +25,10 @@ class PageSection_SetupCards extends Extension_PageSection {
 		$context_manifests = Extension_DevblocksContext::getAll(false, array('cards'));
 		$tpl->assign('context_manifests', $context_manifests);
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/cards/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/records/index.tpl');
 	}
 	
-	function showCardPopupAction() {
+	function showRecordPopupAction() {
 		@$context_ext_id = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -66,12 +66,15 @@ class PageSection_SetupCards extends Extension_PageSection {
 		$search_buttons = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'card:search:' . $context_ext->id, [], true);
 		$tpl->assign('search_buttons', $search_buttons);
 		
+		// =================================================================
+		// [TODO] Interaction shortcuts
+		
 		
 		// Template
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/cards/edit_card_popup.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/records/edit_record_popup.tpl');
 	}
 	
-	function saveCardPopupAction() {
+	function saveRecordPopupAction() {
 		@$context_mft_id = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$tokens = DevblocksPlatform::importGPC($_REQUEST['tokens'],'array',[]);
 		@$search = DevblocksPlatform::importGPC($_REQUEST['search'],'array',[]);
@@ -87,6 +90,7 @@ class PageSection_SetupCards extends Extension_PageSection {
 		if(!$context_mft_id || false == ($context_mft = Extension_DevblocksContext::get($context_mft_id, false)))
 			return;
 		
+		// [TODO] Move these to an actual table somewhere?
 		DevblocksPlatform::setPluginSetting('cerberusweb.core', 'card:' . $context_mft->id, $tokens, true);
 		
 		$search_buttons = [];

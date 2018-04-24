@@ -3,8 +3,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="cards">
-<input type="hidden" name="action" value="saveCardPopup">
+<input type="hidden" name="section" value="records">
+<input type="hidden" name="action" value="saveRecordPopup">
 <input type="hidden" name="context" value="{$context_ext->id}">
 
 <div id="{$div_id}">
@@ -249,10 +249,22 @@ $(function() {
 			})
 		;
 		
+		// Interaction shortcuts
+		
+		$popup.find('textarea.cerb-template-trigger')
+			.cerbTemplateTrigger()
+			.on('cerb-template-saved', function(e) {
+				//var $trigger = $(this);
+				//$trigger.val(e.worklist_quicksearch);
+			})
+		;
+		
 		// Submit
 		
 		$popup.find('button.submit').on('click', function() {
 			genericAjaxPost($frm, '', '', function(json) {
+				// [TODO] Error handling
+				
 				var event = new jQuery.Event('popup_saved');
 				genericAjaxPopupClose($popup, event);
 			});
