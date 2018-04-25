@@ -1236,7 +1236,7 @@ FIELDSET.properties DIV.property {
   width: 32%;
   padding-right: 1%;
   margin-bottom: 0.25em;
-  display: inline;
+  display: block;
   float: left;
   line-height: 1.5em;
 }
@@ -1471,7 +1471,7 @@ UL.cerb-popupmenu > LI:hover A {
   border-left: 3px solid #969696;
   border-bottom: 3px solid #969696;
   background-color: #f0f0f0;
-  color: #1111111;
+  color: #111111;
   padding: 0.5em;
 }
 #kbArticleContent CODE {
