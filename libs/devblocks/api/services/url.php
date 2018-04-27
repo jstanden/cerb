@@ -211,18 +211,9 @@ class _DevblocksUrlManager {
 		// Build the URL
 		$url = $this->write($url_parts, $full);
 		
-		$query = '';
-		foreach($request->query as $key=>$val) {
-			$query .=
-				(empty($query)?'':'&') . // arg1=val1&arg2=val2
-				$key .
-				'=' .
-				$val
-			;
-		}
-		
-		if(!empty($query))
-			$url .= '?' . $query;
+		if(is_array($request->query))
+			if(false != ($query = http_build_query($request->query)))
+				$url .= '?' . $query;
 
 		return $url;
 	}
