@@ -798,6 +798,10 @@ class ChInternalController extends DevblocksControllerExtension {
 					@$v = $dict->$k;
 					$handled = false;
 					
+					// Skip null custom fields
+					if(DevblocksPlatform::strStartsWith($k, 'custom_') && 0 == strlen($v))
+						continue;
+					
 					// Label translation
 					switch($field_types[$k]) {
 						case 'context_url':
