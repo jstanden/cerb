@@ -32,7 +32,8 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 		$macros = DAO_TriggerEvent::getReadableByActor(
 			$worker,
 			Event_UiWorklistRenderByWorker::ID,
-			false
+			false,
+			true
 		);
 		
 		if(is_array($macros))
