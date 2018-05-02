@@ -34,7 +34,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 			// Must be a valid page controller
 			if(!empty($request->path)) {
 				if(is_array($request->path) && !empty($request->path))
-					$query = array('url'=> urlencode(implode('/',$request->path)));
+					$query = array('url'=> implode('/',$request->path));
 			}
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'),$query));
 			exit;

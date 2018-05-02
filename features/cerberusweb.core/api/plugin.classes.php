@@ -125,7 +125,7 @@ class ChPageController extends DevblocksControllerExtension {
 			// Must be a valid page controller
 			if(!empty($response->path)) {
 				if(is_array($response->path) && !empty($response->path) && CerberusApplication::getPageManifestByUri(current($response->path)))
-					$query = array('url'=> urlencode(implode('/',$response->path)));
+					$query = ['url'=> implode('/',$response->path)];
 			}
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'),$query));
 		}
