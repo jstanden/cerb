@@ -59,7 +59,7 @@ class Controller_Portal extends DevblocksControllerExtension {
 			$_SERVER['HTTP_DEVBLOCKSPROXYHOST'] = DevblocksPlatform::getHostname();
 			
 			if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYSSL'])) {
-				$_SERVER['HTTP_DEVBLOCKSPROXYSSL'] = $url_writer->isSSL() ? 1 : 0;
+				$_SERVER['HTTP_DEVBLOCKSPROXYSSL'] = $url_writer->isSSL(false) ? 1 : 0;
 			}
 			
 			if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYBASE'])) {
