@@ -96,7 +96,7 @@
 				<td data-column="{$column}">{$result.o_id}&nbsp;</td>
 			{elseif $column=="o_status_id"}
 				<td data-column="{$column}">
-					{if 1 == $result.o_status_id}
+					{if 0 == $result.o_status_id}
 						{'crm.opp.status.open'|devblocks_translate}
 					{elseif 1 == $result.o_status_id}
 						{'crm.opp.status.closed.won'|devblocks_translate}
