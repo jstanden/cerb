@@ -840,7 +840,12 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 				break;
 				
 			case SearchFields_CrmOpportunity::STATUS_ID:
-				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
+				$label_map = [
+					0 => DevblocksPlatform::translateCapitalized('crm.opp.status.open'),
+					1 => DevblocksPlatform::translateCapitalized('crm.opp.status.closed.won'),
+					2 => DevblocksPlatform::translateCapitalized('crm.opp.status.closed.lost'),
+				];
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 			
 			case SearchFields_CrmOpportunity::VIRTUAL_CONTEXT_LINK:
