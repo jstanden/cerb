@@ -260,6 +260,82 @@ abstract class Extension_MailTransport extends DevblocksExtension {
 	abstract function getLastError();
 };
 
+abstract class Extension_ProfileTab extends DevblocksExtension {
+	const POINT = 'cerb.profile.tab';
+
+	static $_registry = [];
+
+	/**
+	 * @return DevblocksExtensionManifest[]|Extension_ProfileTab[]
+	 */
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+	
+		return $exts;
+	}
+	
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_ProfileTab) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
+	abstract function showTab(Model_ProfileTab $model, $context, $context_id);
+	abstract function renderConfig(Model_ProfileTab $model);
+	abstract function saveConfig(Model_ProfileTab $model);
+};
+
+abstract class Extension_ProfileWidget extends DevblocksExtension {
+	const POINT = 'cerb.profile.tab.widget';
+
+	static $_registry = [];
+
+	/**
+	 * @return DevblocksExtensionManifest[]|Extension_ProfileWidget[]
+	 */
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+	
+		return $exts;
+	}
+	
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_ProfileWidget) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
+	abstract function render(Model_ProfileWidget $model, $context, $context_id);
+};
+
 abstract class Extension_ContextProfileTab extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.context.profile.tab';
 	
