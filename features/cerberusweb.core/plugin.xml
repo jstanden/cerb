@@ -443,6 +443,14 @@
 			<class name="View_MailTransport" />
 		</file>
 
+		<file path="api/dao/mailbox.php">
+			<class name="Context_Mailbox" />
+			<class name="DAO_Mailbox" />
+			<class name="Model_Mailbox" />
+			<class name="SearchFields_Mailbox" />
+			<class name="View_Mailbox" />
+		</file>
+
 		<file path="api/dao/message.php">
 			<class name="Context_Message" />
 			<class name="DAO_Message" />
@@ -464,13 +472,13 @@
 			<class name="SearchFields_PluginLibrary" />
 			<class name="View_PluginLibrary" />
 		</file>
-		
-		<file path="api/dao/mailbox.php">
-			<class name="Context_Mailbox" />
-			<class name="DAO_Mailbox" />
-			<class name="Model_Mailbox" />
-			<class name="SearchFields_Mailbox" />
-			<class name="View_Mailbox" />
+
+		<file path="api/dao/profile_tab.php">
+			<class name="Context_ProfileTab" />
+			<class name="DAO_ProfileTab" />
+			<class name="Model_ProfileTab" />
+			<class name="SearchFields_ProfileTab" />
+			<class name="View_ProfileTab" />
 		</file>
 		
 		<file path="api/dao/reminder.php">
@@ -1198,6 +1206,51 @@
 			</params>
 		</extension>
 		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.profile.tab</id>
+			<name>Profile Tab</name>
+			<class>
+				<file>api/dao/profile_tab.php</file>
+				<name>Context_ProfileTab</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="profile tab" value="singular" />
+						<data key="profile tabs" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="profile_tab" />
+				<param key="dao_class" value="DAO_ProfileTab" />
+				<param key="view_class" value="View_ProfileTab" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.portal</id>
 			<name>Community Portal</name>
@@ -5475,6 +5528,20 @@
 					<param key="uri" value="org" />
 				</params>
 			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.profile_tab</id>
+				<name>Profile Tab Section</name>
+				<class>
+					<file>api/uri/profiles/profile_tab.php</file>
+					<name>PageSection_ProfilesProfileTab</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="profile_tab" />
+				</params>
+			</extension>
+
 			
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.reminder</id>

@@ -46,6 +46,49 @@ class Page_Profiles extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::profiles/index.tpl');
 	}
 	
+	static function renderProfile($context, $context_id) {
+		$tpl = DevblocksPlatform::services()->template();
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+
+		// Remember the last tab/URL
+		$point = sprintf("profile.%s", $context);
+		$tpl->assign('point', $point);
+		
+		// Context
+
+		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+			return;
+		
+		$tpl->assign('context_ext', $context_ext);
+		
+		// Model
+		
+		$dao_class = $context_ext->getDaoClass();
+		
+		if(false == ($record = $dao_class::get($context_id)))
+			return;
+		
+		$tpl->assign('record', $record);
+		
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context, $record, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
+		
+		// Interactions
+		
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
+
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/profile.tpl');
+	}
+	
 	function handleSectionActionAction() {
 		// GET has precedence over POST
 		@$section_uri = DevblocksPlatform::importGPC(isset($_GET['section']) ? $_GET['section'] : $_REQUEST['section'],'string','');
@@ -58,17 +101,66 @@ class Page_Profiles extends CerberusPageExtension {
 		}
 	}
 	
-	function showTabAction() {
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+	function configTabsAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if(!$active_worker->is_superuser)
+			return;
+		
+		$tpl->assign('context', $context);
+		
+		$profile_tabs_available = DAO_ProfileTab::getByContext($context);
+		$tpl->assign('profile_tabs', $profile_tabs_available);
+		
+		$profile_tabs_enabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'profile:tabs:' . $context, [], true);
+		$tpl->assign('profile_tabs_enabled', $profile_tabs_enabled);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/config_tabs.tpl');
+	}
+	
+	function configTabsSaveJsonAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		@$profile_tabs = DevblocksPlatform::importGPC($_REQUEST['profile_tabs'],'array',[]);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			return json_encode(false);
+		
+		DevblocksPlatform::setPluginSetting('cerberusweb.core', 'profile:tabs:' . $context, $profile_tabs, true);
+		
+		return json_encode(true);
+	}
+	
+	function showProfileTabAction() {
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'string','');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		
-		if(null != ($tab_mft = DevblocksPlatform::getExtension($ext_id))
-				&& null != ($inst = $tab_mft->createInstance())
-				&& $inst instanceof Extension_ContextProfileTab) {
-			
-			$inst->showTab($context, $context_id);
+		if(false == ($profile_tab = DAO_ProfileTab::get($tab_id)))
+			return;
+		
+		if(false == ($extension = $profile_tab->getExtension()))
+			return;
+		
+		$extension->showTab($profile_tab, $context, $context_id);
+	}
+	
+	function handleProfileTabActionAction() {
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'integer',0);
+		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
+		
+		if(false == ($profile_tab = DAO_ProfileTab::get($tab_id)))
+			return;
+		
+		if(false == ($extension = $profile_tab->getExtension()))
+			return;
+		
+		if($extension instanceof Extension_ProfileTab && method_exists($extension, $action.'Action')) {
+			call_user_func([$extension, $action.'Action']);
 		}
 	}
 	

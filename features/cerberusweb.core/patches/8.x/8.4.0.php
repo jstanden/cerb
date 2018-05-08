@@ -147,6 +147,31 @@ $db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, set
 ));
 
 // ===========================================================================
+// Add `profile_widget`
+
+if(!isset($tables['profile_widget'])) {
+	$sql = sprintf("
+	CREATE TABLE `profile_widget` (
+		id int(10) unsigned NOT NULL AUTO_INCREMENT,
+		name varchar(255) NOT NULL DEFAULT '',
+		profile_tab_id int(10) unsigned NOT NULL DEFAULT 0,
+		extension_id varchar(255) NOT NULL DEFAULT '',
+		extension_params_json TEXT,
+		pos tinyint unsigned NOT NULL DEFAULT 0,
+		width_units tinyint unsigned NOT NULL DEFAULT 1,
+		updated_at int(10) unsigned NOT NULL DEFAULT 0,
+		primary key (id),
+		index (profile_tab_id),
+		index (extension_id),
+		index (updated_at)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['profile_widget'] = 'profile_widget';
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
