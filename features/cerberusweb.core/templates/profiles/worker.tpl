@@ -98,6 +98,13 @@
 		{$tabs = []}
 		{$point = "cerberusweb.profiles.worker.{$dict->id}"}
 		
+		{$profile_tabs = DAO_ProfileTab::getByProfile($page_context)}
+		
+		{foreach from=$profile_tabs item=profile_tab}
+			{$tabs[] = "tab_{$profile_tab->id}"}
+			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showProfileTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$profile_tab->name}</a></li>
+		{/foreach}
+		
 		{if $active_worker->is_superuser || $dict->id == $active_worker->id}
 		{$tabs[] = 'settings'}
 		<li data-alias="settings"><a href="{devblocks_url}ajax.php?c=profiles&a=handleSectionAction&section=worker&action=showSettingsTab&worker_id={$page_context_id}{/devblocks_url}">{'common.settings'|devblocks_translate|capitalize}</a></li>
@@ -129,6 +136,10 @@
 			{$tabs[] = $tab_manifest->params.uri}
 			<li data-alias="{$tab_manifest->params.uri}"><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate}</a></li>
 		{/foreach}
+		
+		{if $active_worker->is_superuser}
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">+</a></li>
+		{/if}
 	</ul>
 </div> 
 <br>

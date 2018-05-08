@@ -74,7 +74,7 @@
 	<ul>
 		{$tabs = []}
 		
-		{$profile_tabs = DAO_ProfileTab::getByContext($page_context)}
+		{$profile_tabs = DAO_ProfileTab::getByProfile($page_context)}
 
 		{foreach from=$profile_tabs item=profile_tab}
 			{$tabs[] = "tab_{$profile_tab->id}"}
@@ -91,6 +91,10 @@
 			{$tabs[] = $tab_manifest->params.uri}
 			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate}</a></li>
 		{/foreach}
+		
+		{if $active_worker->is_superuser}
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">+</a></li>
+		{/if}
 	</ul>
 </div>
 <br>
