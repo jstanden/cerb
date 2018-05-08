@@ -285,7 +285,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	static function getByContext($context, $with_fieldsets=true, $with_fieldset_names=false) {
 		$fields = self::getAll();
 		$fieldsets = DAO_CustomFieldset::getAll();
-		$results = array();
+		$results = [];
 
 		// [TODO] Filter to the fieldsets the active worker is allowed to see
 		
@@ -644,7 +644,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			return;
 
 		$fields = DAO_CustomField::getAll();
-		$output = array();
+		$output = [];
 
 		foreach($values as $field_id => $value) {
 			if(!isset($fields[$field_id]))
@@ -667,7 +667,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 					$values = $value;
-					$value = array();
+					$value = [];
 					
 					if(!is_array($values))
 						$values = array($values);
@@ -689,7 +689,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					
 				case Model_CustomField::TYPE_FILES:
 					$values = $value;
-					$value = array();
+					$value = [];
 					
 					if(!is_array($values))
 						$values = array($values);
@@ -811,7 +811,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 
 				case Model_CustomField::TYPE_DROPDOWN:
 					// If we're setting a field that doesn't exist yet, add it.
-					@$options = $field->params['options'] ?: array();
+					@$options = $field->params['options'] ?: [];
 					
 					if($autoadd_options && !in_array($value, $options) && !empty($value)) {
 						$field->params['options'][] = $value;
@@ -855,7 +855,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					if(!is_array($value))
 						$value = array($value);
 
-					@$options = $field->params['options'] ?: array();
+					@$options = $field->params['options'] ?: [];
 					
 					// If we're setting a field that doesn't exist yet, add it.
 					if($autoadd_options) {
@@ -1074,7 +1074,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	}
 	
 	public static function handleBulkPost($do) {
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
+		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',[]);
 
 		$fields = DAO_CustomField::getAll();
 		
@@ -1092,7 +1092,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 					
 				case Model_CustomField::TYPE_LIST:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',[]);
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
@@ -1117,12 +1117,12 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_FILES:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',[]);
 					$do['cf_'.$field_id] = array('value' => DevblocksPlatform::sanitizeArray($field_value,'integer',array('nonzero','unique')));
 					break;
 					
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',array());
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',[]);
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
@@ -1144,7 +1144,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	
 	public static function parseFormPost($context, $field_ids) {
 		$fields = DAO_CustomField::getByContext($context);
-		$results = array();
+		$results = [];
 		
 		if(is_array($field_ids))
 		foreach($field_ids as $field_id) {
@@ -1157,7 +1157,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_FILES:
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				case Model_CustomField::TYPE_LIST:
-					@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'array',array());
+					@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'array',[]);
 					break;
 					
 				case Model_CustomField::TYPE_CHECKBOX:
@@ -1211,7 +1211,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		 * If we have a request variable with hints about new custom fieldsets, use it
 		 */
 		if(isset($_REQUEST['custom_fieldset_adds'])) {
-			@$custom_fieldset_adds = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_adds'], 'array', array());
+			@$custom_fieldset_adds = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_adds'], 'array', []);
 			
 			if(is_array($custom_fieldset_adds))
 			foreach($custom_fieldset_adds as $cfset_id) {
@@ -1244,7 +1244,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		/*
 		 * If we have a request variable hint about removing fieldsets, do that now
 		 */
-		@$custom_fieldset_deletes = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_deletes'], 'array', array());
+		@$custom_fieldset_deletes = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_deletes'], 'array', []);
 		
 		if(is_array($custom_fieldset_deletes))
 		foreach($custom_fieldset_deletes as $cfset_id) {
@@ -1274,13 +1274,13 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	
 	public static function getValuesByContextIds($context, $context_ids, $only_field_ids=null) {
 		if(is_null($context_ids))
-			return array();
+			return [];
 		
 		elseif(!is_array($context_ids))
-			$context_ids = array($context_ids);
+			$context_ids = [$context_ids];
 
 		if(empty($context_ids))
-			return array();
+			return [];
 			
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1292,11 +1292,11 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			return in_array($item->id, $only_field_ids);
 		});
 		
-		$tables = array();
-		$sqls = array();
+		$tables = [];
+		$sqls = [];
 		
 		if(empty($fields) || !is_array($fields))
-			return array();
+			return [];
 
 		// Default $results to all null values
 		$null_values = array_combine(array_keys($fields), array_fill(0, count($fields), null));
@@ -1314,7 +1314,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		}
 		
 		if(empty($tables))
-			return array();
+			return [];
 		
 		$tables = array_unique($tables);
 
@@ -1333,7 +1333,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		}
 		
 		if(empty($sqls))
-			return array();
+			return [];
 		
 		/*
 		 * UNION the custom field queries into a single statement so we don't have to
@@ -2101,7 +2101,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_FIELD;
 		$token_values['_types'] = $token_types;
@@ -2127,8 +2127,8 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		}
 		
 		// Custom fieldset
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
@@ -2188,10 +2188,10 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		

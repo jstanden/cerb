@@ -617,8 +617,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 				// These context loads will be cached
 				if(is_array($models))
 				foreach($models as $model_id => $model) {
-					$labels = array();
-					$values = array();
+					$labels = $values = []; 
 					CerberusContexts::getContext($context_data['context'], $model, $labels, $values, null, true);
 				}
 				

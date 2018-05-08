@@ -76,12 +76,6 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		
 		$properties = [];
 		
-		$properties['name'] = array(
-			'label' => mb_ucfirst($translate->_('common.name')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $abstract_record->name,
-		);
-		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,

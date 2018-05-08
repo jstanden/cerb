@@ -92,7 +92,7 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 			return;
 		}
 		
-		$results = array();
+		$results = [];
 		$params_avail = $view->getParamsAvailable();
 
 		if(is_array($params_avail))
