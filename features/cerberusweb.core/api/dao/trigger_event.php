@@ -2188,7 +2188,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Behavior';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
