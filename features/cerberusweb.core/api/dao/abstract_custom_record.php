@@ -724,11 +724,11 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 		$table_name = self::_getTableName();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, $table_name, 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, $table_name, 'name', $translate->_('common.name'), null, true),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, $table_name, 'owner_context', $translate->_('common.owner_context'), null, true),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, $table_name, 'owner_context_id', $translate->_('common.owner_context_id'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, $table_name, 'updated_at', $translate->_('common.updated'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, $table_name, 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
+			self::NAME => new DevblocksSearchField(self::NAME, $table_name, 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, $table_name, 'owner_context', $translate->_('common.owner_context'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, $table_name, 'owner_context_id', $translate->_('common.owner_context_id'), Model_CustomField::TYPE_NUMBER, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, $table_name, 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
