@@ -136,7 +136,7 @@ div.cerb-board div.cerb-board-column div.cerb-board-card div.cerb-board-card-typ
 		</div>
 	</div>
 	
-	{if $smarty.capture.link_contexts|trim|count > 0}
+	{if $smarty.capture.link_contexts|trim|strlen > 0}
 	<ul class="menu cerb-float" style="width:200px;margin-top:-5px;display:none;">
 		{$smarty.capture.link_contexts nofilter}
 	</ul>
