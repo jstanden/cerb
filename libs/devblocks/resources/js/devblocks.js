@@ -254,7 +254,86 @@ function DevblocksClass() {
 	this.triggerEvent = function(element, e) {
 		$(element).trigger(e);
 	}
+	
+	this._loadedScripts = {};
+	
+	this.getScriptState = function(url) {
+		var state = this._loadedScripts.hasOwnProperty(url) ? this._loadedScripts[url] : null;
+		return state;
+	}
+	
+	this.setScriptState = function(url, state) {
+		this._loadedScripts[url] = state;
+	}
+	
+	this.loadScript = function(url, callback) {
+		var $instance = this;
+		var state = $instance.getScriptState(url);
+		
+		if(null == state) {
+			var options = {
+				dataType: "script",
+				cache: true,
+				url: url
+			}
+			
+			$instance.setScriptState(url, 'loading');
+			
+			return jQuery.ajax(options)
+				.done(function() {
+					$instance.setScriptState(url, 'loaded');
+					callback();
+				})
+				.fail(function() {
+					$instance.setScriptState(url, 'failed');
+					callback(false);
+				})
+			;
+			
+		} else if ('loading' === state) {
+			var timer = null;
+			
+			timer = setInterval(function() {
+				var state = $instance.getScriptState(url);
+				
+				if('loaded' == state) {
+					clearInterval(timer);
+					callback();
+					
+				} else if ('failed' == state) {
+					clearInterval(timer);
+					callback(false);
+				}
+			}, 50);
+			
+		} else {
+			callback();
+		}
+	}
+	
+	this.loadScripts = function(urls, finished) {
+		if(!$.isArray(urls))
+			return callback(false);
+		
+		var $instance = this;
+		var jobs = [];
+		
+		urls.forEach(function(url) {
+			if(url.substring(0,1) == '/')
+				url = DevblocksWebPath + url.substring(1);
+			
+			jobs.push(async.apply($instance.loadScript.bind($instance), url));
+		});
+		
+		async.parallelLimit(jobs, 2, function(err, json) {
+			if(err)
+				return finished(err);
+			
+			finished();
+		});
+	}
 };
+
 var Devblocks = new DevblocksClass();
 
 // [TODO] Remove this in favor of jQuery $(select).val()
