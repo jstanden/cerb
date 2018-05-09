@@ -4310,6 +4310,30 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->display('devblocks:cerberusweb.core::events/_action_behavior_params.tpl');
 	}
 	
+	function showBehaviorParamsAsJsonAction() {
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+
+		$tpl = DevblocksPlatform::services()->template();
+		
+		header('Content-Type: text/plain; charset=utf-8');
+		
+		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id))) {
+			echo '{}';
+			return;
+		}
+		
+		echo "{% set json = {} %}\n";
+		
+		foreach($trigger->variables as $var) {
+			if($var['is_private'])
+				continue;
+			
+			echo sprintf("{%% set json = dict_set(json, '%s', '') %%}\n", $var['key']);
+		}
+		
+		echo "{{json|json_encode|json_pretty}}";
+	}
+	
 	function showScheduleBehaviorBulkParamsAction() {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
 
