@@ -17,7 +17,6 @@
 	{/foreach}
 </ul>
 <ul class="cerb-menu" style="display:none;position:absolute;">
-	{*<li data-option="card"><b>View file's card popup</b></li>*}
 	<li data-option="download"><b>Download</b></li>
 	<li data-option="browser"><b>Open in browser</b></li>
 </ul>

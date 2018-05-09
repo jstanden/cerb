@@ -127,7 +127,7 @@ $(function() {
 		{if $is_downloadable}
 		$popup.find('button.cerb-peek-download')
 			.on('click', function(e) {
-				window.open('{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}?download=', '_blank', 'noopener');
+				window.open('{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}?download=');
 			});
 		{/if}
 		
