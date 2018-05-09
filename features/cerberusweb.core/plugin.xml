@@ -480,6 +480,14 @@
 			<class name="SearchFields_ProfileTab" />
 			<class name="View_ProfileTab" />
 		</file>
+
+		<file path="api/dao/profile_widget.php">
+			<class name="Context_ProfileWidget" />
+			<class name="DAO_ProfileWidget" />
+			<class name="Model_ProfileWidget" />
+			<class name="SearchFields_ProfileWidget" />
+			<class name="View_ProfileWidget" />
+		</file>
 		
 		<file path="api/dao/reminder.php">
 			<class name="Context_Reminder" />
@@ -1251,6 +1259,51 @@
 			</params>
 		</extension>
 
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.profile.widget</id>
+			<name>Profile Widget</name>
+			<class>
+				<file>api/dao/profile_widget.php</file>
+				<name>Context_ProfileWidget</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="profile widget" value="singular" />
+						<data key="profile widgets" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="profile_widget" />
+				<param key="dao_class" value="DAO_ProfileWidget" />
+				<param key="view_class" value="View_ProfileWidget" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.portal</id>
 			<name>Community Portal</name>
@@ -5542,6 +5595,18 @@
 				</params>
 			</extension>
 
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.profile_widget</id>
+				<name>Profile Widget Section</name>
+				<class>
+					<file>api/uri/profiles/profile_widget.php</file>
+					<name>PageSection_ProfilesProfileWidget</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="profile_widget" />
+				</params>
+			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.reminder</id>
@@ -5712,6 +5777,54 @@
 				</params>
 			</extension>
 			
+		<!-- Profile Tabs -->
+
+		<extension point="cerb.profile.tab">
+			<id>cerb.profile.tab.bot</id>
+			<name>Custom</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileTab_BotBehavior</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerb.profile.tab">
+			<id>cerb.profile.tab.dashboard</id>
+			<name>Dashboard</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileTab_Dashboard</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Profile Widgets -->
+
+		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.bot</id>
+			<name>Custom</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_BotBehavior</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.worklist</id>
+			<name>Worklist</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_Worklist</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Workspace Pages -->
 		
 		<extension point="cerberusweb.ui.workspace.page">
@@ -5768,7 +5881,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.bot</id>
-			<name>Bot Behavior</name>
+			<name>Custom</name>
 			<class>
 				<file>api/uri/internal/dashboards.php</file>
 				<name>WorkspaceWidget_BotBehavior</name>

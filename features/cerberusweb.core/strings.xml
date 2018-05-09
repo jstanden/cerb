@@ -462,6 +462,11 @@
 				<seg>With</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.cache">
+			<tuv xml:lang="en_US">
+				<seg>cache</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.calendar">
 			<tuv xml:lang="en_US">
 				<seg>Calendar</seg>
@@ -2429,6 +2434,11 @@
 		<tu tuid="common.widgets">
 			<tuv xml:lang="en_US">
 				<seg>widgets</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.width">
+			<tuv xml:lang="en_US">
+				<seg>width</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.worker">

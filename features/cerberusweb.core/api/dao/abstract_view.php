@@ -237,7 +237,13 @@ abstract class C4_AbstractView {
 	}
 	
 	function isCustom() {
-		return DevblocksPlatform::strStartsWith($this->id, 'cust_');
+		if(DevblocksPlatform::strStartsWith($this->id, 'cust_'))
+			return true;
+		
+		if(DevblocksPlatform::strStartsWith($this->id, 'profile_widget_'))
+			return true;
+			
+		return false;
 	}
 	
 	function getCustomWorklistModel() {

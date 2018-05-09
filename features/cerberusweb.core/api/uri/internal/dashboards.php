@@ -94,7 +94,12 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 		
 		$results = [];
 		$params_avail = $view->getParamsAvailable();
-
+		
+		$subtotals = [];
+		
+		if($view instanceof IAbstractView_Subtotals) /* @var $view IAbstractView_Subtotals */
+			$subtotals = $view->getSubtotalFields();
+		
 		if(is_array($params_avail))
 		foreach($params_avail as $param) { /* @var $param DevblocksSearchField */
 			if(empty($param->db_label))
@@ -103,7 +108,9 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 			$results[] = array(
 				'key' => $param->token,
 				'label' => mb_convert_case($param->db_label, MB_CASE_LOWER),
-				'type' => $param->type
+				'type' => $param->type,
+				'sortable' => $param->is_sortable,
+				'subtotals' => array_key_exists($param->token, $subtotals),
 			);
 		}
 		

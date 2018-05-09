@@ -1022,6 +1022,7 @@ class CerberusContexts {
 	const CONTEXT_ORG = 'cerberusweb.contexts.org';
 	const CONTEXT_PORTAL = 'cerberusweb.contexts.portal';
 	const CONTEXT_PROFILE_TAB = 'cerberusweb.contexts.profile.tab';
+	const CONTEXT_PROFILE_WIDGET = 'cerberusweb.contexts.profile.widget';
 	const CONTEXT_PROJECT = 'cerberusweb.contexts.project';
 	const CONTEXT_PROJECT_ISSUE = 'cerberusweb.contexts.project.issue';
 	const CONTEXT_REMINDER = 'cerberusweb.contexts.reminder';
