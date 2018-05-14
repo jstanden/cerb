@@ -1,1 +1,0 @@
-This is example content on a tab.
