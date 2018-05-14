@@ -1,7 +1,7 @@
-{$tab_context = CerberusContexts::CONTEXT_GROUP}
-{$tab_context_id = $group->id}
+{$tab_context = CerberusContexts::CONTEXT_WORKER}
+{$tab_context_id = $worker->id}
 
-{$tab_is_editable = $active_worker->is_superuser || $active_worker->isGroupManager($group->id)}
+{$tab_is_editable = $active_worker->is_superuser}
 {$tab_uniqid = uniqid()}
 
 {if $tab_is_editable}
@@ -12,22 +12,19 @@
 
 <div id="fieldsets{$tab_uniqid}" style="column-width:275px;">
 
-{foreach from=$buckets item=bucket key=bucket_id}
-<fieldset class="peek" style="margin-bottom:0;display:inline-block;vertical-align:top;break-inside:avoid-column;">
+{foreach from=$groups item=group key=group_id}
+{if $worker->isGroupMember($group_id)}
+<fieldset class="peek" style="margin-bottom:0;display:block;vertical-align:top;break-inside:avoid-column;">
 	<legend>
-		<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
+		<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}">{$group->name}</a>
 	</legend>
 	
 	<div style="padding-left:10px;">
-		{foreach from=$members item=member}
-		{$worker_id = $member->id}
-		{$worker = $workers.$worker_id}
-		{$responsibility_level = $responsibilities.$bucket_id.$worker_id}
-		
-		{if $worker}
+		{foreach from=$group->getBuckets() item=bucket key=bucket_id}
+		{$responsibility_level = $responsibilities.$bucket_id}
 		<div style="width:250px;display:block;margin:0 10px 10px 5px;">
 			<label>
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}"><b>{$worker->getName()}</b></a> {if $worker->title}({$worker->title}){/if}
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}"><b>{$bucket->name}</b></a>
 			</label>
 			
 			<div style="margin-top:5px;position:relative;margin-left:5px;width:250px;height:10px;background-color:rgb(230,230,230);border-radius:10px;">
@@ -36,12 +33,11 @@
 			</div>
 			
 		</div>
-		{/if}
-		
 		{/foreach}
 		
 	</div>
 </fieldset>
+{/if}
 {/foreach}
 
 </div>
@@ -56,7 +52,7 @@ $(function() {
 	
 	$frm.find('button').click(function() {
 		// Open popup
-		var $popup = genericAjaxPopup('peek', 'c=internal&a=handleSectionAction&section=responsibilities&action=showResponsibilitiesPopup&context={$tab_context}&context_id={$tab_context_id}', null, false, '90%');
+		var $popup = genericAjaxPopup('peek', 'c=profiles&a=handleProfileWidgetAction&widget_id={$widget->id}&action=showResponsibilitiesPopup&context={$tab_context}&context_id={$tab_context_id}', null, false, '90%');
 		
 		// When the popup saves, reload the tab
 		$popup.one('responsibilities_save', function() {
