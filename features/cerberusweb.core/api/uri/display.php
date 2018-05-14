@@ -1422,32 +1422,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask,'history')));
 	}
 	
-	function showContactHistoryAction() {
-		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$tpl = DevblocksPlatform::services()->template();
-		
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
-				
-		// Scope
-		$scope = $visit->get('display.history.scope', '');
-		
-		// Dictionary
-		$labels = [];
-		$values = [];
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-
-		// Scope
-		$tpl->assign('scope', $scope);
-
-		$view = DAO_Ticket::getViewForRequesterHistory('contact_history', $dict, $scope);
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.core::display/modules/history/index.tpl');
-	}
-
 	// Display actions
 	
 	function doTakeAction() {
