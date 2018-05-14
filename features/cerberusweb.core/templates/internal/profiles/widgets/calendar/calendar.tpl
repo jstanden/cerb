@@ -12,9 +12,9 @@
 	</div>
 
 	<div style="float:right;">
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');"><span class="glyphicons glyphicons-chevron-left"></span></button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=&year=');">Today</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');"><span class="glyphicons glyphicons-chevron-right"></span></button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=handleProfileWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');"><span class="glyphicons glyphicons-chevron-left"></span></button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=handleProfileWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=&year=');">Today</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=handleProfileWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');"><span class="glyphicons glyphicons-chevron-right"></span></button>
 	</div>
 	
 	<br clear="all">
@@ -41,9 +41,9 @@
 {/if}
 </tr>
 {foreach from=$calendar_properties.calendar_weeks item=week name=weeks}
-<tr class="week" style="height:125px;">
+<tr class="week">
 	{foreach from=$week item=day name=days}
-		<td class="{if $calendar_properties.today == $day.timestamp}today{/if}{if $day.is_padding} inactive{/if}{if $smarty.foreach.days.last} cellborder_r{/if}{if $smarty.foreach.weeks.last} cellborder_b{/if}">
+		<td class="{if $calendar_properties.today == $day.timestamp}today{/if}{if $day.is_padding} inactive{/if}{if $smarty.foreach.days.last} cellborder_r{/if}{if $smarty.foreach.weeks.last} cellborder_b{/if}" style="position:relative;">
 			<div class="day_header">
 				{if $calendar->params.manual_disabled}
 					{if $calendar_properties.today == $day.timestamp}
@@ -94,7 +94,7 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frm{$guid}');
-	var $tab = $frm.closest('div.ui-tabs-panel');
+	var $tab = $frm.closest('div.cerb-profile-widget--content');
 	
 	$tab.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
@@ -104,7 +104,7 @@ $(function() {
 			var month = (e.month) ? e.month : '{$calendar_properties.month}';
 			var year = (e.year) ? e.year : '{$calendar_properties.year}';
 			
-			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=handleSectionAction&section=calendars&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
+			genericAjaxGet($('#frm{$guid}').closest('div.cerb-profile-widget--content'), 'c=profiles&a=handleProfileWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
 			event.stopPropagation();
 		})
 		.on('cerb-peek-closed', function(e) {
