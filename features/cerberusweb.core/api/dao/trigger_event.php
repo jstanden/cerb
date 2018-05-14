@@ -1465,8 +1465,8 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		$this->id = self::DEFAULT_ID;
 		$this->name = DevblocksPlatform::translateCapitalized('common.behaviors');
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_TriggerEvent::PRIORITY;
-		$this->renderSortAsc = true;
+		$this->renderSortBy = SearchFields_TriggerEvent::UPDATED_AT;
+		$this->renderSortAsc = false;
 
 		$this->view_columns = array(
 			SearchFields_TriggerEvent::EVENT_POINT,
@@ -1929,8 +1929,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$view = $context_ext->getSearchView('autocomplete_behavior');
 		$view->renderLimit = 25;
 		$view->renderPage = 0;
-		$view->renderSortBy = SearchFields_TriggerEvent::PRIORITY;
-		$view->renderSortAsc = true;
+		$view->renderSortBy = SearchFields_TriggerEvent::UPDATED_AT;
+		$view->renderSortAsc = false;
 		$view->is_ephemeral = true;
 		
 		$view->addParamsWithQuickSearch($query, true);
@@ -2171,8 +2171,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			SearchFields_TriggerEvent::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_TriggerEvent::UPDATED_AT,'=',0),
 		), true);
 		*/
-		$view->renderSortBy = SearchFields_TriggerEvent::PRIORITY;
-		$view->renderSortAsc = true;
+		$view->renderSortBy = SearchFields_TriggerEvent::UPDATED_AT;
+		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
