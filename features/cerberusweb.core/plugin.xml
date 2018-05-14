@@ -5800,7 +5800,39 @@
 			<params>
 			</params>
 		</extension>
-
+		
+		<extension point="cerb.profile.tab">
+			<id>cerb.profile.tab.portal.config</id>
+			<name>Portal Configure</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileTab_PortalConfigure</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="portal" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab">
+			<id>cerb.profile.tab.portal.deploy</id>
+			<name>Portal Deploy</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileTab_PortalDeploy</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="portal" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<!-- Profile Widgets -->
 
 		<extension point="cerb.profile.tab.widget">

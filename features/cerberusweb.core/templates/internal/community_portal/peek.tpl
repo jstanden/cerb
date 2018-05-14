@@ -3,7 +3,6 @@
 {$is_writeable = Context_CommunityTool::isWriteableByActor($dict, $active_worker)}
 
 <div id="{$div_id}">
-	
 	<div style="float:left;">
 		<h1>
 			{$dict->_label}
@@ -27,7 +26,6 @@
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
 	<div class="cerb-properties-grid" data-column-width="100">
-	
 		{$labels = $dict->_labels}
 		{$types = $dict->_types}
 		{foreach from=$properties item=k name=props}

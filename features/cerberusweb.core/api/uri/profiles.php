@@ -408,6 +408,103 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 	}
 }
 
+class ProfileTab_PortalConfigure extends Extension_ProfileTab {
+	const ID = 'cerb.profile.tab.portal.configure';
+
+	function __construct($manifest=null) {
+		parent::__construct($manifest);
+	}
+	
+	function renderConfig(Model_ProfileTab $model) {
+	}
+	
+	function saveConfig(Model_ProfileTab $model) {
+	}
+	
+	function showTab(Model_ProfileTab $model, $context, $context_id) {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// [TODO] Must be an admin to see/use this tab
+		if(!$active_worker->is_superuser)
+			return;
+		
+		if(false == ($portal = DAO_CommunityTool::get($context_id)))
+			return;
+		
+		$tpl->assign('community_tool', $portal);
+		
+		$tpl->assign('page_context', $context);
+		$tpl->assign('page_context_id', $context_id);
+		
+		if(false != ($extension = $portal->getExtension()))
+			$tpl->assign('extension', $extension);
+		
+		$extension->configure($portal);
+	}
+}
+
+class ProfileTab_PortalDeploy extends Extension_ProfileTab {
+	const ID = 'cerb.profile.tab.portal.deploy';
+
+	function __construct($manifest=null) {
+		parent::__construct($manifest);
+	}
+	
+	function renderConfig(Model_ProfileTab $model) {
+	}
+	
+	function saveConfig(Model_ProfileTab $model) {
+	}
+
+	function showTab(Model_ProfileTab $model, $context, $context_id) {
+		$tpl = DevblocksPlatform::services()->template();
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		if(false == ($portal = DAO_CommunityTool::get($context_id)))
+			return;
+		
+		if(false != ($extension = $portal->getExtension()))
+			$tpl->assign('extension', $extension);
+		
+		$tpl->assign('portal', $portal);
+			
+		// Built-in
+		
+		$url = $url_writer->write('c=portal&uri=' . $portal->uri, true, false);
+		$tpl->assign('url', $url);
+		
+		// Pure PHP reverse proxy
+		
+		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'],'integer',0);
+		
+		// Install
+		$url_writer = DevblocksPlatform::services()->url();
+		$url = $url_writer->writeNoProxy('c=portal&a='.$portal->code,true);
+		$url_parts = parse_url($url);
+		
+		$host = $url_parts['host'];
+		$port = isset($url_parts['port']) ? $url_parts['port'] : ($url_writer->isSSL() ? 443 : 80);
+		$base = substr(DEVBLOCKS_WEBPATH,0,-1); // consume trailing
+		$path = substr($url_parts['path'],strlen(DEVBLOCKS_WEBPATH)-1); // consume trailing slash
+
+		@$parts = explode('/', $path);
+		if($parts[1]=='index.php') // 0 is null from /part1/part2 paths.
+			unset($parts[1]);
+		$path = implode('/', $parts);
+		
+		$tpl->assign('host', $host);
+		$tpl->assign('is_ssl', ($url_writer->isSSL() ? 1 : 0));
+		$tpl->assign('port', $port);
+		$tpl->assign('base', $base);
+		$tpl->assign('path', $path);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/portal/deploy.tpl');
+	}
+}
+
 class ProfileWidget_Worklist extends Extension_ProfileWidget {
 	const ID = 'cerb.profile.tab.widget.worklist';
 	
