@@ -367,7 +367,20 @@
 			<params>
 				<param key="uri" value="kbcategories" />
 			</params>
-		</extension>	
+		</extension>
+		
+		<!-- Profile widgets -->
+		
+		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.kb_article</id>
+			<name>Knowledgebase Article</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ProfileWidget_KbArticle</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 		
 	</extensions>
 </plugin>
