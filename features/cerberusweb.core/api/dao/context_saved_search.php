@@ -931,6 +931,59 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		if(!empty($model->owner_context)) {
+			$properties['owner'] = array(
+				'label' => DevblocksPlatform::translateCapitalized('common.owner'),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->owner_context_id,
+				'params' => [
+					'context' => $model->owner_context,
+				]
+			);
+		}
+		
+		$properties['tag'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.tag'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->tag,
+		);
+		
+		
+		$search_context_ext = $model->getContextExtension(false);
+		$properties['context'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.context'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $search_context_ext->name,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		$properties['query'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.query'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->query,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$context_saved_search = DAO_ContextSavedSearch::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

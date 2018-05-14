@@ -17,43 +17,34 @@
 
 class PageSection_ProfilesTicket extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
-		$url = DevblocksPlatform::services()->url();
-		
-		$context = CerberusContexts::CONTEXT_TICKET;
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // ticket
 		@$id_string = array_shift($stack);
 		@$section = array_shift($stack);
 		
+		$context = CerberusContexts::CONTEXT_TICKET;
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		// Translate masks to IDs
-		if(null == ($ticket_id = DAO_Ticket::getTicketIdByMask($id_string))) {
-			$ticket_id = intval($id_string);
+		if(null == ($context_id= DAO_Ticket::getTicketIdByMask($id_string))) {
+			$context_id = intval($id_string);
 		}
 		
-		// Trigger ticket view event (before we load it, in case we change it)
-		Event_TicketViewedByWorker::trigger($ticket_id, $active_worker->id);
-		
 		// Load the record
-		if(false == ($ticket = DAO_Ticket::get($ticket_id))) {
+		if(false == ($ticket = DAO_Ticket::get($context_id))) {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest());
 			return;
 		}
 		
 		// Dictionary
-
+		
 		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET, true)))
 			return;
 
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $ticket, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
+		// Trigger ticket view event (before we load it, in case we change it)
+		Event_TicketViewedByWorker::trigger($ticket_id, $active_worker->id);
 		
 		// Permissions
 		
@@ -61,13 +52,12 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			return;
 		
 		// Check group membership ACL
-		if(!Context_Ticket::isReadableByActor($dict, $active_worker)) {
+		if(!Context_Ticket::isReadableByActor($ticket, $active_worker)) {
 			echo DevblocksPlatform::translateCapitalized('common.access_denied');
 			exit;
 		}
 		
-		$point = 'cerberusweb.profiles.ticket';
-		$tpl->assign('point', $point);
+		Page_Profiles::renderProfile($context, $context_id);
 		
 		@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
 
@@ -110,136 +100,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			$tpl->assign('tab', $section);
 		}
 		
-		// Properties
-		
-		$properties = array(
-			'status' => null,
-			'owner' => array(
-				'label' => mb_ucfirst($translate->_('common.owner')),
-				'type' => Model_CustomField::TYPE_LINK,
-				'value' => $dict->owner_id,
-				'params' => array(
-					'context' => CerberusContexts::CONTEXT_WORKER,
-				),
-			),
-			'mask' => null,
-			'bucket' => null,
-			'org' => array(
-				'label' => mb_ucfirst($translate->_('common.organization')),
-				'type' => Model_CustomField::TYPE_LINK,
-				'value' => $dict->org_id,
-				'params' => array(
-					'context' => CerberusContexts::CONTEXT_ORG,
-				),
-			),
-			'importance' => null,
-			'created' => array(
-				'label' => mb_ucfirst($translate->_('common.created')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $dict->created,
-			),
-			'updated' => array(
-				'label' => DevblocksPlatform::translateCapitalized('common.updated'),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $dict->updated,
-			),
-		);
-		
-		if(!empty($dict->closed_at)) {
-			$properties['closed'] = array(
-				'label' => mb_ucfirst($translate->_('ticket.closed_at')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $dict->closed,
-			);
-		}
-		
-		if(!empty($dict->elapsed_response_first)) {
-			$properties['elapsed_response_first'] = array(
-				'label' => mb_ucfirst($translate->_('ticket.elapsed_response_first')),
-				'type' => null,
-				'value' => DevblocksPlatform::strSecsToString($dict->elapsed_response_first, 2),
-			);
-		}
-		
-		if(!empty($dict->elapsed_resolution_first)) {
-			$properties['elapsed_resolution_first'] = array(
-				'label' => mb_ucfirst($translate->_('ticket.elapsed_resolution_first')),
-				'type' => null,
-				'value' => DevblocksPlatform::strSecsToString($dict->elapsed_resolution_first, 2),
-			);
-		}
-		
-		$properties['spam_score'] = array(
-			'label' => mb_ucfirst($translate->_('ticket.spam_score')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => (100*$dict->spam_score) . '%',
-		);
-		
-		// Custom Fields
-
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $dict->id)) or array();
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $dict->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Properties
-		
-		$tpl->assign('properties', $properties);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$dict->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$dict->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		if(!empty($dict->org_id)) {
-			$properties_links[CerberusContexts::CONTEXT_ORG] = array(
-				$dict->org_id => 
-					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_ORG,
-						$dict->org_id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			);
-		}
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Groups
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-		
-		// Requesters
-		$requesters = DAO_Ticket::getRequestersByTicket($dict->id);
-		$tpl->assign('requesters', $requesters);
-		
-		// Workers
-		$tpl->assign('workers', DAO_Worker::getAll());
-		
-		// Watchers
-		// [TODO] Is this necessary or redundant?
-		$context_watchers = CerberusContexts::getWatchers($context, $dict->id);
-		$tpl->assign('context_watchers', $context_watchers);
-		
-		// Buckets
-		$group_buckets = DAO_Bucket::getGroups();
-		$tpl->assign('group_buckets', $group_buckets);
-		
 		// If deleted, check for a new merge parent URL
 		if($dict->status_id == Model_Ticket::STATUS_DELETED) {
 			if(false !== ($new_mask = DAO_Ticket::getMergeParentByMask($dict->mask))) {
@@ -248,22 +108,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 						$tpl->assign('merge_parent', $merge_parent);
 			}
 		}
-		
-		// Interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/ticket.tpl');
 	}
 	
 	function getPeekPreviewAction() {

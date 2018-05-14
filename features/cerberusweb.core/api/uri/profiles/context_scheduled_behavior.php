@@ -17,118 +17,15 @@
 
 class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // context_scheduled_behavior 
-		@$id = intval(array_shift($stack)); // 123
+		@$context_id = intval(array_shift($stack)); // 123
 
 		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
 		
-		if(null == ($context_scheduled_behavior = DAO_ContextScheduledBehavior::get($id))) {
-			return;
-		}
-		$tpl->assign('context_scheduled_behavior', $context_scheduled_behavior);
-
-		// Context
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
-		
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $context_scheduled_behavior, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-
-		// Tab persistence
-		
-		$point = 'profiles.context_scheduled_behavior.tab';
-		$tpl->assign('point', $point);
-		
-		if(null == (@$tab_selected = $stack[0])) {
-			$tab_selected = $visit->get($point, '');
-		}
-		$tpl->assign('tab_selected', $tab_selected);
-		
-		// Properties
-		
-		$properties = [];
-		
-		$properties['run_date'] = [
-			'label' => mb_ucfirst($translate->_('dao.context_scheduled_behavior.run_date')),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $context_scheduled_behavior->run_date,
-		];
-		
-		$properties['behavior_id'] = [
-			'label' => mb_ucfirst($translate->_('common.behavior')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $context_scheduled_behavior->behavior_id,
-			'params' => [
-				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
-			]
-		];
-		
-		$properties['context_id'] = [
-			'label' => mb_ucfirst($translate->_('common.target')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $context_scheduled_behavior->context_id,
-			'params' => [
-				'context' => $context_scheduled_behavior->context,
-			]
-		];
-		
-		// Custom Fields
-		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $context_scheduled_behavior->id)) or [];
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $context_scheduled_behavior->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$context_scheduled_behavior->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$context_scheduled_behavior->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		
-		$tpl->assign('properties', $properties);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-		
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/context_scheduled_behavior.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

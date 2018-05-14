@@ -17,100 +17,15 @@
 
 class PageSection_ProfilesProfileTab extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // profile_tab 
-		@$id = intval(array_shift($stack)); // 123
+		@$context_id = intval(array_shift($stack)); // 123
 		
-		if(null == ($profile_tab = DAO_ProfileTab::get($id))) {
-			return;
-		}
-		$tpl->assign('profile_tab', $profile_tab);
-
-		// Context
-
-		$context = 'cerberusweb.contexts.profile.tab';
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
-
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $profile_tab, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
+		$context = CerberusContexts::CONTEXT_PROFILE_TAB;
 		
-		// Tab persistence
-		
-		$point = 'profiles.profile_tab.tab';
-		$tpl->assign('point', $point);
-		
-		if(null == (@$tab_selected = $stack[0])) {
-			$tab_selected = $visit->get($point, '');
-		}
-		$tpl->assign('tab_selected', $tab_selected);
-		
-		// Properties
-		
-		$properties = [];
-		
-		$properties['updated'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $profile_tab->updated_at,
-		);
-		
-		// Custom Fields
-		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $profile_tab->id)) or [];
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $profile_tab->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$profile_tab->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$profile_tab->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		
-		$tpl->assign('properties', $properties);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/profile.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {
@@ -125,7 +40,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", 'cerberusweb.contexts.profile.tab')))
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_PROFILE_TAB)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_ProfileTab::delete($id);
@@ -162,7 +77,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 					DAO_ProfileTab::onUpdateByActor($active_worker, $id, $fields);
 					
 					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.profile.tab', $id);
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_TAB, $id);
 					
 				} else { // Edit
 					$fields = array(
@@ -184,7 +99,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 	
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.profile.tab', $id, $field_ids, $error))
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_TAB, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				echo json_encode(array(
@@ -219,7 +134,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		
 		header('Content-Type: application/json');
 		
-		if(null == ($context_ext = Extension_DevblocksContext::get($context))) {
+		if(null == ($context_ext = Extension_DevblocksContext::getByAlias($context, true))) {
 			echo json_encode(false);
 			return;
 		}

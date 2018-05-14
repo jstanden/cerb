@@ -17,148 +17,15 @@
 
 class PageSection_ProfilesAddress extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
-		
 		$context = CerberusContexts::CONTEXT_ADDRESS;
-		$active_worker = CerberusApplication::getActiveWorker();
-
+		
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // address
-		@$id = intval(array_shift($stack));
+		@$context_id = intval(array_shift($stack));
 		
-		$address = DAO_Address::get($id);
-		$tpl->assign('address', $address);
-		
-		// Context
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
-		
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $address, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-		
-		$point = 'cerberusweb.profiles.address';
-		$tpl->assign('point', $point);
-		
-		// Properties
-		
-		$properties = [];
-		
-		if(!empty($address->contact_id)) {
-			if(null != ($contact = $address->getContact())) {
-				$properties['contact'] = array(
-					'label' => mb_ucfirst($translate->_('common.contact')),
-					'type' => Model_CustomField::TYPE_LINK,
-					'value' => $address->contact_id,
-					'params' => array(
-						'context' => CerberusContexts::CONTEXT_CONTACT,
-					),
-				);
-			}
-		}
-		
-		if(!empty($address->contact_org_id)) {
-			if(null != ($org = $address->getOrg())) {
-				$properties['org'] = array(
-					'label' => mb_ucfirst($translate->_('common.organization')),
-					'type' => Model_CustomField::TYPE_LINK,
-					'value' => $address->contact_org_id,
-					'params' => array(
-						'context' => CerberusContexts::CONTEXT_ORG,
-					),
-				);
-			}
-		}
-		
-		$properties['num_spam'] = array(
-			'label' => mb_ucfirst($translate->_('address.num_spam')),
-			'type' => Model_CustomField::TYPE_NUMBER,
-			'value' => $address->num_spam,
-		);
-		
-		$properties['num_nonspam'] = array(
-			'label' => mb_ucfirst($translate->_('address.num_nonspam')),
-			'type' => Model_CustomField::TYPE_NUMBER,
-			'value' => $address->num_nonspam,
-		);
-		
-		$properties['is_banned'] = array(
-			'label' => mb_ucfirst($translate->_('address.is_banned')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $address->is_banned,
-		);
-		
-		$properties['is_defunct'] = array(
-			'label' => mb_ucfirst($translate->_('address.is_defunct')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $address->is_defunct,
-		);
-		
-		// Custom Fields
-
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $address->id)) or array();
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $address->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$address->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$address->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		if(!empty($address->contact_org_id)) {
-			$properties_links[CerberusContexts::CONTEXT_ORG] = array(
-				$address->contact_org_id => 
-					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_ORG,
-						$address->contact_org_id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			);
-		}
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		$tpl->assign('properties', $properties);
-		
-		// Interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/address.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

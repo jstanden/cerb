@@ -17,128 +17,16 @@
 
 class PageSection_ProfilesAttachment extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // attachment 
-		@$id = intval(array_shift($stack)); // 123
-
+		@$context_id = intval(array_shift($stack)); // 123
+		
 		$context = CerberusContexts::CONTEXT_ATTACHMENT;
-
-		if(false == ($attachment = DAO_Attachment::get($id)))
-			return;
 		
-		$tpl->assign('attachment', $attachment);
-	
-		// Tab persistence
 		
-		$point = 'profiles.attachment.tab';
-		$tpl->assign('point', $point);
-		
-		if(null == (@$tab_selected = $stack[0])) {
-			$tab_selected = $visit->get($point, '');
-		}
-		$tpl->assign('tab_selected', $tab_selected);
-
-		// Context
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
-		
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $attachment, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-	
-		// Properties
-			
-		$properties = array();
-			
-		$properties['mime_type'] = array(
-			'label' => mb_ucfirst($translate->_('attachment.mime_type')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $attachment->mime_type,
-		);
-		
-		$properties['storage_size'] = array(
-			'label' => mb_ucfirst($translate->_('common.size')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => DevblocksPlatform::strPrettyBytes($attachment->storage_size),
-		);
-		
-		$properties['storage_extension'] = array(
-			'label' => mb_ucfirst($translate->_('attachment.storage_extension')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $attachment->storage_extension,
-		);
-		
-		$properties['storage_key'] = array(
-			'label' => mb_ucfirst($translate->_('attachment.storage_key')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $attachment->storage_key,
-		);
-			
-		$properties['updated'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $attachment->updated,
-		);
-			
-	
-		// Custom Fields
-
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ATTACHMENT, $attachment->id)) or array();
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_ATTACHMENT, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_ATTACHMENT, $attachment->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Attachment context counts
-		
-		$tpl->assign('contexts', Extension_DevblocksContext::getAll(false));
-		$tpl->assign('context_counts', DAO_Attachment::getLinkCounts($attachment->id));
-		
-		// Link counts
-		
-		$properties_links = array(
-			CerberusContexts::CONTEXT_ATTACHMENT => array(
-				$attachment->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						CerberusContexts::CONTEXT_ATTACHMENT,
-						$attachment->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		$tpl->assign('properties', $properties);
-			
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ATTACHMENT);
-		$tpl->assign('tab_manifests', $tab_manifests);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/attachment.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

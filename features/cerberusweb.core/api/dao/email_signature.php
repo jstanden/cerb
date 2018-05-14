@@ -938,6 +938,40 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['is_default'] = array(
+			'label' => mb_ucfirst($translate->_('common.is_default')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_default,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		$properties['signature'] = array(
+			'label' => mb_ucfirst($translate->_('common.signature')),
+			'type' => Model_CustomField::TYPE_MULTI_LINE,
+			'value' => $model->signature,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$email_signature = DAO_EmailSignature::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

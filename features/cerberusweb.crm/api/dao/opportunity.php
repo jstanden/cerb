@@ -714,6 +714,16 @@ class Model_CrmOpportunity {
 	public $closed_date;
 	public $status_id;
 	
+	function getStatusString() {
+		$statuses = [
+			0 => DevblocksPlatform::translateCapitalized('crm.opp.status.open'),
+			1 => DevblocksPlatform::translateCapitalized('crm.opp.status.closed.won'),
+			2 => DevblocksPlatform::translateCapitalized('crm.opp.status.closed.lost'),
+		];
+		
+		return @$statuses[$this->status_id];
+	}
+	
 	/**
 	 * 
 	 * @return Model_Currency
@@ -1243,6 +1253,56 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=opportunity&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['status'] = array(
+			'label' => mb_ucfirst($translate->_('common.status')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->getStatusString(),
+		);
+		
+		if(!empty($model->status_id))
+			if(!empty($model->closed_date))
+			$properties['closed_date'] = array(
+				'label' => mb_ucfirst($translate->_('crm.opportunity.closed_date')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $model->closed_date,
+			);
+			
+		if(!empty($model->currency_amount))
+			$properties['currency_amount'] = array(
+				'label' => mb_ucfirst($translate->_('crm.opportunity.amount')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->getAmountString()
+			);
+			
+		$properties['created_date'] = array(
+			'label' => mb_ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created_date,
+		);
+		
+		$properties['updated_date'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_date,
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

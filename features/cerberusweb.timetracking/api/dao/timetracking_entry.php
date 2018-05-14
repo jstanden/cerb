@@ -1366,6 +1366,8 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_TimeTracking extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = 'cerberusweb.contexts.timetracking';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
 		return CerberusContexts::allowEverything($models);
@@ -1399,6 +1401,47 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=time_tracking&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['status'] = array(
+			'label' => mb_ucfirst($translate->_('common.status')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => ($model->is_closed) ? $translate->_('status.closed') : $translate->_('status.open'),
+		);
+		
+		$properties['log_date'] = array(
+			'label' => mb_ucfirst($translate->_('timetracking_entry.log_date')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->log_date,
+		);
+		
+		$properties['worker_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.worker')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => CerberusContexts::CONTEXT_WORKER),
+			'value' => $model->worker_id,
+		);
+		
+		$properties['time_spent'] = array(
+			'label' => mb_ucfirst($translate->_('timetracking.ui.entry_panel.time_spent')),
+			'type' => 'time_mins',
+			'value' => $model->time_actual_mins,
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

@@ -1214,6 +1214,48 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		/* @var $model Model_CommunityTool */
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['extension'] = array(
+			'label' => mb_ucfirst($translate->_('common.extension')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => @$model->getExtension()->manifest->name,
+		);
+		
+		$properties['path'] = array(
+			'label' => mb_ucfirst($translate->_('common.path')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->uri,
+		);
+		
+		$properties['code'] = array(
+			'label' => mb_ucfirst($translate->_('community_portal.code')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->code,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$community_tool = DAO_CommunityTool::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

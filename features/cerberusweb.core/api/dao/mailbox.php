@@ -1079,6 +1079,8 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	const ID = 'cerberusweb.contexts.mailbox';
+	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read
 		return self::isWriteableByActor($models, $actor);
@@ -1108,6 +1110,96 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=mailbox&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['enabled'] = array(
+			'label' => mb_ucfirst($translate->_('common.enabled')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->enabled,
+		);
+		
+		$properties['protocol'] = array(
+			'label' => mb_ucfirst($translate->_('dao.mailbox.protocol')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->protocol,
+		);
+			
+		$properties['host'] = array(
+			'label' => mb_ucfirst($translate->_('common.host')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->host,
+		);
+			
+		$properties['username'] = array(
+			'label' => mb_ucfirst($translate->_('common.user')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->username,
+		);
+		
+		$properties['port'] = array(
+			'label' => mb_ucfirst($translate->_('dao.mailbox.port')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->port,
+		);
+			
+		$properties['num_fails'] = array(
+			'label' => mb_ucfirst($translate->_('dao.mailbox.num_fails')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->num_fails,
+		);
+		
+		if($model->delay_until) {
+			$properties['delay_until'] = array(
+				'label' => mb_ucfirst($translate->_('dao.mailbox.delay_until')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $model->delay_until,
+			);
+		}
+		
+		$properties['delay_until'] = array(
+			'label' => 'Timeout (secs)',
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->timeout_secs,
+		);
+		
+		$properties['max_msg_size_kb'] = array(
+			'label' => 'Max. Msg. Size',
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => DevblocksPlatform::strPrettyBytes($model->max_msg_size_kb * 1000),
+		);
+		
+		$properties['ssl_ignore_validation'] = array(
+			'label' => mb_ucfirst($translate->_('dao.mailbox.ssl_ignore_validation')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->ssl_ignore_validation,
+		);
+		
+		$properties['auth_disable_plain'] = array(
+			'label' => mb_ucfirst($translate->_('dao.mailbox.auth_disable_plain')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->auth_disable_plain,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
 	}
 
 	function getMeta($context_id) {

@@ -17,6 +17,15 @@
 
 class PageSection_ProfilesDraft extends Extension_PageSection {
 	function render() {
+		$response = DevblocksPlatform::getHttpResponse();
+		$stack = $response->path;
+		@array_shift($stack); // profiles
+		@array_shift($stack); // draft
+		@$context_id = intval(array_shift($stack));
+		
+		$context = CerberusContexts::CONTEXT_DRAFT;
+		
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function saveDraft() {
@@ -27,7 +36,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 
-		$params = array();
+		$params = [];
 		
 		$hint_to = null;
 		$type = null;

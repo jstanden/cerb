@@ -764,6 +764,16 @@ class Model_Task {
 	public $completed_date;
 	public $updated_date;
 	
+	function getStatusText() {
+		$labels = [
+			0 => DevblocksPlatform::translateCapitalized('status.open'),
+			1 => DevblocksPlatform::translateCapitalized('status.closed'),
+			2 => DevblocksPlatform::translateCapitalized('status.waiting.abbr'),
+		];
+		
+		return @$labels[$this->status_id];
+	}
+	
 	function getOwner() {
 		if(!$this->owner_id || false === ($worker = DAO_Worker::get($this->owner_id)))
 			return null;
@@ -1328,6 +1338,91 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=task&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		/* @var $model Model_Task */
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['status'] = array(
+			'label' => mb_ucfirst($translate->_('common.status')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->getStatusText(),
+		);
+		
+		if($model->reopen_at) {
+			$properties['reopen_at'] = array(
+				'label' => mb_ucfirst($translate->_('common.reopen_at')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $model->reopen_at,
+			);
+		}
+		
+		if(1 != $model->status_id) {
+			if($model->due_date) {
+				$properties['due_date'] = array(
+					'label' => mb_ucfirst($translate->_('task.due_date')),
+					'type' => Model_CustomField::TYPE_DATE,
+					'value' => $model->due_date,
+				);
+			}
+			
+		} else {
+			if($model->completed_date) {
+				$properties['completed_date'] = array(
+					'label' => mb_ucfirst($translate->_('task.completed_date')),
+					'type' => Model_CustomField::TYPE_DATE,
+					'value' => $model->completed_date,
+				);
+			}
+		}
+		
+		if($model->owner_id) {
+			$properties['owner_id'] = array(
+				'label' => mb_ucfirst($translate->_('common.owner')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->owner_id,
+				'params' => [
+					'context' => CerberusContexts::CONTEXT_WORKER,
+				]
+			);
+		}
+		
+		$properties['importance'] = array(
+			'label' => mb_ucfirst($translate->_('common.importance')),
+			'type' => 'slider',
+			'value' => $model->importance,
+			'params' => [
+				'min' => 0,
+				'mid' => 50,
+				'max' => 100,
+			],
+		);
+		
+		$properties['created_at'] = array(
+			'label' => mb_ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created_at,
+		);
+		
+		$properties['updated_date'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_date,
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

@@ -1004,6 +1004,49 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['remind_at'] = array(
+			'label' => mb_ucfirst($translate->_('common.remind_at')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->remind_at,
+		);
+		
+		$properties['worker_id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.worker'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->worker_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			]
+		);
+		
+		$properties['is_closed'] = array(
+			'label' => mb_ucfirst($translate->_('common.is_closed')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_closed,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$reminder = DAO_Reminder::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

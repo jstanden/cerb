@@ -1,4 +1,4 @@
-<div class="cerb-search-buttons" style="margin-top:5px;">
+<div class="cerb-search-buttons">
 	{if $before}
 	{$before nofilter}
 	{/if}

@@ -953,6 +953,8 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 };
 
 class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = 'cerberusweb.contexts.workspace.widget';
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $models, 'tab_page_owner_');
 	}
@@ -972,6 +974,49 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=workspace_widget&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['extension_id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.type'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->extension_id,
+		);
+		
+		$properties['workspace_tab_id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('dashboard'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->workspace_tab_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_WORKSPACE_TAB
+			]
+		);
+		
+		$properties['cache_ttl'] = array(
+			'label' => DevblocksPlatform::translate('Cache TTL'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => DevblocksPlatform::strSecsToString($model->cache_ttl),
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

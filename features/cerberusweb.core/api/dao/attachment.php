@@ -1696,6 +1696,52 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_ATTACHMENT,
+			],
+		);
+		
+		$properties['mime_type'] = array(
+			'label' => mb_ucfirst($translate->_('attachment.mime_type')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->mime_type,
+		);
+		
+		$properties['storage_size'] = array(
+			'label' => mb_ucfirst($translate->_('common.size')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => DevblocksPlatform::strPrettyBytes($model->storage_size),
+		);
+		
+		$properties['storage_extension'] = array(
+			'label' => mb_ucfirst($translate->_('attachment.storage_extension')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->storage_extension,
+		);
+		
+		$properties['storage_key'] = array(
+			'label' => mb_ucfirst($translate->_('attachment.storage_key')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->storage_key,
+		);
+			
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$attachment = DAO_Attachment::get($context_id);
 

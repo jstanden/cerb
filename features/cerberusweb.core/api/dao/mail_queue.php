@@ -1120,7 +1120,9 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 	}
 };
 
-class Context_Draft extends Extension_DevblocksContext {
+class Context_Draft extends Extension_DevblocksContext implements IDevblocksContextProfile {
+	const ID = 'cerberusweb.contexts.mail.draft';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1167,6 +1169,54 @@ class Context_Draft extends Extension_DevblocksContext {
 	
 	function getViewClass() {
 		return 'View_MailQueue';
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::services()->url();
+		$url = $url_writer->writeNoProxy('c=profiles&type=draft&id='.$context_id, true);
+		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		/* @var $model Model_MailQueue */
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['ticket_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.ticket')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->ticket_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_TICKET,
+			],
+		);
+		
+		$properties['to'] = array(
+			'label' => mb_ucfirst($translate->_('message.header.to')),
+			'type' => Model_CustomField::TYPE_MULTI_LINE,
+			'value' => $model->hint_to,
+		);
+		
+		$properties['updated'] = array(
+			'label' => mb_ucfirst($translate->_('common.updated')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated,
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {
@@ -1260,7 +1310,7 @@ class Context_Draft extends Extension_DevblocksContext {
 		);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_DRAFT;
 		$token_values['_types'] = $token_types;

@@ -2032,6 +2032,47 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		/* @var $model Model_CustomField */
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_CUSTOM_FIELD,
+			],
+		);
+		
+		$properties['type'] = array(
+			'label' => mb_ucfirst($translate->_('common.type')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => @$model->getTypes()[$model->type] ?: null,
+		);
+		
+		if($model->custom_fieldset_id) {
+			$properties['fieldset_id'] = array(
+				'label' => mb_ucfirst($translate->_('common.fieldset')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->custom_fieldset_id,
+				'params' => [
+					'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET,
+				],
+			);
+		}
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$custom_field = DAO_CustomField::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

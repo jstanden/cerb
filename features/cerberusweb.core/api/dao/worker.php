@@ -2851,6 +2851,8 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 };
 
 class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextBroadcast, IDevblocksContextAutocomplete {
+	const ID = 'cerberusweb.contexts.worker';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -2875,6 +2877,80 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=worker&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['email'] = array(
+			'label' => mb_ucfirst($translate->_('common.email')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => CerberusContexts::CONTEXT_ADDRESS),
+			'value' => $model->email_id,
+		);
+		
+		if(!empty($model->location)) {
+			$properties['location'] = array(
+				'label' => mb_ucfirst($translate->_('common.location')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->location,
+			);
+		}
+		
+		$properties['is_superuser'] = array(
+			'label' => mb_ucfirst($translate->_('worker.is_superuser')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_superuser,
+		);
+		
+		if(!empty($model->mobile)) {
+			$properties['mobile'] = array(
+				'label' => mb_ucfirst($translate->_('common.mobile')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->mobile,
+			);
+		}
+		
+		if(!empty($model->phone)) {
+			$properties['phone'] = array(
+				'label' => mb_ucfirst($translate->_('common.phone')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->phone,
+			);
+		}
+		
+		$properties['language'] = array(
+			'label' => mb_ucfirst($translate->_('common.language')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->language,
+		);
+		
+		$properties['timezone'] = array(
+			'label' => mb_ucfirst($translate->_('common.timezone')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->timezone,
+		);
+		
+		if(!empty($model->calendar_id)) {
+			$properties['calendar_id'] = array(
+				'label' => mb_ucfirst($translate->_('common.calendar')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
+				'value' => $model->calendar_id,
+			);
+		}
+		
+		return $properties;
 	}
 	
 	function getRandom() {

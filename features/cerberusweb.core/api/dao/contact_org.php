@@ -1516,6 +1516,88 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		$properties = [];
+		
+		$properties['_label'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => array(
+				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+		);
+		
+		if(!empty($model->email_id))
+			$properties['email'] = array(
+				'label' => mb_ucfirst($translate->_('common.email')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->email_id,
+				'params' => array(
+					'context' => CerberusContexts::CONTEXT_ADDRESS,
+				),
+			);
+		
+		if(!empty($model->street))
+			$properties['street'] = array(
+				'label' => mb_ucfirst($translate->_('contact_org.street')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->street,
+			);
+		
+		if(!empty($model->city))
+			$properties['city'] = array(
+				'label' => mb_ucfirst($translate->_('contact_org.city')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->city,
+			);
+		
+		if(!empty($model->province))
+			$properties['province'] = array(
+				'label' => mb_ucfirst($translate->_('contact_org.province')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->province,
+			);
+		
+		if(!empty($model->postal))
+			$properties['postal'] = array(
+				'label' => mb_ucfirst($translate->_('contact_org.postal')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->postal,
+			);
+		
+		if(!empty($model->country))
+			$properties['country'] = array(
+				'label' => mb_ucfirst($translate->_('contact_org.country')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->country,
+			);
+		
+		if(!empty($model->phone))
+			$properties['phone'] = array(
+				'label' => mb_ucfirst($translate->_('common.phone')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->phone,
+			);
+		
+		if(!empty($model->website))
+			$properties['website'] = array(
+				'label' => mb_ucfirst($translate->_('common.website')),
+				'type' => Model_CustomField::TYPE_URL,
+				'value' => $model->website,
+			);
+		
+		$properties['created'] = array(
+			'label' => mb_ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$org = DAO_ContactOrg::get($context_id);
 

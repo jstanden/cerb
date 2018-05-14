@@ -1129,6 +1129,43 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['context'] = array(
+			'label' => mb_ucfirst($translate->_('common.type')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->context,
+		);
+		
+		$properties['context'] = array(
+			'label' => mb_ucfirst($translate->_('common.tab')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->workspace_tab_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_WORKSPACE_TAB,
+			],
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$url_writer = DevblocksPlatform::services()->url();
 		

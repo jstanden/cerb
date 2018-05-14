@@ -17,144 +17,15 @@
 
 class PageSection_ProfilesTask extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$translate = DevblocksPlatform::getTranslationService();
 		$response = DevblocksPlatform::getHttpResponse();
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // task
-		@$id = intval(array_shift($stack));
+		@$context_id = intval(array_shift($stack));
 		
-		if(null != ($task = DAO_Task::get($id))) {
-			$tpl->assign('task', $task);
-		}
-
-		// Context
-
 		$context = CerberusContexts::CONTEXT_TASK;
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
 		
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $task, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-		
-		$point = 'core.page.tasks';
-		$tpl->assign('point', $point);
-		
-		// Properties
-		
-		$properties = [];
-		
-		$properties['status'] = array(
-			'label' => mb_ucfirst($translate->_('common.status')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => null,
-		);
-		
-		if($task->owner_id) {
-			$properties['owner_id'] = array(
-				'label' => mb_ucfirst($translate->_('common.owner')),
-				'type' => Model_CustomField::TYPE_LINK,
-				'value' => $task->owner_id,
-				'params' => [
-					'context' => CerberusContexts::CONTEXT_WORKER,
-				]
-			);
-		}
-		
-		$properties['importance'] = array(
-			'label' => mb_ucfirst($translate->_('common.importance')),
-			'type' => Model_CustomField::TYPE_NUMBER,
-			'value' => $task->importance,
-		);
-		
-		if(1 != $task->status_id) {
-			$properties['due_date'] = array(
-				'label' => mb_ucfirst($translate->_('task.due_date')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $task->due_date,
-			);
-			
-		} else {
-			$properties['completed_date'] = array(
-				'label' => mb_ucfirst($translate->_('task.completed_date')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $task->completed_date,
-			);
-		}
-		
-		$properties['created_at'] = array(
-			'label' => mb_ucfirst($translate->_('common.created')),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $task->created_at,
-		);
-		
-		$properties['updated_date'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $task->updated_date,
-		);
-		
-		// Custom Fields
-
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $task->id)) or [];
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $task->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$task->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$task->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		
-		$tpl->assign('properties', $properties);
-		
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-		
-		// Interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-	
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/task.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

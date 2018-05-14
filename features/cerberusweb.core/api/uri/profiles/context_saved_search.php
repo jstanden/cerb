@@ -17,129 +17,15 @@
 
 class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$context = CerberusContexts::CONTEXT_SAVED_SEARCH;
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // saved_search 
-		@$id = intval(array_shift($stack)); // 123
-
-		if(null == ($context_saved_search = DAO_ContextSavedSearch::get($id))) {
-			return;
-		}
-		$tpl->assign('context_saved_search', $context_saved_search);
+		@$context_id = intval(array_shift($stack)); // 123
 		
-		// Context
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
+		$context = CerberusContexts::CONTEXT_SAVED_SEARCH;
 		
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $context_saved_search, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-
-		// Tab persistence
-		
-		$point = 'profiles.context_saved_search.tab';
-		$tpl->assign('point', $point);
-		
-		if(null == (@$tab_selected = $stack[0])) {
-			$tab_selected = $visit->get($point, '');
-		}
-		$tpl->assign('tab_selected', $tab_selected);
-		
-		// Properties
-		
-		$properties = [];
-		
-		if(!empty($context_saved_search->owner_context)) {
-			$properties['owner'] = array(
-				'label' => DevblocksPlatform::translateCapitalized('common.owner'),
-				'type' => Model_CustomField::TYPE_LINK,
-				'value' => $context_saved_search->owner_context_id,
-				'params' => [
-					'context' => $context_saved_search->owner_context,
-				]
-			);
-		}
-		
-		$properties['tag'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.tag'),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $context_saved_search->tag,
-		);
-		
-		
-		$search_context_ext = $context_saved_search->getContextExtension(false);
-		$properties['context'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.context'),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $search_context_ext->name,
-		);
-		
-		$properties['updated'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $context_saved_search->updated_at,
-		);
-		
-		$properties['query'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.query'),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $context_saved_search->query,
-		);
-		
-		// Custom Fields
-
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $context_saved_search->id)) or [];
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $context_saved_search->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$context_saved_search->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$context_saved_search->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		$tpl->assign('properties', $properties);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, 'cerberusweb.contexts.context.saved.search');
-		$tpl->assign('tab_manifests', $tab_manifests);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/context_saved_search.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

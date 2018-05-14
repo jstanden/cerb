@@ -960,6 +960,44 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['tab'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.tab'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->profile_tab_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_PROFILE_TAB,
+			],
+		);
+		
+		// [TODO] As extension label
+		$properties['type'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.type'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->extension_id,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$profile_widget = DAO_ProfileWidget::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

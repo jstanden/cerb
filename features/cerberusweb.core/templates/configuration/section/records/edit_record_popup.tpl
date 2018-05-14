@@ -10,16 +10,11 @@
 <div id="{$div_id}">
 	<div id="configCardTabs{$div_id}">
 		<ul>
-			{$tabs = [fields,interactions,search]}
-			
 			<li>
 				<a href="#configCardTabFields{$div_id}">{'Card Fields'|devblocks_translate|capitalize}</a>
 			</li>
 			<li>
 				<a href="#configCardTabSearch{$div_id}">{'Search Buttons'|devblocks_translate|capitalize}</a>
-			</li>
-			<li>
-				<a href="#configCardTabInteractions{$div_id}">{'Interaction Shortcuts'|devblocks_translate|capitalize}</a>
 			</li>
 		</ul>
 	
@@ -125,12 +120,6 @@
 			
 			<button type="button" class="cerb-placeholder-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
 		</div>
-		
-		<div id="configCardTabInteractions{$div_id}">
-			<div>
-				<textarea name="params[card_templates][{$context->id}]" style="width:100%;height:100px;" class="cerb-template-trigger" data-context="{$context_ext->id}">{$model->params.card_templates[{$context->id}]}</textarea>
-			</div>
-		</div>
 	</div>
 
 	<div style="margin-top:10px;">
@@ -159,7 +148,6 @@ $(function() {
 		
 		var $tab_fields = $('#configCardTabFields{$div_id}');
 		var $tab_search = $('#configCardTabSearch{$div_id}');
-		var $tab_interactions = $('#configCardTabInteractions{$div_id}');
 		
 		var $bubbles = $tab_fields.find('ul.bubbles');
 		
@@ -249,15 +237,16 @@ $(function() {
 			})
 		;
 		
-		// Interaction shortcuts
+		// Sortable
 		
-		$popup.find('textarea.cerb-template-trigger')
-			.cerbTemplateTrigger()
-			.on('cerb-template-saved', function(e) {
-				//var $trigger = $(this);
-				//$trigger.val(e.worklist_quicksearch);
+		$popup.find('ul.bubbles')
+			.sortable({
+				'items': 'li',
+				'helper': 'clone',
+				'opacity': 0.5,
+				'tolerance': 'pointer'
 			})
-		;
+			;
 		
 		// Submit
 		

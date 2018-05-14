@@ -1,4 +1,4 @@
-{$view_context = 'cerberusweb.contexts.profile.tab'}
+{$view_context = CerberusContexts::CONTEXT_PROFILE_TAB}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}

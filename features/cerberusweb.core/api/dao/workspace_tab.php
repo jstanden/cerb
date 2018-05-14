@@ -973,6 +973,43 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['page_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.page')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->workspace_page_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_WORKSPACE_PAGE,
+			]
+		);
+		
+		$properties['extension_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.type')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->getExtensionName(),
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getRandom() {
 		return DAO_WorkspaceTab::random();
 	}
@@ -1078,8 +1115,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		}
 		
 		// Page
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = $merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_PAGE, null, $merge_token_labels, $merge_token_values, '', true);
 		
 		CerberusContexts::merge(
