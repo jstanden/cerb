@@ -52,7 +52,7 @@ $(function() {
 			$interaction_badge.click();
 			return;
 		}
-		
+
 		if(null == $menu) {
 			var $spinner = $('<span class="cerb-ajax-spinner" style="zoom:0.5;-moz-transform:scale(0.5);"></span>')
 				.appendTo($interaction_menu)
@@ -81,17 +81,20 @@ $(function() {
 						$menu.menu("collapse");
 					});
 				
-				$interaction_menu.fadeIn();
+				$interaction_menu.show();
+				$interaction_menu.addClass('bot-grab-menu');
 				$menu.menu('focus', null, $menu.find('.ui-menu-item:first')).focus();
 				
 				$menu.find('li.cerb-bot-trigger').on('click', function(e) {
 					e.stopPropagation();
+					$interaction_menu.removeClass('bot-grab-menu');
 					$menu.remove();
 					$menu = null;
 				});
 			});
 		
 		} else {
+			$interaction_menu.removeClass('bot-grab-menu');
 			$menu.remove();
 			$menu = null;
 		}
