@@ -1778,19 +1778,23 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=org&id=%d-%s",$org->id, DevblocksPlatform::strToPermalink($org->name)), true);
 		}
 		
+		$context_stack = CerberusContexts::getStack();
+		
 		// Email
-		$merge_token_labels = array();
-		$merge_token_values = array();
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
-
-		CerberusContexts::merge(
-			'email_',
-			$prefix.'Email:',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);
+		// Only link email placeholders if the email isn't nested under an org already
+		if(1 == count($context_stack) || !in_array(CerberusContexts::CONTEXT_ADDRESS, $context_stack)) {
+			$merge_token_labels = $merge_token_values = [];
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
+	
+			CerberusContexts::merge(
+				'email_',
+				$prefix.'Email:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
+		}
 
 		return true;
 	}
