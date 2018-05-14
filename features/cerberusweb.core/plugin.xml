@@ -5836,6 +5836,17 @@
 		<!-- Profile Widgets -->
 
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.calendar</id>
+			<name>Calendar</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_Calendar</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.bot</id>
 			<name>Custom</name>
 			<class>

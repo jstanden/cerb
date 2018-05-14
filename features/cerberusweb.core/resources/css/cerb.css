@@ -751,7 +751,7 @@ TABLE.calendar TR.heading TH {
   text-align: left;
 }
 TABLE.calendar TR.week {
-  height: 125px;
+  height: 75px;
 }
 TABLE.calendar TR.week TD {
   width: 14%;
