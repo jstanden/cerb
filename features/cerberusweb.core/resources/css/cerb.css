@@ -1712,6 +1712,33 @@ div.cerb-uploads p.failure {
     height: 30px;
   }
 }
+@keyframes cerb-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  90% {
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes cerb-bot-rotate-menu {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg) scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(360deg) scale(1);
+  }
+}
+.bot-grab-menu {
+  animation: cerb-bot-rotate-menu 0.75s ease-out 0s 1;
+}
+
 #bot-chat-button {
   z-index: 3;
   position: fixed;
