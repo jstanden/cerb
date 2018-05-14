@@ -842,6 +842,16 @@ class Model_Snippet {
 	public $updated_at;
 	public $custom_placeholders;
 	
+	public function getContextLabel() {
+		if(empty($this->context))
+			return DevblocksPlatform::translateCapitalized('common.text.plain');
+		
+		if(false == ($context_mft = Extension_DevblocksContext::get($this->context, false)))
+			return null;
+		
+		return $context_mft->name;
+	}
+	
 	public function incrementUse($worker_id) {
 		return DAO_Snippet::incrementUse($this->id, $worker_id);
 	}
@@ -851,10 +861,8 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 	const DEFAULT_ID = 'snippet';
 
 	function __construct() {
-		$translate = DevblocksPlatform::getTranslationService();
-	
 		$this->id = self::DEFAULT_ID;
-		$this->name = $translate->_('Snippet');
+		$this->name = DevblocksPlatform::translateCapitalized('common.snippets');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_Snippet::ID;
 		$this->renderSortAsc = true;
