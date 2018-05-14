@@ -5869,6 +5869,17 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.fields</id>
+			<name>Record Fields</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_Fields</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.snippet</id>
 			<name>Snippet</name>
 			<class>
