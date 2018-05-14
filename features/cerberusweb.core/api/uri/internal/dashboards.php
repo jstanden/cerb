@@ -2091,7 +2091,7 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		$dict = new DevblocksDictionaryDelegate($values);
 		
 		$html = $tpl_builder->build($content, $dict);
-		return DevblocksPlatform::purifyHTML($html, false, [], true);
+		return DevblocksPlatform::purifyHTML($html, false, false);
 	}
 };
 

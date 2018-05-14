@@ -186,11 +186,7 @@ class ChFilesController extends DevblocksControllerExtension {
 						}
 					}
 					
-					$purify_config = array(
-						'HTML.TargetBlank' => true,
-					);
-					
-					$clean_html = DevblocksPlatform::purifyHTML($fp, true, $purify_config);
+					$clean_html = DevblocksPlatform::purifyHTML($fp, true, true);
 					
 					header("Content-Length: " . strlen($clean_html));
 					echo $clean_html;

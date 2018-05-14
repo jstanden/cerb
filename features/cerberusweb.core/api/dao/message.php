@@ -888,11 +888,7 @@ class Model_Message {
 			$dirty_html = $tidy->repairString($dirty_html, $config, DB_CHARSET_CODE);
 		}
 		
-		$options = array(
-			'HTML.TargetBlank' => true,
-		);
-		
-		$dirty_html = DevblocksPlatform::purifyHTML($dirty_html, true, $options);
+		$dirty_html = DevblocksPlatform::purifyHTML($dirty_html, true, true);
 		return $dirty_html;
 	}
 

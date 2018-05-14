@@ -372,7 +372,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
 			LANG_CHARSET_CODE
 		);
-		echo DevblocksPlatform::purifyHTML($output, true);
+		echo DevblocksPlatform::purifyHTML($output, true, true);
 		echo '</body></html>';
 	}
 	
@@ -400,7 +400,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
 			LANG_CHARSET_CODE
 		);
-		echo DevblocksPlatform::purifyHTML(nl2br($message_properties['content']), true);
+		echo DevblocksPlatform::purifyHTML(nl2br($message_properties['content']), true, true);
 		echo '</body></html>';
 	}
 	
