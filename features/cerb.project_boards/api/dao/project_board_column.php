@@ -1026,6 +1026,37 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['board_id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('projects.common.board'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->board_id,
+			'params' => [
+				'context' => Context_ProjectBoard::ID,
+			]
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		if(false == ($project_board_column = DAO_ProjectBoardColumn::get($context_id)))
 			return [];

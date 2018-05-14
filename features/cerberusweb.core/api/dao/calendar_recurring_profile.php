@@ -1174,6 +1174,8 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 };
 
 class Context_CalendarRecurringProfile extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	const ID = 'cerberusweb.contexts.calendar_event.recurring';
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $models, 'calendar_owner_');
 	}
@@ -1193,6 +1195,77 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=calendar_recurring_profile&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['calendar_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.calendar')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
+			'value' => $model->calendar_id,
+		);
+		
+		$properties['event_start'] = array(
+			'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.event_start')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->event_start,
+		);
+		
+		if($model->event_end) {
+			$properties['event_end'] = array(
+				'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.event_end')),
+				'type' => Model_CustomField::TYPE_SINGLE_LINE,
+				'value' => $model->event_end,
+			);
+		}
+		
+		$properties['tz'] = array(
+			'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.tz')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->tz,
+		);
+		
+		$properties['is_available'] = array(
+			'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.is_available')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_available,
+		);
+		
+		if($model->recur_start) {
+			$properties['recur_start'] = array(
+				'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.recur_start')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $model->recur_start,
+			);
+		}
+		
+		if($model->recur_end) {
+			$properties['recur_end'] = array(
+				'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.recur_end')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $model->recur_end,
+			);
+		}
+		
+		$properties['patterns'] = array(
+			'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.patterns')),
+			'type' => Model_CustomField::TYPE_MULTI_LINE,
+			'value' => $model->patterns,
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

@@ -9,9 +9,8 @@
 
 	{* Loop through the parent records for each link context *}
 	{foreach from=$from_ctx_ids key=from_ctx_id item=link_counts}
-	
+
 		{* Do we have links to display? Always display the links block for this record *}
-		{if true || ($page_context == $from_ctx_extid && $page_context_id == $from_ctx_id) || ($link_ctxs.$from_ctx_extid && !empty($link_counts))}
 		<fieldset class="{if $peek}peek{else}properties{/if}" style="border:0;background:none;{if !$peek}display:inline-block;vertical-align:top;{/if}" data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">
 			<legend>
 				<a href="javascript:;" data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">{if $links_label}{$links_label}{else}{if $page_context == $from_ctx_extid && $page_context_id == $from_ctx_id}{else}{$from_ctx->name} {/if}{'common.links'|devblocks_translate|capitalize}{/if}</a>
@@ -41,7 +40,6 @@
 				{/if}
 			</div>
 		</fieldset>
-		{/if}
 		
 	{/foreach}
 {/foreach}

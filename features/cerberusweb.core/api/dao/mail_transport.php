@@ -924,6 +924,40 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['extension'] = array(
+			'label' => mb_ucfirst($translate->_('common.extension')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->extension_id,
+		);
+		
+		$properties['created'] = array(
+			'label' => mb_ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created_at,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$mail_transport = DAO_MailTransport::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

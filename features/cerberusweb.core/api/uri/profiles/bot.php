@@ -17,128 +17,15 @@
 
 class PageSection_ProfilesBot extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // bot
-		@$id = intval(array_shift($stack)); // 123
+		@$context_id = intval(array_shift($stack)); // 123
 
 		$context = CerberusContexts::CONTEXT_BOT;
 		
-		if(null == ($model = DAO_Bot::get($id))) {
-			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('search','bot')));
-			return;
-		}
-		$tpl->assign('model', $model);
-	
-		// Dictionary
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Tab persistence
-		
-		$point = 'profiles.bot.tab';
-		$tpl->assign('point', $point);
-		
-		if(null == (@$tab_selected = $stack[0])) {
-			$tab_selected = $visit->get($point, '');
-		}
-		$tpl->assign('tab_selected', $tab_selected);
-	
-		// Properties
-			
-		$properties = [];
-		
-		$properties['owner'] = array(
-			'label' => mb_ucfirst($translate->_('common.owner')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $model->owner_context_id,
-			'params' => [
-				'context' => $model->owner_context,
-			],
-		);
-		
-		$properties['mention_name'] = array(
-			'label' => mb_ucfirst($translate->_('worker.at_mention_name')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $model->at_mention_name,
-		);
-		
-		$properties['is_disabled'] = array(
-			'label' => mb_ucfirst($translate->_('common.disabled')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $model->is_disabled,
-		);
-		
-		$properties['created'] = array(
-			'label' => mb_ucfirst($translate->_('common.created')),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $model->created_at,
-		);
-		
-		$properties['updated'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $model->updated_at,
-		);
-	
-		// Custom Fields
-
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $model->id)) or [];
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $model->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$model->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$model->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		$tpl->assign('properties', $properties);
-			
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-		
-		// Interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/bot.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

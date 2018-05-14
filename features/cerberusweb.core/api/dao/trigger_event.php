@@ -1961,6 +1961,49 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
+			],
+		);
+		
+		$properties['bot_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.bot')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->bot_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_BOT,
+			]
+		);
+		
+		$properties['event_point'] = array(
+			'label' => mb_ucfirst($translate->_('common.event')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->event_point,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		$properties['is_disabled'] = array(
+			'label' => mb_ucfirst($translate->_('common.disabled')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_disabled,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$trigger_event = DAO_TriggerEvent::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

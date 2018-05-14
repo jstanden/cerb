@@ -969,6 +969,46 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_CURRENCY,
+			],
+		);
+		
+		$properties['symbol'] = array(
+			'label' => mb_ucfirst($translate->_('dao.currency.symbol')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->symbol,
+		);
+		
+		$properties['code'] = array(
+			'label' => mb_ucfirst($translate->_('dao.currency.code')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->code,
+		);
+		
+		$properties['decimal_at'] = array(
+			'label' => mb_ucfirst($translate->_('dao.currency.decimal_at')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->decimal_at,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$currency = DAO_Currency::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

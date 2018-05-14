@@ -934,6 +934,46 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('dao.classifier_example.expression')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE,
+			],
+		);
+		
+		$properties['classifier_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.classifier')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->classifier_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_CLASSIFIER,
+			],
+		);
+		
+		$properties['class_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.classifier.classification')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->class_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_CLASSIFIER_CLASS,
+			],
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$classifier_example = DAO_ClassifierExample::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

@@ -1040,6 +1040,8 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 };
 
 class Context_FileBundle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+	const ID = 'cerberusweb.contexts.file_bundle';
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_FILE_BUNDLE, $models);
 	}
@@ -1059,6 +1061,34 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=file_bundle&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['tag'] = array(
+			'label' => mb_ucfirst($translate->_('common.tag')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->tag,
+		);
+			
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

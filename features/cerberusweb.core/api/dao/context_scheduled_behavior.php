@@ -1175,6 +1175,37 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['behavior_id'] = [
+			'label' => mb_ucfirst($translate->_('common.behavior')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->behavior_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
+			]
+		];
+		
+		$properties['run_date'] = [
+			'label' => mb_ucfirst($translate->_('dao.context_scheduled_behavior.run_date')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->run_date,
+		];
+		
+		$properties['context_id'] = [
+			'label' => mb_ucfirst($translate->_('common.target')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->context_id,
+			'params' => [
+				'context' => $model->context,
+			]
+		];
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$context_scheduled_behavior = DAO_ContextScheduledBehavior::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

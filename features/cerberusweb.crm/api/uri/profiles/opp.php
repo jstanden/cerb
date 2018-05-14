@@ -17,130 +17,16 @@
 
 class PageSection_ProfilesOpportunity extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
 		$request = DevblocksPlatform::getHttpRequest();
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$stack = $request->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // opportunity
-		@$id = intval(array_shift($stack));
+		@$context_id = intval(array_shift($stack));
 		
-		if(null == ($opp = DAO_CrmOpportunity::get($id))) {
-			return;
-		}
-		$tpl->assign('opp', $opp);	/* @var $opp Model_CrmOpportunity */
-
-		// Context
-
-		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
-		
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $opp, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-		
-		$point = 'cerberusweb.profiles.opportunity';
-		$tpl->assign('point', $point);
-		
-		// Properties
-		
-		$properties = [];
-		
-		$properties['status_id'] = array(
-			'label' => mb_ucfirst($translate->_('common.status')),
-			'type' => null,
-			'status_id' => $opp->status_id,
-		);
-		
-		if(!empty($opp->status_id))
-			if(!empty($opp->closed_date))
-			$properties['closed_date'] = array(
-				'label' => mb_ucfirst($translate->_('crm.opportunity.closed_date')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $opp->closed_date,
-			);
-			
-		if(!empty($opp->currency_amount))
-			$properties['currency_amount'] = array(
-				'label' => mb_ucfirst($translate->_('crm.opportunity.amount')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $opp->getAmountString()
-			);
-			
-		$properties['created_date'] = array(
-			'label' => mb_ucfirst($translate->_('common.created')),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $opp->created_date,
-		);
-		
-		$properties['updated_date'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $opp->updated_date,
-		);
-		
-		// Custom Fields
-
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $opp->id)) or [];
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $opp->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$opp->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$opp->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		
-		$tpl->assign('properties', $properties);
-
-		// Workers
-		$workers = DAO_Worker::getAll();
-		$tpl->assign('workers', $workers);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-		
-		// Interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.crm::crm/opps/profile.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

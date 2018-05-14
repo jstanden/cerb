@@ -923,6 +923,8 @@ class Model_KbArticle {
 };
 
 class Context_KbArticle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = 'cerberusweb.contexts.kb_article';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read kb articles
 		return CerberusContexts::allowEverything($models);
@@ -944,6 +946,40 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d", $context_id, true));
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated,
+		);
+			
+		$properties['views'] = array(
+			'label' => mb_ucfirst($translate->_('kb_article.views')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->views,
+		);
+			
+		$properties['id'] = array(
+			'label' => mb_ucfirst($translate->_('common.id')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

@@ -2107,6 +2107,79 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['_label'] = array(
+			'label' => mb_ucfirst($translate->_('common.email')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => array(
+				'context' => CerberusContexts::CONTEXT_ADDRESS,
+			),
+		);
+		
+		if(!empty($model->contact_id)) {
+			$properties['contact'] = array(
+				'label' => mb_ucfirst($translate->_('common.contact')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->contact_id,
+				'params' => array(
+					'context' => CerberusContexts::CONTEXT_CONTACT,
+				),
+			);
+		}
+		
+		if(!empty($model->contact_org_id)) {
+			$properties['org'] = array(
+				'label' => mb_ucfirst($translate->_('common.organization')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->contact_org_id,
+				'params' => array(
+					'context' => CerberusContexts::CONTEXT_ORG,
+				),
+			);
+		}
+		
+		if(!empty($model->mail_transport_id)) {
+			$properties['org'] = array(
+				'label' => mb_ucfirst($translate->_('common.email_transport')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->mail_transport_id,
+				'params' => array(
+					'context' => CerberusContexts::CONTEXT_MAIL_TRANSPORT,
+				),
+			);
+		}
+		
+		$properties['num_spam'] = array(
+			'label' => mb_ucfirst($translate->_('address.num_spam')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->num_spam,
+		);
+		
+		$properties['num_nonspam'] = array(
+			'label' => mb_ucfirst($translate->_('address.num_nonspam')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->num_nonspam,
+		);
+		
+		$properties['is_banned'] = array(
+			'label' => mb_ucfirst($translate->_('address.is_banned')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_banned,
+		);
+		
+		$properties['is_defunct'] = array(
+			'label' => mb_ucfirst($translate->_('address.is_defunct')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_defunct,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$url_writer = DevblocksPlatform::services()->url();
 

@@ -1241,6 +1241,8 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Comment extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = 'cerberusweb.contexts.comment';
+	
 	// Anyone can read a comment
 	public static function isReadableByActor($models, $actor) {
 		return CerberusContexts::allowEverything($models);
@@ -1290,6 +1292,37 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=comment&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['author'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.author'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->owner_context_id,
+			'params' => [
+				'context' => $model->owner_context,
+			],
+		);
+		
+		$properties['created'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.created'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created,
+		);
+		
+		$properties['target'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.target'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->context_id,
+			'params' => [
+				'context' => $model->context,
+			],
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

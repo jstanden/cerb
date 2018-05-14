@@ -1193,6 +1193,28 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => static::_getContextName(), //static::_ID,
+			],
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
 		$abstract_custom_record = $dao_class::get($context_id);

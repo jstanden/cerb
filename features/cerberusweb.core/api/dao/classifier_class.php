@@ -932,6 +932,49 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_CLASSIFIER_CLASS,
+			],
+		);
+		
+		$properties['classifier_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.classifier')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->classifier_id,
+			'params' => array(
+				'context' => CerberusContexts::CONTEXT_CLASSIFIER,
+			),
+		);
+			
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		$properties['training_count'] = array(
+			'label' => mb_ucfirst($translate->_('dao.classifier_class.training_count')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->training_count,
+		);
+		
+		$properties['dictionary_size'] = array(
+			'label' => mb_ucfirst($translate->_('dao.classifier.dictionary_size')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->dictionary_size,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$classifier_class = DAO_ClassifierClass::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

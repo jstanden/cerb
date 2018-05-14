@@ -39,13 +39,14 @@ class PageSection_SetupRecords extends Extension_PageSection {
 		
 		$tpl->assign('context_ext', $context_ext);
 		
+		// Dictionary
+		
+		$labels = $values = [];
+		CerberusContexts::getContext($context_ext->id, null, $labels, $values, '', true, false);
+		$tpl->assign('labels', $labels);
+		
 		// =================================================================
 		// Displayed fields
-		
-		$labels = $null = [];
-		
-		CerberusContexts::getContext($context_ext->id, null, $labels, $null, '', true, false);
-		$tpl->assign('labels', $labels);
 		
 		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
 		$tpl->assign('placeholders', $placeholders);
@@ -66,10 +67,6 @@ class PageSection_SetupRecords extends Extension_PageSection {
 		$search_buttons = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'card:search:' . $context_ext->id, [], true);
 		$tpl->assign('search_buttons', $search_buttons);
 		
-		// =================================================================
-		// [TODO] Interaction shortcuts
-		
-		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/records/edit_record_popup.tpl');
 	}
@@ -78,7 +75,7 @@ class PageSection_SetupRecords extends Extension_PageSection {
 		@$context_mft_id = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$tokens = DevblocksPlatform::importGPC($_REQUEST['tokens'],'array',[]);
 		@$search = DevblocksPlatform::importGPC($_REQUEST['search'],'array',[]);
-		@$interactions = DevblocksPlatform::importGPC($_REQUEST['interactions'],'array',[]);
+		@$profile_tabs = DevblocksPlatform::importGPC($_REQUEST['profile_tabs'],'array',[]);
 		
 		// Permissions
 		if(false == ($active_worker = CerberusApplication::getActiveWorker())
@@ -90,7 +87,6 @@ class PageSection_SetupRecords extends Extension_PageSection {
 		if(!$context_mft_id || false == ($context_mft = Extension_DevblocksContext::get($context_mft_id, false)))
 			return;
 		
-		// [TODO] Move these to an actual table somewhere?
 		DevblocksPlatform::setPluginSetting('cerberusweb.core', 'card:' . $context_mft->id, $tokens, true);
 		
 		$search_buttons = [];

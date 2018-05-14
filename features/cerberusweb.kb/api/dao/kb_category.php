@@ -607,6 +607,8 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 };
 
 class Context_KbCategory extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+	const ID = 'cerberusweb.contexts.kb_category';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -628,6 +630,39 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=kb_category&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		if($model->parent_id) {
+			$properties['parent_id'] = array(
+				'label' => $translate->_('common.parent'),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->parent_id,
+				'params' => [
+					'context' => CerberusContexts::CONTEXT_KB_CATEGORY,
+				]
+			);
+		}
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

@@ -2226,6 +2226,11 @@
 				<seg>Text</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.text.plain">
+			<tuv xml:lang="en_US">
+				<seg>plaintext</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.ticket">
 			<tuv xml:lang="en_US">
 				<seg>ticket</seg>

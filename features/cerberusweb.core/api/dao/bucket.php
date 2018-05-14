@@ -954,6 +954,41 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_BUCKET,
+			],
+		);
+		
+		$properties['group'] = array(
+			'label' => mb_ucfirst($translate->_('common.group')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => CerberusContexts::CONTEXT_GROUP),
+			'value' => $model->group_id,
+		);
+			
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		$properties['is_default'] = array(
+			'label' => mb_ucfirst($translate->_('common.default')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_default,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$bucket = DAO_Bucket::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

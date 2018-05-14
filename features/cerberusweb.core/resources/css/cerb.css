@@ -1422,50 +1422,50 @@ UL.cerb-popupmenu > LI:hover A {
   margin-bottom: 5px;
 }
 
-#kbArticleContent {
+.cerb-kb-article-content {
   color: #323232;
   font-size: 100%;
   line-height: 140%;
 }
-#kbArticleContent H1, #kbArticleContent H2, #kbArticleContent H3, #kbArticleContent H4, #kbArticleContent H5, #kbArticleContent H6 {
+.cerb-kb-article-content H1, .cerb-kb-article-content H2, .cerb-kb-article-content H3, .cerb-kb-article-content H4, .cerb-kb-article-content H5, .cerb-kb-article-content H6 {
   font-weight: bold;
   color: #323232;
   margin: 10px 0px;
   line-height: normal;
 }
-#kbArticleContent H1 {
+.cerb-kb-article-content H1 {
   font-size: 190%;
   color: #323232;
 }
-#kbArticleContent H1.title {
+.cerb-kb-article-content H1.title {
   font-size: 200%;
   color: #323232;
   font-weight: bold;
   text-align: left;
   border: none;
 }
-#kbArticleContent H2 {
+.cerb-kb-article-content H2 {
   font-size: 170%;
   color: #4a6e9e;
   border-bottom: 1px solid #dce6f0;
 }
-#kbArticleContent H3 {
+.cerb-kb-article-content H3 {
   font-size: 150%;
   color: #323232;
 }
-#kbArticleContent H4 {
+.cerb-kb-article-content H4 {
   font-size: 130%;
   color: #323232;
 }
-#kbArticleContent H5 {
+.cerb-kb-article-content H5 {
   font-size: 120%;
   color: #323232;
 }
-#kbArticleContent H6 {
+.cerb-kb-article-content H6 {
   font-size: 110%;
   color: #323232;
 }
-#kbArticleContent PRE {
+.cerb-kb-article-content PRE {
   border-top: 1px solid #c8c8c8;
   border-right: 1px solid #c8c8c8;
   border-left: 3px solid #969696;
@@ -1474,13 +1474,13 @@ UL.cerb-popupmenu > LI:hover A {
   color: #111111;
   padding: 0.5em;
 }
-#kbArticleContent CODE {
+.cerb-kb-article-content CODE {
   background-color: #f0f0f0;
   color: black;
   padding: 0px 3px;
   font-weight: bold;
 }
-#kbArticleContent BLOCKQUOTE {
+.cerb-kb-article-content BLOCKQUOTE {
   font-style: italic;
   color: #323232;
   padding: 0px 3px;

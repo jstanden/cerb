@@ -17,115 +17,15 @@
 
 class PageSection_ProfilesGroup extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
 		$request = DevblocksPlatform::getHttpRequest();
-		
-		$context = CerberusContexts::CONTEXT_GROUP;
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$stack = $request->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // group
+		@$context_id = intval(array_shift($stack));
 		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
+		$context = CerberusContexts::CONTEXT_GROUP;
 		
-		$workers = DAO_Worker::getAllActive();
-		$tpl->assign('workers', $workers);
-		
-		@$group_id = intval(array_shift($stack));
-		$point = 'cerberusweb.profiles.group.' . $group_id;
-
-		if(empty($group_id) || null == ($group = DAO_Group::get($group_id)))
-			return;
-		
-		$tpl->assign('group', $group);
-		
-		// Context
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $group, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-
-		// Properties
-		
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$properties = [];
-		
-		$reply_to = $group->getReplyTo();
-		
-		$properties['reply_to'] = array(
-			'label' => mb_ucfirst($translate->_('common.email')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $reply_to->email,
-		);
-		
-		$properties['is_default'] = array(
-			'label' => mb_ucfirst($translate->_('common.default')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $group->is_default,
-		);
-		
-		$properties['is_private'] = array(
-			'label' => mb_ucfirst($translate->_('common.private')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $group->is_private,
-		);
-				
-		// Custom Fields
-
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $group->id)) or array();
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $group->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$group->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$group->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		
-		$tpl->assign('properties', $properties);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-		
-		// Interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/group.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

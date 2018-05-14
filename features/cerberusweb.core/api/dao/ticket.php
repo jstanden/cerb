@@ -4366,6 +4366,136 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		
+		/* @var $model Model_Ticket */
+		
+		$properties = [];
+		
+		$properties['label'] = [
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		];
+		
+		$properties['status'] = [
+			'label' => mb_ucfirst($translate->_('common.status')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->getStatusText(),
+		];
+		
+		if($model->reopen_at) {
+			$properties['reopen'] = [
+				'label' => mb_ucfirst($translate->_('common.reopen_at')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $model->reopen_at,
+			];
+		}
+		
+		if($model->owner_id) {
+			$properties['owner'] = array(
+				'label' => mb_ucfirst($translate->_('common.owner')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->owner_id,
+				'params' => array(
+					'context' => CerberusContexts::CONTEXT_WORKER,
+				),
+			);
+		}
+		
+		if($model->group_id) {
+			$properties['group_id'] = array(
+				'label' => mb_ucfirst($translate->_('common.group')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->group_id,
+				'params' => array(
+					'context' => CerberusContexts::CONTEXT_GROUP,
+				),
+			);
+		}
+		
+		if($model->bucket_id) {
+			$properties['bucket_id'] = array(
+				'label' => mb_ucfirst($translate->_('common.bucket')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->bucket_id,
+				'params' => array(
+					'context' => CerberusContexts::CONTEXT_BUCKET,
+				),
+			);
+		}
+
+		if($model->org_id) {
+			$properties['org'] = array(
+				'label' => mb_ucfirst($translate->_('common.organization')),
+				'type' => Model_CustomField::TYPE_LINK,
+				'value' => $model->org_id,
+				'params' => array(
+					'context' => CerberusContexts::CONTEXT_ORG,
+				),
+			);
+		}
+		
+		$properties['importance'] = [
+			'label' => mb_ucfirst($translate->_('common.importance')),
+			'type' => 'slider',
+			'value' => $model->importance,
+			'params' => [
+				'min' => 0,
+				'mid' => 50,
+				'max' => 100,
+			],
+		];
+		
+		$properties['created'] = array(
+			'label' => mb_ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created_date,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_date,
+		);
+		
+		if(!empty($model->closed_at)) {
+			$properties['closed'] = array(
+				'label' => mb_ucfirst($translate->_('ticket.closed_at')),
+				'type' => Model_CustomField::TYPE_DATE,
+				'value' => $model->closed_at,
+			);
+		}
+		
+		if(!empty($model->elapsed_response_first)) {
+			$properties['elapsed_response_first'] = array(
+				'label' => mb_ucfirst($translate->_('ticket.elapsed_response_first')),
+				'type' => null,
+				'value' => DevblocksPlatform::strSecsToString($model->elapsed_response_first, 2),
+			);
+		}
+		
+		if(!empty($model->elapsed_resolution_first)) {
+			$properties['elapsed_resolution_first'] = array(
+				'label' => mb_ucfirst($translate->_('ticket.elapsed_resolution_first')),
+				'type' => null,
+				'value' => DevblocksPlatform::strSecsToString($model->elapsed_resolution_first, 2),
+			);
+		}
+		
+		$properties['spam_score'] = array(
+			'label' => mb_ucfirst($translate->_('ticket.spam_score')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => (100*$model->spam_score) . '%',
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		if(is_numeric($context_id)) {
 			if(false == ($ticket = DAO_Ticket::get($context_id)))

@@ -17,112 +17,15 @@
 
 class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // email_signature 
-		@$id = intval(array_shift($stack)); // 123
+		@$context_id = intval(array_shift($stack)); // 123
 
 		$context = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
 		
-		if(null == ($email_signature = DAO_EmailSignature::get($id))) {
-			return;
-		}
-		$tpl->assign('email_signature', $email_signature);
-
-		// Context
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
-		
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $email_signature, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-		
-		// Tab persistence
-		
-		$point = 'profiles.email_signature.tab';
-		$tpl->assign('point', $point);
-		
-		if(null == (@$tab_selected = $stack[0])) {
-			$tab_selected = $visit->get($point, '');
-		}
-		$tpl->assign('tab_selected', $tab_selected);
-		
-		// Properties
-		
-		$properties = [];
-		
-		$properties['is_default'] = array(
-			'label' => mb_ucfirst($translate->_('common.is_default')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $email_signature->is_default,
-		);
-		
-		$properties['updated'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $email_signature->updated_at,
-		);
-		
-		$properties['signature'] = array(
-			'label' => mb_ucfirst($translate->_('common.signature')),
-			'type' => Model_CustomField::TYPE_MULTI_LINE,
-			'value' => $email_signature->signature,
-		);
-		
-		// Custom Fields
-		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $email_signature->id)) or array();
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $email_signature->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$email_signature->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$email_signature->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		
-		$tpl->assign('properties', $properties);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/email_signature.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

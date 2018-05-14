@@ -774,6 +774,34 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['access_key'] = array(
+			'label' => mb_ucfirst($translate->_('dao.webapi_credentials.access_key')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->access_key,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$webapi_credentials = DAO_WebApiCredentials::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

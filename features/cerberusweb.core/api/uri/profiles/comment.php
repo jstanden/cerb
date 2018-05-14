@@ -17,117 +17,15 @@
 
 class PageSection_ProfilesComment extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // comment 
-		@$id = intval(array_shift($stack)); // 123
+		@$context_id = intval(array_shift($stack)); // 123
 
 		$context = CerberusContexts::CONTEXT_COMMENT;
-
-		if(null == ($comment = DAO_Comment::get($id))) {
-			return;
-		}
-		$tpl->assign('comment', $comment);
-
-		// Context
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
 		
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $comment, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-	
-		// Tab persistence
-		
-		$point = 'profiles.comment.tab';
-		$tpl->assign('point', $point);
-		
-		if(null == (@$tab_selected = $stack[0])) {
-			$tab_selected = $visit->get($point, '');
-		}
-		$tpl->assign('tab_selected', $tab_selected);
-	
-		// Properties
-			
-		$properties = [];
-			
-		$properties['author'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.author'),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $comment->owner_context_id,
-			'params' => [
-				'context' => $comment->owner_context,
-			],
-		);
-		
-		$properties['created'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.created'),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $comment->created,
-		);
-		
-		$properties['target'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.target'),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $comment->context_id,
-			'params' => [
-				'context' => $comment->context,
-			],
-		);
-	
-		// Custom Fields
-
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $comment->id)) or [];
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $comment->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$comment->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$comment->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		$tpl->assign('properties', $properties);
-			
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/comment.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

@@ -17,121 +17,15 @@
 
 class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
 		$request = DevblocksPlatform::getHttpRequest();
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$stack = $request->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // time_tracking
-		@$id = intval(array_shift($stack));
+		@$context_id = intval(array_shift($stack));
 		
-		if(false == ($time_entry = DAO_TimeTrackingEntry::get($id))) {
-			DevblocksPlatform::redirect(new DevblocksHttpRequest());
-			return;
-		}
-		
-		$tpl->assign('time_entry', $time_entry);
-
-		// Context
-
 		$context = CerberusContexts::CONTEXT_TIMETRACKING;
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
 		
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $time_entry, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-		
-		// Remember the last tab/URL
-		
-		$point = 'profiles.page.time_tracking';
-		$tpl->assign('point', $point);
-
-		// Properties
-		
-		$properties = [];
-		
-		$properties['status'] = array(
-			'label' => mb_ucfirst($translate->_('common.status')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => ($time_entry->is_closed) ? $translate->_('status.closed') : $translate->_('status.open'),
-		);
-		
-		$properties['log_date'] = array(
-			'label' => mb_ucfirst($translate->_('timetracking_entry.log_date')),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $time_entry->log_date,
-		);
-		
-		$properties['worker_id'] = array(
-			'label' => mb_ucfirst($translate->_('common.worker')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'params' => array('context' => CerberusContexts::CONTEXT_WORKER),
-			'value' => $time_entry->worker_id,
-		);
-		
-		$properties['time_spent'] = array(
-			'label' => mb_ucfirst($translate->_('timetracking.ui.entry_panel.time_spent')),
-			'type' => null,
-			'value' => $time_entry->time_actual_mins * 60,
-		);
-		
-		// Custom Fields
-
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $time_entry->id)) or [];
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $time_entry->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$time_entry->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$time_entry->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		
-		$tpl->assign('properties', $properties);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-		
-		// Interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/profile.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

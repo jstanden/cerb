@@ -1,5 +1,7 @@
 {$unit_width = $model->extension_params.column_width|default:500}
+{if $active_worker->is_superuser}
 <button id="btnProfileTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+{/if}
 
 <div id="profileTab{$model->id}" style="vertical-align:top;display:flex;flex-flow:row wrap;">
 	{foreach from=$widgets item=widget name=widgets}
@@ -83,6 +85,7 @@ $(function() {
 	
 	var jobs = [];
 	
+	{if $active_worker->is_superuser}
 	$add_button
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function(e) {
@@ -94,6 +97,7 @@ $(function() {
 			});
 		})
 		;
+	{/if}
 	
 	var loadWidgetFunc = function(widget_id, is_full, callback) {
 		var $widget = $('#profileWidget' + widget_id).empty();
@@ -106,8 +110,8 @@ $(function() {
 			} else {
 				try {
 					if(is_full) {
-						addEvents($(html)).insertAfter(
-							$widget.closest('.cerb-profile-widget').hide()
+						addEvents($(html)).insertBefore(
+							$widget.attr('id',null).closest('.cerb-profile-widget').hide()
 						);
 						
 						$widget.closest('.cerb-profile-widget').remove();

@@ -925,6 +925,8 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 };
 
 class Context_WorkerRole extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = 'cerberusweb.contexts.role';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -953,6 +955,28 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=role&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['updated_at'] = [
+			'label' => DevblocksPlatform::translate('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		];
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

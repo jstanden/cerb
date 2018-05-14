@@ -1,13 +1,22 @@
-{$page_context = CerberusContexts::CONTEXT_ORG}
-{$page_context_id = $contact->id}
-{$is_writeable = Context_Org::isWriteableByActor($contact, $active_worker)}
+{$page_context = $dict->_context}
+{$page_context_id = $dict->id}
+{$is_writeable = CerberusContexts::isWriteableByActor($page_context, $record, $active_worker)}
 
+{if $context_ext->hasOption('avatars')}
 <div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context=org&context_id={$contact->id}{/devblocks_url}?v={$contact->updated}" style="height:75px;width:75px;border-radius:5px;">
+	<img src="{devblocks_url}c=avatars&context={$context_ext->manifest->params.alias}&context_id={$page_context_id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated|default:$dict->updated_date}" style="height:75px;width:75px;border-radius:5px;">
 </div>
+{/if}
+
+{if $smarty.const.APP_OPT_DEPRECATED_PROFILE_QUICK_SEARCH}
+<div style="float:right">
+	{$ctx = Extension_DevblocksContext::get($page_context)}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
+</div>
+{/if}
 
 <div style="float:left;">
-	<h1>{$contact->name}</h1>
+	<h1>{$dict->_label}</h1>
 	
 	<div class="cerb-profile-toolbar">
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
@@ -22,19 +31,26 @@
 			
 			<!-- Edit -->
 			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-			<button type="button" id="btnDisplayOrgEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
 			
-			<span>
-			{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-			{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-			</span>
+			{if $context_ext->hasOption('watchers')}
+				<span>
+				{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+				</span>
+			{/if}
+			
+			{* <!-- Refresh --> *}
+			<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location.reload();"><span class="glyphicons glyphicons-refresh"></span></button>
 		</form>
 		
 		{if $pref_keyboard_shortcuts}
 		<small>
 			{'common.keyboard'|devblocks_translate|lower}:
 			(<b>e</b>) {'common.edit'|devblocks_translate|lower}
+			(<b>i</b>) {'common.interactions'|devblocks_translate|lower}
+			{if $context_ext->hasOption('watchers')}(<b>w</b>) {'common.watch'|devblocks_translate|lower}{/if} 
 			(<b>1-9</b>) change tab
 		</small> 
 		{/if}
@@ -42,35 +58,6 @@
 </div>
 
 <div style="clear:both;padding-top:5px;"></div>
-
-<fieldset class="properties">
-	<legend>{'common.organization'|devblocks_translate|capitalize}</legend>
-	
-	<div style="margin-left:15px;">
-
-	{foreach from=$properties item=v key=k name=props}
-		<div class="property">
-			{if $k == '...'}
-				<b>{'...'|devblocks_translate|capitalize}:</b>
-				...
-			{else}
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
-			{/if}
-		</div>
-		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-			<br clear="all">
-		{/if}
-	{/foreach}
-	
-	<br clear="all">
-
-	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
-	</div>
-</fieldset>
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
-
-{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties=$properties_links}
 
 <div>
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
@@ -80,30 +67,23 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div style="clear:both;" id="profileOrgTabs">
+<div style="clear:both;" id="profileTabs">
 	<ul>
 		{$tabs = []}
 		
 		{$profile_tabs = DAO_ProfileTab::getByProfile($page_context)}
-
+		
 		{foreach from=$profile_tabs item=profile_tab}
 			{$tabs[] = "tab_{$profile_tab->id}"}
 			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showProfileTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$profile_tab->name}</a></li>
 		{/foreach}
-
-		{$tabs[] = 'activity'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
-
-		{$tabs[] = 'history'}
-		<li><a href="{devblocks_url}ajax.php?c=contacts&a=showTabMailHistory&org_id={$page_context_id}{/devblocks_url}">{'addy_book.org.tabs.mail_history'|devblocks_translate}</a></li>
-
-		{$tabs[] = 'comments'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&context={$page_context}&id={$page_context_id}{/devblocks_url}">{'common.comments'|devblocks_translate|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
 		
+		{*
 		{foreach from=$tab_manifests item=tab_manifest}
 			{$tabs[] = $tab_manifest->params.uri}
 			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate}</a></li>
 		{/foreach}
+		*}
 		
 		{if $active_worker->is_superuser}
 		<li><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">+</a></li>
@@ -115,19 +95,26 @@
 <script type="text/javascript">
 $(function() {
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileOrgTabs');
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileTabs');
 	
-	var tabs = $("#profileOrgTabs").tabs(tabOptions);
+	// Tabs
+	var tabs = $("#profileTabs").tabs(tabOptions);
 	
+	// Set the browser tab label to the record label
+	{*$context_ext->manifest->name|capitalize|escape:'javascript' nofilter*}
+	document.title = "{$dict->_label|escape:'javascript' nofilter} - Profile - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
+	
+	// Peeks
 	$('#btnProfileCard').cerbPeekTrigger();
 	
 	// Edit
 	
-	$('#btnDisplayOrgEdit')
+	$('#btnProfileCardEdit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {
 		})
 		.on('cerb-peek-saved', function(e) {
+			// [TODO] Don't refresh the page, just send an evnet to the current tab
 			e.stopPropagation();
 			document.location.reload();
 		})
@@ -169,18 +156,23 @@ $(document).keypress(function(event) {
 		case 58:  // (0) tab cycle
 			try {
 				idx = event.which-49;
-				$tabs = $("#profileOrgTabs").tabs();
+				$tabs = $("#profileTabs").tabs();
 				$tabs.tabs('option', 'active', idx);
 			} catch(ex) { } 
 			break;
 		case 101:  // (E) edit
 			try {
-				$('#btnDisplayOrgEdit').click();
+				$('#btnProfileCardEdit').click();
 			} catch(ex) { } 
 			break;
-		case 109:  // (M) macros
+		case 105:  // (I) interactions
 			try {
-				$('#btnDisplayMacros').click();
+				$('#spanInteractions').find('> button').click();
+			} catch(ex) { } 
+			break;
+		case 119:  // (W) watch
+			try {
+				$('#spanWatcherToolbar button:first').click();
 			} catch(ex) { } 
 			break;
 		default:

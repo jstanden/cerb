@@ -17,112 +17,15 @@
 
 class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // gpg_public_key 
-		@$id = intval(array_shift($stack)); // 123
+		@$context_id = intval(array_shift($stack)); // 123
 		
-		if(null == ($gpg_public_key = DAO_GpgPublicKey::get($id))) {
-			return;
-		}
-		$tpl->assign('gpg_public_key', $gpg_public_key);
-
-		// Context
-
 		$context = CerberusContexts::CONTEXT_GPG_PUBLIC_KEY;
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
 		
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $gpg_public_key, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
-		
-		// Tab persistence
-		
-		$point = 'profiles.gpg_public_key.tab';
-		$tpl->assign('point', $point);
-		
-		if(null == (@$tab_selected = $stack[0])) {
-			$tab_selected = $visit->get($point, '');
-		}
-		$tpl->assign('tab_selected', $tab_selected);
-		
-		// Properties
-		
-		$properties = [];
-		
-		$properties['name'] = array(
-			'label' => mb_ucfirst($translate->_('common.name')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $gpg_public_key->name,
-		);
-		
-		$properties['fingerprint'] = array(
-			'label' => mb_ucfirst($translate->_('dao.gpg_public_key.fingerprint')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $gpg_public_key->fingerprint,
-		);
-		
-		$properties['updated'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $gpg_public_key->updated_at,
-		);
-		
-		// Custom Fields
-		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $gpg_public_key->id)) or [];
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $gpg_public_key->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$gpg_public_key->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$gpg_public_key->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		
-		$tpl->assign('properties', $properties);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:cerberusweb.core::profiles/gpg_public_key.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {

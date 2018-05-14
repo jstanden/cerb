@@ -73,6 +73,11 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			->setEditable(false)
 			;
 		$validation
+			->addField(self::NAME)
+			->string()
+			->setRequired(true)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)
@@ -1020,6 +1025,28 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$<?php echo $ctx_var_model; ?> = DAO_<?php echo $class_name; ?>::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();
@@ -1436,26 +1463,18 @@ $(function() {
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
-	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-			</td>
-		</tr>
-	</table>
-	
-</fieldset>
+<table cellspacing="0" cellpadding="2" border="0" width="98%">
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+		<td width="99%">
+			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
+		</td>
+	</tr>
 
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	{/if}
+</table>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
@@ -1737,106 +1756,15 @@ $(function() {
 
 class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
-		$translate = DevblocksPlatform::getTranslationService();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // <?php echo $table_name; ?> 
-		@$id = intval(array_shift($stack)); // 123
+		@$context_id = intval(array_shift($stack)); // 123
 		
-		if(null == ($<?php echo $table_name; ?> = DAO_<?php echo $class_name; ?>::get($id))) {
-			return;
-		}
-		$tpl->assign('<?php echo $table_name; ?>', $<?php echo $table_name; ?>);
-
-		// Context
-
 		$context = '<?php echo $ctx_ext_id; ?>';
-
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
-			return;
-
-		// Dictionary
-
-		$labels = $values = [];
-		CerberusContexts::getContext($context, $<?php echo $table_name; ?>, $labels, $values, '', true, false);
-		$dict = DevblocksDictionaryDelegate::instance($values);
-		$tpl->assign('dict', $dict);
 		
-		// Tab persistence
-		
-		$point = 'profiles.<?php echo $table_name; ?>.tab';
-		$tpl->assign('point', $point);
-		
-		if(null == (@$tab_selected = $stack[0])) {
-			$tab_selected = $visit->get($point, '');
-		}
-		$tpl->assign('tab_selected', $tab_selected);
-		
-		// Properties
-		
-		$properties = [];
-		
-		$properties['name'] = array(
-			'label' => mb_ucfirst($translate->_('common.name')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $<?php echo $table_name; ?>->name,
-		);
-		
-		$properties['updated'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $<?php echo $table_name; ?>->updated_at,
-		);
-		
-		// Custom Fields
-		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $<?php echo $table_name; ?>->id)) or [];
-		$tpl->assign('custom_field_values', $values);
-		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
-		
-		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
-		
-		// Custom Fieldsets
-		
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $<?php echo $table_name; ?>->id, $values);
-		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
-		
-		// Link counts
-		
-		$properties_links = array(
-			$context => array(
-				$<?php echo $table_name; ?>->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$<?php echo $table_name; ?>->id,
-						array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-					),
-			),
-		);
-		
-		$tpl->assign('properties_links', $properties_links);
-		
-		// Properties
-		
-		$tpl->assign('properties', $properties);
-		
-		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, $context);
-		$tpl->assign('tab_manifests', $tab_manifests);
-
-		// Card search buttons
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-		$tpl->assign('search_buttons', $search_buttons);
-		
-		// Template
-		$tpl->display('devblocks:<?php echo $plugin_id; ?>::<?php echo $table_name; ?>/profile.tpl');
+		Page_Profiles::renderProfile($context, $context_id);
 	}
 	
 	function savePeekJsonAction() {
@@ -2026,198 +1954,6 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 };
-</textarea>
-
-<b>templates/<?php echo $table_name; ?>/profile.tpl</b><br>
-<textarea style="width:98%;height:200px;">
-{$page_context = '<?php echo $ctx_ext_id; ?>'}
-{$page_context_id = $<?php echo $table_name; ?>->id}
-{$is_writeable = Context_<?php echo $class_name; ?>::isWriteableByActor($<?php echo $table_name; ?>, $active_worker)}
-
-<h1>{$<?php echo $table_name; ?>->name}</h1>
-
-<div class="cerb-profile-toolbar">
-	<form class="toolbar" action="{devblocks_url}{/devblocks_url}" onsubmit="return false;" style="margin-bottom:5px;">
-		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-		
-		<span id="spanInteractions">
-		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
-		</span>
-		
-		<!-- Card -->
-		<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
-		
-		<!-- Edit -->
-		{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-		<button type="button" id="btnDisplay<?php echo $class_name; ?>Edit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
-		{/if}
-		
-		<span>
-		{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-		{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
-		</span>
-	</form>
-	
-	{if $pref_keyboard_shortcuts}
-		<small>
-		{$translate->_('common.keyboard')|lower}:
-		(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-		(<b>1-9</b>) change tab
-		</small>
-	{/if}
-</div>
-
-<fieldset class="properties">
-	<legend>{'<?php echo $object_name; ?>'|devblocks_translate|capitalize}</legend>
-
-	<div style="margin-left:15px;">
-	{foreach from=$properties item=v key=k name=props}
-		<div class="property">
-			{if $k == '...'}
-				<b>{$translate->_('...')|capitalize}:</b>
-				...
-			{else}
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
-			{/if}
-		</div>
-		{if $smarty.foreach.props.iteration % 3 == 0 && !$smarty.foreach.props.last}
-			<br clear="all">
-		{/if}
-	{/foreach}
-	<br clear="all">
-
-	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
-	</div>
-</fieldset>
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}
-
-{include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties=$properties_links}
-
-<div>
-{include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$page_context context_id=$page_context_id}
-</div>
-
-<div>
-{include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
-</div>
-
-<div id="<?php echo $table_name; ?>Tabs">
-	<ul>
-		{$tabs = []}
-		
-		{$profile_tabs = DAO_ProfileTab::getByProfile($page_context)}
-
-		{foreach from=$profile_tabs item=profile_tab}
-			{$tabs[] = "tab_{$profile_tab->id}"}
-			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showProfileTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$profile_tab->name}</a></li>
-		{/foreach}
-		
-		{$tabs[] = 'activity'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabActivityLog&scope=target&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
-		
-		{$tabs[] = 'comments'}
-		<li><a href="{devblocks_url}ajax.php?c=internal&a=showTabContextComments&point={$point}&context={$page_context}&id={$page_context_id}{/devblocks_url}">{$translate->_('common.comments')|capitalize} <div class="tab-badge">{DAO_Comment::count($page_context, $page_context_id)|default:0}</div></a></li>
-
-		{foreach from=$tab_manifests item=tab_manifest}
-			{$tabs[] = $tab_manifest->params.uri}
-			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&point={$point}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate}</a></li>
-		{/foreach}
-		
-		{if $active_worker->is_superuser}
-		<li><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">+</a></li>
-		{/if}
-	</ul>
-</div>
-<br>
-
-<script type="text/javascript">
-$(function() {
-	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-	tabOptions.active = Devblocks.getjQueryUiTabSelected('<?php echo $table_name; ?>Tabs');
-
-	var tabs = $("#<?php echo $table_name; ?>Tabs").tabs(tabOptions);
-
-	$('#btnProfileCard').cerbPeekTrigger();
-	
-	// Edit
-	{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-	$('#btnDisplay<?php echo $class_name; ?>Edit')
-		.cerbPeekTrigger()
-		.on('cerb-peek-opened', function(e) {
-		})
-		.on('cerb-peek-saved', function(e) {
-			e.stopPropagation();
-			document.location.reload();
-		})
-		.on('cerb-peek-deleted', function(e) {
-			document.location.href = '{devblocks_url}{/devblocks_url}';
-			
-		})
-		.on('cerb-peek-closed', function(e) {
-		})
-	;
-	{/if}
-
-	// Interactions
-	var $interaction_container = $('#spanInteractions');
-	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
-});
-</script>
-
-{if $pref_keyboard_shortcuts}
-<script type="text/javascript">
-$(function() {
-	$(document).keypress(function(event) {
-		if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
-			return;
-		
-		if($(event.target).is(':input'))
-			return;
-		
-		hotkey_activated = true;
-		
-		switch(event.which) {
-			case 49:  // (1) tab cycle
-			case 50:  // (2) tab cycle
-			case 51:  // (3) tab cycle
-			case 52:  // (4) tab cycle
-			case 53:  // (5) tab cycle
-			case 54:  // (6) tab cycle
-			case 55:  // (7) tab cycle
-			case 56:  // (8) tab cycle
-			case 57:  // (9) tab cycle
-			case 58:  // (0) tab cycle
-				try {
-					idx = event.which-49;
-					$tabs = $("#<?php echo $table_name; ?>Tabs").tabs();
-					$tabs.tabs('option', 'active', idx);
-				} catch(ex) { }
-				break;
-			case 101:  // (E) edit
-				try {
-					$('#btnDisplay<?php echo $class_name; ?>Edit').click();
-				} catch(ex) { }
-				break;
-			case 109:  // (M) macros
-				try {
-					$('#btnDisplayMacros').click();
-				} catch(ex) { }
-				break;
-			default:
-				// We didn't find any obvious keys, try other codes
-				hotkey_activated = false;
-				break;
-		}
-		
-		if(hotkey_activated)
-			event.preventDefault();
-	});
-});
-</script>
-{/if}
-
-{include file="devblocks:cerberusweb.core::internal/profiles/profile_common_scripts.tpl"}
 </textarea>
 
 <?php } ?>

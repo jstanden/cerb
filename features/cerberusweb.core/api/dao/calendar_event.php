@@ -927,6 +927,8 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 };
 
 class Context_CalendarEvent extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
+	const ID = 'cerberusweb.contexts.calendar_event';
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR_EVENT, $models, 'calendar_owner_');
 	}
@@ -942,6 +944,47 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=calendar_event&id='.$context_id, true);
 		return $url;
+	}
+	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['calendar_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.calendar')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
+			'value' => $model->calendar_id,
+		);
+		
+		$properties['date_start'] = array(
+			'label' => mb_ucfirst($translate->_('dao.calendar_event.date_start')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->date_start,
+		);
+		
+		$properties['date_end'] = array(
+			'label' => mb_ucfirst($translate->_('dao.calendar_event.date_end')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->date_end,
+		);
+		
+		$properties['is_available'] = array(
+			'label' => mb_ucfirst($translate->_('dao.calendar_event.is_available')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_available,
+		);
+		
+		return $properties;
 	}
 	
 	function getMeta($context_id) {

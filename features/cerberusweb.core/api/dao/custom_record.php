@@ -1048,6 +1048,34 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_CUSTOM_RECORD,
+			],
+		);
+		
+		$properties['id'] = array(
+			'label' => mb_ucfirst($translate->_('common.id')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$custom_record = DAO_CustomRecord::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

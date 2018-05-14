@@ -944,6 +944,40 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['extension_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.type')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->extension_id,
+		);
+	
+		$properties['guid'] = array(
+			'label' => mb_ucfirst($translate->_('common.guid')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->guid,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		$webhook_listener = DAO_WebhookListener::get($context_id);
 		$url_writer = DevblocksPlatform::services()->url();

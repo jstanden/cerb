@@ -1797,6 +1797,42 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		return $url;
 	}
 	
+	function profileGetFields($model) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		$reply_to = $model->getReplyTo();
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_GROUP,
+			],
+		);
+		
+		$properties['reply_to'] = array(
+			'label' => mb_ucfirst($translate->_('common.email')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $reply_to->email,
+		);
+		
+		$properties['is_default'] = array(
+			'label' => mb_ucfirst($translate->_('common.default')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_default,
+		);
+		
+		$properties['is_private'] = array(
+			'label' => mb_ucfirst($translate->_('common.private')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_private,
+		);
+		
+		return $properties;
+	}
+	
 	function getMeta($context_id) {
 		if(null == ($group = DAO_Group::get($context_id)))
 			return false;
