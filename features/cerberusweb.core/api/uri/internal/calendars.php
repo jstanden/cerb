@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2018, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2018, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 if(class_exists('Extension_PageSection')):
@@ -53,51 +53,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
-	}
-	
-	function showCalendarAvailabilityTabAction() {
-		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
-		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
-		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::services()->template();
-
-		$calendar = DAO_Calendar::get($calendar_id);
-		
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-		
-		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
-		
-		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
-		$tpl->assign('calendar_properties', $calendar_properties);
-		
-		if($calendar) {
-			$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
-			
-			$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
-	
-			unset($calendar_events);
-			
-			// Convert availability back to abstract calendar events
-	
-			$calendar_events = $availability->getAsCalendarEvents($calendar_properties);
-			
-			$tpl->assign('calendar', $calendar);
-			$tpl->assign('calendar_events', $calendar_events);
-			
-		} else {
-			$calendars = DAO_Calendar::getOwnedByWorker($active_worker);
-			$tpl->assign('calendars', $calendars);
-			
-		}
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab_availability.tpl');
 	}
 	
 	function getCalendarDatasourceParamsAction() {
