@@ -5869,6 +5869,15 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.snippet</id>
+			<name>Snippet</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_Snippet</name>
+			</class>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.ticket.spam_analysis</id>
 			<name>Ticket Spam Analysis</name>
 			<class>

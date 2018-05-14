@@ -1056,3 +1056,91 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/calendar/calendar.tpl');
 	}
 }
+class ProfileWidget_Snippet extends Extension_ProfileWidget {
+	const ID = 'cerb.profile.tab.widget.snippet';
+
+	function __construct($manifest=null) {
+		parent::__construct($manifest);
+	}
+
+	function render(Model_ProfileWidget $model, $context, $context_id) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		@$target_context = $model->extension_params['context'];
+		@$target_context_id = $model->extension_params['context_id'];
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		$dao_class = $context_ext->getDaoClass();
+		
+		if(false == ($record = $dao_class::get($context_id)))
+			return;
+		
+		// Are we showing fields for a different record?
+		
+		if($target_context && $target_context_id) {
+			$labels = $values = $merge_token_labels = $merge_token_values = [];
+			
+			CerberusContexts::getContext($context, $record, $merge_token_labels, $merge_token_values, null, true, true);
+			
+			CerberusContexts::merge(
+				'record_',
+				'Record:',
+				$merge_token_labels,
+				$merge_token_values,
+				$labels,
+				$values
+			);
+			
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_PROFILE_WIDGET, $model, $merge_token_labels, $merge_token_values, null, true, true);
+			
+			CerberusContexts::merge(
+				'widget_',
+				'Widget:',
+				$merge_token_labels,
+				$merge_token_values,
+				$labels,
+				$values
+			);
+			
+			$values['widget__context'] = CerberusContexts::CONTEXT_PROFILE_WIDGET;
+			$values['widget_id'] = $model->id;
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			
+			$context = CerberusContexts::CONTEXT_SNIPPET;
+			$context_id = $tpl_builder->build($target_context_id, $dict);
+			
+			if(false == ($record = DAO_Snippet::get($context_id))) {
+				return;
+			}
+		}
+		
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$context_id || false == ($snippet = DAO_Snippet::get($context_id)))
+			return;
+		
+		if(false == Context_Snippet::isReadableByActor($snippet, $active_worker))
+			return;
+		
+		$tpl->assign('snippet', $record);
+		$tpl->assign('widget', $model);
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/snippet/snippet.tpl');
+	}
+	
+	function renderConfig(Model_ProfileWidget $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $model);
+		
+		$context_mfts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('context_mfts', $context_mfts);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/snippet/config.tpl');
+	}
+}
+
