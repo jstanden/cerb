@@ -570,27 +570,10 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 		}
 	}
 	
-	public function profileGetTabs(Model_CommunityTool $portal) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$tabs = [];
-		
-		if(Context_CommunityTool::isWriteableByActor($portal, $active_worker))
-			$tabs['configuration'] = DevblocksPlatform::translateCapitalized('common.configure');
-		
-		$tabs['deploy'] = DevblocksPlatform::translateCapitalized('common.deploy');
-		
-		return $tabs;
-	}
-	
 	public function profileRenderTab($tab_id, Model_CommunityTool $portal) {
 		switch($tab_id) {
 			case 'configuration':
 				$this->configure($portal);
-				break;
-				
-			case 'deploy':
-				$this->_profileRenderConfigTabDeploy($tab_id, $portal);
 				break;
 		}
 	}

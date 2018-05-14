@@ -201,19 +201,6 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-	function showProfileTabAction() {
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'string', '');
-		
-		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
-			return;
-		
-		if(false == ($extension = $portal->getExtension()))
-			return;
-		
-		$extension->profileRenderTab($tab_id, $portal);
-	}
-	
 	function handleProfileTabActionAction() {
 		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
 		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'string', '');
