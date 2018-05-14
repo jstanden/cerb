@@ -209,18 +209,6 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-	function showArticleTabAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
-		
-		if(!$id || false == ($article = DAO_KbArticle::get($id)))
-			return;
-		
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('article', $article);
-		
-		$tpl->display('devblocks:cerberusweb.kb::kb/ajax/tab_article.tpl');
-	}
-	
 	function showBulkPopupAction() {
 		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);

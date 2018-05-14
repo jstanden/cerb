@@ -126,7 +126,6 @@ class ChKbPage extends CerberusPageExtension {
 	
 };
 
-if (class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 	public function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$tpl = DevblocksPlatform::services()->template();
@@ -255,19 +254,16 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 		return true;
 	}
 }
-endif;
 
-if (class_exists('Extension_ReplyToolbarItem',true)):
-	class ChKbReplyToolbarButton extends Extension_ReplyToolbarItem {
-		function render(Model_Message $message) {
-			$tpl = DevblocksPlatform::services()->template();
-			
-			$tpl->assign('div', 'replyToolbarOptions'.$message->id);
-			
-			$tpl->display('devblocks:cerberusweb.kb::renderers/toolbar_kb_button.tpl');
-		}
-	};
-endif;
+class ChKbReplyToolbarButton extends Extension_ReplyToolbarItem {
+	function render(Model_Message $message) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('div', 'replyToolbarOptions'.$message->id);
+		
+		$tpl->display('devblocks:cerberusweb.kb::renderers/toolbar_kb_button.tpl');
+	}
+};
 
 // [TODO] This should just be merged into KbPage
 class ChKbAjaxController extends DevblocksControllerExtension {
@@ -321,7 +317,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 	}
 };
 
-if (class_exists('DevblocksEventListenerExtension')):
 class EventListener_Kb extends DevblocksEventListenerExtension {
 	/**
 	 * @param Model_DevblocksEvent $event
@@ -335,4 +330,80 @@ class EventListener_Kb extends DevblocksEventListenerExtension {
 		}
 	}
 };
-endif;
+
+class ProfileWidget_KbArticle extends Extension_ProfileWidget {
+	const ID = 'cerb.profile.tab.widget.kb_article';
+
+	function __construct($manifest=null) {
+		parent::__construct($manifest);
+	}
+
+	function render(Model_ProfileWidget $model, $context, $context_id) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		@$target_context = $model->extension_params['context'];
+		@$target_context_id = $model->extension_params['context_id'];
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		$dao_class = $context_ext->getDaoClass();
+		
+		if(false == ($record = $dao_class::get($context_id)))
+			return;
+		
+		// Are we showing fields for a different record?
+		
+		if($target_context && $target_context_id) {
+			$labels = $values = $merge_token_labels = $merge_token_values = [];
+			
+			CerberusContexts::getContext($context, $record, $merge_token_labels, $merge_token_values, null, true, true);
+			
+			CerberusContexts::merge(
+				'record_',
+				'Record:',
+				$merge_token_labels,
+				$merge_token_values,
+				$labels,
+				$values
+			);
+			
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_PROFILE_WIDGET, $model, $merge_token_labels, $merge_token_values, null, true, true);
+			
+			CerberusContexts::merge(
+				'widget_',
+				'Widget:',
+				$merge_token_labels,
+				$merge_token_values,
+				$labels,
+				$values
+			);
+			
+			$values['widget__context'] = CerberusContexts::CONTEXT_PROFILE_WIDGET;
+			$values['widget_id'] = $model->id;
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			
+			$context = CerberusContexts::CONTEXT_KB_ARTICLE;
+			$context_id = $tpl_builder->build($target_context_id, $dict);
+			
+			if(false == ($record = DAO_KbArticle::get($context_id))) {
+				return;
+			}
+		}
+		
+		$tpl->assign('article', $record);
+		$tpl->assign('widget', $model);
+		$tpl->display('devblocks:cerberusweb.kb::widgets/kb_article/article.tpl');
+	}
+	
+	function renderConfig(Model_ProfileWidget $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $model);
+		
+		$context_mfts = Extension_DevblocksContext::getAll(false);
+		$tpl->assign('context_mfts', $context_mfts);
+		
+		$tpl->display('devblocks:cerberusweb.kb::widgets/kb_article/config.tpl');
+	}
+};
