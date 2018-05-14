@@ -209,63 +209,6 @@ class ChContactsPage extends CerberusPageExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-	function showTabMailHistoryAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-	
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','contact.history');
-		@$ephemeral = DevblocksPlatform::importGPC($_REQUEST['point'],'integer',0);
-		@$address_ids_str = DevblocksPlatform::importGPC($_REQUEST['address_ids'],'string','');
-		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
-	
-		$view_id = DevblocksPlatform::strAlphaNum($point, '\_');
-		
-		$tpl = DevblocksPlatform::services()->template();
-		$view = C4_AbstractViewLoader::getView($view_id);
-		$ids = array();
-		
-		// Determine the address scope
-		
-		if(empty($ids) && !empty($address_ids_str)) {
-			$ids = DevblocksPlatform::parseCsvString($address_ids_str, false, 'integer');
-		}
-		
-		// Build the view
-		
-		if(null == $view) {
-			$view = new View_Ticket();
-			$view->id = $view_id;
-			$view->view_columns = array(
-				SearchFields_Ticket::TICKET_LAST_WROTE_ID,
-				SearchFields_Ticket::TICKET_CREATED_DATE,
-				SearchFields_Ticket::TICKET_GROUP_ID,
-				SearchFields_Ticket::TICKET_BUCKET_ID,
-			);
-			$view->renderLimit = 10;
-			$view->renderPage = 0;
-			$view->renderSortBy = SearchFields_Ticket::TICKET_CREATED_DATE;
-			$view->renderSortAsc = false;
-		}
-	
-		$params_required = array(
-			SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_STATUS_ID,DevblocksSearchCriteria::OPER_NEQ,Model_Ticket::STATUS_DELETED)
-		);
-		
-		if(empty($ids)) {
-			@$view->name = $translate->_('common.participants') . ": " . $translate->_('common.organization');
-			$params_required[SearchFields_Ticket::TICKET_ORG_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::TICKET_ORG_ID,'=',$org_id);
-			
-		} else {
-			@$view->name = $translate->_('common.participants') . ": " . intval(count($ids)) . ' contact(s)';
-			$params_required[SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID] = new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,'in', $ids);
-		}
-		
-		$view->addParamsRequired($params_required, true);
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
-		exit;
-	}
-
 	function showOrgMergePeekAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$org_ids = DevblocksPlatform::importGPC($_REQUEST['org_ids'],'string','');
