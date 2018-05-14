@@ -1692,7 +1692,7 @@ class CerberusMail {
 			}
 			
 			// Purify the HTML and inline the CSS
-			$html_body = DevblocksPlatform::purifyHTML($html_body, true);
+			$html_body = DevblocksPlatform::purifyHTML($html_body, true, true);
 			
 			// Replace links with cid: in HTML part
 			try {

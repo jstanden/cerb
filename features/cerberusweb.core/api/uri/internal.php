@@ -3099,7 +3099,7 @@ class ChInternalController extends DevblocksControllerExtension {
 							@$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
 						
 						// HTML Purify
-						$output = DevblocksPlatform::purifyHTML($output, true);
+						$output = DevblocksPlatform::purifyHTML($output, true, true);
 						break;
 						
 					default:
@@ -4723,7 +4723,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body style="margin:0;">',
 						LANG_CHARSET_CODE
 					);
-					echo DevblocksPlatform::purifyHTML($output, true);
+					echo DevblocksPlatform::purifyHTML($output, true, true);
 					echo '</body></html>';
 					return;
 				}
