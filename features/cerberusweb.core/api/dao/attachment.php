@@ -676,6 +676,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 	const STORAGE_SHA1HASH = 'a_storage_sha1hash';
 	const UPDATED = 'a_updated';
 	
+	const VIRTUAL_BUNDLE_SEARCH = '*_bundle_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_ON = '*_on';
 	
@@ -693,6 +694,13 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_BUNDLE_SEARCH:
+				$sql = sprintf("SELECT attachment_id FROM attachment_link WHERE context = %s AND context_id IN (%%s)",
+					Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_FILE_BUNDLE)
+				);
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_FILE_BUNDLE, $sql, 'a.id');
+				break;
+			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ATTACHMENT, self::getPrimaryKey());
 				break;
@@ -826,6 +834,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 			self::STORAGE_SHA1HASH => new DevblocksSearchField(self::STORAGE_SHA1HASH, 'a', 'storage_sha1hash', $translate->_('attachment.storage_sha1hash'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'a', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 
+			self::VIRTUAL_BUNDLE_SEARCH => new DevblocksSearchField(self::VIRTUAL_BUNDLE_SEARCH, '*', 'bundle_search', null, null),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_ON => new DevblocksSearchField(self::VIRTUAL_ON, '*', 'on', $translate->_('common.on'), null, false),
 		);
@@ -1203,11 +1212,13 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		);
 
 		$this->addColumnsHidden(array(
+			SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH,
 			SearchFields_Attachment::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Attachment::VIRTUAL_ON,
 		));
 		
 		$this->addParamsHidden(array(
+			SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH,
 			SearchFields_Attachment::VIRTUAL_ON,
 		));
 		
@@ -1314,6 +1325,14 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Attachment::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
+			'bundle' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_FILE_BUNDLE, 'q' => ''],
+					]
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -1381,6 +1400,10 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'bundle':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH);
+				break;
+				
 			case 'size':
 				return DevblocksSearchCriteria::getBytesParamFromTokens(SearchFields_Attachment::STORAGE_SIZE, $tokens);
 				break;
@@ -1476,6 +1499,13 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.file_bundle')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
 			case SearchFields_Attachment::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
