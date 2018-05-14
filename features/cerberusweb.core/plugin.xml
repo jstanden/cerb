@@ -5834,7 +5834,18 @@
 		</extension>
 		
 		<!-- Profile Widgets -->
-
+		
+		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.behavior.tree</id>
+			<name>Behavior Tree</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_BehaviorTree</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.calendar</id>
 			<name>Calendar</name>
