@@ -1706,22 +1706,6 @@ abstract class C4_AbstractView {
 		$this->renderPage = 0;
 	}
 	
-	function getPresets() {
-		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
-			return;
-		
-		// Presets
-		// [TODO] Cache?
-		return DAO_ViewFiltersPreset::getWhere(
-			sprintf("%s = %s AND %s = %d",
-				DAO_ViewFiltersPreset::VIEW_CLASS,
-				Cerb_ORMHelper::qstr(get_class($this)),
-				DAO_ViewFiltersPreset::WORKER_ID,
-				$active_worker->id
-			)
-		);
-	}
-	
 	// [TODO] Cache this?
 	function getQuickSearchMenu() {
 		$active_worker = CerberusApplication::getActiveWorker();

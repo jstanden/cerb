@@ -52,6 +52,14 @@ if(!isset($tables['profile_widget'])) {
 }
 
 // ===========================================================================
+// Drop `view_filters_preset` (this is now `context_saved_search`)
+
+if(isset($tables['view_filters_preset'])) {
+	$db->ExecuteMaster('DROP TABLE view_filters_preset');
+	unset($tables['view_filters_preset']);
+}
+
+// ===========================================================================
 // Remove old worker prefs
 
 $db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mail_display_inline_log'");
