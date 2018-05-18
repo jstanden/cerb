@@ -727,7 +727,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		

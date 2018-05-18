@@ -771,7 +771,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_MailHtmlTemplate::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		

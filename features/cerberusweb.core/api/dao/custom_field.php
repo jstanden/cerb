@@ -1788,7 +1788,7 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_CustomField::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		

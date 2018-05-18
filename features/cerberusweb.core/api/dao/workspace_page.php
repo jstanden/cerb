@@ -810,7 +810,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		
 		// Add 'owner.*'
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_WorkspacePage::VIRTUAL_OWNER);
 		
 		// Add searchable custom fields
 		

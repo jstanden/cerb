@@ -713,7 +713,7 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_MailTransport::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
