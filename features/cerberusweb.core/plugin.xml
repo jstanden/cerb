@@ -4025,7 +4025,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.ui.worklist.render.worker</id>
-			<name>[UI] Before displaying a worklist</name>
+			<name>[UI] Render record worklist</name>
 			<class>
 				<file>api/events/ui/ui_worklist_render_by_worker.php</file>
 				<name>Event_UiWorklistRenderByWorker</name>

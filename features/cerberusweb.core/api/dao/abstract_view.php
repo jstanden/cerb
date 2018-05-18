@@ -405,6 +405,7 @@ abstract class C4_AbstractView {
 		foreach($fields as $k => $p) {
 			if($p instanceof DevblocksSearchCriteria) {
 				switch($p->key) {
+					case '_limit':
 					case 'limit':
 						$oper = null;
 						$value = null;
@@ -418,6 +419,7 @@ abstract class C4_AbstractView {
 						unset($fields[$k]);
 						break;
 						
+					case '_page':
 					case 'page':
 						$oper = null;
 						$value = null;
@@ -432,6 +434,7 @@ abstract class C4_AbstractView {
 						unset($fields[$k]);
 						break;
 						
+					case '_sort':
 					case 'sort':
 						$oper = null;
 						$value = null;

@@ -3616,12 +3616,12 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 			}
 		}
-
+		
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
 			return;
 		
 		$view->doCustomize($columns, $num_rows, $options);
-
+		
 		$is_custom = $view->isCustom();
 		$is_trigger = DevblocksPlatform::strStartsWith($id, '_trigger_');
 		

@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************
- | Cerb(tm) developed by Webgroup Media, LLC.
- |-----------------------------------------------------------------------
- | All source code & content (c) Copyright 2002-2018, Webgroup Media LLC
- |   unless specifically noted otherwise.
- |
- | This source code is released under the Devblocks Public License.
- | The latest version of this license can be found here:
- | http://cerb.ai/license
- |
- | By using this software, you acknowledge having read this license
- | and agree to be bound thereby.
- | ______________________________________________________________________
- |	http://cerb.ai	    http://webgroup.media
+| Cerb(tm) developed by Webgroup Media, LLC.
+|-----------------------------------------------------------------------
+| All source code & content (c) Copyright 2002-2018, Webgroup Media LLC
+|   unless specifically noted otherwise.
+|
+| This source code is released under the Devblocks Public License.
+| The latest version of this license can be found here:
+| http://cerb.ai/license
+|
+| By using this software, you acknowledge having read this license
+| and agree to be bound thereby.
+| ______________________________________________________________________
+|	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
 class DAO_CerbPlugin extends Cerb_ORMHelper {
@@ -512,9 +512,9 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 								$v = $oper_hint . DevblocksPlatform::strVersionToInt($v, 3);
 								
 							} else if(preg_match('#^(.*)?\.\.\.(.*)#', $v, $matches)) {
-								 $from = DevblocksPlatform::strVersionToInt(trim($matches[1]), 3);
-								 $to = DevblocksPlatform::strVersionToInt(trim($matches[2]), 3);
-								 $v = sprintf("%d...%d", $from, $to);
+								$from = DevblocksPlatform::strVersionToInt(trim($matches[1]), 3);
+								$to = DevblocksPlatform::strVersionToInt(trim($matches[2]), 3);
+								$v = sprintf("%d...%d", $from, $to);
 							} else {
 								$v = DevblocksPlatform::strVersionToInt($v, 3);
 							}
