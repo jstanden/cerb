@@ -534,7 +534,7 @@ class Model_ProfileTab {
 	public $id = 0;
 	public $name = null;
 	public $context = null;
-	public $extension_id = 0;
+	public $extension_id = null;
 	public $extension_params = [];
 	public $updated_at = 0;
 	
@@ -1125,11 +1125,14 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 			$tpl->assign('types', $types);
 			
 			// Contexts
-			$context_mfts = Extension_DevblocksContext::getAll(false, ['cards']);
+			$context_mfts = Extension_DevblocksContext::getAll(false, ['search']);
 			$tpl->assign('context_mfts', $context_mfts);
 			
 			// Tab extensions
-			$tab_manifests = Extension_ProfileTab::getAll(false);
+			$tab_manifests = [];
+			if($model->context) {
+				$tab_manifests = Extension_ProfileTab::getByContext($model->context, false);
+			}
 			$tpl->assign('tab_manifests', $tab_manifests);
 			
 			// View
