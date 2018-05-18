@@ -128,6 +128,8 @@ class _DevblocksTemplateBuilder {
 				'cerb_avatar_url',
 				'cerb_file_url',
 				'cerb_has_priv',
+				'cerb_record_readable',
+				'cerb_record_writeable',
 				'cerb_url',
 				'dict_set',
 				'json_decode',
@@ -682,6 +684,8 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
 			new Twig_SimpleFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
 			new Twig_SimpleFunction('cerb_has_priv', [$this, 'function_cerb_has_priv']),
+			new Twig_SimpleFunction('cerb_record_readable', [$this, 'function_cerb_record_readable']),
+			new Twig_SimpleFunction('cerb_record_writeable', [$this, 'function_cerb_record_writeable']),
 			new Twig_SimpleFunction('cerb_url', [$this, 'function_cerb_url']),
 			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
 			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
@@ -723,6 +727,26 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return false;
 		
 		return $worker->hasPriv($priv);
+	}
+	
+	function function_cerb_record_readable($record_context, $record_id, $actor_context=null, $actor_context_id=null) {
+		if(is_null($actor_context) && is_null($actor_context)) {
+			$actor = CerberusApplication::getActiveWorker();
+		} else {
+			$actor = [$actor_context, $actor_context_id];
+		}
+		
+		return CerberusContexts::isReadableByActor($record_context, $record_id, $actor);
+	}
+	
+	function function_cerb_record_writeable($record_context, $record_id, $actor_context=null, $actor_context_id=null) {
+		if(is_null($actor_context) && is_null($actor_context)) {
+			$actor = CerberusApplication::getActiveWorker();
+		} else {
+			$actor = [$actor_context, $actor_context_id];
+		}
+		
+		return CerberusContexts::isWriteableByActor($record_context, $record_id, $actor);
 	}
 	
 	function function_cerb_avatar_image($context, $id, $updated=0) {
