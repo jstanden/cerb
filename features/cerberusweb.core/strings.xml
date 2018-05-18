@@ -1730,6 +1730,26 @@
 				<seg>Profile</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.profile.tab">
+			<tuv xml:lang="en_US">
+				<seg>profile tab</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.profile.tabs">
+			<tuv xml:lang="en_US">
+				<seg>profile tabs</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.profile.widget">
+			<tuv xml:lang="en_US">
+				<seg>profile widget</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.profile.widgets">
+			<tuv xml:lang="en_US">
+				<seg>profile widgets</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.profiles">
 			<tuv xml:lang="en_US">
 				<seg>Profiles</seg>

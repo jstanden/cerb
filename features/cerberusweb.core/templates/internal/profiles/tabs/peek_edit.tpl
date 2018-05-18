@@ -98,7 +98,7 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{'Profile Tab'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.dialog('option','title',"{'common.profile.tab'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 		
 		var $select = $popup.find('select[name=extension_id]');
