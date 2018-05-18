@@ -2393,11 +2393,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="display.shortcut.print">
-			<tuv xml:lang="ru_RU">
-				<seg>Распечатать эту заявку (P)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="display.shortcut.read_all">
 			<tuv xml:lang="ru_RU">
 				<seg>Прочесть все сообщения в хронологическом порядке (A)</seg>

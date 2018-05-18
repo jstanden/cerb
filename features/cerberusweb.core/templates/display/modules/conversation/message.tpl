@@ -165,8 +165,6 @@
 					<input type="hidden" name="id" value="{$message->id}">
 					<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 					
-					<button type="button" onclick="document.frmPrint.action='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';document.frmPrint.submit();"><span class="glyphicons glyphicons-print"></span> {'common.print'|devblocks_translate|capitalize}</button>
-					
 					{if $ticket->first_message_id != $message->id && $active_worker->hasPriv('core.display.actions.split')} {* Don't allow splitting of a single message *}
 					<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doSplitMessage');$frm.submit();" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
 					{/if}

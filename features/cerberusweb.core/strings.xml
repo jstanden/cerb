@@ -3518,11 +3518,6 @@
 				<seg>Delete this ticket (X)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="display.shortcut.print">
-			<tuv xml:lang="en_US">
-				<seg>Print this ticket (P)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="display.shortcut.read_all">
 			<tuv xml:lang="en_US">
 				<seg>Read all messages in chronological order (A)</seg>

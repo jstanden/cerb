@@ -2383,11 +2383,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="display.shortcut.print">
-			<tuv xml:lang="it_IT">
-				<seg>Stampa ticket (P)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="display.shortcut.read_all">
 			<tuv xml:lang="it_IT">
 				<seg>Leggi tutti i messaggi in ordine cronologico (A)</seg>
