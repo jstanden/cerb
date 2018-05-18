@@ -1742,9 +1742,12 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_Contact();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -1769,47 +1772,41 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'params' => array('context' => CerberusContexts::CONTEXT_ORG),
 		);
 		
-		if(!empty($model->title))
-			$properties['title'] = array(
-				'label' => mb_ucfirst($translate->_('common.title')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->title,
-			);
+		$properties['title'] = array(
+			'label' => mb_ucfirst($translate->_('common.title')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->title,
+		);
 		
-		if(!empty($model->location))
-			$properties['location'] = array(
-				'label' => mb_ucfirst($translate->_('common.location')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->location,
-			);
+		$properties['location'] = array(
+			'label' => mb_ucfirst($translate->_('common.location')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->location,
+		);
 		
-		if(!empty($model->language))
-			$properties['language'] = array(
-				'label' => mb_ucfirst($translate->_('common.language')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->language,
-			);
+		$properties['language'] = array(
+			'label' => mb_ucfirst($translate->_('common.language')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->language,
+		);
 		
-		if(!empty($model->timezone))
-			$properties['timezone'] = array(
-				'label' => mb_ucfirst($translate->_('common.timezone')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->timezone,
-			);
+		$properties['timezone'] = array(
+			'label' => mb_ucfirst($translate->_('common.timezone')),
+			'type' => 'timezone',
+			'value' => $model->timezone,
+		);
 			
-		if(!empty($model->phone))
-			$properties['phone'] = array(
-				'label' => mb_ucfirst($translate->_('common.phone')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->phone,
-			);
+		$properties['phone'] = array(
+			'label' => mb_ucfirst($translate->_('common.phone')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->phone,
+		);
 			
-		if(!empty($model->mobile))
-			$properties['mobile'] = array(
-				'label' => mb_ucfirst($translate->_('common.mobile')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->mobile,
-			);
+		$properties['mobile'] = array(
+			'label' => mb_ucfirst($translate->_('common.mobile')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->mobile,
+		);
 		
 		$properties['created'] = array(
 			'label' => mb_ucfirst($translate->_('common.created')),
@@ -1823,13 +1820,12 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'value' => $model->updated_at,
 		);
 		
-		if(!empty($model->last_login_at))
-			$properties['last_login'] = array(
-				'label' => mb_ucfirst($translate->_('common.last_login')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $model->last_login_at,
-			);
-			
+		$properties['last_login'] = array(
+			'label' => mb_ucfirst($translate->_('common.last_login')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->last_login_at,
+		);
+		
 		return $properties;
 	}
 	

@@ -1263,11 +1263,14 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
 		
 		/* @var $model Model_Task */
+		
+		if(is_null($model))
+			$model = new Model_Task();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -1284,43 +1287,32 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'value' => $model->getStatusText(),
 		);
 		
-		if($model->reopen_at) {
-			$properties['reopen_at'] = array(
-				'label' => mb_ucfirst($translate->_('common.reopen_at')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $model->reopen_at,
-			);
-		}
+		$properties['reopen_at'] = array(
+			'label' => mb_ucfirst($translate->_('common.reopen_at')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->reopen_at,
+		);
 		
-		if(1 != $model->status_id) {
-			if($model->due_date) {
-				$properties['due_date'] = array(
-					'label' => mb_ucfirst($translate->_('task.due_date')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $model->due_date,
-				);
-			}
+		$properties['due_date'] = array(
+			'label' => mb_ucfirst($translate->_('task.due_date')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->due_date,
+		);
 			
-		} else {
-			if($model->completed_date) {
-				$properties['completed_date'] = array(
-					'label' => mb_ucfirst($translate->_('task.completed_date')),
-					'type' => Model_CustomField::TYPE_DATE,
-					'value' => $model->completed_date,
-				);
-			}
-		}
+		$properties['completed_date'] = array(
+			'label' => mb_ucfirst($translate->_('task.completed_date')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->completed_date,
+		);
 		
-		if($model->owner_id) {
-			$properties['owner_id'] = array(
-				'label' => mb_ucfirst($translate->_('common.owner')),
-				'type' => Model_CustomField::TYPE_LINK,
-				'value' => $model->owner_id,
-				'params' => [
-					'context' => CerberusContexts::CONTEXT_WORKER,
-				]
-			);
-		}
+		$properties['owner_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.owner')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->owner_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			]
+		);
 		
 		$properties['importance'] = array(
 			'label' => mb_ucfirst($translate->_('common.importance')),

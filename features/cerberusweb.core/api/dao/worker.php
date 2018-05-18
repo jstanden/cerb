@@ -2808,9 +2808,12 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_Worker();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -2828,13 +2831,17 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->email_id,
 		);
 		
-		if(!empty($model->location)) {
-			$properties['location'] = array(
-				'label' => mb_ucfirst($translate->_('common.location')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->location,
-			);
-		}
+		$properties['location'] = array(
+			'label' => mb_ucfirst($translate->_('common.location')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->location,
+		);
+		
+		$properties['location'] = array(
+			'label' => mb_ucfirst($translate->_('common.title')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->title,
+		);
 		
 		$properties['is_superuser'] = array(
 			'label' => mb_ucfirst($translate->_('worker.is_superuser')),
@@ -2842,21 +2849,17 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->is_superuser,
 		);
 		
-		if(!empty($model->mobile)) {
-			$properties['mobile'] = array(
-				'label' => mb_ucfirst($translate->_('common.mobile')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->mobile,
-			);
-		}
+		$properties['mobile'] = array(
+			'label' => mb_ucfirst($translate->_('common.mobile')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->mobile,
+		);
 		
-		if(!empty($model->phone)) {
-			$properties['phone'] = array(
-				'label' => mb_ucfirst($translate->_('common.phone')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->phone,
-			);
-		}
+		$properties['phone'] = array(
+			'label' => mb_ucfirst($translate->_('common.phone')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->phone,
+		);
 		
 		$properties['language'] = array(
 			'label' => mb_ucfirst($translate->_('common.language')),
@@ -2866,18 +2869,16 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		
 		$properties['timezone'] = array(
 			'label' => mb_ucfirst($translate->_('common.timezone')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'type' => 'timezone',
 			'value' => $model->timezone,
 		);
 		
-		if(!empty($model->calendar_id)) {
-			$properties['calendar_id'] = array(
-				'label' => mb_ucfirst($translate->_('common.calendar')),
-				'type' => Model_CustomField::TYPE_LINK,
-				'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
-				'value' => $model->calendar_id,
-			);
-		}
+		$properties['calendar_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.calendar')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'params' => array('context' => CerberusContexts::CONTEXT_CALENDAR),
+			'value' => $model->calendar_id,
+		);
 		
 		return $properties;
 	}

@@ -973,9 +973,12 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_CustomFieldset();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),

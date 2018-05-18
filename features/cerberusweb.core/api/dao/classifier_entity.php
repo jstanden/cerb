@@ -849,9 +849,12 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_ClassifierEntity();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),

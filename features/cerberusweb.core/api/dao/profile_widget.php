@@ -913,9 +913,12 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_ProfileWidget();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),

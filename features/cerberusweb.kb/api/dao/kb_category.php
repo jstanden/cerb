@@ -632,12 +632,14 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		return $url;
 	}
 	
-	function profileGetFields($model) {
-		$translate = DevblocksPlatform::getTranslationService();
+	function profileGetFields($model=null) {
 		$properties = [];
 		
+		if(is_null($model))
+			$model = new Model_KbCategory();
+		
 		$properties['name'] = array(
-			'label' => mb_ucfirst($translate->_('common.name')),
+			'label' => DevblocksPlatform::translateCapitalized('common.name'),
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->id,
 			'params' => [
@@ -645,16 +647,14 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 			],
 		);
 		
-		if($model->parent_id) {
-			$properties['parent_id'] = array(
-				'label' => $translate->_('common.parent'),
-				'type' => Model_CustomField::TYPE_LINK,
-				'value' => $model->parent_id,
-				'params' => [
-					'context' => CerberusContexts::CONTEXT_KB_CATEGORY,
-				]
-			);
-		}
+		$properties['parent_id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.parent'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->parent_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_KB_CATEGORY,
+			]
+		);
 		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),

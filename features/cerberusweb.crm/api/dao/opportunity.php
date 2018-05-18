@@ -1200,10 +1200,13 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_CrmOpportunity();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -1220,20 +1223,17 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			'value' => $model->getStatusString(),
 		);
 		
-		if(!empty($model->status_id))
-			if(!empty($model->closed_date))
-			$properties['closed_date'] = array(
-				'label' => mb_ucfirst($translate->_('crm.opportunity.closed_date')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $model->closed_date,
-			);
+		$properties['closed_date'] = array(
+			'label' => mb_ucfirst($translate->_('crm.opportunity.closed_date')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->closed_date,
+		);
 			
-		if(!empty($model->currency_amount))
-			$properties['currency_amount'] = array(
-				'label' => mb_ucfirst($translate->_('crm.opportunity.amount')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->getAmountString()
-			);
+		$properties['currency_amount'] = array(
+			'label' => mb_ucfirst($translate->_('crm.opportunity.amount')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->getAmountString()
+		);
 			
 		$properties['created_date'] = array(
 			'label' => mb_ucfirst($translate->_('common.created')),

@@ -1329,11 +1329,14 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
 		
 		/* @var $model Model_Snippet */
+		
+		if(is_null($model))
+			$model = new Model_Snippet();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),

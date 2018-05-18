@@ -1134,16 +1134,19 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_AbstractCustomRecord();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->id,
 			'params' => [
-				'context' => static::_getContextName(), //static::_ID,
+				'context' => static::_getContextName(),
 			],
 		);
 		
