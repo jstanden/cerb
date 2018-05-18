@@ -40,17 +40,14 @@
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
 
-if (class_exists('Extension_AppPreBodyRenderer',true)):
-	class ChTimeTrackingPreBodyRenderer extends Extension_AppPreBodyRenderer {
-		function render() {
-			$tpl = DevblocksPlatform::services()->template();
-			$tpl->assign('current_timestamp', time());
-			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/prebody.tpl');
-		}
-	};
-endif;
+class ChTimeTrackingPreBodyRenderer extends Extension_AppPreBodyRenderer {
+	function render() {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('current_timestamp', time());
+		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/prebody.tpl');
+	}
+};
 
-if (class_exists('Extension_ContextProfileScript')):
 class ChTimeTrackingProfileScript extends Extension_ContextProfileScript {
 	const ID = 'timetracking.profile_script.timer';
 	
@@ -63,19 +60,16 @@ class ChTimeTrackingProfileScript extends Extension_ContextProfileScript {
 		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/toolbar_timer.js.tpl');
 	}
 }
-endif;
 
-if (class_exists('Extension_ReplyToolbarItem',true)):
-	class ChTimeTrackingReplyToolbarTimer extends Extension_ReplyToolbarItem {
-		function render(Model_Message $message) {
-			$tpl = DevblocksPlatform::services()->template();
-			
-			$tpl->assign('message', $message); /* @var $message Model_Message */
-			
-			$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/reply_toolbar_timer.tpl');
-		}
-	};
-endif;
+class ChTimeTrackingReplyToolbarTimer extends Extension_ReplyToolbarItem {
+	function render(Model_Message $message) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('message', $message); /* @var $message Model_Message */
+		
+		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/reply_toolbar_timer.tpl');
+	}
+};
 
 class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
 	/**
@@ -266,7 +260,6 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 	}
 };
 
-if(class_exists('Extension_PageSection')):
 class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 	const ID = 'timetracking.setup.section.timetracking';
 	
@@ -326,9 +319,7 @@ class ChTimeTracking_SetupPageSection extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.timetracking::config/activities/edit_activity.tpl');
 	}
 }
-endif;
 
-if(class_exists('Extension_PageMenuItem')):
 class ChTimeTracking_SetupPluginsMenuItem extends Extension_PageMenuItem {
 	const ID = 'timetracking.setup.menu.plugins.timetracking';
 	
@@ -337,11 +328,7 @@ class ChTimeTracking_SetupPluginsMenuItem extends Extension_PageMenuItem {
 		$tpl->display('devblocks:cerberusweb.timetracking::config/menu_item.tpl');
 	}
 }
-endif;
 
-if (class_exists('Extension_ReportGroup',true)):
 class ChReportGroupTimeTracking extends Extension_ReportGroup {
 	// [TODO] This stub is pointless and should be refactored out.
 };
-endif;
-

@@ -1,7 +1,7 @@
 {if empty($watchers_btn_domid)}{$watchers_btn_domid = uniqid()}{/if}
 {$num_watchers = $object_watchers.{$context_id}|default:[]|count}
 {$is_current_worker = isset($object_watchers.{$context_id}.{$active_worker->id})}
-<button type="button" id="{$watchers_btn_domid}" class="{if $is_current_worker}green{/if}" title="{'common.watchers'|devblocks_translate|capitalize}" group_id="{$watchers_group_id}" bucket_id="{$watchers_bucket_id}">
+<button type="button" id="{$watchers_btn_domid}" class="{if $is_current_worker}green{/if}" data-group-id="{$watchers_group_id}" data-bucket-id="{$watchers_bucket_id}">
 	{if $full}
 		<div class="badge-count">{$num_watchers}</div>
 		{'common.watching'|devblocks_translate|capitalize}
@@ -15,8 +15,8 @@ $(function() {
 	var $btn = $('#{$watchers_btn_domid}');
 	
 	$btn.click(function(e) {
-		var group_id = $btn.attr('group_id');
-		var bucket_id = $btn.attr('bucket_id');
+		var group_id = $btn.attr('data-group-id');
+		var bucket_id = $btn.attr('data-bucket-id');
 		
 		// Left-click shortcut for toggling current worker
 		if(e.shiftKey) {

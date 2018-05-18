@@ -101,7 +101,7 @@
 
 		{if $expanded}
 		<div style="margin:2px;margin-left:10px;" id="{$message->id}skip">
-			 <button type="button" onclick="document.location='#{$message->id}act';">{'display.convo.skip_to_bottom'|devblocks_translate|lower}</button>
+			<button type="button" onclick="document.location='#{$message->id}act';">{'display.convo.skip_to_bottom'|devblocks_translate|lower}</button>
 		</div>
 		{/if}
 		

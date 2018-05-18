@@ -715,7 +715,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
-		if(false == ($context_ext = Extension_DevblocksContext::get($id)))
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return null;
 		
 		if(false == ($aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest)))
