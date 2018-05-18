@@ -62,7 +62,7 @@ $(function() {
 	var $timeline = {$timeline_json|default:'{}' nofilter};
 
 	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title', "{'profile_widget'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		$popup.dialog('option','title', "{'common.profile.widget'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 		
 		// Properties grid
