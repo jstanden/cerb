@@ -19,8 +19,8 @@ class PageSection_SetupRecords extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
-		
-		$visit->set(ChConfigurationPage::ID, 'cards');
+
+		$visit->set(ChConfigurationPage::ID, 'records');
 		
 		$context_manifests = Extension_DevblocksContext::getAll(false, array('cards'));
 		$tpl->assign('context_manifests', $context_manifests);
