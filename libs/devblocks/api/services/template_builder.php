@@ -127,6 +127,7 @@ class _DevblocksTemplateBuilder {
 				'cerb_avatar_image',
 				'cerb_avatar_url',
 				'cerb_file_url',
+				'cerb_has_priv',
 				'cerb_url',
 				'dict_set',
 				'json_decode',
@@ -680,6 +681,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
 			new Twig_SimpleFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
 			new Twig_SimpleFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
+			new Twig_SimpleFunction('cerb_has_priv', [$this, 'function_cerb_has_priv']),
 			new Twig_SimpleFunction('cerb_url', [$this, 'function_cerb_url']),
 			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
 			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
@@ -702,6 +704,25 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return;
 		
 		return array_diff($arr1, $arr2);
+	}
+	
+	function function_cerb_has_priv($priv, $actor_context=null, $actor_id=null) {
+		if(is_null($actor_context) && is_null($actor_context)) {
+			$active_worker = CerberusApplication::getActiveWorker();
+			return $active_worker->hasPriv($priv);
+		}
+		
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($actor_context, true)))
+		if(false == ($context_ext = Extension_DevblocksContext::get($actor_context)))
+			return false;
+		
+		if(!($context_ext instanceof Context_Worker))
+			return false;
+		
+		if(false == ($worker = DAO_Worker::get($actor_id)))
+			return false;
+		
+		return $worker->hasPriv($priv);
 	}
 	
 	function function_cerb_avatar_image($context, $id, $updated=0) {
