@@ -1176,11 +1176,14 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
 		
 		/* @var $model Model_CommunityTool */
+		
+		if(is_null($model))
+			$model = new Model_CommunityTool();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),

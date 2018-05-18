@@ -1142,9 +1142,12 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_ContextScheduledBehavior();
 		
 		$properties['behavior_id'] = [
 			'label' => mb_ucfirst($translate->_('common.behavior')),

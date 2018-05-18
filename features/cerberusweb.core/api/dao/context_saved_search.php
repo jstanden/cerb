@@ -896,9 +896,12 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_ContextSavedSearch();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -909,16 +912,14 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 			],
 		);
 		
-		if(!empty($model->owner_context)) {
-			$properties['owner'] = array(
-				'label' => DevblocksPlatform::translateCapitalized('common.owner'),
-				'type' => Model_CustomField::TYPE_LINK,
-				'value' => $model->owner_context_id,
-				'params' => [
-					'context' => $model->owner_context,
-				]
-			);
-		}
+		$properties['owner'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.owner'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->owner_context_id,
+			'params' => [
+				'context' => $model->owner_context,
+			]
+		);
 		
 		$properties['tag'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.tag'),
@@ -928,10 +929,11 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		
 		
 		$search_context_ext = $model->getContextExtension(false);
+		
 		$properties['context'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.context'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $search_context_ext->name,
+			'value' => @$search_context_ext->name ?: null,
 		);
 		
 		$properties['updated'] = array(

@@ -1248,9 +1248,12 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_Comment();
 		
 		$properties['author'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.author'),

@@ -915,9 +915,12 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_Skill();
 		
 		/*
 		$properties['name'] = array(

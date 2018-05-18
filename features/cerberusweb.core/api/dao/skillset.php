@@ -843,9 +843,12 @@ class Context_Skillset extends Extension_DevblocksContext implements IDevblocksC
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_Skillset();
 		
 		/*
 		$properties['name'] = array(

@@ -1139,9 +1139,12 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_CalendarRecurringProfile();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -1165,13 +1168,11 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			'value' => $model->event_start,
 		);
 		
-		if($model->event_end) {
-			$properties['event_end'] = array(
-				'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.event_end')),
-				'type' => Model_CustomField::TYPE_SINGLE_LINE,
-				'value' => $model->event_end,
-			);
-		}
+		$properties['event_end'] = array(
+			'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.event_end')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->event_end,
+		);
 		
 		$properties['tz'] = array(
 			'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.tz')),
@@ -1185,21 +1186,17 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			'value' => $model->is_available,
 		);
 		
-		if($model->recur_start) {
-			$properties['recur_start'] = array(
-				'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.recur_start')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $model->recur_start,
-			);
-		}
+		$properties['recur_start'] = array(
+			'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.recur_start')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->recur_start,
+		);
 		
-		if($model->recur_end) {
-			$properties['recur_end'] = array(
-				'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.recur_end')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $model->recur_end,
-			);
-		}
+		$properties['recur_end'] = array(
+			'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.recur_end')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->recur_end,
+		);
 		
 		$properties['patterns'] = array(
 			'label' => mb_ucfirst($translate->_('dao.calendar_recurring_profile.patterns')),

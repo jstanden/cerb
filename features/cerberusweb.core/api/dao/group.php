@@ -1751,11 +1751,12 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
 		
-		$reply_to = $model->getReplyTo();
+		if(is_null($model))
+			$model = new Model_Group();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -1769,8 +1770,11 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$properties['reply_to'] = array(
 			'label' => mb_ucfirst($translate->_('common.email')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $reply_to->email,
+			'value' => null,
 		);
+		
+		if(false != ($reply_to = $model->getReplyTo()))
+			$properties['reply_to']['value'] = $reply_to->email;
 		
 		$properties['is_default'] = array(
 			'label' => mb_ucfirst($translate->_('common.default')),

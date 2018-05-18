@@ -900,9 +900,12 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_ClassifierExample();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('dao.classifier_example.expression')),

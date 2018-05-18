@@ -1921,9 +1921,12 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_TriggerEvent();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -1946,7 +1949,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$properties['event_point'] = array(
 			'label' => mb_ucfirst($translate->_('common.event')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $model->event_point,
+			'value' => @$model->getEvent()->manifest->name ?: '',
 		);
 		
 		$properties['updated'] = array(
@@ -1959,6 +1962,18 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			'label' => mb_ucfirst($translate->_('common.disabled')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $model->is_disabled,
+		);
+		
+		$properties['is_private'] = array(
+			'label' => mb_ucfirst($translate->_('common.is_private')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_private,
+		);
+		
+		$properties['priority'] = array(
+			'label' => mb_ucfirst($translate->_('common.priority')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->priority,
 		);
 		
 		return $properties;

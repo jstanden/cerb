@@ -2050,9 +2050,12 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_Address();
 		
 		$properties['_label'] = array(
 			'label' => mb_ucfirst($translate->_('common.email')),
@@ -2063,38 +2066,32 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			),
 		);
 		
-		if(!empty($model->contact_id)) {
-			$properties['contact'] = array(
-				'label' => mb_ucfirst($translate->_('common.contact')),
-				'type' => Model_CustomField::TYPE_LINK,
-				'value' => $model->contact_id,
-				'params' => array(
-					'context' => CerberusContexts::CONTEXT_CONTACT,
-				),
-			);
-		}
+		$properties['contact'] = array(
+			'label' => mb_ucfirst($translate->_('common.contact')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->contact_id,
+			'params' => array(
+				'context' => CerberusContexts::CONTEXT_CONTACT,
+			),
+		);
 		
-		if(!empty($model->contact_org_id)) {
-			$properties['org'] = array(
-				'label' => mb_ucfirst($translate->_('common.organization')),
-				'type' => Model_CustomField::TYPE_LINK,
-				'value' => $model->contact_org_id,
-				'params' => array(
-					'context' => CerberusContexts::CONTEXT_ORG,
-				),
-			);
-		}
+		$properties['org'] = array(
+			'label' => mb_ucfirst($translate->_('common.organization')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->contact_org_id,
+			'params' => array(
+				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+		);
 		
-		if(!empty($model->mail_transport_id)) {
-			$properties['org'] = array(
-				'label' => mb_ucfirst($translate->_('common.email_transport')),
-				'type' => Model_CustomField::TYPE_LINK,
-				'value' => $model->mail_transport_id,
-				'params' => array(
-					'context' => CerberusContexts::CONTEXT_MAIL_TRANSPORT,
-				),
-			);
-		}
+		$properties['org'] = array(
+			'label' => mb_ucfirst($translate->_('common.email_transport')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->mail_transport_id,
+			'params' => array(
+				'context' => CerberusContexts::CONTEXT_MAIL_TRANSPORT,
+			),
+		);
 		
 		$properties['num_spam'] = array(
 			'label' => mb_ucfirst($translate->_('address.num_spam')),

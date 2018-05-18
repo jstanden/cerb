@@ -108,7 +108,7 @@ interface IDevblocksContextBroadcast {
 
 interface IDevblocksContextProfile {
 	function profileGetUrl($context_id);
-	function profileGetFields($model);
+	function profileGetFields($model=null);
 }
 
 interface IDevblocksContextAutocomplete {

@@ -1054,9 +1054,12 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		return $url;
 	}
 	
-	function profileGetFields($model) {
+	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_Mailbox();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
@@ -1103,13 +1106,11 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			'value' => $model->num_fails,
 		);
 		
-		if($model->delay_until) {
-			$properties['delay_until'] = array(
-				'label' => mb_ucfirst($translate->_('dao.mailbox.delay_until')),
-				'type' => Model_CustomField::TYPE_DATE,
-				'value' => $model->delay_until,
-			);
-		}
+		$properties['delay_until'] = array(
+			'label' => mb_ucfirst($translate->_('dao.mailbox.delay_until')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->delay_until,
+		);
 		
 		$properties['delay_until'] = array(
 			'label' => 'Timeout (secs)',
