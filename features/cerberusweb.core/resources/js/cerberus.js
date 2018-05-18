@@ -870,6 +870,7 @@ var ajax = new cAjaxCalls();
 					{ value: "cerb_avatar_image(context,id,updated)", meta: "function" },
 					{ value: "cerb_avatar_url(context,id,updated)", meta: "function" },
 					{ value: "cerb_file_url(file_id,full,proxy)", meta: "function" },
+					{ value: "cerb_has_priv(priv,actor_context,actor_id)", meta: "function" },
 					{ value: "cerb_url('c=controller&a=action&p=param')", meta: "function" },
 					{ value: "cycle(position)", meta: "function" },
 					{ value: "date(date,timezone)", meta: "function" },
