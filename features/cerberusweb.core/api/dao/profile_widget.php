@@ -580,7 +580,7 @@ class Model_ProfileWidget {
 	public $pos = 0;
 	public $profile_tab_id = 0;
 	public $updated_at = 0;
-	public $width_units = 1;
+	public $width_units = 4;
 	
 	/**
 	 * @return Model_ProfileTab
