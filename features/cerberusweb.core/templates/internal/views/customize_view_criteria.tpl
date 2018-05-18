@@ -7,7 +7,6 @@
 	{/if}
 {else}
 	{$view_params = $view->getEditableParams()}
-	{$presets = $view->getPresets()}
 {/if}
 {$parent_div = "viewCustom{if $is_custom}Req{/if}Filters{$view->id}"}
 

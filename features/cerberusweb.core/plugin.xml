@@ -548,12 +548,6 @@
 			<class name="View_TriggerEvent" />
 		</file>
 		
-		<file path="api/dao/view_filters_preset.php">
-			<class name="DAO_ViewFiltersPreset" />
-			<class name="Model_ViewFiltersPreset" />
-			<class name="SearchFields_ViewFiltersPreset" />
-		</file>
-		
 		<file path="api/dao/bot.php">
 			<class name="Context_Bot" />
 			<class name="DAO_Bot" />
