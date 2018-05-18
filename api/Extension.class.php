@@ -280,6 +280,23 @@ abstract class Extension_ProfileTab extends DevblocksExtension {
 		return $exts;
 	}
 	
+	static function getByContext($context, $as_instances=true) {
+		$extensions = self::getAll($as_instances);
+		
+		$extensions = array_filter($extensions, function($extension) use ($context, $as_instances) {
+			$ptr = ($as_instances) ? $extension->manifest : $extension;
+			
+			if(!array_key_exists('contexts', $ptr->params))
+				return true;
+			
+			@$contexts = $ptr->params['contexts'][0] ?: [];
+			
+			return isset($contexts[$context]);
+		});
+		
+		return $extensions;
+	}
+	
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];
