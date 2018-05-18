@@ -52,6 +52,11 @@ if(!isset($tables['profile_widget'])) {
 }
 
 // ===========================================================================
+// Remove old worker prefs
+
+$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mail_display_inline_log'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

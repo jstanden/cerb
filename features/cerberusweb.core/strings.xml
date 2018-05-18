@@ -4472,11 +4472,6 @@ For example: *receipt*</seg>
 				<seg>When I view a mail conversation:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.mail.display.inline_log">
-			<tuv xml:lang="en_US">
-				<seg>Include activity log entries in the timeline</seg>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.mail.display.disable_html">
 			<tuv xml:lang="en_US">
 				<seg>Always show plaintext messages (disable HTML)</seg>
