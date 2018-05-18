@@ -4450,18 +4450,6 @@
 					<param key="uri" value="workspaces" />
 				</params>
 			</extension>
-			
-		<extension point="devblocks.controller">
-			<id>core.controller.print</id>
-			<name>Print Controller</name>
-			<class>
-				<file>api/uri/print.php</file>
-				<name>ChPrintController</name>
-			</class>
-			<params>
-				<param key="uri" value="print" />
-			</params>
-		</extension>
 		
 		<extension point="devblocks.controller">
 			<id>core.controller.avatars</id>

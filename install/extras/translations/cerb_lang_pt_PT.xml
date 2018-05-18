@@ -2403,11 +2403,6 @@
 				<seg>Seguir este ticket (F)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="display.shortcut.print">
-			<tuv xml:lang="pt_PT">
-				<seg>Imprimir este ticket (P)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="display.shortcut.read_all">
 			<tuv xml:lang="pt_PT">
 				<seg>Ler todas as mensagens por ordem cronolgica (A)</seg>
