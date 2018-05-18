@@ -3513,11 +3513,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.mail.display.inline_log">
-			<tuv xml:lang="pt_PT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.mail.no_discard_warning">
 			<tuv xml:lang="pt_PT">
 				<seg>Não avisar sobre perder alterações que não foram gravadas se carregar em hiperligações enquanto escrevo uma mensagem</seg>
