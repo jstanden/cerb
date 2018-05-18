@@ -918,64 +918,6 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_Mailbox::NAME:
-			case SearchFields_Mailbox::PROTOCOL:
-			case SearchFields_Mailbox::HOST:
-			case SearchFields_Mailbox::USERNAME:
-			case SearchFields_Mailbox::PASSWORD:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-
-			case SearchFields_Mailbox::ID:
-			case SearchFields_Mailbox::PORT:
-			case SearchFields_Mailbox::NUM_FAILS:
-			case SearchFields_Mailbox::TIMEOUT_SECS:
-			case SearchFields_Mailbox::MAX_MSG_SIZE_KB:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-
-			case SearchFields_Mailbox::ENABLED:
-			case SearchFields_Mailbox::SSL_IGNORE_VALIDATION:
-			case SearchFields_Mailbox::AUTH_DISABLE_PLAIN:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-
-			case SearchFields_Mailbox::CHECKED_AT:
-			case SearchFields_Mailbox::DELAY_UNTIL:
-			case SearchFields_Mailbox::UPDATED_AT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-
-			case SearchFields_Mailbox::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-
-			case SearchFields_Mailbox::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_MAILBOX);
-				break;
-
-			case SearchFields_Mailbox::VIRTUAL_WATCHERS:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
-				break;
-
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

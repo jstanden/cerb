@@ -685,40 +685,6 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_Translation::STRING_ID:
-			case SearchFields_Translation::STRING_DEFAULT:
-			case SearchFields_Translation::STRING_OVERRIDE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_Translation::ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-				
-			case SearchFields_Translation::LANG_CODE:
-				$options = array();
-				$langs = DAO_Translation::getDefinedLangCodes();
-
-				if(is_array($langs))
-				foreach($langs as $lang_id => $lang) {
-					$options[$lang_id] = $lang;
-				}
-				
-				$tpl->assign('options', $options);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
-				break;
-				
-			default:
-				echo '';
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

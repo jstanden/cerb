@@ -592,25 +592,6 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 		$tpl->display('devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/templates/view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_DevblocksTemplate::PATH:
-			case SearchFields_DevblocksTemplate::PLUGIN_ID:
-			case SearchFields_DevblocksTemplate::TAG:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-			case SearchFields_DevblocksTemplate::LAST_UPDATED:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-			case SearchFields_DevblocksTemplate::ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

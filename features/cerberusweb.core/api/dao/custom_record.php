@@ -861,50 +861,6 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_CustomRecord::NAME:
-			case SearchFields_CustomRecord::NAME_PLURAL:
-			case SearchFields_CustomRecord::URI:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_CustomRecord::ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-				
-			case 'placeholder_bool':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-				
-			case SearchFields_CustomRecord::UPDATED_AT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_CustomRecord::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-				
-			case SearchFields_CustomRecord::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_CUSTOM_RECORD);
-				break;
-				
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

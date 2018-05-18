@@ -816,52 +816,6 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_WorkspaceWidget::ID:
-			case SearchFields_WorkspaceWidget::EXTENSION_ID:
-			case SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID:
-			case SearchFields_WorkspaceWidget::LABEL:
-			case SearchFields_WorkspaceWidget::UPDATED_AT:
-			case SearchFields_WorkspaceWidget::PARAMS_JSON:
-			case SearchFields_WorkspaceWidget::POS:
-			case SearchFields_WorkspaceWidget::CACHE_TTL:
-			case 'placeholder_string':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case 'placeholder_number':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-				
-			case 'placeholder_bool':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-				
-			case 'placeholder_date':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_WorkspaceWidget::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-				
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

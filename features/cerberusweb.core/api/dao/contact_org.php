@@ -1312,58 +1312,6 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		$tpl->clearAssign('id');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-		$tpl->assign('view', $this);
-
-		switch($field) {
-			case SearchFields_ContactOrg::NAME:
-			case SearchFields_ContactOrg::STREET:
-			case SearchFields_ContactOrg::CITY:
-			case SearchFields_ContactOrg::PROVINCE:
-			case SearchFields_ContactOrg::POSTAL:
-			case SearchFields_ContactOrg::COUNTRY:
-			case SearchFields_ContactOrg::PHONE:
-			case SearchFields_ContactOrg::WEBSITE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_ContactOrg::CREATED:
-			case SearchFields_ContactOrg::UPDATED:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT:
-			case SearchFields_ContactOrg::FULLTEXT_ORG:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
-				break;
-				
-			case SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-				
-			case SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_ORG);
-				break;
-				
-			case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
-				break;
-				
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-		}
-	}
-
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		

@@ -133,6 +133,4 @@
 	{if !$nested && $readonly}<a href="javascript:;" class="delete" onclick="ajax.viewRemoveFilter('{$view->id}', ['{$param_key}']);" style="position:absolute;top:-7px;right:-6px;display:none;"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span></a></li>{/if}
 {/foreach}
 {if $readonly}</ul>{/if}
-{else}{*empty*}
-	{if !$nested && $readonly}<li><i>{'common.none'|devblocks_translate|lower}</i></li>{/if}
 {/if}

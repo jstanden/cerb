@@ -998,65 +998,6 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-		
-		switch($field) {
-			case SearchFields_AbstractCustomRecord::NAME:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_AbstractCustomRecord::ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-				
-			case 'placeholder_bool':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-				
-			case SearchFields_AbstractCustomRecord::UPDATED_AT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-				
-			case SearchFields_AbstractCustomRecord::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, 'cerberusweb.contexts.abstract.custom.record');
-				break;
-				
-			case SearchFields_AbstractCustomRecord::VIRTUAL_OWNER:
-				$groups = DAO_Group::getAll();
-				$tpl->assign('groups', $groups);
-				
-				$roles = DAO_WorkerRole::getAll();
-				$tpl->assign('roles', $roles);
-				
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_owner.tpl');
-				break;
-				
-			case SearchFields_AbstractCustomRecord::VIRTUAL_WATCHERS:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
-				break;
-				
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

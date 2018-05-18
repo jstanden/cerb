@@ -1183,65 +1183,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		}
 	}
 	
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-		$tpl->assign('view', $this);
-
-		switch($field) {
-			case 'placeholder_string':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-			case SearchFields_TimeTrackingEntry::ID:
-			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-			case SearchFields_TimeTrackingEntry::LOG_DATE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-			case SearchFields_TimeTrackingEntry::IS_CLOSED:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-			case SearchFields_TimeTrackingEntry::WORKER_ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
-				break;
-			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
-				break;
-			case SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_TIMETRACKING);
-				break;
-			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-			case SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
-				break;
-			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
-				$options = array(
-					'0' => '(None)',
-				);
-				$activities = DAO_TimeTrackingActivity::getWhere();
-
-				foreach($activities as $activity_id => $activity) { /* @var $activity Model_TimeTrackingActivity */
-					$options[$activity_id] = $activity->name;
-				}
-				
-				$tpl->assign('options', $options);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

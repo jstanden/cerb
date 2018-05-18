@@ -872,49 +872,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_ContextActivityLog::ENTRY_JSON:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-			case SearchFields_ContextActivityLog::ID:
-			case SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID:
-			case SearchFields_ContextActivityLog::TARGET_CONTEXT_ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-			case 'placeholder_bool':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-			case SearchFields_ContextActivityLog::CREATED:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
-				$activities = DevblocksPlatform::getActivityPointRegistry();
-				$options = array();
-				
-				foreach($activities as $activity_id => $activity) {
-					if(isset($activity['params']['label_key']))
-						$options[$activity_id] = $activity['params']['label_key'];
-				}
-				
-				$tpl->assign('options', $options);
-				
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
-				break;
-			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
-			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context.tpl');
-				break;
-			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
-			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-		}
-	}
-
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		

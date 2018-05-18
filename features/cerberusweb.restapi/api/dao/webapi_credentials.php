@@ -654,36 +654,6 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 		$tpl->display('devblocks:cerberusweb.restapi::view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_WebApiCredentials::NAME:
-			case SearchFields_WebApiCredentials::ACCESS_KEY:
-			case SearchFields_WebApiCredentials::SECRET_KEY:
-			case SearchFields_WebApiCredentials::PARAMS:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_WebApiCredentials::ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-				
-			case 'placeholder_bool':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-
-			case SearchFields_WebApiCredentials::UPDATED_AT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_WebApiCredentials::WORKER_ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__worker.tpl');
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

@@ -1571,52 +1571,6 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		}
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_Group::REPLY_ADDRESS_ID:
-			case SearchFields_Group::REPLY_HTML_TEMPLATE_ID:
-			case SearchFields_Group::REPLY_SIGNATURE_ID:
-				break;
-				
-			case SearchFields_Group::NAME:
-			case SearchFields_Group::REPLY_PERSONAL:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_Group::IS_DEFAULT:
-			case SearchFields_Group::IS_PRIVATE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-				
-			case SearchFields_Group::CREATED:
-			case SearchFields_Group::UPDATED:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-				
-			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_GROUP);
-				break;
-				
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-		}
-	}
-
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		

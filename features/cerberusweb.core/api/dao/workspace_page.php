@@ -855,49 +855,6 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_WorkspacePage::EXTENSION_ID:
-			case SearchFields_WorkspacePage::NAME:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-
-			case 'placeholder_number':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-
-			case 'placeholder_bool':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-
-			case SearchFields_WorkspacePage::UPDATED_AT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-				
-			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
-				$groups = DAO_Group::getAll();
-				$tpl->assign('groups', $groups);
-				
-				$roles = DAO_WorkerRole::getAll();
-				$tpl->assign('roles', $roles);
-				
-				$workers = DAO_Worker::getAll();
-				$tpl->assign('workers', $workers);
-				
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_owner.tpl');
-				break;
-		}
-	}
-
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		

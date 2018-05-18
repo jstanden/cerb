@@ -787,50 +787,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		}
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_CalendarEvent::NAME:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_CalendarEvent::ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-				
-			case SearchFields_CalendarEvent::IS_AVAILABLE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-				
-			case SearchFields_CalendarEvent::DATE_START:
-			case SearchFields_CalendarEvent::DATE_END:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_CalendarEvent::CALENDAR_ID:
-				$tpl->assign('context', CerberusContexts::CONTEXT_CALENDAR);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__chooser.tpl');
-				break;
-				
-			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-				
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

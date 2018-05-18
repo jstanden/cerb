@@ -1083,44 +1083,6 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		$tpl->display('devblocks:cerberusweb.core::internal/community_portal/view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-		
-		switch($field) {
-			case SearchFields_CommunityTool::CODE:
-			case SearchFields_CommunityTool::NAME:
-			case SearchFields_CommunityTool::URI:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_CommunityTool::UPDATED_AT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_CommunityTool::EXTENSION_ID:
-				$options = array();
-				$portals = DevblocksPlatform::getExtensions('cerb.portal', false);
-
-				foreach($portals as $ext_id => $ext) {
-					$options[$ext_id] = $ext->name;
-				}
-				
-				$tpl->assign('options', $options);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
-				break;
-				
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$translate = DevblocksPlatform::getTranslationService();

@@ -552,31 +552,6 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_CerbPlugin::ID:
-			case SearchFields_CerbPlugin::NAME:
-			case SearchFields_CerbPlugin::DESCRIPTION:
-			case SearchFields_CerbPlugin::AUTHOR:
-			case SearchFields_CerbPlugin::VERSION:
-			case SearchFields_CerbPlugin::LINK:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-			case 'placeholder_number':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-			case SearchFields_CerbPlugin::ENABLED:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-			case 'placeholder_date':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

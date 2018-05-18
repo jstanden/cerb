@@ -77,7 +77,6 @@
 		<template path="support_center/history/index.tpl" />
 		<template path="support_center/history/view.tpl" />
 		<template path="support_center/home/index.tpl" />
-		<template path="support_center/internal/view/view_filters.tpl" />
 		<template path="support_center/login/default/forgot_confirm.tpl" />
 		<template path="support_center/login/default/forgot.tpl" />
 		<template path="support_center/login/default/login.tpl" />
