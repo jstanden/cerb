@@ -916,7 +916,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_CalendarRecurringProfile::VIRTUAL_CONTEXT_LINK);
 
 		// Add searchable custom fields
 		

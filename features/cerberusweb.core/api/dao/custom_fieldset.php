@@ -811,11 +811,11 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 		
 		// Add dynamic owner.* fields
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_CustomFieldset::VIRTUAL_OWNER);
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_CustomFieldset::VIRTUAL_CONTEXT_LINK);
 		
 		// Add is_sortable
 		

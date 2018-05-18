@@ -970,7 +970,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		
 		// On:
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('on', $fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('on', $fields, 'search', SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET);
 		
 		// Add is_sortable
 		

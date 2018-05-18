@@ -942,11 +942,11 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 		
 		// Add dynamic owner.* fields
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_Bot::VIRTUAL_OWNER);
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Bot::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		

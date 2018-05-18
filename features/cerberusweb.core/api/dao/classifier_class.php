@@ -723,7 +723,7 @@ class View_ClassifierClass extends C4_AbstractView implements IAbstractView_Subt
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_ClassifierClass::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		

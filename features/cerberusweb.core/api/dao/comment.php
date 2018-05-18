@@ -984,15 +984,15 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Comment::VIRTUAL_CONTEXT_LINK);
 		
 		// author.*
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('author', $fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('author', $fields, 'search', SearchFields_Comment::VIRTUAL_OWNER);
 		
 		// on.*
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('on', $fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('on', $fields, 'search', SearchFields_Comment::VIRTUAL_TARGET);
 		
 		// Add searchable custom fields
 		

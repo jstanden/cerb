@@ -1378,11 +1378,11 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Attachment::VIRTUAL_CONTEXT_LINK);
 		
 		// on.*
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('on', $fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('on', $fields, 'search', SearchFields_Attachment::VIRTUAL_ON);
 		
 		// Add searchable custom fields
 		

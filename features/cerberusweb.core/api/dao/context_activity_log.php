@@ -826,8 +826,8 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		
 		// Add dynamic actor.* and target.* filters
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('actor', $fields);
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('target', $fields);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('actor', $fields, 'search', SearchFields_ContextActivityLog::VIRTUAL_ACTOR);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('target', $fields, 'search', SearchFields_ContextActivityLog::VIRTUAL_TARGET);
 		
 		// Add searchable custom fields
 		

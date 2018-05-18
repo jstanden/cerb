@@ -1508,7 +1508,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Group::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		

@@ -678,7 +678,7 @@ class View_Skillset extends C4_AbstractView implements IAbstractView_Subtotals, 
 		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links');
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Skillset::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
