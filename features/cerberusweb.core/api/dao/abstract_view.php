@@ -453,6 +453,23 @@ abstract class C4_AbstractView {
 						
 						unset($fields[$k]);
 						break;
+						
+					case '_subtotal':
+					case 'subtotal':
+						$oper = null;
+						$value = null;
+						
+						if(false == (CerbQuickSearchLexer::getOperStringFromTokens($p->tokens, $oper, $value)))
+							break;
+						
+						if(false == ($subtotal_results = $this->_getSubtotalFromQuickSearchQuery($value))) {
+							$this->renderSubtotals = '';
+						} else {
+							$this->renderSubtotals = $subtotal_results[0];
+						}
+						
+						unset($fields[$k]);
+						break;
 				}
 			}
 		}
@@ -538,6 +555,51 @@ abstract class C4_AbstractView {
 		}
 		
 		return $sort_results;
+	}
+	
+	function _getSubtotalFromQuickSearchQuery($subtotal_query) {
+		$subtotal_results = [];
+		
+		if(
+			empty($subtotal_query) 
+			|| (!$this instanceof IAbstractView_Subtotals)
+			|| (!$this instanceof IAbstractView_QuickSearch)
+			)
+			return false;
+		
+		if(false == ($subtotal_fields = $this->getSubtotalFields()))
+			return false;
+		
+		if(false == ($search_fields = $this->getQuickSearchFields()))
+			return false;
+		
+		if(0 == strcasecmp($subtotal_query, 'null'))
+			return [];
+		
+		// Tokenize the sort string with commas
+		$subtotal_keys = explode(',', $subtotal_query);
+		
+		if(!is_array($subtotal_keys) || empty($subtotal_keys))
+			return [];
+			
+		foreach($subtotal_keys as $subtotal_key) {
+			@$search_field = $search_fields[$subtotal_key];
+			
+			if(!is_array($search_field) || empty($search_field))
+				continue;
+			
+			@$param_key = $search_field['options']['param_key'];
+			
+			if(empty($param_key))
+				continue;
+			
+			if(!isset($subtotal_fields[$param_key]))
+				continue;
+			
+			$subtotal_results[] = $param_key;
+		}
+		
+		return $subtotal_results;
 	}
 	
 	function _getColumnsFromQuickSearchQuery(array $columns) {
@@ -1315,13 +1377,16 @@ abstract class C4_AbstractView {
 		return $criteria;
 	}
 	
-	protected function _appendVirtualFiltersFromQuickSearchContexts($prefix, $fields=[], $option='search') {
+	protected function _appendVirtualFiltersFromQuickSearchContexts($prefix, $fields=[], $option='search', $param_key=null) {
 		$context_mfts = Extension_DevblocksContext::getAll(false, [$option]);
 		
 		$fields[$prefix] = array(
 			'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 			'options' => [],
 		);
+		
+		if($param_key)
+			$fields[$prefix]['options']['param_key'] = $param_key;
 		
 		foreach($context_mfts as $context_mft) {
 			$aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
