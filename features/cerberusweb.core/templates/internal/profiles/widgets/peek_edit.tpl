@@ -60,10 +60,11 @@
 			<b>{'common.width'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%" valign="top">
-			{$widths = [1=>'1X', 2=>'2X', 3=>'3X', 4=>'4X']}
+			{$widths = [4 => '100%', 3 => '75%', 2 => '50%', 1 => '25%']}
+			{$current_width = $model->width_units|default:2}
 			<select name="width_units">
 				{foreach from=$widths item=width_label key=width}
-				<option value="{$width}" {if $model->width_units == $width}selected="selected"{/if}>{$width_label}</option>
+				<option value="{$width}" {if $current_width == $width}selected="selected"{/if}>{$width_label}</option>
 				{/foreach}
 			</select>
 		</td>
