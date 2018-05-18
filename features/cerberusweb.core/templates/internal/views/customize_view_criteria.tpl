@@ -11,13 +11,11 @@
 {/if}
 {$parent_div = "viewCustom{if $is_custom}Req{/if}Filters{$view->id}"}
 
-<table cellpadding="2" cellspacing="0" border="0" width="100%">
 {if !$is_custom}
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tbody class="summary">
 <tr>
 	<td>
-		<div class="badge badge-lightgray filters" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;">{'common.filters'|devblocks_translate|capitalize}: <span class="glyphicons glyphicons-chevron-down" style="font-size:12px;"></span></div>
-		
 		{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_params readonly=true}
 		<script type="text/javascript">
 		$('#{$parent_div} TBODY.summary TD:first').hover(
@@ -32,63 +30,8 @@
 	</td>
 </tr>
 </tbody>
-{/if}
-
-<tbody class="full" style="width:100%;display:{if $is_custom};{else}none;{/if}">
-<tr>
-	<td valign="top" width="100%">
-		{if $is_custom}
-		<div class="cerb-filters-list" style="position:relative;margin-bottom:10px;">
-			{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_params}
-		</div>
-		{/if}
-
-		{if !$is_custom}
-		<fieldset class="black">
-			<legend>{'common.filter.add'|devblocks_translate|capitalize}</legend>
-			<input type="hidden" name="add_mode" value="filters">
-			
-			<div class="cerb-filter-mode-list">
-			<blockquote style="margin:5px;">
-				{$searchable_fields = $view->getParamsAvailable(true)}
-				{$has_custom = false}
-				
-				<select name="field" onchange="genericAjaxGet('add{$parent_div}','c=internal&a=viewGetCriteria&id={$view->id}&field='+selectValue(this));">
-					<option value="">-- {'common.choose'|devblocks_translate|lower} --</option>
-					{foreach from=$searchable_fields item=column key=token}
-						{if substr($token,0,3) != "cf_"}
-							{if !empty($column->db_label) && !empty($token)}
-							<option value="{$token}">{$column->db_label|capitalize}</option>
-							{/if}
-						{else}
-							{$has_custom = true}
-						{/if}
-					{/foreach}
-					
-					{if $has_custom}
-					<optgroup label="Custom Fields">
-					{foreach from=$searchable_fields item=column key=token}
-						{if substr($token,0,3) == "cf_"}
-							{if !empty($column->db_label) && !empty($token)}
-							<option value="{$token}">{$column->db_label|capitalize}</option>
-							{/if}
-						{/if}
-					{/foreach}
-					</optgroup>
-					{/if}
-				</select>
-			</blockquote>
-		
-			<div id="add{$parent_div}" style="background-color:rgb(255,255,255);"></div>
-			</div>
-			
-			<button type="button" class="cerb-save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
-		</fieldset>
-		{/if}
-	</td>
-</tr>
-</tbody>
 </table>
+{/if}
 
 <script type="text/javascript">
 $(function() {

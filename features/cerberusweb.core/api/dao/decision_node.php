@@ -566,45 +566,6 @@ class View_DecisionNode extends C4_AbstractView {
 		//$tpl->display('devblocks:example.plugin::path/to/view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		// [TODO] Move the fields into the proper data type
-		switch($field) {
-			case SearchFields_DecisionNode::ID:
-			case SearchFields_DecisionNode::PARENT_ID:
-			case SearchFields_DecisionNode::TRIGGER_ID:
-			case SearchFields_DecisionNode::NODE_TYPE:
-			case SearchFields_DecisionNode::TITLE:
-			case SearchFields_DecisionNode::STATUS_ID:
-			case SearchFields_DecisionNode::POS:
-			case SearchFields_DecisionNode::PARAMS_JSON:
-			case 'placeholder_string':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-			case 'placeholder_number':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-			case 'placeholder_bool':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-			case 'placeholder_date':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-			/*
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-			*/
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

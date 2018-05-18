@@ -1968,67 +1968,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 		}
 	}
 	
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-		$tpl->assign('view', $this);
-
-		switch($field) {
-			case SearchFields_Message::ADDRESS_EMAIL:
-			case SearchFields_Message::TICKET_MASK:
-			case SearchFields_Message::TICKET_SUBJECT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_Message::ADDRESS_ID:
-			case SearchFields_Message::TICKET_ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-				
-			case SearchFields_Message::RESPONSE_TIME:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__time_elapsed.tpl');
-				break;
-				
-			case SearchFields_Message::IS_BROADCAST:
-			case SearchFields_Message::IS_NOT_SENT:
-			case SearchFields_Message::IS_OUTGOING:
-			case SearchFields_Message::WAS_ENCRYPTED:
-			case SearchFields_Message::WAS_SIGNED:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-				
-			case SearchFields_Message::CREATED_DATE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_Message::TICKET_GROUP_ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_group.tpl');
-				break;
-				
-			case SearchFields_Message::WORKER_ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
-				break;
-				
-			case SearchFields_Message::FULLTEXT_NOTE_CONTENT:
-			case SearchFields_Message::MESSAGE_CONTENT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
-				break;
-				
-			case SearchFields_message::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-				
-			case SearchFields_Message::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_ASSET);
-				break;
-				
-			default:
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

@@ -637,38 +637,6 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_DevblocksSession::SESSION_KEY:
-			case SearchFields_DevblocksSession::USER_IP:
-			case SearchFields_DevblocksSession::USER_AGENT:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case 'placeholder_number':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-				
-			case 'placeholder_bool':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-				
-			case SearchFields_DevblocksSession::CREATED:
-			case SearchFields_DevblocksSession::UPDATED:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_DevblocksSession::USER_ID:
-				$tpl->assign('workers', DAO_Worker::getAllActive());
-				$tpl->assign('param_name', 'worker_id');
-				$tpl->display('devblocks:cerberusweb.core::internal/views/helpers/_shared_placeholder_worker_picker.tpl');
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

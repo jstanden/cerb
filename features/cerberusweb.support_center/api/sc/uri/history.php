@@ -403,44 +403,6 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 		return $fields;
 	}
 	
-	function renderCriteria($field) {
-		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
-		$tpl = DevblocksPlatform::services()->templateSandbox();
-		
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_Ticket::TICKET_MASK:
-			case SearchFields_Ticket::TICKET_SUBJECT:
-				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__string.tpl');
-				break;
-			case 'placeholder_number':
-				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__number.tpl');
-				break;
-			case SearchFields_Ticket::TICKET_CREATED_DATE:
-			case SearchFields_Ticket::TICKET_UPDATED_DATE:
-				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__date.tpl');
-				break;
-			case 'placeholder_bool':
-				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__bool.tpl');
-				break;
-			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
-				$tpl->display('devblocks:cerberusweb.support_center::support_center/internal/view/criteria/__fulltext.tpl');
-				break;
-			case SearchFields_Ticket::REQUESTER_ID:
-				$shared_addresses = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, false);
-				$tpl->assign('requesters', $shared_addresses);
-				$tpl->display('devblocks:cerberusweb.support_center::support_center/history/criteria/requester.tpl');
-				break;
-			case SearchFields_Ticket::VIRTUAL_STATUS:
-				$tpl->display('devblocks:cerberusweb.support_center::support_center/history/criteria/status.tpl');
-				break;
-			default:
-				break;
-		}
-	}
-	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

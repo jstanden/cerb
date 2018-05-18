@@ -2705,30 +2705,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 
-	function viewGetCriteriaAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field']);
-
-		$tpl = DevblocksPlatform::services()->template();
-		
-		if(null != ($view = C4_AbstractViewLoader::getView($id))) {
-			$tpl->assign('view', $view);
-
-			// [TODO] Detect if we're customizing (swap Editable for Required)
-			
-			// Do we already have this filter to re-edit?
-			$params = $view->getEditableParams();
-			
-			if(false != ($results = $view->findParam($field, $params, false))) {
-				$param = array_shift($results);
-				$tpl->assign('param', $param);
-			}
-
-			// Render from the View_* implementation.
-			$view->renderCriteria($field);
-		}
-	}
-
 	private function _viewRenderInlineFilters($view, $is_custom=false, $add_mode=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view', $view);

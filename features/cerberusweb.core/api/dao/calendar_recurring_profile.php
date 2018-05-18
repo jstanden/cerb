@@ -999,64 +999,6 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_CalendarRecurringProfile::EVENT_NAME:
-			case SearchFields_CalendarRecurringProfile::TZ:
-			case SearchFields_CalendarRecurringProfile::EVENT_START:
-			case SearchFields_CalendarRecurringProfile::EVENT_END:
-			case SearchFields_CalendarRecurringProfile::PATTERNS:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-				
-			case SearchFields_CalendarRecurringProfile::ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-				
-			case SearchFields_CalendarRecurringProfile::IS_AVAILABLE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-				
-			case SearchFields_CalendarRecurringProfile::RECUR_START:
-			case SearchFields_CalendarRecurringProfile::RECUR_END:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-				
-			case SearchFields_CalendarRecurringProfile::CALENDAR_ID:
-				$tpl->assign('context', CerberusContexts::CONTEXT_CALENDAR);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__chooser.tpl');
-				break;
-				
-			case SearchFields_CalendarRecurringProfile::VIRTUAL_CONTEXT_LINK:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$tpl->assign('contexts', $contexts);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_link.tpl');
-				break;
-				
-			case SearchFields_CalendarRecurringProfile::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING);
-				break;
-				
-			case SearchFields_CalendarRecurringProfile::VIRTUAL_WATCHERS:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
-				break;
-				
-			default:
-				// Custom Fields
-				if('cf_' == substr($field,0,3)) {
-					$this->_renderCriteriaCustomField($tpl, substr($field,3));
-				} else {
-					echo ' ';
-				}
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;

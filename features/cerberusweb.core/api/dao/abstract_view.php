@@ -873,41 +873,6 @@ abstract class C4_AbstractView {
 		echo ' '; // Expect Override
 	}
 	
-	function renderCriteria($field) {
-		echo ' '; // Expect Override
-	}
-
-	protected function _renderCriteriaCustomField($tpl, $field_id) {
-		$field = DAO_CustomField::get($field_id);
-		
-		switch($field->type) {
-			case Model_CustomField::TYPE_DROPDOWN:
-			case Model_CustomField::TYPE_MULTI_CHECKBOX:
-				$tpl->assign('field', $field);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__cfield_picklist.tpl');
-				break;
-			case Model_CustomField::TYPE_CHECKBOX:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__cfield_checkbox.tpl');
-				break;
-			case Model_CustomField::TYPE_DATE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-			case Model_CustomField::TYPE_LINK:
-				$tpl->assign('field', $field);
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__cfield_link.tpl');
-				break;
-			case Model_CustomField::TYPE_NUMBER:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-			case Model_CustomField::TYPE_WORKER:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
-				break;
-			default:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-		}
-	}
-	
 	protected function _renderCriteriaParamString($param, $label_map) {
 		$translate = DevblocksPlatform::getTranslationService();
 		
@@ -985,19 +950,6 @@ abstract class C4_AbstractView {
 		}
 		
 		echo $list_of_strings;
-	}
-	
-	protected function _renderCriteriaHasFieldset($tpl, $context) {
-		$options = [];
-		
-		$fieldsets = DAO_CustomFieldset::getByContext($context);
-		
-		foreach($fieldsets as $id => $fieldset) {
-			$options[$id] = $fieldset->name;
-		}
-		
-		$tpl->assign('options', $options);
-		$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
 	}
 	
 	protected function _renderVirtualContextLinks($param, $label_singular='Link', $label_plural='Links', $label_verb='Linked to') {

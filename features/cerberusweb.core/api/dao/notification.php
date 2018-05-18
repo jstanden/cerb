@@ -1024,43 +1024,6 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-		$tpl->assign('view', $this);
-
-		switch($field) {
-			case 'placeholder_string':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-			case SearchFields_Notification::IS_READ:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-			case SearchFields_Notification::CREATED_DATE:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-			case SearchFields_Notification::WORKER_ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__context_worker.tpl');
-				break;
-			case SearchFields_Notification::ACTIVITY_POINT:
-				$activities = DevblocksPlatform::getActivityPointRegistry();
-				$options = array();
-				
-				foreach($activities as $activity_id => $activity) {
-					if(isset($activity['params']['label_key']))
-						$options[$activity_id] = $activity['params']['label_key'];
-				}
-				
-				$tpl->assign('options', $options);
-				
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__list.tpl');
-				break;
-			default:
-				echo '';
-				break;
-		}
-	}
-	
 	function renderVirtualCriteria($param) {
 		$field = $param->field;
 		

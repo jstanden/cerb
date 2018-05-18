@@ -959,35 +959,6 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_QuickS
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
-	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('id', $this->id);
-
-		switch($field) {
-			case SearchFields_PluginLibrary::PLUGIN_ID:
-			case SearchFields_PluginLibrary::NAME:
-			case SearchFields_PluginLibrary::AUTHOR:
-			case SearchFields_PluginLibrary::DESCRIPTION:
-			case SearchFields_PluginLibrary::LINK:
-			case SearchFields_PluginLibrary::LATEST_VERSION:
-			case SearchFields_PluginLibrary::ICON_URL:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
-				break;
-			case SearchFields_PluginLibrary::ID:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
-				break;
-			case 'placeholder_bool':
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
-				break;
-			case SearchFields_PluginLibrary::UPDATED:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
-				break;
-			case SearchFields_PluginLibrary::FULLTEXT_PLUGIN_LIBRARY:
-				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__fulltext.tpl');
-				break;
-		}
-	}
-
 	function renderCriteriaParam($param) {
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
