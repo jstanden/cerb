@@ -159,6 +159,8 @@ $(function() {
 		$select.on('change', function(e) {
 			var extension_id = $select.val();
 			
+			$toolbar.detach();
+			
 			if(0 == extension_id.length) {
 				$params.hide().empty();
 				return;
