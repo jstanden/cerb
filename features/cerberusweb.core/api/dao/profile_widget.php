@@ -8,6 +8,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 	const PROFILE_TAB_ID = 'profile_tab_id';
 	const UPDATED_AT = 'updated_at';
 	const WIDTH_UNITS = 'width_units';
+	const ZONE = 'zone';
 	
 	private function __construct() {}
 	
@@ -55,6 +56,10 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			->number()
 			->setMin(1)
 			->setMax(255)
+			;
+		$validation
+			->addField(self::ZONE)
+			->string()
 			;
 		$validation
 			->addField('_links')
@@ -125,8 +130,8 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		parent::_updateWhere('profile_widget', $fields, $where);
 	}
 	
-	static function reorder(array $ids=[]) {
-		if(empty($ids))
+	static function reorder(array $zones=[]) {
+		if(empty($zones))
 			return;
 		
 		$db = DevblocksPlatform::services()->database();
@@ -137,13 +142,14 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		
 		$values = [];
 		
-		foreach($ids as $pos => $id)
-			$values[] = sprintf("(%d,%d)", $id, $pos+1);
+		foreach($zones as $zone => $ids)
+			foreach($ids as $pos => $id)
+				$values[] = sprintf("(%d,%s,%d)", $id, $db->qstr($zone), $pos+1);
 		
 		if(empty($values))
 			return;
 		
-		$sql = sprintf("INSERT INTO profile_widget (id, pos) VALUES %s ON DUPLICATE KEY UPDATE pos=VALUES(pos)",
+		$sql = sprintf("INSERT INTO profile_widget (id, zone, pos) VALUES %s ON DUPLICATE KEY UPDATE zone=VALUES(zone), pos=VALUES(pos)",
 			implode(',', $values)
 		);
 		
@@ -172,7 +178,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, profile_tab_id, extension_id, extension_params_json, pos, width_units, updated_at ".
+		$sql = "SELECT id, name, profile_tab_id, extension_id, extension_params_json, pos, width_units, updated_at, zone ".
 			"FROM profile_widget ".
 			$where_sql.
 			$sort_sql.
@@ -306,6 +312,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			$object->profile_tab_id = $row['profile_tab_id'];
 			$object->updated_at = $row['updated_at'];
 			$object->width_units = DevblocksPlatform::intClamp($row['width_units'], 1, 255);
+			$object->zone = $row['zone'];
 			
 			if(false != (@$params = json_decode($row['extension_params_json'], true)))
 			$object->extension_params = $params;
@@ -359,6 +366,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			"profile_widget.profile_tab_id as %s, ".
 			"profile_widget.extension_id as %s, ".
 			"profile_widget.extension_params_json as %s, ".
+			"profile_widget.zone as %s, ".
 			"profile_widget.pos as %s, ".
 			"profile_widget.width_units as %s, ".
 			"profile_widget.updated_at as %s ",
@@ -367,6 +375,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 				SearchFields_ProfileWidget::PROFILE_TAB_ID,
 				SearchFields_ProfileWidget::EXTENSION_ID,
 				SearchFields_ProfileWidget::EXTENSION_PARAMS_JSON,
+				SearchFields_ProfileWidget::ZONE,
 				SearchFields_ProfileWidget::POS,
 				SearchFields_ProfileWidget::WIDTH_UNITS,
 				SearchFields_ProfileWidget::UPDATED_AT
@@ -497,6 +506,7 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 	const PROFILE_TAB_ID = 'p_profile_tab_id';
 	const UPDATED_AT = 'p_updated_at';
 	const WIDTH_UNITS = 'p_width_units';
+	const ZONE = 'p_zone';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -554,6 +564,7 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 			self::PROFILE_TAB_ID => new DevblocksSearchField(self::PROFILE_TAB_ID, 'profile_widget', 'profile_tab_id', $translate->_('common.tab'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'profile_widget', 'updated_at', $translate->_('common.updated'), null, true),
 			self::WIDTH_UNITS => new DevblocksSearchField(self::WIDTH_UNITS, 'profile_widget', 'width_units', $translate->_('Width Units'), null, true),
+			self::ZONE => new DevblocksSearchField(self::ZONE, 'profile_widget', 'zone', $translate->_('common.zone'), null, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -581,6 +592,7 @@ class Model_ProfileWidget {
 	public $profile_tab_id = 0;
 	public $updated_at = 0;
 	public $width_units = 4;
+	public $zone = null;
 	
 	/**
 	 * @return Model_ProfileTab
@@ -756,6 +768,11 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_ProfileWidget::WIDTH_UNITS),
 				),
+			'zone' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_ProfileWidget::ZONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 		);
 		
 		// Add quick search links
@@ -843,6 +860,7 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 			case SearchFields_ProfileWidget::NAME:
 			case SearchFields_ProfileWidget::EXTENSION_ID:
 			case SearchFields_ProfileWidget::EXTENSION_PARAMS_JSON:
+			case SearchFields_ProfileWidget::ZONE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -1006,6 +1024,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			'pos' => $prefix.$translate->_('common.order'),
 			'width_units' => $prefix.$translate->_('common.width'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
+			'zone' => $prefix.$translate->_('common.zone'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -1018,6 +1037,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			'record_url' => Model_CustomField::TYPE_URL,
 			'width_units' => Model_CustomField::TYPE_NUMBER,
 			'updated_at' => Model_CustomField::TYPE_DATE,
+			'zone' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1042,6 +1062,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			$token_values['pos'] = $profile_widget->pos;
 			$token_values['updated_at'] = $profile_widget->updated_at;
 			$token_values['width_units'] = $profile_widget->width_units;
+			$token_values['zone'] = $profile_widget->zone;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($profile_widget, $token_values);
@@ -1062,6 +1083,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			'pos' => DAO_ProfileWidget::POS,
 			'updated_at' => DAO_ProfileWidget::UPDATED_AT,
 			'width_units' => DAO_ProfileWidget::WIDTH_UNITS,
+			'zone' => DAO_ProfileWidget::ZONE,
 		];
 	}
 	

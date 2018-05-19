@@ -1,13 +1,56 @@
-{$unit_width = $model->extension_params.column_width|default:500}
 {if $active_worker->is_superuser}
-<button id="btnProfileTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+<div style="margin-bottom:5px;">
+	<button id="btnProfileTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+</div>
 {/if}
 
-<div id="profileTab{$model->id}" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-	{foreach from=$widgets item=widget name=widgets}
-	{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget unit_width=$unit_width}
-	{/foreach}
-</div>
+{if 'sidebar_left' == $layout}
+	<div id="profileTab{$model->id}" class="cerb-profile-layout" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone" style="flex:1 1 33%;min-width:345px;">
+			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.sidebar item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+		
+		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:2 2 66%;min-width:345px;">
+			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.content item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+	</div>
+{elseif 'sidebar_right' == $layout}
+	<div id="profileTab{$model->id}" class="cerb-profile-layout" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:2 2 66%;min-width:345px;">
+			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.content item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+		
+		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone" style="flex:1 1 33%;min-width:345px;">
+			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.sidebar item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+	</div>
+{else}
+	<div id="profileTab{$model->id}" class="cerb-profile-layout" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:1 1 100%;">
+			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.content item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+	</div>
+{/if}
 
 <script type="text/javascript">
 $(function() {
@@ -16,15 +59,31 @@ $(function() {
 	
 	// Drag
 	{if $active_worker->is_superuser}
-	$container
+	$container.find('.cerb-profile-layout-zone--widgets')
 		.sortable({
 			tolerance: 'pointer',
 			items: '.cerb-profile-widget',
 			helper: 'clone',
+			placeholder: 'ui-state-highlight',
 			forceHelperSize: true,
 			forcePlaceholderSize: true,
 			handle: '.cerb-profile-widget--header .glyphicons-menu-hamburger',
+			connectWith: '.cerb-profile-layout-zone--widgets',
 			opacity: 0.7,
+			start: function(event, ui) {
+				$container.find('.cerb-profile-layout-zone--widgets')
+					.css('border', '2px dashed orange')
+					.css('background-color', 'rgb(250,250,250)')
+					.css('min-height', '100vh')
+					;
+			},
+			stop: function(event, ui) {
+				$container.find('.cerb-profile-layout-zone--widgets')
+					.css('border', '')
+					.css('background-color', '')
+					.css('min-height', 'initial')
+					;
+			},
 			update: function(event, ui) {
 				$container.trigger('cerb-reorder');
 			}
@@ -33,10 +92,21 @@ $(function() {
 	{/if}
 	
 	$container.on('cerb-reorder', function(e) {
-		var tab_ids = $container.find('> .cerb-profile-widget').map(function(d) { return $(this).attr('data-widget-id'); });
+		var results = { 'zones': { } };
+		
+		// Zones
+		$container.find('> .cerb-profile-layout-zone')
+			.each(function(d) {
+				var $cell = $(this);
+				var zone = $cell.attr('data-layout-zone');
+				var ids = $cell.find('.cerb-profile-widget').map(function(d) { return $(this).attr('data-widget-id'); });
 				
+				results.zones[zone] = $.makeArray(ids);
+			})
+			;
+		
 		genericAjaxGet('', 'c=profiles&a=handleProfileTabAction&tab_id={$model->id}&action=reorderWidgets' 
-			+ '&' + $.param({ 'widget_ids': $.makeArray(tab_ids) })
+			+ '&' + $.param(results)
 		);
 	})
 	
@@ -89,7 +159,8 @@ $(function() {
 	$add_button
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function(e) {
-			var $placeholder = $('<div class="cerb-profile-widget"/>').hide().prependTo($container);
+			var $zone = $container.find('> .cerb-profile-layout-zone:first > .cerb-profile-layout-zone--widgets:first');
+			var $placeholder = $('<div class="cerb-profile-widget"/>').hide().prependTo($zone);
 			var $widget = $('<div/>').attr('id', 'profileWidget' + e.id).appendTo($placeholder);
 			
 			async.series([ async.apply(loadWidgetFunc, e.id, true) ], function(err, json) {
@@ -127,10 +198,12 @@ $(function() {
 		});
 	};
 	
-	{foreach from=$widgets item=widget}
+	{foreach from=$zones item=zone}
+	{foreach from=$zone item=widget}
 	jobs.push(
 		async.apply(loadWidgetFunc, {$widget->id|default:0}, false)
 	);
+	{/foreach}
 	{/foreach}
 	
 	async.parallelLimit(jobs, 2, function(err, json) {

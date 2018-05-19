@@ -17,6 +17,7 @@
 			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 		</td>
 	</tr>
+	
 	<tr>
 		<td width="1%" nowrap="nowrap"><b>{'common.record'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
@@ -24,6 +25,7 @@
 				{$model->context}
 			{else}
 				<select name="context">
+					<option value=""></option>
 					{foreach from=$context_mfts item=context_mft}
 					<option value="{$context_mft->id}" {if $context_mft->id == $model->context}selected="selected"{/if}>{$context_mft->name}</option>
 					{/foreach}
@@ -31,6 +33,8 @@
 			{/if}
 		</td>
 	</tr>
+	
+	<tbody class="cerb-tab-extension" style="{if $model->context}{else}display:none;{/if}">
 	<tr>
 		<td width="1%" nowrap="nowrap"><b>{'common.type'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
@@ -46,14 +50,17 @@
 			{/if}
 		</td>
 	</tr>
+	</tbody>
 
+	<tbody>
 	{if !empty($custom_fields)}
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
 	{/if}
+	</tbody>
 </table>
 
 {* The rest of config comes from the tab *}
-<div class="cerb-widget-params">
+<div class="cerb-tab-params">
 {if $model->id}
 	{$tab_extension = $model->getExtension()}
 	{if $tab_extension && method_exists($tab_extension,'renderConfig')}
@@ -101,8 +108,10 @@ $(function() {
 		$popup.dialog('option','title',"{'common.profile.tab'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 		
-		var $select = $popup.find('select[name=extension_id]');
-		var $params = $popup.find('.cerb-widget-params');
+		var $select_context = $popup.find('select[name=context]');
+		var $select_extension = $popup.find('select[name=extension_id]');
+		var $tbody_extension = $popup.find('.cerb-tab-extension');
+		var $params = $popup.find('.cerb-tab-params');
 		
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
@@ -117,11 +126,46 @@ $(function() {
 		});
 		
 		// Events
+		$select_context.on('change', function(e) {
+			var context = $select_context.val();
+			
+			$select_extension.hide().empty();
+			
+			if(0 == context.length) {
+				$tbody_extension.hide();
+				
+			} else {
+				genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=profile_tab&action=getExtensionsByContextJson&context=' + encodeURIComponent(context), function(json) {
+					for(k in json) {
+						if(json.hasOwnProperty(k)) {
+							var $option = $('<option/>')
+								.attr('value', k)
+								.text(json[k])
+								;
+							
+							$option.appendTo($select_extension);
+						}
+					}
+					
+					$select_extension.fadeIn();
+					$params.fadeIn();
+				});
+				
+				$tbody_extension.show();
+			}
+		});
 		
 		// Load per-extension configuration on change
-		$select.on('change', function(e) {
-			var extension_id = $select.val();
-			genericAjaxGet($params, 'c=profiles&a=handleSectionAction&section=profile_tab&action=getExtensionConfig&extension_id=' + encodeURIComponent(extension_id));
+		$select_extension.on('change', function(e) {
+			var extension_id = $select_extension.val();
+			$params.empty();
+			
+			if(0 == extension_id)
+				return;
+			
+			genericAjaxGet($params, 'c=profiles&a=handleSectionAction&section=profile_tab&action=getExtensionConfig&extension_id=' + encodeURIComponent(extension_id), function() {
+				$params.fadeIn();
+			});
 		});
 	});
 });
