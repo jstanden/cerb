@@ -323,8 +323,42 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		$tpl->assign('context_id', $context_id);
 		
 		$widgets = DAO_ProfileWidget::getByTab($model->id);
-		$tpl->assign('widgets', $widgets);
 		
+		@$layout = $model->extension_params['layout'] ?: '';
+		
+		$zones = [
+			'content' => [],
+		];
+		
+		switch($layout) {
+			case 'sidebar_left':
+				$zones = [
+					'sidebar' => [],
+					'content' => [],
+				];
+				break;
+				
+			case 'sidebar_right':
+				$zones = [
+					'content' => [],
+					'sidebar' => [],
+				];
+				break;
+		}
+
+		// Sanitize zones
+		foreach($widgets as $widget_id => $widget) {
+			if(array_key_exists($widget->zone, $zones)) {
+				$zones[$widget->zone][$widget_id] = $widget;
+				continue;
+			}
+			
+			// If the zone doesn't exist, drop the widget into the first zone
+			$zones[key($zones)][$widget_id] = $widget;
+		}
+		
+		$tpl->assign('layout', $layout);
+		$tpl->assign('zones', $zones);
 		$tpl->assign('model', $model);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/dashboard/tab.tpl');
@@ -350,9 +384,6 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 			if(false == ($tab = $widget->getProfileTab()))
 				return;
 			
-			$unit_width = $tab->extension_params['column_width'];
-			$tpl->assign('unit_width', $unit_width);
-			
 			$tpl->assign('context', $context);
 			$tpl->assign('context_id', $context_id);
 			$tpl->assign('extension', $extension);
@@ -365,7 +396,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 	
 	function reorderWidgetsAction() {
 		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'integer', 0);
-		@$widget_ids = DevblocksPlatform::importGPC($_REQUEST['widget_ids'], 'array', []);
+		@$zones = DevblocksPlatform::importGPC($_REQUEST['zones'], 'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -375,9 +406,11 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		$widgets = DAO_ProfileWidget::getByTab($tab_id);
 		
 		// Sanitize widget IDs
-		$widget_ids = array_values(array_intersect($widget_ids, array_keys($widgets)));
+		foreach($zones as &$zone) {
+			$zone = array_values(array_intersect($zone, array_keys($widgets)));
+		}
 		
-		DAO_ProfileWidget::reorder($widget_ids);
+		DAO_ProfileWidget::reorder($zones);
 	}
 	
 	function getPlaceholderToolbarForTabAction() {

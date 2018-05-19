@@ -37,6 +37,7 @@ if(!isset($tables['profile_widget'])) {
 		profile_tab_id int(10) unsigned NOT NULL DEFAULT 0,
 		extension_id varchar(255) NOT NULL DEFAULT '',
 		extension_params_json TEXT,
+		zone varchar(255) NOT NULL DEFAULT '',
 		pos tinyint unsigned NOT NULL DEFAULT 0,
 		width_units tinyint unsigned NOT NULL DEFAULT 1,
 		updated_at int(10) unsigned NOT NULL DEFAULT 0,

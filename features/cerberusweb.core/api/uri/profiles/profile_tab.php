@@ -196,6 +196,21 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		$extension->renderConfig($model);
 	}
 	
+	function getExtensionsByContextJsonAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(empty($context)) {
+			echo json_encode([]);
+			return;
+		}
+		
+		$tab_manifests = Extension_ProfileTab::getByContext($context, false);
+		
+		echo json_encode(array_column(DevblocksPlatform::objectsToArrays($tab_manifests), 'name', 'id'));
+	}
+	
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

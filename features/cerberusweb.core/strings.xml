@@ -1505,6 +1505,11 @@
 				<seg>Last Login</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.layout">
+			<tuv xml:lang="en_US">
+				<seg>layout</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.link">
 			<tuv xml:lang="en_US">
 				<seg>Link</seg>
@@ -2544,6 +2549,11 @@
 		<tu tuid="common.yes">
 			<tuv xml:lang="en_US">
 				<seg>yes</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.zone">
+			<tuv xml:lang="en_US">
+				<seg>zone</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.zoom">
