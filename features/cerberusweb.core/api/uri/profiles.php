@@ -1835,12 +1835,45 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 				if(isset($properties_available[$key]))
 					$properties[$key] = $properties_available[$key];
 		
+		// Empty fields
+		
+		$show_empty_fields = @$model->extension_params['options']['show_empty_properties'] ?: false;
 		
 		// Custom Fieldsets
 		
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $record->id, $values, true);
 		$properties_custom_fieldsets = array_intersect_key($properties_custom_fieldsets, $properties_selected);
 		
+		if(!$show_empty_fields) {
+			$filter_empty_properties = function(&$properties) {
+				foreach($properties as $k => $property) {
+					if(!empty($property['value']))
+						continue;
+					
+					switch($property['type']) {
+						// Checkboxes can be empty
+						case Model_CustomField::TYPE_CHECKBOX:
+							continue 2;
+							break;
+							
+						// Sliders can have empty values
+						case 'slider':
+							continue 2;
+							break;
+						
+						case Model_CustomField::TYPE_LINK:
+							// App-owned context links can be blank
+							if(@$property['params']['context'] == CerberusContexts::CONTEXT_APPLICATION)
+								continue 2;
+							break;
+					}
+					
+					unset($properties[$k]);
+				}
+			};
+			
+			$filter_empty_properties($properties);
+			
 			foreach($properties_custom_fieldsets as $fieldset_id => &$fieldset) {
 				$filter_empty_properties($fieldset['properties']);
 				
