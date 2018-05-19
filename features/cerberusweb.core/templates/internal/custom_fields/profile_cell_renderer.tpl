@@ -100,6 +100,8 @@
 		<a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}){if !$smarty.foreach.files.last}, {/if}
 		{/if}
 	{/foreach}
+{elseif $v.type == 'percent'}
+	{$v.value*100}%
 {elseif $v.type == 'slider'}
 	{$min = $v.params.min}
 	{$max = $v.params.max}
@@ -112,6 +114,8 @@
 	{{$v.value*60}|devblocks_prettysecs:2}
 {elseif $v.type == 'time_secs'}
 	{$v.value|devblocks_prettysecs:2}
+{elseif $v.type == 'timezone'}
+	{$v.value}
 {else}
 	{$v.value}
 {/if}
