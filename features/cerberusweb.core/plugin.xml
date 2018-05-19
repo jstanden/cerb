@@ -5902,6 +5902,22 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.ticket.convo</id>
+			<name>Ticket Conversation</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_TicketConvo</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.ticket" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.ticket.spam_analysis</id>
 			<name>Ticket Spam Analysis</name>
 			<class>
