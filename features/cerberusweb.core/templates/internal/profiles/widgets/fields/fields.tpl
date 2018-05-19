@@ -10,7 +10,13 @@
 			</div>
 		{/if}
 		
-		{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
+		{if $search_buttons}
+		<div class="cerb-search-buttons" style="margin:5px 0px 10px 5px;">
+			{foreach from=$search_buttons item=search_button}
+			<button type="button" class="cerb-search-trigger" data-context="{$search_button.context}" data-query="{$search_button.query}"><div class="badge-count">{$search_button.count|default:0}</div> {$search_button.label|capitalize}</button>
+			{/foreach}
+		</div>
+		{/if}
 	</div>
 	
 	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$properties_custom_fieldsets}

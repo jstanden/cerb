@@ -130,7 +130,44 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 			return;
 			
 		}
+	}
 	
+	function getFieldsTabsByContextAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		$tpl->assign('context_ext', $context_ext);
+		
+		// =================================================================
+		// Properties
+		
+		$properties = $context_ext->profileGetFields();
+		
+		$tpl->assign('custom_field_values', []);
+		
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, []);
+		
+		if(!empty($properties_cfields))
+			$properties = array_merge($properties, $properties_cfields);
+		
+		$tpl->assign('properties', $properties);
+		
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, null, [], true);
+		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+		
+		// =================================================================
+		// Search buttons
+		
+		$search_contexts = Extension_DevblocksContext::getAll(false, ['search']);
+		$tpl->assign('search_contexts', $search_contexts);
+		
+		// =================================================================
+		// Template
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/fields/fields_config_tabs.tpl');
 	}
 	
 	function viewExploreAction() {
