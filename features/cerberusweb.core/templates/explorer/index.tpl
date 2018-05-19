@@ -84,35 +84,27 @@
 </html>
 
 <script type="text/javascript">
-var keys = function(event) {
-	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
-		return;
-		
-	// Don't fire if we're inside any form elements
-	if($(event.target).filter(':input').length > 0)
-		return;
-	
-	switch(event.which) {
-		case 91:
-			$('#btnExplorerPrev').click();
-			event.stopPropagation();
-			break;
-		case 93:
-			$('#btnExplorerNext').click();
-			event.stopPropagation();
-			break;
-	}
-}
-	
-$(document).ready(function(e) {
-	// The outer frame document
-	$(document).keypress(keys);
-	
-	$('#explorerFrame').load(function() {
+$(function(e) {
+	var $explorerFrame = $('#explorerFrame');
+	var keyPrev = '[';
+	var keyNext = ']';
+
+	$explorerFrame.load(function() {
 		try {
-			$('#explorerFrame').contents().find('body').parent().keypress(keys);
-			$('#explorerFrame').focus();
-		} catch(e) { }
+			var $explorerBody = $explorerFrame.contents().find('body').parent();
+			
+			$explorerBody.bind('keypress', keyPrev, function(event) {
+				$('#btnExplorerPrev').click();
+				event.stopPropagation();
+			});
+			
+			$explorerBody.bind('keypress', keyNext, function(event) {
+				$('#btnExplorerNext').click();
+				event.stopPropagation();
+			});
+			
+			$explorerFrame.focus();
+		} catch(e) {}
 	});
 });
 </script>
