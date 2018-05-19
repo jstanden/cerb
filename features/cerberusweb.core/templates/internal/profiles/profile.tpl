@@ -16,44 +16,35 @@
 {/if}
 
 <div style="float:left;">
-	<h1>{$dict->_label}</h1>
+	<h1 style="font-size:2em;">{$dict->_label}</h1>
 	
 	<div class="cerb-profile-toolbar">
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			
-			<span id="spanInteractions">
+			<span id="spanInteractions" title="{'common.interactions'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (I){/if}">
 			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 			</span>
 			
 			<!-- Card -->
-			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (V){/if}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
 			
 			<!-- Edit -->
 			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-			<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (E){/if}" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
 			
 			{if $context_ext->hasOption('watchers')}
-				<span>
+				<span id="spanProfileWatchers" title="{'common.watchers'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (W){/if}">
 				{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
 				</span>
 			{/if}
 			
-			{* <!-- Refresh --> *}
+			<!-- Refresh -->
 			<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location.reload();"><span class="glyphicons glyphicons-refresh"></span></button>
+			
 		</form>
-		
-		{if $pref_keyboard_shortcuts}
-		<small>
-			{'common.keyboard'|devblocks_translate|lower}:
-			(<b>e</b>) {'common.edit'|devblocks_translate|lower}
-			(<b>i</b>) {'common.interactions'|devblocks_translate|lower}
-			{if $context_ext->hasOption('watchers')}(<b>w</b>) {'common.watch'|devblocks_translate|lower}{/if} 
-			(<b>1-9</b>) change tab
-		</small> 
-		{/if}
 	</div>
 </div>
 
@@ -78,15 +69,8 @@
 			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showProfileTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$profile_tab->name}</a></li>
 		{/foreach}
 		
-		{*
-		{foreach from=$tab_manifests item=tab_manifest}
-			{$tabs[] = $tab_manifest->params.uri}
-			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showTab&ext_id={$tab_manifest->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$tab_manifest->params.title|devblocks_translate}</a></li>
-		{/foreach}
-		*}
-		
 		{if $active_worker->is_superuser}
-		<li><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">+</a></li>
+		<li><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</a></li>
 		{/if}
 	</ul>
 </div> 
@@ -101,8 +85,7 @@ $(function() {
 	var tabs = $("#profileTabs").tabs(tabOptions);
 	
 	// Set the browser tab label to the record label
-	{*$context_ext->manifest->name|capitalize|escape:'javascript' nofilter*}
-	document.title = "{$dict->_label|escape:'javascript' nofilter} - Profile - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
+	document.title = "{$dict->_label|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 	
 	// Peeks
 	$('#btnProfileCard').cerbPeekTrigger();
@@ -114,7 +97,7 @@ $(function() {
 		.on('cerb-peek-opened', function(e) {
 		})
 		.on('cerb-peek-saved', function(e) {
-			// [TODO] Don't refresh the page, just send an evnet to the current tab
+			// [TODO] Don't refresh the page, just send an event to the current tab
 			e.stopPropagation();
 			document.location.reload();
 		})
@@ -134,55 +117,62 @@ $(function() {
 
 <script type="text/javascript">
 {if $pref_keyboard_shortcuts}
-$(document).keypress(function(event) {
-	if(event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)
-		return;
+$(function() {
+	var $document = $(document);
+	var $body = $document.find('body');
 	
-	if($(event.target).is(':input'))
-		return;
-
-	hotkey_activated = true;
+	$body.bind('keypress', 'E', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$('#btnProfileCardEdit').click();
+	});
 	
-	switch(event.which) {
-		case 49:  // (1) tab cycle
-		case 50:  // (2) tab cycle
-		case 51:  // (3) tab cycle
-		case 52:  // (4) tab cycle
-		case 53:  // (5) tab cycle
-		case 54:  // (6) tab cycle
-		case 55:  // (7) tab cycle
-		case 56:  // (8) tab cycle
-		case 57:  // (9) tab cycle
-		case 58:  // (0) tab cycle
-			try {
-				idx = event.which-49;
-				$tabs = $("#profileTabs").tabs();
-				$tabs.tabs('option', 'active', idx);
-			} catch(ex) { } 
-			break;
-		case 101:  // (E) edit
-			try {
-				$('#btnProfileCardEdit').click();
-			} catch(ex) { } 
-			break;
-		case 105:  // (I) interactions
-			try {
-				$('#spanInteractions').find('> button').click();
-			} catch(ex) { } 
-			break;
-		case 119:  // (W) watch
-			try {
-				$('#spanWatcherToolbar button:first').click();
-			} catch(ex) { } 
-			break;
-		default:
-			// We didn't find any obvious keys, try other codes
-			hotkey_activated = false;
-			break;
-	}
+	$body.bind('keypress', 'I', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$('#spanInteractions').find('> button').click();
+	});
 	
-	if(hotkey_activated)
-		event.preventDefault();
+	$body.bind('keypress', 'V', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$('#btnProfileCard').click();
+	});
+	
+	$body.bind('keypress', 'W', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$('#spanProfileWatchers button:first').click();
+	});
+	
+	$body.bind('keypress', '1 2 3 4 5 6 7 8 9 0', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		
+		try {
+			var idx = event.which-49;
+			$tabs = $("#profileTabs").tabs();
+			$tabs.tabs('option', 'active', idx);
+		} catch(ex) { }
+	});
+	
+	$document.bind('keydown', function(e) {
+		if($(e.target).is(':input'))
+			return;
+		
+		var $tabs = $("#profileTabs");
+			
+		var $tab_content = $('#' + $tabs.find('li.ui-tabs-active').attr('aria-controls'));
+		
+		var $widgets = $tab_content.find('div.cerb-profile-widget');
+		
+		$widgets.each(function() {
+			if(!e.isPropagationStopped()) {
+				var $widget = $(this);
+				$widget.triggerHandler(e);
+			}
+		});
+	});
 });
 {/if}
 </script>
