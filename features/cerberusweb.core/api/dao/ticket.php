@@ -5236,9 +5236,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
 			
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $model->id);
-			if(isset($custom_field_values[$model->id]))
-				$tpl->assign('custom_field_values', $custom_field_values[$model->id]);
+			$custom_field_values = @DAO_CustomFieldValue::getValuesByContextIds($context, $model->id)[$model->id] ?: [];
+			$tpl->assign('custom_field_values', $custom_field_values);
 			
 			$tpl->display('devblocks:cerberusweb.core::tickets/peek_edit.tpl');
 			
