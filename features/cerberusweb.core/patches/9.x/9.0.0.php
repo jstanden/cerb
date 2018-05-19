@@ -60,6 +60,21 @@ if(isset($tables['view_filters_preset'])) {
 }
 
 // ===========================================================================
+// Add `params_query` to `worker_view_model`
+
+if(!isset($tables['worker_view_model'])) {
+	$logger->error("The 'worker_view_model' table does not exist.");
+	return FALSE;
+}
+
+list($columns, $indexes) = $db->metaTable('worker_view_model');
+
+if(!isset($columns['params_query'])) {
+	$sql = 'ALTER TABLE worker_view_model ADD COLUMN params_query TEXT AFTER columns_hidden_json';
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Remove old worker prefs
 
 $db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mail_display_inline_log'");

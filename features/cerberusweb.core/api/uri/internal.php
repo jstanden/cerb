@@ -1618,7 +1618,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('context', $context_extension);
 		$tpl->assign('layer', $layer);
 		$tpl->assign('view', $view);
-		$tpl->assign('quick_search_query', $query);
 		$tpl->assign('single', $single);
 		$tpl->display('devblocks:cerberusweb.core::context_links/choosers/__generic.tpl');
 	}
@@ -1660,7 +1659,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('context', $context);
 		$tpl->assign('layer', $layer);
 		$tpl->assign('view', $view);
-		$tpl->assign('quick_search_query', $q);
 		$tpl->display('devblocks:cerberusweb.core::internal/choosers/__worklist.tpl');
 	}
 	

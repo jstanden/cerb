@@ -562,6 +562,7 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 			$query = $tpl_builder->build($query, $dict);
 		}
 		
+		$view->setParamsQuery($query);
 		$view->addParamsWithQuickSearch($query);
 		
 		$view->persist();
