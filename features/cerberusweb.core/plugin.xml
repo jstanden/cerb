@@ -5802,6 +5802,22 @@
 			</params>
 		</extension>
 		
+		<extension point="cerb.profile.tab">
+			<id>cerb.profile.tab.worker.settings</id>
+			<name>Worker Settings</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileTab_WorkerSettings</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<!-- Profile Widgets -->
 		
 		<extension point="cerb.profile.tab.widget">

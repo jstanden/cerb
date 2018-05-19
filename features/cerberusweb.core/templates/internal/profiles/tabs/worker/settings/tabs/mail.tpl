@@ -1,7 +1,8 @@
 {$form_id = uniqid()}
 <form id="{$form_id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="a" value="handleProfileTabAction">
+<input type="hidden" name="tab_id" value="{$tab->id}">
 <input type="hidden" name="section" value="worker">
 <input type="hidden" name="action" value="saveSettingsSectionTabJson">
 <input type="hidden" name="worker_id" value="{$worker->id}">
@@ -11,7 +12,6 @@
 <div style="margin:0px 0px 10px 10px;">
 	<label><input type="checkbox" name="mail_disable_html_display" value="1" {if $prefs.mail_disable_html_display}checked{/if}> {'preferences.account.mail.display.disable_html'|devblocks_translate}</label><br>
 	<label><input type="checkbox" name="mail_always_show_all" value="1" {if $prefs.mail_always_show_all}checked{/if}> {'preferences.account.mail.readall'|devblocks_translate}</label><br>
-	<label><input type="checkbox" name="mail_display_inline_log" value="1" {if $prefs.mail_display_inline_log}checked{/if}> {'preferences.account.mail.display.inline_log'|devblocks_translate}</label><br>
 </div>
 
 <b>{'preferences.account.mail.reply_button'|devblocks_translate}</b>
