@@ -1,27 +1,25 @@
 {$form_id = uniqid()}
 <form id="{$form_id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="a" value="handleProfileTabAction">
+<input type="hidden" name="tab_id" value="{$tab->id}">
 <input type="hidden" name="section" value="worker">
 <input type="hidden" name="action" value="saveSettingsSectionTabJson">
 <input type="hidden" name="worker_id" value="{$worker->id}">
-<input type="hidden" name="tab" value="search">
+<input type="hidden" name="tab" value="pages">
 
 <fieldset class="peek">
-	<legend>
-		Always show these record types in the search menu: (<a href="javascript:;" onclick="checkAll('prefsSearchFavorites');">{'common.all'|devblocks_translate|lower}</a>)
-	</legend>
+	<legend>Show these pages in the navigation bar:</legend>
 	
-	<div id="prefsSearchFavorites" style="column-width:225px;column-count:auto;">
-		{foreach from=$search_contexts item=search_context}
-		<div style="break-inside: avoid-column;page-break-inside: avoid;">
-			<label>
-				<input type="checkbox" name="search_favorites[]" value="{$search_context->id}" {if array_key_exists($search_context->id, $search_favorites)}checked="checked"{/if}> 
-				{$search_context->name}
-			</label>
-		</div>
+	<div style="margin-left:10px;"></div>
+	
+	<button type="button" class="chooser-abstract" data-field-name="pages[]" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+	
+	<ul class="bubbles chooser-container">
+		{foreach from=$pages item=page}
+		<li style="cursor:move;"><input type="hidden" name="pages[]" value="{$page->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}">{$page->name}</a></li>
 		{/foreach}
-	</div>
+	</ul>
 </fieldset>
 
 <div class="status"></div>
@@ -33,6 +31,21 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $status = $frm.find('div.status');
+	
+	$frm.find('.chooser-abstract')
+		.cerbChooserTrigger()
+		;
+	
+	$frm.find('.cerb-peek-trigger')
+		.cerbPeekTrigger()
+		;
+	
+	$frm.find('ul.bubbles')
+		.sortable({
+			items: 'li',
+			placeholder:'ui-state-highlight'
+		})
+		;
 	
 	$frm.find('button.submit').on('click', function(e) {
 		genericAjaxPost($frm, '', null, function(json) {

@@ -1,23 +1,24 @@
 {$form_id = uniqid()}
 <form id="{$form_id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="worker">
+<input type="hidden" name="a" value="handleProfileTabAction">
+<input type="hidden" name="tab_id" value="{$tab->id}">
 <input type="hidden" name="action" value="saveSettingsSectionTabJson">
 <input type="hidden" name="worker_id" value="{$worker->id}">
-<input type="hidden" name="tab" value="pages">
+<input type="hidden" name="tab" value="availability">
 
 <fieldset class="peek">
-	<legend>Show these pages in the navigation bar:</legend>
+	<legend>{'preferences.account.availability.calendar_id'|devblocks_translate}</legend>
 	
 	<div style="margin-left:10px;"></div>
 	
-	<button type="button" class="chooser-abstract" data-field-name="pages[]" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-abstract" data-field-name="availability_calendar_id" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-single="true" data-query="owner.worker:(id:{$worker->id})" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 	
 	<ul class="bubbles chooser-container">
-		{foreach from=$pages item=page}
-		<li style="cursor:move;"><input type="hidden" name="pages[]" value="{$page->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_PAGE}" data-context-id="{$page->id}">{$page->name}</a></li>
-		{/foreach}
+		{$calendar = DAO_Calendar::get($worker->calendar_id)}
+		{if $calendar}
+			<li><input type="hidden" name="availability_calendar_id" value="{$calendar->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
+		{/if}
 	</ul>
 </fieldset>
 
@@ -33,17 +34,6 @@ $(function() {
 	
 	$frm.find('.chooser-abstract')
 		.cerbChooserTrigger()
-		;
-	
-	$frm.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-		;
-	
-	$frm.find('ul.bubbles')
-		.sortable({
-			items: 'li',
-			placeholder:'ui-state-highlight'
-		})
 		;
 	
 	$frm.find('button.submit').on('click', function(e) {

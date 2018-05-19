@@ -1,25 +1,28 @@
 {$form_id = uniqid()}
 <form id="{$form_id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
+<input type="hidden" name="a" value="handleProfileTabAction">
+<input type="hidden" name="tab_id" value="{$tab->id}">
 <input type="hidden" name="section" value="worker">
 <input type="hidden" name="action" value="saveSettingsSectionTabJson">
 <input type="hidden" name="worker_id" value="{$worker->id}">
-<input type="hidden" name="tab" value="availability">
+<input type="hidden" name="tab" value="search">
 
 <fieldset class="peek">
-	<legend>{'preferences.account.availability.calendar_id'|devblocks_translate}</legend>
+	<legend>
+		Always show these record types in the search menu: (<a href="javascript:;" onclick="checkAll('prefsSearchFavorites');">{'common.all'|devblocks_translate|lower}</a>)
+	</legend>
 	
-	<div style="margin-left:10px;"></div>
-	
-	<button type="button" class="chooser-abstract" data-field-name="availability_calendar_id" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-single="true" data-query="owner.worker:(id:{$worker->id})" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
-	
-	<ul class="bubbles chooser-container">
-		{$calendar = DAO_Calendar::get($worker->calendar_id)}
-		{if $calendar}
-			<li><input type="hidden" name="availability_calendar_id" value="{$calendar->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
-		{/if}
-	</ul>
+	<div id="prefsSearchFavorites" style="column-width:225px;column-count:auto;">
+		{foreach from=$search_contexts item=search_context}
+		<div style="break-inside: avoid-column;page-break-inside: avoid;">
+			<label>
+				<input type="checkbox" name="search_favorites[]" value="{$search_context->id}" {if array_key_exists($search_context->id, $search_favorites)}checked="checked"{/if}> 
+				{$search_context->name}
+			</label>
+		</div>
+		{/foreach}
+	</div>
 </fieldset>
 
 <div class="status"></div>
@@ -31,10 +34,6 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $status = $frm.find('div.status');
-	
-	$frm.find('.chooser-abstract')
-		.cerbChooserTrigger()
-		;
 	
 	$frm.find('button.submit').on('click', function(e) {
 		genericAjaxPost($frm, '', null, function(json) {

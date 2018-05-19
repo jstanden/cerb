@@ -505,6 +505,428 @@ class ProfileTab_PortalDeploy extends Extension_ProfileTab {
 	}
 }
 
+class ProfileTab_WorkerSettings extends Extension_ProfileTab {
+	const ID = 'cerb.profile.tab.worker.settings';
+
+	function __construct($manifest=null) {
+		parent::__construct($manifest);
+	}
+	
+	function renderConfig(Model_ProfileTab $model) {
+	}
+	
+	function saveConfig(Model_ProfileTab $model) {
+		//$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/config.tpl');
+	}
+
+	function showTab(Model_ProfileTab $model, $context, $context_id) {
+		$tpl = DevblocksPlatform::services()->template();
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		if($context != CerberusContexts::CONTEXT_WORKER)
+			return;
+		
+		@$worker_id = $context_id;
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// ACL
+		if(!($active_worker->is_superuser || $active_worker->id == $worker_id))
+			return;
+		
+		if(false == ($worker = DAO_Worker::get($worker_id)))
+			return;
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('tab', $model);
+		$tpl->assign('worker', $worker);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/settings.tpl');
+	}
+	
+	function showSettingsSectionTabAction(Model_ProfileTab $model) {
+		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'integer', 0);
+		@$tab = DevblocksPlatform::importGPC($_REQUEST['tab'], 'string', null);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// ACL
+		if(!($active_worker->is_superuser || $active_worker->id == $worker_id))
+			return;
+		
+		if(false == ($worker = DAO_Worker::get($worker_id)))
+			return;
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('worker', $worker);
+		$tpl->assign('tab', $model);
+		
+		switch($tab) {
+			case 'profile':
+				$prefs = [];
+				$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
+				$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
+				$tpl->assign('prefs', $prefs);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/profile.tpl');
+				break;
+				
+			case 'pages':
+				$page_ids = DAO_WorkerPref::getAsJson($worker->id, 'menu_json', '[]');
+				
+				if($page_ids) {
+					$pages = DAO_WorkspacePage::getIds($page_ids);
+					$tpl->assign('pages', $pages);
+				}
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/pages.tpl');
+				break;
+				
+			case 'availability':
+				$prefs = [];
+				$prefs['availability_calendar_id'] = intval($worker->calendar_id);
+				$prefs['time_format'] = $worker->time_format ?: DevblocksPlatform::getDateTimeFormat();
+				$tpl->assign('prefs', $prefs);
+				
+				// Availability
+				$calendars = DAO_Calendar::getAll();
+				$tpl->assign('calendars', $calendars);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/availability.tpl');
+				break;
+				
+			case 'localization':
+				$date_service = DevblocksPlatform::services()->date();
+				
+				$prefs = [];
+				$prefs['time_format'] = $worker->time_format ?: DevblocksPlatform::getDateTimeFormat();
+				$tpl->assign('prefs', $prefs);
+				
+				// Timezones
+				$tpl->assign('timezones', $date_service->getTimezones());
+				@$server_timezone = DevblocksPlatform::getTimezone();
+				$tpl->assign('server_timezone', $server_timezone);
+				
+				// Languages
+				$langs = DAO_Translation::getDefinedLangCodes();
+				$tpl->assign('langs', $langs);
+				$tpl->assign('selected_language', $worker->language ?: 'en_US');
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/localization.tpl');
+				break;
+				
+			case 'mail':
+				$prefs = [];
+				$prefs['mail_disable_html_display'] = DAO_WorkerPref::get($worker->id,'mail_disable_html_display',0);
+				$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
+				$prefs['mail_reply_html'] = DAO_WorkerPref::get($worker->id,'mail_reply_html',0);
+				$prefs['mail_reply_textbox_size_auto'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_auto',0);
+				$prefs['mail_reply_textbox_size_px'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_px',300);
+				$prefs['mail_reply_button'] = DAO_WorkerPref::get($worker->id,'mail_reply_button',0);
+				$prefs['mail_status_compose'] = DAO_WorkerPref::get($worker->id,'compose.status','waiting');
+				$prefs['mail_status_reply'] = DAO_WorkerPref::get($worker->id,'mail_status_reply','waiting');
+				$prefs['mail_signature_pos'] = DAO_WorkerPref::get($worker->id,'mail_signature_pos',2);
+				$tpl->assign('prefs', $prefs);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/mail.tpl');
+				break;
+				
+			case 'search':
+				// Search
+				$search_contexts = Extension_DevblocksContext::getAll(false, ['search']);
+				$tpl->assign('search_contexts', $search_contexts);
+				
+				$search_favorites = DAO_WorkerPref::getAsJson($worker->id, 'search_favorites_json', '[]');
+				$search_favorites = array_flip($search_favorites);
+				$tpl->assign('search_favorites', $search_favorites);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/search.tpl');
+				break;
+				
+			case 'security':
+				// Secret questions
+				$secret_questions_json = DAO_WorkerPref::get($worker->id, 'login.recover.secret_questions', null);
+				if(false !== ($secret_questions = json_decode($secret_questions_json, true)) && is_array($secret_questions)) {
+					$tpl->assign('secret_questions', $secret_questions);
+				}
+				
+				// Load the worker's auth extension
+				if(null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
+					/* @var $ext Extension_LoginAuthenticator */
+					$tpl->assign('auth_extension', $ext);
+				}
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/security.tpl');
+				break;
+				
+			case 'sessions':
+				// View
+				$defaults = C4_AbstractViewModel::loadFromClass('View_DevblocksSession');
+				$defaults->id = 'workerprefs_sessions';
+				
+				$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
+				
+				$view->is_ephemeral = true;
+				
+				$view->addParamsRequired(array(
+					SearchFields_DevblocksSession::USER_ID => new DevblocksSearchCriteria(SearchFields_DevblocksSession::USER_ID, '=', $worker->id),
+				));
+				
+				$view->addParamsHidden(array(SearchFields_DevblocksSession::USER_ID));
+				
+				$tpl->assign('view', $view);
+				$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+				break;
+				
+			case 'watchers':
+				// Activities
+				$activities = DevblocksPlatform::getActivityPointRegistry();
+				$tpl->assign('activities', $activities);
+				
+				$dont_notify_on_activities = WorkerPrefs::getDontNotifyOnActivities($worker->id);
+				$tpl->assign('dont_notify_on_activities', $dont_notify_on_activities);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/watchers.tpl');
+				break;
+		}
+	}
+	
+	function saveSettingsSectionTabJsonAction(Model_ProfileTab $model) {
+		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'integer', 0);
+		@$tab = DevblocksPlatform::importGPC($_REQUEST['tab'], 'string', null);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		try {
+			// ACL
+			if(!($active_worker->is_superuser || $active_worker->id == $worker_id))
+				throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this worker.");
+			
+			if(false == ($worker = DAO_Worker::get($worker_id)))
+				throw new Exception_DevblocksAjaxValidationError("This worker record does not exist.");
+			
+			switch($tab) {
+				case 'profile':
+					@$gender = DevblocksPlatform::importGPC($_REQUEST['gender'],'string');
+					@$location = DevblocksPlatform::importGPC($_REQUEST['location'],'string');
+					@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string');
+					@$mobile = DevblocksPlatform::importGPC($_REQUEST['mobile'],'string');
+					@$dob = DevblocksPlatform::importGPC($_REQUEST['dob'],'string');
+					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'],'string');
+					
+					$worker_fields = [];
+					
+					$dob_ts = null;
+					
+					if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
+						$dob_ts = null;
+					
+					// Account info
+					
+					$worker_fields[DAO_Worker::LOCATION] = $location;
+					$worker_fields[DAO_Worker::PHONE] = $phone;
+					$worker_fields[DAO_Worker::MOBILE] = $mobile;
+					$worker_fields[DAO_Worker::DOB] = (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts);
+					
+					if(in_array($gender, array('M','F','')))
+						$worker_fields[DAO_Worker::GENDER] = $gender;
+					
+					// Validate
+					if(!DAO_Worker::validate($worker_fields, $error, $worker->id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					// Update
+					if(!empty($worker_fields))
+						DAO_Worker::update($worker->id, $worker_fields);
+					
+					@$assist_mode = DevblocksPlatform::importGPC($_REQUEST['assist_mode'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
+					
+					@$keyboard_shortcuts = DevblocksPlatform::importGPC($_REQUEST['keyboard_shortcuts'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'keyboard_shortcuts', $keyboard_shortcuts);
+					
+					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $worker->id, $avatar_image);
+					
+					echo json_encode([
+						'status' => true,
+					]);
+					return;
+					break;
+					
+				case 'pages':
+					@$page_ids = DevblocksPlatform::importGPC($_REQUEST['pages'],'array:integer',[]);
+					
+					$pages = DAO_WorkspacePage::getIds($page_ids);
+					
+					if(!Context_WorkspacePage::isReadableByActor($pages, $worker))
+						throw new Exception_DevblocksAjaxValidationError(
+							sprintf("%s can't view a selected workspace page.",
+								$worker->getName()
+							)
+						);
+					
+					DAO_WorkerPref::setAsJson($worker->id, 'menu_json', $page_ids);
+					
+					echo json_encode([
+						'status' => true,
+					]);
+					return;
+					break;
+					
+				case 'availability':
+					@$availability_calendar_id = DevblocksPlatform::importGPC($_REQUEST['availability_calendar_id'],'integer',0);
+					
+					$worker_fields = [];
+					$worker_fields[DAO_Worker::CALENDAR_ID] = $availability_calendar_id;
+					
+					// Validate
+					if(!DAO_Worker::validate($worker_fields, $error, $worker->id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					// Update
+					if(!empty($worker_fields))
+						DAO_Worker::update($worker->id, $worker_fields);
+					
+					echo json_encode([
+						'status' => true,
+					]);
+					return;
+					break;
+					
+				case 'localization':
+					@$lang_code = DevblocksPlatform::importGPC($_REQUEST['lang_code'],'string','en_US');
+					@$time_format = DevblocksPlatform::importGPC($_REQUEST['time_format'],'string',null);
+					@$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'],'string');
+					
+					$worker_fields = [];
+					
+					$worker_fields[DAO_Worker::LANGUAGE] = $lang_code;
+					$worker_fields[DAO_Worker::TIME_FORMAT] = $time_format;
+					$worker_fields[DAO_Worker::TIMEZONE] = $timezone;
+					
+					// Validate
+					if(!DAO_Worker::validate($worker_fields, $error, $worker->id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					// Update
+					if(!empty($worker_fields))
+						DAO_Worker::update($worker->id, $worker_fields);
+					
+					// Update this session?
+					if($worker->id == $active_worker->id) {
+						$_SESSION['locale'] = $lang_code;
+						$_SESSION['timezone'] = $timezone;
+					
+						DevblocksPlatform::setLocale($lang_code);
+						DevblocksPlatform::setTimezone($timezone);
+					}
+					
+					echo json_encode([
+						'status' => true,
+					]);
+					return;
+					break;
+					
+				case 'mail':
+					@$mail_disable_html_display = DevblocksPlatform::importGPC($_REQUEST['mail_disable_html_display'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'mail_disable_html_display', $mail_disable_html_display);
+					
+					@$mail_always_show_all = DevblocksPlatform::importGPC($_REQUEST['mail_always_show_all'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'mail_always_show_all', $mail_always_show_all);
+					
+					@$mail_reply_html = DevblocksPlatform::importGPC($_REQUEST['mail_reply_html'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'mail_reply_html', $mail_reply_html);
+					
+					@$mail_reply_textbox_size_px = DevblocksPlatform::importGPC($_REQUEST['mail_reply_textbox_size_px'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'mail_reply_textbox_size_px', max(100, min(2000, $mail_reply_textbox_size_px)));
+					
+					@$mail_reply_textbox_size_auto = DevblocksPlatform::importGPC($_REQUEST['mail_reply_textbox_size_auto'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'mail_reply_textbox_size_auto', $mail_reply_textbox_size_auto);
+					
+					@$mail_reply_button = DevblocksPlatform::importGPC($_REQUEST['mail_reply_button'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'mail_reply_button', $mail_reply_button);
+					
+					@$mail_signature_pos = DevblocksPlatform::importGPC($_REQUEST['mail_signature_pos'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'mail_signature_pos', $mail_signature_pos);
+					
+					@$mail_status_compose = DevblocksPlatform::importGPC($_REQUEST['mail_status_compose'],'string','waiting');
+					DAO_WorkerPref::set($worker->id, 'compose.status', $mail_status_compose);
+					
+					@$mail_status_reply = DevblocksPlatform::importGPC($_REQUEST['mail_status_reply'],'string','waiting');
+					DAO_WorkerPref::set($worker->id, 'mail_status_reply', $mail_status_reply);
+					
+					echo json_encode([
+						'status' => true,
+					]);
+					return;
+					break;
+					
+				case 'search':
+					@$search_favorites = DevblocksPlatform::importGPC($_REQUEST['search_favorites'],'array',[]);
+					DAO_WorkerPref::setAsJson($worker->id, 'search_favorites_json', $search_favorites);
+					
+					echo json_encode([
+						'status' => true,
+					]);
+					return;
+					break;
+					
+				case 'security':
+					// Secret questions
+					@$q = DevblocksPlatform::importGPC($_REQUEST['sq_q'], 'array', array('','',''));
+					@$h = DevblocksPlatform::importGPC($_REQUEST['sq_h'], 'array', array('','',''));
+					@$a = DevblocksPlatform::importGPC($_REQUEST['sq_a'], 'array', array('','',''));
+					
+					$secret_questions = array(
+						array('q'=>$q[0], 'h'=>$h[0], 'a'=>$a[0]),
+						array('q'=>$q[1], 'h'=>$h[1], 'a'=>$a[1]),
+						array('q'=>$q[2], 'h'=>$h[2], 'a'=>$a[2]),
+					);
+					
+					DAO_WorkerPref::set($worker->id, 'login.recover.secret_questions', json_encode($secret_questions));
+					
+					if(null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
+						/* @var $ext Extension_LoginAuthenticator */
+						$ext->saveWorkerPrefs($worker);
+					}
+					
+					echo json_encode([
+						'status' => true,
+					]);
+					return;
+					break;
+					
+				case 'watchers':
+					@$activity_points = DevblocksPlatform::importGPC($_REQUEST['activity_point'],'array',array());
+					@$activity_points_enabled = DevblocksPlatform::importGPC($_REQUEST['activity_enable'],'array',array());
+					
+					$dont_notify_on_activities = array_diff($activity_points, $activity_points_enabled);
+					WorkerPrefs::setDontNotifyOnActivities($worker->id, $dont_notify_on_activities);
+					
+					echo json_encode([
+						'status' => true,
+					]);
+					return;
+					break;
+			}
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage(),
+			]);
+			
+		} catch (Exception $e) {
+			echo json_encode([
+				'status' => false,
+				'error' => 'An unexpected error occurred.',
+			]);
+		}
+	}
+}
+
 class ProfileWidget_Worklist extends Extension_ProfileWidget {
 	const ID = 'cerb.profile.tab.widget.worklist';
 	
