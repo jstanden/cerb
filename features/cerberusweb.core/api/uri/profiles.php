@@ -972,6 +972,8 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 		@$query = $model->extension_params['query'];
 		@$query_required = $model->extension_params['query_required'];
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
@@ -1001,6 +1003,8 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 		$view->renderPage = 0;
 		
 		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
 			'record__context' => $context,
 			'record_id' => $context_id,
 			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
@@ -1110,7 +1114,11 @@ class ProfileWidget_BotBehavior extends Extension_ProfileWidget {
 	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
 			'record__context' => $context,
 			'record_id' => $context_id,
 			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
@@ -1734,11 +1742,13 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 	}
 
 	function render(Model_ProfileWidget $model, $context, $context_id) {
+		@$target_context = $model->extension_params['context'];
+		@$target_context_id = $model->extension_params['context_id'];
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$target_context = $model->extension_params['context'];
-		@$target_context_id = $model->extension_params['context_id'];
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -1750,37 +1760,18 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		
 		// Are we showing fields for a different record?
 		
+		$record_dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'record__context' => $context,
+			'record_id' => $context_id,
+			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+			'widget_id' => $model->id,
+		]);
+		
 		if($target_context && $target_context_id) {
-			$labels = $values = $merge_token_labels = $merge_token_values = [];
-			
-			CerberusContexts::getContext($context, $record, $merge_token_labels, $merge_token_values, null, true, true);
-			
-			CerberusContexts::merge(
-				'record_',
-				'Record:',
-				$merge_token_labels,
-				$merge_token_values,
-				$labels,
-				$values
-			);
-			
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_PROFILE_WIDGET, $model, $merge_token_labels, $merge_token_values, null, true, true);
-			
-			CerberusContexts::merge(
-				'widget_',
-				'Widget:',
-				$merge_token_labels,
-				$merge_token_values,
-				$labels,
-				$values
-			);
-			
-			$values['widget__context'] = CerberusContexts::CONTEXT_PROFILE_WIDGET;
-			$values['widget_id'] = $model->id;
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			
 			$context = $target_context;
-			$context_id = $tpl_builder->build($target_context_id, $dict);
+			$context_id = $tpl_builder->build($target_context_id, $record_dict);
 			
 			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 				return;

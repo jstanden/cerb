@@ -1238,6 +1238,11 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 				CerberusContexts::getContext(CerberusContexts::CONTEXT_PROFILE_WIDGET, null, $merge_labels, $merge_values, '', true);
 				CerberusContexts::merge('widget_', 'Widget ', $merge_labels, $merge_values, $labels, $values);
 				
+				// Merge in the current worker dictionary
+				$merge_labels = $merge_values = [];
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_labels, $merge_values, '', true);
+				CerberusContexts::merge('current_worker_', 'Current worker ', $merge_labels, $merge_values, $labels, $values);
+				
 				$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
 				$tpl->assign('placeholders', $placeholders);
 			}
