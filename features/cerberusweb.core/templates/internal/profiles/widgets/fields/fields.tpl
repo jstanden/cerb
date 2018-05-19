@@ -1,12 +1,14 @@
-<div id="profileWidget{$widget->id}">
-	<div style="margin:0px 10px 10px 10px;">
-		<div style="display:flex;flex-flow:row wrap;align-items:flex-start;">
-		{foreach from=$properties item=v key=k name=props}
-			<div style="flex:1 1 200px;margin:2px 5px;text-overflow:ellipsis;">
-				{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+<div id="profileWidget{$widget->id}Fields">
+	<div>
+		{if $properties}
+			<div style="display:flex;flex-flow:row wrap;justify-content:flex-start;">
+			{foreach from=$properties item=v key=k name=props}
+				<div style="flex:0 0 200px;margin:2px 5px;text-overflow:ellipsis;">
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+				</div>
+			{/foreach}
 			</div>
-		{/foreach}
-		</div>
+		{/if}
 		
 		{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 	</div>
@@ -18,7 +20,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $widget = $('#profileWidget{$widget->id}');
+	var $widget = $('#profileWidget{$widget->id}Fields');
 	var $properties = $widget.find('> div:first');
 	
 	$properties.find('.cerb-peek-trigger').cerbPeekTrigger();

@@ -172,7 +172,7 @@ class Page_Profiles extends CerberusPageExtension {
 			return;
 		
 		if($extension instanceof Extension_ProfileTab && method_exists($extension, $action.'Action')) {
-			call_user_func([$extension, $action.'Action']);
+			call_user_func_array([$extension, $action.'Action'], [$profile_tab]);
 		}
 	}
 	
@@ -191,22 +191,22 @@ class Page_Profiles extends CerberusPageExtension {
 		}
 	}
 	
-	static function getProfilePropertiesCustomFields($context, $values) {
-		$custom_fields = DAO_CustomField::getByContext($context);
+	static function getProfilePropertiesCustomFields($context, $values=null) {
+		$custom_fields = DAO_CustomField::getByContext($context, false);
 		$properties = [];
 		
 		foreach($custom_fields as $cf_id => $cfield) {
 			if($cfield->custom_fieldset_id != 0)
 				continue;
 			
-			if(!isset($values[$cf_id]))
+			if(is_array($values) && !isset($values[$cf_id]))
 				continue;
 		
 			$properties['cf_' . $cf_id] = [
 				'id' => $cf_id,
 				'label' => $cfield->name,
 				'type' => $cfield->type,
-				'value' => $values[$cf_id],
+				'value' => @$values[$cf_id],
 				'params' => @$cfield->params ?: [],
 			];
 		}
@@ -214,11 +214,11 @@ class Page_Profiles extends CerberusPageExtension {
 		return $properties;
 	}
 	
-	static function getProfilePropertiesCustomFieldsets($context, $context_id, $values) {
+	static function getProfilePropertiesCustomFieldsets($context, $context_id, $values=[], $return_empty=false) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$custom_fields = DAO_CustomField::getByContext($context);
-		$custom_fieldsets = DAO_CustomFieldset::getByContextLink($context, $context_id);
+		$custom_fieldsets = DAO_CustomFieldset::getByContext($context);
 		
 		$properties = [];
 		
@@ -234,24 +234,34 @@ class Page_Profiles extends CerberusPageExtension {
 			foreach($cf_group_fields as $cf_group_field_id => $cf_group_field) {
 				if(!isset($custom_fields[$cf_group_field_id]))
 					continue;
-			
-				$cf_group_props['cf_' . $cf_group_field_id] = [
+				
+				@$value = (is_array($values) && array_key_exists($cf_group_field->id, $values)) 
+					? $values[$cf_group_field->id]
+					: null 
+					;
+				
+				if(!$return_empty && is_null($value))
+					continue;
+				
+				$cf_group_key = 'cf_' . $cf_group_field_id;
+				
+				$cf_group_props[$cf_group_key] = [
 					'id' => $cf_group_field_id,
 					'label' => $cf_group_field->name,
 					'type' => $cf_group_field->type,
-					'value' => isset($values[$cf_group_field->id]) ? $values[$cf_group_field->id] : null,
+					'value' => $value,
 				];
 				
 				// Include parameters for abstract handling
 				if(!empty($cf_group_field->params))
-					$cf_group_props['cf_' . $cf_group_field_id]['params'] = $cf_group_field->params;
+					$cf_group_props[$cf_group_key]['params'] = $cf_group_field->params;
 			}
 			
-			$properties[$custom_fieldset->id] = [
-				'model' => $custom_fieldset,
-				'properties' => $cf_group_props,
-			];
-			
+			if(!empty($cf_group_props))
+				$properties[$custom_fieldset->id] = [
+					'model' => $custom_fieldset,
+					'properties' => $cf_group_props,
+				];
 		}
 		
 		return $properties;
@@ -1802,9 +1812,12 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		
 		// Properties
 		
-		$properties = $context_ext->profileGetFields($record);
+		$properties_selected = @$model->extension_params['properties'] ?: [];
 		
-		// Custom fields
+		foreach($properties_selected as &$v)
+			$v = array_flip($v);
+		
+		$properties_available = $context_ext->profileGetFields($record);
 		
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $record->id)) or [];
 		$tpl->assign('custom_field_values', $values);
@@ -1812,13 +1825,31 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
 		
 		if(!empty($properties_cfields))
-			$properties = array_merge($properties, $properties_cfields);
+			$properties_available = array_merge($properties_available, $properties_cfields);
 		
-		$tpl->assign('properties', $properties);
+		$properties = [];
+		
+		// Only keep selected properties
+		if(isset($properties_selected[0]))
+			foreach(array_keys($properties_selected[0]) as $key)
+				if(isset($properties_available[$key]))
+					$properties[$key] = $properties_available[$key];
+		
 		
 		// Custom Fieldsets
-
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $record->id, $values);
+		
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $record->id, $values, true);
+		$properties_custom_fieldsets = array_intersect_key($properties_custom_fieldsets, $properties_selected);
+		
+			foreach($properties_custom_fieldsets as $fieldset_id => &$fieldset) {
+				$filter_empty_properties($fieldset['properties']);
+				
+				if(empty($fieldset['properties']))
+					unset($properties_custom_fieldsets[$fieldset_id]);
+			}
+		}
+		
+		$tpl->assign('properties', $properties);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Link counts
@@ -1852,7 +1883,106 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		$context_mfts = Extension_DevblocksContext::getAll(false);
 		$tpl->assign('context_mfts', $context_mfts);
 		
+		@$context = $model->extension_params['context'];
+		
+		if($context) {
+			$context_ext = Extension_DevblocksContext::get($context);
+			$tpl->assign('context_ext', $context_ext);
+			
+			// =================================================================
+			// Properties
+			
+			$properties = $context_ext->profileGetFields();
+			
+			$tpl->assign('custom_field_values', []);
+			
+			$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context);
+			
+			if(!empty($properties_cfields))
+				$properties = array_merge($properties, $properties_cfields);
+			
+			// Sort properties by the configured order
+			
+			@$properties_enabled = array_flip($model->extension_params['properties'][0] ?: []);
+			
+			uksort($properties, function($a, $b) use ($properties_enabled, $properties) {
+				$a_pos = array_key_exists($a, $properties_enabled) ? $properties_enabled[$a] : 1000;
+				$b_pos = array_key_exists($b, $properties_enabled) ? $properties_enabled[$b] : 1000;
+				
+				if($a_pos == $b_pos)
+					return $properties[$a]['label'] > $properties[$b]['label'] ? 1 : -1;
+				
+				return $a_pos < $b_pos ? -1 : 1;
+			});
+			
+			$tpl->assign('properties', $properties);
+			
+			$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, null, [], true);
+			$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+			
+		}
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/fields/config.tpl');
+	}
+	
+	private function _getSearchButtons(Model_ProfileWidget $model, DevblocksDictionaryDelegate $dict=null) {
+		@$search = $model->extension_params['search'] ?: [];
+		
+		$search_buttons = [];
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		if(empty($search))
+			return [];
+		
+		if(is_array($search) && array_key_exists('context', $search))
+		foreach(array_keys($search['context']) as $idx) {
+			$query = $search['query'][$idx];
+			
+			if($dict) {
+				$query = $tpl_builder->build($query, $dict);
+			}
+			
+			$search_buttons[] = [
+				'context' => $search['context'][$idx],
+				'label_singular' => $search['label_singular'][$idx],
+				'label_plural' => $search['label_plural'][$idx],
+				'query' => $query,
+			];
+		}
+		
+		// If we have a dictionary, perform the actual counts
+		if($dict) {
+			$results = [];
+			
+			if(is_array($search_buttons))
+			foreach($search_buttons as $search_button) {
+				if(false == ($search_button_context = Extension_DevblocksContext::get($search_button['context'], true)))
+					continue;
+				
+				if(false == ($view = $search_button_context->getSearchView()))
+					continue;
+				
+				$label_aliases = Extension_DevblocksContext::getAliasesForContext($search_button_context->manifest);
+				$label_singular = @$search_button['label_singular'] ?: $label_aliases['singular'];
+				$label_plural = @$search_button['label_plural'] ?: $label_aliases['plural'];
+				
+				$search_button_query = $tpl_builder->build($search_button['query'], $dict);
+				$view->addParamsWithQuickSearch($search_button_query);
+				
+				$total = $view->getData()[1];
+				
+				$results[] = [
+					'label' => ($total == 1 ? $label_singular : $label_plural),
+					'context' => $search_button_context->id,
+					'count' => $total,
+					'query' => $search_button_query,
+				];
+			}
+			
+			return $results;
+		}
+		
+		return $search_buttons;
 	}
 }
 
