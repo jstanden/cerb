@@ -24,6 +24,7 @@ abstract class C4_AbstractView {
 	public $view_columns = [];
 	private $_columnsHidden = [];
 	
+	private $_paramsQuery = null;
 	private $_paramsEditable = [];
 	private $_paramsDefault = [];
 	private $_paramsRequired = [];
@@ -366,6 +367,14 @@ abstract class C4_AbstractView {
 	
 	function getEditableParams() {
 		return $this->_paramsEditable;
+	}
+	
+	function getParamsQuery() {
+		return $this->_paramsQuery;
+	}
+	
+	function setParamsQuery($query) {
+		$this->_paramsQuery = $query;
 	}
 	
 	function addParam($param, $key=null) {
@@ -3941,6 +3950,7 @@ class C4_AbstractViewModel {
 	public $view_columns = [];
 	public $columnsHidden = [];
 	
+	public $paramsQuery = '';
 	public $paramsEditable = [];
 	public $paramsDefault = [];
 	public $paramsRequired = [];
@@ -4068,6 +4078,7 @@ class C4_AbstractViewLoader {
 		// Only persist hidden columns that are distinct from the parent (so we can inherit parent changes)
 		$model->columnsHidden = array_diff($view->getColumnsHidden(), $parent->getColumnsHidden());
 		
+		$model->paramsQuery = $view->getParamsQuery();
 		$model->paramsEditable = $view->getEditableParams();
 		$model->paramsDefault = $view->getParamsDefault();
 		$model->paramsRequired = $view->getParamsRequired();
@@ -4112,6 +4123,8 @@ class C4_AbstractViewLoader {
 		if(is_array($model->columnsHidden))
 			$inst->addColumnsHidden($model->columnsHidden, false);
 		
+		if($model->paramsQuery)
+			$inst->setParamsQuery($model->paramsQuery);
 		if(is_array($model->paramsEditable))
 			$inst->addParams($model->paramsEditable, true);
 		if(is_array($model->paramsDefault))
@@ -4240,6 +4253,10 @@ class C4_AbstractViewLoader {
 		$view->renderSortAsc = $view_model['sort_asc'];
 		$view->renderSubtotals = $view_model['subtotals'];
 		
+		if(isset($view_model['params_query'])) {
+			$view->setParamsQuery($view_model['params_query']);
+		}
+		
 		if(isset($view_model['params']) && is_array($view_model['params'])) {
 			$params = self::convertParamsJsonToObject($view_model['params']);
 			$view->addParams($params, true);
@@ -4280,10 +4297,12 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	const COLUMNS_JSON = 'columns_json';
 	const IS_EPHEMERAL = 'is_ephemeral';
 	const OPTIONS_JSON = 'options_json';
+	const PARAMS_QUERY = 'params_query';
 	const PARAMS_DEFAULT_JSON = 'params_default_json';
 	const PARAMS_EDITABLE_JSON = 'params_editable_json';
 	const PARAMS_HIDDEN_JSON = 'params_hidden_json';
 	const PARAMS_REQUIRED_JSON = 'params_required_json';
+	const PARAMS_REQUIRED_QUERY = 'params_required_query';
 	const RENDER_LIMIT = 'render_limit';
 	const RENDER_PAGE = 'render_page';
 	const RENDER_SORT_JSON = 'render_sort_json';
@@ -4348,7 +4367,19 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			;
 		// text
 		$validation
+			->addField(self::PARAMS_QUERY)
+			->string()
+			->setMaxLength(65535)
+			;
+		// text
+		$validation
 			->addField(self::PARAMS_REQUIRED_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		// text
+		$validation
+			->addField(self::PARAMS_REQUIRED_QUERY)
 			->string()
 			->setMaxLength(65535)
 			;
@@ -4425,6 +4456,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'options_json',
 			'columns_json',
 			'columns_hidden_json',
+			'params_query',
 			'params_editable_json',
 			'params_required_json',
 			'params_required_query',
@@ -4453,6 +4485,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			$model->is_ephemeral = $row['is_ephemeral'] ? true : false;
 			$model->class_name = $row['class_name'];
 			$model->name = $row['title'];
+			$model->paramsQuery = $row['params_query'];
 			$model->paramsRequiredQuery = $row['params_required_query'];
 			$model->renderPage = $row['render_page'];
 			$model->renderTotal = $row['render_total'];
@@ -4549,6 +4582,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'options_json' => $db->qstr(json_encode($model->options)),
 			'columns_json' => $db->qstr(json_encode($model->view_columns)),
 			'columns_hidden_json' => $db->qstr(json_encode($model->columnsHidden)),
+			'params_query' => $db->qstr($model->paramsQuery),
 			'params_editable_json' => $db->qstr(json_encode($model->paramsEditable)),
 			'params_required_json' => $db->qstr(json_encode($model->paramsRequired)),
 			'params_required_query' => $db->qstr($model->paramsRequiredQuery),
