@@ -2,6 +2,7 @@
 	<ul>
 		<li><a href="#widget{$widget->id}TabFields">{'common.fields'|devblocks_translate|capitalize}</a>
 		<li><a href="#widget{$widget->id}TabOptions">{'common.options'|devblocks_translate|capitalize}</a>
+		<li><a href="#widget{$widget->id}TabSearchButtons">{'common.search'|devblocks_translate|capitalize}</a>
 	</ul>
 	
 	<div id="widget{$widget->id}TabFields">
@@ -45,6 +46,64 @@
 		</div>
 	</div>
 	
+	<div id="widget{$widget->id}TabSearchButtons">
+		<table cellpadding="3" cellspacing="0" width="100%">
+			<thead>
+				<tr>
+					<td></td>
+					<td><b>Record type:</b></td>
+					<td><b>Search query to count:</b></td>
+				</tr>
+			</thead>
+			
+			{foreach from=$search_buttons item=search_button}
+			<tbody>
+				<tr>
+					<td width="1%" nowrap="nowrap" valign="top">
+						<button type="button" onclick="$(this).closest('tbody').remove();"><span class="glyphicons glyphicons-circle-minus"></span></button>
+					</td>
+					<td width="1%" nowrap="nowrap" valign="top">
+						<select class="cerb-search-context" name="params[search][context][]">
+							{foreach from=$search_contexts item=search_context}
+							<option value="{$search_context->id}" {if $search_context->id == $search_button.context}selected="selected"{/if}>{$search_context->name}</option>
+							{/foreach}
+						</select>
+						<br>
+						<input type="text" name="params[search][label_singular][]" value="{$search_button.label_singular}" style="width:95%;border-color:rgb(200,200,200);" placeholder="(singular label; optional)">
+						<br>
+						<input type="text" name="params[search][label_plural][]" value="{$search_button.label_plural}" style="width:95%;border-color:rgb(200,200,200);" placeholder="(plural label; optional)">
+					</td>
+					<td width="98%" valign="top">
+						<textarea name="params[search][query][]" class="placeholders" style="width:100%;height:60px;">{$search_button.query}</textarea>
+					</td>
+				</tr>
+			</tbody>
+			{/foreach}
+			
+			<tbody class="cerb-placeholder" style="display:none;">
+				<tr>
+					<td width="1%" nowrap="nowrap" valign="top">
+						<button type="button" onclick="$(this).closest('tbody').remove();"><span class="glyphicons glyphicons-circle-minus"></span></button>
+					</td>
+					<td width="1%" nowrap="nowrap" valign="top">
+						<select class="cerb-search-context" name="params[search][context][]">
+							{foreach from=$search_contexts item=search_context}
+							<option value="{$search_context->id}">{$search_context->name}</option>
+							{/foreach}
+						</select>
+						<br>
+						<input type="text" name="params[search][label_singular][]" style="width:95%;border-color:rgb(200,200,200);" placeholder="(singular label; optional)">
+						<br>
+						<input type="text" name="params[search][label_plural][]" style="width:95%;border-color:rgb(200,200,200);" placeholder="(plural label; optional)">
+					</td>
+					<td width="98%" valign="top">
+						<textarea name="params[search][query][]" class="placeholders" style="width:100%;height:60px;"></textarea>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		
+		<button type="button" class="cerb-placeholder-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
 	</div>
 </div>
 
@@ -60,6 +119,38 @@ $(function() {
 		forceHelperSize: true,
 		forcePlaceholderSize: true,
 		items: 'div.cerb-sort-item',
+		helper: 'clone',
+		opacity: 0.7
+	});
+	
+	// Search
+	
+	var $tab_search = $('#widget{$widget->id}TabSearchButtons');
+	
+	$tab_search_template = $tab_search.find('tbody.cerb-placeholder').detach();
+	$tab_search_table = $tab_search.find('> table:first');
+	
+	$tab_search.find('button.cerb-placeholder-add').on('click', function(e) {
+		var $this = $(this);
+		var $clone = $tab_search_template.clone();
+		
+		$clone
+			.show()
+			.removeClass('cerb-placeholder')
+			.appendTo($tab_search_table)
+			;
+		
+		$clone.find('.cerb-template-trigger')
+			.cerbTemplateTrigger()
+			;
+	});
+	
+	$tab_search.find('> table').sortable({
+		tolerance: 'pointer',
+		placeholder: 'ui-state-highlight',
+		forceHelperSize: true,
+		forcePlaceholderSize: true,
+		items: 'tbody',
 		helper: 'clone',
 		opacity: 0.7
 	});

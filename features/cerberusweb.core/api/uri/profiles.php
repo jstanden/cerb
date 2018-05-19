@@ -1905,7 +1905,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		
 		// Card search buttons
 		
-		$search_buttons = $context_ext->getCardSearchButtons($dict, []);
+		$search_buttons = $this->_getSearchButtons($model, $record_dict);
 		$tpl->assign('search_buttons', $search_buttons);
 		
 		// Template
@@ -1957,6 +1957,14 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 			$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, null, [], true);
 			$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 			
+			// =================================================================
+			// Search buttons
+			
+			$search_contexts = Extension_DevblocksContext::getAll(false, ['search']);
+			$tpl->assign('search_contexts', $search_contexts);
+			
+			$search_buttons = $this->_getSearchButtons($model, null);
+			$tpl->assign('search_buttons', $search_buttons);
 		}
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/fields/config.tpl');
