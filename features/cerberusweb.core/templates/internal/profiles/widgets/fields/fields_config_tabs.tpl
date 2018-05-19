@@ -1,6 +1,7 @@
 <div class="cerb-tabs" style="{if !$widget->extension_params.context}display:none;{/if}">
 	<ul>
 		<li><a href="#widget{$widget->id}TabFields">{'common.fields'|devblocks_translate|capitalize}</a>
+		<li><a href="#widget{$widget->id}TabOptions">{'common.options'|devblocks_translate|capitalize}</a>
 	</ul>
 	
 	<div id="widget{$widget->id}TabFields">
@@ -31,6 +32,13 @@
 		{/foreach}
 	</div>
 	
+	<div id="widget{$widget->id}TabOptions">
+		<div>
+			<label>
+				<input type="checkbox" name="params[links][show]" value="1" {if $widget->extension_params.links.show}checked="checked"{/if}> Show record links
+			</label>
+		</div>
+	</div>
 </div>
 
 <script type="text/javascript">

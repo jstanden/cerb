@@ -11,13 +11,13 @@
 	{foreach from=$from_ctx_ids key=from_ctx_id item=link_counts}
 
 		{* Do we have links to display? Always display the links block for this record *}
-		<fieldset class="{if $peek}peek{else}properties{/if}" style="border:0;background:none;{if !$peek}display:inline-block;vertical-align:top;{/if}" data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">
+		<fieldset class="{if $peek}peek{else}properties{/if}" style="border:0;padding:0;background:none;{if !$peek}display:inline-block;vertical-align:top;{/if}" data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">
 			<legend>
 				<a href="javascript:;" data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">{if $links_label}{$links_label}{else}{if $page_context == $from_ctx_extid && $page_context_id == $from_ctx_id}{else}{$from_ctx->name} {/if}{'common.links'|devblocks_translate|capitalize}{/if}</a>
 				&#x25be;
 			</legend>
 			
-			<ul class="menu cerb-float" style="width:600px;column-count:3;column-gap:10px;margin-top:-5px;display:none;">
+			<ul class="menu cerb-float" style="width:600px;column-count:3;column-gap:10px;display:none;">
 				{foreach from=$link_ctxs item=link_ctx}
 				{if $link_ctx->hasOption('links')}
 				<li data-context="{$link_ctx->id}"><b>{$link_ctx->name}</b></li>
@@ -103,6 +103,7 @@ $(function() {
 	
 	$div.find('fieldset legend a').each(function() {
 		var $a = $(this);
+		
 		var $menu = $a.closest('fieldset')
 			.find('ul.menu')
 			.hide()
@@ -178,8 +179,20 @@ $(function() {
 			});
 		});
 		
-		$a.on('click', function() {
-			$menu.toggle();
+		$a.on('click', function(e) {
+			e.stopPropagation();
+			var $this = $(this);
+			
+			if($menu.is(':hidden')) {
+				$menu
+					.show()
+					.position({ my:'left top', at:'left bottom', of:$this, collision: 'fit' })
+					;
+			} else {
+				$menu
+					.hide()
+					;
+			}
 		});
 	});
 });

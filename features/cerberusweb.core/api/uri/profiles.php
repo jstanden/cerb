@@ -1854,17 +1854,21 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		
 		// Link counts
 		
-		$properties_links = [
-			$context => [
-				$record->id => 
-					DAO_ContextLink::getContextLinkCounts(
-						$context,
-						$record->id,
-						[CerberusContexts::CONTEXT_CUSTOM_FIELDSET]
-					),
-			],
-		];
-		$tpl->assign('properties_links', $properties_links);
+		@$show_links = $model->extension_params['links']['show'];
+		
+		if($show_links) {
+			$properties_links = [
+				$context => [
+					$record->id => 
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$record->id,
+							[CerberusContexts::CONTEXT_CUSTOM_FIELDSET]
+						),
+				],
+			];
+			$tpl->assign('properties_links', $properties_links);
+		}
 		
 		// Card search buttons
 		
