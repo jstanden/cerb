@@ -38,6 +38,13 @@
 				<input type="checkbox" name="params[links][show]" value="1" {if $widget->extension_params.links.show}checked="checked"{/if}> Show record links
 			</label>
 		</div>
+		<div>
+			<label>
+				<input type="checkbox" name="params[options][show_empty_properties]" value="1" {if $widget->extension_params.options.show_empty_properties}checked="checked"{/if}> Show empty fields
+			</label>
+		</div>
+	</div>
+	
 	</div>
 </div>
 
