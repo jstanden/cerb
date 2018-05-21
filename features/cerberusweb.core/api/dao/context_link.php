@@ -354,7 +354,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			"%s",
 			$db->qstr($from_context),
 			$from_context_id,
-			($ignore_internal ? sprintf("AND to_context NOT IN (%s,%s) ", $db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET), $db->qstr(CerberusContexts::CONTEXT_WORKER)) : "")
+			($ignore_internal ? sprintf("AND to_context NOT IN (%s) ", $db->qstr(CerberusContexts::CONTEXT_WORKER)) : "")
 		));
 	}
 	

@@ -2216,13 +2216,6 @@ class CerberusContexts {
 					if(in_array($activity_point, $dont_notify_on_activities))
 						continue;
 
-					// Ignore link notifications for custom fieldsets
-					if(
-						in_array($activity_point, ['connection.link', 'connection.unlink'])
-						&& $target_context == CerberusContexts::CONTEXT_CUSTOM_FIELDSET
-						)
-						continue;
-
 					// If yes, send it
 					DAO_Notification::create(array(
 						DAO_Notification::CONTEXT => $target_context,
@@ -3067,49 +3060,6 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 					);
 					break;
 			}
-		}
-	}
-
-	static function _searchComponentsVirtualHasFieldset(&$param, $to_context, $to_index, &$join_sql, &$where_sql) {
-		if($param->operator != DevblocksSearchCriteria::OPER_TRUE) {
-			if(empty($param->value) || !is_array($param->value))
-				$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
-		}
-
-		$table_alias = 'fieldset_' . uniqid();
-		$where_contexts = [];
-
-		if(is_array($param->value))
-		foreach($param->value as $context_id) {
-			$where_contexts[] = sprintf("(%s.from_context = %s%s)",
-				$table_alias,
-				self::qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET),
-				(!empty($context_id) ? sprintf(" AND %s.from_context_id = %d", $table_alias, $context_id) : '')
-			);
-		}
-
-		switch($param->operator) {
-			case DevblocksSearchCriteria::OPER_TRUE:
-				break;
-
-			case DevblocksSearchCriteria::OPER_IS_NULL:
-				$where_sql .= sprintf("AND (SELECT count(*) FROM context_link WHERE context_link.to_context=%s AND context_link.to_context_id=%s) = 0 ",
-					self::qstr($to_context),
-					$to_index
-				);
-				break;
-
-			case DevblocksSearchCriteria::OPER_IN:
-				$join_sql .= sprintf("INNER JOIN context_link AS %s ON (%s.to_context=%s AND %s.to_context_id=%s) ",
-					$table_alias,
-					$table_alias,
-					Cerb_ORMHelper::qstr($to_context),
-					$table_alias,
-					$to_index
-				);
-
-				$where_sql .= 'AND (' . implode(' OR ', $where_contexts) . ') ';
-				break;
 		}
 	}
 };

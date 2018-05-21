@@ -102,66 +102,6 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		return true;
 	}
 	
-	public static function linkToContextByFieldIds($context, $context_id, $field_ids) {
-		$all_fields = DAO_CustomField::getAll();
-		$all_fieldsets = DAO_CustomFieldset::getAll();
-		
-		$link_fieldset_ids = array();
-
-		if(is_array($field_ids))
-		foreach($field_ids as $field_id) {
-			if(!isset($all_fields[$field_id]))
-				continue;
-			
-			$fieldset_id = $all_fields[$field_id]->custom_fieldset_id;
-			
-			if(!isset($all_fieldsets[$fieldset_id]))
-				continue;
-			
-			$link_fieldset_ids[$fieldset_id] = true;
-		}
-		
-		if(!empty($link_fieldset_ids))
-		foreach(array_keys($link_fieldset_ids) as $fieldset_id) {
-			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $fieldset_id);
-		}
-	}
-	
-	static function linkToContextsByFieldValues($fieldset_id, $field_id) {
-		$db = DevblocksPlatform::services()->database();
-		
-		$temp_table = '_links_' . uniqid();
-		
-		// Generate a temporary table
-		$db->ExecuteMaster(sprintf("CREATE TEMPORARY TABLE %s (context VARCHAR(128), context_id INT)", $temp_table));
-		
-		// Find any contexts linking to it
-		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO %s SELECT context, context_id FROM custom_field_stringvalue WHERE field_id = %d", $temp_table, $field_id));
-		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO %s SELECT context, context_id FROM custom_field_numbervalue WHERE field_id = %d", $temp_table, $field_id));
-		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO %s SELECT context, context_id FROM custom_field_clobvalue WHERE field_id = %d", $temp_table, $field_id));
-		
-		// Link from the records to the fieldset
-		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
-			"SELECT context, context_id, %s, %s FROM %s",
-			$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET),
-			$db->qstr($fieldset_id),
-			$temp_table
-		));
-		
-		// And link back in the other direction
-		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO context_link (to_context, to_context_id, from_context, from_context_id) ".
-			"SELECT context, context_id, %s, %s FROM %s",
-			$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET),
-			$db->qstr($fieldset_id),
-			$temp_table
-		));
-		
-		// Drop the temp table
-		$db->ExecuteMaster(sprintf("DROP TABLE %s", $temp_table));
-		
-		return TRUE;
-	}
-	
 	/**
 	 * @param string $where
 	 * @param mixed $sortBy
@@ -285,29 +225,67 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		return $fieldsets;
 	}
 	
-	/**
-	 *
-	 * @param string $context
-	 * @param integer $context_id
-	 * @return Model_CustomFieldset[]
-	 */
-	static function getByContextLink($context, $context_id) {
-		$cfieldsets = DAO_CustomFieldset::getAll();
-		$context_values = DAO_ContextLink::getContextLinks($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET);
-		$results = array();
+	static function addToContext($ids, $context, $context_id) {
+		$db = DevblocksPlatform::services()->database();
 		
-		if(!isset($context_values[$context_id]))
-			return $results;
+		$values = [];
 		
-		if(!is_array($context_values[$context_id]))
-			return $results;
-		
-		foreach($context_values[$context_id] as $cfieldset_id => $ctx_pair) {
-			if(isset($cfieldsets[$cfieldset_id]))
-				$results[$cfieldset_id] = $cfieldsets[$cfieldset_id];
+		foreach($ids as $id) {
+			$values[] = sprintf("(%d, %s, %d)",
+				$id,
+				$db->qstr($context),
+				$context_id
+			);
 		}
 		
-		return $results;
+		if($values) {
+			$sql = "REPLACE INTO context_to_custom_fieldset (custom_fieldset_id, context, context_id) VALUES " . implode(',', $values);
+			$db->ExecuteMaster($sql);
+		}
+	}
+	
+	static function addByField($field_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(false == ($custom_field = DAO_CustomField::get($field_id)))
+			return;
+		
+		$sql = sprintf("INSERT IGNORE INTO context_to_custom_fieldset (context, context_id, custom_fieldset_id) ".
+			"SELECT context, context_id, %d AS custom_fieldset_id FROM %s WHERE field_id = %d",
+			$custom_field->custom_fieldset_id,
+			$db->escape(DAO_CustomFieldValue::getValueTableName($field_id)),
+			$field_id
+		);
+		$db->ExecuteMaster($sql);
+	}
+	
+	static function removeFromContext($ids, $context, $context_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+		
+		if(empty($ids))
+			return;
+		
+		$sql = sprintf("DELETE FROM context_to_custom_fieldset WHERE context = %s AND context_id = %d AND custom_fieldset_id IN (%s)",
+			$db->qstr($context),
+			$context_id,
+			implode(',', $ids)
+		);
+		$db->ExecuteMaster($sql);
+	}
+	
+	static function getUsedByContext($context, $context_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT custom_fieldset_id FROM context_to_custom_fieldset WHERE context = %s AND context_id = %d",
+			$db->qstr($context),
+			$context_id
+		);
+		
+		$results = $db->GetArray($sql);
+		
+		return DAO_CustomFieldset::getIds(array_column($results, 'custom_fieldset_id'));
 	}
 	
 	static function getByOwner($owner_context, $owner_context_id=0) {
@@ -384,6 +362,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			}
 		}
 		
+		$db->ExecuteMaster(sprintf("DELETE FROM context_to_custom_fieldset WHERE custom_fieldset_id IN (%s)", $ids_list));
 		$db->ExecuteMaster(sprintf("DELETE FROM custom_fieldset WHERE id IN (%s)", $ids_list));
 		
 		// Fire event

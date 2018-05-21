@@ -1154,9 +1154,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$token_values['links'] = array();
 		
 		foreach($results as $result) {
-			if($result->context == CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
-				continue;
-			
 			if(!isset($token_values['links'][$result->context]))
 				$token_values['links'][$result->context] = array();
 			
