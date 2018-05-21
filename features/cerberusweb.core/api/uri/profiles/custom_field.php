@@ -104,6 +104,10 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 					
 					DAO_CustomField::update($id, $fields);
 					DAO_CustomField::onUpdateByActor($active_worker, $fields, $id);
+					
+					// If we're moving the field to a new fieldset, make sure we add it to all those records
+					if($custom_fieldset_id)
+						DAO_CustomFieldset::addByField($id);
 				}
 	
 				echo json_encode(array(
