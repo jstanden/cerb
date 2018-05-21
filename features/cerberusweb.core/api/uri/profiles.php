@@ -1842,6 +1842,10 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, $record->id, $values, true);
 		$properties_custom_fieldsets = array_intersect_key($properties_custom_fieldsets, $properties_selected);
 		
+		// Only keep selected properties
+		foreach($properties_custom_fieldsets as $fieldset_id => &$fieldset_properties)
+			$fieldset_properties['properties'] = array_intersect_key($fieldset_properties['properties'], @$properties_selected[$fieldset_id] ?: []);
+		
 		if(!$show_empty_fields) {
 			$filter_empty_properties = function(&$properties) {
 				foreach($properties as $k => $property) {
